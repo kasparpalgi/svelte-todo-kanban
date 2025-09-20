@@ -1,1 +1,14 @@
-[]
+- name: default
+  kind: postgres
+  configuration:
+    connection_info:
+      database_url:
+        connection_parameters:
+          database: postgres
+          host: postgres
+          password: 0SROIBPW2CkFc5DiP7Zt8W8W
+          port: 5432
+          username: postgres
+      isolation_level: read-committed
+      use_prepared_statements: false
+  tables: "!include default/tables/tables.yaml"
