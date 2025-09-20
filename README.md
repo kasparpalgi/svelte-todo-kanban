@@ -1,18 +1,11 @@
-# sv
+# Svelte ToDo app (Kanban)
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+## Install
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
+1. `npm i` (or pnmp/yarn)
+2. Rename `.env.example` to `.env` and update URL/password and do the same woth `hasura/.env.example`
+3. Rename `hasura/config.example.yaml` to `hasura/config.yaml` and update the password. Needed for back-end development only with [Hasura CLI](https://hasura.io/docs/2.0/hasura-cli/overview) but highly suggested to install CLI and then in `hasura` folder you can run `hasura console` for web UI to manage back-end tables/relations, run test API queries and much more.
+4. in `hasura` folder run `docker-compose up -d` to run [Hasura (enterprise-grade API engine)](https://hasura.io/)
 
 ## Developing
 
