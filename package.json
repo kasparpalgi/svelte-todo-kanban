@@ -4,8 +4,9 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
+		"generate": "graphql-codegen --require dotenv/config",
+		"dev": "npm run generate && vite dev",
+		"build": "npm run generate && vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -14,11 +15,19 @@
 		"lint": "prettier --check . && eslint .",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
-		"test:e2e": "playwright test"
+		"test:e2e": "playwright test",
+		"cu": "rm -rf node_modules package-lock.json .svelte-kit && npm cache clean --force && npm i",
+		"cw": "rmdir /s /q node_modules && del /f /q package-lock.json && rmdir /s /q .svelte-kit && npm cache clean --force && npm i"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
 		"@eslint/js": "^9.22.0",
+		"@graphql-codegen/cli": "^6.0.0",
+		"@graphql-codegen/client-preset": "^5.0.1",
+		"@graphql-codegen/typed-document-node": "^6.0.0",
+		"@graphql-codegen/typescript": "^5.0.0",
+		"@graphql-codegen/typescript-operations": "^5.0.0",
+		"@internationalized/date": "^3.9.0",
 		"@lucide/svelte": "^0.544.0",
 		"@playwright/test": "^1.49.1",
 		"@sveltejs/adapter-auto": "^6.0.0",
@@ -26,9 +35,12 @@
 		"@sveltejs/vite-plugin-svelte": "^6.0.0",
 		"@tailwindcss/typography": "^0.5.15",
 		"@tailwindcss/vite": "^4.0.0",
+		"@types/jsonwebtoken": "^9.0.10",
 		"@types/node": "^22",
 		"@vitest/browser": "^3.2.3",
+		"bits-ui": "^2.11.0",
 		"clsx": "^2.1.1",
+		"dotenv": "^17.2.2",
 		"eslint": "^9.22.0",
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-svelte": "^3.0.0",
@@ -40,6 +52,7 @@
 		"shadcn-svelte": "^1.0.7",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
+		"svelte2tsx": "^0.7.43",
 		"tailwind-merge": "^3.3.1",
 		"tailwind-variants": "^1.0.0",
 		"tailwindcss": "^4.0.0",
@@ -56,7 +69,9 @@
 		"@auth/sveltekit": "^1.10.0",
 		"graphql": "^16.11.0",
 		"graphql-request": "^7.2.0",
+		"jsonwebtoken": "^9.0.2",
 		"lucide-svelte": "^0.544.0",
-		"nodemailer": "^6.10.1"
+		"nodemailer": "^6.10.1",
+		"sveltekit-i18n": "^2.4.2"
 	}
 }

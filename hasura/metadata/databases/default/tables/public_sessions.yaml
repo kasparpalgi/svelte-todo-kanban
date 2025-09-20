@@ -1,0 +1,57 @@
+table:
+  name: sessions
+  schema: public
+object_relationships:
+  - name: user
+    using:
+      foreign_key_constraint_on: userId
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        userId:
+          _eq: X-Hasura-User-Id
+      set:
+        userId: x-hasura-User-Id
+      columns:
+        - created_at
+        - expires
+        - id
+        - sessionToken
+        - updated_at
+        - userId
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - sessionToken
+        - created_at
+        - expires
+        - updated_at
+        - id
+        - userId
+      filter:
+        userId:
+          _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - expires
+        - sessionToken
+        - updated_at
+        - userId
+      filter: {}
+      check:
+        userId:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        userId:
+          _eq: X-Hasura-User-Id
+    comment: ""

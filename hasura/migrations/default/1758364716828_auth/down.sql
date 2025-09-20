@@ -1,0 +1,53 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- CREATE TABLE accounts (
+--   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+--   type varchar(255) NOT NULL,
+--   provider varchar(255) NOT NULL,
+--   provider_account_id varchar(255) NOT NULL,
+--   refresh_token text,
+--   access_token text,
+--   expires_at bigint,
+--   token_type varchar(255),
+--   scope varchar(255),
+--   id_token text,
+--   session_state varchar(255),
+--   user_id uuid NOT NULL,
+--   created_at timestamptz DEFAULT now() NOT NULL,
+--   updated_at timestamptz DEFAULT now() NOT NULL,
+--   UNIQUE(provider, provider_account_id)
+-- );
+--
+-- CREATE TABLE sessions (
+--   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+--   session_token varchar(255) NOT NULL UNIQUE,
+--   user_id uuid NOT NULL,
+--   expires timestamptz NOT NULL,
+--   created_at timestamptz DEFAULT now() NOT NULL,
+--   updated_at timestamptz DEFAULT now() NOT NULL
+-- );
+--
+-- CREATE TABLE users (
+--   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+--   name varchar(255),
+--   email varchar(255) UNIQUE,
+--   email_verified timestamptz,
+--   image text,
+--   created_at timestamptz DEFAULT now() NOT NULL,
+--   updated_at timestamptz DEFAULT now() NOT NULL
+-- );
+--
+-- CREATE TABLE verification_tokens (
+--   identifier varchar(255) NOT NULL,
+--   token varchar(255) NOT NULL,
+--   expires timestamptz NOT NULL,
+--   created_at timestamptz DEFAULT now() NOT NULL,
+--   PRIMARY KEY (identifier, token)
+-- );
+--
+-- -- Add foreign key constraints
+-- ALTER TABLE accounts ADD CONSTRAINT accounts_user_id_fkey
+--   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+--
+-- ALTER TABLE sessions ADD CONSTRAINT sessions_user_id_fkey
+--   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

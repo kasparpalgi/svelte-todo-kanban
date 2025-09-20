@@ -1,0 +1,16 @@
+{
+    "nav": {
+        "dashboard": "Dashboard",
+        "todos": "Todos",
+        "profile": "Profile"
+    },
+    "todo": {
+        "title": "Todo List",
+        "add": "Add Todo",
+        "complete": "Complete",
+        "delete": "Delete",
+        "today": "Today",
+        "description": "Tasks that need your attention",
+        "coming_soon": "Coming soon!"
+    }
+}

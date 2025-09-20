@@ -28,6 +28,12 @@ services:
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       ## admin secret
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
+      ## JWT configuration for authentication
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256","key":"${AUTH_SECRET}"}'
+      ## Allow unauthenticated role (optional)
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "anonymous"
+      ## Enable CORS (for development)
+      HASURA_GRAPHQL_CORS_DOMAIN: "*"
     depends_on:
       postgres:
         condition: service_started

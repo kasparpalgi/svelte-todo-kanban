@@ -1,0 +1,16 @@
+{
+    "nav": {
+        "dashboard": "Přehled",
+        "todos": "Úkoly",
+        "profile": "Profil"
+    },
+    "todo": {
+        "title": "Seznam úkolů",
+        "add": "Přidat úkol",
+        "complete": "Dokončit",
+        "delete": "Smazat",
+        "today": "Dnes",
+        "description": "Úkoly, které vyžadují vaši pozornost",
+        "coming_soon": "Již brzy!"
+    }
+}

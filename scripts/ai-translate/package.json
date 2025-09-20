@@ -1,0 +1,17 @@
+{
+  "name": "ai-translate",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Kaspar L. Palgi",
+  "type": "commonjs",
+  "main": "translate.js",
+  "scripts": {
+    "generate": "graphql-codegen",
+    "dev": "npm run generate && vite dev",
+    "build": "npm run generate && vite build"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.2"
+  }
+}

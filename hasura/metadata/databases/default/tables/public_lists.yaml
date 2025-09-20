@@ -1,0 +1,61 @@
+table:
+  name: lists
+  schema: public
+array_relationships:
+  - name: todos
+    using:
+      foreign_key_constraint_on:
+        column: list_id
+        table:
+          name: todos
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      set:
+        user_id: x-hasura-User-Id
+      columns:
+        - sort_order
+        - name
+        - created_at
+        - updated_at
+        - id
+        - user_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - sort_order
+        - name
+        - created_at
+        - updated_at
+        - id
+        - user_id
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - name
+        - sort_order
+        - updated_at
+        - user_id
+      filter: {}
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
