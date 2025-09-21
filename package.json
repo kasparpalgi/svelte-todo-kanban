@@ -27,6 +27,7 @@
 		"@graphql-codegen/typed-document-node": "^6.0.0",
 		"@graphql-codegen/typescript": "^5.0.0",
 		"@graphql-codegen/typescript-operations": "^5.0.0",
+		"@graphql-typed-document-node/core": "^3.2.0",
 		"@internationalized/date": "^3.9.0",
 		"@lucide/svelte": "^0.544.0",
 		"@playwright/test": "^1.49.1",

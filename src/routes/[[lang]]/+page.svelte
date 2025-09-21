@@ -53,11 +53,6 @@
 <div class="mx-auto max-w-4xl space-y-6">
 	<div class="flex items-center justify-between">
 		<h1 class="text-3xl font-bold tracking-tight">{$t('todo.today') || 'Today'}</h1>
-		<div class="text-sm text-muted-foreground">
-			{#if data?.session?.user?.name}
-				Welcome, {data.session.user.name}
-			{/if}
-		</div>
 	</div>
 
 	{#if todosStore.error}

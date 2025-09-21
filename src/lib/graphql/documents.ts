@@ -14,6 +14,12 @@ export const TODO_FRAGMENT = graphql(`
 		list {
 			id
 			name
+			sort_order
+			board {
+				id
+				name
+				sort_order
+			}
 		}
 	}
 `);

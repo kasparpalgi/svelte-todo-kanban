@@ -31,14 +31,18 @@ const config: CodegenConfig = {
 					date: 'string',
 					bigint: 'number',
 					numeric: 'number',
-					jsonb: 'Record<string, unknown>'
-				}
+					json: 'any',
+					jsonb: 'any'
+				},
+				documentMode: 'string'
 			}
 		}
 	},
-
 	hooks: {
-		afterAllFileWrite: ['prettier --write']
+		afterAllFileWrite: [
+			// Fix the import in graphql.ts
+			'sed -i "s|from \\\"@graphql-typed-document-node/core\\\"|from \\\"./fragment-masking\\\"|g" src/lib/graphql/generated/graphql.ts || echo "sed command failed, you may need to manually fix the import"'
+		]
 	}
 };
 

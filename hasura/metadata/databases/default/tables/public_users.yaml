@@ -9,6 +9,13 @@ array_relationships:
         table:
           name: accounts
           schema: public
+  - name: boards
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: boards
+          schema: public
   - name: sessions
     using:
       foreign_key_constraint_on:

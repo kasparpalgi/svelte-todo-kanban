@@ -36,6 +36,7 @@ function createTodosStore() {
 			});
 
 			state.todos = data.todos || [];
+			console.log(data.todos)
 			state.initialized = true;
 			return state.todos;
 		} catch (error) {

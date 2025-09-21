@@ -1,64 +1,65 @@
 table:
-  name: lists
+  name: boards
   schema: public
 object_relationships:
-  - name: board
+  - name: user
     using:
-      foreign_key_constraint_on: board_id
+      foreign_key_constraint_on: user_id
 array_relationships:
-  - name: todos
+  - name: lists
     using:
       foreign_key_constraint_on:
-        column: list_id
+        column: board_id
         table:
-          name: todos
+          name: lists
           schema: public
 insert_permissions:
   - role: user
     permission:
-      check: {}
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      set:
+        user_id: x-hasura-User-Id
       columns:
-        - board_id
-        - created_at
-        - id
-        - name
         - sort_order
+        - name
+        - created_at
         - updated_at
+        - id
+        - user_id
     comment: ""
 select_permissions:
   - role: user
     permission:
       columns:
-        - board_id
-        - created_at
-        - id
-        - name
         - sort_order
+        - name
+        - created_at
         - updated_at
+        - id
+        - user_id
       filter:
-        board:
-          user_id:
-            _eq: X-Hasura-User-Id
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""
 update_permissions:
   - role: user
     permission:
       columns:
-        - board_id
         - name
         - sort_order
         - updated_at
-      filter:
-        board:
-          user_id:
-            _eq: X-Hasura-User-Id
-      check: {}
+        - user_id
+      filter: {}
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""
 delete_permissions:
   - role: user
     permission:
       filter:
-        board:
-          user_id:
-            _eq: X-Hasura-User-Id
+        user_id:
+          _eq: X-Hasura-User-Id
     comment: ""
