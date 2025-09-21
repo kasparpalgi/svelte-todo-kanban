@@ -4,6 +4,19 @@
         "todos": "Todos",
         "profile": "Profile"
     },
+    "auth": {
+        "sign_in": "Sign In",
+        "sign_out": "Sign Out",
+        "user": "User",
+        "sign_in_title": "Sign In",
+        "sign_in_description": "Choose your preferred sign-in method",
+        "continue_with_google": "Continue with Google",
+        "or": "Or",
+        "email": "Email",
+        "enter_email": "Enter your email",
+        "sign_in_with_email": "Sign in with Email",
+        "sending_magic_link": "Sending magic link..."
+    },
     "todo": {
         "title": "Todo List",
         "add": "Add Todo",
@@ -11,6 +24,28 @@
         "delete": "Delete",
         "today": "Today",
         "description": "Tasks that need your attention",
-        "coming_soon": "Coming soon!"
+        "coming_soon": "Coming soon!",
+        "add_new_task": "Add New Task",
+        "what_accomplish": "What would you like to accomplish today?",
+        "enter_task_title": "Enter task title...",
+        "loading_todos": "Loading your todos...",
+        "load_todos": "Load Todos",
+        "active_tasks": "Active Tasks",
+        "task": "task",
+        "tasks": "tasks",
+        "remaining": "remaining",
+        "no_active_tasks": "No active tasks",
+        "add_task_to_start": "Add a new task above to get started!",
+        "completed_tasks": "Completed Tasks",
+        "completed": "completed",
+        "mark_incomplete": "Mark as incomplete",
+        "mark_complete": "Mark as complete",
+        "completed_at": "Completed:",
+        "more_completed": "more completed",
+        "unassigned": "Unassigned",
+        "list": "List",
+        "kanban": "Kanban",
+        "drop_tasks_here": "Drop tasks here",
+        "due": "Due"
     }
 }

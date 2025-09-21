@@ -1,3 +1,4 @@
+<!-- @file src/routes/[[lang]]/+page.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -59,12 +60,12 @@
 </script>
 
 <svelte:head>
-	<title>{$t('todo.today') || 'Today'}</title>
+	<title>{$t('todo.today')}</title>
 </svelte:head>
 
 <div class="mx-auto max-w-7xl space-y-6">
 	<div class="flex items-center justify-between">
-		<h1 class="text-3xl font-bold tracking-tight">{$t('todo.today') || 'Today'}</h1>
+		<h1 class="text-3xl font-bold tracking-tight">{$t('todo.today')}</h1>
 
 		<!-- View Mode Toggle -->
 		<div class="flex items-center gap-2 rounded-lg border p-1">
@@ -75,7 +76,7 @@
 				class="h-8"
 			>
 				<List class="mr-2 h-4 w-4" />
-				List
+				{$t('todo.list')}
 			</Button>
 			<Button
 				variant={viewMode === 'kanban' ? 'default' : 'ghost'}
@@ -84,7 +85,7 @@
 				class="h-8"
 			>
 				<LayoutGrid class="mr-2 h-4 w-4" />
-				Kanban
+				{$t('todo.kanban')}
 			</Button>
 		</div>
 	</div>
@@ -108,21 +109,21 @@
 	<!-- Quick add -->
 	<Card>
 		<CardHeader>
-			<CardTitle class="text-lg">Add New Task</CardTitle>
-			<CardDescription>What would you like to accomplish today?</CardDescription>
+			<CardTitle class="text-lg">{$t('todo.add_new_task')}</CardTitle>
+			<CardDescription>{$t('todo.what_accomplish')}</CardDescription>
 		</CardHeader>
 		<CardContent>
 			<div class="flex gap-3">
 				<Input
 					type="text"
-					placeholder="Enter task title..."
+					placeholder={$t('todo.enter_task_title')}
 					bind:value={newTodoTitle}
 					onkeydown={handleKeydown}
 					class="flex-1"
 				/>
 				<Button onclick={handleAddTodo} disabled={!newTodoTitle.trim()} class="px-6">
 					<Plus class="mr-2 h-4 w-4" />
-					Add
+					{$t('todo.add')}
 				</Button>
 			</div>
 		</CardContent>
@@ -134,11 +135,13 @@
 			<div
 				class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
 			></div>
-			<span class="ml-3 text-muted-foreground">Loading your todos...</span>
+			<span class="ml-3 text-muted-foreground">{$t('todo.loading_todos')}</span>
 		</div>
 	{:else if !todosStore.initialized}
 		<div class="py-12 text-center text-muted-foreground">
-			<Button onclick={() => todosStore.loadTodos()} variant="outline">Load Todos</Button>
+			<Button onclick={() => todosStore.loadTodos()} variant="outline"
+				>{$t('todo.load_todos')}</Button
+			>
 		</div>
 	{:else if viewMode === 'list'}
 		<TodoList />

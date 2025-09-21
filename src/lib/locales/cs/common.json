@@ -4,6 +4,19 @@
         "todos": "Úkoly",
         "profile": "Profil"
     },
+    "auth": {
+        "sign_in": "Přihlásit se",
+        "sign_out": "Odhlásit se",
+        "user": "Uživatel",
+        "sign_in_title": "Přihlášení",
+        "sign_in_description": "Vyberte způsob přihlášení",
+        "continue_with_google": "Pokračovat s Google",
+        "or": "Nebo",
+        "email": "Email",
+        "enter_email": "Zadejte váš email",
+        "sign_in_with_email": "Přihlásit se emailem",
+        "sending_magic_link": "Odesílám magický odkaz..."
+    },
     "todo": {
         "title": "Seznam úkolů",
         "add": "Přidat úkol",
@@ -11,6 +24,28 @@
         "delete": "Smazat",
         "today": "Dnes",
         "description": "Úkoly, které vyžadují vaši pozornost",
-        "coming_soon": "Již brzy!"
+        "coming_soon": "Již brzy!",
+        "add_new_task": "Přidat nový úkol",
+        "what_accomplish": "Co byste chtěli dnes splnit?",
+        "enter_task_title": "Zadejte název úkolu...",
+        "loading_todos": "Načítám úkoly...",
+        "load_todos": "Načíst úkoly",
+        "active_tasks": "Aktivní úkoly",
+        "task": "úkol",
+        "tasks": "úkoly",
+        "remaining": "zbývá",
+        "no_active_tasks": "Žádné aktivní úkoly",
+        "add_task_to_start": "Přidejte úkol výše pro začátek!",
+        "completed_tasks": "Dokončené úkoly",
+        "completed": "dokončeno",
+        "mark_incomplete": "Označit jako nedokončené",
+        "mark_complete": "Označit jako dokončené",
+        "completed_at": "Dokončeno:",
+        "more_completed": "dalších dokončených",
+        "unassigned": "Nepřiřazeno",
+        "list": "Seznam",
+        "kanban": "Kanban",
+        "drop_tasks_here": "Přetáhněte úkoly sem",
+        "due": "Termín"
     }
 }

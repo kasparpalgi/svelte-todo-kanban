@@ -1,6 +1,7 @@
-<!-- @file src/lib/components/TodoItem.svelte-->
+<!-- @file src/lib/components/TodoItem.svelte -->
 <script lang="ts">
 	import { todosStore } from '$lib/stores/todos.svelte';
+	import { t } from '$lib/i18n';
 	import { Button } from '$lib/components/ui/button';
 	import { X, GripVertical } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
@@ -35,7 +36,7 @@
 		size="sm"
 		class="h-6 w-6 rounded-full border-2 p-0 hover:border-primary"
 	>
-		<span class="sr-only">Mark as complete</span>
+		<span class="sr-only">{$t('todo.mark_complete')}</span>
 	</Button>
 
 	<div class="min-w-0 flex-1">
@@ -45,7 +46,7 @@
 		{/if}
 		{#if todo.due_on}
 			<p class="mt-1 text-xs text-muted-foreground">
-				Due: {new Date(todo.due_on).toLocaleDateString()}
+				{$t('todo.due')}: {new Date(todo.due_on).toLocaleDateString()}
 			</p>
 		{/if}
 	</div>

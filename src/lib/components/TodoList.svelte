@@ -1,6 +1,7 @@
-<!-- @file src/lib/components/TodoList.svelte-->
+<!-- @file src/lib/components/TodoList.svelte -->
 <script lang="ts">
 	import { todosStore } from '$lib/stores/todos.svelte';
+	import { t } from '$lib/i18n';
 	import {
 		Card,
 		CardContent,
@@ -17,7 +18,6 @@
 		KeyboardSensor,
 		PointerSensor,
 		useSensor,
-		useSensors,
 		type DragEndEvent,
 		type DragStartEvent
 	} from '@dnd-kit-svelte/core';
@@ -79,9 +79,11 @@
 		<CardHeader>
 			<div class="flex items-center justify-between">
 				<div>
-					<CardTitle>Active Tasks</CardTitle>
+					<CardTitle>{$t('todo.active_tasks')}</CardTitle>
 					<CardDescription>
-						{todosStore.activeTodos.length} task{todosStore.activeTodos.length !== 1 ? 's' : ''} remaining
+						{todosStore.activeTodos.length}
+						{todosStore.activeTodos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
+						{$t('todo.remaining')}
 					</CardDescription>
 				</div>
 			</div>
@@ -111,25 +113,25 @@
 				</DndContext>
 			{:else}
 				<div class="py-8 text-center text-muted-foreground">
-					<p class="text-lg">No active tasks</p>
-					<p class="text-sm">Add a new task above to get started!</p>
+					<p class="text-lg">{$t('todo.no_active_tasks')}</p>
+					<p class="text-sm">{$t('todo.add_task_to_start')}</p>
 				</div>
 			{/if}
 		</CardContent>
 	</Card>
 
-	<!-- Completed Tasks - same as before -->
+	<!-- Completed Tasks -->
 	{#if todosStore.completedTodos.length > 0}
 		<Card>
 			<CardHeader>
 				<CardTitle class="flex items-center gap-2">
 					<Check class="h-5 w-5 text-green-600" />
-					Completed Tasks
+					{$t('todo.completed_tasks')}
 				</CardTitle>
 				<CardDescription>
-					{todosStore.completedTodos.length} completed task{todosStore.completedTodos.length !== 1
-						? 's'
-						: ''}
+					{todosStore.completedTodos.length}
+					{$t('todo.completed')}
+					{todosStore.completedTodos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
 				</CardDescription>
 			</CardHeader>
 			<CardContent class="space-y-2">
@@ -144,7 +146,7 @@
 							class="h-6 w-6 rounded-full border-2 border-green-600 bg-green-100 p-0 hover:bg-green-200"
 						>
 							<Check class="h-3 w-3 text-green-700" />
-							<span class="sr-only">Mark as incomplete</span>
+							<span class="sr-only">{$t('todo.mark_incomplete')}</span>
 						</Button>
 
 						<div class="min-w-0 flex-1">
@@ -155,7 +157,8 @@
 								<p class="mt-1 text-sm text-muted-foreground line-through">{todo.content}</p>
 							{/if}
 							<p class="mt-1 text-xs text-muted-foreground">
-								Completed: {new Date(todo.completed_at || '').toLocaleDateString()}
+								{$t('todo.completed_at')}
+								{new Date(todo.completed_at || '').toLocaleDateString()}
 							</p>
 						</div>
 					</div>

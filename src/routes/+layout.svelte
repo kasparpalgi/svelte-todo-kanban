@@ -1,9 +1,16 @@
 <!-- @file src/routes/+layout.svelte -->
 <script lang="ts">
 	import '../app.css';
+	import { initTranslations } from '$lib/i18n';
 	import favicon from '$lib/assets/favicon.svg';
 
-	let { children } = $props();
+	let { data, children } = $props();
+
+	$effect(() => {
+		if (data?.locale) {
+			initTranslations(data.locale);
+		}
+	});
 </script>
 
 <svelte:head>

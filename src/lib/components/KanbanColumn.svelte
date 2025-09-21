@@ -1,5 +1,6 @@
-<!-- @file src/lib/components/KanbanColumn.svelte-->
+<!-- @file src/lib/components/KanbanColumn.svelte -->
 <script lang="ts">
+	import { t } from '$lib/i18n';
 	import {
 		Card,
 		CardContent,
@@ -36,7 +37,8 @@
 		<CardHeader>
 			<CardTitle class="text-sm">{list.name}</CardTitle>
 			<CardDescription class="text-xs">
-				{todos.length} task{todos.length !== 1 ? 's' : ''}
+				{todos.length}
+				{todos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
 			</CardDescription>
 		</CardHeader>
 		<CardContent class="min-h-24 space-y-2">
@@ -50,7 +52,9 @@
 					{/each}
 				</SortableContext>
 			{:else}
-				<div class="py-8 text-center text-xs text-muted-foreground">Drop tasks here</div>
+				<div class="py-8 text-center text-xs text-muted-foreground">
+					{$t('todo.drop_tasks_here')}
+				</div>
 			{/if}
 		</CardContent>
 	</Card>

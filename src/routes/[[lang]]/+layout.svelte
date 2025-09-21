@@ -1,17 +1,11 @@
 <!-- @file src/routes/[[lang]]/+layout.svelte -->
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { initTranslations } from '$lib/i18n';
 	import UserMenu from '$lib/components/auth/UserMenu.svelte';
+	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { data, children } = $props();
-
-	$effect(() => {
-		if (data?.locale) {
-			initTranslations(data.locale);
-		}
-	});
 </script>
 
 <header
@@ -26,9 +20,13 @@
 				<img src={favicon} class="h-6 w-6" alt="Todzz" />
 				<h1 class="text-xl font-bold">ToDzz</h1>
 			</button>
-			{#if data?.session}
-				<UserMenu />
-			{/if}
+
+			<div class="flex items-center gap-4">
+				<LanguageSwitcher />
+				{#if data?.session}
+					<UserMenu />
+				{/if}
+			</div>
 		</nav>
 	</div>
 </header>

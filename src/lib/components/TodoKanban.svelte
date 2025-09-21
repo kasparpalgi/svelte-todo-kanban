@@ -1,6 +1,7 @@
-<!-- @file src/lib/components/TodoKanban.svelte-->
+<!-- @file src/lib/components/TodoKanban.svelte -->
 <script lang="ts">
 	import { todosStore } from '$lib/stores/todos.svelte';
+	import { t } from '$lib/i18n';
 	import {
 		Card,
 		CardContent,
@@ -43,7 +44,7 @@
 
 		for (const todo of todosStore.todos.filter((t: TodoFieldsFragment) => !t.completed_at)) {
 			const listId = todo.list?.id || 'unassigned';
-			const listName = todo.list?.name || 'Unassigned';
+			const listName = todo.list?.name || $t('todo.unassigned');
 
 			if (!groups.has(listId)) {
 				groups.set(listId, {
@@ -203,9 +204,10 @@
 	{#if todosStore.completedTodos.length > 0}
 		<Card class="opacity-75">
 			<CardHeader>
-				<CardTitle class="text-sm text-green-600">✓ Completed</CardTitle>
+				<CardTitle class="text-sm text-green-600">✓ {$t('todo.completed')}</CardTitle>
 				<CardDescription class="text-xs">
-					{todosStore.completedTodos.length} task{todosStore.completedTodos.length !== 1 ? 's' : ''}
+					{todosStore.completedTodos.length}
+					{todosStore.completedTodos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
 				</CardDescription>
 			</CardHeader>
 			<CardContent class="space-y-2">
@@ -216,7 +218,8 @@
 				{/each}
 				{#if todosStore.completedTodos.length > 5}
 					<div class="text-xs text-muted-foreground">
-						+{todosStore.completedTodos.length - 5} more completed
+						+{todosStore.completedTodos.length - 5}
+						{$t('todo.more_completed')}
 					</div>
 				{/if}
 			</CardContent>

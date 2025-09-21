@@ -1,6 +1,7 @@
 <!-- @file src/lib/components/auth/LoginForm.svelte -->
 <script lang="ts">
 	import { signIn } from '@auth/sveltekit/client';
+	import { t } from '$lib/i18n';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		Card,
@@ -12,6 +13,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Mail } from 'lucide-svelte';
+	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
 	import googleIconUrl from '$lib/assets/google.svg';
 
 	let email = $state('');
@@ -39,8 +41,13 @@
 
 <Card class="w-full max-w-md">
 	<CardHeader>
-		<CardTitle>Sign In</CardTitle>
-		<CardDescription>Choose your preferred sign-in method</CardDescription>
+		<div class="flex items-center justify-between">
+			<div>
+				<CardTitle>{$t('auth.sign_in_title')}</CardTitle>
+				<CardDescription>{$t('auth.sign_in_description')}</CardDescription>
+			</div>
+			<LanguageSwitcher />
+		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
 		<Button
@@ -54,7 +61,7 @@
 				class="h-5 w-5"
 				style="filter: invert(33%) sepia(93%) saturate(7479%) hue-rotate(356deg) brightness(95%) contrast(97%);"
 			/>
-			<span class="font-medium">Continue with Google</span>
+			<span class="font-medium">{$t('auth.continue_with_google')}</span>
 		</Button>
 
 		<div class="relative">
@@ -62,22 +69,28 @@
 				<span class="w-full border-t"></span>
 			</div>
 			<div class="relative flex justify-center text-xs uppercase">
-				<span class="bg-background px-2 text-muted-foreground">Or</span>
+				<span class="bg-background px-2 text-muted-foreground">{$t('auth.or')}</span>
 			</div>
 		</div>
 
 		<!-- Email Sign In -->
 		<form onsubmit={handleEmailSignIn} class="space-y-4">
 			<div class="space-y-2">
-				<Label for="email">Email</Label>
-				<Input id="email" type="email" placeholder="Enter your email" bind:value={email} required />
+				<Label for="email">{$t('auth.email')}</Label>
+				<Input
+					id="email"
+					type="email"
+					placeholder={$t('auth.enter_email')}
+					bind:value={email}
+					required
+				/>
 			</div>
 			<Button type="submit" class="w-full" disabled={isLoading}>
 				<Mail class="mr-2 h-4 w-4" />
 				{#if isLoading}
-					Sending magic link...
+					{$t('auth.sending_magic_link')}
 				{:else}
-					Sign in with Email
+					{$t('auth.sign_in_with_email')}
 				{/if}
 			</Button>
 		</form>

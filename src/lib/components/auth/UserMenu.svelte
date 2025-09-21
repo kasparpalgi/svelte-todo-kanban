@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { signOut } from '@auth/sveltekit/client';
 	import { page } from '$app/state';
+	import { t } from '$lib/i18n';
 	import { Button } from '$lib/components/ui/button';
 	import { LogOut, User } from 'lucide-svelte';
 
@@ -30,7 +31,7 @@
 				{#if session.user.image}
 					<img
 						src={session.user.image}
-						alt={session.user.name || session.user.email || 'User'}
+						alt={session.user.name || session.user.email || $t('auth.user')}
 						class="h-full w-full object-cover"
 					/>
 				{:else}
@@ -43,12 +44,12 @@
 		</div>
 		<Button onclick={() => signOut({ callbackUrl: '/' })} variant="outline" size="sm">
 			<LogOut class="mr-2 h-4 w-4" />
-			Sign Out
+			{$t('auth.sign_out')}
 		</Button>
 	</div>
 {:else}
 	<Button href="/auth/signin" variant="outline">
 		<User class="mr-2 h-4 w-4" />
-		Sign In
+		{$t('auth.sign_in')}
 	</Button>
 {/if}
