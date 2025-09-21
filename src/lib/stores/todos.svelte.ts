@@ -109,18 +109,50 @@ function createTodosStore() {
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
+		// Store original (potential rollback)
+		const todoIndex = state.todos.findIndex((t) => t.id === id);
+		const originalTodo = todoIndex !== -1 ? { ...state.todos[todoIndex] } : null;
+
+		// Optimistic update
+		if (todoIndex !== -1) {
+			const currentTodo = state.todos[todoIndex];
+
+			const optimisticUpdate: any = {
+				...currentTodo,
+				...updates
+			};
+
+			if (updates.list_id !== undefined) {
+				if (updates.list_id === null) {
+					optimisticUpdate.list = null;
+				} else {
+					// Find target list info from existing todos
+					const targetListTodo = state.todos.find((t) => t.list?.id === updates.list_id);
+					if (targetListTodo?.list) {
+						optimisticUpdate.list = { ...targetListTodo.list };
+					} else {
+						// Fallback - create unknown list
+						optimisticUpdate.list = {
+							id: updates.list_id,
+							name: 'Unknown List',
+							sort_order: 999,
+							__typename: 'lists' as const
+						};
+					}
+				}
+			}
+
+			state.todos[todoIndex] = optimisticUpdate as TodoFieldsFragment;
+		}
+
 		try {
 			const data: UpdateTodosMutation = await request(UPDATE_TODOS, {
 				where: { id: { _eq: id } },
 				_set: updates
 			});
 
-			console.log('updates, data: ', updates, data);
-
 			const updatedTodo = data.update_todos?.returning?.[0];
 			if (updatedTodo) {
-				// Optimistically update local state
-				const todoIndex = state.todos.findIndex((t) => t.id === id);
 				if (todoIndex !== -1) {
 					state.todos[todoIndex] = updatedTodo;
 				}
@@ -129,10 +161,16 @@ function createTodosStore() {
 					message: 'Todo updated successfully',
 					data: updatedTodo
 				};
+			} else {
+				if (todoIndex !== -1 && originalTodo) {
+					state.todos[todoIndex] = originalTodo;
+				}
+				return { success: false, message: 'Failed to update todo' };
 			}
-
-			return { success: false, message: 'Failed to update todo' };
 		} catch (error) {
+			if (todoIndex !== -1 && originalTodo) {
+				state.todos[todoIndex] = originalTodo;
+			}
 			const message = error instanceof Error ? error.message : 'Error updating todo';
 			console.error('Update todo error:', error);
 			return { success: false, message };

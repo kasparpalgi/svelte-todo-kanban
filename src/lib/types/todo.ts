@@ -16,6 +16,7 @@ export interface StoreResult {
 export interface CanbanColumnProps {
 	list: { id: string; name: string; sort_order: number };
 	todos: TodoFieldsFragment[];
+	isHighlighted?: boolean;
 }
 
 export interface TodoItemProps {

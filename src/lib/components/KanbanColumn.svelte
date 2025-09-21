@@ -12,12 +12,12 @@
 	import TodoItem from '$lib/components/TodoItem.svelte';
 	import type { CanbanColumnProps } from '$lib/types/todo';
 
-	let { list, todos }: CanbanColumnProps = $props();
+	let { list, todos, isHighlighted = false }: CanbanColumnProps = $props();
+
 	let droppable = useDroppable({
 		id: `column-${list.id}`
 	});
-	let { setNodeRef, isOver } = droppable;
-
+	let { setNodeRef } = droppable;
 	let columnElement: HTMLElement;
 
 	$effect(() => {
@@ -29,7 +29,7 @@
 
 <div bind:this={columnElement} class="h-full">
 	<Card
-		class="h-fit transition-all duration-200 {isOver.current
+		class="h-fit transition-all duration-200 {isHighlighted
 			? 'bg-blue-50 ring-2 ring-blue-500'
 			: ''}"
 	>
