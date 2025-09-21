@@ -44,25 +44,19 @@ export const { handle } = SvelteKitAuth({
 	},
 	callbacks: {
 		jwt: async ({ token, user, account }) => {
-			console.log('JWT callback - token:', token, 'user:', user, 'account:', account);
-
 			if (account && user) {
 				token.userId = user.id;
 				token.hasuraRole = 'user'; // default role
 			}
 
-			console.log('JWT callback returning token:', token);
 			return token;
 		},
 		session: async ({ session, token }) => {
-			console.log('Session callback - session:', session, 'token:', token);
-
 			if (token && token.userId) {
 				session.user.id = token.userId as string;
 				session.hasuraRole = token.hasuraRole as string;
 			}
 
-			console.log('Session callback returning session:', session);
 			return session;
 		}
 	},

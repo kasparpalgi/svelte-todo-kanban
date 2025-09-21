@@ -2,7 +2,14 @@
 import { GET_TODOS, CREATE_TODO, UPDATE_TODOS, DELETE_TODOS } from '$lib/graphql/documents';
 import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
-import type { StoreResult, Todo, TodosState } from '$lib/types/todo';
+import type {
+	GetTodosQuery,
+	CreateTodoMutation,
+	UpdateTodosMutation,
+	DeleteTodosMutation,
+	TodoFieldsFragment
+} from '$lib/graphql/generated/graphql';
+import type { StoreResult, TodosState } from '$lib/types/todo';
 
 function createTodosStore() {
 	const state = $state<TodosState>({
@@ -12,16 +19,18 @@ function createTodosStore() {
 		initialized: false
 	});
 
-	async function loadTodos(): Promise<Todo[]> {
+	async function loadTodos(): Promise<TodoFieldsFragment[]> {
 		if (!browser) return [];
 
 		state.loading = true;
 		state.error = null;
 
 		try {
-			const data = await request(GET_TODOS, {
+			const { Order_By } = await import('$lib/graphql/generated/graphql');
+
+			const data: GetTodosQuery = await request(GET_TODOS, {
 				where: {},
-				order_by: [{ due_on: 'desc' }, { updated_at: 'desc' }],
+				order_by: [{ due_on: Order_By.Desc }, { updated_at: Order_By.Desc }],
 				limit: 100,
 				offset: 0
 			});
@@ -52,23 +61,30 @@ function createTodosStore() {
 		}
 	}
 
-	async function addTodo(title: string, content?: string): Promise<StoreResult> {
+	async function addTodo(title: string, content?: string, listId?: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!title.trim()) return { success: false, message: 'Title is required' };
 
 		try {
-			const data = await request(CREATE_TODO, {
+			const data: CreateTodoMutation = await request(CREATE_TODO, {
 				objects: [
 					{
 						title: title.trim(),
-						content: content?.trim() || null
+						content: content?.trim() || null,
+						...(listId && { list_id: listId })
 					}
 				]
 			});
 
-			if (data.insert_todos?.returning?.length > 0) {
-				await loadTodos(); // Reload to get fresh data
-				return { success: true, message: 'Todo added successfully' };
+			const newTodo = data.insert_todos?.returning?.[0];
+			if (newTodo) {
+				// Optimistically add to local state
+				state.todos = [newTodo, ...state.todos];
+				return {
+					success: true,
+					message: 'Todo added successfully',
+					data: newTodo
+				};
 			}
 
 			return { success: false, message: 'Failed to add todo' };
@@ -81,27 +97,30 @@ function createTodosStore() {
 
 	async function updateTodo(
 		id: string,
-		updates: Partial<Pick<Todo, 'title' | 'content' | 'completed_at' | 'due_on'>>
+		updates: Partial<
+			Pick<TodoFieldsFragment, 'title' | 'content' | 'completed_at' | 'due_on' | 'sort_order'>
+		>
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		try {
-			const data = await request(UPDATE_TODOS, {
+			const data: UpdateTodosMutation = await request(UPDATE_TODOS, {
 				where: { id: { _eq: id } },
 				_set: updates
 			});
 
-			if (data.update_todos?.affected_rows && data.update_todos.affected_rows > 0) {
+			const updatedTodo = data.update_todos?.returning?.[0];
+			if (updatedTodo) {
 				// Optimistically update local state
 				const todoIndex = state.todos.findIndex((t) => t.id === id);
 				if (todoIndex !== -1) {
-					state.todos[todoIndex] = {
-						...state.todos[todoIndex],
-						...updates,
-						updated_at: new Date().toISOString()
-					};
+					state.todos[todoIndex] = updatedTodo;
 				}
-				return { success: true, message: 'Todo updated successfully' };
+				return {
+					success: true,
+					message: 'Todo updated successfully',
+					data: updatedTodo
+				};
 			}
 
 			return { success: false, message: 'Failed to update todo' };
@@ -126,7 +145,7 @@ function createTodosStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		try {
-			const data = await request(DELETE_TODOS, {
+			const data: DeleteTodosMutation = await request(DELETE_TODOS, {
 				where: { id: { _eq: id } }
 			});
 
@@ -144,12 +163,39 @@ function createTodosStore() {
 		}
 	}
 
-	// Computed properties using $derived
+	async function bulkUpdateTodos(
+		where: { [key: string]: any },
+		updates: { [key: string]: any }
+	): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		try {
+			const data: UpdateTodosMutation = await request(UPDATE_TODOS, {
+				where,
+				_set: updates
+			});
+
+			if (data.update_todos?.affected_rows && data.update_todos.affected_rows > 0) {
+				await loadTodos();
+				return {
+					success: true,
+					message: `Updated ${data.update_todos.affected_rows} todos`
+				};
+			}
+
+			return { success: false, message: 'No todos were updated' };
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Error updating todos';
+			console.error('Bulk update todos error:', error);
+			return { success: false, message };
+		}
+	}
+
 	const activeTodos = $derived(
 		state.todos
 			.filter((t) => !t.completed_at)
 			.sort((a, b) => {
-				// Sort by due date first, then by creation date
+				// Sort: due_on, then created_at
 				if (a.due_on && b.due_on) {
 					return new Date(a.due_on).getTime() - new Date(b.due_on).getTime();
 				}
@@ -167,8 +213,21 @@ function createTodosStore() {
 			)
 	);
 
+	const todosByList = $derived(() => {
+		const groups = new Map<string, TodoFieldsFragment[]>();
+
+		for (const todo of state.todos) {
+			const listId = todo.list?.id || 'unassigned';
+			if (!groups.has(listId)) {
+				groups.set(listId, []);
+			}
+			groups.get(listId)!.push(todo);
+		}
+
+		return groups;
+	});
+
 	return {
-		// State getters
 		get todos() {
 			return state.todos;
 		},
@@ -187,13 +246,16 @@ function createTodosStore() {
 		get completedTodos() {
 			return completedTodos;
 		},
+		get todosByList() {
+			return todosByList;
+		},
 
-		// Actions
 		loadTodos,
 		addTodo,
 		updateTodo,
 		toggleTodo,
 		deleteTodo,
+		bulkUpdateTodos,
 		clearError: () => {
 			state.error = null;
 		},

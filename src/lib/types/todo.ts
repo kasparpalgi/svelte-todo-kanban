@@ -1,17 +1,7 @@
-export interface Todo {
-	id: string;
-	title: string;
-	content?: string | null;
-	due_on?: string | null;
-	sort_order?: number | null;
-	completed_at?: string | null;
-	list?: { id: string; name: string } | null;
-	created_at: string;
-	updated_at: string;
-}
+import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
 export interface TodosState {
-	todos: Todo[];
+	todos: TodoFieldsFragment[];
 	loading: boolean;
 	error: string | null;
 	initialized: boolean;
@@ -20,4 +10,5 @@ export interface TodosState {
 export interface StoreResult {
 	success: boolean;
 	message: string;
+	data?: TodoFieldsFragment;
 }

@@ -1,6 +1,7 @@
 /** @file src/lib/graphql/client.ts */
-import { GraphQLClient } from 'graphql-request';
 import { PUBLIC_API_ENDPOINT } from '$env/static/public';
+import { GraphQLClient } from 'graphql-request';
+import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
 const client = new GraphQLClient(PUBLIC_API_ENDPOINT);
 
@@ -13,11 +14,11 @@ async function getJWTToken(): Promise<string> {
 	return data.token;
 }
 
-export async function request(
-	document: string,
-	variables?: Record<string, any>,
+export async function request<TResult, TVariables extends object | undefined = undefined>(
+	document: TypedDocumentNode<TResult, TVariables>,
+	variables?: TVariables,
 	customHeaders?: HeadersInit
-): Promise<any> {
+): Promise<TResult> {
 	try {
 		const token = await getJWTToken();
 		const headers = {
@@ -25,7 +26,7 @@ export async function request(
 			...customHeaders
 		};
 
-		return await client.request(document, variables, headers);
+		return await client.request(document, variables as any, headers);
 	} catch (error) {
 		console.error('GraphQL request error:', error);
 		throw error;
