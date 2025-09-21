@@ -1,5 +1,6 @@
 _notes
 hasura/config.yaml
+playwright/.auth/
 test-results
 node_modules
 
