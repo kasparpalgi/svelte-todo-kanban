@@ -1,4 +1,3 @@
-<!-- @file src/routes/[[lang]]/+page.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -12,15 +11,23 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, Check, X } from 'lucide-svelte';
+	import { Plus, X, List, LayoutGrid } from 'lucide-svelte';
+	import TodoList from '$lib/components/TodoList.svelte';
+	import TodoKanban from '$lib/components/TodoKanban.svelte';
 
 	let { data } = $props();
 
 	let newTodoTitle = $state('');
+	let viewMode = $state<'list' | 'kanban'>('kanban');
 
 	onMount(() => {
 		if (data?.session) {
 			todosStore.loadTodos();
+		}
+
+		const saved = localStorage.getItem('todo-view-mode');
+		if (saved === 'list' || saved === 'kanban') {
+			viewMode = saved;
 		}
 	});
 
@@ -28,6 +35,11 @@
 		if (data?.session && !todosStore.initialized && !todosStore.loading) {
 			todosStore.loadTodos();
 		}
+	});
+
+	$effect(() => {
+		// TODO: save to DB
+		localStorage.setItem('todo-view-mode', viewMode);
 	});
 
 	async function handleAddTodo() {
@@ -50,9 +62,31 @@
 	<title>{$t('todo.today') || 'Today'}</title>
 </svelte:head>
 
-<div class="mx-auto max-w-4xl space-y-6">
+<div class="mx-auto max-w-7xl space-y-6">
 	<div class="flex items-center justify-between">
 		<h1 class="text-3xl font-bold tracking-tight">{$t('todo.today') || 'Today'}</h1>
+
+		<!-- View Mode Toggle -->
+		<div class="flex items-center gap-2 rounded-lg border p-1">
+			<Button
+				variant={viewMode === 'list' ? 'default' : 'ghost'}
+				size="sm"
+				onclick={() => (viewMode = 'list')}
+				class="h-8"
+			>
+				<List class="mr-2 h-4 w-4" />
+				List
+			</Button>
+			<Button
+				variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+				size="sm"
+				onclick={() => (viewMode = 'kanban')}
+				class="h-8"
+			>
+				<LayoutGrid class="mr-2 h-4 w-4" />
+				Kanban
+			</Button>
+		</div>
 	</div>
 
 	{#if todosStore.error}
@@ -94,124 +128,21 @@
 		</CardContent>
 	</Card>
 
-	<div class="grid gap-6">
-		<!-- List -->
-		<Card>
-			<CardHeader>
-				<div class="flex items-center justify-between">
-					<div>
-						<CardTitle>Active Tasks</CardTitle>
-						<CardDescription>
-							{todosStore.activeTodos.length} task{todosStore.activeTodos.length !== 1 ? 's' : ''} remaining
-						</CardDescription>
-					</div>
-					{#if !todosStore.initialized && !todosStore.loading}
-						<Button onclick={() => todosStore.loadTodos()} variant="outline">Load Todos</Button>
-					{/if}
-				</div>
-			</CardHeader>
-			<CardContent class="space-y-3">
-				{#if todosStore.loading}
-					<div class="flex items-center justify-center py-8">
-						<div
-							class="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"
-						></div>
-						<span class="ml-3 text-sm text-muted-foreground">Loading your todos...</span>
-					</div>
-				{:else if todosStore.activeTodos.length > 0}
-					{#each todosStore.activeTodos as todo (todo.id)}
-						<div
-							class="group flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
-						>
-							<Button
-								onclick={() => todosStore.toggleTodo(todo.id)}
-								variant="ghost"
-								size="sm"
-								class="h-6 w-6 rounded-full border-2 p-0 hover:border-primary"
-							>
-								<span class="sr-only">Mark as complete</span>
-							</Button>
-
-							<div class="min-w-0 flex-1">
-								<h3 class="leading-none font-medium">{todo.title}</h3>
-								{#if todo.content}
-									<p class="mt-1 text-sm text-muted-foreground">{todo.content}</p>
-								{/if}
-								{#if todo.due_on}
-									<p class="mt-1 text-xs text-muted-foreground">
-										Due: {new Date(todo.due_on).toLocaleDateString()}
-									</p>
-								{/if}
-							</div>
-
-							<Button
-								onclick={() => todosStore.deleteTodo(todo.id)}
-								variant="ghost"
-								size="sm"
-								class="h-8 w-8 p-0 text-destructive opacity-0 group-hover:opacity-100 hover:text-destructive"
-							>
-								<X class="h-4 w-4" />
-								<span class="sr-only">Delete todo</span>
-							</Button>
-						</div>
-					{/each}
-				{:else if todosStore.initialized}
-					<div class="py-8 text-center text-muted-foreground">
-						<p class="text-lg">No active tasks</p>
-						<p class="text-sm">Add a new task above to get started!</p>
-					</div>
-				{:else}
-					<div class="py-8 text-center text-muted-foreground">
-						<p>Ready to load your todos</p>
-					</div>
-				{/if}
-			</CardContent>
-		</Card>
-
-		<!-- Completed -->
-		{#if todosStore.completedTodos.length > 0}
-			<Card>
-				<CardHeader>
-					<CardTitle class="flex items-center gap-2">
-						<Check class="h-5 w-5 text-green-600" />
-						Completed Tasks
-					</CardTitle>
-					<CardDescription>
-						{todosStore.completedTodos.length} completed task{todosStore.completedTodos.length !== 1
-							? 's'
-							: ''}
-					</CardDescription>
-				</CardHeader>
-				<CardContent class="space-y-2">
-					{#each todosStore.completedTodos as todo (todo.id)}
-						<div
-							class="flex items-center gap-3 rounded-lg border p-3 opacity-75 transition-opacity hover:opacity-100"
-						>
-							<Button
-								onclick={() => todosStore.toggleTodo(todo.id)}
-								variant="ghost"
-								size="sm"
-								class="h-6 w-6 rounded-full border-2 border-green-600 bg-green-100 p-0 hover:bg-green-200"
-							>
-								<Check class="h-3 w-3 text-green-700" />
-								<span class="sr-only">Mark as incomplete</span>
-							</Button>
-
-							<div class="min-w-0 flex-1">
-								<h3 class="leading-none font-medium text-muted-foreground line-through">
-									{todo.title}
-								</h3>
-								{#if todo.content}
-									<p class="mt-1 text-sm text-muted-foreground line-through">{todo.content}</p>
-								{/if}
-								<p class="mt-1 text-xs text-muted-foreground">
-									Completed: {new Date(todo.completed_at || '').toLocaleDateString()}
-								</p>
-							</div>
-						</div>
-					{/each}
-				</CardContent>
-			</Card>
-		{/if}
-	</div>
+	<!-- Loading State -->
+	{#if todosStore.loading}
+		<div class="flex items-center justify-center py-12">
+			<div
+				class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+			></div>
+			<span class="ml-3 text-muted-foreground">Loading your todos...</span>
+		</div>
+	{:else if !todosStore.initialized}
+		<div class="py-12 text-center text-muted-foreground">
+			<Button onclick={() => todosStore.loadTodos()} variant="outline">Load Todos</Button>
+		</div>
+	{:else if viewMode === 'list'}
+		<TodoList />
+	{:else}
+		<TodoKanban />
+	{/if}
 </div>

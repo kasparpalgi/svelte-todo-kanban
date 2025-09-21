@@ -68,6 +68,9 @@
 	"dependencies": {
 		"@auth/hasura-adapter": "^1.10.0",
 		"@auth/sveltekit": "^1.10.0",
+		"@dnd-kit-svelte/core": "^0.0.11",
+		"@dnd-kit-svelte/sortable": "^0.0.11",
+		"@dnd-kit-svelte/utilities": "^0.0.11",
 		"graphql": "^16.11.0",
 		"graphql-request": "^7.2.0",
 		"jsonwebtoken": "^9.0.2",

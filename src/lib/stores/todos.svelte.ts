@@ -36,7 +36,6 @@ function createTodosStore() {
 			});
 
 			state.todos = data.todos || [];
-			console.log(data.todos)
 			state.initialized = true;
 			return state.todos;
 		} catch (error) {
@@ -99,7 +98,9 @@ function createTodosStore() {
 	async function updateTodo(
 		id: string,
 		updates: Partial<
-			Pick<TodoFieldsFragment, 'title' | 'content' | 'completed_at' | 'due_on' | 'sort_order'>
+			Pick<TodoFieldsFragment, 'title' | 'content' | 'completed_at' | 'due_on' | 'sort_order'> & {
+				list_id?: string | null;
+			}
 		>
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
@@ -109,6 +110,8 @@ function createTodosStore() {
 				where: { id: { _eq: id } },
 				_set: updates
 			});
+
+			console.log('updates, data: ', updates, data);
 
 			const updatedTodo = data.update_todos?.returning?.[0];
 			if (updatedTodo) {

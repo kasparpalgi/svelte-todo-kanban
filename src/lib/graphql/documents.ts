@@ -8,6 +8,7 @@ export const TODO_FRAGMENT = graphql(`
 		content
 		due_on
 		sort_order
+		list_id
 		completed_at
 		created_at
 		updated_at

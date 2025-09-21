@@ -3366,7 +3366,7 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null };
 
 export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, emailVerified?: string | null, created_at: string, updated_at: string };
 
@@ -3378,14 +3378,14 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> };
 
 export type CreateTodoMutationVariables = Exact<{
   objects: Array<Todos_Insert_Input> | Todos_Insert_Input;
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -3393,7 +3393,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -3437,6 +3437,7 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   content
   due_on
   sort_order
+  list_id
   completed_at
   created_at
   updated_at
@@ -3475,6 +3476,7 @@ export const GetTodosDocument = new TypedDocumentString(`
   content
   due_on
   sort_order
+  list_id
   completed_at
   created_at
   updated_at
@@ -3503,6 +3505,7 @@ export const CreateTodoDocument = new TypedDocumentString(`
   content
   due_on
   sort_order
+  list_id
   completed_at
   created_at
   updated_at
@@ -3532,6 +3535,7 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   content
   due_on
   sort_order
+  list_id
   completed_at
   created_at
   updated_at

@@ -15,6 +15,7 @@ Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 
 * [Auth.js](https://authjs.dev/) - for authentication
 * [nodemailer](https://nodemailer.com/) - sending email
+* [@dnd-kit](https://dnd-kit-svelte.vercel.app/) - drag'n'drop (for Kanban)
 * [shadcn-svelte](https://shadcn-svelte.com/) - set of beautifully-designed, accessible components. Adding components: `npx shadcn-svelte add <COMPONENT>`
 * [lucide-svelte icons](https://lucide.dev/icons/)
 * PostgreSQL for DB
