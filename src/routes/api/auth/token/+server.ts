@@ -11,7 +11,6 @@ export const GET: RequestHandler = async (event) => {
 		return json({ error: 'Not authenticated' }, { status: 401 });
 	}
 
-	// Create a JWT token with Hasura claims
 	const token = jwt.sign(
 		{
 			'https://hasura.io/jwt/claims': {
