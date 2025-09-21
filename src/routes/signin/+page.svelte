@@ -1,4 +1,4 @@
-<!-- @file src/routes/auth/signin/+page.svelte -->
+<!-- @file src/routes/signin/+page.svelte -->
 <script>
 	import LoginForm from '$lib/components/auth/LoginForm.svelte';
 </script>

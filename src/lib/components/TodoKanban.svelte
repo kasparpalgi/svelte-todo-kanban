@@ -1,5 +1,6 @@
 <!-- @file src/lib/components/TodoKanban.svelte -->
 <script lang="ts">
+	import { scale } from 'svelte/transition';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { t } from '$lib/i18n';
 	import {
@@ -182,7 +183,7 @@
 	}
 </script>
 
-<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+<div in:scale class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 	<DndContext
 		{sensors}
 		collisionDetection={closestCorners}

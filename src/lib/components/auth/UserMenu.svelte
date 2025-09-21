@@ -48,7 +48,7 @@
 		</Button>
 	</div>
 {:else}
-	<Button href="/auth/signin" variant="outline">
+	<Button href="/signin" variant="outline">
 		<User class="mr-2 h-4 w-4" />
 		{$t('auth.sign_in')}
 	</Button>
