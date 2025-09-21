@@ -40,7 +40,7 @@ export const USER_FRAGMENT = graphql(`
 export const GET_TODOS = graphql(`
 	query GetTodos(
 		$where: todos_bool_exp = {}
-		$order_by: [todos_order_by!] = { due_on: desc, updated_at: desc }
+		$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }
 		$limit: Int = 100
 		$offset: Int = 0
 	) {

@@ -12,3 +12,13 @@ export interface StoreResult {
 	message: string;
 	data?: TodoFieldsFragment;
 }
+
+export interface CanbanColumnProps {
+	list: { id: string; name: string; sort_order: number };
+	todos: TodoFieldsFragment[];
+}
+
+export interface TodoItemProps {
+	todo: TodoFieldsFragment;
+	isDragging?: boolean;
+}

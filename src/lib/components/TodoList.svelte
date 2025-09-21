@@ -1,3 +1,4 @@
+<!-- @file src/lib/components/TodoList.svelte-->
 <script lang="ts">
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import {
@@ -30,17 +31,15 @@
 
 	let activeId = $state<string | null>(null);
 	let activeTodo = $state<TodoFieldsFragment | null>(null);
-
-	let sensors = useSensors(
-		useSensor(PointerSensor, {
-			activationConstraint: {
-				distance: 8
-			}
-		}),
-		useSensor(KeyboardSensor, {
-			coordinateGetter: sortableKeyboardCoordinates
-		})
-	);
+	let pointerSensor = useSensor(PointerSensor, {
+		activationConstraint: {
+			distance: 8
+		}
+	});
+	let keyboardSensor = useSensor(KeyboardSensor, {
+		coordinateGetter: sortableKeyboardCoordinates
+	});
+	let sensors = [pointerSensor, keyboardSensor];
 
 	function handleDragStart(event: DragStartEvent) {
 		const { active } = event;

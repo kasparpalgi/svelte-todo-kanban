@@ -1,21 +1,16 @@
+<!-- @file src/lib/components/TodoItem.svelte-->
 <script lang="ts">
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { X, GripVertical } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import { CSS } from '@dnd-kit-svelte/utilities';
-	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { TodoItemProps } from '$lib/types/todo';
 
-	interface Props {
-		todo: TodoFieldsFragment;
-		isDragging?: boolean;
-	}
-
-	let { todo, isDragging = false }: Props = $props();
+	let { todo, isDragging = false }: TodoItemProps = $props();
 
 	let sortable = useSortable({ id: todo.id });
 	let { attributes, listeners, setNodeRef, transform, isDragging: sortableIsDragging } = sortable;
-
 	let style = $derived(transform.current ? CSS.Transform.toString(transform.current) : '');
 </script>
 

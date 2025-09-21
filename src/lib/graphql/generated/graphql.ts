@@ -3465,7 +3465,7 @@ export const UserFieldsFragmentDoc = new TypedDocumentString(`
 }
     `, {"fragmentName":"UserFields"}) as unknown as TypedDocumentString<UserFieldsFragment, unknown>;
 export const GetTodosDocument = new TypedDocumentString(`
-    query GetTodos($where: todos_bool_exp = {}, $order_by: [todos_order_by!] = {due_on: desc, updated_at: desc}, $limit: Int = 100, $offset: Int = 0) {
+    query GetTodos($where: todos_bool_exp = {}, $order_by: [todos_order_by!] = {sort_order: asc, due_on: desc, updated_at: desc}, $limit: Int = 100, $offset: Int = 0) {
   todos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
     ...TodoFields
   }

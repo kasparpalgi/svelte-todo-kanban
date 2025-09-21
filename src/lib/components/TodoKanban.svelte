@@ -1,3 +1,4 @@
+<!-- @file src/lib/components/TodoKanban.svelte-->
 <script lang="ts">
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import {
@@ -14,35 +15,27 @@
 		KeyboardSensor,
 		PointerSensor,
 		useSensor,
-		useSensors,
 		type DragEndEvent,
-		type DragStartEvent,
-		type DragOverEvent
+		type DragStartEvent
 	} from '@dnd-kit-svelte/core';
-	import {
-		SortableContext,
-		sortableKeyboardCoordinates,
-		verticalListSortingStrategy
-	} from '@dnd-kit-svelte/sortable';
+	import { sortableKeyboardCoordinates } from '@dnd-kit-svelte/sortable';
 	import KanbanColumn from '$lib/components/KanbanColumn.svelte';
 	import TodoItem from '$lib/components/TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
 	let activeId = $state<string | null>(null);
 	let activeTodo = $state<TodoFieldsFragment | null>(null);
+	let pointerSensor = useSensor(PointerSensor, {
+		activationConstraint: {
+			distance: 8
+		}
+	});
+	let keyboardSensor = useSensor(KeyboardSensor, {
+		coordinateGetter: sortableKeyboardCoordinates
+	});
+	let sensors = [pointerSensor, keyboardSensor];
 
-	let sensors = useSensors(
-		useSensor(PointerSensor, {
-			activationConstraint: {
-				distance: 8
-			}
-		}),
-		useSensor(KeyboardSensor, {
-			coordinateGetter: sortableKeyboardCoordinates
-		})
-	);
-
-	// Group todos by list
+	// Group by list
 	let kanbanLists = $derived(() => {
 		const groups = new Map<string, { list: any; todos: TodoFieldsFragment[] }>();
 
@@ -59,12 +52,10 @@
 			groups.get(listId)!.todos.push(todo);
 		}
 
-		// Sort in lists by sort_order
 		for (const group of groups.values()) {
 			group.todos.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 		}
 
-		// Convert to array and sort by list sort_order
 		return Array.from(groups.values()).sort(
 			(a, b) => (a.list.sort_order || 999) - (b.list.sort_order || 999)
 		);
@@ -74,23 +65,6 @@
 		const { active } = event;
 		activeId = active.id as string;
 		activeTodo = todosStore.todos.find((todo: TodoFieldsFragment) => todo.id === activeId) || null;
-	}
-
-	function handleDragOver(event: DragOverEvent) {
-		const { active, over } = event;
-		if (!over) return;
-
-		const draggedId = active.id as string;
-		const overId = over.id as string;
-
-		if (overId.startsWith('column-')) {
-			const newListId = overId.replace('column-', '');
-			const todo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === draggedId);
-
-			if (todo && todo.list?.id !== newListId) {
-				console.log('Would move todo to list:', newListId);
-			}
-		}
 	}
 
 	async function handleDragEnd(event: DragEndEvent) {
@@ -104,9 +78,7 @@
 
 		const draggedId = active.id as string;
 		const overId = over.id as string;
-
 		const draggedTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === draggedId);
-		const overTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === overId);
 
 		if (!draggedTodo) {
 			activeId = null;
@@ -114,26 +86,51 @@
 			return;
 		}
 
-		if (overTodo && draggedTodo.list?.id === overTodo.list?.id) {
-			const listGroup = kanbanLists().find((group: any) => group.list.id === draggedTodo.list?.id);
+		// Check if dropping on a column (cross-list move)
+		if (overId.startsWith('column-')) {
+			const newListId = overId.replace('column-', '');
+			const currentListId = draggedTodo.list?.id || 'unassigned';
 
-			if (listGroup) {
-				const listTodos = listGroup.todos;
-				const activeIndex = listTodos.findIndex((t: TodoFieldsFragment) => t.id === draggedId);
-				const overIndex = listTodos.findIndex((t: TodoFieldsFragment) => t.id === overId);
+			if (currentListId !== newListId) {
+				const listIdToUpdate = newListId === 'unassigned' ? null : newListId;
+				await todosStore.updateTodo(draggedId, {
+					list_id: listIdToUpdate,
+					sort_order: 1
+				});
+			}
+		} else {
+			// Dropping on another todo
+			const overTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === overId);
 
-				if (activeIndex !== overIndex) {
-					const newTodos = [...listTodos];
-					const [removed] = newTodos.splice(activeIndex, 1);
-					newTodos.splice(overIndex, 0, removed);
+			if (overTodo) {
+				const draggedListId = draggedTodo.list?.id || 'unassigned';
+				const overListId = overTodo.list?.id || 'unassigned';
 
-					const updates = newTodos.map((todo, index) => ({
-						id: todo.id,
-						sort_order: index + 1
-					}));
+				if (draggedListId !== overListId) {
+					// Cross-list move when dropping on todo in different list
+					const listIdToUpdate = overListId === 'unassigned' ? null : overListId;
+					await todosStore.updateTodo(draggedId, {
+						list_id: listIdToUpdate,
+						sort_order: (overTodo.sort_order || 0) + 1
+					});
+				} else {
+					// Same list reordering
+					const listGroup = kanbanLists().find((group) => group.list.id === draggedListId);
 
-					for (const update of updates) {
-						await todosStore.updateTodo(update.id, { sort_order: update.sort_order });
+					if (listGroup) {
+						const listTodos = listGroup.todos;
+						const activeIndex = listTodos.findIndex((t: TodoFieldsFragment) => t.id === draggedId);
+						const overIndex = listTodos.findIndex((t: TodoFieldsFragment) => t.id === overId);
+
+						if (activeIndex !== overIndex) {
+							const newTodos = [...listTodos];
+							const [removed] = newTodos.splice(activeIndex, 1);
+							newTodos.splice(overIndex, 0, removed);
+
+							for (let i = 0; i < newTodos.length; i++) {
+								await todosStore.updateTodo(newTodos[i].id, { sort_order: i + 1 });
+							}
+						}
 					}
 				}
 			}
@@ -149,7 +146,6 @@
 		{sensors}
 		collisionDetection={closestCorners}
 		onDragStart={handleDragStart}
-		onDragOver={handleDragOver}
 		onDragEnd={handleDragEnd}
 	>
 		{#each kanbanLists() as { list, todos } (list.id)}

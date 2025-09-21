@@ -30,7 +30,11 @@ function createTodosStore() {
 
 			const data: GetTodosQuery = await request(GET_TODOS, {
 				where: {},
-				order_by: [{ due_on: Order_By.Desc }, { updated_at: Order_By.Desc }],
+				order_by: [
+					{ sort_order: Order_By.Asc },
+					{ due_on: Order_By.Desc },
+					{ updated_at: Order_By.Desc }
+				],
 				limit: 100,
 				offset: 0
 			});
