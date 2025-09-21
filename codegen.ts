@@ -39,10 +39,7 @@ const config: CodegenConfig = {
 		}
 	},
 	hooks: {
-		afterAllFileWrite: [
-			// Fix the import in graphql.ts
-			'sed -i "s|from \\\"@graphql-typed-document-node/core\\\"|from \\\"./fragment-masking\\\"|g" src/lib/graphql/generated/graphql.ts || echo "sed command failed, you may need to manually fix the import"'
-		]
+		afterAllFileWrite: ['echo "Files generated, running fix script..."', 'node fix-imports.cjs']
 	}
 };
 
