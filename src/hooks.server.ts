@@ -1,8 +1,4 @@
-/** @file src/hooks.server.ts (updated with better typing) */
-import { SvelteKitAuth } from '@auth/sveltekit';
-import { HasuraAdapter } from '@auth/hasura-adapter';
-import Google from '@auth/sveltekit/providers/google';
-import Nodemailer from '@auth/sveltekit/providers/nodemailer';
+/** @file src/hooks.server.ts */
 import {
 	AUTH_SECRET,
 	AUTH_GOOGLE_ID,
@@ -15,32 +11,65 @@ import {
 	API_ENDPOINT,
 	HASURA_ADMIN_SECRET
 } from '$env/static/private';
+import { dev } from '$app/environment';
+import { SvelteKitAuth } from '@auth/sveltekit';
+import { HasuraAdapter } from '@auth/hasura-adapter';
+import Google from '@auth/sveltekit/providers/google';
+import Nodemailer from '@auth/sveltekit/providers/nodemailer';
+import Credentials from '@auth/sveltekit/providers/credentials';
+import type { Provider } from '@auth/sveltekit/providers';
+
+const maxAge = dev ? 90 * 24 * 60 * 60 : 60 * 60; // 90 days vs 1h
+
+const providers: Provider[] = [
+	Google({
+		clientId: AUTH_GOOGLE_ID,
+		clientSecret: AUTH_GOOGLE_SECRET
+	}),
+	Nodemailer({
+		server: {
+			host: EMAIL_SERVER_HOST,
+			port: Number(EMAIL_SERVER_PORT),
+			auth: {
+				user: EMAIL_SERVER_USER,
+				pass: EMAIL_SERVER_PASSWORD
+			}
+		},
+		from: EMAIL_FROM
+	})
+];
+
+if (dev) {
+	providers.push(
+		Credentials({
+			id: '166ca52b-4ecf-4d30-842f-95f97656aeb5',
+			name: 'Test Login',
+			credentials: {
+				email: { label: 'Email', type: 'email' }
+			},
+			async authorize(credentials) {
+				if (credentials.email === 'test@test.com') {
+					return {
+						id: '166ca52b-4ecf-4d30-842f-95f97656aeb5', // Your manually created user ID
+						name: 'Test User',
+						email: 'test@test.com'
+					};
+				}
+				return null;
+			}
+		})
+	);
+}
 
 export const { handle } = SvelteKitAuth({
 	adapter: HasuraAdapter({
 		endpoint: API_ENDPOINT,
 		adminSecret: HASURA_ADMIN_SECRET
 	}),
-	providers: [
-		Google({
-			clientId: AUTH_GOOGLE_ID,
-			clientSecret: AUTH_GOOGLE_SECRET
-		}),
-		Nodemailer({
-			server: {
-				host: EMAIL_SERVER_HOST,
-				port: Number(EMAIL_SERVER_PORT),
-				auth: {
-					user: EMAIL_SERVER_USER,
-					pass: EMAIL_SERVER_PASSWORD
-				}
-			},
-			from: EMAIL_FROM
-		})
-	],
+	providers,
 	session: {
 		strategy: 'jwt',
-		maxAge: 3 * 24 * 60 * 60 // 3 days
+		maxAge: maxAge
 	},
 	callbacks: {
 		jwt: async ({ token, user, account }) => {
@@ -48,7 +77,6 @@ export const { handle } = SvelteKitAuth({
 				token.userId = user.id;
 				token.hasuraRole = 'user'; // default role
 			}
-
 			return token;
 		},
 		session: async ({ session, token }) => {
@@ -56,7 +84,6 @@ export const { handle } = SvelteKitAuth({
 				session.user.id = token.userId as string;
 				session.hasuraRole = token.hasuraRole as string;
 			}
-
 			return session;
 		}
 	},
