@@ -3768,6 +3768,20 @@ export type DeleteTodosMutationVariables = Exact<{
 
 export type DeleteTodosMutation = { __typename?: 'mutation_root', delete_todos?: { __typename?: 'todos_mutation_response', affected_rows: number } | null };
 
+export type CreateUploadMutationVariables = Exact<{
+  objects: Array<Uploads_Insert_Input> | Uploads_Insert_Input;
+}>;
+
+
+export type CreateUploadMutation = { __typename?: 'mutation_root', insert_uploads?: { __typename?: 'uploads_mutation_response', returning: Array<{ __typename?: 'uploads', id: string, url: string, todo_id: string, created_at: string }> } | null };
+
+export type DeleteUploadMutationVariables = Exact<{
+  where: Uploads_Bool_Exp;
+}>;
+
+
+export type DeleteUploadMutation = { __typename?: 'mutation_root', delete_uploads?: { __typename?: 'uploads_mutation_response', affected_rows: number } | null };
+
 export type GetUsersQueryVariables = Exact<{
   where?: InputMaybe<Users_Bool_Exp>;
   order_by?: InputMaybe<Array<Users_Order_By> | Users_Order_By>;
@@ -3943,6 +3957,25 @@ export const DeleteTodosDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteTodosMutation, DeleteTodosMutationVariables>;
+export const CreateUploadDocument = new TypedDocumentString(`
+    mutation CreateUpload($objects: [uploads_insert_input!]!) {
+  insert_uploads(objects: $objects) {
+    returning {
+      id
+      url
+      todo_id
+      created_at
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<CreateUploadMutation, CreateUploadMutationVariables>;
+export const DeleteUploadDocument = new TypedDocumentString(`
+    mutation DeleteUpload($where: uploads_bool_exp!) {
+  delete_uploads(where: $where) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteUploadMutation, DeleteUploadMutationVariables>;
 export const GetUsersDocument = new TypedDocumentString(`
     query GetUsers($where: users_bool_exp = {}, $order_by: [users_order_by!] = {}, $limit: Int = 100, $offset: Int = 0) {
   users(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {

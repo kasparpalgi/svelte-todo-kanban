@@ -84,6 +84,27 @@ export const DELETE_TODOS = graphql(`
 	}
 `);
 
+export const CREATE_UPLOAD = graphql(`
+	mutation CreateUpload($objects: [uploads_insert_input!]!) {
+		insert_uploads(objects: $objects) {
+			returning {
+				id
+				url
+				todo_id
+				created_at
+			}
+		}
+	}
+`);
+
+export const DELETE_UPLOAD = graphql(`
+	mutation DeleteUpload($where: uploads_bool_exp!) {
+		delete_uploads(where: $where) {
+			affected_rows
+		}
+	}
+`);
+
 export const GET_USERS = graphql(`
 	query GetUsers(
 		$where: users_bool_exp = {}

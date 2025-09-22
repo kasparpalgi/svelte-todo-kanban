@@ -46,8 +46,8 @@
 		"@vitest/browser": "^3.2.3",
 		"bits-ui": "^2.11.0",
 		"clsx": "^2.1.1",
+		"cross-env": "^10.0.0",
 		"dotenv": "^17.2.2",
-		"dotenv-cli": "^10.0.0",
 		"eslint": "^9.22.0",
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-svelte": "^3.0.0",
@@ -61,7 +61,7 @@
 		"svelte-check": "^4.0.0",
 		"svelte2tsx": "^0.7.43",
 		"tailwind-merge": "^3.3.1",
-		"tailwind-variants": "^1.0.0",
+		"tailwind-variants": "^3.1.1",
 		"tailwindcss": "^4.0.0",
 		"tw-animate-css": "^1.3.8",
 		"typescript": "^5.0.0",
@@ -77,11 +77,13 @@
 		"@dnd-kit-svelte/core": "^0.0.11",
 		"@dnd-kit-svelte/sortable": "^0.0.11",
 		"@dnd-kit-svelte/utilities": "^0.0.11",
+		"dotenv-cli": "^10.0.0",
 		"graphql": "^16.11.0",
 		"graphql-request": "^7.2.0",
 		"jsonwebtoken": "^9.0.2",
 		"lucide-svelte": "^0.544.0",
 		"nodemailer": "^6.10.1",
-		"sveltekit-i18n": "^2.4.2"
+		"sveltekit-i18n": "^2.4.2",
+		"zod": "^4.1.11"
 	}
 }

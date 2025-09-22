@@ -12,7 +12,7 @@ export default defineConfig({
 	reporter: 'html',
 
 	use: {
-		baseURL: 'http://localhost:4173',
+		baseURL: 'http://localhost:4173/en',
 		trace: 'on-first-retry'
 	},
 
@@ -37,8 +37,9 @@ export default defineConfig({
 		}
 	],
 	webServer: {
-		command: 'dotenv -e .env.test -- npm run build && npm run preview',
-		port: 4173,
+		command: 'cross-env NODE_ENV=test dotenv -e .env.test -- npm run build && npm run preview',
+		url: 'http://localhost:4173/en',
+		timeout: 120 * 1000,
 		reuseExistingServer: !process.env.CI
 	}
 });

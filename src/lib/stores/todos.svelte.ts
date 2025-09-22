@@ -1,5 +1,12 @@
 /** @file src/lib/stores/todos.svelte.ts */
-import { GET_TODOS, CREATE_TODO, UPDATE_TODOS, DELETE_TODOS } from '$lib/graphql/documents';
+import {
+	GET_TODOS,
+	CREATE_TODO,
+	UPDATE_TODOS,
+	DELETE_TODOS,
+	CREATE_UPLOAD,
+	DELETE_UPLOAD
+} from '$lib/graphql/documents';
 import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
 import type {
@@ -7,6 +14,8 @@ import type {
 	CreateTodoMutation,
 	UpdateTodosMutation,
 	DeleteTodosMutation,
+	CreateUploadMutation,
+	DeleteUploadMutation,
 	TodoFieldsFragment
 } from '$lib/graphql/generated/graphql';
 import type { StoreResult, TodosState } from '$lib/types/todo';
@@ -177,6 +186,78 @@ function createTodosStore() {
 		}
 	}
 
+	async function createUpload(todoId: string, url: string): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		try {
+			const data: CreateUploadMutation = await request(CREATE_UPLOAD, {
+				objects: [
+					{
+						todo_id: todoId,
+						url: url
+					}
+				]
+			});
+
+			if (data.insert_uploads?.returning?.[0]) {
+				// Refresh the todo to get updated uploads
+				await refreshTodo(todoId);
+				return { success: true, message: 'Upload created successfully' };
+			}
+
+			return { success: false, message: 'Failed to create upload record' };
+		} catch (error) {
+			console.error('Create upload error:', error);
+			return {
+				success: false,
+				message: error instanceof Error ? error.message : 'Failed to create upload'
+			};
+		}
+	}
+
+	async function deleteUpload(uploadId: string, todoId: string): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		try {
+			const data: DeleteUploadMutation = await request(DELETE_UPLOAD, {
+				where: { id: { _eq: uploadId } }
+			});
+
+			if (data.delete_uploads?.affected_rows && data.delete_uploads.affected_rows > 0) {
+				// Refresh the todo to get updated uploads
+				await refreshTodo(todoId);
+				return { success: true, message: 'Upload deleted successfully' };
+			}
+
+			return { success: false, message: 'Failed to delete upload' };
+		} catch (error) {
+			console.error('Delete upload error:', error);
+			return {
+				success: false,
+				message: error instanceof Error ? error.message : 'Failed to delete upload'
+			};
+		}
+	}
+
+	async function refreshTodo(todoId: string): Promise<void> {
+		try {
+			const data: GetTodosQuery = await request(GET_TODOS, {
+				where: { id: { _eq: todoId } }
+			});
+
+			if (data.todos?.[0]) {
+				const updatedTodo = data.todos[0];
+				// Update the todo in the store's todos array
+				const index = state.todos.findIndex((t) => t.id === todoId);
+				if (index !== -1) {
+					state.todos[index] = updatedTodo;
+				}
+			}
+		} catch (error) {
+			console.error('Refresh todo error:', error);
+		}
+	}
+
 	async function toggleTodo(id: string): Promise<StoreResult> {
 		const todo = state.todos.find((t) => t.id === id);
 		if (!todo) return { success: false, message: 'Todo not found' };
@@ -302,6 +383,9 @@ function createTodosStore() {
 		toggleTodo,
 		deleteTodo,
 		bulkUpdateTodos,
+		createUpload,
+		deleteUpload,
+		refreshTodo,
 		clearError: () => {
 			state.error = null;
 		},

@@ -206,8 +206,6 @@
 			}
 		}
 
-		// Defer cleanup to next event loop tick
-		console.log('[dnd] handleDragEnd finished. Scheduling cleanup.');
 		setTimeout(cleanup, 0);
 	}
 </script>

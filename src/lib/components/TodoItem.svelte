@@ -12,6 +12,7 @@
 	import TodoEditForm from '$lib/components/TodoEditForm.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { TodoItemProps } from '$lib/types/todo';
+	import type { TodoImage } from '$lib/types/imageUpload';
 
 	let { todo, isDragging = false }: TodoItemProps = $props();
 
@@ -44,7 +45,6 @@
 	});
 
 	type TodoEditData = z.infer<typeof todoEditSchema>;
-	type TodoImage = { id: string; file: File | null; preview: string; isExisting?: boolean };
 
 	let isEditing = $state(false);
 	let editData = $state<TodoEditData>({
@@ -57,10 +57,8 @@
 	let isDragOver = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 	let isSubmitting = $state(false);
-
 	let style = $derived(transform.current ? CSS.Transform.toString(transform.current) : '');
 
-	// Reset edit data when todo changes (but only if not editing)
 	$effect(() => {
 		if (!isEditing) {
 			editData = {
@@ -71,7 +69,6 @@
 		}
 	});
 
-	// Cleanup blob URLs on destroy
 	$effect(() => {
 		return () => {
 			images.forEach((img) => {
@@ -127,18 +124,48 @@
 
 			const result = await todosStore.updateTodo(todo.id, updateData);
 
-			if (result.success) {
-				isEditing = false;
-				images.forEach((img) => {
-					if (!img.isExisting && img.preview.startsWith('blob:')) {
-						URL.revokeObjectURL(img.preview);
-					}
-				});
-				images = [];
-				displayMessage('Todo updated successfully', 1500, true);
-			} else {
+			if (!result.success) {
 				displayMessage(result.message || 'Failed to update todo');
+				return;
 			}
+
+			const newImages = images.filter((img) => !img.isExisting && img.file);
+
+			if (newImages.length > 0) {
+				try {
+					const uploadPromises = newImages.map(async (img) => {
+						const formData = new FormData();
+						formData.append('file', img.file!);
+
+						const response = await fetch('/api/upload', {
+							method: 'POST',
+							body: formData
+						});
+
+						const result = await response.json();
+
+						if (result.success) {
+							return await todosStore.createUpload(todo.id, result.url);
+						} else {
+							throw new Error(result.error || 'Upload failed');
+						}
+					});
+
+					await Promise.all(uploadPromises);
+				} catch (error) {
+					displayMessage('Some images failed to upload, but todo was saved');
+					console.error('Upload error:', error);
+				}
+			}
+
+			isEditing = false;
+			images.forEach((img) => {
+				if (!img.isExisting && img.preview.startsWith('blob:')) {
+					URL.revokeObjectURL(img.preview);
+				}
+			});
+			images = [];
+			displayMessage('Todo updated successfully', 1500, true);
 		} catch (error) {
 			if (error instanceof z.ZodError) {
 				validationErrors = {};
@@ -207,10 +234,17 @@
 
 	function removeImage(imageId: string) {
 		const image = images.find((img) => img.id === imageId);
-		if (image && !image.isExisting && image.preview.startsWith('blob:')) {
-			URL.revokeObjectURL(image.preview);
+		if (image) {
+			if (image.isExisting) {
+				// TODO: delete from S3
+				todosStore.deleteUpload(imageId, todo.id);
+			} else {
+				if (image.preview.startsWith('blob:')) {
+					URL.revokeObjectURL(image.preview);
+				}
+			}
+			images = images.filter((img) => img.id !== imageId);
 		}
-		images = images.filter((img) => img.id !== imageId);
 	}
 
 	function formatDate(dateString: string): string {
@@ -246,7 +280,6 @@
 	class:opacity-50={sortableIsDragging.current || isDragging}
 >
 	{#if !isEditing}
-		<!-- Display Mode - Compact card -->
 		<Card class="group relative transition-all duration-200 hover:shadow-md">
 			<CardContent class="p-3">
 				<div class="flex items-start gap-3">
@@ -259,7 +292,6 @@
 						<GripVertical class="h-4 w-4" />
 					</button>
 
-					<!-- Checkbox -->
 					<button
 						onclick={toggleComplete}
 						class="mt-1 flex h-4 w-4 items-center justify-center rounded border-2 border-muted-foreground transition-colors hover:border-primary {todo.completed_at
