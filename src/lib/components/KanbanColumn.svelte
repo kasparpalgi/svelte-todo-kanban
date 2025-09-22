@@ -13,7 +13,19 @@
 	import TodoItem from '$lib/components/TodoItem.svelte';
 	import type { CanbanColumnProps } from '$lib/types/todo';
 
-	let { list, todos, isHighlighted = false }: CanbanColumnProps = $props();
+	let {
+		list,
+		todos,
+		isHighlighted = false,
+		dropPosition = null
+	}: CanbanColumnProps & {
+		dropPosition?: {
+			listId: string;
+			todoId: string;
+			position: 'above' | 'below';
+			targetIndex: number;
+		} | null;
+	} = $props();
 
 	let droppable = useDroppable({
 		id: `column-${list.id}`
@@ -47,11 +59,42 @@
 					items={todos.map((todo) => todo.id)}
 					strategy={verticalListSortingStrategy}
 				>
-					{#each todos as todo (todo.id)}
+					{#each todos as todo, index (todo.id)}
+						<!-- Show indicator above for specific todo items, not column drops -->
+						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'above'}
+							<div
+								class="h-1 w-full rounded-full bg-blue-500 opacity-80 transition-all duration-200"
+								style="box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);"
+							></div>
+						{/if}
+
+						<!-- Show indicator above first item for column drops -->
+						{#if index === 0 && dropPosition?.listId === list.id && dropPosition?.todoId === 'column' && dropPosition?.position === 'above'}
+							<div
+								class="h-1 w-full rounded-full bg-blue-500 opacity-80 transition-all duration-200"
+								style="box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);"
+							></div>
+						{/if}
+
 						<TodoItem {todo} />
+
+						<!-- Show indicator below -->
+						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'below'}
+							<div
+								class="h-1 w-full rounded-full bg-blue-500 opacity-80 transition-all duration-200"
+								style="box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);"
+							></div>
+						{/if}
 					{/each}
 				</SortableContext>
 			{:else}
+				<!-- Empty list indicator -->
+				{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
+					<div
+						class="h-1 w-full rounded-full bg-blue-500 opacity-80 transition-all duration-200"
+						style="box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);"
+					></div>
+				{/if}
 				<div class="py-8 text-center text-xs text-muted-foreground">
 					{$t('todo.drop_tasks_here')}
 				</div>

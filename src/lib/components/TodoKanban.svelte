@@ -29,6 +29,13 @@
 	let activeId = $state<string | null>(null);
 	let activeTodo = $state<TodoFieldsFragment | null>(null);
 	let hoveredListId = $state<string | null>(null);
+	let dropPosition = $state<{
+		listId: string;
+		todoId: string;
+		position: 'above' | 'below';
+		targetIndex: number;
+	} | null>(null);
+
 	let pointerSensor = useSensor(PointerSensor, {
 		activationConstraint: {
 			distance: 8
@@ -39,7 +46,6 @@
 	});
 	let sensors = [pointerSensor, keyboardSensor];
 
-	// Group by list
 	let kanbanLists = $derived(() => {
 		const groups = new Map<string, { list: any; todos: TodoFieldsFragment[] }>();
 
@@ -70,36 +76,78 @@
 		activeId = active.id as string;
 		activeTodo = todosStore.todos.find((todo: TodoFieldsFragment) => todo.id === activeId) || null;
 		hoveredListId = null;
+		dropPosition = null;
 	}
 
 	function handleDragOver(event: DragOverEvent) {
 		const { active, over } = event;
-		if (!over || !activeId) return;
+		if (!over || !activeId) {
+			dropPosition = null;
+			hoveredListId = null;
+			return;
+		}
 
 		const overId = over.id as string;
 		const draggedTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === activeId);
-
 		if (!draggedTodo) return;
 
 		const currentListId = draggedTodo.list?.id || 'unassigned';
 
-		// Check if over a column
+		// Column drop (empty area)
 		if (overId.startsWith('column-')) {
 			const newListId = overId.replace('column-', '');
 			hoveredListId = newListId !== currentListId ? newListId : null;
-		} else {
-			// Check if over a todo in a different list
-			const overTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === overId);
-			if (overTodo) {
-				const overListId = overTodo.list?.id || 'unassigned';
-				hoveredListId = overListId !== currentListId ? overListId : null;
+
+			dropPosition = {
+				listId: newListId,
+				todoId: 'column',
+				position: 'above',
+				targetIndex: 0
+			};
+			return;
+		}
+
+		// Todo item drop
+		const overTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === overId);
+		if (!overTodo) return;
+
+		const overListId = overTodo.list?.id || 'unassigned';
+		hoveredListId = overListId !== currentListId ? overListId : null;
+
+		const listGroup = kanbanLists().find((group) => group.list.id === overListId);
+		if (!listGroup) return;
+
+		const todoIndex = listGroup.todos.findIndex((t: TodoFieldsFragment) => t.id === overId);
+		if (todoIndex === -1) return;
+
+		// Default to 'below' for all items & 'above' when dragging from higher -> lower index (within same list)
+		let position: 'above' | 'below' = 'below';
+		let targetIndex = todoIndex;
+
+		if (overListId === currentListId) {
+			// Same list = drag direction to determine position
+			const draggedIndex = listGroup.todos.findIndex((t: TodoFieldsFragment) => t.id === activeId);
+			if (draggedIndex > todoIndex) {
+				position = 'above';
+			} else {
+				position = 'below';
 			}
 		}
+		// Cross-list = always 'below
+
+		dropPosition = {
+			listId: overListId,
+			todoId: overId,
+			position,
+			targetIndex
+		};
 	}
 
 	async function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event;
+		const finalDropPosition = dropPosition;
 		hoveredListId = null;
+		dropPosition = null;
 
 		if (!over || active.id === over.id) {
 			activeId = null;
@@ -108,72 +156,71 @@
 		}
 
 		const draggedId = active.id as string;
-		const overId = over.id as string;
 		const draggedTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === draggedId);
 
-		if (!draggedTodo) {
+		if (!draggedTodo || !finalDropPosition) {
 			activeId = null;
 			activeTodo = null;
 			return;
 		}
 
-		// Prevent multiple rapid updates
+		const { listId: targetListId, targetIndex, position } = finalDropPosition;
+		const currentListId = draggedTodo.list?.id || 'unassigned';
+
 		let updatePromise: Promise<any> | null = null;
 
-		// Check if dropping on a column (cross-list move)
-		if (overId.startsWith('column-')) {
-			const newListId = overId.replace('column-', '');
-			const currentListId = draggedTodo.list?.id || 'unassigned';
+		if (targetListId !== currentListId) {
+			// Cross-list move
+			const listIdToUpdate = targetListId === 'unassigned' ? null : targetListId;
+			const targetListGroup = kanbanLists().find((group) => group.list.id === targetListId);
 
-			if (currentListId !== newListId) {
-				const listIdToUpdate = newListId === 'unassigned' ? null : newListId;
-				updatePromise = todosStore.updateTodo(draggedId, {
-					list_id: listIdToUpdate,
-					sort_order: 1
+			if (targetListGroup) {
+				const targetTodos = [...targetListGroup.todos];
+				let insertIndex = position === 'above' ? targetIndex : targetIndex + 1;
+
+				const newItem = { ...draggedTodo, list: targetListGroup.list };
+				targetTodos.splice(insertIndex, 0, newItem);
+
+				const updates = targetTodos.map((todo, index) => {
+					if (todo.id === draggedId) {
+						return todosStore.updateTodo(draggedId, {
+							list_id: listIdToUpdate,
+							sort_order: index + 1
+						});
+					} else {
+						return todosStore.updateTodo(todo.id, { sort_order: index + 1 });
+					}
 				});
+
+				updatePromise = Promise.all(updates);
 			}
 		} else {
-			// Dropping on another todo
-			const overTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === overId);
+			// Same list reordering
+			const listGroup = kanbanLists().find((group) => group.list.id === currentListId);
+			if (listGroup) {
+				const listTodos = listGroup.todos;
+				const activeIndex = listTodos.findIndex((t: TodoFieldsFragment) => t.id === draggedId);
+				let newIndex = position === 'above' ? targetIndex : targetIndex + 1;
 
-			if (overTodo) {
-				const draggedListId = draggedTodo.list?.id || 'unassigned';
-				const overListId = overTodo.list?.id || 'unassigned';
+				// Don't adjust for same-list moves (splice handles)
+				if (activeIndex !== newIndex) {
+					const newTodos = [...listTodos];
+					const [removed] = newTodos.splice(activeIndex, 1);
 
-				if (draggedListId !== overListId) {
-					// Cross-list move when dropping on todo in different list
-					const listIdToUpdate = overListId === 'unassigned' ? null : overListId;
-					updatePromise = todosStore.updateTodo(draggedId, {
-						list_id: listIdToUpdate,
-						sort_order: (overTodo.sort_order || 0) + 1
-					});
-				} else {
-					// Same list reordering - batch update
-					const listGroup = kanbanLists().find((group) => group.list.id === draggedListId);
-
-					if (listGroup) {
-						const listTodos = listGroup.todos;
-						const activeIndex = listTodos.findIndex((t: TodoFieldsFragment) => t.id === draggedId);
-						const overIndex = listTodos.findIndex((t: TodoFieldsFragment) => t.id === overId);
-
-						if (activeIndex !== overIndex) {
-							const newTodos = [...listTodos];
-							const [removed] = newTodos.splice(activeIndex, 1);
-							newTodos.splice(overIndex, 0, removed);
-
-							// All updates to single promise
-							updatePromise = Promise.all(
-								newTodos.map((todo, index) =>
-									todosStore.updateTodo(todo.id, { sort_order: index + 1 })
-								)
-							);
-						}
+					// Adjust insertion index if removed item before it
+					if (activeIndex < newIndex) {
+						newIndex--;
 					}
+
+					newTodos.splice(newIndex, 0, removed);
+
+					updatePromise = Promise.all(
+						newTodos.map((todo, index) => todosStore.updateTodo(todo.id, { sort_order: index + 1 }))
+					);
 				}
 			}
 		}
 
-		// Clear drag state after update complete
 		if (updatePromise) {
 			await updatePromise;
 		}
@@ -192,7 +239,7 @@
 		onDragEnd={handleDragEnd}
 	>
 		{#each kanbanLists() as { list, todos } (list.id)}
-			<KanbanColumn {list} {todos} isHighlighted={hoveredListId === list.id} />
+			<KanbanColumn {list} {todos} isHighlighted={hoveredListId === list.id} {dropPosition} />
 		{/each}
 
 		<DragOverlay>
