@@ -5,7 +5,7 @@ Modern Kanban ToDo app built according to requirements [requirements](docs/todol
 ## Install
 
 1. `npm i` (or pnmp/yarn)
-2. Rename `.env.example` to `.env` and update URL/password and do the same woth `hasura/.env.example`
+2. Rename `.env.example` to `.env` and update URL/password and do the same woth `hasura/.env.example`. Also, `.env.test.example` to `.env.test` (needed for Playwright testing Auth.js).
 3. Set up backend.
    1. Rename `hasura/config.example.yaml` to `hasura/config.yaml` and update the password. 
    2. Install [Hasura CLI](https://hasura.io/docs/2.0/hasura-cli/install-hasura-cli/)
@@ -25,6 +25,7 @@ Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 * [lucide-svelte icons](https://lucide.dev/icons/)
 * PostgreSQL for DB
 * graphql & graphql-request - handling Hasura GraphQL API requests from SvelteKit REST API endpoints
+* Zod for form validation
 
 ## Developing
 
