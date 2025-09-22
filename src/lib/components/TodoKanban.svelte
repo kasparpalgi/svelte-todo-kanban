@@ -19,7 +19,7 @@
 		useSensor,
 		type DragEndEvent,
 		type DragStartEvent,
-		type DragOverEvent
+		type DragMoveEvent
 	} from '@dnd-kit-svelte/core';
 	import { sortableKeyboardCoordinates } from '@dnd-kit-svelte/sortable';
 	import KanbanColumn from '$lib/components/KanbanColumn.svelte';
@@ -48,11 +48,9 @@
 
 	let kanbanLists = $derived(() => {
 		const groups = new Map<string, { list: any; todos: TodoFieldsFragment[] }>();
-
 		for (const todo of todosStore.todos.filter((t: TodoFieldsFragment) => !t.completed_at)) {
 			const listId = todo.list?.id || 'unassigned';
 			const listName = todo.list?.name || $t('todo.unassigned');
-
 			if (!groups.has(listId)) {
 				groups.set(listId, {
 					list: { id: listId, name: listName, sort_order: todo.list?.sort_order || 999 },
@@ -61,172 +59,156 @@
 			}
 			groups.get(listId)!.todos.push(todo);
 		}
-
 		for (const group of groups.values()) {
 			group.todos.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 		}
-
 		return Array.from(groups.values()).sort(
 			(a, b) => (a.list.sort_order || 999) - (b.list.sort_order || 999)
 		);
 	});
 
+	function cleanup() {
+		activeId = null;
+		activeTodo = null;
+		dropPosition = null;
+		hoveredListId = null;
+	}
+
 	function handleDragStart(event: DragStartEvent) {
 		const { active } = event;
 		activeId = active.id as string;
 		activeTodo = todosStore.todos.find((todo: TodoFieldsFragment) => todo.id === activeId) || null;
-		hoveredListId = null;
-		dropPosition = null;
 	}
 
-	function handleDragOver(event: DragOverEvent) {
+	function handleDragMove(event: DragMoveEvent) {
 		const { active, over } = event;
-		if (!over || !activeId) {
-			dropPosition = null;
-			hoveredListId = null;
-			return;
-		}
-
+		if (!over || !active.id) return;
 		const overId = over.id as string;
-		const draggedTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === activeId);
-		if (!draggedTodo) return;
-
-		const currentListId = draggedTodo.list?.id || 'unassigned';
-
-		// Column drop (empty area)
-		if (overId.startsWith('column-')) {
-			const newListId = overId.replace('column-', '');
-			hoveredListId = newListId !== currentListId ? newListId : null;
-
-			dropPosition = {
-				listId: newListId,
-				todoId: 'column',
-				position: 'above',
-				targetIndex: 0
-			};
-			return;
-		}
-
-		// Todo item drop
-		const overTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === overId);
-		if (!overTodo) return;
-
-		const overListId = overTodo.list?.id || 'unassigned';
-		hoveredListId = overListId !== currentListId ? overListId : null;
-
-		const listGroup = kanbanLists().find((group) => group.list.id === overListId);
-		if (!listGroup) return;
-
-		const todoIndex = listGroup.todos.findIndex((t: TodoFieldsFragment) => t.id === overId);
-		if (todoIndex === -1) return;
-
-		// Default to 'below' for all items & 'above' when dragging from higher -> lower index (within same list)
-		let position: 'above' | 'below' = 'below';
-		let targetIndex = todoIndex;
-
-		if (overListId === currentListId) {
-			// Same list = drag direction to determine position
-			const draggedIndex = listGroup.todos.findIndex((t: TodoFieldsFragment) => t.id === activeId);
-			if (draggedIndex > todoIndex) {
-				position = 'above';
+		const isOverAColumn = overId.startsWith('column-');
+		const overTodo = !isOverAColumn ? todosStore.todos.find((t) => t.id === overId) : undefined;
+		if (overTodo) {
+			const targetListId = overTodo.list?.id || 'unassigned';
+			hoveredListId = targetListId;
+			const listGroup = kanbanLists().find((g) => g.list.id === targetListId);
+			if (!listGroup) return;
+			const todoIndex = listGroup.todos.findIndex((t) => t.id === overId);
+			if (todoIndex === -1) return;
+			const draggingRect = active.rect.translated;
+			const overRect = over.rect;
+			if (!draggingRect || !overRect) return;
+			const overMiddleY = overRect.top + overRect.height / 2;
+			const cursorY = draggingRect.top + draggingRect.height / 2;
+			const position = cursorY < overMiddleY ? 'above' : 'below';
+			dropPosition = { listId: targetListId, todoId: overId, position, targetIndex: todoIndex };
+		} else if (isOverAColumn) {
+			const targetListId = overId.replace('column-', '');
+			const listGroup = kanbanLists().find((g) => g.list.id === targetListId);
+			if (!listGroup) return;
+			hoveredListId = targetListId;
+			if (listGroup.todos.length === 0) {
+				dropPosition = {
+					listId: targetListId,
+					todoId: 'column',
+					position: 'above',
+					targetIndex: 0
+				};
 			} else {
-				position = 'below';
+				const draggingRect = active.rect.translated;
+				const columnRect = over.rect;
+				if (!draggingRect || !columnRect) return;
+				const cursorY = draggingRect.top + draggingRect.height / 2;
+				const columnTop = columnRect.top;
+				const columnBottom = columnRect.top + columnRect.height;
+				if (Math.abs(cursorY - columnTop) < Math.abs(cursorY - columnBottom)) {
+					const firstTodo = listGroup.todos[0];
+					dropPosition = {
+						listId: targetListId,
+						todoId: firstTodo.id,
+						position: 'above',
+						targetIndex: 0
+					};
+				} else {
+					const lastTodo = listGroup.todos[listGroup.todos.length - 1];
+					dropPosition = {
+						listId: targetListId,
+						todoId: lastTodo.id,
+						position: 'below',
+						targetIndex: listGroup.todos.length - 1
+					};
+				}
 			}
 		}
-		// Cross-list = always 'below
-
-		dropPosition = {
-			listId: overListId,
-			todoId: overId,
-			position,
-			targetIndex
-		};
 	}
 
-	async function handleDragEnd(event: DragEndEvent) {
+	function handleDragCancel() {
+		cleanup();
+	}
+
+	function handleDragEnd(event: DragEndEvent) {
 		const { active, over } = event;
 		const finalDropPosition = dropPosition;
-		hoveredListId = null;
-		dropPosition = null;
 
-		if (!over || active.id === over.id) {
-			activeId = null;
-			activeTodo = null;
-			return;
-		}
-
-		const draggedId = active.id as string;
-		const draggedTodo = todosStore.todos.find((t: TodoFieldsFragment) => t.id === draggedId);
-
-		if (!draggedTodo || !finalDropPosition) {
-			activeId = null;
-			activeTodo = null;
-			return;
-		}
-
-		const { listId: targetListId, targetIndex, position } = finalDropPosition;
-		const currentListId = draggedTodo.list?.id || 'unassigned';
-
-		let updatePromise: Promise<any> | null = null;
-
-		if (targetListId !== currentListId) {
-			// Cross-list move
-			const listIdToUpdate = targetListId === 'unassigned' ? null : targetListId;
-			const targetListGroup = kanbanLists().find((group) => group.list.id === targetListId);
-
-			if (targetListGroup) {
-				const targetTodos = [...targetListGroup.todos];
-				let insertIndex = position === 'above' ? targetIndex : targetIndex + 1;
-
-				const newItem = { ...draggedTodo, list: targetListGroup.list };
-				targetTodos.splice(insertIndex, 0, newItem);
-
-				const updates = targetTodos.map((todo, index) => {
-					if (todo.id === draggedId) {
-						return todosStore.updateTodo(draggedId, {
-							list_id: listIdToUpdate,
-							sort_order: index + 1
-						});
-					} else {
-						return todosStore.updateTodo(todo.id, { sort_order: index + 1 });
-					}
-				});
-
-				updatePromise = Promise.all(updates);
+		if (over && finalDropPosition && active.id !== over.id) {
+			const draggedId = active.id as string;
+			const draggedTodo = todosStore.todos.find((t) => t.id === draggedId);
+			if (!draggedTodo) {
+				// Defer cleanup and exit
+				setTimeout(cleanup, 0);
+				return;
 			}
-		} else {
-			// Same list reordering
-			const listGroup = kanbanLists().find((group) => group.list.id === currentListId);
-			if (listGroup) {
-				const listTodos = listGroup.todos;
-				const activeIndex = listTodos.findIndex((t: TodoFieldsFragment) => t.id === draggedId);
-				let newIndex = position === 'above' ? targetIndex : targetIndex + 1;
 
-				// Don't adjust for same-list moves (splice handles)
-				if (activeIndex !== newIndex) {
-					const newTodos = [...listTodos];
-					const [removed] = newTodos.splice(activeIndex, 1);
+			const sourceListId = draggedTodo.list?.id || 'unassigned';
+			const { listId: targetListId, position, targetIndex } = finalDropPosition;
+			const sourceListGroup = kanbanLists().find((g) => g.list.id === sourceListId);
+			const targetListGroup = kanbanLists().find((g) => g.list.id === targetListId);
 
-					// Adjust insertion index if removed item before it
-					if (activeIndex < newIndex) {
-						newIndex--;
+			if (sourceListGroup && targetListGroup) {
+				let updatePromise: Promise<any> | null = null;
+				if (sourceListId === targetListId) {
+					const reorderedList = [...sourceListGroup.todos];
+					const activeIndex = reorderedList.findIndex((t) => t.id === draggedId);
+					let insertIndex = position === 'above' ? targetIndex : targetIndex + 1;
+					if (activeIndex !== insertIndex) {
+						const [movedItem] = reorderedList.splice(activeIndex, 1);
+						if (activeIndex < insertIndex) insertIndex--;
+						reorderedList.splice(insertIndex, 0, movedItem);
+						updatePromise = Promise.all(
+							reorderedList.map((todo, index) =>
+								todosStore.updateTodo(todo.id, { sort_order: index + 1 })
+							)
+						);
 					}
-
-					newTodos.splice(newIndex, 0, removed);
-
-					updatePromise = Promise.all(
-						newTodos.map((todo, index) => todosStore.updateTodo(todo.id, { sort_order: index + 1 }))
+				} else {
+					const sourceList = [...sourceListGroup.todos];
+					const targetList = [...targetListGroup.todos];
+					const listIdToUpdate = targetListId === 'unassigned' ? null : targetListId;
+					const activeIndex = sourceList.findIndex((t) => t.id === draggedId);
+					const [movedItem] = sourceList.splice(activeIndex, 1);
+					let insertIndex = position === 'above' ? targetIndex : targetIndex + 1;
+					if (finalDropPosition.todoId === 'column') insertIndex = 0;
+					targetList.splice(insertIndex, 0, movedItem);
+					const sourceUpdates = sourceList.map((todo, index) =>
+						todosStore.updateTodo(todo.id, { sort_order: index + 1 })
 					);
+					const targetUpdates = targetList.map((todo, index) => {
+						const updates: { sort_order: number; list_id?: string | null } = {
+							sort_order: index + 1
+						};
+						if (todo.id === draggedId) updates.list_id = listIdToUpdate;
+						return todosStore.updateTodo(todo.id, updates);
+					});
+					updatePromise = Promise.all([...sourceUpdates, ...targetUpdates]);
+				}
+
+				if (updatePromise) {
+					updatePromise.catch((err) => console.error('Failed to update store:', err));
 				}
 			}
 		}
 
-		if (updatePromise) {
-			await updatePromise;
-		}
-
-		activeId = null;
-		activeTodo = null;
+		// Defer cleanup to next event loop tick
+		console.log('[dnd] handleDragEnd finished. Scheduling cleanup.');
+		setTimeout(cleanup, 0);
 	}
 </script>
 
@@ -235,8 +217,9 @@
 		{sensors}
 		collisionDetection={closestCorners}
 		onDragStart={handleDragStart}
-		onDragOver={handleDragOver}
+		onDragMove={handleDragMove}
 		onDragEnd={handleDragEnd}
+		onDragCancel={handleDragCancel}
 	>
 		{#each kanbanLists() as { list, todos } (list.id)}
 			<KanbanColumn {list} {todos} isHighlighted={hoveredListId === list.id} {dropPosition} />
