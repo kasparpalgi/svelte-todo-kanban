@@ -3,6 +3,7 @@
 	import '../app.css';
 	import { initTranslations } from '$lib/i18n';
 	import favicon from '$lib/assets/favicon.svg';
+	import ErrorSuccess from '$lib/components/ui/ErrorSuccess.svelte';
 
 	let { data, children } = $props();
 
@@ -21,3 +22,5 @@
 <div class="min-h-screen bg-background">
 	{@render children?.()}
 </div>
+
+<ErrorSuccess />

@@ -1,17 +1,16 @@
 <!-- @file src/lib/components/TodoItem.svelte -->
 <script lang="ts">
 	import { todosStore } from '$lib/stores/todos.svelte';
-	import { t } from '$lib/i18n';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Check, X, Edit, Calendar, Image as ImageIcon, GripVertical } from 'lucide-svelte';
+	import { Check, Edit, Calendar, GripVertical } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import { CSS } from '@dnd-kit-svelte/utilities';
-	import { Input } from '$lib/components/ui/input';
-	import { Textarea } from '$lib/components/ui/textarea';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { z } from 'zod';
 	import TodoEditForm from '$lib/components/TodoEditForm.svelte';
+	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { TodoItemProps } from '$lib/types/todo';
 
 	let { todo, isDragging = false }: TodoItemProps = $props();
@@ -45,6 +44,7 @@
 	});
 
 	type TodoEditData = z.infer<typeof todoEditSchema>;
+	type TodoImage = { id: string; file: File | null; preview: string; isExisting?: boolean };
 
 	let isEditing = $state(false);
 	let editData = $state<TodoEditData>({
@@ -52,9 +52,7 @@
 		content: todo.content || '',
 		due_on: todo.due_on ? new Date(todo.due_on).toISOString().split('T')[0] : ''
 	});
-	let images = $state<
-		Array<{ id: string; file: File | null; preview: string; isExisting?: boolean }>
-	>([]);
+	let images = $state<TodoImage[]>([]);
 	let validationErrors = $state<Record<string, string>>({});
 	let isDragOver = $state(false);
 	let fileInput = $state<HTMLInputElement>();
@@ -87,7 +85,6 @@
 	function startEdit() {
 		isEditing = true;
 		validationErrors = {};
-		// Reset images to existing uploads
 		images =
 			todo.uploads?.map((upload) => ({
 				id: upload.id,
@@ -104,7 +101,6 @@
 			content: todo.content || '',
 			due_on: todo.due_on ? new Date(todo.due_on).toISOString().split('T')[0] : ''
 		};
-		// Clean up blob URLs for new images
 		images.forEach((img) => {
 			if (!img.isExisting && img.preview.startsWith('blob:')) {
 				URL.revokeObjectURL(img.preview);
@@ -117,34 +113,31 @@
 	async function saveEdit() {
 		if (isSubmitting) return;
 
-		// Validate form data
 		try {
 			const validatedData = todoEditSchema.parse(editData);
 			validationErrors = {};
 
 			isSubmitting = true;
 
-			const updateData: any = {
+			const updateData: Partial<Pick<TodoFieldsFragment, 'title' | 'content' | 'due_on'>> = {
 				title: validatedData.title,
 				content: validatedData.content || null,
 				due_on: validatedData.due_on || null
 			};
 
-			// TODO: image uploads here
 			const result = await todosStore.updateTodo(todo.id, updateData);
 
 			if (result.success) {
 				isEditing = false;
-				// Clean up blob URLs for new images
 				images.forEach((img) => {
 					if (!img.isExisting && img.preview.startsWith('blob:')) {
 						URL.revokeObjectURL(img.preview);
 					}
 				});
 				images = [];
+				displayMessage('Todo updated successfully', 1500, true);
 			} else {
-				// TODO: handle error (toast in layout)
-				console.error('Failed to update todo:', result.message);
+				displayMessage(result.message || 'Failed to update todo');
 			}
 		} catch (error) {
 			if (error instanceof z.ZodError) {
@@ -154,6 +147,8 @@
 						validationErrors[issue.path[0] as string] = issue.message;
 					}
 				});
+			} else {
+				displayMessage('An unexpected error occurred');
 			}
 		} finally {
 			isSubmitting = false;
@@ -161,7 +156,10 @@
 	}
 
 	async function toggleComplete() {
-		await todosStore.toggleTodo(todo.id);
+		const result = await todosStore.toggleTodo(todo.id);
+		if (!result.success) {
+			displayMessage(result.message || 'Failed to update todo status');
+		}
 	}
 
 	function handleDragOver(event: DragEvent) {
@@ -177,7 +175,6 @@
 	function handleDrop(event: DragEvent) {
 		event.preventDefault();
 		isDragOver = false;
-
 		const files = Array.from(event.dataTransfer?.files || []);
 		addFiles(files);
 	}
@@ -186,7 +183,7 @@
 		const target = event.target as HTMLInputElement;
 		const files = Array.from(target.files || []);
 		addFiles(files);
-		target.value = ''; // Reset input
+		target.value = '';
 	}
 
 	function addFiles(files: File[]) {
@@ -200,13 +197,11 @@
 			images = [...images, { id, file, preview, isExisting: false }];
 		});
 
-		// Show error for invalid files
 		const invalidFiles = files.filter(
 			(file) => !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024
 		);
 		if (invalidFiles.length > 0) {
-			// TODO: error handling
-			console.warn('Some files were rejected: must be images under 5MB');
+			displayMessage('Some files were rejected: must be images under 5MB');
 		}
 	}
 
@@ -250,10 +245,10 @@
 	class="touch-none"
 	class:opacity-50={sortableIsDragging.current || isDragging}
 >
-	<Card class="group relative transition-all duration-200 hover:shadow-md">
-		{#if !isEditing}
-			<!-- Display Mode -->
-			<CardContent>
+	{#if !isEditing}
+		<!-- Display Mode - Compact card -->
+		<Card class="group relative transition-all duration-200 hover:shadow-md">
+			<CardContent class="p-3">
 				<div class="flex items-start gap-3">
 					<!-- Drag Handle -->
 					<button
@@ -311,7 +306,7 @@
 									<img
 										src={upload.url}
 										alt="Todo attachment"
-										class="h-16 w-16 rounded border object-cover"
+										class="h-12 w-12 rounded border object-cover"
 									/>
 								{/each}
 							</div>
@@ -326,24 +321,24 @@
 					</div>
 				</div>
 			</CardContent>
-		{:else}
-			<TodoEditForm
-				{todo}
-				{editData}
-				{validationErrors}
-				{images}
-				{isDragOver}
-				{isSubmitting}
-				onSave={saveEdit}
-				onCancel={cancelEdit}
-				onKeydown={handleKeydown}
-				onDragOver={handleDragOver}
-				onDragLeave={handleDragLeave}
-				onDrop={handleDrop}
-				onFileSelect={handleFileSelect}
-				onRemoveImage={removeImage}
-				{fileInput}
-			/>
-		{/if}
-	</Card>
+		</Card>
+	{:else}
+		<TodoEditForm
+			{todo}
+			bind:editData
+			bind:validationErrors
+			bind:images
+			bind:isDragOver
+			{isSubmitting}
+			onSave={saveEdit}
+			onCancel={cancelEdit}
+			onKeydown={handleKeydown}
+			onDragOver={handleDragOver}
+			onDragLeave={handleDragLeave}
+			onDrop={handleDrop}
+			onFileSelect={handleFileSelect}
+			onRemoveImage={removeImage}
+			bind:fileInput
+		/>
+	{/if}
 </div>

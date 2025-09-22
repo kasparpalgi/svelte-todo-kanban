@@ -5,32 +5,14 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Check, X, Image as ImageIcon } from 'lucide-svelte';
-	import type { z } from 'zod';
-
-	interface Props {
-		todo: any;
-		editData: any;
-		validationErrors: Record<string, string>;
-		images: Array<{ id: string; file: File | null; preview: string; isExisting?: boolean }>;
-		isDragOver: boolean;
-		isSubmitting: boolean;
-		onSave: () => Promise<void>;
-		onCancel: () => void;
-		onKeydown: (event: KeyboardEvent) => void;
-		onDragOver: (event: DragEvent) => void;
-		onDragLeave: (event: DragEvent) => void;
-		onDrop: (event: DragEvent) => void;
-		onFileSelect: (event: Event) => void;
-		onRemoveImage: (id: string) => void;
-		fileInput: HTMLInputElement | undefined;
-	}
+	import type { TodoEditProps } from '$lib/types/todo';
 
 	let {
 		todo,
-		editData,
-		validationErrors,
-		images,
-		isDragOver,
+		editData = $bindable(),
+		validationErrors = $bindable(),
+		images = $bindable(),
+		isDragOver = $bindable(),
 		isSubmitting,
 		onSave,
 		onCancel,
@@ -40,14 +22,14 @@
 		onDrop,
 		onFileSelect,
 		onRemoveImage,
-		fileInput
-	}: Props = $props();
+		fileInput = $bindable()
+	}: TodoEditProps = $props();
 </script>
 
 <div role="dialog" aria-label="Edit todo: {todo.title}" onkeydown={onKeydown} tabindex="0">
 	<Card class="group relative transition-all duration-200">
 		<CardContent class="p-4">
-			<div class="space-y-4">
+			<div class="space-y-3">
 				<!-- Title -->
 				<div>
 					<label for="title-{todo.id}" class="mb-1 block text-sm font-medium text-foreground">
@@ -77,7 +59,7 @@
 						id="content-{todo.id}"
 						bind:value={editData.content}
 						placeholder="Task description (optional)"
-						rows={3}
+						rows={2}
 						class={validationErrors.content
 							? 'border-destructive focus-visible:ring-destructive'
 							: ''}
@@ -112,14 +94,14 @@
 					<span class="mb-2 block text-sm font-medium text-foreground">Images</span>
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div
-						class="rounded-lg border-2 border-dashed border-muted-foreground/25 p-6 text-center transition-colors {isDragOver
+						class="rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 text-center transition-colors {isDragOver
 							? 'border-primary bg-primary/5'
 							: ''}"
 						ondragover={onDragOver}
 						ondragleave={onDragLeave}
 						ondrop={onDrop}
 					>
-						<ImageIcon class="mx-auto h-8 w-8 text-muted-foreground" />
+						<ImageIcon class="mx-auto h-6 w-6 text-muted-foreground" />
 						<p class="mt-2 text-sm text-muted-foreground">
 							Drag and drop images here, or
 							<button
@@ -143,7 +125,7 @@
 
 					<!-- Image Previews -->
 					{#if images.length > 0}
-						<div class="mt-4 grid grid-cols-3 gap-2">
+						<div class="mt-3 grid grid-cols-4 gap-2">
 							{#each images as image (image.id)}
 								<div class="group relative">
 									<img
@@ -153,7 +135,7 @@
 									/>
 									<button
 										onclick={() => onRemoveImage(image.id)}
-										class="text-destructive-foreground absolute -top-2 -right-2 rounded-full bg-destructive p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/90"
+										class="text-destructive-foreground absolute -top-1 -right-1 rounded-full bg-destructive p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/90"
 										type="button"
 									>
 										<X class="h-3 w-3" />
@@ -172,33 +154,31 @@
 				</div>
 
 				<!-- Actions -->
-				<div class="space-y-3">
-					<div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-						<Button
-							variant="outline"
-							onclick={onCancel}
-							disabled={isSubmitting}
-							class="order-2 sm:order-1"
-						>
-							Cancel
-						</Button>
-						<Button onclick={onSave} disabled={isSubmitting} class="order-1 sm:order-2">
-							{#if isSubmitting}
-								<div
-									class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-								></div>
-								Saving...
-							{:else}
-								<Check class="mr-2 h-4 w-4" />
-								Save
-							{/if}
-						</Button>
-					</div>
-					<p class="text-center text-xs text-muted-foreground sm:text-right">
-						Press <kbd class="rounded bg-muted px-1 py-0.5 text-xs">Esc</kbd> to cancel,
-						<kbd class="rounded bg-muted px-1 py-0.5 text-xs">Ctrl+Enter</kbd> to save
-					</p>
+				<div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
+					<Button
+						variant="outline"
+						onclick={onCancel}
+						disabled={isSubmitting}
+						class="order-2 sm:order-1"
+					>
+						Cancel
+					</Button>
+					<Button onclick={onSave} disabled={isSubmitting} class="order-1 sm:order-2">
+						{#if isSubmitting}
+							<div
+								class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+							></div>
+							Saving...
+						{:else}
+							<Check class="mr-2 h-4 w-4" />
+							Save
+						{/if}
+					</Button>
 				</div>
+				<p class="text-center text-xs text-muted-foreground sm:text-right">
+					Press <kbd class="rounded bg-muted px-1 py-0.5 text-xs">Esc</kbd> to cancel,
+					<kbd class="rounded bg-muted px-1 py-0.5 text-xs">Ctrl+Enter</kbd> to save
+				</p>
 			</div>
 		</CardContent>
 	</Card>

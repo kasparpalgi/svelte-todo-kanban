@@ -23,3 +23,23 @@ export interface TodoItemProps {
 	todo: TodoFieldsFragment;
 	isDragging?: boolean;
 }
+
+export interface TodoEditProps {
+	todo: TodoFieldsFragment;
+	editData: any;
+	validationErrors: Record<string, string>;
+	images: TodoImage[];
+	isDragOver: boolean;
+	isSubmitting: boolean;
+	onSave: () => Promise<void>;
+	onCancel: () => void;
+	onKeydown: (event: KeyboardEvent) => void;
+	onDragOver: (event: DragEvent) => void;
+	onDragLeave: (event: DragEvent) => void;
+	onDrop: (event: DragEvent) => void;
+	onFileSelect: (event: Event) => void;
+	onRemoveImage: (id: string) => void;
+	fileInput: HTMLInputElement | undefined;
+}
+
+type TodoImage = { id: string; file: File | null; preview: string; isExisting?: boolean };
