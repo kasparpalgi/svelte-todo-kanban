@@ -1,4 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: './.env.test' });
 
 export default defineConfig({
 	testDir: 'e2e',
@@ -33,9 +36,8 @@ export default defineConfig({
 			testMatch: /.*unauthenticated\.spec\.ts/
 		}
 	],
-
 	webServer: {
-		command: 'npm run build && npm run preview',
+		command: 'dotenv -e .env.test -- npm run build && npm run preview',
 		port: 4173,
 		reuseExistingServer: !process.env.CI
 	}

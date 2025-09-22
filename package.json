@@ -20,6 +20,7 @@
 		"test": "npm run test:unit:all -- --run && npm run test:e2e",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
+		"test:h": "playwright test --headed",
 		"cu": "rm -rf node_modules package-lock.json .svelte-kit && npm cache clean --force && npm i",
 		"cw": "rmdir /s /q node_modules && del /f /q package-lock.json && rmdir /s /q .svelte-kit && npm cache clean --force && npm i"
 	},
@@ -46,6 +47,7 @@
 		"bits-ui": "^2.11.0",
 		"clsx": "^2.1.1",
 		"dotenv": "^17.2.2",
+		"dotenv-cli": "^10.0.0",
 		"eslint": "^9.22.0",
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-svelte": "^3.0.0",

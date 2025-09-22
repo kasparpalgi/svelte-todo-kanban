@@ -39,27 +39,25 @@ const providers: Provider[] = [
 	})
 ];
 
-if (dev) {
-	providers.push(
-		Credentials({
-			id: '166ca52b-4ecf-4d30-842f-95f97656aeb5',
-			name: 'Test Login',
-			credentials: {
-				email: { label: 'Email', type: 'email' }
-			},
-			async authorize(credentials) {
-				if (credentials.email === 'test@test.com') {
-					return {
-						id: '166ca52b-4ecf-4d30-842f-95f97656aeb5', // Your manually created user ID
-						name: 'Test User',
-						email: 'test@test.com'
-					};
-				}
-				return null;
+providers.push(
+	Credentials({
+		id: '166ca52b-4ecf-4d30-842f-95f97656aeb5',
+		name: 'Test Login',
+		credentials: {
+			email: { label: 'Email', type: 'email' }
+		},
+		async authorize(credentials) {
+			if (credentials.email === 'test@test.com') {
+				return {
+					id: '166ca52b-4ecf-4d30-842f-95f97656aeb5', // Your manually created user ID
+					name: 'Test User',
+					email: 'test@test.com'
+				};
 			}
-		})
-	);
-}
+			return null;
+		}
+	})
+);
 
 export const { handle } = SvelteKitAuth({
 	adapter: HasuraAdapter({

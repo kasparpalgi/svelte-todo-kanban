@@ -1,5 +1,5 @@
 /** @file src/routes/+layout.server.ts */
-import { NODE_ENV } from '$env/static/private';
+import { APP_ENV } from '$env/static/private';
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
@@ -12,7 +12,7 @@ export const load: LayoutServerLoad = async (event) => {
 	const pathSegments = url.pathname.split('/').filter(Boolean);
 	let locale = defaultLocale;
 
-	if (url.pathname === '/auth/signin' && NODE_ENV !== 'development') {
+	if (url.pathname === '/auth/signin' && APP_ENV !== 'development') {
 		throw redirect(302, '/signin');
 	}
 

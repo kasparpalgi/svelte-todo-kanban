@@ -4,7 +4,8 @@ import { test, expect } from '@playwright/test';
 test.describe('Unauthenticated user flow', () => {
 	test('should show login form on homepage', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.getByText(/sign in/i)).toBeVisible();
+
+		await expect(page.getByText('Sign In', { exact: true })).toBeVisible();
 	});
 
 	test('should display all login options', async ({ page }) => {
