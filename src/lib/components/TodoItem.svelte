@@ -3,13 +3,14 @@
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Check, Edit, Calendar, GripVertical } from 'lucide-svelte';
+	import { Check, SquarePen, Calendar, GripVertical, Trash2 } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import { CSS } from '@dnd-kit-svelte/utilities';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { z } from 'zod';
 	import TodoEditForm from '$lib/components/TodoEditForm.svelte';
+	import { t } from '$lib/i18n';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { TodoItemProps } from '$lib/types/todo';
 	import type { TodoImage } from '$lib/types/imageUpload';
@@ -189,6 +190,15 @@
 		}
 	}
 
+	async function deleteTodo() {
+		if (confirm($t('todo.confirm_delete') || 'Are you sure you want to delete this task?')) {
+			const result = await todosStore.deleteTodo(todo.id);
+			if (!result.success) {
+				displayMessage(result.message || 'Failed to delete todo');
+			}
+		}
+	}
+
 	function handleDragOver(event: DragEvent) {
 		event.preventDefault();
 		isDragOver = true;
@@ -281,20 +291,20 @@
 >
 	{#if !isEditing}
 		<Card class="group relative transition-all duration-200 hover:shadow-md">
-			<CardContent class="p-3">
-				<div class="flex items-start gap-3">
+			<CardContent class="p-2">
+				<div class="flex items-start gap-2">
 					<!-- Drag Handle -->
 					<button
-						class="cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground active:cursor-grabbing"
+						class="mt-0.5 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground active:cursor-grabbing"
 						{...attributes.current}
 						{...listeners.current}
 					>
-						<GripVertical class="h-4 w-4" />
+						<GripVertical class="h-3 w-3" />
 					</button>
 
 					<button
 						onclick={toggleComplete}
-						class="mt-1 flex h-4 w-4 items-center justify-center rounded border-2 border-muted-foreground transition-colors hover:border-primary {todo.completed_at
+						class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-muted-foreground transition-colors hover:border-primary {todo.completed_at
 							? 'border-primary bg-primary'
 							: ''}"
 						aria-label={todo.completed_at ? 'Mark as incomplete' : 'Mark as complete'}
@@ -306,13 +316,19 @@
 
 					<!-- Content -->
 					<div class="min-w-0 flex-1">
-						<h3 class="font-medium {todo.completed_at ? 'text-muted-foreground line-through' : ''}">
+						<h3
+							class="text-sm leading-tight font-medium {todo.completed_at
+								? 'text-muted-foreground line-through'
+								: ''}"
+						>
 							{todo.title}
 						</h3>
 
 						{#if todo.content}
 							<p
-								class="mt-1 text-sm text-muted-foreground {todo.completed_at ? 'line-through' : ''}"
+								class="mt-0.5 text-xs leading-tight text-muted-foreground {todo.completed_at
+									? 'line-through'
+									: ''}"
 							>
 								{todo.content}
 							</p>
@@ -320,11 +336,11 @@
 
 						<!-- Due date -->
 						{#if todo.due_on}
-							<div class="mt-2 flex items-center gap-1 text-xs">
-								<Calendar class="h-3 w-3" />
+							<div class="mt-1 flex items-center gap-1">
+								<Calendar class="h-2.5 w-2.5" />
 								<Badge
 									variant={isOverdue(todo.due_on) ? 'destructive' : 'secondary'}
-									class="text-xs"
+									class="h-auto px-1 py-0 text-xs"
 								>
 									{formatDate(todo.due_on)}
 								</Badge>
@@ -333,22 +349,39 @@
 
 						<!-- Images -->
 						{#if todo.uploads && todo.uploads.length > 0}
-							<div class="mt-2 flex gap-2">
+							<div class="mt-1 flex gap-1">
 								{#each todo.uploads as upload}
 									<img
 										src={upload.url}
 										alt="Todo attachment"
-										class="h-12 w-12 rounded border object-cover"
+										class="h-8 w-8 rounded border object-cover"
 									/>
 								{/each}
 							</div>
 						{/if}
 					</div>
 
-					<!-- Actions -->
-					<div class="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-						<Button variant="ghost" size="sm" onclick={startEdit} class="h-8 w-8 p-0">
-							<Edit class="h-3 w-3" />
+					<div
+						class="flex shrink-0 flex-col gap-0.5 opacity-0 transition-opacity group-hover:opacity-100"
+					>
+						<Button
+							variant="ghost"
+							size="sm"
+							onclick={startEdit}
+							class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
+						>
+							<SquarePen class="h-2.5 w-2.5" />
+							<span class="sr-only">{$t('todo.edit')}</span>
+						</Button>
+
+						<Button
+							variant="ghost"
+							size="sm"
+							onclick={deleteTodo}
+							class="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
+						>
+							<Trash2 class="h-2.5 w-2.5" />
+							<span class="sr-only">{$t('todo.delete')}</span>
 						</Button>
 					</div>
 				</div>

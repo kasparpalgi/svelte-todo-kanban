@@ -1,6 +1,7 @@
 <!-- @file src/lib/components/KanbanColumn.svelte -->
 <script lang="ts">
 	import { t } from '$lib/i18n';
+	import { todosStore } from '$lib/stores/todos.svelte';
 	import {
 		Card,
 		CardContent,
@@ -8,8 +9,10 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
+	import { Button } from '$lib/components/ui/button';
 	import { SortableContext, verticalListSortingStrategy } from '@dnd-kit-svelte/sortable';
 	import { useDroppable } from '@dnd-kit-svelte/core';
+	import { Trash2 } from 'lucide-svelte';
 	import TodoItem from '$lib/components/TodoItem.svelte';
 	import type { CanbanColumnProps } from '$lib/types/todo';
 
@@ -38,6 +41,15 @@
 			setNodeRef(columnElement);
 		}
 	});
+
+	async function handleDeleteTodo(todoId: string) {
+		if (confirm($t('todo.confirm_delete') || 'Are you sure?')) {
+			const result = await todosStore.deleteTodo(todoId);
+			if (!result.success) {
+				alert(result.message);
+			}
+		}
+	}
 </script>
 
 <div bind:this={columnElement} class="h-full">
@@ -46,14 +58,14 @@
 			? 'bg-blue-50 ring-2 ring-blue-500'
 			: ''}"
 	>
-		<CardHeader>
+		<CardHeader class="pb-2">
 			<CardTitle class="text-sm">{list.name}</CardTitle>
 			<CardDescription class="text-xs">
 				{todos.length}
 				{todos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
 			</CardDescription>
 		</CardHeader>
-		<CardContent class="min-h-24 space-y-2">
+		<CardContent class="min-h-24 space-y-2 pb-3">
 			{#if todos.length > 0}
 				<SortableContext
 					items={todos.map((todo) => todo.id)}
