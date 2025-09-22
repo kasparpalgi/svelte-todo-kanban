@@ -61,7 +61,7 @@
 <div
 	role="button"
 	tabindex="0"
-	aria-label="Upload images by dragging and dropping or clicking to browse"
+	aria-label="Upload images by dragg'n'drop or click to browse"
 	class="cursor-pointer rounded-lg border-2 border-dashed p-4 transition-colors {isDragOver
 		? 'border-primary bg-primary/5'
 		: 'border-muted-foreground/25'} hover:border-primary/50 focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"

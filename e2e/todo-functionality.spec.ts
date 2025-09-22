@@ -24,7 +24,6 @@ test.describe('Todo management', () => {
 		const addButton = page.getByRole('button', { name: /add/i });
 
 		await taskInput.fill('   ');
-		await addButton.click();
 		await expect(addButton).toBeDisabled();
 		// TODO: implement edge cases :P
 	});

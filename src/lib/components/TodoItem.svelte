@@ -291,7 +291,7 @@
 >
 	{#if !isEditing}
 		<Card class="group relative transition-all duration-200 hover:shadow-md">
-			<CardContent class="p-2">
+			<CardContent class="pl-2">
 				<div class="flex items-start gap-2">
 					<!-- Drag Handle -->
 					<button

@@ -18,7 +18,7 @@ test.describe('Authenticated user flow', () => {
 		await addButton.click();
 
 		const todoContainer = page.locator('div[class*="grid-cols-1"]');
-		await expect(todoContainer.getByText(testTodoTitle)).toBeVisible();
+		await expect(todoContainer.getByText(testTodoTitle).first()).toBeVisible();
 	});
 
 	test('should toggle between list/kanban', async ({ page }) => {
@@ -60,7 +60,7 @@ test.describe('Authenticated user flow', () => {
 		await taskInput.press('Enter');
 
 		const todoContainer = page.locator('div[class*="grid-cols-1"]');
-		await expect(todoContainer.getByText('Keyboard shortcut todo')).toBeVisible();
+		await expect(todoContainer.getByText('Keyboard shortcut todo').first()).toBeVisible();
 
 		await expect(taskInput).toHaveValue('');
 	});
