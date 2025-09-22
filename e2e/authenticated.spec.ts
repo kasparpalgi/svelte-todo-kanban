@@ -17,7 +17,8 @@ test.describe('Authenticated user flow', () => {
 		await taskInput.fill(testTodoTitle);
 		await addButton.click();
 
-		await expect(page.getByText(testTodoTitle)).toBeVisible();
+		const todoContainer = page.locator('div[class*="grid-cols-1"]');
+		await expect(todoContainer.getByText(testTodoTitle)).toBeVisible();
 	});
 
 	test('should toggle between list/kanban', async ({ page }) => {
@@ -26,13 +27,11 @@ test.describe('Authenticated user flow', () => {
 		const listButton = page.getByRole('button', { name: /list/i });
 		const kanbanButton = page.getByRole('button', { name: /kanban/i });
 
-		await expect(kanbanButton).toHaveClass(/default/);
-
+		await expect(kanbanButton).toHaveClass(/bg-primary/);
 		await listButton.click();
-		await expect(listButton).toHaveClass(/default/);
-
+		await expect(listButton).toHaveClass(/bg-primary/);
 		await kanbanButton.click();
-		await expect(kanbanButton).toHaveClass(/default/);
+		await expect(kanbanButton).toHaveClass(/bg-primary/);
 	});
 
 	test('should display quick add form', async ({ page }) => {
@@ -59,7 +58,9 @@ test.describe('Authenticated user flow', () => {
 
 		await taskInput.fill('Keyboard shortcut todo');
 		await taskInput.press('Enter');
-		await expect(page.getByText('Keyboard shortcut todo')).toBeVisible();
+
+		const todoContainer = page.locator('div[class*="grid-cols-1"]');
+		await expect(todoContainer.getByText('Keyboard shortcut todo')).toBeVisible();
 
 		await expect(taskInput).toHaveValue('');
 	});
@@ -78,7 +79,6 @@ test.describe('Authenticated user flow', () => {
 		const listButton = page.getByRole('button', { name: /list/i });
 		await listButton.click();
 		await page.reload();
-
-		await expect(listButton).toHaveClass(/default/);
+		await expect(listButton).toHaveClass(/bg-primary/);
 	});
 });

@@ -22,7 +22,6 @@ setup('authenticate with test user', async ({ page }) => {
 	const testLoginButton = testLoginContainer.getByRole('button');
 	await expect(testLoginButton).toBeEnabled();
 	await testLoginButton.click();
-	await page.waitForURL('/', { timeout: 10000 });
-	await expect(page.getByRole('heading', { name: /today/i })).toBeVisible();
+	await expect(page.getByRole('heading', { name: /today/i })).toBeVisible({ timeout: 10000 });
 	await page.context().storageState({ path: authFile });
 });
