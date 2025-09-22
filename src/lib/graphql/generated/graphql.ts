@@ -1322,6 +1322,10 @@ export type Mutation_Root = {
   delete_todos?: Maybe<Todos_Mutation_Response>;
   /** delete single row from the table: "todos" */
   delete_todos_by_pk?: Maybe<Todos>;
+  /** delete data from the table: "uploads" */
+  delete_uploads?: Maybe<Uploads_Mutation_Response>;
+  /** delete single row from the table: "uploads" */
+  delete_uploads_by_pk?: Maybe<Uploads>;
   /** delete data from the table: "users" */
   delete_users?: Maybe<Users_Mutation_Response>;
   /** delete single row from the table: "users" */
@@ -1350,6 +1354,10 @@ export type Mutation_Root = {
   insert_todos?: Maybe<Todos_Mutation_Response>;
   /** insert a single row into the table: "todos" */
   insert_todos_one?: Maybe<Todos>;
+  /** insert data into the table: "uploads" */
+  insert_uploads?: Maybe<Uploads_Mutation_Response>;
+  /** insert a single row into the table: "uploads" */
+  insert_uploads_one?: Maybe<Uploads>;
   /** insert data into the table: "users" */
   insert_users?: Maybe<Users_Mutation_Response>;
   /** insert a single row into the table: "users" */
@@ -1388,6 +1396,12 @@ export type Mutation_Root = {
   update_todos_by_pk?: Maybe<Todos>;
   /** update multiples rows of table: "todos" */
   update_todos_many?: Maybe<Array<Maybe<Todos_Mutation_Response>>>;
+  /** update data of the table: "uploads" */
+  update_uploads?: Maybe<Uploads_Mutation_Response>;
+  /** update single row of the table: "uploads" */
+  update_uploads_by_pk?: Maybe<Uploads>;
+  /** update multiples rows of table: "uploads" */
+  update_uploads_many?: Maybe<Array<Maybe<Uploads_Mutation_Response>>>;
   /** update data of the table: "users" */
   update_users?: Maybe<Users_Mutation_Response>;
   /** update single row of the table: "users" */
@@ -1459,6 +1473,18 @@ export type Mutation_RootDelete_TodosArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Todos_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_UploadsArgs = {
+  where: Uploads_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Uploads_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -1555,6 +1581,20 @@ export type Mutation_RootInsert_TodosArgs = {
 export type Mutation_RootInsert_Todos_OneArgs = {
   object: Todos_Insert_Input;
   on_conflict?: InputMaybe<Todos_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_UploadsArgs = {
+  objects: Array<Uploads_Insert_Input>;
+  on_conflict?: InputMaybe<Uploads_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Uploads_OneArgs = {
+  object: Uploads_Insert_Input;
+  on_conflict?: InputMaybe<Uploads_On_Conflict>;
 };
 
 
@@ -1695,6 +1735,26 @@ export type Mutation_RootUpdate_Todos_ManyArgs = {
 
 
 /** mutation root */
+export type Mutation_RootUpdate_UploadsArgs = {
+  _set?: InputMaybe<Uploads_Set_Input>;
+  where: Uploads_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Uploads_By_PkArgs = {
+  _set?: InputMaybe<Uploads_Set_Input>;
+  pk_columns: Uploads_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Uploads_ManyArgs = {
+  updates: Array<Uploads_Updates>;
+};
+
+
+/** mutation root */
 export type Mutation_RootUpdate_UsersArgs = {
   _set?: InputMaybe<Users_Set_Input>;
   where: Users_Bool_Exp;
@@ -1781,6 +1841,12 @@ export type Query_Root = {
   todos_aggregate: Todos_Aggregate;
   /** fetch data from the table: "todos" using primary key columns */
   todos_by_pk?: Maybe<Todos>;
+  /** An array relationship */
+  uploads: Array<Uploads>;
+  /** An aggregate relationship */
+  uploads_aggregate: Uploads_Aggregate;
+  /** fetch data from the table: "uploads" using primary key columns */
+  uploads_by_pk?: Maybe<Uploads>;
   /** fetch data from the table: "users" */
   users: Array<Users>;
   /** fetch aggregated fields from the table: "users" */
@@ -1907,6 +1973,29 @@ export type Query_RootTodos_AggregateArgs = {
 
 
 export type Query_RootTodos_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootUploadsArgs = {
+  distinct_on?: InputMaybe<Array<Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Uploads_Order_By>>;
+  where?: InputMaybe<Uploads_Bool_Exp>;
+};
+
+
+export type Query_RootUploads_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Uploads_Order_By>>;
+  where?: InputMaybe<Uploads_Bool_Exp>;
+};
+
+
+export type Query_RootUploads_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -2233,6 +2322,14 @@ export type Subscription_Root = {
   todos_by_pk?: Maybe<Todos>;
   /** fetch data from the table in a streaming manner: "todos" */
   todos_stream: Array<Todos>;
+  /** An array relationship */
+  uploads: Array<Uploads>;
+  /** An aggregate relationship */
+  uploads_aggregate: Uploads_Aggregate;
+  /** fetch data from the table: "uploads" using primary key columns */
+  uploads_by_pk?: Maybe<Uploads>;
+  /** fetch data from the table in a streaming manner: "uploads" */
+  uploads_stream: Array<Uploads>;
   /** fetch data from the table: "users" */
   users: Array<Users>;
   /** fetch aggregated fields from the table: "users" */
@@ -2402,6 +2499,36 @@ export type Subscription_RootTodos_StreamArgs = {
 };
 
 
+export type Subscription_RootUploadsArgs = {
+  distinct_on?: InputMaybe<Array<Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Uploads_Order_By>>;
+  where?: InputMaybe<Uploads_Bool_Exp>;
+};
+
+
+export type Subscription_RootUploads_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Uploads_Order_By>>;
+  where?: InputMaybe<Uploads_Bool_Exp>;
+};
+
+
+export type Subscription_RootUploads_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootUploads_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Uploads_Stream_Cursor_Input>>;
+  where?: InputMaybe<Uploads_Bool_Exp>;
+};
+
+
 export type Subscription_RootUsersArgs = {
   distinct_on?: InputMaybe<Array<Users_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -2489,9 +2616,33 @@ export type Todos = {
   sort_order: Scalars['Int']['output'];
   title: Scalars['String']['output'];
   updated_at: Scalars['timestamptz']['output'];
+  /** An array relationship */
+  uploads: Array<Uploads>;
+  /** An aggregate relationship */
+  uploads_aggregate: Uploads_Aggregate;
   /** An object relationship */
   user: Users;
   user_id: Scalars['uuid']['output'];
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosUploadsArgs = {
+  distinct_on?: InputMaybe<Array<Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Uploads_Order_By>>;
+  where?: InputMaybe<Uploads_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosUploads_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Uploads_Order_By>>;
+  where?: InputMaybe<Uploads_Bool_Exp>;
 };
 
 /** aggregated selection of "todos" */
@@ -2583,6 +2734,8 @@ export type Todos_Bool_Exp = {
   sort_order?: InputMaybe<Int_Comparison_Exp>;
   title?: InputMaybe<String_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  uploads?: InputMaybe<Uploads_Bool_Exp>;
+  uploads_aggregate?: InputMaybe<Uploads_Aggregate_Bool_Exp>;
   user?: InputMaybe<Users_Bool_Exp>;
   user_id?: InputMaybe<Uuid_Comparison_Exp>;
 };
@@ -2610,6 +2763,7 @@ export type Todos_Insert_Input = {
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  uploads?: InputMaybe<Uploads_Arr_Rel_Insert_Input>;
   user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
   user_id?: InputMaybe<Scalars['uuid']['input']>;
 };
@@ -2681,6 +2835,13 @@ export type Todos_Mutation_Response = {
   returning: Array<Todos>;
 };
 
+/** input type for inserting object relation for remote table "todos" */
+export type Todos_Obj_Rel_Insert_Input = {
+  data: Todos_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Todos_On_Conflict>;
+};
+
 /** on_conflict condition type for table "todos" */
 export type Todos_On_Conflict = {
   constraint: Todos_Constraint;
@@ -2700,6 +2861,7 @@ export type Todos_Order_By = {
   sort_order?: InputMaybe<Order_By>;
   title?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
+  uploads_aggregate?: InputMaybe<Uploads_Aggregate_Order_By>;
   user?: InputMaybe<Users_Order_By>;
   user_id?: InputMaybe<Order_By>;
 };
@@ -2877,6 +3039,210 @@ export type Todos_Variance_Fields = {
 /** order by variance() on columns of table "todos" */
 export type Todos_Variance_Order_By = {
   sort_order?: InputMaybe<Order_By>;
+};
+
+/** columns and relationships of "uploads" */
+export type Uploads = {
+  __typename?: 'uploads';
+  created_at: Scalars['timestamptz']['output'];
+  id: Scalars['uuid']['output'];
+  /** An object relationship */
+  todo: Todos;
+  todo_id: Scalars['uuid']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** aggregated selection of "uploads" */
+export type Uploads_Aggregate = {
+  __typename?: 'uploads_aggregate';
+  aggregate?: Maybe<Uploads_Aggregate_Fields>;
+  nodes: Array<Uploads>;
+};
+
+export type Uploads_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Uploads_Aggregate_Bool_Exp_Count>;
+};
+
+export type Uploads_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Uploads_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Uploads_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "uploads" */
+export type Uploads_Aggregate_Fields = {
+  __typename?: 'uploads_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Uploads_Max_Fields>;
+  min?: Maybe<Uploads_Min_Fields>;
+};
+
+
+/** aggregate fields of "uploads" */
+export type Uploads_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Uploads_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "uploads" */
+export type Uploads_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Uploads_Max_Order_By>;
+  min?: InputMaybe<Uploads_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "uploads" */
+export type Uploads_Arr_Rel_Insert_Input = {
+  data: Array<Uploads_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Uploads_On_Conflict>;
+};
+
+/** Boolean expression to filter rows from the table "uploads". All fields are combined with a logical 'AND'. */
+export type Uploads_Bool_Exp = {
+  _and?: InputMaybe<Array<Uploads_Bool_Exp>>;
+  _not?: InputMaybe<Uploads_Bool_Exp>;
+  _or?: InputMaybe<Array<Uploads_Bool_Exp>>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  todo?: InputMaybe<Todos_Bool_Exp>;
+  todo_id?: InputMaybe<Uuid_Comparison_Exp>;
+  url?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "uploads" */
+export enum Uploads_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  UploadsPkey = 'uploads_pkey'
+}
+
+/** input type for inserting data into table "uploads" */
+export type Uploads_Insert_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  todo?: InputMaybe<Todos_Obj_Rel_Insert_Input>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate max on columns */
+export type Uploads_Max_Fields = {
+  __typename?: 'uploads_max_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by max() on columns of table "uploads" */
+export type Uploads_Max_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Uploads_Min_Fields = {
+  __typename?: 'uploads_min_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by min() on columns of table "uploads" */
+export type Uploads_Min_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "uploads" */
+export type Uploads_Mutation_Response = {
+  __typename?: 'uploads_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Uploads>;
+};
+
+/** on_conflict condition type for table "uploads" */
+export type Uploads_On_Conflict = {
+  constraint: Uploads_Constraint;
+  update_columns?: Array<Uploads_Update_Column>;
+  where?: InputMaybe<Uploads_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "uploads". */
+export type Uploads_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  todo?: InputMaybe<Todos_Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: uploads */
+export type Uploads_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "uploads" */
+export enum Uploads_Select_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  Url = 'url'
+}
+
+/** input type for updating data in table "uploads" */
+export type Uploads_Set_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Streaming cursor of the table "uploads" */
+export type Uploads_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Uploads_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Uploads_Stream_Cursor_Value_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** update columns of table "uploads" */
+export enum Uploads_Update_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  Url = 'url'
+}
+
+export type Uploads_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Uploads_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Uploads_Bool_Exp;
 };
 
 /** columns and relationships of "users" */
@@ -3366,7 +3732,7 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null };
 
 export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, emailVerified?: string | null, created_at: string, updated_at: string };
 
@@ -3378,14 +3744,14 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> };
 
 export type CreateTodoMutationVariables = Exact<{
   objects: Array<Todos_Insert_Input> | Todos_Insert_Input;
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -3393,7 +3759,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -3441,6 +3807,11 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  uploads {
+    id
+    url
+    created_at
+  }
   list {
     id
     name
@@ -3480,6 +3851,11 @@ export const GetTodosDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  uploads {
+    id
+    url
+    created_at
+  }
   list {
     id
     name
@@ -3509,6 +3885,11 @@ export const CreateTodoDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  uploads {
+    id
+    url
+    created_at
+  }
   list {
     id
     name
@@ -3539,6 +3920,11 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  uploads {
+    id
+    url
+    created_at
+  }
   list {
     id
     name

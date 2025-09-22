@@ -12,6 +12,11 @@ export const TODO_FRAGMENT = graphql(`
 		completed_at
 		created_at
 		updated_at
+		uploads {
+			id
+			url
+			created_at
+		}
 		list {
 			id
 			name

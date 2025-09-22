@@ -1,0 +1,41 @@
+table:
+  name: uploads
+  schema: public
+object_relationships:
+  - name: todo
+    using:
+      foreign_key_constraint_on: todo_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        todo:
+          user_id:
+            _eq: X-Hasura-User-Id
+      columns:
+        - url
+        - created_at
+        - id
+        - todo_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - url
+        - created_at
+        - id
+        - todo_id
+      filter:
+        todo:
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        todo:
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""
