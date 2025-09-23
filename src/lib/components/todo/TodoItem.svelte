@@ -51,6 +51,7 @@
 	type TodoEditData = z.infer<typeof todoEditSchema>;
 
 	let isEditing = $state(false);
+	let isHovered = $state(false); // Add hover state for this specific item
 	let editData = $state<TodoEditData>({
 		title: todo.title,
 		content: todo.content || '',
@@ -288,6 +289,14 @@
 	function preventDrag(event: Event) {
 		event.stopPropagation();
 	}
+
+	function handleMouseEnter() {
+		isHovered = true;
+	}
+
+	function handleMouseLeave() {
+		isHovered = false;
+	}
 </script>
 
 <div
@@ -297,12 +306,18 @@
 	class:opacity-50={sortableIsDragging.current || isDragging}
 >
 	{#if !isEditing}
-		<Card class="group relative transition-all duration-200 hover:shadow-md">
+		<Card
+			class="relative transition-all duration-200 hover:shadow-md"
+			onmouseenter={handleMouseEnter}
+			onmouseleave={handleMouseLeave}
+		>
 			<Button
 				variant="ghost"
 				size="sm"
 				onclick={deleteTodo}
-				class="absolute top-1 right-1 z-10 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-700"
+				class="absolute top-1 right-1 z-10 h-6 w-6 p-0 transition-opacity hover:bg-red-50 hover:text-red-700 {isHovered
+					? 'opacity-100'
+					: 'opacity-0'}"
 				onmousedown={preventDrag}
 				ontouchstart={preventDrag}
 			>
@@ -319,6 +334,7 @@
 					<DragHandle
 						attributes={enableFullCardDrag ? {} : attributes.current}
 						listeners={enableFullCardDrag ? {} : listeners.current}
+						isVisible={isHovered}
 					/>
 
 					<button
@@ -377,7 +393,11 @@
 						{/if}
 					</div>
 
-					<div class="absolute top-1 right-8 opacity-0 transition-opacity group-hover:opacity-100">
+					<div
+						class="absolute top-1 right-8 transition-opacity {isHovered
+							? 'opacity-100'
+							: 'opacity-0'}"
+					>
 						<Button
 							variant="ghost"
 							size="sm"

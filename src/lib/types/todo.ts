@@ -45,6 +45,7 @@ export interface TodoEditProps {
 export type DragHandleProps = {
 	attributes: Record<string, any>;
 	listeners: Record<string, any>;
+	isVisible?: boolean;
 };
 
 type TodoImage = { id: string; file: File | null; preview: string; isExisting?: boolean };
