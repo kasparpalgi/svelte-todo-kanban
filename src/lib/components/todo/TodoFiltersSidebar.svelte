@@ -97,9 +97,8 @@
 
 		<Separator />
 
-		<!-- Search -->
 		<div class="space-y-2">
-			<label class="text-sm font-medium">Search</label>
+			<label for="search" class="text-sm font-medium">Search</label>
 			<div class="relative">
 				<Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 				<Input
@@ -116,7 +115,7 @@
 
 		<!-- Quick Filters -->
 		<div class="space-y-3">
-			<label class="text-sm font-medium">Quick Filters</label>
+			<label for="due" class="text-sm font-medium">Quick Filters</label>
 			<div class="space-y-2">
 				<Button
 					variant={currentFilters.dueToday ? 'default' : 'outline'}
@@ -144,7 +143,7 @@
 
 		<!-- Sorting -->
 		<div class="space-y-3">
-			<label class="text-sm font-medium">Sort by</label>
+			<label for="sort" class="text-sm font-medium">Sort by</label>
 			<div class="space-y-1">
 				<Button
 					variant={currentSorting.order === 'sort_order' ? 'default' : 'ghost'}
@@ -216,7 +215,7 @@
 
 		<!-- Items per page -->
 		<div class="space-y-3">
-			<label class="text-sm font-medium">Items per page</label>
+			<label for="amount" class="text-sm font-medium">Items per page</label>
 			<div class="grid grid-cols-3 gap-1">
 				{#each [10, 25, 50, 100, 200] as limit}
 					<Button
@@ -233,5 +232,15 @@
 	</div>
 </div>
 
-<!-- Backdrop -->
-<div class="fixed inset-0 z-40 bg-black/20" onclick={() => (actionState.showFilters = false)}></div>
+<div
+	tabindex="0"
+	aria-label="Close sort/filter"
+	role="button"
+	onkeydown={(e) => {
+		if (e.key === 'Esc') {
+			actionState.showFilters = false;
+		}
+	}}
+	class="fixed inset-0 z-40 bg-black/20"
+	onclick={() => (actionState.showFilters = false)}
+></div>

@@ -266,10 +266,11 @@
 						{/if}
 					{/each}
 				</SortableContext>
+				<div class="mt-3"></div>
 
 				<QuickAddInput
 					bind:value={newTaskTitle}
-					autofocus={true}
+					autofocus={false}
 					id={`quickaddBottom-${list.id}`}
 					onSubmit={(val: string) => {
 						if (val) {

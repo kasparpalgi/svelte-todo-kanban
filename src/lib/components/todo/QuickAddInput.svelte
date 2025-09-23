@@ -2,10 +2,10 @@
 <script lang="ts">
 	let {
 		value = $bindable(''),
-		autofocus = false,
+		autofocus = true,
 		onSubmit = (val: string) => {},
 		onCancel = () => {},
-		id = `quickadd-${crypto.randomUUID()}` // Generate unique ID
+		id = `quickadd-${crypto.randomUUID()}`
 	} = $props();
 
 	let inputEl: HTMLInputElement;
