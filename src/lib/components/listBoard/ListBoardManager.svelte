@@ -208,10 +208,9 @@
 		tabindex="-1"
 		onkeydown={(e) => e.key === 'Escape' && (actionState.value = '')}
 	>
-		<!-- Backdrop button handles closing -->
 		<button
 			type="button"
-			class="absolute inset-0 h-full w-full bg-black/50"
+			class="absolute inset-0 h-full w-full bg-black/90 blur-2xl"
 			aria-label="Close dialog"
 			onclick={() => (actionState.value = '')}
 		></button>
@@ -220,6 +219,9 @@
 		<div
 			class="relative max-h-[80vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-background p-6 shadow-lg"
 			onclick={(e) => e.stopPropagation()}
+			role="button"
+			tabindex="0"
+			onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (actionState.value = '')}
 		>
 			<div class="mb-6 flex items-center justify-between">
 				<h3 class="text-lg font-semibold">Manage Lists & Boards</h3>
