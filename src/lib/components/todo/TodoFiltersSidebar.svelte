@@ -1,0 +1,237 @@
+<!-- @file src/lib/components/todo/TodoFiltersSidebar.svelte -->
+<script lang="ts">
+	import {
+		todoFilteringStore,
+		type SortOrder,
+		type SortDirection
+	} from '$lib/stores/todoFiltering.svelte';
+	import { actionState } from '$lib/stores/states.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import { Badge } from '$lib/components/ui/badge';
+	import { Separator } from '$lib/components/ui/separator';
+	import { Search, SortAsc, SortDesc, Calendar, AlertTriangle, X, Filter } from 'lucide-svelte';
+
+	let searchTerm = $state('');
+
+	// Handle search input
+	function handleSearchInput() {
+		if (todoFilteringStore.setSearchFilter) {
+			todoFilteringStore.setSearchFilter(searchTerm);
+		} else {
+			// Fallback if setSearchFilter doesn't exist yet
+			if (searchTerm.trim()) {
+				todoFilteringStore.setFilter('search', searchTerm.trim());
+			} else {
+				todoFilteringStore.clearFilter('search');
+			}
+		}
+	}
+
+	function toggleFilter(key: string, value: any) {
+		if (todoFilteringStore.filters[key as keyof typeof todoFilteringStore.filters] === value) {
+			todoFilteringStore.clearFilter(key as any);
+		} else {
+			todoFilteringStore.setFilter(key as any, value);
+		}
+	}
+
+	function setSorting(order: SortOrder) {
+		const currentSorting = todoFilteringStore.sorting;
+		const direction: SortDirection =
+			currentSorting.order === order && currentSorting.direction === 'asc' ? 'desc' : 'asc';
+		todoFilteringStore.setSorting(order, direction);
+	}
+
+	function clearAllFilters() {
+		todoFilteringStore.clearAllFilters();
+		searchTerm = '';
+	}
+
+	function getActiveFilterCount() {
+		const filters = todoFilteringStore.filters;
+		return Object.keys(filters).filter(
+			(key) =>
+				key !== 'boardId' && // Don't count board filter as it's set automatically
+				filters[key as keyof typeof filters] !== undefined
+		).length;
+	}
+
+	let activeFilterCount = $derived(getActiveFilterCount());
+	let currentFilters = $derived(todoFilteringStore.filters);
+	let currentSorting = $derived(todoFilteringStore.sorting);
+</script>
+
+<!-- Trello-style sidebar -->
+<div
+	class="fixed top-0 right-0 z-50 h-screen w-80 overflow-y-auto border-l bg-background shadow-lg"
+>
+	<div class="space-y-4 p-4">
+		<!-- Header -->
+		<div class="flex items-center justify-between">
+			<h2 class="flex items-center gap-2 text-lg font-semibold">
+				<Filter class="h-5 w-5" />
+				Filters
+			</h2>
+			<Button
+				variant="ghost"
+				size="sm"
+				onclick={() => (actionState.showFilters = false)}
+				class="h-8 w-8 p-0"
+			>
+				<X class="h-4 w-4" />
+			</Button>
+		</div>
+
+		<!-- Active Filters Badge -->
+		{#if activeFilterCount > 0}
+			<div class="flex items-center justify-between">
+				<Badge variant="secondary" class="text-xs">
+					{activeFilterCount} active filter{activeFilterCount === 1 ? '' : 's'}
+				</Badge>
+				<Button variant="ghost" size="sm" onclick={clearAllFilters} class="h-6 text-xs">
+					Clear all
+				</Button>
+			</div>
+		{/if}
+
+		<Separator />
+
+		<!-- Search -->
+		<div class="space-y-2">
+			<label class="text-sm font-medium">Search</label>
+			<div class="relative">
+				<Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+				<Input
+					type="text"
+					placeholder="Search todos..."
+					bind:value={searchTerm}
+					oninput={handleSearchInput}
+					class="pl-9"
+				/>
+			</div>
+		</div>
+
+		<Separator />
+
+		<!-- Quick Filters -->
+		<div class="space-y-3">
+			<label class="text-sm font-medium">Quick Filters</label>
+			<div class="space-y-2">
+				<Button
+					variant={currentFilters.dueToday ? 'default' : 'outline'}
+					size="sm"
+					onclick={() => toggleFilter('dueToday', true)}
+					class="w-full justify-start"
+				>
+					<Calendar class="mr-2 h-4 w-4" />
+					Due today
+				</Button>
+
+				<Button
+					variant={currentFilters.overdue ? 'destructive' : 'outline'}
+					size="sm"
+					onclick={() => toggleFilter('overdue', true)}
+					class="w-full justify-start"
+				>
+					<AlertTriangle class="mr-2 h-4 w-4" />
+					Overdue
+				</Button>
+			</div>
+		</div>
+
+		<Separator />
+
+		<!-- Sorting -->
+		<div class="space-y-3">
+			<label class="text-sm font-medium">Sort by</label>
+			<div class="space-y-1">
+				<Button
+					variant={currentSorting.order === 'sort_order' ? 'default' : 'ghost'}
+					size="sm"
+					onclick={() => setSorting('sort_order')}
+					class="w-full justify-between"
+				>
+					<span>Manual order</span>
+					{#if currentSorting.order === 'sort_order'}
+						{#if currentSorting.direction === 'asc'}
+							<SortAsc class="h-3 w-3" />
+						{:else}
+							<SortDesc class="h-3 w-3" />
+						{/if}
+					{/if}
+				</Button>
+
+				<Button
+					variant={currentSorting.order === 'due_date' ? 'default' : 'ghost'}
+					size="sm"
+					onclick={() => setSorting('due_date')}
+					class="w-full justify-between"
+				>
+					<span>Due date</span>
+					{#if currentSorting.order === 'due_date'}
+						{#if currentSorting.direction === 'asc'}
+							<SortAsc class="h-3 w-3" />
+						{:else}
+							<SortDesc class="h-3 w-3" />
+						{/if}
+					{/if}
+				</Button>
+
+				<Button
+					variant={currentSorting.order === 'created_date' ? 'default' : 'ghost'}
+					size="sm"
+					onclick={() => setSorting('created_date')}
+					class="w-full justify-between"
+				>
+					<span>Created date</span>
+					{#if currentSorting.order === 'created_date'}
+						{#if currentSorting.direction === 'asc'}
+							<SortAsc class="h-3 w-3" />
+						{:else}
+							<SortDesc class="h-3 w-3" />
+						{/if}
+					{/if}
+				</Button>
+
+				<Button
+					variant={currentSorting.order === 'updated_at' ? 'default' : 'ghost'}
+					size="sm"
+					onclick={() => setSorting('updated_at')}
+					class="w-full justify-between"
+				>
+					<span>Recently active</span>
+					{#if currentSorting.order === 'updated_at'}
+						{#if currentSorting.direction === 'asc'}
+							<SortAsc class="h-3 w-3" />
+						{:else}
+							<SortDesc class="h-3 w-3" />
+						{/if}
+					{/if}
+				</Button>
+			</div>
+		</div>
+
+		<Separator />
+
+		<!-- Items per page -->
+		<div class="space-y-3">
+			<label class="text-sm font-medium">Items per page</label>
+			<div class="grid grid-cols-3 gap-1">
+				{#each [10, 25, 50, 100, 200] as limit}
+					<Button
+						variant={todoFilteringStore.pagination.limit === limit ? 'default' : 'outline'}
+						size="sm"
+						onclick={() => todoFilteringStore.setPaginationLimit(limit)}
+						class="text-xs"
+					>
+						{limit}
+					</Button>
+				{/each}
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Backdrop -->
+<div class="fixed inset-0 z-40 bg-black/20" onclick={() => (actionState.showFilters = false)}></div>

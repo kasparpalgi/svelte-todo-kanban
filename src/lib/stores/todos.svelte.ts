@@ -19,6 +19,8 @@ import type {
 	TodoFieldsFragment
 } from '$lib/graphql/generated/graphql';
 import type { StoreResult, TodosState } from '$lib/types/todo';
+import { todoFilteringStore } from './todoFiltering.svelte';
+import { listsStore } from './listsBoards.svelte';
 
 function createTodosStore() {
 	const state = $state<TodosState>({
@@ -44,7 +46,7 @@ function createTodosStore() {
 					{ due_on: Order_By.Desc },
 					{ updated_at: Order_By.Desc }
 				],
-				limit: 100,
+				limit: 1000, // Increased limit since we'll handle pagination in the filtering store
 				offset: 0
 			});
 
@@ -140,13 +142,25 @@ function createTodosStore() {
 					if (targetListTodo?.list) {
 						optimisticUpdate.list = { ...targetListTodo.list };
 					} else {
-						// Fallback - create unknown list
-						optimisticUpdate.list = {
-							id: updates.list_id,
-							name: 'Unknown List',
-							sort_order: 999,
-							__typename: 'lists' as const
-						};
+						// Fallback - try to get from listsStore
+						const targetList = listsStore.lists.find((l) => l.id === updates.list_id);
+						if (targetList) {
+							optimisticUpdate.list = {
+								id: targetList.id,
+								name: targetList.name,
+								sort_order: targetList.sort_order,
+								board: targetList.board,
+								__typename: 'lists' as const
+							};
+						} else {
+							// Create unknown list
+							optimisticUpdate.list = {
+								id: updates.list_id,
+								name: 'Unknown List',
+								sort_order: 999,
+								__typename: 'lists' as const
+							};
+						}
 					}
 				}
 			}
@@ -318,39 +332,75 @@ function createTodosStore() {
 		}
 	}
 
-	const activeTodos = $derived(
-		state.todos
-			.filter((t) => !t.completed_at)
-			.sort((a, b) => {
-				// Sort: due_on, then created_at
-				if (a.due_on && b.due_on) {
-					return new Date(a.due_on).getTime() - new Date(b.due_on).getTime();
-				}
-				if (a.due_on) return -1;
-				if (b.due_on) return 1;
-				return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-			})
-	);
+	const activeTodos = $derived(() => {
+		const currentFilters = { ...todoFilteringStore.filters, completed: false };
+		const tempState = {
+			filters: currentFilters,
+			sorting: todoFilteringStore.sorting,
+			pagination: todoFilteringStore.pagination
+		};
 
-	const completedTodos = $derived(
-		state.todos
+		return state.todos
+			.filter((t) => !t.completed_at)
+			.filter((t) => {
+				// Board filtering
+				if (currentFilters.boardId !== undefined) {
+					if (currentFilters.boardId === null) {
+						if (t.list?.board?.id) return false;
+					} else {
+						if (t.list?.board?.id !== currentFilters.boardId) return false;
+					}
+				}
+				return true;
+			})
+			.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+	});
+
+	const completedTodos = $derived(() => {
+		const currentFilters = { ...todoFilteringStore.filters, completed: true };
+
+		return state.todos
 			.filter((t) => !!t.completed_at)
+			.filter((t) => {
+				// Board filtering
+				if (currentFilters.boardId !== undefined) {
+					if (currentFilters.boardId === null) {
+						if (t.list?.board?.id) return false;
+					} else {
+						if (t.list?.board?.id !== currentFilters.boardId) return false;
+					}
+				}
+				return true;
+			})
 			.sort(
 				(a, b) => new Date(b.completed_at || 0).getTime() - new Date(a.completed_at || 0).getTime()
-			)
-	);
+			);
+	});
 
 	const todosByList = $derived(() => {
-		const groups = new Map<string, TodoFieldsFragment[]>();
+		const currentFilters = { ...todoFilteringStore.filters };
+		const activeTodosFiltered = state.todos
+			.filter((t) => !t.completed_at)
+			.filter((t) => {
+				// Board filtering
+				if (currentFilters.boardId !== undefined) {
+					if (currentFilters.boardId === null) {
+						if (t.list?.board?.id) return false;
+					} else {
+						if (t.list?.board?.id !== currentFilters.boardId) return false;
+					}
+				}
+				return true;
+			});
 
-		for (const todo of state.todos) {
+		const groups = new Map<string, TodoFieldsFragment[]>();
+		for (const todo of activeTodosFiltered) {
 			const listId = todo.list?.id || 'inbox';
 			if (!groups.has(listId)) {
 				groups.set(listId, []);
 			}
 			groups.get(listId)!.push(todo);
 		}
-
 		return groups;
 	});
 

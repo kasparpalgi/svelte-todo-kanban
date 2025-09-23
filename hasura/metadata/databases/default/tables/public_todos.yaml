@@ -31,6 +31,7 @@ insert_permissions:
         - due_on
         - id
         - list_id
+        - priority
         - sort_order
         - title
         - updated_at
@@ -46,6 +47,7 @@ select_permissions:
         - due_on
         - id
         - list_id
+        - priority
         - sort_order
         - title
         - updated_at
@@ -71,6 +73,7 @@ update_permissions:
         - content
         - due_on
         - list_id
+        - priority
         - sort_order
         - title
         - updated_at

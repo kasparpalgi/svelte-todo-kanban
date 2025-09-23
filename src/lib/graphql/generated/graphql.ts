@@ -2613,6 +2613,7 @@ export type Todos = {
   /** An object relationship */
   list?: Maybe<Lists>;
   list_id?: Maybe<Scalars['uuid']['output']>;
+  priority: Scalars['String']['output'];
   sort_order: Scalars['Int']['output'];
   title: Scalars['String']['output'];
   updated_at: Scalars['timestamptz']['output'];
@@ -2731,6 +2732,7 @@ export type Todos_Bool_Exp = {
   id?: InputMaybe<Uuid_Comparison_Exp>;
   list?: InputMaybe<Lists_Bool_Exp>;
   list_id?: InputMaybe<Uuid_Comparison_Exp>;
+  priority?: InputMaybe<String_Comparison_Exp>;
   sort_order?: InputMaybe<Int_Comparison_Exp>;
   title?: InputMaybe<String_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -2760,6 +2762,7 @@ export type Todos_Insert_Input = {
   id?: InputMaybe<Scalars['uuid']['input']>;
   list?: InputMaybe<Lists_Obj_Rel_Insert_Input>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
+  priority?: InputMaybe<Scalars['String']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -2777,6 +2780,7 @@ export type Todos_Max_Fields = {
   due_on?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   list_id?: Maybe<Scalars['uuid']['output']>;
+  priority?: Maybe<Scalars['String']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
@@ -2791,6 +2795,7 @@ export type Todos_Max_Order_By = {
   due_on?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   list_id?: InputMaybe<Order_By>;
+  priority?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
   title?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
@@ -2806,6 +2811,7 @@ export type Todos_Min_Fields = {
   due_on?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   list_id?: Maybe<Scalars['uuid']['output']>;
+  priority?: Maybe<Scalars['String']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
@@ -2820,6 +2826,7 @@ export type Todos_Min_Order_By = {
   due_on?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   list_id?: InputMaybe<Order_By>;
+  priority?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
   title?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
@@ -2858,6 +2865,7 @@ export type Todos_Order_By = {
   id?: InputMaybe<Order_By>;
   list?: InputMaybe<Lists_Order_By>;
   list_id?: InputMaybe<Order_By>;
+  priority?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
   title?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
@@ -2886,6 +2894,8 @@ export enum Todos_Select_Column {
   /** column name */
   ListId = 'list_id',
   /** column name */
+  Priority = 'priority',
+  /** column name */
   SortOrder = 'sort_order',
   /** column name */
   Title = 'title',
@@ -2903,6 +2913,7 @@ export type Todos_Set_Input = {
   due_on?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
+  priority?: InputMaybe<Scalars['String']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -2958,6 +2969,7 @@ export type Todos_Stream_Cursor_Value_Input = {
   due_on?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
+  priority?: InputMaybe<Scalars['String']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -2989,6 +3001,8 @@ export enum Todos_Update_Column {
   Id = 'id',
   /** column name */
   ListId = 'list_id',
+  /** column name */
+  Priority = 'priority',
   /** column name */
   SortOrder = 'sort_order',
   /** column name */
@@ -3732,7 +3746,7 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null };
 
@@ -3748,7 +3762,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -3775,7 +3789,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -3783,7 +3797,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -3885,6 +3899,7 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   content
   due_on
   sort_order
+  priority
   list_id
   completed_at
   created_at
@@ -3953,6 +3968,7 @@ export const GetTodosDocument = new TypedDocumentString(`
   content
   due_on
   sort_order
+  priority
   list_id
   completed_at
   created_at
@@ -4019,6 +4035,7 @@ export const CreateTodoDocument = new TypedDocumentString(`
   content
   due_on
   sort_order
+  priority
   list_id
   completed_at
   created_at
@@ -4054,6 +4071,7 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   content
   due_on
   sort_order
+  priority
   list_id
   completed_at
   created_at

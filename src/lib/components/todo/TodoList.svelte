@@ -1,9 +1,10 @@
 <!-- @file src/lib/components/todo/TodoList.svelte -->
 <script lang="ts">
 	import { todosStore } from '$lib/stores/todos.svelte';
-	import { listsStore } from '$lib/stores/listsBoards.svelte.js';
+	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { actionState } from '$lib/stores/states.svelte';
 	import { t } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import {
 		Card,
 		CardContent,
@@ -32,7 +33,12 @@
 	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
+	let mounted = $state(false);
 	let activeId = $state<string | null>(null);
+
+	onMount(() => {
+		mounted = true;
+	});
 	let activeTodo = $state<TodoFieldsFragment | null>(null);
 	let isDragging = $state(false);
 	let dropPosition = $state<{
@@ -69,7 +75,7 @@
 	let completedTodosArray = $derived(() => {
 		const selectedBoardId = listsStore.selectedBoard?.id;
 
-		return todosStore.completedTodos.filter((t) => {
+		return todosStore.completedTodos().filter((t: TodoFieldsFragment) => {
 			if (selectedBoardId && t.list?.board?.id !== selectedBoardId) {
 				return false;
 			}
@@ -189,7 +195,7 @@
 						{activeTodosArray().length === 1 ? $t('todo.task') : $t('todo.tasks')}
 						{$t('todo.remaining')}
 						{#if listsStore.selectedBoard}
-							{$t('todo.in')} {actionState.tBoard()}: {listsStore.selectedBoard?.name}
+							{$t('todo.in')} {actionState.tBoard()}: {listsStore.selectedBoard.name}
 						{/if}
 					</CardDescription>
 				</div>
@@ -244,7 +250,7 @@
 					{#if listsStore.selectedBoard}
 						<p class="mt-1 text-xs">
 							{$t('todo.no_tasks_in')}
-							{actionState.tBoard().toLowerCase()}: {listsStore.selectedBoard?.name}
+							{actionState.tBoard().toLowerCase()}: {listsStore.selectedBoard.name}
 						</p>
 					{:else}
 						<p class="mt-1 text-xs">{$t('todo.select_project_to_view_tasks')}</p>
@@ -266,7 +272,7 @@
 					{$t('todo.completed')}
 					{completedTodosArray().length === 1 ? $t('todo.task') : $t('todo.tasks')}
 					{#if listsStore.selectedBoard}
-						{$t('todo.in')} {actionState.tBoard()}: {listsStore.selectedBoard?.name}
+						{$t('todo.in')} {actionState.tBoard()}: {listsStore.selectedBoard.name}
 					{/if}
 				</CardDescription>
 			</CardHeader>

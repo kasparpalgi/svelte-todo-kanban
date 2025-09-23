@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { scale } from 'svelte/transition';
 	import { todosStore } from '$lib/stores/todos.svelte';
+	import { todoFilteringStore } from '$lib/stores/todoFiltering.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { actionState } from '$lib/stores/states.svelte';
 	import { t } from '$lib/i18n';
@@ -25,7 +26,7 @@
 		type DragMoveEvent
 	} from '@dnd-kit-svelte/core';
 	import { sortableKeyboardCoordinates } from '@dnd-kit-svelte/sortable';
-	import { Plus, FolderKanban, RefreshCw } from 'lucide-svelte';
+	import { Plus, RefreshCw } from 'lucide-svelte';
 	import KanbanColumn from './KanbanColumn.svelte';
 	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
@@ -58,22 +59,11 @@
 	});
 
 	let kanbanLists = $derived(() => {
-		const todosByListId = new Map<string, TodoFieldsFragment[]>();
-
-		// Group active todos by list
-		for (const todo of todosStore.todos.filter((t: TodoFieldsFragment) => !t.completed_at)) {
-			const listId = todo.list?.id || 'inbox';
-			if (!todosByListId.has(listId)) {
-				todosByListId.set(listId, []);
-			}
-			todosByListId.get(listId)!.push(todo);
+		if (listsStore.selectedBoard?.id !== todoFilteringStore.filters.boardId) {
+			todoFilteringStore.setFilter('boardId', listsStore.selectedBoard?.id || null);
 		}
 
-		// Sort todos within each list
-		for (const todos of todosByListId.values()) {
-			todos.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-		}
-
+		const todosByListId = todoFilteringStore.getTodosByList(todosStore.todos);
 		const result = [];
 
 		// 1. Add inbox list first if there are inbox todos
@@ -108,6 +98,15 @@
 		return result;
 	});
 
+	let filteredCompletedTodos = $derived(() => {
+		// Set board filter if not already set
+		if (listsStore.selectedBoard?.id !== todoFilteringStore.filters.boardId) {
+			todoFilteringStore.setFilter('boardId', listsStore.selectedBoard?.id || null);
+		}
+
+		return todoFilteringStore.getCompletedTodos(todosStore.todos);
+	});
+
 	async function toggleTodoCompletion(todoId: string) {
 		const result = await todosStore.toggleTodo(todoId);
 		if (!result.success) {
@@ -115,7 +114,6 @@
 		}
 	}
 
-	// Your existing drag functions remain the same...
 	function cleanup() {
 		activeId = null;
 		activeTodo = null;
@@ -271,11 +269,51 @@
 	function openListManagement() {
 		actionState.edit = 'showListManagement';
 	}
+
+	function getFilterSummary(): string {
+		const filters = todoFilteringStore.filters;
+		const parts: string[] = [];
+
+		if (filters.search) {
+			parts.push(`Search: "${filters.search}"`);
+		}
+		if (filters.listId) {
+			if (filters.listId === 'inbox') {
+				parts.push('Inbox only');
+			} else if (filters.listId === 'completed') {
+				parts.push('Completed only');
+			} else {
+				const list = listsStore.lists.find((l) => l.id === filters.listId);
+				if (list) {
+					parts.push(`List: ${list.name}`);
+				}
+			}
+		}
+		if (filters.dueToday) {
+			parts.push('Due today');
+		}
+		if (filters.overdue) {
+			parts.push('Overdue');
+		}
+
+		return parts.join(', ');
+	}
 </script>
 
 <div class="w-full" in:scale>
+	<div class="px-6 pt-6 pb-2">
+		{#if getFilterSummary()}
+			<div class="mb-4 rounded-md bg-muted/50 p-3">
+				<p class="text-sm text-muted-foreground">
+					<span class="font-medium">Active filters:</span>
+					{getFilterSummary()}
+				</p>
+			</div>
+		{/if}
+	</div>
+
 	<div class="w-full overflow-x-auto">
-		<div class="flex min-w-max gap-6 p-6">
+		<div class="flex min-w-max gap-6 p-6 pt-0">
 			<DndContext
 				{sensors}
 				collisionDetection={closestCorners}
@@ -290,27 +328,7 @@
 					</div>
 				{/each}
 
-				<!-- Add List Column -->
-				<div class="w-80 flex-shrink-0">
-					<Card class="border-2 border-dashed border-muted-foreground/25 bg-muted/10">
-						<CardHeader>
-							<CardTitle class="text-sm text-muted-foreground">Add New List</CardTitle>
-						</CardHeader>
-						<CardContent class="flex flex-col gap-2">
-							<Button
-								variant="ghost"
-								class="h-auto flex-col gap-1 p-4 text-muted-foreground hover:text-foreground"
-								onclick={openListManagement}
-							>
-								<Plus class="h-8 w-8" />
-								<span class="text-xs">Create List</span>
-							</Button>
-						</CardContent>
-					</Card>
-				</div>
-
-				<!-- Completed Tasks Column -->
-				{#if todosStore.completedTodos.length > 0}
+				{#if filteredCompletedTodos().length > 0}
 					<div class="w-80 flex-shrink-0">
 						<Card class="opacity-75">
 							<CardHeader>
@@ -328,12 +346,12 @@
 									</Button>
 								</CardTitle>
 								<CardDescription class="text-xs">
-									{todosStore.completedTodos.length}
-									{todosStore.completedTodos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
+									{filteredCompletedTodos().length}
+									{filteredCompletedTodos().length === 1 ? 'task' : 'tasks'}
 								</CardDescription>
 							</CardHeader>
 							<CardContent class="space-y-2">
-								{#each todosStore.completedTodos.slice(0, 5) as todo (todo.id)}
+								{#each filteredCompletedTodos().slice(0, 5) as todo (todo.id)}
 									<div
 										class="group rounded border p-2 text-sm line-through opacity-60 transition-opacity hover:opacity-100"
 									>
@@ -350,10 +368,9 @@
 										</div>
 									</div>
 								{/each}
-								{#if todosStore.completedTodos.length > 5}
+								{#if filteredCompletedTodos().length > 5}
 									<div class="text-xs text-muted-foreground">
-										+{todosStore.completedTodos.length - 5}
-										{$t('todo.more_completed')}
+										+{filteredCompletedTodos().length - 5} more completed
 									</div>
 								{/if}
 							</CardContent>
@@ -361,6 +378,23 @@
 					</div>
 				{/if}
 
+				<div class="w-80 flex-shrink-0">
+					<Card class="border-2 border-dashed border-muted-foreground/25 bg-muted/10">
+						<CardHeader>
+							<CardTitle class="text-sm text-muted-foreground">Add New List</CardTitle>
+						</CardHeader>
+						<CardContent class="flex flex-col gap-2">
+							<Button
+								variant="ghost"
+								class="h-auto flex-col gap-1 p-4 text-muted-foreground hover:text-foreground"
+								onclick={openListManagement}
+							>
+								<Plus class="h-8 w-8" />
+								<span class="text-xs">Create List</span>
+							</Button>
+						</CardContent>
+					</Card>
+				</div>
 				<DragOverlay>
 					{#if activeTodo}
 						<TodoItem todo={activeTodo} isDragging={true} />
@@ -369,4 +403,16 @@
 			</DndContext>
 		</div>
 	</div>
+
+	{#if todoFilteringStore.pagination.hasMore}
+		<div class="flex justify-center p-6 pt-0">
+			<Button
+				variant="outline"
+				onclick={() => todoFilteringStore.loadMore()}
+				class="w-full max-w-sm"
+			>
+				Load more tasks
+			</Button>
+		</div>
+	{/if}
 </div>

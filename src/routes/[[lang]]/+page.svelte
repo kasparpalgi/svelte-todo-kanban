@@ -14,12 +14,13 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, X, List, LayoutGrid, Settings, FolderKanban } from 'lucide-svelte';
+	import { Plus, X, List, LayoutGrid, Settings, FolderKanban, Filter } from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
 	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
 	import BoardSwitcher from '$lib/components/listBoard/BoardSwitcher.svelte';
+	import TodoFiltersSidebar from '$lib/components/todo/TodoFiltersSidebar.svelte';
 
 	let { data } = $props();
 
@@ -44,7 +45,6 @@
 	});
 
 	$effect(() => {
-		// TODO: save to DB
 		localStorage.setItem('todo-view-mode', viewMode);
 	});
 
@@ -68,7 +68,7 @@
 	<title>{$t('todo.today')}</title>
 </svelte:head>
 
-<div class="w-full">
+<div class="relative w-full">
 	<div class="px-4 py-6">
 		<div class="mb-6 flex items-center justify-between">
 			<h1 class="text-3xl font-bold tracking-tight">
@@ -84,6 +84,14 @@
 					{viewMode === 'kanban' ? 'Lists' : 'Categories'}
 				</Button>
 				<BoardSwitcher />
+				<Button
+					variant={actionState.showFilters ? 'default' : 'outline'}
+					size="sm"
+					onclick={() => (actionState.showFilters = !actionState.showFilters)}
+				>
+					<Filter class="mr-2 h-4 w-4" />
+					Filters
+				</Button>
 				<div class="flex items-center gap-2 rounded-lg border p-1">
 					<Button
 						variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -124,52 +132,57 @@
 		{/if}
 	</div>
 
-	{#if viewMode === 'list'}
-		<div class="mb-3 px-4">
-			<Card>
-				<CardHeader>
-					<CardTitle class="text-lg">{$t('todo.add_new_task')}</CardTitle>
-					<CardDescription>{$t('todo.what_accomplish')}</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<div class="flex gap-3">
-						<Input
-							type="text"
-							placeholder={$t('todo.enter_task_title')}
-							bind:value={newTodoTitle}
-							onkeydown={handleKeydown}
-							class="flex-1"
-						/>
-						<Button onclick={handleAddTodo} disabled={!newTodoTitle.trim()} class="px-6">
-							<Plus class="mr-2 h-4 w-4" />
-							{$t('todo.add')}
-						</Button>
-					</div>
-				</CardContent>
-			</Card>
-		</div>
-	{/if}
+	<div class="transition-all duration-300 {actionState.showFilters ? 'pr-80' : ''}">
+		{#if viewMode === 'list'}
+			<div class="mb-3 px-4">
+				<Card>
+					<CardHeader>
+						<CardTitle class="text-lg">{$t('todo.add_new_task')}</CardTitle>
+						<CardDescription>{$t('todo.what_accomplish')}</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div class="flex gap-3">
+							<Input
+								type="text"
+								placeholder={$t('todo.enter_task_title')}
+								bind:value={newTodoTitle}
+								onkeydown={handleKeydown}
+								class="flex-1"
+							/>
+							<Button onclick={handleAddTodo} disabled={!newTodoTitle.trim()} class="px-6">
+								<Plus class="mr-2 h-4 w-4" />
+								{$t('todo.add')}
+							</Button>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
+		{/if}
 
-	<!-- Loading State -->
-	{#if todosStore.loading}
-		<div class="flex items-center justify-center py-12">
-			<div
-				class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
-			></div>
-			<span class="ml-3 text-muted-foreground">{$t('todo.loading_todos')}</span>
-		</div>
-	{:else if !todosStore.initialized}
-		<div class="py-12 text-center text-muted-foreground">
-			<Button onclick={() => todosStore.loadTodos()} variant="outline"
-				>{$t('todo.load_todos')}</Button
-			>
-		</div>
-	{:else if viewMode === 'list'}
-		<div class="px-4">
-			<TodoList />
-		</div>
-	{:else}
-		<TodoKanban />
+		{#if todosStore.loading}
+			<div class="flex items-center justify-center py-12">
+				<div
+					class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+				></div>
+				<span class="ml-3 text-muted-foreground">{$t('todo.loading_todos')}</span>
+			</div>
+		{:else if !todosStore.initialized}
+			<div class="py-12 text-center text-muted-foreground">
+				<Button onclick={() => todosStore.loadTodos()} variant="outline"
+					>{$t('todo.load_todos')}</Button
+				>
+			</div>
+		{:else if viewMode === 'list'}
+			<div class="px-4">
+				<TodoList />
+			</div>
+		{:else}
+			<TodoKanban />
+		{/if}
+	</div>
+
+	{#if actionState.showFilters}
+		<TodoFiltersSidebar />
 	{/if}
 </div>
 

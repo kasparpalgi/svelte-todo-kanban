@@ -5,6 +5,7 @@ import { get } from 'svelte/store';
 export let actionState = $state({
 	edit: '',
 	viewMode: 'kanban',
+	showFilters: false,
 
 	tBoard() {
 		return this.viewMode === 'list' ? get(t)('board.project') : get(t)('board.board');
