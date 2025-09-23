@@ -94,28 +94,36 @@
 	}
 
 	async function handleDragEnd(event: DragEndEvent) {
-		const { active, over } = event;
+		const { active } = event;
+		const finalDropPosition = dropPosition;
 
-		if (!over || active.id === over.id) {
-			cleanup();
-			return;
-		}
-
-		const activeIndex = activeTodosArray().findIndex(
-			(todo: TodoFieldsFragment) => todo.id === active.id
-		);
-		const overIndex = activeTodosArray().findIndex(
-			(todo: TodoFieldsFragment) => todo.id === over.id
-		);
-
-		if (activeIndex === -1 || overIndex === -1 || activeIndex === overIndex) {
+		if (!finalDropPosition || active.id === finalDropPosition.todoId) {
 			cleanup();
 			return;
 		}
 
 		const reorderedTodos = [...activeTodosArray()];
+		const activeIndex = reorderedTodos.findIndex((t) => t.id === active.id);
+
+		if (activeIndex === -1) {
+			cleanup();
+			return;
+		}
+
+		const { targetIndex, position } = finalDropPosition;
+		let insertIndex = position === 'above' ? targetIndex : targetIndex + 1;
+
+		if (activeIndex < insertIndex) {
+			insertIndex--;
+		}
+
+		if (activeIndex === insertIndex) {
+			cleanup();
+			return;
+		}
+
 		const [movedItem] = reorderedTodos.splice(activeIndex, 1);
-		reorderedTodos.splice(overIndex, 0, movedItem);
+		reorderedTodos.splice(insertIndex, 0, movedItem);
 
 		try {
 			await Promise.all(
