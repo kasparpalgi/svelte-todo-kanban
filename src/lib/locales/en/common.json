@@ -1,4 +1,16 @@
 {
+    "common": {
+        "all": "All",
+        "manage": "Manage"
+    },
+    "board": {
+        "project": "Project",
+        "projects": "Projects",
+        "list": "List",
+        "lists": "Lists",
+        "category": "Category",
+        "categories": "Categories"
+    },
     "nav": {
         "dashboard": "Dashboard",
         "todos": "Todos",
@@ -22,7 +34,6 @@
         "add": "Add Todo",
         "complete": "Complete",
         "delete": "Delete",
-        "today": "Today",
         "description": "Tasks that need your attention",
         "coming_soon": "Coming soon!",
         "add_new_task": "Add New Task",
@@ -42,10 +53,11 @@
         "mark_complete": "Mark as complete",
         "completed_at": "Completed:",
         "more_completed": "more completed",
-        "unassigned": "Unassigned",
+        "inbox": "Inbox",
         "list": "List",
         "kanban": "Kanban",
         "drop_tasks_here": "Drop tasks here",
-        "due": "Due"
+        "due": "Due",
+        "everything": "Everything"
     }
 }

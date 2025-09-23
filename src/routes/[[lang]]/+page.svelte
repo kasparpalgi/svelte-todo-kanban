@@ -3,7 +3,8 @@
 	import { onMount } from 'svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { t } from '$lib/i18n';
-	import { actionState } from '$lib/stores/errorSuccess.svelte.js';
+	import { actionState } from '$lib/stores/states.svelte';
+	import { listsStore } from '$lib/stores/listsBoards.svelte.js';
 	import {
 		Card,
 		CardContent,
@@ -13,10 +14,12 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, X, List, LayoutGrid, Settings } from 'lucide-svelte';
+	import { Plus, X, List, LayoutGrid, Settings, FolderKanban } from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
-	import ListBoardManager from '$lib/components/listBoard/ListBoardManager.svelte';
+	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
+	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
+	import BoardSwitcher from '$lib/components/listBoard/BoardSwitcher.svelte';
 
 	let { data } = $props();
 
@@ -68,13 +71,19 @@
 <div class="w-full">
 	<div class="px-4 py-6">
 		<div class="mb-6 flex items-center justify-between">
-			<h1 class="text-3xl font-bold tracking-tight">{$t('todo.today')}</h1>
+			<h1 class="text-3xl font-bold tracking-tight">
+				{listsStore.selectedBoard?.name || $t('todo.everything')}
+			</h1>
 			<div class="flex items-center gap-4">
-				<Button variant="outline" onclick={() => (actionState.value = 'showManagementDialog')}>
-					<Settings class="mr-2 h-4 w-4" />
-					Manage Lists & Boards
+				<Button
+					variant="outline"
+					size="sm"
+					onclick={() => (actionState.edit = 'showListManagement')}
+				>
+					<FolderKanban class="mr-2 h-4 w-4" />
+					{viewMode === 'kanban' ? 'Lists' : 'Categories'}
 				</Button>
-
+				<BoardSwitcher />
 				<div class="flex items-center gap-2 rounded-lg border p-1">
 					<Button
 						variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -164,4 +173,5 @@
 	{/if}
 </div>
 
-<ListBoardManager />
+<BoardManagement />
+<ListManagement />

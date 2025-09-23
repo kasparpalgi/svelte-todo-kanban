@@ -48,3 +48,16 @@ export type DragHandleProps = {
 };
 
 type TodoImage = { id: string; file: File | null; preview: string; isExisting?: boolean };
+
+// Store results
+
+export interface TodoStoreResult {
+	success: boolean;
+	message: string;
+	data?: TodoFieldsFragment;
+}
+
+export interface GenericStoreResult {
+	success: boolean;
+	message: string;
+}

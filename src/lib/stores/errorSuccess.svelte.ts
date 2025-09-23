@@ -1,6 +1,5 @@
 /** @file src/lib/stores/errorSuccess.svelte.ts */
 
-export let actionState = $state({ value: '' });
 export let errorSuccessMessage: { text: string; type: 'success' | 'error' } = $state({
 	text: '',
 	type: 'error'

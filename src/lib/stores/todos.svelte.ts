@@ -344,7 +344,7 @@ function createTodosStore() {
 		const groups = new Map<string, TodoFieldsFragment[]>();
 
 		for (const todo of state.todos) {
-			const listId = todo.list?.id || 'unassigned';
+			const listId = todo.list?.id || 'inbox';
 			if (!groups.has(listId)) {
 				groups.set(listId, []);
 			}

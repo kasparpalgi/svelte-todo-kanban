@@ -24,14 +24,16 @@ import type {
 	BoardFieldsFragment
 } from '$lib/graphql/generated/graphql';
 import type { ListBoardStoreResult, ListsState } from '$lib/types/listBoard';
+import { displayMessage } from './errorSuccess.svelte';
 
 function createListsStore() {
-	const state = $state<ListsState>({
+	const state = $state<ListsState & { selectedBoard: BoardFieldsFragment | null }>({
 		lists: [],
 		boards: [],
 		loading: false,
 		error: null,
-		initialized: false
+		initialized: false,
+		selectedBoard: null
 	});
 
 	async function loadLists(): Promise<ListFieldsFragment[]> {
@@ -73,9 +75,24 @@ function createListsStore() {
 			});
 
 			state.boards = data.boards || [];
+
+			// Restore selectedBoard from localStorage or 1st one
+			if (state.boards.length > 0) {
+				const savedId = localStorage.getItem('selectedBoardId');
+				const savedBoard = state.boards.find((b) => b.id === savedId);
+
+				state.selectedBoard = savedBoard || state.boards[0];
+
+				if (!savedBoard) {
+					localStorage.setItem('selectedBoardId', state.selectedBoard.id);
+				}
+			} else {
+				state.selectedBoard = null;
+			}
+
 			return state.boards;
 		} catch (error) {
-			console.error('Load boards error:', error);
+			displayMessage('Load boards error:' + error);
 			return [];
 		}
 	}
@@ -167,25 +184,20 @@ function createListsStore() {
 	async function deleteList(id: string): Promise<ListBoardStoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		console.log('Attempting to delete list:', id); // Debug log
-
 		try {
 			const data: DeleteListMutation = await request(DELETE_LIST, {
 				where: { id: { _eq: id } }
 			});
-
-			console.log('Delete mutation result:', data); // Debug log
 
 			if (data.delete_lists?.affected_rows && data.delete_lists.affected_rows > 0) {
 				state.lists = state.lists.filter((l) => l.id !== id);
 				return { success: true, message: 'List deleted successfully' };
 			}
 
-			console.log('No rows affected in delete'); // Debug log
-			return { success: false, message: 'Failed to delete list - no rows affected' };
+			return { success: false, message: 'Failed to delete list' };
 		} catch (error) {
-			console.error('Delete list error details:', error); // Detailed error log
 			const message = error instanceof Error ? error.message : 'Error deleting list';
+			console.error('Delete list error:', error);
 			return { success: false, message };
 		}
 	}
@@ -312,6 +324,9 @@ function createListsStore() {
 		get sortedBoards() {
 			return sortedBoards;
 		},
+		get selectedBoard() {
+			return state.selectedBoard;
+		},
 		get loading() {
 			return state.loading;
 		},
@@ -320,6 +335,17 @@ function createListsStore() {
 		},
 		get initialized() {
 			return state.initialized;
+		},
+
+		setSelectedBoard(board: BoardFieldsFragment | null) {
+			state.selectedBoard = board;
+			if (browser) {
+				if (board) {
+					localStorage.setItem('selectedBoardId', board.id);
+				} else {
+					localStorage.removeItem('selectedBoardId');
+				}
+			}
 		},
 
 		loadLists,
@@ -336,6 +362,7 @@ function createListsStore() {
 		reset: () => {
 			state.lists = [];
 			state.boards = [];
+			state.selectedBoard = null;
 			state.loading = false;
 			state.error = null;
 			state.initialized = false;

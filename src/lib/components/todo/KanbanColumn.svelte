@@ -25,6 +25,7 @@
 	} from '$lib/components/ui/dropdown-menu';
 	import TodoItem from '$lib/components/todo/TodoItem.svelte';
 	import type { CanbanColumnProps } from '$lib/types/todo';
+	import QuickAddInput from './QuickAddInput.svelte';
 
 	let {
 		list,
@@ -73,7 +74,7 @@
 		const taskCount = todos.length;
 		const confirmMessage =
 			taskCount > 0
-				? `Delete "${list.name}" and move ${taskCount} task(s) to unassigned?`
+				? `Delete "${list.name}" and move ${taskCount} task(s) to inbox?`
 				: `Delete "${list.name}"?`;
 
 		if (confirm(confirmMessage)) {
@@ -105,7 +106,7 @@
 	async function handleQuickAddTask() {
 		if (!newTaskTitle.trim()) return;
 
-		const listIdForTask = list.id === 'unassigned' ? undefined : list.id;
+		const listIdForTask = list.id === 'inbox' ? undefined : list.id;
 		const result = await todosStore.addTodo(newTaskTitle.trim(), undefined, listIdForTask);
 
 		if (result.success) {
@@ -168,7 +169,19 @@
 					{/if}
 				</div>
 
-				{#if list.id !== 'unassigned'}
+				<div class="flex items-center gap-1">
+					<!-- Add Task Button (always visible for non-empty lists) -->
+					{#if todos.length > 0 && list.id !== 'inbox'}
+						<Button
+							variant="ghost"
+							size="sm"
+							class="h-6 w-6 p-0 opacity-60 transition-opacity hover:opacity-100"
+							onclick={() => (showQuickAdd = !showQuickAdd)}
+						>
+							<Plus class="h-3 w-3" />
+						</Button>
+					{/if}
+
 					<DropdownMenu>
 						<DropdownMenuTrigger>
 							<Button
@@ -195,7 +208,7 @@
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
-				{/if}
+				</div>
 			</div>
 
 			<CardDescription class="text-xs">
@@ -204,6 +217,25 @@
 			</CardDescription>
 		</CardHeader>
 		<CardContent class="group min-h-24 space-y-2 pb-3">
+			{#if showQuickAdd}
+				<div class="mt-2">
+					<QuickAddInput
+						bind:value={newTaskTitle}
+						autofocus={true}
+						id={`quickadd-${list.id}`}
+						onSubmit={(val: string) => {
+							if (val) {
+								newTaskTitle = val;
+								handleQuickAddTask();
+							}
+						}}
+						onCancel={() => {
+							showQuickAdd = false;
+							newTaskTitle = '';
+						}}
+					/>
+				</div>
+			{/if}
 			{#if todos.length > 0}
 				<SortableContext
 					items={todos.map((todo) => todo.id)}
@@ -235,14 +267,21 @@
 					{/each}
 				</SortableContext>
 
-				<div class="space-y-2 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-2">
-					<Input
-						bind:value={newTaskTitle}
-						placeholder="Enter task title..."
-						class="text-sm"
-						onkeydown={handleQuickAddKeydown}
-					/>
-				</div>
+				<QuickAddInput
+					bind:value={newTaskTitle}
+					autofocus={true}
+					id={`quickaddBottom-${list.id}`}
+					onSubmit={(val: string) => {
+						if (val) {
+							newTaskTitle = val;
+							handleQuickAddTask();
+						}
+					}}
+					onCancel={() => {
+						showQuickAdd = false;
+						newTaskTitle = '';
+					}}
+				/>
 			{:else}
 				<!-- Empty list indicator -->
 				{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
@@ -254,7 +293,7 @@
 				{#if !showQuickAdd}
 					<div class="py-8 text-center text-xs text-muted-foreground">
 						<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
-						{#if list.id !== 'unassigned'}
+						{#if list.id !== 'inbox'}
 							<Button
 								size="sm"
 								variant="ghost"

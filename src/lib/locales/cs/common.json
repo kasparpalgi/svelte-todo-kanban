@@ -1,4 +1,16 @@
 {
+    "common": {
+        "all": "Všechny",
+        "manage": "Spravovat"
+    },
+    "board": {
+        "project": "Projekt",
+        "projects": "Projekty",
+        "list": "Seznam",
+        "lists": "Seznamy",
+        "category": "Kategorie",
+        "categories": "Kategorie"
+    },
     "nav": {
         "dashboard": "Přehled",
         "todos": "Úkoly",
@@ -22,7 +34,6 @@
         "add": "Přidat úkol",
         "complete": "Dokončit",
         "delete": "Smazat",
-        "today": "Dnes",
         "description": "Úkoly, které vyžadují vaši pozornost",
         "coming_soon": "Již brzy!",
         "add_new_task": "Přidat nový úkol",
@@ -42,10 +53,11 @@
         "mark_complete": "Označit jako dokončené",
         "completed_at": "Dokončeno:",
         "more_completed": "dalších dokončených",
-        "unassigned": "Nepřiřazeno",
+        "inbox": "Doručená",
         "list": "Seznam",
         "kanban": "Kanban",
         "drop_tasks_here": "Přetáhněte úkoly sem",
-        "due": "Termín"
+        "due": "Termín",
+        "everything": "Všechno"
     }
 }

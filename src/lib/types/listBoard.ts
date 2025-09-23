@@ -13,3 +13,15 @@ export interface ListsState {
 	error: string | null;
 	initialized: boolean;
 }
+
+export interface ListStoreResult {
+	success: boolean;
+	message: string;
+	data?: ListFieldsFragment;
+}
+
+export interface BoardStoreResult {
+	success: boolean;
+	message: string;
+	data?: BoardFieldsFragment;
+}
