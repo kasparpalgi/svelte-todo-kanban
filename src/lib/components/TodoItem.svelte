@@ -19,6 +19,7 @@
 
 	let { todo, isDragging = false }: TodoItemProps = $props();
 
+	const enableFullCardDrag = PUBLIC_FULL_CARD_DRAGGABLE === 'true';
 	let sortable = useSortable({ id: todo.id });
 	let { attributes, listeners, setNodeRef, transform, isDragging: sortableIsDragging } = sortable;
 
@@ -310,14 +311,14 @@
 			</Button>
 
 			<CardContent
-				class="pl-2 {PUBLIC_FULL_CARD_DRAGGABLE ? 'cursor-grab active:cursor-grabbing' : ''}"
-				{...PUBLIC_FULL_CARD_DRAGGABLE ? attributes.current : {}}
-				{...PUBLIC_FULL_CARD_DRAGGABLE ? listeners.current : {}}
+				class="pl-2 {enableFullCardDrag ? 'cursor-grab active:cursor-grabbing' : ''}"
+				{...enableFullCardDrag ? attributes.current : {}}
+				{...enableFullCardDrag ? listeners.current : {}}
 			>
 				<div class="flex items-start gap-2">
 					<DragHandle
-						attributes={PUBLIC_FULL_CARD_DRAGGABLE ? {} : attributes.current}
-						listeners={PUBLIC_FULL_CARD_DRAGGABLE ? {} : listeners.current}
+						attributes={enableFullCardDrag ? {} : attributes.current}
+						listeners={enableFullCardDrag ? {} : listeners.current}
 					/>
 
 					<button

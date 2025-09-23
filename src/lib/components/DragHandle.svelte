@@ -1,14 +1,10 @@
 <!-- @file src/lib/components/DragHandle.svelte -->
 <script lang="ts">
-	import { GripVertical } from 'lucide-svelte';
 	import { PUBLIC_FULL_CARD_DRAGGABLE } from '$env/static/public';
+	import { GripVertical } from 'lucide-svelte';
+	import type { DragHandleProps } from '$lib/types/todo';
 
-	type Props = {
-		attributes: Record<string, any>;
-		listeners: Record<string, any>;
-	};
-
-	let { attributes, listeners }: Props = $props();
+	let { attributes, listeners }: DragHandleProps = $props();
 
 	const enableFullCardDrag = PUBLIC_FULL_CARD_DRAGGABLE === 'true';
 </script>

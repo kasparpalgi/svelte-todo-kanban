@@ -42,4 +42,9 @@ export interface TodoEditProps {
 	fileInput: HTMLInputElement | undefined;
 }
 
+export type DragHandleProps = {
+	attributes: Record<string, any>;
+	listeners: Record<string, any>;
+};
+
 type TodoImage = { id: string; file: File | null; preview: string; isExisting?: boolean };
