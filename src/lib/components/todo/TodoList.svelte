@@ -1,6 +1,8 @@
 <!-- @file src/lib/components/todo/TodoList.svelte -->
 <script lang="ts">
 	import { todosStore } from '$lib/stores/todos.svelte';
+	import { listsStore } from '$lib/stores/listsBoards.svelte.js';
+	import { actionState } from '$lib/stores/states.svelte';
 	import { t } from '$lib/i18n';
 	import {
 		Card,
@@ -50,9 +52,29 @@
 	let sensors = [pointerSensor, keyboardSensor];
 
 	let activeTodosArray = $derived(() => {
+		const selectedBoardId = listsStore.selectedBoard?.id;
+
 		return todosStore.todos
-			.filter((t) => !t.completed_at)
+			.filter((t) => {
+				if (t.completed_at) return false;
+				if (selectedBoardId && t.list?.board?.id !== selectedBoardId) {
+					return false;
+				}
+
+				return true;
+			})
 			.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+	});
+
+	let completedTodosArray = $derived(() => {
+		const selectedBoardId = listsStore.selectedBoard?.id;
+
+		return todosStore.completedTodos.filter((t) => {
+			if (selectedBoardId && t.list?.board?.id !== selectedBoardId) {
+				return false;
+			}
+			return true;
+		});
 	});
 
 	function handleDragStart(event: DragStartEvent) {
@@ -166,6 +188,9 @@
 						{activeTodosArray().length}
 						{activeTodosArray().length === 1 ? $t('todo.task') : $t('todo.tasks')}
 						{$t('todo.remaining')}
+						{#if listsStore.selectedBoard}
+							{$t('todo.in')} {actionState.tBoard()}: {listsStore.selectedBoard?.name}
+						{/if}
 					</CardDescription>
 				</div>
 			</div>
@@ -216,14 +241,20 @@
 			{:else}
 				<div class="py-4 text-center text-muted-foreground">
 					<p class="text-sm">{$t('todo.no_active_tasks')}</p>
-					<p class="mt-1 text-xs">{$t('todo.add_task_to_start')}</p>
+					{#if listsStore.selectedBoard}
+						<p class="mt-1 text-xs">
+							{$t('todo.no_tasks_in')}
+							{actionState.tBoard().toLowerCase()}: {listsStore.selectedBoard?.name}
+						</p>
+					{:else}
+						<p class="mt-1 text-xs">{$t('todo.select_project_to_view_tasks')}</p>
+					{/if}
 				</div>
 			{/if}
 		</CardContent>
 	</Card>
 
-	<!-- Completed Tasks section remains the same -->
-	{#if todosStore.completedTodos.length > 0}
+	{#if completedTodosArray().length > 0}
 		<Card class="border-0 shadow-sm">
 			<CardHeader class="px-4 pt-4 pb-2">
 				<CardTitle class="flex items-center gap-2 text-base font-medium">
@@ -231,14 +262,17 @@
 					{$t('todo.completed_tasks')}
 				</CardTitle>
 				<CardDescription class="mt-0.5 text-xs">
-					{todosStore.completedTodos.length}
+					{completedTodosArray().length}
 					{$t('todo.completed')}
-					{todosStore.completedTodos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
+					{completedTodosArray().length === 1 ? $t('todo.task') : $t('todo.tasks')}
+					{#if listsStore.selectedBoard}
+						{$t('todo.in')} {actionState.tBoard()}: {listsStore.selectedBoard?.name}
+					{/if}
 				</CardDescription>
 			</CardHeader>
 			<CardContent class="px-4 pt-0 pb-4">
 				<div class="space-y-1">
-					{#each todosStore.completedTodos as todo (todo.id)}
+					{#each completedTodosArray() as todo (todo.id)}
 						<div
 							class="group relative flex items-center gap-2 rounded-md border p-2 opacity-75 transition-opacity hover:opacity-100"
 						>
@@ -259,10 +293,17 @@
 								{#if todo.content}
 									<p class="mt-0.5 text-xs text-muted-foreground line-through">{todo.content}</p>
 								{/if}
-								<p class="mt-0.5 text-xs text-muted-foreground">
-									{$t('todo.completed_at')}
-									{new Date(todo.completed_at || '').toLocaleDateString()}
-								</p>
+								<div class="mt-0.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+									<span>
+										{$t('todo.completed_at')}
+										{new Date(todo.completed_at || '').toLocaleDateString()}
+									</span>
+									{#if todo.list}
+										<span>
+											{actionState.tList()}: {todo.list.name}
+										</span>
+									{/if}
+								</div>
 							</div>
 
 							<div
