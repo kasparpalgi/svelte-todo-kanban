@@ -1,4 +1,4 @@
-<!-- src/lib/components/TodoUploadArea.svelte -->
+<!-- src/lib/components/todo/TodoUploadArea.svelte -->
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { X, Upload, Image } from 'lucide-svelte';

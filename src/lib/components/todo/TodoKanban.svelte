@@ -1,4 +1,4 @@
-<!-- @file src/lib/components/TodoKanban.svelte -->
+<!-- @file src/lib/components/todo/TodoKanban.svelte -->
 <script lang="ts">
 	import { scale } from 'svelte/transition';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -22,8 +22,8 @@
 		type DragMoveEvent
 	} from '@dnd-kit-svelte/core';
 	import { sortableKeyboardCoordinates } from '@dnd-kit-svelte/sortable';
-	import KanbanColumn from '$lib/components/KanbanColumn.svelte';
-	import TodoItem from '$lib/components/TodoItem.svelte';
+	import KanbanColumn from './KanbanColumn.svelte';
+	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
 	let activeId = $state<string | null>(null);

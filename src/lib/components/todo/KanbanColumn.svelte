@@ -1,4 +1,4 @@
-<!-- @file src/lib/components/KanbanColumn.svelte -->
+<!-- @file src/lib/components/todo/KanbanColumn.svelte -->
 <script lang="ts">
 	import { t } from '$lib/i18n';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -9,11 +9,9 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
-	import { Button } from '$lib/components/ui/button';
 	import { SortableContext, verticalListSortingStrategy } from '@dnd-kit-svelte/sortable';
 	import { useDroppable } from '@dnd-kit-svelte/core';
-	import { Trash2 } from 'lucide-svelte';
-	import TodoItem from '$lib/components/TodoItem.svelte';
+	import TodoItem from './TodoItem.svelte';
 	import type { CanbanColumnProps } from '$lib/types/todo';
 
 	let {
@@ -72,14 +70,14 @@
 					strategy={verticalListSortingStrategy}
 				>
 					{#each todos as todo, index (todo.id)}
-						<!-- Show indicator above for specific todo items, not column drops -->
+						<!-- Indicator above - specific todo items (not column drops) -->
 						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'above'}
 							<div
 								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
 							></div>
 						{/if}
 
-						<!-- Show indicator above first item for column drops -->
+						<!-- Indicator above first item (for column drops) -->
 						{#if index === 0 && dropPosition?.listId === list.id && dropPosition?.todoId === 'column' && dropPosition?.position === 'above'}
 							<div
 								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
@@ -88,7 +86,7 @@
 
 						<TodoItem {todo} />
 
-						<!-- Show indicator below -->
+						<!-- Indicator below -->
 						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'below'}
 							<div
 								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"

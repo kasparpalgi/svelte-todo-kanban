@@ -13,8 +13,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Plus, X, List, LayoutGrid } from 'lucide-svelte';
-	import TodoList from '$lib/components/TodoList.svelte';
-	import TodoKanban from '$lib/components/TodoKanban.svelte';
+	import TodoList from '$lib/components/todo/TodoList.svelte';
+	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 
 	let { data } = $props();
 

@@ -1,4 +1,4 @@
-<!-- @file src/lib/components/TodoList.svelte -->
+<!-- @file src/lib/components/todo/TodoList.svelte -->
 <script lang="ts">
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { t } from '$lib/i18n';
@@ -27,7 +27,7 @@
 		sortableKeyboardCoordinates,
 		verticalListSortingStrategy
 	} from '@dnd-kit-svelte/sortable';
-	import TodoItem from '$lib/components/TodoItem.svelte';
+	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
 	let activeId = $state<string | null>(null);

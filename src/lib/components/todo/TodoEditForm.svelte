@@ -1,4 +1,4 @@
-<!-- @file src/lib/components/TodoEditForm.svelte -->
+<!-- @file src/lib/components/todo/TodoEditForm.svelte -->
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';

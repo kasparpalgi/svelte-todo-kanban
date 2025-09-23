@@ -1,17 +1,17 @@
-<!-- @file src/lib/components/TodoItem.svelte -->
+<!-- @file src/lib/components/todo/TodoItem.svelte -->
 <script lang="ts">
 	import { PUBLIC_FULL_CARD_DRAGGABLE } from '$env/static/public';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Check, SquarePen, Calendar, GripVertical, Trash2, Save } from 'lucide-svelte';
+	import { Check, SquarePen, Calendar, Trash2 } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import { CSS } from '@dnd-kit-svelte/utilities';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { z } from 'zod';
 	import { t } from '$lib/i18n';
-	import TodoEditForm from '$lib/components/TodoEditForm.svelte';
+	import TodoEditForm from './TodoEditForm.svelte';
 	import DragHandle from './DragHandle.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { TodoItemProps } from '$lib/types/todo';

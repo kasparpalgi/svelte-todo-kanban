@@ -1,4 +1,4 @@
-<!-- @file src/lib/components/DragHandle.svelte -->
+<!-- @file src/lib/components/todo/DragHandle.svelte -->
 <script lang="ts">
 	import { PUBLIC_FULL_CARD_DRAGGABLE } from '$env/static/public';
 	import { GripVertical } from 'lucide-svelte';
