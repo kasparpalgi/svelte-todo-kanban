@@ -1,5 +1,6 @@
 <!-- @file src/lib/components/TodoItem.svelte -->
 <script lang="ts">
+	import { PUBLIC_FULL_CARD_DRAGGABLE } from '$env/static/public';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -9,8 +10,9 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { z } from 'zod';
-	import TodoEditForm from '$lib/components/TodoEditForm.svelte';
 	import { t } from '$lib/i18n';
+	import TodoEditForm from '$lib/components/TodoEditForm.svelte';
+	import DragHandle from './DragHandle.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { TodoItemProps } from '$lib/types/todo';
 	import type { TodoImage } from '$lib/types/imageUpload';
@@ -281,6 +283,10 @@
 			saveEdit();
 		}
 	}
+
+	function preventDrag(event: Event) {
+		event.stopPropagation();
+	}
 </script>
 
 <div
@@ -296,21 +302,23 @@
 				size="sm"
 				onclick={deleteTodo}
 				class="absolute top-1 right-1 z-10 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-700"
+				onmousedown={preventDrag}
+				ontouchstart={preventDrag}
 			>
 				<Trash2 class="h-3 w-3" />
 				<span class="sr-only">{$t('todo.delete')}</span>
 			</Button>
 
-			<CardContent class="pl-2">
+			<CardContent
+				class="pl-2 {PUBLIC_FULL_CARD_DRAGGABLE ? 'cursor-grab active:cursor-grabbing' : ''}"
+				{...PUBLIC_FULL_CARD_DRAGGABLE ? attributes.current : {}}
+				{...PUBLIC_FULL_CARD_DRAGGABLE ? listeners.current : {}}
+			>
 				<div class="flex items-start gap-2">
-					<!-- Drag Handle -->
-					<button
-						class="mt-0.5 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground active:cursor-grabbing"
-						{...attributes.current}
-						{...listeners.current}
-					>
-						<GripVertical class="h-3 w-3" />
-					</button>
+					<DragHandle
+						attributes={PUBLIC_FULL_CARD_DRAGGABLE ? {} : attributes.current}
+						listeners={PUBLIC_FULL_CARD_DRAGGABLE ? {} : listeners.current}
+					/>
 
 					<button
 						onclick={toggleComplete}
@@ -324,7 +332,6 @@
 						{/if}
 					</button>
 
-					<!-- Content -->
 					<div class="min-w-0 flex-1 pr-8">
 						<h3
 							class="text-sm leading-tight font-medium {todo.completed_at
@@ -344,7 +351,6 @@
 							</p>
 						{/if}
 
-						<!-- Due date -->
 						{#if todo.due_on}
 							<div class="mt-1 flex items-center gap-1">
 								<Calendar class="h-2.5 w-2.5" />
@@ -357,7 +363,6 @@
 							</div>
 						{/if}
 
-						<!-- Images -->
 						{#if todo.uploads && todo.uploads.length > 0}
 							<div class="mt-1 flex gap-1">
 								{#each todo.uploads as upload}
