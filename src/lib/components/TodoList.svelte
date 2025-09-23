@@ -184,8 +184,7 @@
 
 								{#if showDropIndicatorAbove}
 									<div
-										class="h-1 w-full rounded-full bg-blue-500 opacity-80 transition-all duration-200"
-										style="box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);"
+										class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
 									></div>
 								{/if}
 
@@ -193,8 +192,7 @@
 
 								{#if showDropIndicatorBelow}
 									<div
-										class="h-1 w-full rounded-full bg-blue-500 opacity-80 transition-all duration-200"
-										style="box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);"
+										class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
 									></div>
 								{/if}
 							{/each}

@@ -3,7 +3,7 @@
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Check, SquarePen, Calendar, GripVertical, Trash2 } from 'lucide-svelte';
+	import { Check, SquarePen, Calendar, GripVertical, Trash2, Save } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import { CSS } from '@dnd-kit-svelte/utilities';
 	import { Card, CardContent } from '$lib/components/ui/card';
@@ -291,6 +291,16 @@
 >
 	{#if !isEditing}
 		<Card class="group relative transition-all duration-200 hover:shadow-md">
+			<Button
+				variant="ghost"
+				size="sm"
+				onclick={deleteTodo}
+				class="absolute top-1 right-1 z-10 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-700"
+			>
+				<Trash2 class="h-3 w-3" />
+				<span class="sr-only">{$t('todo.delete')}</span>
+			</Button>
+
 			<CardContent class="pl-2">
 				<div class="flex items-start gap-2">
 					<!-- Drag Handle -->
@@ -315,7 +325,7 @@
 					</button>
 
 					<!-- Content -->
-					<div class="min-w-0 flex-1">
+					<div class="min-w-0 flex-1 pr-8">
 						<h3
 							class="text-sm leading-tight font-medium {todo.completed_at
 								? 'text-muted-foreground line-through'
@@ -361,27 +371,15 @@
 						{/if}
 					</div>
 
-					<div
-						class="flex shrink-0 flex-col gap-0.5 opacity-0 transition-opacity group-hover:opacity-100"
-					>
+					<div class="absolute top-1 right-8 opacity-0 transition-opacity group-hover:opacity-100">
 						<Button
 							variant="ghost"
 							size="sm"
 							onclick={startEdit}
 							class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
 						>
-							<SquarePen class="h-2.5 w-2.5" />
+							<SquarePen class="h-3 w-3" />
 							<span class="sr-only">{$t('todo.edit')}</span>
-						</Button>
-
-						<Button
-							variant="ghost"
-							size="sm"
-							onclick={deleteTodo}
-							class="h-6 w-6 p-0 hover:bg-red-50 hover:text-red-700"
-						>
-							<Trash2 class="h-2.5 w-2.5" />
-							<span class="sr-only">{$t('todo.delete')}</span>
 						</Button>
 					</div>
 				</div>

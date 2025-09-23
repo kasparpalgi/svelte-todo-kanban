@@ -55,7 +55,7 @@
 <div bind:this={columnElement} class="h-full">
 	<Card
 		class="h-fit transition-all duration-200 {isHighlighted
-			? 'bg-blue-50 ring-2 ring-blue-500'
+			? 'bg-primary/5 ring-2 ring-primary/50 dark:bg-primary/10 dark:ring-primary/30'
 			: ''}"
 	>
 		<CardHeader class="pb-2">
@@ -75,16 +75,14 @@
 						<!-- Show indicator above for specific todo items, not column drops -->
 						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'above'}
 							<div
-								class="h-1 w-full rounded-full bg-blue-500 opacity-80 transition-all duration-200"
-								style="box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);"
+								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
 							></div>
 						{/if}
 
 						<!-- Show indicator above first item for column drops -->
 						{#if index === 0 && dropPosition?.listId === list.id && dropPosition?.todoId === 'column' && dropPosition?.position === 'above'}
 							<div
-								class="h-1 w-full rounded-full bg-blue-500 opacity-80 transition-all duration-200"
-								style="box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);"
+								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
 							></div>
 						{/if}
 
@@ -93,8 +91,7 @@
 						<!-- Show indicator below -->
 						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'below'}
 							<div
-								class="h-1 w-full rounded-full bg-blue-500 opacity-80 transition-all duration-200"
-								style="box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);"
+								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
 							></div>
 						{/if}
 					{/each}
@@ -103,8 +100,7 @@
 				<!-- Empty list indicator -->
 				{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
 					<div
-						class="h-1 w-full rounded-full bg-blue-500 opacity-80 transition-all duration-200"
-						style="box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);"
+						class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
 					></div>
 				{/if}
 				<div class="py-8 text-center text-xs text-muted-foreground">
