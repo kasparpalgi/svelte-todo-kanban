@@ -1,7 +1,11 @@
 {
     "common": {
-        "all": "Všechny",
-        "manage": "Spravovat"
+        "all": "Vše",
+        "manage": "Spravovat",
+        "create": "Vytvořit",
+        "cancel": "Zrušit",
+        "edit": "Upravit",
+        "delete": "Smazat"
     },
     "board": {
         "project": "Projekt",
@@ -30,6 +34,12 @@
         "sending_magic_link": "Odesílám magický odkaz..."
     },
     "todo": {
+        "noLists": "Žádné seznamy",
+        "createListPrompt": "Vytvořte seznam pro organizaci úkolů",
+        "newList": "Nový seznam",
+        "createNewList": "Vytvořit nový seznam",
+        "listName": "Název seznamu",
+        "organizeTasks": "Organizujte své úkoly do seznamů",
         "title": "Seznam úkolů",
         "add": "Přidat úkol",
         "complete": "Dokončit",

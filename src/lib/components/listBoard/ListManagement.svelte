@@ -21,7 +21,14 @@
 		DropdownMenuSeparator,
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
-	import { Plus, Trash2, Edit2, GripVertical, FolderKanban, MoreHorizontal } from 'lucide-svelte';
+	import {
+		Plus,
+		Trash2,
+		SquarePen,
+		GripVertical,
+		FolderKanban,
+		MoreHorizontal // TODO: No new?
+	} from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
@@ -39,7 +46,7 @@
 		}
 	});
 
-    // TODO: move the filtering to the store?
+	// TODO: move the filtering to the store?
 	let filteredLists = $derived(
 		listsStore.selectedBoard?.id
 			? listsStore.sortedLists.filter((l) => l.board_id === listsStore.selectedBoard?.id)
@@ -159,9 +166,12 @@
 		>
 			<div class="mb-6 flex items-center justify-between">
 				<div>
-					<h3 class="text-lg font-semibold">Manage Lists</h3>
+					<h3 class="text-lg font-semibold">
+						{$t('common.manage')}
+						{actionState.tLists()}
+					</h3>
 					<p class="text-sm text-muted-foreground">
-						Lists ({listsStore.selectedBoard?.name || $t('todo.everything')})
+						{actionState.tLists()} ({listsStore.selectedBoard?.name || $t('todo.everything')})
 					</p>
 				</div>
 				<Button variant="ghost" onclick={closeModal}>✕</Button>
@@ -178,17 +188,17 @@
 						<DialogTrigger>
 							<Button size="sm" class="h-8">
 								<Plus class="mr-1 h-3 w-3" />
-								New List
+								{$t('todo.newList')}
 							</Button>
 						</DialogTrigger>
 						<DialogContent class="sm:max-w-[425px]">
 							<DialogHeader>
-								<DialogTitle>Create New List</DialogTitle>
-								<DialogDescription>Organise your tasks under lists.</DialogDescription>
+								<DialogTitle>{$t('todo.createNewList')}</DialogTitle>
+								<DialogDescription>{$t('todo.organizeTasks')}</DialogDescription>
 							</DialogHeader>
 							<div class="grid gap-4 py-4">
 								<div class="grid gap-2">
-									<label for="list-name" class="text-sm font-medium">List Name</label>
+									<label for="list-name" class="text-sm font-medium">{$t('todo.listName')}</label>
 									<Input
 										id="list-name"
 										bind:value={newListName}
@@ -210,8 +220,8 @@
 					{#if filteredLists.length === 0}
 						<div class="py-8 text-center text-muted-foreground">
 							<FolderKanban class="mx-auto h-12 w-12 opacity-20" />
-							<p class="mt-2 text-sm">No lists yet</p>
-							<p class="text-xs">Create a list to organize your tasks</p>
+							<p class="mt-2 text-sm">{$t('todo.noLists')}</p>
+							<p class="text-xs">{$t('todo.createListPrompt')}</p>
 						</div>
 					{:else}
 						{#each filteredLists as list (list.id)}
@@ -232,7 +242,8 @@
 								{/if}
 
 								<Badge variant="outline" class="text-xs">
-									{todoCountByList().get(list.id) || 0} tasks
+									{todoCountByList().get(list.id) || 0}
+									{$t('todo.tasks')}
 								</Badge>
 
 								<DropdownMenu>
@@ -243,8 +254,8 @@
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end">
 										<DropdownMenuItem onclick={() => startEditList(list)}>
-											<Edit2 class="mr-2 h-3 w-3" />
-											Edit
+											<SquarePen class="mr-2 h-3 w-3" />
+											{$t('common.edit')}
 										</DropdownMenuItem>
 										<DropdownMenuSeparator />
 										<DropdownMenuItem
@@ -252,7 +263,7 @@
 											class="text-red-600"
 										>
 											<Trash2 class="mr-2 h-3 w-3" />
-											Delete
+											{$t('common.delete')}
 										</DropdownMenuItem>
 									</DropdownMenuContent>
 								</DropdownMenu>

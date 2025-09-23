@@ -1,9 +1,15 @@
 {
     "common": {
         "all": "All",
-        "manage": "Manage"
+        "manage": "Manage",
+        "create": "Create",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "delete": "Delete"
     },
     "board": {
+        "board": "Board",
+        "boards": "Boards",
         "project": "Project",
         "projects": "Projects",
         "list": "List",
@@ -30,6 +36,12 @@
         "sending_magic_link": "Sending magic link..."
     },
     "todo": {
+        "noLists": "No lists yet",
+        "createListPrompt": "Create a list to organize your tasks",
+        "newList": "New List",
+        "createNewList": "Create New List",
+        "listName": "List Name",
+        "organizeTasks": "Organise your tasks under lists",
         "title": "Todo List",
         "add": "Add Todo",
         "complete": "Complete",
