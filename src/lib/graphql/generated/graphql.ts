@@ -3734,6 +3734,10 @@ export type Verification_Tokens_Updates = {
 
 export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null };
 
+export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null };
+
+export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, sort_order: number, created_at: string, updated_at: string };
+
 export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, emailVerified?: string | null, created_at: string, updated_at: string };
 
 export type GetTodosQueryVariables = Exact<{
@@ -3745,6 +3749,26 @@ export type GetTodosQueryVariables = Exact<{
 
 
 export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> };
+
+export type GetListsQueryVariables = Exact<{
+  where?: InputMaybe<Lists_Bool_Exp>;
+  order_by?: InputMaybe<Array<Lists_Order_By> | Lists_Order_By>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetListsQuery = { __typename?: 'query_root', lists: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null }> };
+
+export type GetBoardsQueryVariables = Exact<{
+  where?: InputMaybe<Boards_Bool_Exp>;
+  order_by?: InputMaybe<Array<Boards_Order_By> | Boards_Order_By>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, sort_order: number, created_at: string, updated_at: string }> };
 
 export type CreateTodoMutationVariables = Exact<{
   objects: Array<Todos_Insert_Input> | Todos_Insert_Input;
@@ -3767,6 +3791,50 @@ export type DeleteTodosMutationVariables = Exact<{
 
 
 export type DeleteTodosMutation = { __typename?: 'mutation_root', delete_todos?: { __typename?: 'todos_mutation_response', affected_rows: number } | null };
+
+export type CreateListMutationVariables = Exact<{
+  objects: Array<Lists_Insert_Input> | Lists_Insert_Input;
+}>;
+
+
+export type CreateListMutation = { __typename?: 'mutation_root', insert_lists?: { __typename?: 'lists_mutation_response', returning: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null }> } | null };
+
+export type UpdateListMutationVariables = Exact<{
+  where: Lists_Bool_Exp;
+  _set: Lists_Set_Input;
+}>;
+
+
+export type UpdateListMutation = { __typename?: 'mutation_root', update_lists?: { __typename?: 'lists_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null }> } | null };
+
+export type DeleteListMutationVariables = Exact<{
+  where: Lists_Bool_Exp;
+}>;
+
+
+export type DeleteListMutation = { __typename?: 'mutation_root', delete_lists?: { __typename?: 'lists_mutation_response', affected_rows: number } | null };
+
+export type CreateBoardMutationVariables = Exact<{
+  objects: Array<Boards_Insert_Input> | Boards_Insert_Input;
+}>;
+
+
+export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, sort_order: number, created_at: string, updated_at: string }> } | null };
+
+export type UpdateBoardMutationVariables = Exact<{
+  where: Boards_Bool_Exp;
+  _set: Boards_Set_Input;
+}>;
+
+
+export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, sort_order: number, created_at: string, updated_at: string }> } | null };
+
+export type DeleteBoardMutationVariables = Exact<{
+  where: Boards_Bool_Exp;
+}>;
+
+
+export type DeleteBoardMutation = { __typename?: 'mutation_root', delete_boards?: { __typename?: 'boards_mutation_response', affected_rows: number } | null };
 
 export type CreateUploadMutationVariables = Exact<{
   objects: Array<Uploads_Insert_Input> | Uploads_Insert_Input;
@@ -3838,6 +3906,30 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   }
 }
     `, {"fragmentName":"TodoFields"}) as unknown as TypedDocumentString<TodoFieldsFragment, unknown>;
+export const ListFieldsFragmentDoc = new TypedDocumentString(`
+    fragment ListFields on lists {
+  id
+  name
+  sort_order
+  board_id
+  created_at
+  updated_at
+  board {
+    id
+    name
+    sort_order
+  }
+}
+    `, {"fragmentName":"ListFields"}) as unknown as TypedDocumentString<ListFieldsFragment, unknown>;
+export const BoardFieldsFragmentDoc = new TypedDocumentString(`
+    fragment BoardFields on boards {
+  id
+  name
+  sort_order
+  created_at
+  updated_at
+}
+    `, {"fragmentName":"BoardFields"}) as unknown as TypedDocumentString<BoardFieldsFragment, unknown>;
 export const UserFieldsFragmentDoc = new TypedDocumentString(`
     fragment UserFields on users {
   id
@@ -3881,6 +3973,38 @@ export const GetTodosDocument = new TypedDocumentString(`
     }
   }
 }`) as unknown as TypedDocumentString<GetTodosQuery, GetTodosQueryVariables>;
+export const GetListsDocument = new TypedDocumentString(`
+    query GetLists($where: lists_bool_exp = {}, $order_by: [lists_order_by!] = {sort_order: asc, name: asc}, $limit: Int = 100, $offset: Int = 0) {
+  lists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+    ...ListFields
+  }
+}
+    fragment ListFields on lists {
+  id
+  name
+  sort_order
+  board_id
+  created_at
+  updated_at
+  board {
+    id
+    name
+    sort_order
+  }
+}`) as unknown as TypedDocumentString<GetListsQuery, GetListsQueryVariables>;
+export const GetBoardsDocument = new TypedDocumentString(`
+    query GetBoards($where: boards_bool_exp = {}, $order_by: [boards_order_by!] = {sort_order: asc, name: asc}, $limit: Int = 100, $offset: Int = 0) {
+  boards(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+    ...BoardFields
+  }
+}
+    fragment BoardFields on boards {
+  id
+  name
+  sort_order
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<GetBoardsQuery, GetBoardsQueryVariables>;
 export const CreateTodoDocument = new TypedDocumentString(`
     mutation CreateTodo($objects: [todos_insert_input!]!) {
   insert_todos(objects: $objects) {
@@ -3957,6 +4081,94 @@ export const DeleteTodosDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteTodosMutation, DeleteTodosMutationVariables>;
+export const CreateListDocument = new TypedDocumentString(`
+    mutation CreateList($objects: [lists_insert_input!]!) {
+  insert_lists(objects: $objects) {
+    returning {
+      ...ListFields
+    }
+  }
+}
+    fragment ListFields on lists {
+  id
+  name
+  sort_order
+  board_id
+  created_at
+  updated_at
+  board {
+    id
+    name
+    sort_order
+  }
+}`) as unknown as TypedDocumentString<CreateListMutation, CreateListMutationVariables>;
+export const UpdateListDocument = new TypedDocumentString(`
+    mutation UpdateList($where: lists_bool_exp!, $_set: lists_set_input!) {
+  update_lists(where: $where, _set: $_set) {
+    affected_rows
+    returning {
+      ...ListFields
+    }
+  }
+}
+    fragment ListFields on lists {
+  id
+  name
+  sort_order
+  board_id
+  created_at
+  updated_at
+  board {
+    id
+    name
+    sort_order
+  }
+}`) as unknown as TypedDocumentString<UpdateListMutation, UpdateListMutationVariables>;
+export const DeleteListDocument = new TypedDocumentString(`
+    mutation DeleteList($where: lists_bool_exp!) {
+  delete_lists(where: $where) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteListMutation, DeleteListMutationVariables>;
+export const CreateBoardDocument = new TypedDocumentString(`
+    mutation CreateBoard($objects: [boards_insert_input!]!) {
+  insert_boards(objects: $objects) {
+    returning {
+      ...BoardFields
+    }
+  }
+}
+    fragment BoardFields on boards {
+  id
+  name
+  sort_order
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<CreateBoardMutation, CreateBoardMutationVariables>;
+export const UpdateBoardDocument = new TypedDocumentString(`
+    mutation UpdateBoard($where: boards_bool_exp!, $_set: boards_set_input!) {
+  update_boards(where: $where, _set: $_set) {
+    affected_rows
+    returning {
+      ...BoardFields
+    }
+  }
+}
+    fragment BoardFields on boards {
+  id
+  name
+  sort_order
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<UpdateBoardMutation, UpdateBoardMutationVariables>;
+export const DeleteBoardDocument = new TypedDocumentString(`
+    mutation DeleteBoard($where: boards_bool_exp!) {
+  delete_boards(where: $where) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteBoardMutation, DeleteBoardMutationVariables>;
 export const CreateUploadDocument = new TypedDocumentString(`
     mutation CreateUpload($objects: [uploads_insert_input!]!) {
   insert_uploads(objects: $objects) {

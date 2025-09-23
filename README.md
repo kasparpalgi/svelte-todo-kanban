@@ -13,6 +13,7 @@ Modern Kanban ToDo app built according to requirements [requirements](docs/todol
    4. Run `hasura migrate apply --all-databases` and `hasura metadata apply`
    5. If you want to test with some seed data, do `hasura seed apply` and if you have in your `.env` the `NODE_ENV` set to `development` then you are also able to access Auth.js built-in sign-in page at `/auth/signin` where you can login with `test@test.com` below in the test login section. It is also suggested to delete the test yser in production and do the testing with actually signed up accounts.
    6. You can run `hasura console` for web UI to manage back-end tables/relations, run test API queries and much more.
+4. Always good idea to see if all works now: `npm run test`
 
 Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 
@@ -26,6 +27,7 @@ Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 * PostgreSQL for DB
 * graphql & graphql-request - handling Hasura GraphQL API requests from SvelteKit REST API endpoints
 * Zod for form validation
+* [sveltekit-i18n](https://github.com/sveltekit-i18n/lib) - straightforward sveltekit-i18n solution (tiny library with no external dependencies)
 
 ## Developing
 

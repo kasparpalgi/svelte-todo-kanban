@@ -30,6 +30,32 @@ export const TODO_FRAGMENT = graphql(`
 	}
 `);
 
+export const LIST_FRAGMENT = graphql(`
+	fragment ListFields on lists {
+		id
+		name
+		sort_order
+		board_id
+		created_at
+		updated_at
+		board {
+			id
+			name
+			sort_order
+		}
+	}
+`);
+
+export const BOARD_FRAGMENT = graphql(`
+	fragment BoardFields on boards {
+		id
+		name
+		sort_order
+		created_at
+		updated_at
+	}
+`);
+
 export const USER_FRAGMENT = graphql(`
 	fragment UserFields on users {
 		id
@@ -51,6 +77,32 @@ export const GET_TODOS = graphql(`
 	) {
 		todos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
 			...TodoFields
+		}
+	}
+`);
+
+export const GET_LISTS = graphql(`
+	query GetLists(
+		$where: lists_bool_exp = {}
+		$order_by: [lists_order_by!] = { sort_order: asc, name: asc }
+		$limit: Int = 100
+		$offset: Int = 0
+	) {
+		lists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...ListFields
+		}
+	}
+`);
+
+export const GET_BOARDS = graphql(`
+	query GetBoards(
+		$where: boards_bool_exp = {}
+		$order_by: [boards_order_by!] = { sort_order: asc, name: asc }
+		$limit: Int = 100
+		$offset: Int = 0
+	) {
+		boards(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...BoardFields
 		}
 	}
 `);
@@ -79,6 +131,64 @@ export const UPDATE_TODOS = graphql(`
 export const DELETE_TODOS = graphql(`
 	mutation DeleteTodos($where: todos_bool_exp!) {
 		delete_todos(where: $where) {
+			affected_rows
+		}
+	}
+`);
+
+export const CREATE_LIST = graphql(`
+	mutation CreateList($objects: [lists_insert_input!]!) {
+		insert_lists(objects: $objects) {
+			returning {
+				...ListFields
+			}
+		}
+	}
+`);
+
+export const UPDATE_LIST = graphql(`
+	mutation UpdateList($where: lists_bool_exp!, $_set: lists_set_input!) {
+		update_lists(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				...ListFields
+			}
+		}
+	}
+`);
+
+export const DELETE_LIST = graphql(`
+	mutation DeleteList($where: lists_bool_exp!) {
+		delete_lists(where: $where) {
+			affected_rows
+		}
+	}
+`);
+
+export const CREATE_BOARD = graphql(`
+	mutation CreateBoard($objects: [boards_insert_input!]!) {
+		insert_boards(objects: $objects) {
+			returning {
+				...BoardFields
+			}
+		}
+	}
+`);
+
+export const UPDATE_BOARD = graphql(`
+	mutation UpdateBoard($where: boards_bool_exp!, $_set: boards_set_input!) {
+		update_boards(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				...BoardFields
+			}
+		}
+	}
+`);
+
+export const DELETE_BOARD = graphql(`
+	mutation DeleteBoard($where: boards_bool_exp!) {
+		delete_boards(where: $where) {
 			affected_rows
 		}
 	}

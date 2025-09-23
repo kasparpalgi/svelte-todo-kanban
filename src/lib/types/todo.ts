@@ -7,10 +7,10 @@ export interface TodosState {
 	initialized: boolean;
 }
 
-export interface StoreResult {
+export interface StoreResult<T = any> {
 	success: boolean;
 	message: string;
-	data?: TodoFieldsFragment;
+	data?: T;
 }
 
 export interface CanbanColumnProps {

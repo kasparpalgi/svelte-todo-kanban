@@ -17,7 +17,7 @@
 <header
 	class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
 >
-	<div class="container mx-auto px-4 py-4">
+	<div class="w-full px-4 py-4">
 		<nav class="flex items-center justify-between">
 			<button
 				onclick={() => goto('/')}
@@ -40,6 +40,6 @@
 	</div>
 </header>
 
-<main class="container mx-auto px-4 py-8">
+<main class="w-full px-4">
 	{@render children?.()}
 </main>
