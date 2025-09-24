@@ -15,7 +15,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { SortableContext, verticalListSortingStrategy } from '@dnd-kit-svelte/sortable';
 	import { useDroppable } from '@dnd-kit-svelte/core';
-	import { Trash2, Plus, MoreHorizontal, Edit2 } from 'lucide-svelte';
+	import { Trash2, Plus, Ellipsis, SquarePen } from 'lucide-svelte';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
@@ -170,7 +170,6 @@
 				</div>
 
 				<div class="flex items-center gap-1">
-					<!-- Add Task Button (always visible for non-empty lists) -->
 					{#if todos.length > 0 && list.id !== 'inbox'}
 						<Button
 							variant="ghost"
@@ -189,12 +188,12 @@
 								size="sm"
 								class="h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
 							>
-								<MoreHorizontal class="h-3 w-3" />
+								<Ellipsis class="h-3 w-3" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" class="w-48">
 							<DropdownMenuItem onclick={startEdit}>
-								<Edit2 class="mr-2 h-3 w-3" />
+								<SquarePen class="mr-2 h-3 w-3" />
 								Rename List
 							</DropdownMenuItem>
 							<DropdownMenuItem onclick={() => (showQuickAdd = !showQuickAdd)}>
@@ -242,14 +241,12 @@
 					strategy={verticalListSortingStrategy}
 				>
 					{#each todos as todo, index (todo.id)}
-						<!-- Show indicator above for specific todo items, not column drops -->
 						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'above'}
 							<div
 								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
 							></div>
 						{/if}
 
-						<!-- Show indicator above first item for column drops -->
 						{#if index === 0 && dropPosition?.listId === list.id && dropPosition?.todoId === 'column' && dropPosition?.position === 'above'}
 							<div
 								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
@@ -258,7 +255,6 @@
 
 						<TodoItem {todo} />
 
-						<!-- Show indicator below -->
 						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'below'}
 							<div
 								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
@@ -284,7 +280,6 @@
 					}}
 				/>
 			{:else}
-				<!-- Empty list indicator -->
 				{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
 					<div
 						class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"

@@ -51,7 +51,21 @@
 	async function handleAddTodo() {
 		if (!newTodoTitle.trim()) return;
 
-		const result = await todosStore.addTodo(newTodoTitle.trim());
+		let listId: string | undefined;
+
+		if (listsStore.selectedBoard) {
+			const boardLists = listsStore.lists.filter(
+				(l) => l.board_id === listsStore.selectedBoard?.id
+			);
+
+			if (boardLists.length > 0) {
+				listId = boardLists.sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999))[0].id;
+			} else {
+				listId = undefined;
+			}
+		}
+
+		const result = await todosStore.addTodo(newTodoTitle.trim(), undefined, listId);
 		if (result.success) {
 			newTodoTitle = '';
 		}
@@ -71,7 +85,7 @@
 <div class="relative w-full">
 	<div class="px-4 py-6">
 		<div class="mb-6 flex items-center justify-between">
-			<h1 class="hidden md:block text-3xl font-bold tracking-tight">
+			<h1 class="hidden text-3xl font-bold tracking-tight md:block">
 				{listsStore.selectedBoard?.name || $t('todo.everything')}
 			</h1>
 			<div class="flex items-center gap-4">

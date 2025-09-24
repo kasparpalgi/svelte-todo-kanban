@@ -30,6 +30,7 @@
 	import KanbanColumn from './KanbanColumn.svelte';
 	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 
 	let activeId = $state<string | null>(null);
 	let activeTodo = $state<TodoFieldsFragment | null>(null);
@@ -68,20 +69,26 @@
 		const todosByListId = todoFilteringStore.getTodosByList(todosStore.todos);
 		const result = [];
 
-		// 1. Add inbox list first if there are inbox todos
 		const inboxTodos = todosByListId.get('inbox');
 		if (inboxTodos && inboxTodos.length > 0) {
-			result.push({
-				list: {
-					id: 'inbox',
-					name: $t('todo.inbox'),
-					sort_order: -1
-				},
-				todos: inboxTodos
-			});
+			const filteredInboxTodos = listsStore.selectedBoard
+				? inboxTodos.filter((todo) => {
+						return !todo.list || !todo.list.board?.id;
+					})
+				: inboxTodos;
+
+			if (filteredInboxTodos.length > 0) {
+				result.push({
+					list: {
+						id: 'inbox',
+						name: $t('todo.inbox'),
+						sort_order: -1
+					},
+					todos: filteredInboxTodos
+				});
+			}
 		}
 
-		// 2. Add regular lists (filtered by selected board if needed)
 		const filteredLists = listsStore.selectedBoard
 			? listsStore.sortedLists.filter((l) => l.board_id === listsStore.selectedBoard?.id)
 			: listsStore.sortedLists;
@@ -101,13 +108,24 @@
 	});
 
 	let filteredCompletedTodos = $derived(() => {
-		return todoFilteringStore.getCompletedTodos(todosStore.todos);
+		const completedTodos = todoFilteringStore.getCompletedTodos(todosStore.todos);
+
+		if (!listsStore.selectedBoard) {
+			return completedTodos;
+		}
+
+		return completedTodos.filter((todo) => {
+			if (!todo.list) {
+				return true;
+			}
+			return todo.list.board?.id === listsStore.selectedBoard?.id;
+		});
 	});
 
 	async function toggleTodoCompletion(todoId: string) {
 		const result = await todosStore.toggleTodo(todoId);
 		if (!result.success) {
-			// Handle error if needed
+			displayMessage('Failed to mark completed.')
 		}
 	}
 
