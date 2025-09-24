@@ -12,6 +12,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { z } from 'zod';
 	import { t } from '$lib/i18n';
+	import { shortenText } from '$lib/utils/shortenText';
 	import TodoEditForm from './TodoEditForm.svelte';
 	import DragHandle from './DragHandle.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
@@ -428,7 +429,7 @@
 									? 'line-through'
 									: ''}"
 							>
-								{todo.content}
+								{shortenText(todo.content)}
 							</p>
 						{/if}
 

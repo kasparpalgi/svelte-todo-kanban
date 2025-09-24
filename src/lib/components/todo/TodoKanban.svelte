@@ -26,7 +26,7 @@
 		type DragMoveEvent
 	} from '@dnd-kit-svelte/core';
 	import { sortableKeyboardCoordinates } from '@dnd-kit-svelte/sortable';
-	import { Plus, RefreshCw } from 'lucide-svelte';
+	import { Plus, RefreshCw, ChevronDown } from 'lucide-svelte';
 	import KanbanColumn from './KanbanColumn.svelte';
 	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
@@ -41,6 +41,9 @@
 		position: 'above' | 'below';
 		targetIndex: number;
 	} | null>(null);
+
+	let completedItemsToShow = $state(10);
+	const completedItemsInitially = 10;
 
 	let pointerSensor = useSensor(PointerSensor, {
 		activationConstraint: {
@@ -110,23 +113,39 @@
 	let filteredCompletedTodos = $derived(() => {
 		const completedTodos = todoFilteringStore.getCompletedTodos(todosStore.todos);
 
-		if (!listsStore.selectedBoard) {
-			return completedTodos;
-		}
+		let filtered = !listsStore.selectedBoard
+			? completedTodos
+			: completedTodos.filter((todo) => {
+					if (!todo.list) {
+						return true;
+					}
+					return todo.list.board?.id === listsStore.selectedBoard?.id;
+				});
 
-		return completedTodos.filter((todo) => {
-			if (!todo.list) {
-				return true;
-			}
-			return todo.list.board?.id === listsStore.selectedBoard?.id;
+		return filtered.sort((a, b) => {
+			const dateA = a.completed_at ? new Date(a.completed_at).getTime() : 0;
+			const dateB = b.completed_at ? new Date(b.completed_at).getTime() : 0;
+			return dateB - dateA;
 		});
+	});
+
+	let visibleCompletedTodos = $derived(() => {
+		return filteredCompletedTodos().slice(0, completedItemsToShow);
+	});
+
+	let hasMoreCompletedTodos = $derived(() => {
+		return filteredCompletedTodos().length > completedItemsToShow;
 	});
 
 	async function toggleTodoCompletion(todoId: string) {
 		const result = await todosStore.toggleTodo(todoId);
 		if (!result.success) {
-			displayMessage('Failed to mark completed.')
+			displayMessage('Failed to mark completed.');
 		}
+	}
+
+	function loadMoreCompletedTodos() {
+		completedItemsToShow += completedItemsInitially;
 	}
 
 	function cleanup() {
@@ -349,16 +368,6 @@
 							<CardHeader>
 								<CardTitle class="flex items-center justify-between text-sm text-green-600">
 									<span>✓ {$t('todo.completed')}</span>
-									<Button
-										variant="ghost"
-										size="sm"
-										class="h-6 w-6 p-0"
-										onclick={() => {
-											/* Expand/collapse completed */
-										}}
-									>
-										<RefreshCw class="h-3 w-3" />
-									</Button>
 								</CardTitle>
 								<CardDescription class="text-xs">
 									{filteredCompletedTodos().length}
@@ -366,7 +375,7 @@
 								</CardDescription>
 							</CardHeader>
 							<CardContent class="space-y-2">
-								{#each filteredCompletedTodos().slice(0, 5) as todo (todo.id)}
+								{#each visibleCompletedTodos() as todo (todo.id)}
 									<div
 										class="group rounded border p-2 text-sm line-through opacity-60 transition-opacity hover:opacity-100"
 									>
@@ -383,9 +392,20 @@
 										</div>
 									</div>
 								{/each}
-								{#if filteredCompletedTodos().length > 5}
-									<div class="text-xs text-muted-foreground">
-										+{filteredCompletedTodos().length - 5} more completed
+								{#if hasMoreCompletedTodos()}
+									<div class="pt-2">
+										<Button
+											variant="ghost"
+											size="sm"
+											class="h-8 w-full text-xs text-muted-foreground hover:text-foreground"
+											onclick={loadMoreCompletedTodos}
+										>
+											<ChevronDown class="mr-1 h-3 w-3" />
+											Load {Math.min(
+												completedItemsInitially,
+												filteredCompletedTodos().length - completedItemsToShow
+											)} more completed
+										</Button>
 									</div>
 								{/if}
 							</CardContent>
