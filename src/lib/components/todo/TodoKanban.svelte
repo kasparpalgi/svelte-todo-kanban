@@ -418,16 +418,4 @@
 			</DndContext>
 		</div>
 	</div>
-
-	{#if todoFilteringStore.pagination.hasMore}
-		<div class="flex justify-center p-6 pt-0">
-			<Button
-				variant="outline"
-				onclick={() => todoFilteringStore.loadMore()}
-				class="w-full max-w-sm"
-			>
-				Load more tasks
-			</Button>
-		</div>
-	{/if}
 </div>
