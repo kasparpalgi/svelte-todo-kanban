@@ -6,7 +6,7 @@ export const load: PageServerLoad = async (event) => {
 	const session = await event.locals.auth();
 
 	if (session) {
-		throw redirect(302, '/');
+		//throw redirect(302, '/');
 	}
 
 	return {};

@@ -17,7 +17,7 @@ export const load: LayoutServerLoad = async (event) => {
 		if (!session) {
 			throw redirect(302, '/signin');
 		} else {
-			throw redirect(302, `/${defaultLocale}`);
+			//throw redirect(302, `/${defaultLocale}`);
 		}
 	}
 

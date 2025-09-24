@@ -52,7 +52,7 @@ providers.push(
 		async authorize(credentials) {
 			if (credentials.email === 'test@test.com') {
 				return {
-					id: '166ca52b-4ecf-4d30-842f-95f97656aeb5', // Your manually created user ID
+					id: '166ca52b-4ecf-4d30-842f-95f97656aeb5',
 					name: 'Test User',
 					email: 'test@test.com'
 				};
