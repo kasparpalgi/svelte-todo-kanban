@@ -43,8 +43,14 @@
 
 	let pointerSensor = useSensor(PointerSensor, {
 		activationConstraint: {
-			distance: 15,
-			delay: 150
+			distance: 8
+		},
+
+		onActivation: (event) => {
+			const target = event.target as HTMLElement;
+			const isDragHandle =
+				target.closest('button[data-drag-handle]') || target.closest('[data-drag-handle]');
+			return !!isDragHandle;
 		}
 	});
 	let keyboardSensor = useSensor(KeyboardSensor, {
