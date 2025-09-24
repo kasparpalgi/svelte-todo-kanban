@@ -371,7 +371,7 @@
 >
 	{#if !isEditing}
 		<Card
-			class="relative transition-all duration-200 hover:shadow-md"
+			class="group relative transition-all duration-200 hover:shadow-md"
 			onmouseenter={handleMouseEnter}
 			onmouseleave={handleMouseLeave}
 		>

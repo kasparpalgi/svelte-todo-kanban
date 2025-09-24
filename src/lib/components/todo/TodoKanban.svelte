@@ -320,7 +320,7 @@
 				onDragCancel={handleDragCancel}
 			>
 				{#each kanbanLists() as { list, todos } (list.id)}
-					<div class="w-80 flex-shrink-0">
+					<div class="w-80 flex-shrink-0 max-md:w-72">
 						<KanbanColumn {list} {todos} isHighlighted={hoveredListId === list.id} {dropPosition} />
 					</div>
 				{/each}
