@@ -168,11 +168,9 @@
 		>
 			{#if isRecording}
 				<Square class="mr-2 h-4 w-4" />
-				Stop
 				<div class="absolute -top-1 -right-1 h-2 w-2 animate-pulse rounded-full bg-red-500"></div>
 			{:else}
 				<Mic class="mr-2 h-4 w-4" />
-				Voice
 			{/if}
 		</Button>
 
