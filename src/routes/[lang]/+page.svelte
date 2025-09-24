@@ -14,7 +14,7 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, X, List, LayoutGrid, Settings, FolderKanban, Filter } from 'lucide-svelte';
+	import { Plus, X, List, LayoutGrid, Settings, Funnel } from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
@@ -65,32 +65,32 @@
 </script>
 
 <svelte:head>
-	<title>{$t('todo.today')}</title>
+	<title>{listsStore.selectedBoard?.name || $t('todo.everything')} | ToDzz</title>
 </svelte:head>
 
 <div class="relative w-full">
 	<div class="px-4 py-6">
 		<div class="mb-6 flex items-center justify-between">
-			<h1 class="text-3xl font-bold tracking-tight">
+			<h1 class="hidden md:block text-3xl font-bold tracking-tight">
 				{listsStore.selectedBoard?.name || $t('todo.everything')}
 			</h1>
 			<div class="flex items-center gap-4">
-				<Button
-					variant="outline"
-					size="sm"
-					onclick={() => (actionState.edit = 'showListManagement')}
-				>
-					<FolderKanban class="mr-2 h-4 w-4" />
-					{viewMode === 'kanban' ? 'Lists' : 'Categories'}
-				</Button>
 				<BoardSwitcher />
 				<Button
 					variant={actionState.showFilters ? 'default' : 'outline'}
 					size="sm"
 					onclick={() => (actionState.showFilters = !actionState.showFilters)}
 				>
-					<Filter class="mr-2 h-4 w-4" />
-					Filters
+					<Funnel class="mr-2 h-4 w-4" />
+					<span class="hidden md:block">Filter</span>
+				</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onclick={() => (actionState.edit = 'showListManagement')}
+				>
+					<Settings class="mr-2 h-4 w-4" />
+					<span class="hidden md:block">{viewMode === 'kanban' ? 'Lists' : 'Categories'}</span>
 				</Button>
 				<div class="flex items-center gap-2 rounded-lg border p-1">
 					<Button
@@ -100,7 +100,7 @@
 						class="h-8"
 					>
 						<List class="mr-2 h-4 w-4" />
-						{$t('todo.list')}
+						<span class="hidden md:block">{$t('todo.list')}</span>
 					</Button>
 					<Button
 						variant={viewMode === 'kanban' ? 'default' : 'ghost'}
@@ -109,7 +109,7 @@
 						class="h-8"
 					>
 						<LayoutGrid class="mr-2 h-4 w-4" />
-						{$t('todo.kanban')}
+						<span class="hidden md:block">{$t('todo.kanban')}</span>
 					</Button>
 				</div>
 			</div>

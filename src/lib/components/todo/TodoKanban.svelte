@@ -30,6 +30,7 @@
 	import KanbanColumn from './KanbanColumn.svelte';
 	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 
 	let activeId = $state<string | null>(null);
 	let activeTodo = $state<TodoFieldsFragment | null>(null);
@@ -41,6 +42,9 @@
 		targetIndex: number;
 	} | null>(null);
 
+	let isMobile = $state(false);
+	let scrollContainer: HTMLElement;
+
 	let pointerSensor = useSensor(PointerSensor, {
 		activationConstraint: {
 			distance: 8
@@ -50,6 +54,17 @@
 		coordinateGetter: sortableKeyboardCoordinates
 	});
 	let sensors = [pointerSensor, keyboardSensor];
+
+	$effect(() => {
+		const checkMobile = () => {
+			isMobile = window.innerWidth <= 768 || 'ontouchstart' in window;
+		};
+
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+
+		return () => window.removeEventListener('resize', checkMobile);
+	});
 
 	$effect(() => {
 		if (!listsStore.initialized) {
@@ -68,7 +83,6 @@
 		const todosByListId = todoFilteringStore.getTodosByList(todosStore.todos);
 		const result = [];
 
-		// 1. Add inbox list first if there are inbox todos
 		const inboxTodos = todosByListId.get('inbox');
 		if (inboxTodos && inboxTodos.length > 0) {
 			result.push({
@@ -81,7 +95,6 @@
 			});
 		}
 
-		// 2. Add regular lists (filtered by selected board if needed)
 		const filteredLists = listsStore.selectedBoard
 			? listsStore.sortedLists.filter((l) => l.board_id === listsStore.selectedBoard?.id)
 			: listsStore.sortedLists;
@@ -107,7 +120,7 @@
 	async function toggleTodoCompletion(todoId: string) {
 		const result = await todosStore.toggleTodo(todoId);
 		if (!result.success) {
-			// Handle error if needed
+			displayMessage('Failt to toggle completion!');
 		}
 	}
 
@@ -309,8 +322,16 @@
 		{/if}
 	</div>
 
-	<div class="w-full overflow-x-auto">
-		<div class="flex min-w-max gap-6 p-6 pt-0">
+	<div
+		class="w-full overflow-x-auto overflow-y-hidden"
+		bind:this={scrollContainer}
+		style={isMobile ? 'touch-action: pan-x; -webkit-overflow-scrolling: touch;' : ''}
+	>
+		{#if isMobile}
+			<div class="mb-4 h-4 w-full bg-transparent"></div>
+		{/if}
+
+		<div class="flex min-w-max gap-6 p-6 pt-0 {isMobile ? 'pb-20' : ''}">
 			<DndContext
 				{sensors}
 				collisionDetection={closestCorners}
@@ -320,13 +341,13 @@
 				onDragCancel={handleDragCancel}
 			>
 				{#each kanbanLists() as { list, todos } (list.id)}
-					<div class="w-80 flex-shrink-0">
+					<div class="{isMobile ? 'w-72' : 'w-80'} flex-shrink-0">
 						<KanbanColumn {list} {todos} isHighlighted={hoveredListId === list.id} {dropPosition} />
 					</div>
 				{/each}
 
 				{#if filteredCompletedTodos().length > 0}
-					<div class="w-80 flex-shrink-0">
+					<div class="{isMobile ? 'w-72' : 'w-80'} flex-shrink-0">
 						<Card class="opacity-75">
 							<CardHeader>
 								<CardTitle class="flex items-center justify-between text-sm text-green-600">
@@ -336,7 +357,7 @@
 										size="sm"
 										class="h-6 w-6 p-0"
 										onclick={() => {
-											/* Expand/collapse completed */
+											/* TODO */
 										}}
 									>
 										<RefreshCw class="h-3 w-3" />
@@ -375,7 +396,7 @@
 					</div>
 				{/if}
 
-				<div class="w-80 flex-shrink-0">
+				<div class="{isMobile ? 'w-72' : 'w-80'} flex-shrink-0">
 					<Card class="border-2 border-dashed border-muted-foreground/25 bg-muted/10">
 						<CardHeader>
 							<CardTitle class="text-sm text-muted-foreground">Add New List</CardTitle>
@@ -399,6 +420,14 @@
 				</DragOverlay>
 			</DndContext>
 		</div>
+
+		{#if isMobile}
+			<div
+				class="fixed bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/20 px-3 py-1 text-xs text-white backdrop-blur-sm"
+			>
+				← Swipe to scroll →
+			</div>
+		{/if}
 	</div>
 
 	{#if todoFilteringStore.pagination.hasMore}

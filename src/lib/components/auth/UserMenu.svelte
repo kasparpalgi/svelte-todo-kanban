@@ -40,11 +40,13 @@
 					</div>
 				{/if}
 			</div>
-			<span class="text-sm font-medium">{session.user.name || session.user.email}</span>
+			<span class="hidden text-sm font-medium md:block"
+				>{session.user.name || session.user.email}</span
+			>
 		</div>
 		<Button onclick={() => signOut({ callbackUrl: '/' })} variant="outline" size="sm">
 			<LogOut class="mr-2 h-4 w-4" />
-			{$t('auth.sign_out')}
+			<span class="hidden md:block">{$t('auth.sign_out')}</span>
 		</Button>
 	</div>
 {:else}

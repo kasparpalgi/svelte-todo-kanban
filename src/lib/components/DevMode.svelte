@@ -1,3 +1,4 @@
+<!-- @file src/lib/components/DevMode.svelte -->
 <script lang="ts">
 	import { TriangleAlert, Server } from 'lucide-svelte';
 

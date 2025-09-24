@@ -21,7 +21,7 @@ export async function request<TResult, TVariables = any>(
 ): Promise<TResult> {
 	try {
 		const token = await getJWTToken();
-		console.log('token: ', token);
+
 		const headers = {
 			Authorization: `Bearer ${token}`,
 			...customHeaders

@@ -5,7 +5,7 @@
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Check, SquarePen, Calendar, Trash2, ImageIcon } from 'lucide-svelte';
+	import { Check, SquarePen, Calendar, Trash2, ImageIcon, GripVertical } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import { CSS } from '@dnd-kit-svelte/utilities';
 	import { Card, CardContent } from '$lib/components/ui/card';
@@ -13,7 +13,6 @@
 	import { z } from 'zod';
 	import { t } from '$lib/i18n';
 	import TodoEditForm from './TodoEditForm.svelte';
-	import DragHandle from './DragHandle.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { TodoItemProps } from '$lib/types/todo';
@@ -24,6 +23,9 @@
 	const enableFullCardDrag = PUBLIC_FULL_CARD_DRAGGABLE === 'true';
 	let sortable = useSortable({ id: todo.id });
 	let { attributes, listeners, setNodeRef, transform, isDragging: sortableIsDragging } = sortable;
+
+	let isMobile = $state(false);
+	let showActions = $state(false);
 
 	const todoEditSchema = z.object({
 		title: z
@@ -70,6 +72,17 @@
 	let showUnsavedChangesConfirm = $state(false);
 	let showStartEditConfirm = $state(false);
 	let pendingAction = $state<(() => void) | null>(null);
+
+	$effect(() => {
+		const checkMobile = () => {
+			isMobile = window.innerWidth <= 768 || 'ontouchstart' in window;
+		};
+
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+
+		return () => window.removeEventListener('resize', checkMobile);
+	});
 
 	$effect(() => {
 		if (!isEditing) {
@@ -145,6 +158,10 @@
 				preview: upload.url,
 				isExisting: true
 			})) || [];
+
+		if (isMobile) {
+			showActions = false;
+		}
 	}
 
 	function cancelEdit() {
@@ -344,11 +361,21 @@
 	}
 
 	function handleMouseEnter() {
-		isHovered = true;
+		if (!isMobile) {
+			isHovered = true;
+		}
 	}
 
 	function handleMouseLeave() {
-		isHovered = false;
+		if (!isMobile) {
+			isHovered = false;
+		}
+	}
+
+	function handleTouchStart() {
+		if (isMobile) {
+			showActions = !showActions;
+		}
 	}
 
 	function handleConfirmAction() {
@@ -361,7 +388,15 @@
 	function handleCancelAction() {
 		pendingAction = null;
 	}
+
+	function handleOutsideClick() {
+		if (isMobile && showActions) {
+			showActions = false;
+		}
+	}
 </script>
+
+<svelte:window on:click={handleOutsideClick} />
 
 <div
 	use:setNodeRef
@@ -374,32 +409,49 @@
 			class="relative transition-all duration-200 hover:shadow-md"
 			onmouseenter={handleMouseEnter}
 			onmouseleave={handleMouseLeave}
+			ontouchstart={handleTouchStart}
 		>
-			<Button
-				variant="ghost"
-				size="sm"
-				onclick={confirmDeleteTodo}
-				class="absolute top-1 right-1 z-10 h-6 w-6 p-0 transition-opacity hover:bg-red-50 hover:text-red-700 {isHovered
-					? 'opacity-100'
-					: 'opacity-0'}"
-				onmousedown={preventDrag}
-				ontouchstart={preventDrag}
-			>
-				<Trash2 class="h-3 w-3" />
-				<span class="sr-only">{$t('todo.delete')}</span>
-			</Button>
+			{#if !isMobile}
+				<Button
+					variant="ghost"
+					size="sm"
+					onclick={confirmDeleteTodo}
+					class="absolute top-1 right-1 z-10 h-6 w-6 p-0 transition-opacity hover:bg-red-50 hover:text-red-700 {isHovered
+						? 'opacity-100'
+						: 'opacity-0'}"
+					onmousedown={preventDrag}
+				>
+					<Trash2 class="h-3 w-3" />
+					<span class="sr-only">{$t('todo.delete')}</span>
+				</Button>
+			{/if}
 
 			<CardContent
-				class="pl-2 {enableFullCardDrag ? 'cursor-grab active:cursor-grabbing' : ''}"
-				{...enableFullCardDrag ? attributes.current : {}}
-				{...enableFullCardDrag ? listeners.current : {}}
+				class="pl-2 {enableFullCardDrag && !isMobile ? 'cursor-grab active:cursor-grabbing' : ''}"
+				{...enableFullCardDrag && !isMobile ? attributes.current : {}}
+				{...enableFullCardDrag && !isMobile ? listeners.current : {}}
 			>
 				<div class="flex items-start gap-2">
-					<DragHandle
-						attributes={enableFullCardDrag ? {} : attributes.current}
-						listeners={enableFullCardDrag ? {} : listeners.current}
-						isVisible={isHovered}
-					/>
+					{#if isMobile}
+						<div
+							class="mt-1 flex h-6 w-6 shrink-0 cursor-grab items-center justify-center rounded border border-muted-foreground/30 bg-muted/20 active:cursor-grabbing active:bg-muted/40"
+							{...attributes.current}
+							{...listeners.current}
+						>
+							<GripVertical class="h-4 w-4 text-muted-foreground" />
+						</div>
+					{:else}
+						<!-- Desktop drag handle -->
+						<div
+							class="mt-1 flex h-4 w-4 shrink-0 cursor-grab items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing {isHovered
+								? 'opacity-100'
+								: ''}"
+							{...enableFullCardDrag ? {} : attributes.current}
+							{...enableFullCardDrag ? {} : listeners.current}
+						>
+							<GripVertical class="h-3 w-3 text-muted-foreground" />
+						</div>
+					{/if}
 
 					<button
 						onclick={toggleComplete}
@@ -413,7 +465,7 @@
 						{/if}
 					</button>
 
-					<div class="min-w-0 flex-1 pr-8">
+					<div class="min-w-0 flex-1 {isMobile ? 'pr-2' : 'pr-8'}">
 						<h3
 							class="text-sm leading-tight font-medium {todo.completed_at
 								? 'text-muted-foreground line-through'
@@ -445,22 +497,51 @@
 						{/if}
 					</div>
 
+					{#if !isMobile}
+						<div
+							class="absolute top-1 right-8 transition-opacity {isHovered
+								? 'opacity-100'
+								: 'opacity-0'}"
+						>
+							<Button
+								variant="ghost"
+								size="sm"
+								onclick={startEdit}
+								class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
+							>
+								<SquarePen class="h-3 w-3" />
+								<span class="sr-only">{$t('todo.edit')}</span>
+							</Button>
+						</div>
+					{/if}
+				</div>
+
+				{#if isMobile && showActions}
 					<div
-						class="absolute top-1 right-8 transition-opacity {isHovered
-							? 'opacity-100'
-							: 'opacity-0'}"
+						class="mt-2 flex items-center gap-2 rounded border bg-muted/50 p-2"
+						onclick={() => {}}
+						ontouchstart={() => {}}
 					>
 						<Button
 							variant="ghost"
 							size="sm"
 							onclick={startEdit}
-							class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
+							class="h-8 flex-1 text-xs hover:bg-blue-50 hover:text-blue-700"
 						>
-							<SquarePen class="h-3 w-3" />
-							<span class="sr-only">{$t('todo.edit')}</span>
+							<SquarePen class="mr-1 h-3 w-3" />
+							Edit
+						</Button>
+						<Button
+							variant="ghost"
+							size="sm"
+							onclick={confirmDeleteTodo}
+							class="h-8 flex-1 text-xs hover:bg-red-50 hover:text-red-700"
+						>
+							<Trash2 class="mr-1 h-3 w-3" />
+							Delete
 						</Button>
 					</div>
-				</div>
+				{/if}
 				<div class="absolute right-3 bottom-2">
 					{#if todo.uploads && todo.uploads.length > 0}
 						<ImageIcon class="mx-auto h-4 w-4 text-muted-foreground" />
