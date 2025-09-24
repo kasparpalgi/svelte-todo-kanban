@@ -1,9 +1,11 @@
 <!-- @file src/lib/components/todo/TodoEditForm.svelte -->
 <script lang="ts">
+	import { scale } from 'svelte/transition';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
+	import { Dialog, DialogContent, DialogTrigger } from '$lib/components/ui/dialog';
 	import { Check, X, Image as ImageIcon } from 'lucide-svelte';
 	import type { TodoEditProps } from '$lib/types/todo';
 
@@ -24,6 +26,8 @@
 		onRemoveImage,
 		fileInput = $bindable()
 	}: TodoEditProps = $props();
+
+	let uploading = $state(false);
 </script>
 
 <div role="dialog" aria-label="Edit todo: {todo.title}" onkeydown={onKeydown} tabindex="0">
@@ -89,69 +93,96 @@
 					{/if}
 				</div>
 
-				<!-- Image Upload -->
-				<div>
-					<span class="mb-2 block text-sm font-medium text-foreground">Images</span>
-					<!-- svelte-ignore a11y_no_static_element_interactions -->
-					<div
-						class="rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 text-center transition-colors {isDragOver
-							? 'border-primary bg-primary/5'
-							: ''}"
-						ondragover={onDragOver}
-						ondragleave={onDragLeave}
-						ondrop={onDrop}
-					>
-						<ImageIcon class="mx-auto h-6 w-6 text-muted-foreground" />
-						<p class="mt-2 text-sm text-muted-foreground">
-							Drag and drop images here, or
-							<button
-								type="button"
-								onclick={() => fileInput?.click()}
-								class="text-primary hover:underline focus:underline focus:outline-none"
-							>
-								click to select
-							</button>
-						</p>
-						<p class="mt-1 text-xs text-muted-foreground">PNG, JPG up to 5MB each</p>
-						<input
-							bind:this={fileInput}
-							type="file"
-							multiple
-							accept="image/*"
-							onchange={onFileSelect}
-							class="hidden"
-						/>
-					</div>
-
-					<!-- Image Previews -->
-					{#if images.length > 0}
-						<div class="mt-3 grid grid-cols-4 gap-2">
+				<!-- Always show existing images -->
+				{#if images.length > 0}
+					<div>
+						<span class="mb-2 block text-sm font-medium text-foreground">Images</span>
+						<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
 							{#each images as image (image.id)}
 								<div class="group relative">
-									<img
-										src={image.preview}
-										alt="Preview"
-										class="aspect-square w-full rounded border object-cover"
-									/>
-									<button
-										onclick={() => onRemoveImage(image.id)}
-										class="text-destructive-foreground absolute -top-1 -right-1 rounded-full bg-destructive p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/90"
-										type="button"
-									>
-										<X class="h-3 w-3" />
-									</button>
-									{#if image.isExisting}
-										<div
-											class="absolute bottom-1 left-1 rounded bg-background/80 px-1 py-0.5 text-xs"
+									<Dialog>
+										<DialogTrigger>
+											<div
+												class="aspect-square cursor-pointer overflow-hidden rounded-lg border bg-muted transition-transform hover:scale-105"
+											>
+												<img
+													src={image.preview}
+													alt=""
+													class="h-full w-full object-cover"
+													class:opacity-50={image.isUploading}
+												/>
+												{#if image.isUploading}
+													<div
+														class="absolute inset-0 flex items-center justify-center bg-black/20"
+													>
+														<div
+															class="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent"
+														></div>
+													</div>
+												{/if}
+											</div>
+										</DialogTrigger>
+										<DialogContent class="max-w-4xl">
+											<img src={image.preview} alt="" class="max-h-[80vh] w-full object-contain" />
+										</DialogContent>
+									</Dialog>
+
+									{#if !image.isUploading}
+										<button
+											onclick={() => onRemoveImage(image.id)}
+											class="text-destructive-foreground absolute -top-2 -right-2 rounded-full bg-destructive p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive/90"
+											type="button"
 										>
-											Current
-										</div>
+											<X class="h-3 w-3" />
+										</button>
 									{/if}
 								</div>
 							{/each}
 						</div>
-					{/if}
-				</div>
+					</div>
+				{/if}
+
+				<!-- Image Upload -->
+				{#if uploading}
+					<div in:scale>
+						<span class="mb-2 block text-sm font-medium text-foreground">Add Images</span>
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<div
+							class="rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 text-center transition-colors {isDragOver
+								? 'border-primary bg-primary/5'
+								: ''}"
+							ondragover={onDragOver}
+							ondragleave={onDragLeave}
+							ondrop={onDrop}
+						>
+							<ImageIcon class="mx-auto h-6 w-6 text-muted-foreground" />
+							<p class="mt-2 text-sm text-muted-foreground">
+								Drag and drop images here, or
+								<button
+									type="button"
+									onclick={() => fileInput?.click()}
+									class="text-primary hover:underline focus:underline focus:outline-none"
+								>
+									click to select
+								</button>
+							</p>
+							<p class="mt-1 text-xs text-muted-foreground">PNG, JPG up to 5MB each</p>
+							<input
+								bind:this={fileInput}
+								type="file"
+								multiple
+								accept="image/*"
+								onchange={onFileSelect}
+								class="hidden"
+							/>
+						</div>
+					</div>
+				{:else}
+					<Button variant="link" class="flex text-muted-foreground" onclick={() => (uploading = true)}>
+						<ImageIcon class="h-4 w-4" />
+						Attach images/files
+					</Button>
+				{/if}
 
 				<!-- Actions -->
 				<div class="flex flex-col gap-2 sm:flex-row sm:justify-end">

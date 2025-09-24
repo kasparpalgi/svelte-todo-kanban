@@ -1,4 +1,5 @@
 import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+import type { TodoImage } from './imageUpload';
 
 export interface TodosState {
 	todos: TodoFieldsFragment[];
@@ -47,8 +48,6 @@ export type DragHandleProps = {
 	listeners: Record<string, any>;
 	isVisible?: boolean;
 };
-
-type TodoImage = { id: string; file: File | null; preview: string; isExisting?: boolean };
 
 // Store results
 

@@ -58,11 +58,13 @@
 		}
 	});
 
-	let kanbanLists = $derived(() => {
+	$effect(() => {
 		if (listsStore.selectedBoard?.id !== todoFilteringStore.filters.boardId) {
 			todoFilteringStore.setFilter('boardId', listsStore.selectedBoard?.id || null);
 		}
+	});
 
+	let kanbanLists = $derived(() => {
 		const todosByListId = todoFilteringStore.getTodosByList(todosStore.todos);
 		const result = [];
 
@@ -99,11 +101,6 @@
 	});
 
 	let filteredCompletedTodos = $derived(() => {
-		// Set board filter if not already set
-		if (listsStore.selectedBoard?.id !== todoFilteringStore.filters.boardId) {
-			todoFilteringStore.setFilter('boardId', listsStore.selectedBoard?.id || null);
-		}
-
 		return todoFilteringStore.getCompletedTodos(todosStore.todos);
 	});
 

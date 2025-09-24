@@ -4,7 +4,7 @@
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Check, SquarePen, Calendar, Trash2 } from 'lucide-svelte';
+	import { Check, SquarePen, Calendar, Trash2, ImageIcon } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import { CSS } from '@dnd-kit-svelte/utilities';
 	import { Card, CardContent } from '$lib/components/ui/card';
@@ -379,18 +379,6 @@
 								</Badge>
 							</div>
 						{/if}
-
-						{#if todo.uploads && todo.uploads.length > 0}
-							<div class="mt-1 flex gap-1">
-								{#each todo.uploads as upload}
-									<img
-										src={upload.url}
-										alt="Todo attachment"
-										class="h-8 w-8 rounded border object-cover"
-									/>
-								{/each}
-							</div>
-						{/if}
 					</div>
 
 					<div
@@ -408,6 +396,11 @@
 							<span class="sr-only">{$t('todo.edit')}</span>
 						</Button>
 					</div>
+				</div>
+				<div class="absolute bottom-2 right-3">
+					{#if todo.uploads && todo.uploads.length > 0}
+						<ImageIcon class="mx-auto h-4 w-4 text-muted-foreground" />
+					{/if}
 				</div>
 			</CardContent>
 		</Card>
