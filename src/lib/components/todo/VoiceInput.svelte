@@ -4,6 +4,44 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Mic, MicOff, Square } from 'lucide-svelte';
 
+	interface SpeechRecognition extends EventTarget {
+		continuous: boolean;
+		interimResults: boolean;
+		lang: string;
+		start(): void;
+		stop(): void;
+		onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+		onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null;
+		onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null;
+		onend: ((this: SpeechRecognition, ev: Event) => void) | null;
+	}
+
+	interface SpeechRecognitionEvent extends Event {
+		resultIndex: number;
+		results: SpeechRecognitionResultList;
+	}
+
+	interface SpeechRecognitionResultList {
+		length: number;
+		[index: number]: SpeechRecognitionResult;
+	}
+
+	interface SpeechRecognitionResult {
+		isFinal: boolean;
+		length: number;
+		[index: number]: SpeechRecognitionAlternative;
+	}
+
+	interface SpeechRecognitionAlternative {
+		transcript: string;
+		confidence: number;
+	}
+
+	interface SpeechRecognitionErrorEvent extends Event {
+		error: string;
+		message: string;
+	}
+
 	let {
 		onTranscript = (text: string) => {},
 		onError = (error: string) => {},
@@ -12,9 +50,9 @@
 
 	let isRecording = $state(false);
 	let isSupported = $state(false);
-	let recognition: any = null;
+	let recognition: SpeechRecognition | null = null;
 	let interimTranscript = $state('');
-	let finalTranscript = $state('');
+	let fullTranscript = $state('');
 
 	onMount(() => {
 		const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -22,7 +60,6 @@
 		if (SpeechRecognition) {
 			isSupported = true;
 			recognition = new SpeechRecognition();
-
 			recognition.continuous = true;
 			recognition.interimResults = true;
 			recognition.lang = 'en-GB';
@@ -30,15 +67,15 @@
 			recognition.onstart = () => {
 				isRecording = true;
 				interimTranscript = '';
-				finalTranscript = '';
+				fullTranscript = '';
 			};
 
-			recognition.onresult = (event) => {
+			recognition.onresult = (event: SpeechRecognitionEvent) => {
 				let interim = '';
 				let final = '';
 
 				for (let i = event.resultIndex; i < event.results.length; i++) {
-					const transcript = event.results[i].transcript;
+					const transcript = event.results[i][0].transcript;
 					if (event.results[i].isFinal) {
 						final += transcript;
 					} else {
@@ -47,15 +84,17 @@
 				}
 
 				interimTranscript = interim;
-				finalTranscript += final;
+				if (final) {
+					fullTranscript += final;
+				}
 
-				// Call the callback with the combined transcript
-				if (final || interim) {
-					onTranscript((finalTranscript + interim).trim());
+				const completeTranscript = (fullTranscript + interim).trim();
+				if (completeTranscript) {
+					onTranscript(completeTranscript);
 				}
 			};
 
-			recognition.onerror = (event) => {
+			recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
 				console.error('Speech recognition error:', event.error);
 				let errorMessage = 'Speech recognition error';
 
