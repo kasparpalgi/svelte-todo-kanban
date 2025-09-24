@@ -1,8 +1,9 @@
 /** @file src/lib/graphql/client.ts */
 import { GraphQLClient } from 'graphql-request';
-import { PUBLIC_API_ENDPOINT } from '$env/static/public';
+import { PUBLIC_API_ENDPOINT, PUBLIC_API_ENDPOINT_DEV, PUBLIC_API_ENV } from '$env/static/public';
 
-const client = new GraphQLClient(PUBLIC_API_ENDPOINT);
+const apiEndpoint = PUBLIC_API_ENV === 'production' ? PUBLIC_API_ENDPOINT : PUBLIC_API_ENDPOINT_DEV;
+const client = new GraphQLClient(apiEndpoint);
 
 async function getJWTToken(): Promise<string> {
 	const response = await fetch('/api/auth/token');
@@ -20,7 +21,7 @@ export async function request<TResult, TVariables = any>(
 ): Promise<TResult> {
 	try {
 		const token = await getJWTToken();
-		console.log('token: ', token)
+		console.log('token: ', token);
 		const headers = {
 			Authorization: `Bearer ${token}`,
 			...customHeaders

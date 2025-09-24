@@ -1,5 +1,6 @@
 /** @file src/routes/+layout.server.ts */
 import { APP_ENV } from '$env/static/private';
+import { PUBLIC_API_ENV } from '$env/static/public';
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
@@ -8,6 +9,10 @@ const defaultLocale = 'en';
 
 export const load: LayoutServerLoad = async (event) => {
 	const { url, locals } = event;
+	const env = {
+		app: APP_ENV,
+		api: PUBLIC_API_ENV
+	};
 	const session = await locals.auth();
 	const pathSegments = url.pathname.split('/').filter(Boolean);
 	let locale = defaultLocale;
@@ -22,6 +27,7 @@ export const load: LayoutServerLoad = async (event) => {
 
 	return {
 		session,
-		locale
+		locale,
+		env
 	};
 };

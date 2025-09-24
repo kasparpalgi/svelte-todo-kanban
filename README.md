@@ -17,15 +17,15 @@ Modern Kanban ToDo app built according to requirements [requirements](docs/todol
 
 Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 
-## Dependencies
+## Dependencies & explanations
 
-* [Auth.js](https://authjs.dev/) - for authentication
-* [nodemailer](https://nodemailer.com/) - sending email
+* [Auth.js](https://authjs.dev/) - for authentication. JWT token is used to make API requests from front-end so the app can be run with adapter 'static' that is needed for building Capacitor mobile app.
+* [nodemailer](https://nodemailer.com/) - sending email. For production paid and more "reliable" in terms of not going to spam paid service with API access will be used.
 * [@dnd-kit](https://dnd-kit-svelte.vercel.app/) - drag'n'drop (for Kanban)
 * [shadcn-svelte](https://shadcn-svelte.com/) - set of beautifully-designed, accessible components. Adding components: `npx shadcn-svelte add <COMPONENT>`
 * [lucide-svelte icons](https://lucide.dev/icons/)
-* PostgreSQL for DB
-* graphql & graphql-request - handling Hasura GraphQL API requests from SvelteKit REST API endpoints
+* PostgreSQL for DB. PostgreSQL functions are used where possible for speed and reliability.
+* graphql & graphql-request - handling Hasura GraphQL API requests.
 * Zod for form validation
 * [sveltekit-i18n](https://github.com/sveltekit-i18n/lib) - straightforward sveltekit-i18n solution (tiny library with no external dependencies)
 
