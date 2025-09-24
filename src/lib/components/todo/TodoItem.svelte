@@ -390,9 +390,7 @@
 			</Button>
 
 			<CardContent
-				class="pl-2 max-md:touch-pan-x {enableFullCardDrag
-					? 'cursor-grab active:cursor-grabbing'
-					: ''}"
+				class="pl-2 {enableFullCardDrag ? 'cursor-grab active:cursor-grabbing' : ''}"
 				{...enableFullCardDrag ? attributes.current : {}}
 				{...enableFullCardDrag ? listeners.current : {}}
 			>

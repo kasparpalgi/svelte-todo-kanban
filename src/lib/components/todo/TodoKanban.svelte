@@ -309,7 +309,7 @@
 		{/if}
 	</div>
 
-	<div class="w-full overflow-x-auto" style="touch-action: pan-x;">
+	<div class="w-full overflow-x-auto">
 		<div class="flex min-w-max gap-6 p-6 pt-0">
 			<DndContext
 				{sensors}
