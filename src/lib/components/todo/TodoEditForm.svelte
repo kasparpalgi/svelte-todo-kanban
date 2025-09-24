@@ -7,6 +7,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Dialog, DialogContent, DialogTrigger } from '$lib/components/ui/dialog';
 	import { Check, X, Image as ImageIcon, Upload, Trash2 } from 'lucide-svelte';
+	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import type { TodoEditProps } from '$lib/types/todo';
 
 	let {
@@ -32,13 +33,35 @@
 	let newImages = $derived(images.filter((img) => !img.isExisting));
 	let hasNewImages = $derived(newImages.length > 0);
 	let saveButtonText = $derived(hasNewImages ? 'Upload & Save' : 'Save');
+	let showImageDeleteConfirm = $state(false);
+	let imageToDelete = $state<string>('');
+
+	function confirmRemoveImage(imageId: string) {
+		const image = images.find((img) => img.id === imageId);
+		if (image?.isExisting) {
+			imageToDelete = imageId;
+			showImageDeleteConfirm = true;
+		} else {
+			onRemoveImage(imageId);
+		}
+	}
+
+	function handleConfirmImageDelete() {
+		if (imageToDelete) {
+			onRemoveImage(imageToDelete);
+			imageToDelete = '';
+		}
+	}
+
+	function handleCancelImageDelete() {
+		imageToDelete = '';
+	}
 </script>
 
 <div role="dialog" aria-label="Edit todo: {todo.title}" onkeydown={onKeydown} tabindex="0">
 	<Card class="group relative transition-all duration-200">
 		<CardContent class="p-4">
 			<div class="space-y-3">
-				<!-- Title -->
 				<div>
 					<label for="title-{todo.id}" class="mb-1 block text-sm font-medium text-foreground">
 						Title *
@@ -99,6 +122,7 @@
 
 				{#if existingImages.length > 0}
 					<div>
+						<span class="mb-2 block text-sm font-medium text-foreground">Attached Images</span>
 						<div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
 							{#each existingImages as image (image.id)}
 								<div class="group relative">
@@ -121,10 +145,11 @@
 													<Button
 														variant="destructive"
 														size="sm"
-														onclick={() => onRemoveImage(image.id)}
+														onclick={() => confirmRemoveImage(image.id)}
 														class="rounded-full"
 													>
-														<Trash2 class="h-4 w-4" />
+														<Trash2 class="mr-2 h-4 w-4" />
+														Remove Image
 													</Button>
 												</div>
 											</div>
@@ -160,7 +185,7 @@
 
 									{#if !image.isUploading}
 										<button
-											onclick={() => onRemoveImage(image.id)}
+											onclick={() => confirmRemoveImage(image.id)}
 											class="text-destructive-foreground absolute -top-1 -right-1 rounded-full bg-destructive p-1"
 											type="button"
 										>
@@ -250,3 +275,15 @@
 		</CardContent>
 	</Card>
 </div>
+
+<ConfirmDialog
+	bind:open={showImageDeleteConfirm}
+	title="Remove Image"
+	description="Are you sure you want to remove this image? This action cannot be undone."
+	confirmText="Remove"
+	cancelText="Cancel"
+	variant="destructive"
+	icon="delete"
+	onConfirm={handleConfirmImageDelete}
+	onCancel={handleCancelImageDelete}
+/>

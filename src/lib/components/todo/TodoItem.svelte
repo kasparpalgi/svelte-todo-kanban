@@ -14,6 +14,7 @@
 	import { t } from '$lib/i18n';
 	import TodoEditForm from './TodoEditForm.svelte';
 	import DragHandle from './DragHandle.svelte';
+	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { TodoItemProps } from '$lib/types/todo';
 	import type { TodoImage } from '$lib/types/imageUpload';
@@ -65,6 +66,10 @@
 	let isSubmitting = $state(false);
 	let localHasUnsavedChanges = $state(false);
 	let style = $derived(transform.current ? CSS.Transform.toString(transform.current) : '');
+	let showDeleteConfirm = $state(false);
+	let showUnsavedChangesConfirm = $state(false);
+	let showStartEditConfirm = $state(false);
+	let pendingAction = $state<(() => void) | null>(null);
 
 	$effect(() => {
 		if (!isEditing) {
@@ -116,13 +121,19 @@
 
 	function startEdit() {
 		if (editingTodo.id && editingTodo.id !== todo.id && editingTodo.hasUnsavedChanges) {
-			if (
-				!confirm(
-					'You have unsaved changes in another todo. Do you want to discard them and continue?'
-				)
-			) {
-				return;
-			}
+			pendingAction = () => {
+				editingTodo.start(todo.id);
+				validationErrors = {};
+				images =
+					todo.uploads?.map((upload) => ({
+						id: upload.id,
+						file: null,
+						preview: upload.url,
+						isExisting: true
+					})) || [];
+			};
+			showStartEditConfirm = true;
+			return;
 		}
 
 		editingTodo.start(todo.id);
@@ -138,20 +149,27 @@
 
 	function cancelEdit() {
 		if (localHasUnsavedChanges) {
-			if (!confirm('You have unsaved changes. Are you sure you want to cancel?')) {
-				return;
-			}
+			pendingAction = () => {
+				editingTodo.stop();
+				cleanupImages();
+				validationErrors = {};
+			};
+			showUnsavedChangesConfirm = true;
+			return;
 		}
 
 		editingTodo.stop();
+		cleanupImages();
+		validationErrors = {};
+	}
 
+	function cleanupImages() {
 		images.forEach((img) => {
 			if (!img.isExisting && img.preview.startsWith('blob:')) {
 				URL.revokeObjectURL(img.preview);
 			}
 		});
 		images = [];
-		validationErrors = {};
 	}
 
 	async function saveEdit() {
@@ -176,6 +194,9 @@
 			}
 
 			const newImages = images.filter((img) => !img.isExisting && img.file);
+
+			editingTodo.stop();
+			cleanupImages();
 
 			if (newImages.length > 0) {
 				try {
@@ -202,15 +223,6 @@
 			} else {
 				displayMessage('Todo updated successfully', 1500, true);
 			}
-
-			editingTodo.stop();
-
-			images.forEach((img) => {
-				if (!img.isExisting && img.preview.startsWith('blob:')) {
-					URL.revokeObjectURL(img.preview);
-				}
-			});
-			images = [];
 		} catch (error) {
 			if (error instanceof z.ZodError) {
 				validationErrors = {};
@@ -235,12 +247,14 @@
 	}
 
 	async function deleteTodo() {
-		if (confirm($t('todo.confirm_delete') || 'Are you sure you want to delete this task?')) {
-			const result = await todosStore.deleteTodo(todo.id);
-			if (!result.success) {
-				displayMessage(result.message || 'Failed to delete todo');
-			}
+		const result = await todosStore.deleteTodo(todo.id);
+		if (!result.success) {
+			displayMessage(result.message || 'Failed to delete todo');
 		}
+	}
+
+	function confirmDeleteTodo() {
+		showDeleteConfirm = true;
 	}
 
 	function handleDragOver(event: DragEvent) {
@@ -336,6 +350,17 @@
 	function handleMouseLeave() {
 		isHovered = false;
 	}
+
+	function handleConfirmAction() {
+		if (pendingAction) {
+			pendingAction();
+			pendingAction = null;
+		}
+	}
+
+	function handleCancelAction() {
+		pendingAction = null;
+	}
 </script>
 
 <div
@@ -353,7 +378,7 @@
 			<Button
 				variant="ghost"
 				size="sm"
-				onclick={deleteTodo}
+				onclick={confirmDeleteTodo}
 				class="absolute top-1 right-1 z-10 h-6 w-6 p-0 transition-opacity hover:bg-red-50 hover:text-red-700 {isHovered
 					? 'opacity-100'
 					: 'opacity-0'}"
@@ -463,3 +488,39 @@
 		/>
 	{/if}
 </div>
+
+<ConfirmDialog
+	bind:open={showDeleteConfirm}
+	title="Delete Task"
+	description="Are you sure you want to delete this task? This action cannot be undone."
+	confirmText="Delete"
+	cancelText="Cancel"
+	variant="destructive"
+	icon="delete"
+	onConfirm={deleteTodo}
+	onCancel={() => {}}
+/>
+
+<ConfirmDialog
+	bind:open={showUnsavedChangesConfirm}
+	title="Unsaved Changes"
+	description="You have unsaved changes. Are you sure you want to discard them?"
+	confirmText="Discard Changes"
+	cancelText="Keep Editing"
+	variant="warning"
+	icon="unsaved"
+	onConfirm={handleConfirmAction}
+	onCancel={handleCancelAction}
+/>
+
+<ConfirmDialog
+	bind:open={showStartEditConfirm}
+	title="Unsaved Changes"
+	description="You have unsaved changes in another todo. Do you want to discard them and continue editing this one?"
+	confirmText="Discard & Continue"
+	cancelText="Cancel"
+	variant="warning"
+	icon="unsaved"
+	onConfirm={handleConfirmAction}
+	onCancel={handleCancelAction}
+/>
