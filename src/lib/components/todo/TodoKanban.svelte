@@ -41,8 +41,6 @@
 		targetIndex: number;
 	} | null>(null);
 
-	let isMobile = $state(false);
-
 	let pointerSensor = useSensor(PointerSensor, {
 		activationConstraint: {
 			distance: 8
@@ -52,10 +50,6 @@
 		coordinateGetter: sortableKeyboardCoordinates
 	});
 	let sensors = [pointerSensor, keyboardSensor];
-
-	$effect(() => {
-		isMobile = window.innerWidth <= 768;
-	});
 
 	$effect(() => {
 		if (!listsStore.initialized) {
@@ -74,6 +68,7 @@
 		const todosByListId = todoFilteringStore.getTodosByList(todosStore.todos);
 		const result = [];
 
+		// 1. Add inbox list first if there are inbox todos
 		const inboxTodos = todosByListId.get('inbox');
 		if (inboxTodos && inboxTodos.length > 0) {
 			result.push({
@@ -86,6 +81,7 @@
 			});
 		}
 
+		// 2. Add regular lists (filtered by selected board if needed)
 		const filteredLists = listsStore.selectedBoard
 			? listsStore.sortedLists.filter((l) => l.board_id === listsStore.selectedBoard?.id)
 			: listsStore.sortedLists;
@@ -324,18 +320,25 @@
 				onDragCancel={handleDragCancel}
 			>
 				{#each kanbanLists() as { list, todos } (list.id)}
-					<div class="{isMobile ? 'w-72' : 'w-80'} flex-shrink-0">
+					<div class="w-80 flex-shrink-0">
 						<KanbanColumn {list} {todos} isHighlighted={hoveredListId === list.id} {dropPosition} />
 					</div>
 				{/each}
 
 				{#if filteredCompletedTodos().length > 0}
-					<div class="{isMobile ? 'w-72' : 'w-80'} flex-shrink-0">
+					<div class="w-80 flex-shrink-0">
 						<Card class="opacity-75">
 							<CardHeader>
 								<CardTitle class="flex items-center justify-between text-sm text-green-600">
 									<span>✓ {$t('todo.completed')}</span>
-									<Button variant="ghost" size="sm" class="h-6 w-6 p-0">
+									<Button
+										variant="ghost"
+										size="sm"
+										class="h-6 w-6 p-0"
+										onclick={() => {
+											/* Expand/collapse completed */
+										}}
+									>
 										<RefreshCw class="h-3 w-3" />
 									</Button>
 								</CardTitle>
@@ -372,7 +375,7 @@
 					</div>
 				{/if}
 
-				<div class="{isMobile ? 'w-72' : 'w-80'} flex-shrink-0">
+				<div class="w-80 flex-shrink-0">
 					<Card class="border-2 border-dashed border-muted-foreground/25 bg-muted/10">
 						<CardHeader>
 							<CardTitle class="text-sm text-muted-foreground">Add New List</CardTitle>

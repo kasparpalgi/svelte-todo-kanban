@@ -5,7 +5,7 @@
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Check, SquarePen, Calendar, Trash2, ImageIcon, GripVertical } from 'lucide-svelte';
+	import { Check, SquarePen, Calendar, Trash2, ImageIcon } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import { CSS } from '@dnd-kit-svelte/utilities';
 	import { Card, CardContent } from '$lib/components/ui/card';
@@ -13,6 +13,7 @@
 	import { z } from 'zod';
 	import { t } from '$lib/i18n';
 	import TodoEditForm from './TodoEditForm.svelte';
+	import DragHandle from './DragHandle.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { TodoItemProps } from '$lib/types/todo';
@@ -23,8 +24,6 @@
 	const enableFullCardDrag = PUBLIC_FULL_CARD_DRAGGABLE === 'true';
 	let sortable = useSortable({ id: todo.id });
 	let { attributes, listeners, setNodeRef, transform, isDragging: sortableIsDragging } = sortable;
-
-	let isMobile = $state(false);
 
 	const todoEditSchema = z.object({
 		title: z
@@ -71,10 +70,6 @@
 	let showUnsavedChangesConfirm = $state(false);
 	let showStartEditConfirm = $state(false);
 	let pendingAction = $state<(() => void) | null>(null);
-
-	$effect(() => {
-		isMobile = window.innerWidth <= 768;
-	});
 
 	$effect(() => {
 		if (!isEditing) {
@@ -400,17 +395,11 @@
 				{...enableFullCardDrag ? listeners.current : {}}
 			>
 				<div class="flex items-start gap-2">
-					<div
-						class="{isMobile
-							? 'mt-1 flex h-5 w-5 shrink-0 cursor-grab items-center justify-center rounded bg-muted/30 active:cursor-grabbing'
-							: 'mt-1 flex h-4 w-4 shrink-0 cursor-grab items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing'} {isHovered
-							? 'opacity-100'
-							: ''}"
-						{...enableFullCardDrag ? {} : attributes.current}
-						{...enableFullCardDrag ? {} : listeners.current}
-					>
-						<GripVertical class="{isMobile ? 'h-4 w-4' : 'h-3 w-3'} text-muted-foreground" />
-					</div>
+					<DragHandle
+						attributes={enableFullCardDrag ? {} : attributes.current}
+						listeners={enableFullCardDrag ? {} : listeners.current}
+						isVisible={isHovered}
+					/>
 
 					<button
 						onclick={toggleComplete}
