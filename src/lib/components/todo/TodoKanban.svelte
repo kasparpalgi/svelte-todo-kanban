@@ -43,7 +43,7 @@
 
 	let pointerSensor = useSensor(PointerSensor, {
 		activationConstraint: {
-			distance: 8
+			distance: 15
 		}
 	});
 	let keyboardSensor = useSensor(KeyboardSensor, {
