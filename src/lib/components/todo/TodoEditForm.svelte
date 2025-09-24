@@ -6,7 +6,7 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Dialog, DialogContent, DialogTrigger } from '$lib/components/ui/dialog';
-	import { Check, X, Image as ImageIcon, Upload } from 'lucide-svelte';
+	import { Check, X, Image as ImageIcon, Upload, Trash2 } from 'lucide-svelte';
 	import type { TodoEditProps } from '$lib/types/todo';
 
 	let {
@@ -99,7 +99,6 @@
 
 				{#if existingImages.length > 0}
 					<div>
-						<span class="mb-2 block text-sm font-medium text-foreground">Uploaded Images</span>
 						<div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
 							{#each existingImages as image (image.id)}
 								<div class="group relative">
@@ -112,16 +111,22 @@
 											</div>
 										</DialogTrigger>
 										<DialogContent class="max-w-4xl">
-											<img src={image.preview} alt="" class="max-h-[80vh] w-full object-contain" />
-											<div class="absolute top-4 right-4">
-												<Button
-													variant="destructive"
-													size="sm"
-													onclick={() => onRemoveImage(image.id)}
-													class="rounded-full"
-												>
-													<X class="h-4 w-4" />
-												</Button>
+											<div class="flex flex-col items-center">
+												<img
+													src={image.preview}
+													alt="Image {image.file}"
+													class="max-h-[70vh] w-full object-contain p-4"
+												/>
+												<div class="mt-4">
+													<Button
+														variant="destructive"
+														size="sm"
+														onclick={() => onRemoveImage(image.id)}
+														class="rounded-full"
+													>
+														<Trash2 class="h-4 w-4" />
+													</Button>
+												</div>
 											</div>
 										</DialogContent>
 									</Dialog>

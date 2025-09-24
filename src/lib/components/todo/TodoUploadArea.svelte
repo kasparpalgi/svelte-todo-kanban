@@ -17,10 +17,6 @@
 		fileInput = $bindable()
 	}: UploadProps = $props();
 
-	let uploading = $state(false);
-	let selectedImageForModal = $state<string | null>(null);
-	$inspect(uploading);
-
 	async function uploadImages(): Promise<string[]> {
 		const uploadPromises = images
 			.filter((img) => !img.isExisting && img.file)
