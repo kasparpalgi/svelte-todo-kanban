@@ -46,9 +46,10 @@ function createTodosStore() {
 					{ due_on: Order_By.Desc },
 					{ updated_at: Order_By.Desc }
 				],
-				limit: 1000, // Increased limit since we'll handle pagination in the filtering store
+				limit: 1000,
 				offset: 0
 			});
+			console.log('data: ', data)
 
 			state.todos = data.todos || [];
 			state.initialized = true;
