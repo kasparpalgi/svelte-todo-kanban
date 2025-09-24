@@ -9,14 +9,6 @@ export const load: LayoutServerLoad = async (event) => {
 	const { params, url, locals } = event;
 	const session = await locals.auth();
 
-	if (url.pathname === '/') {
-		if (!session) {
-			throw redirect(302, '/signin');
-		} else {
-			throw redirect(302, `/${defaultLocale}`);
-		}
-	}
-
 	let locale = params.lang || defaultLocale;
 	if (!supportedLocales.includes(locale)) {
 		locale = defaultLocale;
