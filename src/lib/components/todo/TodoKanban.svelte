@@ -44,13 +44,6 @@
 	let pointerSensor = useSensor(PointerSensor, {
 		activationConstraint: {
 			distance: 8
-		},
-
-		onActivation: (event) => {
-			const target = event.target as HTMLElement;
-			const isDragHandle =
-				target.closest('button[data-drag-handle]') || target.closest('[data-drag-handle]');
-			return !!isDragHandle;
 		}
 	});
 	let keyboardSensor = useSensor(KeyboardSensor, {
@@ -327,7 +320,7 @@
 				onDragCancel={handleDragCancel}
 			>
 				{#each kanbanLists() as { list, todos } (list.id)}
-					<div class="w-80 flex-shrink-0 max-md:w-72">
+					<div class="w-80 flex-shrink-0">
 						<KanbanColumn {list} {todos} isHighlighted={hoveredListId === list.id} {dropPosition} />
 					</div>
 				{/each}
