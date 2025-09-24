@@ -50,8 +50,9 @@
 
 	type TodoEditData = z.infer<typeof todoEditSchema>;
 
-	let isEditing = $state(false);
-	let isHovered = $state(false); // Add hover state for this specific item
+	let globalEditingId = $state<string | null>(null);
+	let isEditing = $derived(globalEditingId === todo.id);
+	let isHovered = $state(false);
 	let editData = $state<TodoEditData>({
 		title: todo.title,
 		content: todo.content || '',
@@ -62,6 +63,7 @@
 	let isDragOver = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 	let isSubmitting = $state(false);
+	let hasUnsavedChanges = $state(false);
 	let style = $derived(transform.current ? CSS.Transform.toString(transform.current) : '');
 
 	$effect(() => {
@@ -84,8 +86,39 @@
 		};
 	});
 
+	// Track changes (unsaved warning)
+	$effect(() => {
+		if (isEditing) {
+			const originalData = {
+				title: todo.title,
+				content: todo.content || '',
+				due_on: todo.due_on ? new Date(todo.due_on).toISOString().split('T')[0] : ''
+			};
+
+			const hasDataChanges =
+				editData.title !== originalData.title ||
+				editData.content !== originalData.content ||
+				editData.due_on !== originalData.due_on;
+
+			const hasNewImages = images.some((img) => !img.isExisting);
+
+			hasUnsavedChanges = hasDataChanges || hasNewImages;
+		}
+	});
+
 	function startEdit() {
-		isEditing = true;
+		// Another todo is being edited
+		if (globalEditingId && globalEditingId !== todo.id && hasUnsavedChanges) {
+			if (
+				!confirm(
+					'You have unsaved changes in another todo. Do you want to discard them and continue editing this one?'
+				)
+			) {
+				return;
+			}
+		}
+
+		globalEditingId = todo.id;
 		validationErrors = {};
 		images =
 			todo.uploads?.map((upload) => ({
@@ -97,7 +130,13 @@
 	}
 
 	function cancelEdit() {
-		isEditing = false;
+		if (hasUnsavedChanges) {
+			if (!confirm('You have unsaved changes. Are you sure you want to cancel?')) {
+				return;
+			}
+		}
+
+		globalEditingId = null;
 		editData = {
 			title: todo.title,
 			content: todo.content || '',
@@ -110,6 +149,7 @@
 		});
 		images = [];
 		validationErrors = {};
+		hasUnsavedChanges = false;
 	}
 
 	async function saveEdit() {
@@ -137,6 +177,8 @@
 			const newImages = images.filter((img) => !img.isExisting && img.file);
 
 			if (newImages.length > 0) {
+				globalEditingId = null;
+
 				try {
 					const uploadPromises = newImages.map(async (img) => {
 						const formData = new FormData();
@@ -157,20 +199,23 @@
 					});
 
 					await Promise.all(uploadPromises);
+					displayMessage('Upload completed successfully', 2000, true);
 				} catch (error) {
 					displayMessage('Some images failed to upload, but todo was saved');
 					console.error('Upload error:', error);
 				}
+			} else {
+				globalEditingId = null;
+				displayMessage('Todo updated successfully', 1500, true);
 			}
 
-			isEditing = false;
 			images.forEach((img) => {
 				if (!img.isExisting && img.preview.startsWith('blob:')) {
 					URL.revokeObjectURL(img.preview);
 				}
 			});
 			images = [];
-			displayMessage('Todo updated successfully', 1500, true);
+			hasUnsavedChanges = false;
 		} catch (error) {
 			if (error instanceof z.ZodError) {
 				validationErrors = {};
@@ -250,7 +295,6 @@
 		const image = images.find((img) => img.id === imageId);
 		if (image) {
 			if (image.isExisting) {
-				// TODO: delete from S3
 				todosStore.deleteUpload(imageId, todo.id);
 			} else {
 				if (image.preview.startsWith('blob:')) {
@@ -397,7 +441,7 @@
 						</Button>
 					</div>
 				</div>
-				<div class="absolute bottom-2 right-3">
+				<div class="absolute right-3 bottom-2">
 					{#if todo.uploads && todo.uploads.length > 0}
 						<ImageIcon class="mx-auto h-4 w-4 text-muted-foreground" />
 					{/if}
