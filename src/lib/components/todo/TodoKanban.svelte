@@ -30,7 +30,6 @@
 	import KanbanColumn from './KanbanColumn.svelte';
 	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
-	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 
 	let activeId = $state<string | null>(null);
 	let activeTodo = $state<TodoFieldsFragment | null>(null);
@@ -43,7 +42,6 @@
 	} | null>(null);
 
 	let isMobile = $state(false);
-	let scrollContainer: HTMLElement;
 
 	let pointerSensor = useSensor(PointerSensor, {
 		activationConstraint: {
@@ -56,14 +54,7 @@
 	let sensors = [pointerSensor, keyboardSensor];
 
 	$effect(() => {
-		const checkMobile = () => {
-			isMobile = window.innerWidth <= 768 || 'ontouchstart' in window;
-		};
-
-		checkMobile();
-		window.addEventListener('resize', checkMobile);
-
-		return () => window.removeEventListener('resize', checkMobile);
+		isMobile = window.innerWidth <= 768;
 	});
 
 	$effect(() => {
@@ -120,7 +111,7 @@
 	async function toggleTodoCompletion(todoId: string) {
 		const result = await todosStore.toggleTodo(todoId);
 		if (!result.success) {
-			displayMessage('Failt to toggle completion!');
+			// Handle error if needed
 		}
 	}
 
@@ -322,16 +313,8 @@
 		{/if}
 	</div>
 
-	<div
-		class="w-full overflow-x-auto overflow-y-hidden"
-		bind:this={scrollContainer}
-		style={isMobile ? 'touch-action: pan-x; -webkit-overflow-scrolling: touch;' : ''}
-	>
-		{#if isMobile}
-			<div class="mb-4 h-4 w-full bg-transparent"></div>
-		{/if}
-
-		<div class="flex min-w-max gap-6 p-6 pt-0 {isMobile ? 'pb-20' : ''}">
+	<div class="w-full overflow-x-auto">
+		<div class="flex min-w-max gap-6 p-6 pt-0">
 			<DndContext
 				{sensors}
 				collisionDetection={closestCorners}
@@ -352,14 +335,7 @@
 							<CardHeader>
 								<CardTitle class="flex items-center justify-between text-sm text-green-600">
 									<span>✓ {$t('todo.completed')}</span>
-									<Button
-										variant="ghost"
-										size="sm"
-										class="h-6 w-6 p-0"
-										onclick={() => {
-											/* TODO */
-										}}
-									>
+									<Button variant="ghost" size="sm" class="h-6 w-6 p-0">
 										<RefreshCw class="h-3 w-3" />
 									</Button>
 								</CardTitle>
@@ -420,14 +396,6 @@
 				</DragOverlay>
 			</DndContext>
 		</div>
-
-		{#if isMobile}
-			<div
-				class="fixed bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/20 px-3 py-1 text-xs text-white backdrop-blur-sm"
-			>
-				← Swipe to scroll →
-			</div>
-		{/if}
 	</div>
 
 	{#if todoFilteringStore.pagination.hasMore}

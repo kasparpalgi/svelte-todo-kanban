@@ -25,7 +25,6 @@
 	let { attributes, listeners, setNodeRef, transform, isDragging: sortableIsDragging } = sortable;
 
 	let isMobile = $state(false);
-	let showActions = $state(false);
 
 	const todoEditSchema = z.object({
 		title: z
@@ -74,14 +73,7 @@
 	let pendingAction = $state<(() => void) | null>(null);
 
 	$effect(() => {
-		const checkMobile = () => {
-			isMobile = window.innerWidth <= 768 || 'ontouchstart' in window;
-		};
-
-		checkMobile();
-		window.addEventListener('resize', checkMobile);
-
-		return () => window.removeEventListener('resize', checkMobile);
+		isMobile = window.innerWidth <= 768;
 	});
 
 	$effect(() => {
@@ -158,10 +150,6 @@
 				preview: upload.url,
 				isExisting: true
 			})) || [];
-
-		if (isMobile) {
-			showActions = false;
-		}
 	}
 
 	function cancelEdit() {
@@ -361,21 +349,11 @@
 	}
 
 	function handleMouseEnter() {
-		if (!isMobile) {
-			isHovered = true;
-		}
+		isHovered = true;
 	}
 
 	function handleMouseLeave() {
-		if (!isMobile) {
-			isHovered = false;
-		}
-	}
-
-	function handleTouchStart() {
-		if (isMobile) {
-			showActions = !showActions;
-		}
+		isHovered = false;
 	}
 
 	function handleConfirmAction() {
@@ -388,15 +366,7 @@
 	function handleCancelAction() {
 		pendingAction = null;
 	}
-
-	function handleOutsideClick() {
-		if (isMobile && showActions) {
-			showActions = false;
-		}
-	}
 </script>
-
-<svelte:window on:click={handleOutsideClick} />
 
 <div
 	use:setNodeRef
@@ -409,49 +379,38 @@
 			class="relative transition-all duration-200 hover:shadow-md"
 			onmouseenter={handleMouseEnter}
 			onmouseleave={handleMouseLeave}
-			ontouchstart={handleTouchStart}
 		>
-			{#if !isMobile}
-				<Button
-					variant="ghost"
-					size="sm"
-					onclick={confirmDeleteTodo}
-					class="absolute top-1 right-1 z-10 h-6 w-6 p-0 transition-opacity hover:bg-red-50 hover:text-red-700 {isHovered
-						? 'opacity-100'
-						: 'opacity-0'}"
-					onmousedown={preventDrag}
-				>
-					<Trash2 class="h-3 w-3" />
-					<span class="sr-only">{$t('todo.delete')}</span>
-				</Button>
-			{/if}
+			<Button
+				variant="ghost"
+				size="sm"
+				onclick={confirmDeleteTodo}
+				class="absolute top-1 right-1 z-10 h-6 w-6 p-0 transition-opacity hover:bg-red-50 hover:text-red-700 {isHovered
+					? 'opacity-100'
+					: 'opacity-0'}"
+				onmousedown={preventDrag}
+				ontouchstart={preventDrag}
+			>
+				<Trash2 class="h-3 w-3" />
+				<span class="sr-only">{$t('todo.delete')}</span>
+			</Button>
 
 			<CardContent
-				class="pl-2 {enableFullCardDrag && !isMobile ? 'cursor-grab active:cursor-grabbing' : ''}"
-				{...enableFullCardDrag && !isMobile ? attributes.current : {}}
-				{...enableFullCardDrag && !isMobile ? listeners.current : {}}
+				class="pl-2 {enableFullCardDrag ? 'cursor-grab active:cursor-grabbing' : ''}"
+				{...enableFullCardDrag ? attributes.current : {}}
+				{...enableFullCardDrag ? listeners.current : {}}
 			>
 				<div class="flex items-start gap-2">
-					{#if isMobile}
-						<div
-							class="mt-1 flex h-6 w-6 shrink-0 cursor-grab items-center justify-center rounded border border-muted-foreground/30 bg-muted/20 active:cursor-grabbing active:bg-muted/40"
-							{...attributes.current}
-							{...listeners.current}
-						>
-							<GripVertical class="h-4 w-4 text-muted-foreground" />
-						</div>
-					{:else}
-						<!-- Desktop drag handle -->
-						<div
-							class="mt-1 flex h-4 w-4 shrink-0 cursor-grab items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing {isHovered
-								? 'opacity-100'
-								: ''}"
-							{...enableFullCardDrag ? {} : attributes.current}
-							{...enableFullCardDrag ? {} : listeners.current}
-						>
-							<GripVertical class="h-3 w-3 text-muted-foreground" />
-						</div>
-					{/if}
+					<div
+						class="{isMobile
+							? 'mt-1 flex h-5 w-5 shrink-0 cursor-grab items-center justify-center rounded bg-muted/30 active:cursor-grabbing'
+							: 'mt-1 flex h-4 w-4 shrink-0 cursor-grab items-center justify-center opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing'} {isHovered
+							? 'opacity-100'
+							: ''}"
+						{...enableFullCardDrag ? {} : attributes.current}
+						{...enableFullCardDrag ? {} : listeners.current}
+					>
+						<GripVertical class="{isMobile ? 'h-4 w-4' : 'h-3 w-3'} text-muted-foreground" />
+					</div>
 
 					<button
 						onclick={toggleComplete}
@@ -465,7 +424,7 @@
 						{/if}
 					</button>
 
-					<div class="min-w-0 flex-1 {isMobile ? 'pr-2' : 'pr-8'}">
+					<div class="min-w-0 flex-1 pr-8">
 						<h3
 							class="text-sm leading-tight font-medium {todo.completed_at
 								? 'text-muted-foreground line-through'
@@ -497,51 +456,22 @@
 						{/if}
 					</div>
 
-					{#if !isMobile}
-						<div
-							class="absolute top-1 right-8 transition-opacity {isHovered
-								? 'opacity-100'
-								: 'opacity-0'}"
-						>
-							<Button
-								variant="ghost"
-								size="sm"
-								onclick={startEdit}
-								class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
-							>
-								<SquarePen class="h-3 w-3" />
-								<span class="sr-only">{$t('todo.edit')}</span>
-							</Button>
-						</div>
-					{/if}
-				</div>
-
-				{#if isMobile && showActions}
 					<div
-						class="mt-2 flex items-center gap-2 rounded border bg-muted/50 p-2"
-						onclick={() => {}}
-						ontouchstart={() => {}}
+						class="absolute top-1 right-8 transition-opacity {isHovered
+							? 'opacity-100'
+							: 'opacity-0'}"
 					>
 						<Button
 							variant="ghost"
 							size="sm"
 							onclick={startEdit}
-							class="h-8 flex-1 text-xs hover:bg-blue-50 hover:text-blue-700"
+							class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
 						>
-							<SquarePen class="mr-1 h-3 w-3" />
-							Edit
-						</Button>
-						<Button
-							variant="ghost"
-							size="sm"
-							onclick={confirmDeleteTodo}
-							class="h-8 flex-1 text-xs hover:bg-red-50 hover:text-red-700"
-						>
-							<Trash2 class="mr-1 h-3 w-3" />
-							Delete
+							<SquarePen class="h-3 w-3" />
+							<span class="sr-only">{$t('todo.edit')}</span>
 						</Button>
 					</div>
-				{/if}
+				</div>
 				<div class="absolute right-3 bottom-2">
 					{#if todo.uploads && todo.uploads.length > 0}
 						<ImageIcon class="mx-auto h-4 w-4 text-muted-foreground" />
