@@ -1,4 +1,3 @@
-<!-- @file src/lib/components/todo/TodoEditForm.svelte -->
 <script lang="ts">
 	import { scale } from 'svelte/transition';
 	import { Input } from '$lib/components/ui/input';
@@ -8,6 +7,8 @@
 	import { Dialog, DialogContent, DialogTrigger } from '$lib/components/ui/dialog';
 	import { Check, X, Image as ImageIcon, Upload, Trash2 } from 'lucide-svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
+	import VoiceInput from './VoiceInput.svelte';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import type { TodoEditProps } from '$lib/types/todo';
 
 	let {
@@ -35,6 +36,8 @@
 	let saveButtonText = $derived(hasNewImages ? 'Upload & Save' : 'Save');
 	let showImageDeleteConfirm = $state(false);
 	let imageToDelete = $state<string>('');
+	let titleInputEl: HTMLInputElement;
+	let contentInputEl: HTMLTextAreaElement;
 
 	function confirmRemoveImage(imageId: string) {
 		const image = images.find((img) => img.id === imageId);
@@ -56,6 +59,20 @@
 	function handleCancelImageDelete() {
 		imageToDelete = '';
 	}
+
+	function handleTitleVoice(transcript: string) {
+		editData.title = transcript;
+		setTimeout(() => titleInputEl?.focus(), 100);
+	}
+
+	function handleContentVoice(transcript: string) {
+		editData.content = transcript;
+		setTimeout(() => contentInputEl?.focus(), 100);
+	}
+
+	function handleVoiceError(error: string) {
+		displayMessage(error, 3000, false);
+	}
 </script>
 
 <div role="dialog" aria-label="Edit todo: {todo.title}" onkeydown={onKeydown} tabindex="0">
@@ -66,36 +83,53 @@
 					<label for="title-{todo.id}" class="mb-1 block text-sm font-medium text-foreground">
 						Title *
 					</label>
-					<Input
-						id="title-{todo.id}"
-						bind:value={editData.title}
-						placeholder="Task title"
-						class={validationErrors.title
-							? 'border-destructive focus-visible:ring-destructive'
-							: ''}
-						disabled={isSubmitting}
-						autofocus
-					/>
+					<div class="flex gap-2">
+						<Input
+							bind:this={titleInputEl}
+							id="title-{todo.id}"
+							bind:value={editData.title}
+							placeholder="Task title"
+							class="flex-1 {validationErrors.title
+								? 'border-destructive focus-visible:ring-destructive'
+								: ''}"
+							disabled={isSubmitting}
+							autofocus
+						/>
+						<VoiceInput
+							onTranscript={handleTitleVoice}
+							onError={handleVoiceError}
+							disabled={isSubmitting}
+						/>
+					</div>
 					{#if validationErrors.title}
 						<p class="mt-1 text-xs text-destructive" role="alert">{validationErrors.title}</p>
 					{/if}
 				</div>
 
-				<!-- Content -->
 				<div>
 					<label for="content-{todo.id}" class="mb-1 block text-sm font-medium text-foreground">
 						Description
 					</label>
-					<Textarea
-						id="content-{todo.id}"
-						bind:value={editData.content}
-						placeholder="Task description (optional)"
-						rows={2}
-						class={validationErrors.content
-							? 'border-destructive focus-visible:ring-destructive'
-							: ''}
-						disabled={isSubmitting}
-					/>
+					<div class="space-y-2">
+						<Textarea
+							bind:this={contentInputEl}
+							id="content-{todo.id}"
+							bind:value={editData.content}
+							placeholder="Task description (optional)"
+							rows={2}
+							class={validationErrors.content
+								? 'border-destructive focus-visible:ring-destructive'
+								: ''}
+							disabled={isSubmitting}
+						/>
+						<div class="flex justify-start">
+							<VoiceInput
+								onTranscript={handleContentVoice}
+								onError={handleVoiceError}
+								disabled={isSubmitting}
+							/>
+						</div>
+					</div>
 					{#if validationErrors.content}
 						<p class="mt-1 text-xs text-destructive" role="alert">{validationErrors.content}</p>
 					{/if}
