@@ -1,4 +1,3 @@
-/** @file src/routes/[[lang]]/+layout.server.ts */
 import type { LayoutServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 
@@ -9,10 +8,20 @@ export const load: LayoutServerLoad = async (event) => {
 	const { params, url, locals } = event;
 	const session = await locals.auth();
 
+	if (url.pathname === '/') {
+		if (!session) {
+			throw redirect(302, '/signin');
+		} else {
+			throw redirect(302, `/${defaultLocale}`);
+		}
+	}
+
 	let locale = params.lang || defaultLocale;
+
 	if (!supportedLocales.includes(locale)) {
 		locale = defaultLocale;
-		throw redirect(302, `/${defaultLocale}${url.pathname.replace(`/${params.lang}`, '')}`);
+		const newPath = url.pathname.replace(`/${params.lang}`, '');
+		throw redirect(302, `/${defaultLocale}${newPath}`);
 	}
 
 	if (!session && !url.pathname.includes('/signin') && !url.pathname.includes('/api/auth')) {
