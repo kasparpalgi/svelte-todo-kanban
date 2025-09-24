@@ -3,6 +3,7 @@
 	import { PUBLIC_FULL_CARD_DRAGGABLE } from '$env/static/public';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { editingTodo } from '$lib/stores/states.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Check, SquarePen, Calendar, Trash2, ImageIcon } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
@@ -50,8 +51,7 @@
 
 	type TodoEditData = z.infer<typeof todoEditSchema>;
 
-	let globalEditingId = $state<string | null>(null);
-	let isEditing = $derived(globalEditingId === todo.id);
+	let isEditing = $derived(editingTodo.id === todo.id);
 	let isHovered = $state(false);
 	let editData = $state<TodoEditData>({
 		title: todo.title,
@@ -63,7 +63,7 @@
 	let isDragOver = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 	let isSubmitting = $state(false);
-	let hasUnsavedChanges = $state(false);
+	let localHasUnsavedChanges = $state(false);
 	let style = $derived(transform.current ? CSS.Transform.toString(transform.current) : '');
 
 	$effect(() => {
@@ -102,23 +102,30 @@
 
 			const hasNewImages = images.some((img) => !img.isExisting);
 
-			hasUnsavedChanges = hasDataChanges || hasNewImages;
+			localHasUnsavedChanges = hasDataChanges || hasNewImages;
+		} else {
+			localHasUnsavedChanges = false;
+		}
+	});
+
+	$effect(() => {
+		if (isEditing) {
+			editingTodo.setUnsaved(localHasUnsavedChanges);
 		}
 	});
 
 	function startEdit() {
-		// Another todo is being edited
-		if (globalEditingId && globalEditingId !== todo.id && hasUnsavedChanges) {
+		if (editingTodo.id && editingTodo.id !== todo.id && editingTodo.hasUnsavedChanges) {
 			if (
 				!confirm(
-					'You have unsaved changes in another todo. Do you want to discard them and continue editing this one?'
+					'You have unsaved changes in another todo. Do you want to discard them and continue?'
 				)
 			) {
 				return;
 			}
 		}
 
-		globalEditingId = todo.id;
+		editingTodo.start(todo.id);
 		validationErrors = {};
 		images =
 			todo.uploads?.map((upload) => ({
@@ -130,18 +137,14 @@
 	}
 
 	function cancelEdit() {
-		if (hasUnsavedChanges) {
+		if (localHasUnsavedChanges) {
 			if (!confirm('You have unsaved changes. Are you sure you want to cancel?')) {
 				return;
 			}
 		}
 
-		globalEditingId = null;
-		editData = {
-			title: todo.title,
-			content: todo.content || '',
-			due_on: todo.due_on ? new Date(todo.due_on).toISOString().split('T')[0] : ''
-		};
+		editingTodo.stop();
+
 		images.forEach((img) => {
 			if (!img.isExisting && img.preview.startsWith('blob:')) {
 				URL.revokeObjectURL(img.preview);
@@ -149,7 +152,6 @@
 		});
 		images = [];
 		validationErrors = {};
-		hasUnsavedChanges = false;
 	}
 
 	async function saveEdit() {
@@ -158,7 +160,6 @@
 		try {
 			const validatedData = todoEditSchema.parse(editData);
 			validationErrors = {};
-
 			isSubmitting = true;
 
 			const updateData: Partial<Pick<TodoFieldsFragment, 'title' | 'content' | 'due_on'>> = {
@@ -177,27 +178,21 @@
 			const newImages = images.filter((img) => !img.isExisting && img.file);
 
 			if (newImages.length > 0) {
-				globalEditingId = null;
-
 				try {
 					const uploadPromises = newImages.map(async (img) => {
 						const formData = new FormData();
 						formData.append('file', img.file!);
-
 						const response = await fetch('/api/upload', {
 							method: 'POST',
 							body: formData
 						});
-
 						const result = await response.json();
-
 						if (result.success) {
 							return await todosStore.createUpload(todo.id, result.url);
 						} else {
 							throw new Error(result.error || 'Upload failed');
 						}
 					});
-
 					await Promise.all(uploadPromises);
 					displayMessage('Upload completed successfully', 2000, true);
 				} catch (error) {
@@ -205,9 +200,10 @@
 					console.error('Upload error:', error);
 				}
 			} else {
-				globalEditingId = null;
 				displayMessage('Todo updated successfully', 1500, true);
 			}
+
+			editingTodo.stop();
 
 			images.forEach((img) => {
 				if (!img.isExisting && img.preview.startsWith('blob:')) {
@@ -215,7 +211,6 @@
 				}
 			});
 			images = [];
-			hasUnsavedChanges = false;
 		} catch (error) {
 			if (error instanceof z.ZodError) {
 				validationErrors = {};

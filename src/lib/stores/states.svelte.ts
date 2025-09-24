@@ -20,3 +20,22 @@ export let actionState = $state({
 		return this.viewMode === 'list' ? get(t)('board.categories') : get(t)('board.lists');
 	}
 });
+
+export let editingTodo = $state({
+	id: null as string | null,
+	hasUnsavedChanges: false,
+
+	start(newId: string) {
+		this.id = newId;
+		this.hasUnsavedChanges = false;
+	},
+	stop() {
+		this.id = null;
+		this.hasUnsavedChanges = false;
+	},
+	setUnsaved(status: boolean) {
+		if (this.id) {
+			this.hasUnsavedChanges = status;
+		}
+	}
+});
