@@ -14,7 +14,7 @@ export const load: LayoutServerLoad = async (event) => {
 	if (params.lang && !supportedLocales.includes(params.lang)) {
 		locale = defaultLocale;
 		const newPath = url.pathname.replace(`/${params.lang}`, '') || '/';
-		throw redirect(302, `/${defaultLocale}${newPath}`);
+		//throw redirect(302, `/${defaultLocale}${newPath}`);
 	}
 
 	if (!session && !url.pathname.includes('/signin') && !url.pathname.includes('/api/auth')) {
