@@ -158,21 +158,19 @@
 </script>
 
 {#if isSupported}
-	<div class="flex items-center gap-2">
-		<Button
-			variant={isRecording ? 'destructive' : 'outline'}
-			size="sm"
+	<div class="flex items-center gap-1">
+		<button
 			onclick={toggleRecording}
 			{disabled}
 			class="relative"
 		>
 			{#if isRecording}
-				<Square class="mr-2 h-4 w-4" />
+				<Square class="mr-1 h-4 w-4" />
 				<div class="absolute -top-1 -right-1 h-2 w-2 animate-pulse rounded-full bg-red-500"></div>
 			{:else}
-				<Mic class="mr-2 h-4 w-4" />
+				<Mic class="mr-1 h-4 w-4" />
 			{/if}
-		</Button>
+		</button>
 
 		{#if isRecording && interimTranscript}
 			<span class="text-sm text-muted-foreground italic">
