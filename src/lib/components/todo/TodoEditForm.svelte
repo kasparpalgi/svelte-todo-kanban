@@ -62,12 +62,20 @@
 
 	function handleTitleVoice(transcript: string) {
 		editData.title = transcript;
-		setTimeout(() => titleInputEl?.focus(), 100);
+		setTimeout(() => {
+			if (titleInputEl && typeof titleInputEl.focus === 'function') {
+				titleInputEl.focus();
+			}
+		}, 100);
 	}
 
 	function handleContentVoice(transcript: string) {
 		editData.content = transcript;
-		setTimeout(() => contentInputEl?.focus(), 100);
+		setTimeout(() => {
+			if (contentInputEl && typeof contentInputEl.focus === 'function') {
+				contentInputEl.focus();
+			}
+		}, 100);
 	}
 
 	function handleVoiceError(error: string) {

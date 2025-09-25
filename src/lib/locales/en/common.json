@@ -71,5 +71,36 @@
         "drop_tasks_here": "Drop tasks here",
         "due": "Due",
         "everything": "Everything"
+    },
+    "settings": {
+        "title": "Settings",
+        "description": "Manage your account settings and preferences",
+        "saving": "Saving...",
+        "save_changes": "Save Changes",
+        "profile": {
+            "title": "Profile Information",
+            "description": "Update your personal information and profile picture",
+            "image": "Profile Picture",
+            "name": "Full Name",
+            "name_placeholder": "Enter your full name",
+            "email": "Email Address",
+            "email_placeholder": "Enter your email address"
+        },
+        "appearance": {
+            "title": "Appearance",
+            "description": "Customize how the app looks and feels",
+            "dark_mode": "Dark Mode",
+            "dark_mode_description": "Toggle between light and dark themes",
+            "view_mode": "Default View Mode",
+            "view_mode_description": "Choose your preferred view for tasks",
+            "kanban_view": "Kanban View",
+            "list_view": "List View"
+        },
+        "language": {
+            "title": "Language & Region",
+            "description": "Set your preferred language and regional settings",
+            "select": "Language",
+            "select_placeholder": "Select your language"
+        }
     }
 }

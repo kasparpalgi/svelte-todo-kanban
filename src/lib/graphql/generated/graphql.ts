@@ -15,8 +15,22 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   bigint: { input: number; output: number; }
+  jsonb: { input: any; output: any; }
   timestamptz: { input: string; output: string; }
   uuid: { input: string; output: string; }
+};
+
+/** Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'. */
+export type Boolean_Comparison_Exp = {
+  _eq?: InputMaybe<Scalars['Boolean']['input']>;
+  _gt?: InputMaybe<Scalars['Boolean']['input']>;
+  _gte?: InputMaybe<Scalars['Boolean']['input']>;
+  _in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  _lt?: InputMaybe<Scalars['Boolean']['input']>;
+  _lte?: InputMaybe<Scalars['Boolean']['input']>;
+  _neq?: InputMaybe<Scalars['Boolean']['input']>;
+  _nin?: InputMaybe<Array<Scalars['Boolean']['input']>>;
 };
 
 /** Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'. */
@@ -921,6 +935,34 @@ export enum Cursor_Ordering {
   Desc = 'DESC'
 }
 
+export type Jsonb_Cast_Exp = {
+  String?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** Boolean expression to compare columns of type "jsonb". All fields are combined with logical 'AND'. */
+export type Jsonb_Comparison_Exp = {
+  _cast?: InputMaybe<Jsonb_Cast_Exp>;
+  /** is the column contained in the given json value */
+  _contained_in?: InputMaybe<Scalars['jsonb']['input']>;
+  /** does the column contain the given json value at the top level */
+  _contains?: InputMaybe<Scalars['jsonb']['input']>;
+  _eq?: InputMaybe<Scalars['jsonb']['input']>;
+  _gt?: InputMaybe<Scalars['jsonb']['input']>;
+  _gte?: InputMaybe<Scalars['jsonb']['input']>;
+  /** does the string exist as a top-level key in the column */
+  _has_key?: InputMaybe<Scalars['String']['input']>;
+  /** do all of these strings exist as top-level keys in the column */
+  _has_keys_all?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** do any of these strings exist as top-level keys in the column */
+  _has_keys_any?: InputMaybe<Array<Scalars['String']['input']>>;
+  _in?: InputMaybe<Array<Scalars['jsonb']['input']>>;
+  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
+  _lt?: InputMaybe<Scalars['jsonb']['input']>;
+  _lte?: InputMaybe<Scalars['jsonb']['input']>;
+  _neq?: InputMaybe<Scalars['jsonb']['input']>;
+  _nin?: InputMaybe<Array<Scalars['jsonb']['input']>>;
+};
+
 /** columns and relationships of "lists" */
 export type Lists = {
   __typename?: 'lists';
@@ -1756,6 +1798,11 @@ export type Mutation_RootUpdate_Uploads_ManyArgs = {
 
 /** mutation root */
 export type Mutation_RootUpdate_UsersArgs = {
+  _append?: InputMaybe<Users_Append_Input>;
+  _delete_at_path?: InputMaybe<Users_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Users_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Users_Delete_Key_Input>;
+  _prepend?: InputMaybe<Users_Prepend_Input>;
   _set?: InputMaybe<Users_Set_Input>;
   where: Users_Bool_Exp;
 };
@@ -1763,6 +1810,11 @@ export type Mutation_RootUpdate_UsersArgs = {
 
 /** mutation root */
 export type Mutation_RootUpdate_Users_By_PkArgs = {
+  _append?: InputMaybe<Users_Append_Input>;
+  _delete_at_path?: InputMaybe<Users_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Users_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Users_Delete_Key_Input>;
+  _prepend?: InputMaybe<Users_Prepend_Input>;
   _set?: InputMaybe<Users_Set_Input>;
   pk_columns: Users_Pk_Columns_Input;
 };
@@ -3271,15 +3323,18 @@ export type Users = {
   /** An aggregate relationship */
   boards_aggregate: Boards_Aggregate;
   created_at: Scalars['timestamptz']['output'];
+  dark_mode: Scalars['Boolean']['output'];
   email?: Maybe<Scalars['String']['output']>;
   emailVerified?: Maybe<Scalars['timestamptz']['output']>;
   id: Scalars['uuid']['output'];
   image?: Maybe<Scalars['String']['output']>;
+  locale: Scalars['String']['output'];
   name?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
   sessions_aggregate: Sessions_Aggregate;
+  settings: Scalars['jsonb']['output'];
   /** An array relationship */
   todos: Array<Todos>;
   /** An aggregate relationship */
@@ -3349,6 +3404,12 @@ export type UsersSessions_AggregateArgs = {
 
 
 /** columns and relationships of "users" */
+export type UsersSettingsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** columns and relationships of "users" */
 export type UsersTodosArgs = {
   distinct_on?: InputMaybe<Array<Todos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -3389,6 +3450,11 @@ export type Users_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type Users_Append_Input = {
+  settings?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
 /** Boolean expression to filter rows from the table "users". All fields are combined with a logical 'AND'. */
 export type Users_Bool_Exp = {
   _and?: InputMaybe<Array<Users_Bool_Exp>>;
@@ -3399,13 +3465,16 @@ export type Users_Bool_Exp = {
   boards?: InputMaybe<Boards_Bool_Exp>;
   boards_aggregate?: InputMaybe<Boards_Aggregate_Bool_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  dark_mode?: InputMaybe<Boolean_Comparison_Exp>;
   email?: InputMaybe<String_Comparison_Exp>;
   emailVerified?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   image?: InputMaybe<String_Comparison_Exp>;
+  locale?: InputMaybe<String_Comparison_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
   sessions?: InputMaybe<Sessions_Bool_Exp>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Bool_Exp>;
+  settings?: InputMaybe<Jsonb_Comparison_Exp>;
   todos?: InputMaybe<Todos_Bool_Exp>;
   todos_aggregate?: InputMaybe<Todos_Aggregate_Bool_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -3419,17 +3488,35 @@ export enum Users_Constraint {
   UsersPkey = 'users_pkey'
 }
 
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type Users_Delete_At_Path_Input = {
+  settings?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type Users_Delete_Elem_Input = {
+  settings?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type Users_Delete_Key_Input = {
+  settings?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** input type for inserting data into table "users" */
 export type Users_Insert_Input = {
   accounts?: InputMaybe<Accounts_Arr_Rel_Insert_Input>;
   boards?: InputMaybe<Boards_Arr_Rel_Insert_Input>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  dark_mode?: InputMaybe<Scalars['Boolean']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   sessions?: InputMaybe<Sessions_Arr_Rel_Insert_Input>;
+  settings?: InputMaybe<Scalars['jsonb']['input']>;
   todos?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
 };
@@ -3442,6 +3529,7 @@ export type Users_Max_Fields = {
   emailVerified?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   image?: Maybe<Scalars['String']['output']>;
+  locale?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
 };
@@ -3454,6 +3542,7 @@ export type Users_Min_Fields = {
   emailVerified?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   image?: Maybe<Scalars['String']['output']>;
+  locale?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
 };
@@ -3486,12 +3575,15 @@ export type Users_Order_By = {
   accounts_aggregate?: InputMaybe<Accounts_Aggregate_Order_By>;
   boards_aggregate?: InputMaybe<Boards_Aggregate_Order_By>;
   created_at?: InputMaybe<Order_By>;
+  dark_mode?: InputMaybe<Order_By>;
   email?: InputMaybe<Order_By>;
   emailVerified?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   image?: InputMaybe<Order_By>;
+  locale?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Order_By>;
+  settings?: InputMaybe<Order_By>;
   todos_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
   updated_at?: InputMaybe<Order_By>;
 };
@@ -3501,10 +3593,17 @@ export type Users_Pk_Columns_Input = {
   id: Scalars['uuid']['input'];
 };
 
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type Users_Prepend_Input = {
+  settings?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
 /** select columns of table "users" */
 export enum Users_Select_Column {
   /** column name */
   CreatedAt = 'created_at',
+  /** column name */
+  DarkMode = 'dark_mode',
   /** column name */
   Email = 'email',
   /** column name */
@@ -3514,7 +3613,11 @@ export enum Users_Select_Column {
   /** column name */
   Image = 'image',
   /** column name */
+  Locale = 'locale',
+  /** column name */
   Name = 'name',
+  /** column name */
+  Settings = 'settings',
   /** column name */
   UpdatedAt = 'updated_at'
 }
@@ -3522,11 +3625,14 @@ export enum Users_Select_Column {
 /** input type for updating data in table "users" */
 export type Users_Set_Input = {
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  dark_mode?: InputMaybe<Scalars['Boolean']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  settings?: InputMaybe<Scalars['jsonb']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
 };
 
@@ -3541,11 +3647,14 @@ export type Users_Stream_Cursor_Input = {
 /** Initial value of the column from where the streaming should start */
 export type Users_Stream_Cursor_Value_Input = {
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  dark_mode?: InputMaybe<Scalars['Boolean']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  settings?: InputMaybe<Scalars['jsonb']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
 };
 
@@ -3553,6 +3662,8 @@ export type Users_Stream_Cursor_Value_Input = {
 export enum Users_Update_Column {
   /** column name */
   CreatedAt = 'created_at',
+  /** column name */
+  DarkMode = 'dark_mode',
   /** column name */
   Email = 'email',
   /** column name */
@@ -3562,12 +3673,26 @@ export enum Users_Update_Column {
   /** column name */
   Image = 'image',
   /** column name */
+  Locale = 'locale',
+  /** column name */
   Name = 'name',
+  /** column name */
+  Settings = 'settings',
   /** column name */
   UpdatedAt = 'updated_at'
 }
 
 export type Users_Updates = {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: InputMaybe<Users_Append_Input>;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _delete_at_path?: InputMaybe<Users_Delete_At_Path_Input>;
+  /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+  _delete_elem?: InputMaybe<Users_Delete_Elem_Input>;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _delete_key?: InputMaybe<Users_Delete_Key_Input>;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: InputMaybe<Users_Prepend_Input>;
   /** sets the columns of the filtered rows to the given values */
   _set?: InputMaybe<Users_Set_Input>;
   /** filter the rows which have to be updated */
@@ -3752,7 +3877,7 @@ export type ListFieldsFragment = { __typename?: 'lists', id: string, name: strin
 
 export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, sort_order: number, created_at: string, updated_at: string };
 
-export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, emailVerified?: string | null, created_at: string, updated_at: string };
+export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string };
 
 export type GetTodosQueryVariables = Exact<{
   where?: InputMaybe<Todos_Bool_Exp>;
@@ -3872,7 +3997,15 @@ export type GetUsersQueryVariables = Exact<{
 }>;
 
 
-export type GetUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, emailVerified?: string | null, created_at: string, updated_at: string }> };
+export type GetUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string }> };
+
+export type UpdateUserMutationVariables = Exact<{
+  where: Users_Bool_Exp;
+  _set: Users_Set_Input;
+}>;
+
+
+export type UpdateUserMutation = { __typename?: 'mutation_root', update_users?: { __typename?: 'users_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string }> } | null };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -3951,6 +4084,9 @@ export const UserFieldsFragmentDoc = new TypedDocumentString(`
   name
   image
   email
+  locale
+  dark_mode
+  settings
   emailVerified
   created_at
   updated_at
@@ -4217,7 +4353,31 @@ export const GetUsersDocument = new TypedDocumentString(`
   name
   image
   email
+  locale
+  dark_mode
+  settings
   emailVerified
   created_at
   updated_at
 }`) as unknown as TypedDocumentString<GetUsersQuery, GetUsersQueryVariables>;
+export const UpdateUserDocument = new TypedDocumentString(`
+    mutation UpdateUser($where: users_bool_exp!, $_set: users_set_input!) {
+  update_users(where: $where, _set: $_set) {
+    affected_rows
+    returning {
+      ...UserFields
+    }
+  }
+}
+    fragment UserFields on users {
+  id
+  name
+  image
+  email
+  locale
+  dark_mode
+  settings
+  emailVerified
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<UpdateUserMutation, UpdateUserMutationVariables>;

@@ -69,5 +69,36 @@
         "drop_tasks_here": "Přetáhněte úkoly sem",
         "due": "Termín",
         "everything": "Všechno"
+    },
+    "settings": {
+        "title": "Nastavení",
+        "description": "Spravujte nastavení svého účtu a předvolby",
+        "saving": "Ukládání...",
+        "save_changes": "Uložit změny",
+        "profile": {
+            "title": "Informace o profilu",
+            "description": "Aktualizujte své osobní údaje a profilový obrázek",
+            "image": "Profilový obrázek",
+            "name": "Celé jméno",
+            "name_placeholder": "Zadejte své celé jméno",
+            "email": "E-mailová adresa",
+            "email_placeholder": "Zadejte svou e-mailovou adresu"
+        },
+        "appearance": {
+            "title": "Vzhled",
+            "description": "Přizpůsobte si, jak aplikace vypadá a působí",
+            "dark_mode": "Tmavý režim",
+            "dark_mode_description": "Přepínejte mezi světlým a tmavým motivem",
+            "view_mode": "Výchozí zobrazení",
+            "view_mode_description": "Vyberte si preferované zobrazení úkolů",
+            "kanban_view": "Kanban zobrazení",
+            "list_view": "Seznam"
+        },
+        "language": {
+            "title": "Jazyk a oblast",
+            "description": "Nastavte preferovaný jazyk a regionální nastavení",
+            "select": "Jazyk",
+            "select_placeholder": "Vyberte svůj jazyk"
+        }
     }
 }
