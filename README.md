@@ -34,6 +34,46 @@ Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 
 Once installed, run:  `npm run dev -- --open`
 
+### Stores
+
+Stores are defined in `src/lib/stores/<name>.svelte.ts` files and follow a factory pattern (create...Store) to encapsulate state and logic:
+
+* State - managed by a single `$state` rune object. This keeps all reactive state in one place. Global states: [states.svelte.ts](src/lib/stores/states.svelte.ts).
+* Actions - async functions within the store that handle all interactions with API.
+* Getters - public state is exposed via getters to prevent direct mutation from outside the store's defined actions.
+* Derived state - $derived for computed values (e.g., sorting / filtering).
+
+```svelte
+/** @file src/lib/stores/someStore.svelte.ts */
+import { browser } from '$app/environment';
+
+function createSomeStore() {
+	const state = $state({
+		items: [],
+		loading: false,
+		error: null
+	});
+
+	// --- Actions ---
+	async function loadItems() { /* ... */ }
+	async function updateItem(id, data) { /* ... */ }
+
+	// --- Derived State ---
+	const sortedItems = $derived([...state.items].sort(/*...*/));
+
+	// --- Public API ---
+	return {
+		get items() { return state.items; },
+		get loading() { return state.loading; },
+		get sortedItems() { return sortedItems; },
+		loadItems,
+		updateItem
+	};
+}
+
+export const someStore = createSomeStore();
+```
+
 ### Error & Success Handling
 
 Use centralised error/success system:
