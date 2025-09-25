@@ -4,7 +4,7 @@ Modern Kanban ToDo app built according to requirements [requirements](docs/todol
 
 ## Install
 
-1. `npm i` (or pnmp/yarn)
+1. `nvm install && nvm use` & `npm ci` (or pnmp/yarn)
 2. Rename `.env.example` to `.env` and update URL/password and do the same woth `hasura/.env.example`. Also, `.env.test.example` to `.env.test` (needed for Playwright testing Auth.js).
 3. Set up backend.
    1. In `hasura` folder run `docker-compose up -d` to run [Hasura (enterprise-grade API engine)](https://hasura.io/)
@@ -13,7 +13,7 @@ Modern Kanban ToDo app built according to requirements [requirements](docs/todol
    4. Run `hasura migrate apply --all-databases` and `hasura metadata apply`
    5. If you want to test with some seed data, do `hasura seed apply` and if you have in your `.env` the `NODE_ENV` set to `development` then you are also able to access Auth.js built-in sign-in page at `/auth/signin` where you can login with `test@test.com` below in the test login section. It is also suggested to delete the test yser in production and do the testing with actually signed up accounts.
    6. You can run `hasura console` for web UI to manage back-end tables/relations, run test API queries and much more.
-4. Always good idea to see if all works now: `npm run test`
+4. Always good idea to see if all works now: `npm run check` & `npm run test`
 
 Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 
