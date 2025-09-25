@@ -33,6 +33,28 @@ Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 
 Once installed, run:  `npm run dev -- --open`
 
+### Error & Success Handling
+
+Use centralised error/success system:
+
+Central state management in [errorSuccess.svelte.ts](src/lib/stores/errorSuccess.svelte.ts)
+
+Display component [ErrorSuccess.svelte](src/lib/components/ui/ErrorSuccess.svelte) renders messages as toast notifications. It is added to the top level [+layout.svelte](src/routes/+layout.svelte) so there's nothing you need to do with it!
+
+**Usage Patterns:**
+
+Error Messages:
+
+```typescript
+displayMessage('Something went wrong', 3000); // or default 7000ms for longer messages
+```
+
+Success Messages:
+
+```typescript
+displayMessage('Operation completed successfully etc. bla bla', 3000, true); // longer than default 1.5sec success for longer success messages & true sets the 'success' as true that is false by default
+```
+
 ## Building
 
 To create a production version of your app: `npm run build`

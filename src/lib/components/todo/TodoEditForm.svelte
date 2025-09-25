@@ -36,8 +36,8 @@
 	let saveButtonText = $derived(hasNewImages ? 'Upload & Save' : 'Save');
 	let showImageDeleteConfirm = $state(false);
 	let imageToDelete = $state<string>('');
-	let titleInputEl: HTMLInputElement;
-	let contentInputEl: HTMLTextAreaElement;
+	let titleInputEl: any;
+	let contentInputEl: any;
 
 	function confirmRemoveImage(imageId: string) {
 		const image = images.find((img) => img.id === imageId);

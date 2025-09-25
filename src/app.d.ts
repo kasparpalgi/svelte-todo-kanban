@@ -13,6 +13,10 @@ declare global {
 		interface PageData {
 			session?: Session;
 		}
+		interface Window {
+			SpeechRecognition: typeof SpeechRecognition;
+			webkitSpeechRecognition: typeof SpeechRecognition;
+		}
 	}
 }
 

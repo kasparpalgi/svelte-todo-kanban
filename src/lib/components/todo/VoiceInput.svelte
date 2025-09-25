@@ -1,46 +1,8 @@
 <!-- @file src/lib/components/todo/VoiceInput.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Mic, MicOff, Square } from 'lucide-svelte';
-
-	interface SpeechRecognition extends EventTarget {
-		continuous: boolean;
-		interimResults: boolean;
-		lang: string;
-		start(): void;
-		stop(): void;
-		onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
-		onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null;
-		onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null;
-		onend: ((this: SpeechRecognition, ev: Event) => void) | null;
-	}
-
-	interface SpeechRecognitionEvent extends Event {
-		resultIndex: number;
-		results: SpeechRecognitionResultList;
-	}
-
-	interface SpeechRecognitionResultList {
-		length: number;
-		[index: number]: SpeechRecognitionResult;
-	}
-
-	interface SpeechRecognitionResult {
-		isFinal: boolean;
-		length: number;
-		[index: number]: SpeechRecognitionAlternative;
-	}
-
-	interface SpeechRecognitionAlternative {
-		transcript: string;
-		confidence: number;
-	}
-
-	interface SpeechRecognitionErrorEvent extends Event {
-		error: string;
-		message: string;
-	}
+	import { Mic, Square } from 'lucide-svelte';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 
 	let {
 		onTranscript = (text: string) => {},
@@ -60,68 +22,72 @@
 		if (SpeechRecognition) {
 			isSupported = true;
 			recognition = new SpeechRecognition();
-			recognition.continuous = true;
-			recognition.interimResults = true;
-			recognition.lang = 'en-GB';
 
-			recognition.onstart = () => {
-				isRecording = true;
-				interimTranscript = '';
-				fullTranscript = '';
-			};
+			if (recognition) {
+				recognition.continuous = true;
+				recognition.interimResults = true;
+				recognition.lang = 'en-GB';
 
-			recognition.onresult = (event: SpeechRecognitionEvent) => {
-				let interim = '';
-				let final = '';
+				recognition.onstart = () => {
+					isRecording = true;
+					interimTranscript = '';
+					fullTranscript = '';
+				};
 
-				for (let i = event.resultIndex; i < event.results.length; i++) {
-					const transcript = event.results[i][0].transcript;
-					if (event.results[i].isFinal) {
-						final += transcript;
-					} else {
-						interim += transcript;
+				recognition.onresult = (event) => {
+					let interim = '';
+					let final = '';
+
+					for (let i = event.resultIndex; i < event.results.length; i++) {
+						const transcript = event.results[i][0].transcript;
+						if (event.results[i].isFinal) {
+							final += transcript;
+						} else {
+							interim += transcript;
+						}
 					}
-				}
 
-				interimTranscript = interim;
-				if (final) {
-					fullTranscript += final;
-				}
+					interimTranscript = interim;
+					if (final) {
+						fullTranscript += final;
+					}
 
-				const completeTranscript = (fullTranscript + interim).trim();
-				if (completeTranscript) {
-					onTranscript(completeTranscript);
-				}
-			};
+					const completeTranscript = (fullTranscript + interim).trim();
+					if (completeTranscript) {
+						onTranscript(completeTranscript);
+					}
+				};
 
-			recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-				console.error('Speech recognition error:', event.error);
-				let errorMessage = 'Speech recognition error';
+				recognition.onerror = (event) => {
+					console.error('Speech recognition error:', event.error);
+					let errorMessage = 'Speech recognition error';
 
-				switch (event.error) {
-					case 'network':
-						errorMessage = 'Network error occurred';
-						break;
-					case 'not-allowed':
-						errorMessage = 'Microphone access denied';
-						break;
-					case 'no-speech':
-						errorMessage = 'No speech detected';
-						break;
-					case 'audio-capture':
-						errorMessage = 'No microphone found';
-						break;
-					default:
-						errorMessage = `Speech recognition error: ${event.error}`;
-				}
+					switch (event.error) {
+						case 'network':
+							errorMessage = 'Network error occurred';
+							break;
+						case 'not-allowed':
+							errorMessage = 'Microphone access denied';
+							break;
+						case 'no-speech':
+							errorMessage = 'No speech detected';
+							break;
+						case 'audio-capture':
+							errorMessage = 'No microphone found';
+							break;
+						default:
+							errorMessage = `Speech recognition error: ${event.error}`;
+					}
 
-				onError(errorMessage);
-				isRecording = false;
-			};
+					displayMessage(errorMessage + '. Technical info: ' + event.error);
+					onError(errorMessage);
+					isRecording = false;
+				};
 
-			recognition.onend = () => {
-				isRecording = false;
-			};
+				recognition.onend = () => {
+					isRecording = false;
+				};
+			}
 		}
 	});
 
@@ -159,11 +125,7 @@
 
 {#if isSupported}
 	<div class="flex items-center gap-1">
-		<button
-			onclick={toggleRecording}
-			{disabled}
-			class="relative"
-		>
+		<button onclick={toggleRecording} {disabled} class="relative">
 			{#if isRecording}
 				<Square class="mr-1 h-4 w-4" />
 				<div class="absolute -top-1 -right-1 h-2 w-2 animate-pulse rounded-full bg-red-500"></div>
