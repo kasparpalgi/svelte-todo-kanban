@@ -74,6 +74,76 @@ function createSomeStore() {
 export const someStore = createSomeStore();
 ```
 
+**Database Interaction**
+
+DB operations are async & managed in stores. Use the `request` function from [client.ts](src/lib/graphql/client.ts) for all queries. GraphQL documents are imported from [documents.ts](src/lib/graphql/documents.ts). It is important to keep them all there as the codegen will then automatically generate all types.
+
+**Environment Check**
+Start actions (that fetches data or interacts with browser APIs) with a `if (!browser) return;` guard to prevent server-side execution errors!
+
+**Loading/Error State** 
+Set `state.loading = true` at the beginning of any data operations and `state.loading = false` in a finally block. Use `state.error` on failure.
+
+**Action Return Value**
+Actions that perform mutations should return a consistent result object: `{ success: boolean, message: string, data?: T }`.
+
+**Optimistic Updates**
+When you do mutations, modify the state immediately & roll back if the API call fails.
+
+**Pattern**
+- Find the item in the local state array
+- Create a copy of the original item
+- Apply the updates to the local state (the "optimistic" part)
+- Execute the request call in a try/catch block
+- Success? Update local item with data returned from API (ensure consistency)
+- Failure? Revert the item in the local state to its original version and set the error message.
+
+```ts
+async function updateList(id, updates) {
+	const listIndex = state.lists.findIndex((l) => l.id === id);
+	if (listIndex === -1) return { success: false, message: 'Not found' };
+
+	const originalList = { ...state.lists[listIndex] };
+
+	// Optimistic update
+	state.lists[listIndex] = { ...originalList, ...updates };
+
+	try {
+		const data = await request(UPDATE_LIST, { /*...*/ });
+		const updatedList = data.update_lists?.returning?.[0];
+
+		if (!updatedList) {
+			// Revert on failed API op.
+			state.lists[listIndex] = originalList;
+			return { success: false, message: 'Failed to update' };
+		}
+		// Final update (with server data)
+		state.lists[listIndex] = updatedList;
+		return { success: true, data: updatedList };
+	} catch (error) {
+		// Revert on network/request error
+		state.lists[listIndex] = originalList;
+		return { success: false, message: error.message };
+	}
+}
+```
+
+**Using localStorage**
+Use `localStorage` only for non-critical, persistent UI states. Store simple user preferences, like the ID of the last selected item, to improve the user experience across sessions also when mobe app will support offline in the next versions.
+
+Obvious NB: don'y store sensitive info or large/complex data. DB is THE single source of truth for all app's data!!! And always wrap `localStorage` access in a if (browser) check.
+
+Example (from loadBoards):
+
+```ts
+// Restore selectedBoard from localStorage
+if (state.boards.length > 0) {
+    const savedId = localStorage.getItem('selectedBoardId');
+    const savedBoard = state.boards.find((b) => b.id === savedId);
+    state.selectedBoard = savedBoard || state.boards[0];
+}
+```
+
 ### Error & Success Handling
 
 Use centralised error/success system:
