@@ -25,8 +25,9 @@
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test:h": "playwright test --headed --workers=1",
-		"cu": "rm -rf node_modules package-lock.json .svelte-kit && npm cache clean --force && npm i",
-		"cw": "rmdir /s /q node_modules && del /f /q package-lock.json && rmdir /s /q .svelte-kit && npm cache clean --force && npm i"
+		"i-npm": "npm install -g npm@$(node -p \"require('./package.json').engines.npm\")",
+		"cu": "rm -rf node_modules .svelte-kit && npm cache clean --force && npm ci",
+		"cw": "rmdir /s /q node_modules && rmdir /s /q .svelte-kit && npm cache clean --force && npm ci"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",

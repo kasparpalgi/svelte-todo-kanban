@@ -1,15 +1,29 @@
 /** @file codegen.ts */
 import type { CodegenConfig } from '@graphql-codegen/cli';
-import { loadEnv } from 'vite';
+import dotenv from 'dotenv';
 
-const env = loadEnv('', process.cwd(), '');
+dotenv.config();
+
+const environment = process.env;
+const apiEndpoint =
+	environment.PUBLIC_API_ENV === 'production'
+		? environment.API_ENDPOINT
+		: environment.API_ENDPOINT_DEV;
+
+if (!apiEndpoint) {
+	throw new Error('API endpoint not found. Check your environment variables.');
+}
+
+if (!environment.HASURA_ADMIN_SECRET) {
+	throw new Error('HASURA_ADMIN_SECRET not found. Check your environment variables.');
+}
 
 const config: CodegenConfig = {
 	schema: [
 		{
-			[env.API_ENDPOINT || 'http://localhost:3001/v1/graphql']: {
+			[apiEndpoint]: {
 				headers: {
-					'x-hasura-admin-secret': env.HASURA_ADMIN_SECRET || ''
+					'x-hasura-admin-secret': environment.HASURA_ADMIN_SECRET || ''
 				}
 			}
 		}
