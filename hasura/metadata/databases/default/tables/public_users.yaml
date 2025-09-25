@@ -37,25 +37,31 @@ insert_permissions:
         id:
           _eq: X-Hasura-User-Id
       columns:
-        - email
-        - name
-        - image
         - created_at
+        - dark_mode
+        - email
         - emailVerified
-        - updated_at
         - id
+        - image
+        - locale
+        - name
+        - settings
+        - updated_at
     comment: ""
 select_permissions:
   - role: user
     permission:
       columns:
-        - email
-        - name
-        - image
         - created_at
+        - dark_mode
+        - email
         - emailVerified
-        - updated_at
         - id
+        - image
+        - locale
+        - name
+        - settings
+        - updated_at
       filter:
         id:
           _eq: X-Hasura-User-Id
@@ -64,10 +70,13 @@ update_permissions:
   - role: user
     permission:
       columns:
+        - dark_mode
         - email
         - emailVerified
         - image
+        - locale
         - name
+        - settings
         - updated_at
       filter: {}
       check:

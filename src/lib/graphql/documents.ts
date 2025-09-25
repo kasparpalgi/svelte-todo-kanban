@@ -63,6 +63,9 @@ export const USER_FRAGMENT = graphql(`
 		name
 		image
 		email
+		locale
+		dark_mode
+		settings
 		emailVerified
 		created_at
 		updated_at
@@ -225,6 +228,17 @@ export const GET_USERS = graphql(`
 	) {
 		users(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
 			...UserFields
+		}
+	}
+`);
+
+export const UPDATE_USER = graphql(`
+	mutation UpdateUser($where: users_bool_exp!, $_set: users_set_input!) {
+		update_users(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				...UserFields
+			}
 		}
 	}
 `);
