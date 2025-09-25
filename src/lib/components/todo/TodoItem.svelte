@@ -1,6 +1,5 @@
 <!-- @file src/lib/components/todo/TodoItem.svelte -->
 <script lang="ts">
-	import { PUBLIC_FULL_CARD_DRAGGABLE } from '$env/static/public';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
@@ -22,7 +21,6 @@
 
 	let { todo, isDragging = false }: TodoItemProps = $props();
 
-	const enableFullCardDrag = PUBLIC_FULL_CARD_DRAGGABLE === 'true';
 	let sortable = useSortable({ id: todo.id });
 	let { attributes, listeners, setNodeRef, transform, isDragging: sortableIsDragging } = sortable;
 
@@ -390,15 +388,11 @@
 				<span class="sr-only">{$t('todo.delete')}</span>
 			</Button>
 
-			<CardContent
-				class="pl-2 {enableFullCardDrag ? 'cursor-grab active:cursor-grabbing' : ''}"
-				{...enableFullCardDrag ? attributes.current : {}}
-				{...enableFullCardDrag ? listeners.current : {}}
-			>
+			<CardContent class="pl-2">
 				<div class="flex items-start gap-2">
 					<DragHandle
-						attributes={enableFullCardDrag ? {} : attributes.current}
-						listeners={enableFullCardDrag ? {} : listeners.current}
+						attributes={attributes.current}
+						listeners={listeners.current}
 						isVisible={isHovered}
 					/>
 
