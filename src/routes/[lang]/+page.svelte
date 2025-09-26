@@ -19,7 +19,6 @@
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
 	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
-	import BoardSwitcher from '$lib/components/listBoard/BoardSwitcher.svelte';
 	import TodoFiltersSidebar from '$lib/components/todo/TodoFiltersSidebar.svelte';
 
 	let { data } = $props();
@@ -79,33 +78,16 @@
 </script>
 
 <svelte:head>
-	<title>{listsStore.selectedBoard?.name || $t('todo.everything')} | ToDzz</title>
+	<title>{listsStore.selectedBoard?.name} | ToDzz</title>
 </svelte:head>
 
 <div class="relative w-full">
 	<div class="px-4 py-6">
 		<div class="mb-6 flex items-center justify-between">
 			<h1 class="hidden text-3xl font-bold tracking-tight md:block">
-				{listsStore.selectedBoard?.name || $t('todo.everything')}
+				{listsStore.selectedBoard?.name}
 			</h1>
 			<div class="flex items-center gap-4">
-				<BoardSwitcher />
-				<Button
-					variant={actionState.showFilters ? 'default' : 'outline'}
-					size="sm"
-					onclick={() => (actionState.showFilters = !actionState.showFilters)}
-				>
-					<Funnel class="mr-2 h-4 w-4" />
-					<span class="hidden md:block">Filter</span>
-				</Button>
-				<Button
-					variant="outline"
-					size="sm"
-					onclick={() => (actionState.edit = 'showListManagement')}
-				>
-					<Settings class="mr-2 h-4 w-4" />
-					<span class="hidden md:block">{viewMode === 'kanban' ? 'Lists' : 'Categories'}</span>
-				</Button>
 				<div class="flex items-center gap-2 rounded-lg border p-1">
 					<Button
 						variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -126,6 +108,22 @@
 						<span class="hidden md:block">{$t('todo.kanban')}</span>
 					</Button>
 				</div>
+				<Button
+					variant="outline"
+					size="sm"
+					onclick={() => (actionState.edit = 'showListManagement')}
+				>
+					<Settings class="mr-2 h-4 w-4" />
+					<span class="hidden md:block">{viewMode === 'kanban' ? 'Lists' : 'Categories'}</span>
+				</Button>
+				<Button
+					variant={actionState.showFilters ? 'default' : 'outline'}
+					size="sm"
+					onclick={() => (actionState.showFilters = !actionState.showFilters)}
+				>
+					<Funnel class="mr-2 h-4 w-4" />
+					<span class="hidden md:block">Filter</span>
+				</Button>
 			</div>
 		</div>
 

@@ -171,7 +171,7 @@
 						{actionState.tLists()}
 					</h3>
 					<p class="text-sm text-muted-foreground">
-						{actionState.tLists()} ({listsStore.selectedBoard?.name || $t('todo.everything')})
+						{actionState.tLists()} ({listsStore.selectedBoard?.name})
 					</p>
 				</div>
 				<Button variant="ghost" onclick={closeModal}>✕</Button>

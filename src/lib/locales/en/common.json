@@ -24,7 +24,6 @@
     },
     "auth": {
         "sign_in": "Sign In",
-        "sign_out": "Sign Out",
         "user": "User",
         "sign_in_title": "Sign In",
         "sign_in_description": "Choose your preferred sign-in method",

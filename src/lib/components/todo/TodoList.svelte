@@ -322,7 +322,7 @@
 									class="h-5 w-5 rounded-full p-0 text-red-500 hover:bg-red-50 hover:text-red-700"
 								>
 									<Trash2 class="h-2.5 w-2.5" />
-									<span class="sr-only">{$t('todo.delete')}</span>
+									<span class="sr-only">{$t('common.delete')}</span>
 								</Button>
 							</div>
 						</div>

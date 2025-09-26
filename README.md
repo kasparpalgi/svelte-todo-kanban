@@ -144,6 +144,14 @@ if (state.boards.length > 0) {
 }
 ```
 
+### Routing
+
+At the moment the whole authenticated action goes on in `src/routes/[lang]` but there's no real usage reason for changing language with URL not SEO perspective but as it felt easier to to change it later as app grows to `src/routes/(app)` than implement URL based localisation then I made it like this in the first place.
+
+Next implementation plan in routing:
+1. Generate (eg. with PostgreSQL function) automatic username to every user from first name, surname initial and if neccesary use also numbers. Eg. "Tom Woods" could be the first one "tom", many others "tom.w", "tom.p" etc. And then "tom1...9" etc. And let user to change it. Obviously unique.
+2. Then we can have nice urls `/user/boardName/cardName` that can be shared
+
 ### Error & Success Handling
 
 Use centralised error/success system:

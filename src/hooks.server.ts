@@ -10,10 +10,9 @@ import {
 	EMAIL_FROM,
 	API_ENDPOINT,
 	API_ENDPOINT_DEV,
-	HASURA_ADMIN_SECRET,
-	APP_ENV
+	HASURA_ADMIN_SECRET
 } from '$env/static/private';
-import { PUBLIC_API_ENV } from '$env/static/public';
+import { PUBLIC_APP_ENV, PUBLIC_API_ENV } from '$env/static/public';
 import { SvelteKitAuth } from '@auth/sveltekit';
 import { HasuraAdapter } from '@auth/hasura-adapter';
 import Google from '@auth/sveltekit/providers/google';
@@ -21,7 +20,7 @@ import Nodemailer from '@auth/sveltekit/providers/nodemailer';
 import Credentials from '@auth/sveltekit/providers/credentials';
 import type { Provider } from '@auth/sveltekit/providers';
 
-const maxAge = APP_ENV ? 90 * 24 * 60 * 60 : 3 * 24 * 60 * 60; // 90 days vs 3 days
+const maxAge = PUBLIC_APP_ENV ? 90 * 24 * 60 * 60 : 3 * 24 * 60 * 60; // 90 days vs 3 days
 const apiEndpoint = PUBLIC_API_ENV === 'production' ? API_ENDPOINT : API_ENDPOINT_DEV;
 
 const providers: Provider[] = [

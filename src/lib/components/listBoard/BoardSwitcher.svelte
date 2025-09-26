@@ -53,19 +53,6 @@
 			</Button>
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="start" class="w-64">
-			<DropdownMenuItem
-				onclick={() => selectBoard(null)}
-				class={isAllBoardsSelected() ? 'bg-accent' : ''}
-			>
-				<Layers class="mr-2 h-4 w-4" />
-				{allBoardsLabel()}
-				{#if isAllBoardsSelected()}
-					<div class="ml-auto h-2 w-2 rounded-full bg-primary"></div>
-				{/if}
-			</DropdownMenuItem>
-
-			<DropdownMenuSeparator />
-
 			{#each listsStore.sortedBoards as board (board.id)}
 				<DropdownMenuItem
 					onclick={() => selectBoard(board.id)}

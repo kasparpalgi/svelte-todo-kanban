@@ -2,56 +2,49 @@
 <script lang="ts">
 	import { signOut } from '@auth/sveltekit/client';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n';
+	import { userStore } from '$lib/stores/user.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { LogOut, User } from 'lucide-svelte';
+	import { LogOut, Settings } from 'lucide-svelte';
+	import { getUserInitials } from '$lib/utils/getUserInitials';
+	import BoardSwitcher from '$lib/components/listBoard/BoardSwitcher.svelte';
 
-	let session = $derived(page.data.session);
-
-	function getUserInitials(name?: string | null, email?: string | null): string {
-		if (name) {
-			return name
-				.split(' ')
-				.map((n) => n.charAt(0))
-				.join('')
-				.toUpperCase()
-				.slice(0, 2);
-		}
-		if (email) {
-			return email.charAt(0).toUpperCase();
-		}
-		return 'U';
+	function navigateToSettings() {
+		const currentLang = page.params.lang || '';
+		const settingsPath = currentLang ? `/${currentLang}/settings` : '/settings';
+		goto(settingsPath);
 	}
 </script>
 
-{#if session?.user}
-	<div class="flex items-center gap-4">
-		<div class="flex items-center gap-3">
+{#if userStore.user}
+	<div class="flex items-center">
+		<BoardSwitcher />
+		<button
+			onclick={navigateToSettings}
+			class="ml-2 cursor-pointer flex items-center gap-3 transition-opacity hover:opacity-80"
+		>
 			<div class="relative h-8 w-8 overflow-hidden rounded-full">
-				{#if session.user.image}
+				{#if userStore.user.image}
 					<img
-						src={session.user.image}
-						alt={session.user.name || session.user.email || $t('auth.user')}
+						src={userStore.user.image}
+						alt={userStore.user.name || userStore.user.email || $t('auth.user')}
 						class="h-full w-full object-cover"
 					/>
 				{:else}
 					<div class="flex h-full w-full items-center justify-center bg-muted text-xs font-medium">
-						{getUserInitials(session.user.name, session.user.email)}
+						{getUserInitials(userStore.user.name, userStore.user.email)}
 					</div>
 				{/if}
 			</div>
-			<span class="hidden text-sm font-medium md:block"
-				>{session.user.name || session.user.email}</span
-			>
-		</div>
+		</button>
+
+		<Button onclick={navigateToSettings} variant="ghost" size="sm" class="hidden md:flex">
+			<Settings class="mr-2 h-4 w-4" />
+		</Button>
+
 		<Button onclick={() => signOut({ callbackUrl: '/' })} variant="outline" size="sm">
 			<LogOut class="mr-2 h-4 w-4" />
-			<span class="hidden md:block">{$t('auth.sign_out')}</span>
 		</Button>
 	</div>
-{:else}
-	<Button href="/signin" variant="outline">
-		<User class="mr-2 h-4 w-4" />
-		{$t('auth.sign_in')}
-	</Button>
 {/if}

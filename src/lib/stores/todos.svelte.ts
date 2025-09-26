@@ -49,7 +49,6 @@ function createTodosStore() {
 				limit: 1000,
 				offset: 0
 			});
-			console.log('data: ', data)
 
 			state.todos = data.todos || [];
 			state.initialized = true;

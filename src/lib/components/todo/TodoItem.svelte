@@ -385,7 +385,7 @@
 				ontouchstart={preventDrag}
 			>
 				<Trash2 class="h-3 w-3" />
-				<span class="sr-only">{$t('todo.delete')}</span>
+				<span class="sr-only">{$t('common.delete')}</span>
 			</Button>
 
 			<CardContent class="pl-2">
@@ -452,7 +452,7 @@
 							class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
 						>
 							<SquarePen class="h-3 w-3" />
-							<span class="sr-only">{$t('todo.edit')}</span>
+							<span class="sr-only">{$t('common.edit')}</span>
 						</Button>
 					</div>
 				</div>
