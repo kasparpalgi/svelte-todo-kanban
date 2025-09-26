@@ -68,7 +68,10 @@
         "kanban": "Kanban",
         "drop_tasks_here": "Přetáhněte úkoly sem",
         "due": "Termín",
-        "everything": "Všechno"
+        "everything": "Všechno",
+        "list": "Seznam",
+        "kanban": "Kanban",
+        "load_todos": "Načíst úkoly"
     },
     "settings": {
         "title": "Nastavení",

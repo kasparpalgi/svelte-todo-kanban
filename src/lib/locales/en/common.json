@@ -69,7 +69,10 @@
         "kanban": "Kanban",
         "drop_tasks_here": "Drop tasks here",
         "due": "Due",
-        "everything": "Everything"
+        "everything": "Everything",
+        "list": "List",
+        "kanban": "Kanban",
+        "load_todos": "Load todos"
     },
     "settings": {
         "title": "Settings",
