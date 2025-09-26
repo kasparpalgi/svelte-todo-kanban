@@ -30,6 +30,40 @@ Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 * Zod for form validation
 * [sveltekit-i18n](https://github.com/sveltekit-i18n/lib) - straightforward sveltekit-i18n solution (tiny library with no external dependencies)
 
+### Application architecture
+
+The application is structured as a monorepo, containing the SvelteKit frontend, Hasura backend configuration, and testing suites all in one place.
+
+*   **Frontend (SvelteKit):** The core of the application resides in the `src` directory.
+    *   `src/routes`: Defines all application pages and API endpoints. It uses a `[lang]` dynamic parameter to handle internationalized routing (for future possible needs).
+    *   `src/lib/components`: Contains reusable Svelte components, organized by feature (`todo`, `listBoard`) and a general `ui` directory for components from mostly `shadcn-svelte`.
+    *   `src/lib/stores`: Manages application state using Svelte stores, following a factory pattern to encapsulate state and business logic.
+    *   `src/lib/graphql`: Holds the GraphQL client (`client.ts`), queries and mutations (`documents.ts`), and auto-generated types, ensuring a type-safe data layer.
+*   **Backend (Hasura & SvelteKit):** A hybrid approach is used for the backend.
+    *   `hasura/`: Contains the entire backend setup. Hasura provides the primary API for PostgreSQL database.
+        *   `hasura/metadata`: Defines the GraphQL API, including table relationships and permissions.
+        *   `hasura/seeds`: Optional test data.
+    *   `src/routes/api`: SvelteKit server routes handle specific backend tasks that don't fit into the Hasura model, such as authentication with Auth.js and file uploads.
+*   **Testing:**
+    *   `e2e/`: End-to-end tests are written using Playwright.
+    *   `*.spec.ts`: Unit and component tests are powered by Vitest.
+
+### Description of features
+
+*   **Kanban Board:** A fully interactive, drag-and-drop board for organising tasks into lists.
+*   **Rich Task Details:** Tasks can be enhanced with priority levels and due dates.
+*   **File Attachments:** Upload and attach relevant files.
+*   **User Preferences:**
+    *   **Dark Mode:**
+    *   **Language Selection:**
+*   **Modern UI/UX:**
+    *   **Optimistic Updates:**
+    *   **Responsive Design:**
+    *   **Toast Notifications:** A centralized system provides clear, non-intrusive feedback for user actions.
+*   **Developer Experience:**
+    *   **GraphQL Codegen:** Automatically generates TypeScript types from GraphQL queries, ensuring a type-safe data layer and reducing bugs.
+    *   **AI-powered Translations:** A utility script in the `scripts` folder helps automate the translation of locales using AI. Work in progress.
+
 ## Developing
 
 Once installed, run:  `npm run dev -- --open`
