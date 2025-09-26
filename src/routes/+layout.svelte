@@ -4,7 +4,6 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import ErrorSuccess from '$lib/components/ui/ErrorSuccess.svelte';
 	import faviconUrl from '$lib/assets/favicon.svg?url';
-	import DevMode from '$lib/components/DevMode.svelte';
 
 	let { data, children } = $props();
 </script>
@@ -17,10 +16,6 @@
 <ModeWatcher />
 
 <div class="min-h-screen w-full bg-background">
-	{#if data.env.app !== 'production' || data.env.api !== 'production'}
-		<DevMode app={data.env.app} api={data.env.api} />
-	{/if}
-
 	{@render children?.()}
 </div>
 

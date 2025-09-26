@@ -13,68 +13,13 @@ The application emphasizes:
 
 ## Technical Specifications
 
-- SvelteKit 2.0+
-- TypeScript
-- Tailwind CSS for styling
+🗸 SvelteKit 2.0+
+🗸 TypeScript
+🗸 Tailwind CSS for styling
 - Vitest for unit tests
-- Playwright for E2E tests
-- Zod for form validation
-- Lucide for icons
-
-## API Specifications
-
-The application communicates with the backend API using the following endpoints:
-
-### 1. List of all tasks
-- **Endpoint**: GET `/api/tasks/`
-- **Functionality**: Get a complete list of tasks
-- **Response**: Array of tasks in JSON format
-- **Use in the application**: 
-  - Display on the dashboard
-  - Kanban board
-  - Filterable list
-
-### 2. Creating a task
-- **Endpoint**: POST `/api/tasks/`
-- **Data**: 
-  - `title`: required, max. 100 characters
-  - `description`: optional, max. 500 characters
-  - `due_date`: optional
-  - `photo`: optional, file (image)
-- **Content-Type**: multipart/form-data
-- **Response**: Created task including ID
-- **Specifics**: 
-  - Validation of all input fields
-  - Handling image uploads
-  - Error handling
-
-### 3. Task details
-- **Endpoint**: GET `/api/tasks/{id}/`
-- **Parameters**: Task ID in the URL
-- **Response**: Task details including all fields
-- **Error states**: 404 if the task does not exist
-- **Use**: Displaying task details and editing tasks
-
-### 4. Task update
-- **Endpoint**: PUT `/api/tasks/{id}/`
-- **Data**: Same structure as when creating
-- **Specifics**:
-  - Option for partial update
-  - Retention of existing image
-  - Optimistic updates
-
-### 5. Deleting a task
-- **Endpoint**: DELETE `/api/tasks/{id}/`
-- **Response**: 204 No Content
-- **Functionality**:
-  - Confirmation dialog
-  - Optimistic updates
-  - Error handling
-
-### 6. Nearest deadline
-- **Endpoint**: GET `/api/tasks/nearest-deadline/`
-- **Functionality**: Returns the task with the nearest deadline
-- **Usage**: Special display on the dashboard
+🗸 Playwright for E2E tests
+🗸 Zod for form validation
+🗸 Lucide for icons
 
 ## Required features
 
