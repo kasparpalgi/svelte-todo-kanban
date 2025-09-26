@@ -5,7 +5,7 @@ Modern Kanban ToDo app built according to requirements [requirements](docs/todol
 ## Install
 
 1. Pre-install optional suggestion (use the same Node/npm across devices): `nvm install && nvm use` & `npm ci` & `npm run i-npm` (or pnmp/yarn)
-2. Install dependencies: `npm ci`
+2. Install dependencies: `npm ci`. On Windows you may need to to `npm i` or even ` npm install --maxsockets=1` as latest Tailwind may be conflicting with current latest Vite and types may be messed or another known issue is that it won't even run due to `shadcn` current latest version some conflicts I haven't dived in.
 3. Rename `.env.example` to `.env` and update URL/password and do the same woth `hasura/.env.example`. Also, `.env.test.example` to `.env.test` (needed for Playwright testing Auth.js).
 4. Set up backend.
    1. In `hasura` folder run `docker-compose up -d` to run [Hasura (enterprise-grade API engine)](https://hasura.io/)
@@ -173,6 +173,22 @@ Success Messages:
 ```typescript
 displayMessage('Operation completed successfully etc. bla bla', 3000, true); // longer than default 1.5sec success for longer success messages & true sets the 'success' as true that is false by default
 ```
+
+### Localisation
+
+There are some translations but the app is not fully translated due to time limitations. To use multilang:
+
+1. Add your translations to [locales](src/lib/locales) folder
+```json
+{
+    "parent": {
+        "translation1": "Lorem",
+        "translation2": "Ipsum"
+	}
+}
+```
+2. Import `import { t } from '$lib/i18n';`
+3. Use eg. `$t('parent.translation')`
 
 ## Building
 
