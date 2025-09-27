@@ -1,7 +1,10 @@
 <!-- @file src/routes/[[lang]]/settings/+page.svelte -->
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { t } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
+	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -53,6 +56,26 @@
 
 		loggingStore.info('SettingsPage', 'Submitting form updates', { updates });
 		userStore.updateUser(user.id, updates);
+	}
+
+	async function handleLanguageChange(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		const newLanguage = target.value;
+
+		formData.locale = newLanguage;
+
+		const result = await userStore.updateUser(user.id, { locale: newLanguage });
+
+		if (result.success) {
+			const currentPath = $page.url.pathname;
+			const params = $page.params;
+			const currentLang = params.lang || 'en';
+			const newPath = currentPath.replace(`/${currentLang}/`, `/${newLanguage}/`);
+
+			await goto(newPath, { replaceState: true });
+		} else {
+			formData.locale = user.locale || 'en';
+		}
 	}
 
 	async function toggleDarkMode() {
@@ -218,7 +241,8 @@
 						<Label for="language">{$t('settings.language.select')}</Label>
 						<select
 							id="language"
-							bind:value={formData.locale}
+							value={formData.locale}
+							onchange={handleLanguageChange}
 							class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
 						>
 							{#each languages as lang}

@@ -57,6 +57,25 @@
 	});
 
 	const currentLang = $derived(page.params.lang || 'en');
+
+	const logoUrl = $derived(() => {
+		const params = page.params;
+		const lang = params.lang || 'en';
+
+		if (params.username && params.board) {
+			return `/${lang}/${params.username}/${params.board}`;
+		}
+
+		if (listsStore.selectedBoard?.user?.username && listsStore.selectedBoard?.alias) {
+			return `/${lang}/${listsStore.selectedBoard.user.username}/${listsStore.selectedBoard.alias}`;
+		}
+
+		return `/${lang}`;
+	});
+
+	function handleLogoClick() {
+		goto(logoUrl());
+	}
 </script>
 
 <header
@@ -65,7 +84,7 @@
 	<div class="w-full px-4 py-4">
 		<nav class="flex items-center justify-between">
 			<button
-				onclick={() => goto(`/${currentLang}`)}
+				onclick={handleLogoClick}
 				class="flex cursor-pointer items-center space-x-2 transition-opacity hover:opacity-80"
 			>
 				<div class="h-6 w-6 text-foreground">
