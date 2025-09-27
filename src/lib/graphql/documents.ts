@@ -25,6 +25,7 @@ export const TODO_FRAGMENT = graphql(`
 			board {
 				id
 				name
+				alias
 				sort_order
 			}
 		}
@@ -61,6 +62,7 @@ export const USER_FRAGMENT = graphql(`
 	fragment UserFields on users {
 		id
 		name
+		username
 		image
 		email
 		locale

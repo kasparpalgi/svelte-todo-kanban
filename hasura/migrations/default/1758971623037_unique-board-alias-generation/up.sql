@@ -1,0 +1,68 @@
+--Unique URL alias from board name
+CREATE OR REPLACE FUNCTION generate_unique_alias(name_input TEXT)
+RETURNS TEXT AS $$
+DECLARE
+    base_alias TEXT;
+    final_alias TEXT;
+    max_existing_number INTEGER := 0;
+BEGIN
+    -- Lowercase URL-friendly alias
+    base_alias := LOWER(name_input);
+    
+    -- Replace spaces with hyphens
+    base_alias := REPLACE(base_alias, ' ', '-');
+    
+    -- Remove bad chars
+    base_alias := REGEXP_REPLACE(base_alias, '[^a-z0-9\-_]', '', 'g');
+    
+    -- Multiple consec. hyphens > single hyphen
+    base_alias := REGEXP_REPLACE(base_alias, '-+', '-', 'g');
+    
+    -- Remove leading/trailing hyphens
+    base_alias := TRIM(BOTH '-' FROM base_alias);
+    
+    -- Empty after cleaning?
+    IF LENGTH(base_alias) = 0 THEN
+        base_alias := 'board';
+    END IF;
+    
+    -- Check if base available
+    IF NOT EXISTS (SELECT 1 FROM boards WHERE alias = base_alias) THEN
+        RETURN base_alias;
+    END IF;
+    
+    -- Find highest number suffix
+    SELECT COALESCE(MAX(
+        CASE 
+            WHEN alias ~ ('^' || base_alias || '[0-9]+$') 
+            THEN CAST(SUBSTRING(alias FROM (LENGTH(base_alias) + 1)) AS INTEGER)
+            ELSE 0
+        END
+    ), 0) INTO max_existing_number
+    FROM boards 
+    WHERE alias ~ ('^' || base_alias || '[0-9]*$');
+    
+    -- Generate next available
+    final_alias := base_alias || (max_existing_number + 1);
+    
+    RETURN final_alias;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION set_alias_on_insert()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Generate alias if not provided
+    IF NEW.alias IS NULL OR NEW.alias = '' THEN
+        NEW.alias := generate_unique_alias(NEW.name);
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_set_alias ON boards;
+CREATE TRIGGER trigger_set_alias
+    BEFORE INSERT ON boards
+    FOR EACH ROW
+    EXECUTE FUNCTION set_alias_on_insert();

@@ -22,22 +22,24 @@ insert_permissions:
       set:
         user_id: x-hasura-User-Id
       columns:
-        - sort_order
-        - name
+        - alias
         - created_at
-        - updated_at
         - id
+        - name
+        - sort_order
+        - updated_at
         - user_id
     comment: ""
 select_permissions:
   - role: user
     permission:
       columns:
-        - sort_order
-        - name
+        - alias
         - created_at
-        - updated_at
         - id
+        - name
+        - sort_order
+        - updated_at
         - user_id
       filter:
         user_id:
@@ -47,6 +49,7 @@ update_permissions:
   - role: user
     permission:
       columns:
+        - alias
         - name
         - sort_order
         - updated_at

@@ -552,6 +552,7 @@ export type Bigint_Comparison_Exp = {
 /** columns and relationships of "boards" */
 export type Boards = {
   __typename?: 'boards';
+  alias?: Maybe<Scalars['String']['output']>;
   created_at: Scalars['timestamptz']['output'];
   id: Scalars['uuid']['output'];
   /** An array relationship */
@@ -665,6 +666,7 @@ export type Boards_Bool_Exp = {
   _and?: InputMaybe<Array<Boards_Bool_Exp>>;
   _not?: InputMaybe<Boards_Bool_Exp>;
   _or?: InputMaybe<Array<Boards_Bool_Exp>>;
+  alias?: InputMaybe<String_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   lists?: InputMaybe<Lists_Bool_Exp>;
@@ -689,6 +691,7 @@ export type Boards_Inc_Input = {
 
 /** input type for inserting data into table "boards" */
 export type Boards_Insert_Input = {
+  alias?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   lists?: InputMaybe<Lists_Arr_Rel_Insert_Input>;
@@ -702,6 +705,7 @@ export type Boards_Insert_Input = {
 /** aggregate max on columns */
 export type Boards_Max_Fields = {
   __typename?: 'boards_max_fields';
+  alias?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -712,6 +716,7 @@ export type Boards_Max_Fields = {
 
 /** order by max() on columns of table "boards" */
 export type Boards_Max_Order_By = {
+  alias?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
@@ -723,6 +728,7 @@ export type Boards_Max_Order_By = {
 /** aggregate min on columns */
 export type Boards_Min_Fields = {
   __typename?: 'boards_min_fields';
+  alias?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -733,6 +739,7 @@ export type Boards_Min_Fields = {
 
 /** order by min() on columns of table "boards" */
 export type Boards_Min_Order_By = {
+  alias?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
@@ -766,6 +773,7 @@ export type Boards_On_Conflict = {
 
 /** Ordering options when selecting data from "boards". */
 export type Boards_Order_By = {
+  alias?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   lists_aggregate?: InputMaybe<Lists_Aggregate_Order_By>;
@@ -784,6 +792,8 @@ export type Boards_Pk_Columns_Input = {
 /** select columns of table "boards" */
 export enum Boards_Select_Column {
   /** column name */
+  Alias = 'alias',
+  /** column name */
   CreatedAt = 'created_at',
   /** column name */
   Id = 'id',
@@ -799,6 +809,7 @@ export enum Boards_Select_Column {
 
 /** input type for updating data in table "boards" */
 export type Boards_Set_Input = {
+  alias?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -850,6 +861,7 @@ export type Boards_Stream_Cursor_Input = {
 
 /** Initial value of the column from where the streaming should start */
 export type Boards_Stream_Cursor_Value_Input = {
+  alias?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -871,6 +883,8 @@ export type Boards_Sum_Order_By = {
 
 /** update columns of table "boards" */
 export enum Boards_Update_Column {
+  /** column name */
+  Alias = 'alias',
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
@@ -3340,6 +3354,7 @@ export type Users = {
   /** An aggregate relationship */
   todos_aggregate: Todos_Aggregate;
   updated_at: Scalars['timestamptz']['output'];
+  username: Scalars['String']['output'];
 };
 
 
@@ -3478,6 +3493,7 @@ export type Users_Bool_Exp = {
   todos?: InputMaybe<Todos_Bool_Exp>;
   todos_aggregate?: InputMaybe<Todos_Aggregate_Bool_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  username?: InputMaybe<String_Comparison_Exp>;
 };
 
 /** unique or primary key constraints on table "users" */
@@ -3485,7 +3501,9 @@ export enum Users_Constraint {
   /** unique or primary key constraint on columns "email" */
   UsersEmailKey = 'users_email_key',
   /** unique or primary key constraint on columns "id" */
-  UsersPkey = 'users_pkey'
+  UsersPkey = 'users_pkey',
+  /** unique or primary key constraint on columns "username" */
+  UsersUsernameKey = 'users_username_key'
 }
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
@@ -3519,6 +3537,7 @@ export type Users_Insert_Input = {
   settings?: InputMaybe<Scalars['jsonb']['input']>;
   todos?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** aggregate max on columns */
@@ -3532,6 +3551,7 @@ export type Users_Max_Fields = {
   locale?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  username?: Maybe<Scalars['String']['output']>;
 };
 
 /** aggregate min on columns */
@@ -3545,6 +3565,7 @@ export type Users_Min_Fields = {
   locale?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  username?: Maybe<Scalars['String']['output']>;
 };
 
 /** response of any mutation on the table "users" */
@@ -3586,6 +3607,7 @@ export type Users_Order_By = {
   settings?: InputMaybe<Order_By>;
   todos_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
   updated_at?: InputMaybe<Order_By>;
+  username?: InputMaybe<Order_By>;
 };
 
 /** primary key columns input for table: users */
@@ -3619,7 +3641,9 @@ export enum Users_Select_Column {
   /** column name */
   Settings = 'settings',
   /** column name */
-  UpdatedAt = 'updated_at'
+  UpdatedAt = 'updated_at',
+  /** column name */
+  Username = 'username'
 }
 
 /** input type for updating data in table "users" */
@@ -3634,6 +3658,7 @@ export type Users_Set_Input = {
   name?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Streaming cursor of the table "users" */
@@ -3656,6 +3681,7 @@ export type Users_Stream_Cursor_Value_Input = {
   name?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** update columns of table "users" */
@@ -3679,7 +3705,9 @@ export enum Users_Update_Column {
   /** column name */
   Settings = 'settings',
   /** column name */
-  UpdatedAt = 'updated_at'
+  UpdatedAt = 'updated_at',
+  /** column name */
+  Username = 'username'
 }
 
 export type Users_Updates = {
@@ -3871,13 +3899,13 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias?: string | null, sort_order: number } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null };
 
 export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, sort_order: number, created_at: string, updated_at: string };
 
-export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string };
+export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string };
 
 export type GetTodosQueryVariables = Exact<{
   where?: InputMaybe<Todos_Bool_Exp>;
@@ -3887,7 +3915,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias?: string | null, sort_order: number } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -3914,7 +3942,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias?: string | null, sort_order: number } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -3922,7 +3950,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias?: string | null, sort_order: number } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -3997,7 +4025,7 @@ export type GetUsersQueryVariables = Exact<{
 }>;
 
 
-export type GetUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string }> };
+export type GetUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string }> };
 
 export type UpdateUserMutationVariables = Exact<{
   where: Users_Bool_Exp;
@@ -4005,7 +4033,7 @@ export type UpdateUserMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserMutation = { __typename?: 'mutation_root', update_users?: { __typename?: 'users_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'users', id: string, name?: string | null, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string }> } | null };
+export type UpdateUserMutation = { __typename?: 'mutation_root', update_users?: { __typename?: 'users_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string }> } | null };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -4049,6 +4077,7 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
     board {
       id
       name
+      alias
       sort_order
     }
   }
@@ -4082,6 +4111,7 @@ export const UserFieldsFragmentDoc = new TypedDocumentString(`
     fragment UserFields on users {
   id
   name
+  username
   image
   email
   locale
@@ -4121,6 +4151,7 @@ export const GetTodosDocument = new TypedDocumentString(`
     board {
       id
       name
+      alias
       sort_order
     }
   }
@@ -4188,6 +4219,7 @@ export const CreateTodoDocument = new TypedDocumentString(`
     board {
       id
       name
+      alias
       sort_order
     }
   }
@@ -4224,6 +4256,7 @@ export const UpdateTodosDocument = new TypedDocumentString(`
     board {
       id
       name
+      alias
       sort_order
     }
   }
@@ -4351,6 +4384,7 @@ export const GetUsersDocument = new TypedDocumentString(`
     fragment UserFields on users {
   id
   name
+  username
   image
   email
   locale
@@ -4372,6 +4406,7 @@ export const UpdateUserDocument = new TypedDocumentString(`
     fragment UserFields on users {
   id
   name
+  username
   image
   email
   locale
