@@ -552,7 +552,7 @@ export type Bigint_Comparison_Exp = {
 /** columns and relationships of "boards" */
 export type Boards = {
   __typename?: 'boards';
-  alias?: Maybe<Scalars['String']['output']>;
+  alias: Scalars['String']['output'];
   created_at: Scalars['timestamptz']['output'];
   id: Scalars['uuid']['output'];
   /** An array relationship */
@@ -680,6 +680,8 @@ export type Boards_Bool_Exp = {
 
 /** unique or primary key constraints on table "boards" */
 export enum Boards_Constraint {
+  /** unique or primary key constraint on columns "alias" */
+  BoardsAliasKey = 'boards_alias_key',
   /** unique or primary key constraint on columns "id" */
   BoardsPkey = 'boards_pkey'
 }
@@ -3899,11 +3901,11 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias?: string | null, sort_order: number } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null };
 
-export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null };
+export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null };
 
-export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, sort_order: number, created_at: string, updated_at: string };
+export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } };
 
 export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string };
 
@@ -3915,7 +3917,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias?: string | null, sort_order: number } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -3925,7 +3927,7 @@ export type GetListsQueryVariables = Exact<{
 }>;
 
 
-export type GetListsQuery = { __typename?: 'query_root', lists: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null }> };
+export type GetListsQuery = { __typename?: 'query_root', lists: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null }> };
 
 export type GetBoardsQueryVariables = Exact<{
   where?: InputMaybe<Boards_Bool_Exp>;
@@ -3935,14 +3937,14 @@ export type GetBoardsQueryVariables = Exact<{
 }>;
 
 
-export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, sort_order: number, created_at: string, updated_at: string }> };
+export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> };
 
 export type CreateTodoMutationVariables = Exact<{
   objects: Array<Todos_Insert_Input> | Todos_Insert_Input;
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias?: string | null, sort_order: number } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -3950,7 +3952,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias?: string | null, sort_order: number } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -3964,7 +3966,7 @@ export type CreateListMutationVariables = Exact<{
 }>;
 
 
-export type CreateListMutation = { __typename?: 'mutation_root', insert_lists?: { __typename?: 'lists_mutation_response', returning: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null }> } | null };
+export type CreateListMutation = { __typename?: 'mutation_root', insert_lists?: { __typename?: 'lists_mutation_response', returning: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null }> } | null };
 
 export type UpdateListMutationVariables = Exact<{
   where: Lists_Bool_Exp;
@@ -3972,7 +3974,7 @@ export type UpdateListMutationVariables = Exact<{
 }>;
 
 
-export type UpdateListMutation = { __typename?: 'mutation_root', update_lists?: { __typename?: 'lists_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, sort_order: number } | null }> } | null };
+export type UpdateListMutation = { __typename?: 'mutation_root', update_lists?: { __typename?: 'lists_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null }> } | null };
 
 export type DeleteListMutationVariables = Exact<{
   where: Lists_Bool_Exp;
@@ -3986,7 +3988,7 @@ export type CreateBoardMutationVariables = Exact<{
 }>;
 
 
-export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, sort_order: number, created_at: string, updated_at: string }> } | null };
+export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> } | null };
 
 export type UpdateBoardMutationVariables = Exact<{
   where: Boards_Bool_Exp;
@@ -3994,7 +3996,7 @@ export type UpdateBoardMutationVariables = Exact<{
 }>;
 
 
-export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, sort_order: number, created_at: string, updated_at: string }> } | null };
+export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> } | null };
 
 export type DeleteBoardMutationVariables = Exact<{
   where: Boards_Bool_Exp;
@@ -4094,6 +4096,7 @@ export const ListFieldsFragmentDoc = new TypedDocumentString(`
   board {
     id
     name
+    alias
     sort_order
   }
 }
@@ -4102,9 +4105,15 @@ export const BoardFieldsFragmentDoc = new TypedDocumentString(`
     fragment BoardFields on boards {
   id
   name
+  alias
   sort_order
   created_at
   updated_at
+  user {
+    id
+    username
+    email
+  }
 }
     `, {"fragmentName":"BoardFields"}) as unknown as TypedDocumentString<BoardFieldsFragment, unknown>;
 export const UserFieldsFragmentDoc = new TypedDocumentString(`
@@ -4172,6 +4181,7 @@ export const GetListsDocument = new TypedDocumentString(`
   board {
     id
     name
+    alias
     sort_order
   }
 }`) as unknown as TypedDocumentString<GetListsQuery, GetListsQueryVariables>;
@@ -4184,9 +4194,15 @@ export const GetBoardsDocument = new TypedDocumentString(`
     fragment BoardFields on boards {
   id
   name
+  alias
   sort_order
   created_at
   updated_at
+  user {
+    id
+    username
+    email
+  }
 }`) as unknown as TypedDocumentString<GetBoardsQuery, GetBoardsQueryVariables>;
 export const CreateTodoDocument = new TypedDocumentString(`
     mutation CreateTodo($objects: [todos_insert_input!]!) {
@@ -4286,6 +4302,7 @@ export const CreateListDocument = new TypedDocumentString(`
   board {
     id
     name
+    alias
     sort_order
   }
 }`) as unknown as TypedDocumentString<CreateListMutation, CreateListMutationVariables>;
@@ -4308,6 +4325,7 @@ export const UpdateListDocument = new TypedDocumentString(`
   board {
     id
     name
+    alias
     sort_order
   }
 }`) as unknown as TypedDocumentString<UpdateListMutation, UpdateListMutationVariables>;
@@ -4329,9 +4347,15 @@ export const CreateBoardDocument = new TypedDocumentString(`
     fragment BoardFields on boards {
   id
   name
+  alias
   sort_order
   created_at
   updated_at
+  user {
+    id
+    username
+    email
+  }
 }`) as unknown as TypedDocumentString<CreateBoardMutation, CreateBoardMutationVariables>;
 export const UpdateBoardDocument = new TypedDocumentString(`
     mutation UpdateBoard($where: boards_bool_exp!, $_set: boards_set_input!) {
@@ -4345,9 +4369,15 @@ export const UpdateBoardDocument = new TypedDocumentString(`
     fragment BoardFields on boards {
   id
   name
+  alias
   sort_order
   created_at
   updated_at
+  user {
+    id
+    username
+    email
+  }
 }`) as unknown as TypedDocumentString<UpdateBoardMutation, UpdateBoardMutationVariables>;
 export const DeleteBoardDocument = new TypedDocumentString(`
     mutation DeleteBoard($where: boards_bool_exp!) {

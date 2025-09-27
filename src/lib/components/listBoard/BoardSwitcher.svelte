@@ -1,5 +1,8 @@
+<!-- @file src/lib/components/listBoard/BoardSwitcher.svelte -->
 <script lang="ts">
 	import { t } from '$lib/i18n';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		DropdownMenu,
@@ -17,9 +20,16 @@
 		if (!listsStore.initialized) listsStore.loadBoards();
 	});
 
-	function selectBoard(boardId: string | null) {
-		const board = boardId ? listsStore.boards.find((b) => b.id === boardId) : null;
-		listsStore.setSelectedBoard(board || null);
+	function selectBoard(board: (typeof listsStore.boards)[0] | null) {
+		const lang = page.params.lang || 'en';
+
+		if (board && board.user?.username && board.alias) {
+			goto(`/${lang}/${board.user.username}/${board.alias}`);
+		} else {
+			goto(`/${lang}`);
+		}
+
+		listsStore.setSelectedBoard(board);
 	}
 
 	function openBoardManagement() {
@@ -53,13 +63,38 @@
 			</Button>
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="start" class="w-64">
+			<DropdownMenuItem
+				onclick={() => selectBoard(null)}
+				class={isAllBoardsSelected() ? 'bg-accent' : ''}
+			>
+				<div class="flex w-full items-center justify-between">
+					<span>{allBoardsLabel()}</span>
+					<div class="flex items-center gap-2">
+						<Badge variant="outline" class="text-xs">
+							{listsStore.boards.length}
+							{$t('board.projects')}
+						</Badge>
+						{#if isAllBoardsSelected()}
+							<div class="h-2 w-2 rounded-full bg-primary"></div>
+						{/if}
+					</div>
+				</div>
+			</DropdownMenuItem>
+
+			<DropdownMenuSeparator />
+
 			{#each listsStore.sortedBoards as board (board.id)}
 				<DropdownMenuItem
-					onclick={() => selectBoard(board.id)}
+					onclick={() => selectBoard(board)}
 					class={listsStore.selectedBoard?.id === board.id ? 'bg-accent' : ''}
 				>
 					<div class="flex w-full items-center justify-between">
-						<span>{board.name}</span>
+						<div class="flex flex-col items-start">
+							<span>{board.name}</span>
+							{#if board.user?.username}
+								<span class="text-xs text-muted-foreground">@{board.user.username}</span>
+							{/if}
+						</div>
 						<div class="flex items-center gap-2">
 							<Badge variant="outline" class="text-xs">
 								{listsStore.lists.filter((l) => l.board_id === board.id).length}

@@ -43,6 +43,7 @@ export const LIST_FRAGMENT = graphql(`
 		board {
 			id
 			name
+			alias
 			sort_order
 		}
 	}
@@ -52,9 +53,15 @@ export const BOARD_FRAGMENT = graphql(`
 	fragment BoardFields on boards {
 		id
 		name
+		alias
 		sort_order
 		created_at
 		updated_at
+		user {
+			id
+			username
+			email
+		}
 	}
 `);
 
