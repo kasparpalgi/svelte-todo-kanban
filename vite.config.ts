@@ -30,9 +30,21 @@ export default defineConfig({
 					name: 'server',
 					environment: 'node',
 					include: ['src/**/*.{test,spec}.{js,ts}'],
-					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
+					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+					alias: {
+						'$app/environment': './src/mocks/app-environment.js',
+						'$app/stores': './src/mocks/app-stores.js'
+					}
 				}
 			}
 		]
+	},
+	optimizeDeps: {
+		exclude: ['@sveltejs/kit']
+	},
+	server: {
+		fs: {
+			allow: ['..']
+		}
 	}
 });

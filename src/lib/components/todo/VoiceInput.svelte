@@ -1,16 +1,28 @@
 <!-- @file src/lib/components/todo/VoiceInput.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { Mic, Square, RotateCcw, Check } from 'lucide-svelte';
+	import { Mic, Square, RotateCcw, Check, Sparkles } from 'lucide-svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
+	import type {
+		SpeechRecognition,
+		SpeechRecognitionErrorEvent,
+		SpeechRecognitionEvent
+	} from '$lib/types/voiceInput';
+	import { formatDuration } from '$lib/utils/formatDuration';
 
 	let {
 		onTranscript = (text: string) => {},
 		onError = (error: string) => {},
-		disabled = false
+		disabled = false,
+		title = '', // Context for AI correction for content
+		minimal = false
 	} = $props();
 
+	let user = $derived(userStore.user);
+	let autoAICorrect = $derived(user?.settings?.auto_ai_correct || false);
+	let aiModel = $derived(user?.settings?.ai_model || 'gpt-5-mini');
 	let isRecording = $state(false);
 	let isSupported = $state(false);
 	let recognition: SpeechRecognition | null = null;
@@ -23,7 +35,10 @@
 	let originalText = $state('');
 	let correctedText = $state('');
 	let showRevertButton = $state(false);
-	let isAIUndone = $state(false); // Tracks if AI change has been undone
+	let isAIUndone = $state(false);
+	let showAICorrectButton = $state(false);
+	let processingTime = $state('');
+	let processingCost = $state('');
 
 	function detectMobile(): boolean {
 		if (!window.navigator) return false;
@@ -36,7 +51,6 @@
 	function removeDuplicates(text: string): string {
 		if (!text) return text;
 
-		// Split into words & get rid of consecutive duplicates
 		const words = text.split(/\s+/).filter((word) => word.length > 0);
 		const cleaned: string[] = [];
 
@@ -61,10 +75,14 @@
 		return result;
 	}
 
-	async function correctTextWithAI(text: string): Promise<string> {
-		if (!text.trim()) return text;
+	async function correctTextWithAI(
+		text: string
+	): Promise<{ corrected: string; time: string; cost: string }> {
+		if (!text.trim()) return { corrected: text, time: '', cost: '' };
 
-		loggingStore.info('VoiceInput', 'Starting AI correction', { text });
+		loggingStore.info('VoiceInput', 'Starting AI correction', { text, model: aiModel });
+
+		const startTime = Date.now();
 
 		try {
 			const response = await fetch('/api/ai', {
@@ -74,7 +92,9 @@
 				},
 				body: JSON.stringify({
 					text: text,
-					type: 'correct'
+					type: 'correct',
+					model: aiModel,
+					context: title ? `Title context: "${title}"` : undefined
 				})
 			});
 
@@ -83,50 +103,86 @@
 			}
 
 			const result = await response.json();
+			const endTime = Date.now();
+			const duration = endTime - startTime;
+			const timeStr = formatDuration(duration);
 
 			loggingStore.info('VoiceInput', 'AI correction completed', {
 				original: text,
 				corrected: result.corrected,
-				changed: result.changed
+				changed: result.changed,
+				duration: timeStr,
+				cost: result.cost || 'N/A',
+				model: aiModel
 			});
 
-			return result.corrected || text;
+			return {
+				corrected: result.corrected || text,
+				time: timeStr,
+				cost: result.cost || 'N/A'
+			};
 		} catch (error) {
 			loggingStore.error('VoiceInput', 'AI correction failed', { error, text });
-			return text; // Return original text if AI fails
+			return { corrected: text, time: '', cost: '' };
 		}
 	}
 
-	// Apply AI correction in background
+	// Auto AI correct or manual button
+	async function handleAICorrection(text: string) {
+		if (!text.trim() || isProcessingAI) return;
+
+		originalText = text;
+		showRevertButton = false;
+		showAICorrectButton = false;
+
+		if (autoAICorrect) {
+			await applyAICorrection(text);
+		} else {
+			showAICorrectButton = true;
+		}
+	}
+
 	async function applyAICorrection(text: string) {
 		if (!text.trim() || isProcessingAI) return;
 
 		isProcessingAI = true;
-		originalText = text;
-		showRevertButton = false;
+		showAICorrectButton = false;
 
 		try {
-			correctedText = await correctTextWithAI(text);
+			const result = await correctTextWithAI(text);
+			correctedText = result.corrected;
+			processingTime = result.time;
+			processingCost = result.cost;
 
 			if (correctedText !== originalText) {
 				showRevertButton = true;
-				isAIUndone = false; // Correction is active, not undone
+				isAIUndone = false;
 				onTranscript(correctedText);
 				loggingStore.info('VoiceInput', 'Applied AI correction', {
 					original: originalText,
-					corrected: correctedText
+					corrected: correctedText,
+					time: processingTime,
+					cost: processingCost
 				});
+			} else {
+				processingTime = result.time;
+				processingCost = result.cost;
 			}
 		} finally {
 			isProcessingAI = false;
 		}
 	}
 
-	// Revert to original text
+	function triggerManualCorrection() {
+		if (originalText) {
+			applyAICorrection(originalText);
+		}
+	}
+
 	function revertToOriginal() {
 		if (originalText) {
 			onTranscript(originalText);
-			isAIUndone = true; // Mark AI correction as undone
+			isAIUndone = true;
 			loggingStore.info('VoiceInput', 'Reverted to original text', {
 				reverted: originalText,
 				wasCorreected: correctedText
@@ -134,11 +190,10 @@
 		}
 	}
 
-	// Re-apply AI correction after revert
 	function reapplyAI() {
 		if (originalText) {
 			onTranscript(correctedText);
-			isAIUndone = false; // Mark AI correction as active again
+			isAIUndone = false;
 			loggingStore.info('VoiceInput', 'Re-applied AI correction', {
 				reapplied: correctedText,
 				original: originalText
@@ -146,16 +201,13 @@
 		}
 	}
 
-	// Combine speech segments (proper spacing)
-	function combineSegments(): string {
+	function combineSpeechSegments(): string {
 		if (speechSegments.length === 0) return '';
 
-		// Join segments with periods & spaces (avoid double periods)
 		return speechSegments
 			.map((segment) => segment.trim())
 			.filter((segment) => segment.length > 0)
 			.map((segment) => {
-				// Add period if the segment doesn't end with punctuation
 				if (!/[.!?]$/.test(segment)) {
 					return segment + '.';
 				}
@@ -168,10 +220,13 @@
 		isMobile = detectMobile();
 		loggingStore.info('VoiceInput', 'Component mounted', {
 			isMobile,
-			userAgent: navigator.userAgent
+			userAgent: navigator.userAgent,
+			autoAICorrect,
+			aiModel
 		});
 
-		const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+		const SpeechRecognition =
+			(window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 		if (SpeechRecognition) {
 			isSupported = true;
@@ -190,13 +245,16 @@
 					lastFinalResult = '';
 					speechSegments = [];
 					showRevertButton = false;
+					showAICorrectButton = false;
 					isAIUndone = false;
 					originalText = '';
 					correctedText = '';
+					processingTime = '';
+					processingCost = '';
 					loggingStore.info('VoiceInput', 'Speech recognition started');
 				};
 
-				recognition.onresult = (event) => {
+				recognition.onresult = (event: SpeechRecognitionEvent) => {
 					loggingStore.debug('VoiceInput', 'onresult called', {
 						resultIndex: event.resultIndex,
 						resultsLength: event.results.length,
@@ -206,35 +264,16 @@
 					let interimText = '';
 					let finalText = '';
 
-					// Process results starting from resultIndex
 					for (let i = event.resultIndex; i < event.results.length; i++) {
 						const result = event.results[i];
 						const transcript = result[0].transcript;
 						const confidence = result[0].confidence;
-
-						loggingStore.debug('VoiceInput', 'Processing result', {
-							index: i,
-							transcript: transcript,
-							confidence: confidence,
-							isFinal: result.isFinal,
-							isMobile
-						});
 
 						if (result.isFinal) {
 							const shouldAccept = isMobile ? confidence > 0 : true;
 
 							if (shouldAccept) {
 								finalText += transcript;
-								loggingStore.debug('VoiceInput', 'Accepted final result', {
-									transcript,
-									confidence,
-									shouldAccept
-								});
-							} else {
-								loggingStore.debug('VoiceInput', 'Rejected final result (zero confidence)', {
-									transcript,
-									confidence
-								});
 							}
 						} else {
 							interimText += transcript;
@@ -243,7 +282,6 @@
 
 					if (interimText !== interimTranscript) {
 						interimTranscript = interimText;
-						loggingStore.debug('VoiceInput', 'Updated interim transcript', { interimText });
 					}
 
 					if (finalText) {
@@ -253,28 +291,15 @@
 							speechSegments.push(cleanedFinal);
 							lastFinalResult = cleanedFinal;
 
-							// Combine all segments
-							const combinedText = combineSegments();
+							const combinedText = combineSpeechSegments();
 							finalTranscript = combinedText;
 
-							loggingStore.info('VoiceInput', 'New speech segment added', {
-								segment: cleanedFinal,
-								totalSegments: speechSegments.length,
-								combinedText
-							});
-
 							onTranscript(combinedText);
-						} else {
-							loggingStore.debug('VoiceInput', 'Ignored duplicate final result', {
-								finalText,
-								cleanedFinal,
-								lastFinalResult
-							});
 						}
 					}
 				};
 
-				recognition.onerror = (event) => {
+				recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
 					loggingStore.error('VoiceInput', 'Speech recognition error', {
 						error: event.error,
 						message: event.message,
@@ -282,7 +307,6 @@
 					});
 
 					let errorMessage = 'Speech recognition error';
-
 					switch (event.error) {
 						case 'network':
 							errorMessage = 'Network error occurred';
@@ -321,28 +345,12 @@
 						speechSegments: speechSegments.length
 					});
 
-					// Apply AI correction in bg (have final text?)
+					// Handle AI correction after speech ends
 					if (finalTranscript.trim()) {
 						setTimeout(() => {
-							applyAICorrection(finalTranscript);
+							handleAICorrection(finalTranscript);
 						}, 100);
 					}
-				};
-
-				recognition.onspeechstart = () => {
-					loggingStore.debug('VoiceInput', 'Speech detected');
-				};
-
-				recognition.onspeechend = () => {
-					loggingStore.debug('VoiceInput', 'Speech ended');
-				};
-
-				recognition.onsoundstart = () => {
-					loggingStore.debug('VoiceInput', 'Sound detected');
-				};
-
-				recognition.onsoundend = () => {
-					loggingStore.debug('VoiceInput', 'Sound ended');
 				};
 			}
 		} else {
@@ -353,32 +361,24 @@
 	});
 
 	onDestroy(() => {
-		loggingStore.debug('VoiceInput', 'Component destroying');
-
 		if (recognition && isRecording) {
 			recognition.stop();
 		}
 	});
 
 	function startRecording() {
-		if (!recognition || !isSupported) {
-			loggingStore.warn('VoiceInput', 'Cannot start recording - not supported');
-			return;
-		}
+		if (!recognition || !isSupported) return;
 
 		try {
-			loggingStore.info('VoiceInput', 'Starting recording');
 			recognition.start();
 		} catch (error) {
 			loggingStore.error('VoiceInput', 'Failed to start recording', { error });
-			console.error('Failed to start recording:', error);
 			onError('Failed to start recording');
 		}
 	}
 
 	function stopRecording() {
 		if (recognition && isRecording) {
-			loggingStore.info('VoiceInput', 'Stopping recording');
 			recognition.stop();
 		}
 	}
@@ -393,58 +393,76 @@
 </script>
 
 {#if isSupported}
-	<div class="flex items-center gap-2">
-		<div class="relative">
-			<button
-				onclick={toggleRecording}
-				{disabled}
-				class="relative rounded p-1 transition-colors hover:bg-muted"
-				title={isRecording ? 'Stop recording' : 'Start voice input'}
-			>
-				{#if isRecording}
-					<Square class="h-4 w-4 text-red-600" />
-					<div class="absolute -top-1 -right-1 h-2 w-2 animate-pulse rounded-full bg-red-500"></div>
-				{:else}
-					<Mic class="h-4 w-4 text-muted-foreground hover:text-foreground" />
-				{/if}
-			</button>
+	<div class="flex flex-col gap-2">
+		<div class="flex items-center gap-2">
+			<div class="relative">
+				<button
+					onclick={toggleRecording}
+					{disabled}
+					class="relative rounded p-1 transition-colors hover:bg-muted"
+					title={isRecording ? 'Stop recording' : 'Start voice input'}
+				>
+					{#if isRecording}
+						<Square class="h-4 w-4 text-red-600" />
+						<div
+							class="absolute -top-1 -right-1 h-2 w-2 animate-pulse rounded-full bg-red-500"
+						></div>
+					{:else}
+						<Mic class="h-4 w-4 text-muted-foreground hover:text-foreground" />
+					{/if}
+				</button>
+			</div>
+
+			{#if isProcessingAI}
+				<div class="flex items-center gap-2 text-sm text-blue-600">
+					<div
+						class="h-3 w-3 animate-spin rounded-full border border-blue-600 border-t-transparent"
+					></div>
+					{minimal ? '' : 'AI improving...'}
+				</div>
+			{/if}
+
+			{#if showAICorrectButton && !autoAICorrect}
+				<button
+					onclick={triggerManualCorrection}
+					class="flex items-center gap-1 rounded bg-blue-100 px-2 py-1 text-xs text-blue-800 transition-colors hover:bg-blue-200"
+					title="Apply AI correction"
+				>
+					<Sparkles class="h-3 w-3" />
+					{minimal ? '' : 'AI correct'}
+				</button>
+			{/if}
+
+			{#if showRevertButton}
+				<div class="flex items-center gap-1">
+					{#if isAIUndone}
+						<button
+							onclick={reapplyAI}
+							class="flex items-center gap-1 rounded bg-green-100 px-1 py-0.5 text-xs text-green-800 transition-colors hover:bg-green-200"
+							title="Redo AI changes"
+						>
+							<Check class="h-3 w-3" />
+							{minimal ? '' : 'AI redo'}
+						</button>
+					{:else}
+						<button
+							onclick={revertToOriginal}
+							class="flex items-center gap-1 rounded bg-orange-100 px-1 py-0.5 text-xs text-orange-800 transition-colors hover:bg-orange-200"
+							title="Undo AI changes"
+						>
+							<RotateCcw class="h-3 w-3" />
+							{minimal ? '' : 'AI undo'}
+						</button>
+					{/if}
+				</div>
+			{/if}
 		</div>
-
-		<!-- AI Processing Loader -->
-		{#if isProcessingAI}
-			<div class="flex items-center gap-2 text-sm text-blue-600">
-				<div
-					class="h-3 w-3 animate-spin rounded-full border border-blue-600 border-t-transparent"
-				></div>
-				AI improving...
-			</div>
-		{/if}
-
-		<!-- Revert/Redo Controls -->
-		{#if showRevertButton}
-			<div class="flex items-center gap-1">
-				{#if isAIUndone}
-					<button
-						onclick={reapplyAI}
-						class="flex items-center gap-1 rounded bg-green-100 px-2 py-1 text-xs text-green-800 transition-colors hover:bg-green-200"
-						title="Redo AI changes"
-					>
-						<Check class="h-3 w-3" />
-						AI redo
-					</button>
-				{:else}
-					<button
-						onclick={revertToOriginal}
-						class="flex items-center gap-1 rounded bg-orange-100 px-2 py-1 text-xs text-orange-800 transition-colors hover:bg-orange-200"
-						title="Undo AI changes"
-					>
-						<RotateCcw class="h-3 w-3" />
-						AI undo
-					</button>
-				{/if}
-			</div>
-		{/if}
 	</div>
+	{#if (processingTime && processingCost) || (showRevertButton && processingTime)}
+		<div class="text-xs text-gray-400">
+			{processingTime} €{processingCost}
+		</div>
+	{/if}
 {:else}
 	<div class="text-xs text-muted-foreground">Voice input not supported in this browser</div>
 {/if}

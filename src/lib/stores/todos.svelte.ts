@@ -120,9 +120,11 @@ function createTodosStore() {
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		// Store original (potential rollback)
 		const todoIndex = state.todos.findIndex((t) => t.id === id);
-		const originalTodo = todoIndex !== -1 ? { ...state.todos[todoIndex] } : null;
+		if (todoIndex === -1) return { success: false, message: 'Todo not found' };
+
+		// Store original (potential rollback)
+		const originalTodo = { ...state.todos[todoIndex] };
 
 		// Optimistic update
 		if (todoIndex !== -1) {
@@ -444,7 +446,15 @@ function createTodosStore() {
 			state.loading = false;
 			state.error = null;
 			state.initialized = false;
-		}
+		},
+
+		...(import.meta.env?.MODE === 'test' || process.env.NODE_ENV === 'test'
+			? {
+					setTodosForTesting: (todos: TodoFieldsFragment[]) => {
+						state.todos = todos;
+					}
+				}
+			: {})
 	};
 }
 

@@ -1,3 +1,4 @@
+<!-- @file src/lib/components/TodoEditForm.svelte -->
 <script lang="ts">
 	import { scale } from 'svelte/transition';
 	import { Input } from '$lib/components/ui/input';
@@ -107,6 +108,7 @@
 							onTranscript={handleTitleVoice}
 							onError={handleVoiceError}
 							disabled={isSubmitting}
+							minimal={true}
 						/>
 					</div>
 					{#if validationErrors.title}
@@ -135,6 +137,7 @@
 								onTranscript={handleContentVoice}
 								onError={handleVoiceError}
 								disabled={isSubmitting}
+								title={editData.title || ''}
 							/>
 						</div>
 					</div>

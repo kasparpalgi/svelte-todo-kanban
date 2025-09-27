@@ -1,6 +1,5 @@
 <!-- @file src/routes/[[lang]]/settings/+page.svelte -->
 <script lang="ts">
-	import { PUBLIC_APP_ENV, PUBLIC_API_ENV } from "$env/static/public";
 	import { t } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
@@ -15,8 +14,10 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
-	import { User, Moon, Sun, Layout, List, Save } from 'lucide-svelte';
+	import { languages } from '$lib/i18n/languages';
+	import { aiModels } from '$lib/settings/aiModels';
 	import DevMode from '$lib/components/DevMode.svelte';
+	import { User, Moon, Sun, Layers, List, Save, Brain } from 'lucide-svelte';
 
 	let user = $derived(userStore.user);
 	let initialized = $state(false);
@@ -27,13 +28,10 @@
 		image: '',
 		locale: 'en',
 		darkMode: false,
-		viewMode: 'kanban' as 'kanban' | 'list'
+		viewMode: 'kanban' as 'kanban' | 'list',
+		aiModel: 'gpt-5-mini',
+		autoAICorrect: false
 	});
-
-	const languages = [
-		{ value: 'en', label: 'English' },
-		{ value: 'cs', label: 'Čeština' }
-	];
 
 	function handleSubmit(event: Event) {
 		event.preventDefault();
@@ -47,7 +45,9 @@
 			dark_mode: formData.darkMode,
 			settings: {
 				...(user.settings || {}),
-				viewMode: formData.viewMode
+				viewMode: formData.viewMode,
+				ai_model: formData.aiModel,
+				auto_ai_correct: formData.autoAICorrect
 			}
 		};
 
@@ -78,6 +78,22 @@
 		}
 	}
 
+	async function toggleAutoAICorrect() {
+		if (!user?.id) return;
+
+		formData.autoAICorrect = !formData.autoAICorrect;
+		const result = await userStore.updateUser(user.id, {
+			settings: {
+				...(user.settings || {}),
+				auto_ai_correct: formData.autoAICorrect
+			}
+		});
+
+		if (!result.success) {
+			formData.autoAICorrect = !formData.autoAICorrect;
+		}
+	}
+
 	$effect(() => {
 		if (user && !initialized) {
 			formData.name = user.name || '';
@@ -86,6 +102,8 @@
 			formData.locale = user.locale || 'en';
 			formData.darkMode = user.dark_mode || false;
 			formData.viewMode = user.settings?.viewMode || 'kanban';
+			formData.aiModel = user.settings?.ai_model || 'gpt-5-mini';
+			formData.autoAICorrect = user.settings?.auto_ai_correct || false;
 			initialized = true;
 		}
 	});
@@ -151,6 +169,47 @@
 
 			<Card>
 				<CardHeader>
+					<CardTitle class="flex items-center gap-2">
+						<Brain class="h-5 w-5" />
+						AI Settings
+					</CardTitle>
+					<CardDescription>Configure AI model and voice input behavior</CardDescription>
+				</CardHeader>
+				<CardContent class="space-y-6">
+					<div class="space-y-2">
+						<Label for="ai-model">AI Model</Label>
+						<select
+							id="ai-model"
+							bind:value={formData.aiModel}
+							class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+						>
+							{#each aiModels as model}
+								<option value={model.value}>{model.label}</option>
+							{/each}
+						</select>
+						<p class="text-xs text-muted-foreground">
+							Choose the AI model for voice input corrections and improvements
+						</p>
+					</div>
+
+					<div class="flex items-center justify-between">
+						<div class="space-y-0.5">
+							<Label>Auto AI Correct Voice Inputs</Label>
+							<p class="text-sm text-muted-foreground">
+								Automatically apply AI corrections to voice input without manual confirmation
+							</p>
+						</div>
+						<Switch
+							checked={formData.autoAICorrect}
+							onCheckedChange={toggleAutoAICorrect}
+							disabled={userStore.loading}
+						/>
+					</div>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
 					<CardTitle>{$t('settings.appearance.title')}</CardTitle>
 					<CardDescription>{$t('settings.appearance.description')}</CardDescription>
 				</CardHeader>
@@ -193,7 +252,7 @@
 						<div class="space-y-0.5">
 							<Label class="flex items-center gap-2">
 								{#if formData.viewMode === 'kanban'}
-									<Layout class="h-4 w-4" />
+									<Layers class="h-4 w-4" />
 								{:else}
 									<List class="h-4 w-4" />
 								{/if}
@@ -212,7 +271,7 @@
 							class="flex items-center gap-2"
 						>
 							{#if formData.viewMode === 'kanban'}
-								<Layout class="h-4 w-4" />
+								<Layers class="h-4 w-4" />
 								{$t('settings.appearance.kanban_view')}
 							{:else}
 								<List class="h-4 w-4" />
