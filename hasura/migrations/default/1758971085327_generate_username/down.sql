@@ -1,0 +1,54 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- CREATE OR REPLACE FUNCTION generate_unique_username(email_input TEXT)
+-- RETURNS TEXT AS $$
+-- DECLARE
+--     base_username TEXT;
+--     final_username TEXT;
+--     counter INTEGER := 1;
+--     max_existing_number INTEGER := 0;
+-- BEGIN
+--     -- Get everything before @ from email
+--     base_username := LOWER(SPLIT_PART(email_input, '@', 1));
+--
+--     -- Check if username is available
+--     IF NOT EXISTS (SELECT 1 FROM users WHERE username = base_username) THEN
+--         RETURN base_username;
+--     END IF;
+--
+--     -- Find highest existing number suffix
+--     SELECT COALESCE(MAX(
+--         CASE
+--             WHEN username ~ ('^' || base_username || '[0-9]+$')
+--             THEN CAST(SUBSTRING(username FROM (LENGTH(base_username) + 1)) AS INTEGER)
+--             ELSE 0
+--         END
+--     ), 0) INTO max_existing_number
+--     FROM users
+--     WHERE username ~ ('^' || base_username || '[0-9]*$');
+--
+--     -- Generate next available username
+--     final_username := base_username || (max_existing_number + 1);
+--
+--     RETURN final_username;
+-- END;
+-- $$ LANGUAGE plpgsql;
+--
+-- -- Set username on insert
+-- CREATE OR REPLACE FUNCTION set_username_on_insert()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--     -- Generate username if we don't have it (just in case in future needed)
+--     IF NEW.username IS NULL OR NEW.username = '' THEN
+--         NEW.username := generate_unique_username(NEW.email);
+--     END IF;
+--
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+--
+-- DROP TRIGGER IF EXISTS trigger_set_username ON users;
+-- CREATE TRIGGER trigger_set_username
+--     BEFORE INSERT ON users
+--     FOR EACH ROW
+--     EXECUTE FUNCTION set_username_on_insert();

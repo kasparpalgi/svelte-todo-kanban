@@ -4,8 +4,8 @@
     connection_info:
       database_url:
         connection_parameters:
-          database: postgres
-          host: postgres
+          database: default
+          host: srv-captain--todzz-db
           password: 0SROIBPW2CkFc5DiP7Zt8W8W
           port: 5432
           username: postgres

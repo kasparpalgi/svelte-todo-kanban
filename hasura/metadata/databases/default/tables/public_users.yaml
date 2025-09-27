@@ -47,6 +47,7 @@ insert_permissions:
         - name
         - settings
         - updated_at
+        - username
     comment: ""
 select_permissions:
   - role: user
@@ -62,6 +63,7 @@ select_permissions:
         - name
         - settings
         - updated_at
+        - username
       filter:
         id:
           _eq: X-Hasura-User-Id
@@ -78,6 +80,7 @@ update_permissions:
         - name
         - settings
         - updated_at
+        - username
       filter: {}
       check:
         id:
