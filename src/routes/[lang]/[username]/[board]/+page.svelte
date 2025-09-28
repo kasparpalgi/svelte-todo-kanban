@@ -1,3 +1,4 @@
+<!-- @file src/routes/[lang]/[username]/[board]/+page.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
@@ -15,7 +16,7 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, X, List, LayoutGrid, Settings, Funnel } from 'lucide-svelte';
+	import { Plus, X, List, LayoutGrid, Settings, Funnel, ArrowRight } from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
@@ -223,6 +224,14 @@
 				</div>
 			{:else}
 				<TodoKanban />
+			{/if}
+
+			{#if !todosStore.loading}
+				<Button
+					onclick={() => goto(`/${lang}/${username}/${boardAlias}/mobile-add`)}
+					variant="link"
+					class="mt-4">Mobile quick add (for adding to homescreen)<ArrowRight /></Button
+				>
 			{/if}
 		</div>
 
