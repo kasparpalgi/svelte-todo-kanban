@@ -17,7 +17,8 @@
 		onError = (error: string) => {},
 		disabled = false,
 		title = '', // Context for AI correction for content
-		minimal = false
+		minimal = false,
+		startAutomatically = false
 	} = $props();
 
 	let user = $derived(userStore.user);
@@ -357,6 +358,14 @@
 			loggingStore.warn('VoiceInput', 'Speech recognition not supported', {
 				userAgent: navigator.userAgent
 			});
+		}
+
+		if (startAutomatically && isSupported) {
+			setTimeout(() => {
+				if (!isRecording) {
+					startRecording();
+				}
+			}, 100);
 		}
 	});
 

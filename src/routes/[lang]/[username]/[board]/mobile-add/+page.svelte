@@ -71,18 +71,22 @@
 	<h1 class="mb-4 text-2xl font-bold">Quick Add to Board</h1>
 
 	<div class="mb-4">
-		<VoiceInput onTranscript={handleTranscript} onError={handleVoiceError} />
+		<VoiceInput
+			onTranscript={handleTranscript}
+			onError={handleVoiceError}
+			startAutomatically={true}
+		/>
 	</div>
 
 	{#if transcribedText}
-		<div class="mb-4 rounded-md border bg-gray-50 p-4">
+		<div class="mb-4 rounded-md border bg-muted p-4 text-muted-foreground">
 			<p>{transcribedText}</p>
 		</div>
 	{/if}
 
 	<div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
 		<div>
-			<label for="board-select" class="mb-1 block text-sm font-medium text-gray-700">Board</label>
+			<label for="board-select" class="mb-1 block text-sm font-medium">Board</label>
 			<select
 				id="board-select"
 				bind:value={selectedBoardId}
@@ -95,7 +99,7 @@
 			</select>
 		</div>
 		<div>
-			<label for="list-select" class="mb-1 block text-sm font-medium text-gray-700">List</label>
+			<label for="list-select" class="mb-1 block text-sm font-medium">List</label>
 			<select
 				id="list-select"
 				bind:value={selectedListId}
