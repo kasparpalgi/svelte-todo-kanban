@@ -79,7 +79,7 @@
 	</div>
 
 	{#if transcribedText}
-		<div class="mb-4 rounded-md border bg-muted p-4 text-muted-foreground">
+		<div class="mb-4 rounded-md border p-4">
 			<p>{transcribedText}</p>
 		</div>
 	{/if}

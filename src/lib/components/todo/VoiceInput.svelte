@@ -365,7 +365,7 @@
 				if (!isRecording) {
 					startRecording();
 				}
-			}, 100);
+			}, 300);
 		}
 	});
 
