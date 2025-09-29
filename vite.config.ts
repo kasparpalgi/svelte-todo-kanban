@@ -1,10 +1,65 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
+	plugins: [
+		tailwindcss(),
+		sveltekit(),
+		devtoolsJson(),
+		SvelteKitPWA({
+			srcDir: './src',
+			mode: 'production',
+			scope: '/',
+			base: '/',
+			selfDestroying: false,
+			manifest: {
+				short_name: 'ToDzz',
+				name: 'ToDzz',
+				start_url: '/en',
+				scope: '/en',
+				display: 'standalone',
+				theme_color: '#19183B',
+				background_color: '#A1C2BD',
+				icons: [
+					{
+						src: '/pwa-192x192.png',
+						sizes: '192x192',
+						type: 'image/png'
+					},
+					{
+						src: '/pwa-512x512.png',
+						sizes: '512x512',
+						type: 'image/png',
+						purpose: 'any'
+					},
+					{
+						src: '/pwa-512x512.png',
+						sizes: '512x512',
+						type: 'image/png',
+						purpose: 'maskable'
+					}
+				]
+			},
+			injectManifest: {
+				globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}']
+			},
+			workbox: {
+				globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}'],
+				cleanupOutdatedCaches: true,
+				clientsClaim: true
+			},
+			devOptions: {
+				enabled: true,
+				suppressWarnings: process.env.SUPPRESS_WARNING === 'true',
+				type: 'module',
+				navigateFallback: '/'
+			},
+			kit: {}
+		})
+	],
 
 	test: {
 		expect: { requireAssertions: true },
