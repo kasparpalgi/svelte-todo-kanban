@@ -238,7 +238,7 @@ function createListsStore() {
 
 	async function updateBoard(
 		id: string,
-		updates: Partial<Pick<BoardFieldsFragment, 'name' | 'sort_order'>>
+		updates: Partial<Pick<BoardFieldsFragment, 'name' | 'sort_order' | 'github'>>
 	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 

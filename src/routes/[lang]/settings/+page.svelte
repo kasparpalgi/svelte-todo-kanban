@@ -1,10 +1,9 @@
 <!-- @file src/routes/[[lang]]/settings/+page.svelte -->
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { t } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
-	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -19,8 +18,9 @@
 	} from '$lib/components/ui/card';
 	import { languages } from '$lib/i18n/languages';
 	import { aiModels } from '$lib/settings/aiModels';
-	import DevMode from '$lib/components/DevMode.svelte';
 	import { User, Moon, Sun, Layers, List, Save, Brain } from 'lucide-svelte';
+	import GithubIntegration from '$lib/components/settings/GithubIntegration.svelte';
+	import DevMode from '$lib/components/DevMode.svelte';
 
 	let user = $derived(userStore.user);
 	let initialized = $state(false);
@@ -67,8 +67,8 @@
 		const result = await userStore.updateUser(user.id, { locale: newLanguage });
 
 		if (result.success) {
-			const currentPath = $page.url.pathname;
-			const params = $page.params;
+			const currentPath = page.url.pathname;
+			const params = page.params;
 			const currentLang = params.lang || 'en';
 			const newPath = currentPath.replace(`/${currentLang}/`, `/${newLanguage}/`);
 
@@ -305,6 +305,8 @@
 					</div>
 				</CardContent>
 			</Card>
+
+			<GithubIntegration />
 
 			<div class="flex justify-start">
 				<Button

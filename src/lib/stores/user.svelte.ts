@@ -200,6 +200,12 @@ function createUserStore() {
 		get userLocale() {
 			return userLocale();
 		},
+		get hasGithubConnected() {
+			return !!user()?.settings?.tokens?.github?.encrypted;
+		},
+		get githubUsername() {
+			return user()?.settings?.tokens?.github?.username || null;
+		},
 		initializeUser,
 		updateUser,
 		updateViewPreference,

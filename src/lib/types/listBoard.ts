@@ -25,3 +25,9 @@ export interface BoardStoreResult {
 	message: string;
 	data?: BoardFieldsFragment;
 }
+
+export interface GithubRepoSelectorProps {
+	open: boolean;
+	currentRepo?: string | null;
+	onSelect: (repo: string | null) => void;
+}
