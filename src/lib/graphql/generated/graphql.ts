@@ -554,6 +554,7 @@ export type Boards = {
   __typename?: 'boards';
   alias: Scalars['String']['output'];
   created_at: Scalars['timestamptz']['output'];
+  github?: Maybe<Scalars['String']['output']>;
   id: Scalars['uuid']['output'];
   /** An array relationship */
   lists: Array<Lists>;
@@ -668,6 +669,7 @@ export type Boards_Bool_Exp = {
   _or?: InputMaybe<Array<Boards_Bool_Exp>>;
   alias?: InputMaybe<String_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  github?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   lists?: InputMaybe<Lists_Bool_Exp>;
   lists_aggregate?: InputMaybe<Lists_Aggregate_Bool_Exp>;
@@ -695,6 +697,7 @@ export type Boards_Inc_Input = {
 export type Boards_Insert_Input = {
   alias?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   lists?: InputMaybe<Lists_Arr_Rel_Insert_Input>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -709,6 +712,7 @@ export type Boards_Max_Fields = {
   __typename?: 'boards_max_fields';
   alias?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
+  github?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
@@ -720,6 +724,7 @@ export type Boards_Max_Fields = {
 export type Boards_Max_Order_By = {
   alias?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
+  github?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -732,6 +737,7 @@ export type Boards_Min_Fields = {
   __typename?: 'boards_min_fields';
   alias?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
+  github?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
@@ -743,6 +749,7 @@ export type Boards_Min_Fields = {
 export type Boards_Min_Order_By = {
   alias?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
+  github?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -777,6 +784,7 @@ export type Boards_On_Conflict = {
 export type Boards_Order_By = {
   alias?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
+  github?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   lists_aggregate?: InputMaybe<Lists_Aggregate_Order_By>;
   name?: InputMaybe<Order_By>;
@@ -798,6 +806,8 @@ export enum Boards_Select_Column {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
+  Github = 'github',
+  /** column name */
   Id = 'id',
   /** column name */
   Name = 'name',
@@ -813,6 +823,7 @@ export enum Boards_Select_Column {
 export type Boards_Set_Input = {
   alias?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
@@ -865,6 +876,7 @@ export type Boards_Stream_Cursor_Input = {
 export type Boards_Stream_Cursor_Value_Input = {
   alias?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
@@ -889,6 +901,8 @@ export enum Boards_Update_Column {
   Alias = 'alias',
   /** column name */
   CreatedAt = 'created_at',
+  /** column name */
+  Github = 'github',
   /** column name */
   Id = 'id',
   /** column name */
@@ -3905,7 +3919,7 @@ export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: stri
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null };
 
-export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } };
+export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, github?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } };
 
 export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, emailVerified?: string | null, created_at: string, updated_at: string };
 
@@ -3937,7 +3951,7 @@ export type GetBoardsQueryVariables = Exact<{
 }>;
 
 
-export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> };
+export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, alias: string, github?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> };
 
 export type CreateTodoMutationVariables = Exact<{
   objects: Array<Todos_Insert_Input> | Todos_Insert_Input;
@@ -3988,7 +4002,7 @@ export type CreateBoardMutationVariables = Exact<{
 }>;
 
 
-export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> } | null };
+export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, github?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> } | null };
 
 export type UpdateBoardMutationVariables = Exact<{
   where: Boards_Bool_Exp;
@@ -3996,7 +4010,7 @@ export type UpdateBoardMutationVariables = Exact<{
 }>;
 
 
-export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> } | null };
+export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, github?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> } | null };
 
 export type DeleteBoardMutationVariables = Exact<{
   where: Boards_Bool_Exp;
@@ -4106,6 +4120,7 @@ export const BoardFieldsFragmentDoc = new TypedDocumentString(`
   id
   name
   alias
+  github
   sort_order
   created_at
   updated_at
@@ -4195,6 +4210,7 @@ export const GetBoardsDocument = new TypedDocumentString(`
   id
   name
   alias
+  github
   sort_order
   created_at
   updated_at
@@ -4348,6 +4364,7 @@ export const CreateBoardDocument = new TypedDocumentString(`
   id
   name
   alias
+  github
   sort_order
   created_at
   updated_at
@@ -4370,6 +4387,7 @@ export const UpdateBoardDocument = new TypedDocumentString(`
   id
   name
   alias
+  github
   sort_order
   created_at
   updated_at

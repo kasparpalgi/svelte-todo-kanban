@@ -24,6 +24,7 @@ insert_permissions:
       columns:
         - alias
         - created_at
+        - github
         - id
         - name
         - sort_order
@@ -36,6 +37,7 @@ select_permissions:
       columns:
         - alias
         - created_at
+        - github
         - id
         - name
         - sort_order
@@ -50,6 +52,7 @@ update_permissions:
     permission:
       columns:
         - alias
+        - github
         - name
         - sort_order
         - updated_at

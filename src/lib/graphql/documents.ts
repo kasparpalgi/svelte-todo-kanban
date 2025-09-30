@@ -54,6 +54,7 @@ export const BOARD_FRAGMENT = graphql(`
 		id
 		name
 		alias
+		github
 		sort_order
 		created_at
 		updated_at
