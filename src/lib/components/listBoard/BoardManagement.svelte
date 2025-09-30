@@ -20,15 +20,24 @@
 		DropdownMenuSeparator,
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
-	import { Plus, Trash2, SquarePen, GripVertical, Layers3, MoreHorizontal } from 'lucide-svelte';
+	import { Plus, Trash2, SquarePen, GripVertical, Layers, Ellipsis } from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { actionState } from '$lib/stores/states.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
+	import GithubRepoSelector from './GithubRepoSelector.svelte';
+	import githubLogo from '$lib/assets/github.svg';
 
 	let showBoardDialog = $state(false);
-	let editingBoard = $state<{ id: string; name: string } | null>(null);
+	let editingBoard = $state<{ id: string; name: string; github?: string | null } | null>(null);
 	let newBoardName = $state('');
+	let showGithubDialog = $state(false);
+	let selectedBoardForGithub = $state<{ id: string; name: string; github?: string | null } | null>(
+		null
+	);
+
+	const hasGithubConnected = $derived(userStore.hasGithubConnected);
 
 	$effect(() => {
 		listsStore.loadBoards();
@@ -92,8 +101,29 @@
 		}
 	}
 
-	function startEditBoard(board: { id: string; name: string }) {
+	function startEditBoard(board: { id: string; name: string; github?: string | null }) {
 		editingBoard = { ...board };
+	}
+
+	function openGithubSelector(board: { id: string; name: string; github?: string | null }) {
+		selectedBoardForGithub = board;
+		showGithubDialog = true;
+	}
+
+	async function handleGithubRepoSelected(repo: string | null) {
+		if (!selectedBoardForGithub) return;
+
+		const result = await listsStore.updateBoard(selectedBoardForGithub.id, {
+			github: repo
+		});
+
+		if (result.success) {
+			displayMessage(repo ? 'GitHub repo connected' : 'GitHub repo disconnected', 1500, true);
+			showGithubDialog = false;
+			selectedBoardForGithub = null;
+		} else {
+			displayMessage(result.message);
+		}
 	}
 
 	function handleBoardKeydown(event: KeyboardEvent, id: string, name: string) {
@@ -119,7 +149,7 @@
 			onclick={(e) => e.stopPropagation()}
 			tabindex="0"
 			role="button"
-			aria-label="Upload images by dragg'n'drop or click to browse"
+			aria-label="Manage boards"
 			onkeydown={(e) => e.stopPropagation()}
 		>
 			<div class="mb-6 flex items-center justify-between">
@@ -130,7 +160,7 @@
 			<Card>
 				<CardHeader class="flex flex-row items-center justify-between space-y-0 pb-4">
 					<div class="flex items-center gap-2">
-						<Layers3 class="h-5 w-5" />
+						<Layers class="h-5 w-5" />
 						<CardTitle class="text-lg">Boards</CardTitle>
 						<Badge variant="secondary">{listsStore.boards.length}</Badge>
 					</div>
@@ -171,7 +201,7 @@
 				<CardContent class="space-y-2">
 					{#if listsStore.boards.length === 0}
 						<div class="py-8 text-center text-muted-foreground">
-							<Layers3 class="mx-auto h-12 w-12 opacity-20" />
+							<Layers class="mx-auto h-12 w-12 opacity-20" />
 							<p class="mt-2 text-sm">No boards yet</p>
 							<p class="text-xs">Create a board to organize your lists</p>
 						</div>
@@ -188,7 +218,15 @@
 										onblur={() => handleUpdateBoard(board.id, editingBoard?.name || '')}
 									/>
 								{:else}
-									<span class="flex-1 font-medium">{board.name}</span>
+									<div class="flex flex-1 flex-col gap-1">
+										<span class="font-medium">{board.name}</span>
+										{#if board.github}
+											<span class="flex items-center gap-1 text-xs text-muted-foreground">
+												<img src={githubLogo} alt="GitHub" />
+												{board.github}
+											</span>
+										{/if}
+									</div>
 								{/if}
 
 								<Badge variant="outline" class="text-xs">
@@ -198,14 +236,20 @@
 								<DropdownMenu>
 									<DropdownMenuTrigger>
 										<Button variant="ghost" size="sm" class="h-6 w-6 p-0">
-											<MoreHorizontal class="h-3 w-3" />
+											<Ellipsis class="h-3 w-3" />
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end">
 										<DropdownMenuItem onclick={() => startEditBoard(board)}>
 											<SquarePen class="mr-2 h-3 w-3" />
-											Edit
+											Edit Name
 										</DropdownMenuItem>
+										{#if hasGithubConnected}
+											<DropdownMenuItem onclick={() => openGithubSelector(board)}>
+												<img src={githubLogo} alt="GitHub" />
+												{board.github ? 'Change' : 'Connect'} GitHub Repo
+											</DropdownMenuItem>
+										{/if}
 										<DropdownMenuSeparator />
 										<DropdownMenuItem
 											onclick={() => handleDeleteBoard(board.id, board.name)}
@@ -223,4 +267,12 @@
 			</Card>
 		</div>
 	</div>
+{/if}
+
+{#if showGithubDialog && selectedBoardForGithub}
+	<GithubRepoSelector
+		bind:open={showGithubDialog}
+		currentRepo={selectedBoardForGithub.github}
+		onSelect={handleGithubRepoSelected}
+	/>
 {/if}
