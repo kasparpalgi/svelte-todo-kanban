@@ -44,9 +44,11 @@ insert_permissions:
         user_id: x-hasura-User-Id
       columns:
         - alias
+        - allow_public_comments
         - created_at
         - github
         - id
+        - is_public
         - name
         - sort_order
         - updated_at
@@ -57,31 +59,43 @@ select_permissions:
     permission:
       columns:
         - alias
+        - allow_public_comments
         - created_at
         - github
         - id
+        - is_public
         - name
         - sort_order
         - updated_at
         - user_id
       filter:
-        user_id:
-          _eq: X-Hasura-User-Id
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - board_members:
+              user_id:
+                _eq: X-Hasura-User-Id
     comment: ""
 update_permissions:
   - role: user
     permission:
       columns:
         - alias
+        - allow_public_comments
         - github
+        - is_public
         - name
         - sort_order
         - updated_at
         - user_id
-      filter: {}
-      check:
-        user_id:
-          _eq: X-Hasura-User-Id
+      filter:
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - board_members:
+              user_id:
+                _eq: X-Hasura-User-Id
+      check: {}
     comment: ""
 delete_permissions:
   - role: user
