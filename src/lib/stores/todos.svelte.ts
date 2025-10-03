@@ -76,16 +76,49 @@ function createTodosStore() {
 		}
 	}
 
-	async function addTodo(title: string, content?: string, listId?: string): Promise<StoreResult> {
+	async function addTodo(
+		title: string,
+		content?: string,
+		listId?: string,
+		addToTop: boolean = true
+	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!title.trim()) return { success: false, message: 'Title is required' };
 
 		try {
+			let sortOrder: number;
+
+			const relevantTodos = state.todos.filter((t) => {
+				if (t.completed_at) return false;
+				if (listId) {
+					return t.list?.id === listId;
+				} else {
+					return !t.list?.id;
+				}
+			});
+
+			if (addToTop) {
+				if (relevantTodos.length > 0) {
+					const minSortOrder = Math.min(...relevantTodos.map((t) => t.sort_order || 1000));
+					sortOrder = minSortOrder - 1000;
+				} else {
+					sortOrder = 1000;
+				}
+			} else {
+				if (relevantTodos.length > 0) {
+					const maxSortOrder = Math.max(...relevantTodos.map((t) => t.sort_order || 1000));
+					sortOrder = maxSortOrder + 1000;
+				} else {
+					sortOrder = 1000;
+				}
+			}
+
 			const data: CreateTodoMutation = await request(CREATE_TODO, {
 				objects: [
 					{
 						title: title.trim(),
 						content: content?.trim() || null,
+						sort_order: sortOrder,
 						...(listId && { list_id: listId })
 					}
 				]
@@ -93,8 +126,19 @@ function createTodosStore() {
 
 			const newTodo = data.insert_todos?.returning?.[0];
 			if (newTodo) {
-				// Optimistically add to local state
-				state.todos = [newTodo, ...state.todos];
+				// Optimistically add to local state in the correct position
+				const todoIndex = state.todos.findIndex((t) => (t.sort_order || 1000) > sortOrder);
+
+				if (todoIndex === -1) {
+					state.todos = [...state.todos, newTodo];
+				} else {
+					state.todos = [
+						...state.todos.slice(0, todoIndex),
+						newTodo,
+						...state.todos.slice(todoIndex)
+					];
+				}
+
 				return {
 					success: true,
 					message: 'Todo added successfully',
@@ -123,10 +167,8 @@ function createTodosStore() {
 		const todoIndex = state.todos.findIndex((t) => t.id === id);
 		if (todoIndex === -1) return { success: false, message: 'Todo not found' };
 
-		// Store original (potential rollback)
 		const originalTodo = { ...state.todos[todoIndex] };
 
-		// Optimistic update
 		if (todoIndex !== -1) {
 			const currentTodo = state.todos[todoIndex];
 
@@ -139,12 +181,10 @@ function createTodosStore() {
 				if (updates.list_id === null) {
 					optimisticUpdate.list = null;
 				} else {
-					// Find target list info from existing todos
 					const targetListTodo = state.todos.find((t) => t.list?.id === updates.list_id);
 					if (targetListTodo?.list) {
 						optimisticUpdate.list = { ...targetListTodo.list };
 					} else {
-						// Fallback - try to get from listsStore
 						const targetList = listsStore.lists.find((l) => l.id === updates.list_id);
 						if (targetList) {
 							optimisticUpdate.list = {
@@ -155,7 +195,6 @@ function createTodosStore() {
 								__typename: 'lists' as const
 							};
 						} else {
-							// Create unknown list
 							optimisticUpdate.list = {
 								id: updates.list_id,
 								name: 'Unknown List',

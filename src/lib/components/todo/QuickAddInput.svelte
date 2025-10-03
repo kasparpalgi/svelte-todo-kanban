@@ -16,7 +16,6 @@
 	let mounted = false;
 	let isListening = $state(false);
 	let hasUserInteracted = $state(false);
-	let addToTop = autofocus;
 
 	$effect(() => {
 		mounted = true;

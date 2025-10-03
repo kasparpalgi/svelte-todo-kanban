@@ -48,7 +48,8 @@
 	let columnElement: HTMLElement;
 	let isEditing = $state(false);
 	let editName = $state(list.name);
-	let newTaskTitle = $state('');
+	let newTaskTitleTop = $state('');
+	let newTaskTitleBottom = $state('');
 	let showQuickAdd = $state(false);
 
 	$effect(() => {
@@ -103,14 +104,18 @@
 		}
 	}
 
-	async function handleQuickAddTask() {
-		if (!newTaskTitle.trim()) return;
+	async function handleQuickAddTask(title: string, addToTop: boolean = true) {
+		if (!title.trim()) return;
 
 		const listIdForTask = list.id === 'inbox' ? undefined : list.id;
-		const result = await todosStore.addTodo(newTaskTitle.trim(), undefined, listIdForTask);
+		const result = await todosStore.addTodo(title.trim(), undefined, listIdForTask, addToTop);
 
 		if (result.success) {
-			newTaskTitle = '';
+			if (addToTop) {
+				newTaskTitleTop = '';
+			} else {
+				newTaskTitleBottom = '';
+			}
 			showQuickAdd = false;
 			displayMessage('Task added successfully', 1500, true);
 		} else {
@@ -134,16 +139,6 @@
 			handleRenameList();
 		} else if (event.key === 'Escape') {
 			cancelEdit();
-		}
-	}
-
-	function handleQuickAddKeydown(event: KeyboardEvent) {
-		if (event.key === 'Enter') {
-			event.preventDefault();
-			handleQuickAddTask();
-		} else if (event.key === 'Escape') {
-			showQuickAdd = false;
-			newTaskTitle = '';
 		}
 	}
 </script>
@@ -219,18 +214,17 @@
 			{#if showQuickAdd}
 				<div class="mt-2">
 					<QuickAddInput
-						bind:value={newTaskTitle}
+						bind:value={newTaskTitleTop}
 						autofocus={true}
 						id={`quickadd-${list.id}`}
 						onSubmit={(val: string) => {
 							if (val) {
-								newTaskTitle = val;
-								handleQuickAddTask();
+								handleQuickAddTask(val, true);
 							}
 						}}
 						onCancel={() => {
 							showQuickAdd = false;
-							newTaskTitle = '';
+							newTaskTitleTop = '';
 						}}
 					/>
 				</div>
@@ -265,18 +259,17 @@
 				<div class="mt-3"></div>
 
 				<QuickAddInput
-					bind:value={newTaskTitle}
+					bind:value={newTaskTitleBottom}
 					autofocus={false}
 					id={`quickaddBottom-${list.id}`}
 					onSubmit={(val: string) => {
 						if (val) {
-							newTaskTitle = val;
-							handleQuickAddTask();
+							handleQuickAddTask(val, false);
 						}
 					}}
 					onCancel={() => {
 						showQuickAdd = false;
-						newTaskTitle = '';
+						newTaskTitleBottom = '';
 					}}
 				/>
 			{:else}
