@@ -14,6 +14,7 @@
 	import { z } from 'zod';
 	import { t } from '$lib/i18n';
 	import { shortenText } from '$lib/utils/shortenText';
+	import { stripHtml } from '$lib/utils/stripHtml';
 	import TodoEditForm from './TodoEditForm.svelte';
 	import DragHandle from './DragHandle.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
@@ -437,7 +438,7 @@
 									? 'line-through'
 									: ''}"
 							>
-								{shortenText(todo.content)}
+								{shortenText(stripHtml(todo.content))}
 							</p>
 						{/if}
 

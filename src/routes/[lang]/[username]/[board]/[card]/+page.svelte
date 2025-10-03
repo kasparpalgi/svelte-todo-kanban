@@ -116,6 +116,15 @@
 		}
 	}
 
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			closeModal();
+		} else if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+			event.preventDefault();
+			saveTodo();
+		}
+	}
+
 	async function saveTodo() {
 		if (isSubmitting || !todo || !$editor) return;
 
@@ -140,6 +149,7 @@
 			if (result.success) {
 				displayMessage('Card updated successfully', 1500, true);
 				todo = todosStore.todos.find((t) => t.id === cardId) || null;
+				setTimeout(() => closeModal(), 300);
 			} else {
 				displayMessage(result.message || 'Failed to update card');
 			}
@@ -217,6 +227,8 @@
 	<title>{todo?.title || 'Card'} | ToDzz</title>
 </svelte:head>
 
+<svelte:window onkeydown={handleKeydown} />
+
 <div
 	class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
 	onclick={handleBackdropClick}
@@ -253,22 +265,28 @@
 					</Button>
 
 					<CardHeader class="pb-4">
-						<div class="mb-2 flex flex-wrap items-center gap-2">
-							{#if todo.list}
-								<Badge variant="secondary" class="text-xs">
-									{todo.list.name}
-								</Badge>
-							{/if}
-							<Badge class="{getPriorityColor(editData.priority)} text-xs text-white">
-								{getPriorityLabel(editData.priority)}
-							</Badge>
-							{#if todo.labels && todo.labels.length > 0}
-								{#each todo.labels as { label }}
-									<Badge style="background-color: {label.color}" class="text-xs text-white">
-										{label.name}
+						<div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+							<div class="flex flex-wrap items-center gap-2">
+								{#if todo.list}
+									<Badge variant="secondary" class="text-xs">
+										{todo.list.name}
 									</Badge>
-								{/each}
-							{/if}
+								{/if}
+								<Badge class="{getPriorityColor(editData.priority)} text-xs text-white">
+									{getPriorityLabel(editData.priority)}
+								</Badge>
+								{#if todo.labels && todo.labels.length > 0}
+									{#each todo.labels as { label }}
+										<Badge style="background-color: {label.color}" class="text-xs text-white">
+											{label.name}
+										</Badge>
+									{/each}
+								{/if}
+							</div>
+
+							<Button onclick={saveTodo} disabled={isSubmitting} size="sm">
+								{isSubmitting ? 'Saving...' : 'Save'}
+							</Button>
 						</div>
 
 						<div class="space-y-4">
@@ -292,7 +310,6 @@
 							<Label class="mb-2">Description</Label>
 
 							{#if $editor}
-								<!-- Toolbar -->
 								<div
 									class="mb-2 flex flex-wrap items-center gap-1 rounded-t-md border border-b-0 bg-muted/30 p-2"
 								>
@@ -393,7 +410,6 @@
 								</div>
 							{/if}
 
-							<!-- Editor Content -->
 							<div class="rounded-b-md">
 								<EditorContent editor={$editor} />
 							</div>
@@ -450,7 +466,6 @@
 							</div>
 						{/if}
 
-						<!-- Comments Section -->
 						<div>
 							<Label class="mb-2 flex items-center gap-2">
 								<MessageSquare class="h-4 w-4" />
@@ -529,12 +544,7 @@
 								<Trash2 class="mr-2 h-4 w-4" />
 								Delete Card
 							</Button>
-							<div class="flex gap-2">
-								<Button variant="outline" onclick={closeModal}>Cancel</Button>
-								<Button onclick={saveTodo} disabled={isSubmitting}>
-									{isSubmitting ? 'Saving...' : 'Save Changes'}
-								</Button>
-							</div>
+							<Button variant="outline" onclick={closeModal}>Close</Button>
 						</div>
 					</CardContent>
 				</Card>
