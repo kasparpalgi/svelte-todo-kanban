@@ -16,7 +16,9 @@ export const GET: RequestHandler = async (event) => {
 			'https://hasura.io/jwt/claims': {
 				'x-hasura-allowed-roles': ['user'],
 				'x-hasura-default-role': 'user',
-				'x-hasura-user-id': session.user.id
+				'x-hasura-user-id': session.user.id,
+				'x-hasura-user-email': session.user.email || '',
+				'x-hasura-user-username': session.user.username || ''
 			},
 			sub: session.user.id,
 			iat: Math.floor(Date.now() / 1000),

@@ -68,7 +68,21 @@ select_permissions:
         - sort_order
         - updated_at
         - user_id
-      filter: {}
+      filter:
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - board_members:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - is_public:
+              _eq: true
+          - board_invitations:
+              _or:
+                - invitee_email:
+                    _eq: X-Hasura-User-Email
+                - invitee_username:
+                    _eq: X-Hasura-User-Username
     comment: ""
 update_permissions:
   - role: user

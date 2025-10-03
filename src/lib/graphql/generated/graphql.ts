@@ -568,7 +568,7 @@ export type Board_Invitations = {
   /** pending: awaiting response, accepted: user joined, declined: user rejected, cancelled: inviter cancelled */
   status: Scalars['String']['output'];
   /** Secure token for invitation links */
-  token: Scalars['String']['output'];
+  token?: Maybe<Scalars['String']['output']>;
   updated_at: Scalars['timestamptz']['output'];
 };
 
@@ -6287,7 +6287,7 @@ export type ListFieldsFragment = { __typename?: 'lists', id: string, name: strin
 
 export type BoardMemberFieldsFragment = { __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } };
 
-export type BoardInvitationFieldsFragment = { __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token: string, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } };
+export type BoardInvitationFieldsFragment = { __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token?: string | null, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } };
 
 export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, github?: string | null, sort_order: number, is_public: boolean, allow_public_comments: boolean, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> };
 
@@ -6533,7 +6533,7 @@ export type GetBoardInvitationsQueryVariables = Exact<{
 }>;
 
 
-export type GetBoardInvitationsQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token: string, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
+export type GetBoardInvitationsQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token?: string | null, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
 
 export type GetMyInvitationsQueryVariables = Exact<{
   email: Scalars['String']['input'];
@@ -6541,14 +6541,14 @@ export type GetMyInvitationsQueryVariables = Exact<{
 }>;
 
 
-export type GetMyInvitationsQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token: string, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
+export type GetMyInvitationsQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token?: string | null, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
 
 export type CreateBoardInvitationMutationVariables = Exact<{
   objects: Array<Board_Invitations_Insert_Input> | Board_Invitations_Insert_Input;
 }>;
 
 
-export type CreateBoardInvitationMutation = { __typename?: 'mutation_root', insert_board_invitations?: { __typename?: 'board_invitations_mutation_response', returning: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token: string, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> } | null };
+export type CreateBoardInvitationMutation = { __typename?: 'mutation_root', insert_board_invitations?: { __typename?: 'board_invitations_mutation_response', returning: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token?: string | null, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> } | null };
 
 export type UpdateBoardInvitationMutationVariables = Exact<{
   where: Board_Invitations_Bool_Exp;
@@ -6556,7 +6556,7 @@ export type UpdateBoardInvitationMutationVariables = Exact<{
 }>;
 
 
-export type UpdateBoardInvitationMutation = { __typename?: 'mutation_root', update_board_invitations?: { __typename?: 'board_invitations_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token: string, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> } | null };
+export type UpdateBoardInvitationMutation = { __typename?: 'mutation_root', update_board_invitations?: { __typename?: 'board_invitations_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token?: string | null, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> } | null };
 
 export type DeleteBoardInvitationMutationVariables = Exact<{
   where: Board_Invitations_Bool_Exp;
@@ -7473,7 +7473,10 @@ export const GetBoardMembersDocument = new TypedDocumentString(`
 }`) as unknown as TypedDocumentString<GetBoardMembersQuery, GetBoardMembersQueryVariables>;
 export const AddBoardMemberDocument = new TypedDocumentString(`
     mutation AddBoardMember($objects: [board_members_insert_input!]!) {
-  insert_board_members(objects: $objects) {
+  insert_board_members(
+    objects: $objects
+    on_conflict: {constraint: board_members_board_user_unique, update_columns: [role, updated_at]}
+  ) {
     returning {
       ...BoardMemberFields
     }

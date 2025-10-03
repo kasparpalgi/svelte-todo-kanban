@@ -450,7 +450,13 @@ export const GET_BOARD_MEMBERS = graphql(`
 
 export const ADD_BOARD_MEMBER = graphql(`
 	mutation AddBoardMember($objects: [board_members_insert_input!]!) {
-		insert_board_members(objects: $objects) {
+		insert_board_members(
+			objects: $objects
+			on_conflict: {
+				constraint: board_members_board_user_unique
+				update_columns: [role, updated_at]
+			}
+		) {
 			returning {
 				...BoardMemberFields
 			}

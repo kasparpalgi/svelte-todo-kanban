@@ -92,6 +92,23 @@ Example URLs:
     *   **GraphQL Codegen:** Automatically generates TypeScript types from GraphQL queries, ensuring a type-safe data layer and reducing bugs.
     *   **AI-powered Translations:** A utility script in the `scripts` folder helps automate the translation of locales using AI. Work in progress.
 
+### Invitation flow
+                                                  
+  1. Inviter sends invitation → Creates row in `board_invitations` table with status='pending'
+  2. Invitee logs in → The InvitationNotifications component (bell icon in header) automatically:
+    - Loads invitations where invitee_email matches their email
+    - Shows a badge with the count
+  3. Invitee clicks bell icon → Sees list of pending invitations with:                                                                      
+    - Board name
+    - Who invited them
+    - Role (editor/viewer)
+    - Accept/Decline buttons
+  4. Invitee clicks Accept → The store:
+    - Creates a row in board_members table
+    - Updates invitation status to 'accepted'
+    - Reloads boards (so the new board appears)
+  5. User now sees the shared board in BoardSwitcher with a "Shared" badge
+
 ## Developing
 
 Once installed, run:  `npm run dev -- --open`

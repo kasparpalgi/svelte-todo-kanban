@@ -63,6 +63,10 @@ select_permissions:
               board_members:
                 user_id:
                   _eq: X-Hasura-User-Id
+          - invitee_email:
+              _eq: X-Hasura-User-Email
+          - invitee_username:
+              _eq: X-Hasura-User-Username
       allow_aggregations: true
     comment: ""
 update_permissions:

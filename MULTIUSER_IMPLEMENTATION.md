@@ -5,27 +5,6 @@ Complete implementation for transforming the Kanban app into a multiuser system 
 
 ## Files Created
 
-### 1. Database Migrations (SQL)
-Three SQL files have been created in the root directory. You need to manually create Hasura migrations for these:
-
-#### `board_members_migration.sql`
-- Creates `board_members` table with roles (owner/editor/viewer)
-- Automatic trigger to add board creator as owner
-- Composite unique constraint on (board_id, user_id)
-- Indexes for performance
-
-#### `board_invitations_migration.sql`
-- Creates `board_invitations` table for pending invites
-- Secure token generation for invitation links
-- Status tracking (pending/accepted/declined/cancelled)
-- Automatic token generation trigger
-- 7-day expiration by default
-
-#### `boards_public_fields_migration.sql`
-- Adds `is_public` column to boards table
-- Adds `allow_public_comments` column
-- Index for public board filtering
-
 ### 2. GraphQL (Updated)
 
 #### `src/lib/graphql/documents.ts`

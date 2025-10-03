@@ -8,6 +8,7 @@
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import UserMenu from '$lib/components/auth/UserMenu.svelte';
 	import Logo from '$lib/components/ui/Logo.svelte';
+	import InvitationNotifications from '$lib/components/listBoard/InvitationNotifications.svelte';
 
 	let { data, children } = $props();
 
@@ -95,6 +96,7 @@
 
 			<div class="flex items-center gap-4">
 				{#if data?.session}
+					<InvitationNotifications />
 					<UserMenu />
 				{/if}
 			</div>
