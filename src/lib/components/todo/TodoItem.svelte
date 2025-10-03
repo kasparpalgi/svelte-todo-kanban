@@ -1,5 +1,7 @@
 <!-- @file src/lib/components/todo/TodoItem.svelte -->
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
@@ -21,6 +23,9 @@
 
 	let { todo, isDragging = false }: TodoItemProps = $props();
 
+	const lang = $derived(page.params.lang || 'en');
+	const username = $derived(page.params.username);
+	const boardAlias = $derived(page.params.board);
 	let sortable = useSortable({ id: todo.id });
 	let { attributes, listeners, setNodeRef, transform, isDragging: sortableIsDragging } = sortable;
 
@@ -360,6 +365,14 @@
 	function handleCancelAction() {
 		pendingAction = null;
 	}
+
+	function handleCardClick(event: MouseEvent) {
+		const target = event.target as HTMLElement;
+		if (target.closest('button') || target.closest('[role="button"]') || isEditing) {
+			return;
+		}
+		goto(`/${lang}/${username}/${boardAlias}/${todo.id}`);
+	}
 </script>
 
 <div
@@ -370,9 +383,10 @@
 >
 	{#if !isEditing}
 		<Card
-			class="relative transition-all duration-200 hover:shadow-md"
+			class="cursor-pointer relative transition-all duration-200 hover:shadow-md"
 			onmouseenter={handleMouseEnter}
 			onmouseleave={handleMouseLeave}
+			onclick={handleCardClick}
 		>
 			<Button
 				variant="ghost"
