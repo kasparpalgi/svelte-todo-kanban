@@ -13,6 +13,14 @@ export const TODO_FRAGMENT = graphql(`
 		completed_at
 		created_at
 		updated_at
+		labels {
+			label {
+				...LabelFields
+			}
+		}
+		comments(order_by: { created_at: asc }) {
+			...CommentFields
+		}
 		uploads {
 			id
 			url
@@ -58,11 +66,44 @@ export const BOARD_FRAGMENT = graphql(`
 		sort_order
 		created_at
 		updated_at
+		labels {
+			...LabelFields
+		}
 		user {
 			id
 			username
 			email
 		}
+	}
+`);
+
+export const COMMENT_FRAGMENT = graphql(`
+	fragment CommentFields on comments {
+		id
+		content
+		todo_id
+		user_id
+		created_at
+		updated_at
+		user {
+			id
+			name
+			username
+			image
+			email
+		}
+	}
+`);
+
+export const LABEL_FRAGMENT = graphql(`
+	fragment LabelFields on labels {
+		id
+		name
+		color
+		sort_order
+		board_id
+		created_at
+		updated_at
 	}
 `);
 
@@ -76,6 +117,7 @@ export const USER_FRAGMENT = graphql(`
 		locale
 		dark_mode
 		settings
+		default_labels
 		emailVerified
 		created_at
 		updated_at
@@ -249,6 +291,93 @@ export const UPDATE_USER = graphql(`
 			returning {
 				...UserFields
 			}
+		}
+	}
+`);
+
+export const GET_COMMENTS = graphql(`
+	query GetComments(
+		$where: comments_bool_exp = {}
+		$order_by: [comments_order_by!] = { created_at: asc }
+		$limit: Int = 100
+		$offset: Int = 0
+	) {
+		comments(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...CommentFields
+		}
+	}
+`);
+
+export const CREATE_COMMENT = graphql(`
+	mutation CreateComment($objects: [comments_insert_input!]!) {
+		insert_comments(objects: $objects) {
+			returning {
+				...CommentFields
+			}
+		}
+	}
+`);
+
+export const UPDATE_COMMENT = graphql(`
+	mutation UpdateComment($where: comments_bool_exp!, $_set: comments_set_input!) {
+		update_comments(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				...CommentFields
+			}
+		}
+	}
+`);
+
+export const DELETE_COMMENT = graphql(`
+	mutation DeleteComment($where: comments_bool_exp!) {
+		delete_comments(where: $where) {
+			affected_rows
+		}
+	}
+`);
+
+export const ADD_TODO_LABEL = graphql(`
+	mutation AddTodoLabel($objects: [todo_labels_insert_input!]!) {
+		insert_todo_labels(objects: $objects) {
+			affected_rows
+		}
+	}
+`);
+
+export const REMOVE_TODO_LABEL = graphql(`
+	mutation RemoveTodoLabel($where: todo_labels_bool_exp!) {
+		delete_todo_labels(where: $where) {
+			affected_rows
+		}
+	}
+`);
+
+export const CREATE_LABEL = graphql(`
+	mutation CreateLabel($objects: [labels_insert_input!]!) {
+		insert_labels(objects: $objects) {
+			returning {
+				...LabelFields
+			}
+		}
+	}
+`);
+
+export const UPDATE_LABEL = graphql(`
+	mutation UpdateLabel($where: labels_bool_exp!, $_set: labels_set_input!) {
+		update_labels(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				...LabelFields
+			}
+		}
+	}
+`);
+
+export const DELETE_LABEL = graphql(`
+	mutation DeleteLabel($where: labels_bool_exp!) {
+		delete_labels(where: $where) {
+			affected_rows
 		}
 	}
 `);

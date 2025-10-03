@@ -61,3 +61,7 @@ export interface GenericStoreResult {
 	success: boolean;
 	message: string;
 }
+
+export interface LabelManagementProps {
+	todo: TodoFieldsFragment;
+}

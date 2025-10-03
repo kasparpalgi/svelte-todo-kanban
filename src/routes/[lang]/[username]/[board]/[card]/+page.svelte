@@ -1,0 +1,619 @@
+<!-- @file src/routes/[lang]/[username]/[board]/[card]/+page.svelte -->
+<script lang="ts">
+	import { onMount, onDestroy } from 'svelte';
+	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { todosStore } from '$lib/stores/todos.svelte';
+	import { commentsStore } from '$lib/stores/comments.svelte';
+	import { t } from '$lib/i18n';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { Card, CardContent, CardHeader } from '$lib/components/ui/card';
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import { Textarea } from '$lib/components/ui/textarea';
+	import { Badge } from '$lib/components/ui/badge';
+	import { Label } from '$lib/components/ui/label';
+	import {
+		X,
+		Calendar,
+		Tag,
+		MessageSquare,
+		Send,
+		Trash2,
+		ImageIcon,
+		AlertCircle,
+		Bold,
+		Italic,
+		List,
+		ListOrdered,
+		Code,
+		Heading1,
+		Heading2
+	} from 'lucide-svelte';
+	import { z } from 'zod';
+	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { Readable } from 'svelte/store';
+	import { createEditor, Editor, EditorContent } from 'svelte-tiptap';
+	import StarterKit from '@tiptap/starter-kit';
+	import TaskList from '@tiptap/extension-task-list';
+	import TaskItem from '@tiptap/extension-task-item';
+	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
+
+	let { data } = $props();
+
+	const cardId = $derived(page.params.card);
+	const lang = $derived(page.params.lang || 'en');
+	const username = $derived(page.params.username);
+	const boardAlias = $derived(page.params.board);
+
+	let todo = $state<TodoFieldsFragment | null>(null);
+	let loading = $state(true);
+	let editData = $state({
+		title: '',
+		due_on: '',
+		priority: 'low' as 'low' | 'medium' | 'high'
+	});
+	let newComment = $state('');
+	let validationErrors = $state<Record<string, string>>({});
+	let isSubmitting = $state(false);
+	let editor = $state() as Readable<Editor>;
+
+	$effect(() => {
+		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
+		if (foundTodo && todo) {
+			todo = foundTodo;
+		}
+	});
+
+	const todoEditSchema = z.object({
+		title: z.string().min(1, 'Title is required').max(200).trim(),
+		content: z.string().max(10000).optional(),
+		due_on: z.string().optional(),
+		priority: z.enum(['low', 'medium', 'high']).optional()
+	});
+
+	onMount(async () => {
+		if (!todosStore.initialized) {
+			await todosStore.loadTodos();
+		}
+		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
+		if (foundTodo) {
+			todo = foundTodo;
+			editData = {
+				title: foundTodo.title,
+				due_on: foundTodo.due_on ? new Date(foundTodo.due_on).toISOString().split('T')[0] : '',
+				priority: (foundTodo.priority as 'low' | 'medium' | 'high') || 'low'
+			};
+
+			editor = createEditor({
+				extensions: [
+					StarterKit,
+					TaskList,
+					TaskItem.configure({
+						nested: true
+					})
+				],
+				content: foundTodo.content || '',
+				editorProps: {
+					attributes: {
+						class:
+							'prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4 rounded-md border'
+					}
+				}
+			});
+
+			await commentsStore.loadComments(cardId || '');
+		}
+		loading = false;
+	});
+
+	onDestroy(() => {
+		if ($editor) {
+			$editor.destroy();
+		}
+	});
+
+	function closeModal() {
+		commentsStore.reset();
+		goto(`/${lang}/${username}/${boardAlias}`);
+	}
+
+	function handleBackdropClick(event: MouseEvent) {
+		if (event.target === event.currentTarget) {
+			closeModal();
+		}
+	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			closeModal();
+		} else if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+			event.preventDefault();
+			saveTodo();
+		}
+	}
+
+	async function saveTodo() {
+		if (isSubmitting || !todo || !$editor) return;
+
+		try {
+			const content = $editor.getHTML();
+
+			const validatedData = todoEditSchema.parse({
+				...editData,
+				content
+			});
+
+			validationErrors = {};
+			isSubmitting = true;
+
+			const result = await todosStore.updateTodo(todo.id, {
+				title: validatedData.title,
+				content: validatedData.content || null,
+				due_on: validatedData.due_on || null,
+				priority: validatedData.priority || 'low'
+			});
+
+			if (result.success) {
+				displayMessage('Card updated successfully', 1500, true);
+				todo = todosStore.todos.find((t) => t.id === cardId) || null;
+				setTimeout(() => closeModal(), 300);
+			} else {
+				displayMessage(result.message || 'Failed to update card');
+			}
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				validationErrors = {};
+				error.issues.forEach((issue) => {
+					if (issue.path[0]) {
+						validationErrors[issue.path[0] as string] = issue.message;
+					}
+				});
+			}
+		} finally {
+			isSubmitting = false;
+		}
+	}
+
+	async function deleteTodo() {
+		if (!todo || !confirm('Are you sure you want to delete this card?')) return;
+
+		const result = await todosStore.deleteTodo(todo.id);
+		if (result.success) {
+			displayMessage('Card deleted', 1500, true);
+			closeModal();
+		} else {
+			displayMessage(result.message || 'Failed to delete card');
+		}
+	}
+
+	async function addComment() {
+		if (!newComment.trim() || !todo) return;
+
+		const result = await commentsStore.addComment(todo.id, newComment);
+		if (result.success) {
+			newComment = '';
+			displayMessage('Comment added', 1500, true);
+		} else {
+			displayMessage(result.message || 'Failed to add comment');
+		}
+	}
+
+	async function deleteComment(commentId: string) {
+		if (!confirm('Delete this comment?')) return;
+
+		const result = await commentsStore.deleteComment(commentId);
+		if (!result.success) {
+			displayMessage(result.message || 'Failed to delete comment');
+		}
+	}
+
+	function formatDate(dateString: string): string {
+		const date = new Date(dateString);
+		return date.toLocaleDateString(lang, { month: 'short', day: 'numeric', year: 'numeric' });
+	}
+
+	function getPriorityColor(priority: string): string {
+		switch (priority) {
+			case 'high':
+				return 'bg-red-500';
+			case 'medium':
+				return 'bg-orange-500';
+			case 'low':
+				return 'bg-blue-500';
+			default:
+				return 'bg-gray-500';
+		}
+	}
+
+	function getPriorityLabel(priority: string): string {
+		return priority.charAt(0).toUpperCase() + priority.slice(1);
+	}
+</script>
+
+<svelte:head>
+	<title>{todo?.title || 'Card'} | ToDzz</title>
+</svelte:head>
+
+<svelte:window onkeydown={handleKeydown} />
+
+<div
+	class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+	onclick={handleBackdropClick}
+	role="button"
+	tabindex="-1"
+>
+	<div class="fixed inset-4 z-50 overflow-auto md:inset-8 lg:inset-16">
+		<div class="mx-auto max-w-4xl" onclick={(e) => e.stopPropagation()}>
+			{#if loading}
+				<Card class="p-12 text-center">
+					<div class="flex items-center justify-center">
+						<div
+							class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+						></div>
+						<span class="ml-3">Loading card...</span>
+					</div>
+				</Card>
+			{:else if !todo}
+				<Card class="p-12 text-center">
+					<AlertCircle class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+					<h2 class="mb-2 text-xl font-semibold">Card not found</h2>
+					<p class="mb-4 text-muted-foreground">This card doesn't exist or has been deleted.</p>
+					<Button onclick={closeModal}>Go back to board</Button>
+				</Card>
+			{:else}
+				<Card class="relative">
+					<Button
+						variant="ghost"
+						size="sm"
+						onclick={closeModal}
+						class="absolute right-2 top-2 z-10 h-7 w-7 p-0"
+					>
+						<X class="h-3.5 w-3.5" />
+					</Button>
+
+					<CardHeader class="pb-4 pr-12">
+						<div class="mb-3 flex flex-wrap items-start justify-between gap-2">
+							<div class="flex flex-1 flex-wrap items-center gap-2">
+								{#if todo.list}
+									<Badge variant="secondary" class="text-xs">
+										{todo.list.name}
+									</Badge>
+								{/if}
+								<Badge class="{getPriorityColor(editData.priority)} text-xs text-white">
+									{getPriorityLabel(editData.priority)}
+								</Badge>
+							</div>
+
+							<Button onclick={saveTodo} disabled={isSubmitting} size="sm" class="shrink-0">
+								{isSubmitting ? 'Saving...' : 'Save'}
+							</Button>
+						</div>
+
+						<div class="space-y-4">
+							<div>
+								<Label for="title">Title</Label>
+								<Input
+									id="title"
+									bind:value={editData.title}
+									class="text-lg font-semibold"
+									placeholder="Card title"
+								/>
+								{#if validationErrors.title}
+									<p class="mt-1 text-xs text-red-500">{validationErrors.title}</p>
+								{/if}
+							</div>
+						</div>
+					</CardHeader>
+
+					<CardContent class="space-y-6">
+						<div>
+							<Label class="mb-2">Description</Label>
+
+							{#if $editor}
+								<div
+									class="mb-2 flex flex-wrap items-center gap-1 rounded-t-md border border-b-0 bg-muted/30 p-2"
+								>
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('bold') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleBold().run()}
+										disabled={!$editor.can().chain().focus().toggleBold().run()}
+										title="Bold"
+									>
+										<Bold class="h-4 w-4" />
+									</Button>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('italic') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleItalic().run()}
+										disabled={!$editor.can().chain().focus().toggleItalic().run()}
+										title="Italic"
+									>
+										<Italic class="h-4 w-4" />
+									</Button>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('code') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleCode().run()}
+										disabled={!$editor.can().chain().focus().toggleCode().run()}
+										title="Code"
+									>
+										<Code class="h-4 w-4" />
+									</Button>
+
+									<div class="mx-1 h-6 w-px bg-border"></div>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('heading', { level: 1 }) ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleHeading({ level: 1 }).run()}
+										title="Heading 1"
+									>
+										<Heading1 class="h-4 w-4" />
+									</Button>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('heading', { level: 2 }) ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleHeading({ level: 2 }).run()}
+										title="Heading 2"
+									>
+										<Heading2 class="h-4 w-4" />
+									</Button>
+
+									<div class="mx-1 h-6 w-px bg-border"></div>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('bulletList') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleBulletList().run()}
+										title="Bullet List"
+									>
+										<List class="h-4 w-4" />
+									</Button>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('orderedList') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleOrderedList().run()}
+										title="Numbered List"
+									>
+										<ListOrdered class="h-4 w-4" />
+									</Button>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 px-2 {$editor.isActive('taskList') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleTaskList().run()}
+										title="Task List"
+									>
+										<input type="checkbox" class="pointer-events-none h-3 w-3" />
+									</Button>
+								</div>
+							{/if}
+
+							<div class="rounded-b-md">
+								<EditorContent editor={$editor} />
+							</div>
+
+							<p class="mt-1 text-xs text-muted-foreground">
+								Rich text editor with markdown-style formatting
+							</p>
+							{#if validationErrors.content}
+								<p class="mt-1 text-xs text-red-500">{validationErrors.content}</p>
+							{/if}
+						</div>
+
+						<div class="grid gap-4 sm:grid-cols-2">
+							<div>
+								<Label for="due_on" class="mb-2 flex items-center gap-2">
+									<Calendar class="h-4 w-4" />
+									Due Date
+								</Label>
+								<Input id="due_on" type="date" bind:value={editData.due_on} />
+							</div>
+
+							<div>
+								<Label for="priority" class="mb-2 flex items-center gap-2">
+									<Tag class="h-4 w-4" />
+									Priority
+								</Label>
+								<select
+									id="priority"
+									bind:value={editData.priority}
+									class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+								>
+									<option value="low">Low</option>
+									<option value="medium">Medium</option>
+									<option value="high">High</option>
+								</select>
+							</div>
+						</div>
+
+						<CardLabelManager {todo} />
+
+						{#if todo.uploads && todo.uploads.length > 0}
+							<div>
+								<Label class="mb-2 flex items-center gap-2">
+									<ImageIcon class="h-4 w-4" />
+									Attachments
+								</Label>
+								<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+									{#each todo.uploads as upload}
+										<img
+											src={upload.url}
+											alt="Attachment"
+											class="h-24 w-full rounded border object-cover"
+										/>
+									{/each}
+								</div>
+							</div>
+						{/if}
+
+						<div>
+							<Label class="mb-2 flex items-center gap-2">
+								<MessageSquare class="h-4 w-4" />
+								Comments ({commentsStore.comments.length})
+							</Label>
+
+							<div class="space-y-3">
+								{#if commentsStore.loading}
+									<div class="py-4 text-center text-sm text-muted-foreground">
+										Loading comments...
+									</div>
+								{:else if commentsStore.comments.length === 0}
+									<p class="py-4 text-center text-sm text-muted-foreground">
+										No comments yet. Be the first to comment!
+									</p>
+								{:else}
+									{#each commentsStore.comments as comment}
+										<Card class="p-3">
+											<div class="mb-1 flex items-center justify-between">
+												<div class="flex items-center gap-2">
+													{#if comment.user?.image}
+														<img
+															src={comment.user.image}
+															alt={comment.user.name || comment.user.username}
+															class="h-6 w-6 rounded-full"
+														/>
+													{/if}
+													<span class="text-sm font-medium">
+														{comment.user?.name || comment.user?.username || 'Unknown'}
+													</span>
+													<span class="text-xs text-muted-foreground">
+														{formatDate(comment.created_at || '')}
+													</span>
+												</div>
+												<Button
+													variant="ghost"
+													size="sm"
+													class="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+													onclick={() => deleteComment(comment.id)}
+												>
+													<Trash2 class="h-3 w-3" />
+												</Button>
+											</div>
+											<p class="whitespace-pre-wrap text-sm">{comment.content}</p>
+										</Card>
+									{/each}
+								{/if}
+
+								<div class="flex gap-2">
+									<Textarea
+										bind:value={newComment}
+										placeholder="Add a comment..."
+										rows={2}
+										class="flex-1"
+										onkeydown={(e) => {
+											if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+												e.preventDefault();
+												addComment();
+											}
+										}}
+									/>
+									<Button
+										onclick={addComment}
+										disabled={!newComment.trim() || commentsStore.loading}
+										class="h-auto"
+									>
+										<Send class="h-4 w-4" />
+									</Button>
+								</div>
+								<p class="text-xs text-muted-foreground">Press Ctrl+Enter to submit</p>
+							</div>
+						</div>
+
+						<div class="flex justify-between border-t pt-4">
+							<Button variant="destructive" onclick={deleteTodo}>
+								<Trash2 class="mr-2 h-4 w-4" />
+								Delete Card
+							</Button>
+							<Button variant="outline" onclick={closeModal}>Close</Button>
+						</div>
+					</CardContent>
+				</Card>
+			{/if}
+		</div>
+	</div>
+</div>
+
+<style>
+	:global(.ProseMirror) {
+		outline: none;
+	}
+
+	:global(.ProseMirror p.is-editor-empty:first-child::before) {
+		color: #adb5bd;
+		content: attr(data-placeholder);
+		float: left;
+		height: 0;
+		pointer-events: none;
+	}
+
+	:global(.ProseMirror h1) {
+		font-size: 1.5rem;
+		font-weight: 700;
+		margin-top: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	:global(.ProseMirror h2) {
+		font-size: 1.25rem;
+		font-weight: 600;
+		margin-top: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	:global(.ProseMirror ul),
+	:global(.ProseMirror ol) {
+		padding-left: 1.5rem;
+		margin: 0.5rem 0;
+	}
+
+	:global(.ProseMirror code) {
+		background-color: rgba(0, 0, 0, 0.05);
+		border-radius: 0.25rem;
+		padding: 0.125rem 0.25rem;
+		font-family: monospace;
+		font-size: 0.875em;
+	}
+
+	:global(.ProseMirror ul[data-type='taskList']) {
+		list-style: none;
+		padding-left: 0;
+	}
+
+	:global(.ProseMirror ul[data-type='taskList'] li) {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+
+	:global(.ProseMirror ul[data-type='taskList'] li > label) {
+		flex: 0 0 auto;
+		margin-top: 0.125rem;
+	}
+
+	:global(.ProseMirror ul[data-type='taskList'] li > div) {
+		flex: 1 1 auto;
+	}
+</style>

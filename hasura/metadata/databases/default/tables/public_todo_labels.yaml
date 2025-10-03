@@ -1,0 +1,54 @@
+table:
+  name: todo_labels
+  schema: public
+object_relationships:
+  - name: label
+    using:
+      foreign_key_constraint_on: label_id
+  - name: todo
+    using:
+      foreign_key_constraint_on: todo_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        todo:
+          user_id:
+            _eq: X-Hasura-User-Id
+      columns:
+        - created_at
+        - label_id
+        - todo_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - label_id
+        - todo_id
+      filter:
+        todo:
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - label_id
+        - todo_id
+      filter: {}
+      check:
+        todo:
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        todo:
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""
