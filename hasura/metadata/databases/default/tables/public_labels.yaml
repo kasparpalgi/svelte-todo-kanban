@@ -1,78 +1,70 @@
 table:
-  name: boards
+  name: labels
   schema: public
 object_relationships:
-  - name: user
+  - name: board
     using:
-      foreign_key_constraint_on: user_id
+      foreign_key_constraint_on: board_id
 array_relationships:
-  - name: labels
+  - name: todo_labels
     using:
       foreign_key_constraint_on:
-        column: board_id
+        column: label_id
         table:
-          name: labels
-          schema: public
-  - name: lists
-    using:
-      foreign_key_constraint_on:
-        column: board_id
-        table:
-          name: lists
+          name: todo_labels
           schema: public
 insert_permissions:
   - role: user
     permission:
       check:
-        user_id:
-          _eq: X-Hasura-User-Id
-      set:
-        user_id: x-hasura-User-Id
+        board:
+          user_id:
+            _eq: X-Hasura-User-Id
       columns:
-        - alias
+        - board_id
+        - color
         - created_at
-        - github
         - id
         - name
         - sort_order
         - updated_at
-        - user_id
     comment: ""
 select_permissions:
   - role: user
     permission:
       columns:
-        - alias
+        - board_id
+        - color
         - created_at
-        - github
         - id
         - name
         - sort_order
         - updated_at
-        - user_id
       filter:
-        user_id:
-          _eq: X-Hasura-User-Id
+        board:
+          user_id:
+            _eq: X-Hasura-User-Id
     comment: ""
 update_permissions:
   - role: user
     permission:
       columns:
-        - alias
-        - github
+        - board_id
+        - color
         - name
         - sort_order
         - updated_at
-        - user_id
-      filter: {}
-      check:
-        user_id:
-          _eq: X-Hasura-User-Id
+      filter:
+        board:
+          user_id:
+            _eq: X-Hasura-User-Id
+      check: null
     comment: ""
 delete_permissions:
   - role: user
     permission:
       filter:
-        user_id:
-          _eq: X-Hasura-User-Id
+        board:
+          user_id:
+            _eq: X-Hasura-User-Id
     comment: ""
