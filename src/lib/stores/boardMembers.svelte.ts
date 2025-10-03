@@ -93,13 +93,9 @@ function createBoardMembersStore() {
 					: { invitee_username: emailOrUsername.trim() })
 			};
 
-			console.log('Sending invitation:', invitation);
-
 			const data: CreateBoardInvitationMutation = await request(CREATE_BOARD_INVITATION, {
 				objects: [invitation]
 			});
-
-			console.log('Invitation response:', data);
 
 			const newInvitation = data.insert_board_invitations?.returning?.[0];
 			if (newInvitation) {

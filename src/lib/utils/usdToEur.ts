@@ -36,7 +36,6 @@ export async function getCachedExchangeRate(): Promise<number> {
 		if (newRate && newRate > 0) {
 			cachedRate = newRate;
 			lastFetched = now;
-			console.log(`Exchange rate updated: 1 USD = ${cachedRate} EUR`);
 		}
 	}
 

@@ -35,11 +35,7 @@ export async function POST({ request }: RequestEvent) {
 			);
 		}
 
-		// Sanitize filename
 		const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-		if (sanitizedName !== file.name) {
-			console.log(`File name sanitized from "${file.name}" to "${sanitizedName}"`);
-		}
 
 		const fileToUpload =
 			sanitizedName !== file.name ? new File([file], sanitizedName, { type: file.type }) : file;

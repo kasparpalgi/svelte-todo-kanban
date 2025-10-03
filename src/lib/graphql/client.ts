@@ -11,7 +11,6 @@ async function getJWTToken(): Promise<string> {
 		throw new Error('Failed to get JWT token');
 	}
 	const data = await response.json();
-	console.log(data.token)
 	return data.token;
 }
 

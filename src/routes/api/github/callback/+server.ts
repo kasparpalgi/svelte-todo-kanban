@@ -90,8 +90,6 @@ export async function GET({ url }: RequestEvent) {
 			}
 		});
 
-		console.log('GitHub token saved:', result);
-
 		throw redirect(302, '/settings?connected=github');
 	} catch (error: any) {
 		console.error('GitHub OAuth error:', error);

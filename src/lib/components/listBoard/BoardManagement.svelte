@@ -20,7 +20,16 @@
 		DropdownMenuSeparator,
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
-	import { Plus, Trash2, SquarePen, GripVertical, Layers, Ellipsis, Users, Globe } from 'lucide-svelte';
+	import {
+		Plus,
+		Trash2,
+		SquarePen,
+		GripVertical,
+		Layers,
+		Ellipsis,
+		Users,
+		Globe
+	} from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
@@ -238,7 +247,7 @@
 										<span class="font-medium">{board.name}</span>
 										{#if board.github}
 											<span class="flex items-center gap-1 text-xs text-muted-foreground">
-												<img src={githubLogo} alt="GitHub" />
+												<img src={githubLogo} alt="GitHub" class="h-4 w-4" />
 												{board.github}
 											</span>
 										{/if}
