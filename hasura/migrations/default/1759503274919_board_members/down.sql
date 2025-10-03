@@ -1,6 +1,6 @@
 -- Could not auto-generate a down migration.
 -- Please write an appropriate down migration for the SQL below:
--- CREATE TABLE board_members (
+-- CREATE TABLE IF NOT EXISTS board_members (
 --   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 --   board_id UUID NOT NULL REFERENCES boards(id) ON DELETE CASCADE,
 --   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,

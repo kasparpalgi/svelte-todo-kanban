@@ -1,4 +1,4 @@
-CREATE TABLE accounts (
+CREATE TABLE IF NOT EXISTS accounts (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   type varchar(255) NOT NULL,
   provider varchar(255) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE accounts (
   UNIQUE(provider, provider_account_id)
 );
 
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   session_token varchar(255) NOT NULL UNIQUE,
   user_id uuid NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE sessions (
   updated_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   name varchar(255),
   email varchar(255) UNIQUE,
@@ -35,7 +35,7 @@ CREATE TABLE users (
   updated_at timestamptz DEFAULT now() NOT NULL
 );
 
-CREATE TABLE verification_tokens (
+CREATE TABLE IF NOT EXISTS verification_tokens (
   identifier varchar(255) NOT NULL,
   token varchar(255) NOT NULL,
   expires timestamptz NOT NULL,

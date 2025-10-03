@@ -20,13 +20,15 @@
 		DropdownMenuSeparator,
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
-	import { Plus, Trash2, SquarePen, GripVertical, Layers, Ellipsis } from 'lucide-svelte';
+	import { Plus, Trash2, SquarePen, GripVertical, Layers, Ellipsis, Users, Globe } from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { actionState } from '$lib/stores/states.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
 	import GithubRepoSelector from './GithubRepoSelector.svelte';
+	import BoardMembers from './BoardMembers.svelte';
+	import BoardVisibilitySettings from './BoardVisibilitySettings.svelte';
 	import githubLogo from '$lib/assets/github.svg';
 
 	let showBoardDialog = $state(false);
@@ -36,6 +38,10 @@
 	let selectedBoardForGithub = $state<{ id: string; name: string; github?: string | null } | null>(
 		null
 	);
+	let showMembersDialog = $state(false);
+	let selectedBoardForMembers = $state<any>(null);
+	let showVisibilityDialog = $state(false);
+	let selectedBoardForVisibility = $state<any>(null);
 
 	const hasGithubConnected = $derived(userStore.hasGithubConnected);
 
@@ -133,6 +139,16 @@
 		} else if (event.key === 'Escape') {
 			editingBoard = null;
 		}
+	}
+
+	function openMembersDialog(board: any) {
+		selectedBoardForMembers = board;
+		showMembersDialog = true;
+	}
+
+	function openVisibilityDialog(board: any) {
+		selectedBoardForVisibility = board;
+		showVisibilityDialog = true;
 	}
 </script>
 
@@ -244,9 +260,17 @@
 											<SquarePen class="mr-2 h-3 w-3" />
 											Edit Name
 										</DropdownMenuItem>
+										<DropdownMenuItem onclick={() => openMembersDialog(board)}>
+											<Users class="mr-2 h-3 w-3" />
+											Manage Members
+										</DropdownMenuItem>
+										<DropdownMenuItem onclick={() => openVisibilityDialog(board)}>
+											<Globe class="mr-2 h-3 w-3" />
+											Sharing & Visibility
+										</DropdownMenuItem>
 										{#if hasGithubConnected}
 											<DropdownMenuItem onclick={() => openGithubSelector(board)}>
-												<img src={githubLogo} alt="GitHub" />
+												<img src={githubLogo} alt="GitHub" class="mr-2 h-3 w-3" />
 												{board.github ? 'Change' : 'Connect'} GitHub Repo
 											</DropdownMenuItem>
 										{/if}
@@ -274,5 +298,27 @@
 		bind:open={showGithubDialog}
 		currentRepo={selectedBoardForGithub.github}
 		onSelect={handleGithubRepoSelected}
+	/>
+{/if}
+
+{#if showMembersDialog && selectedBoardForMembers}
+	<BoardMembers
+		board={selectedBoardForMembers}
+		bind:open={showMembersDialog}
+		onClose={() => {
+			showMembersDialog = false;
+			selectedBoardForMembers = null;
+		}}
+	/>
+{/if}
+
+{#if showVisibilityDialog && selectedBoardForVisibility}
+	<BoardVisibilitySettings
+		board={selectedBoardForVisibility}
+		bind:open={showVisibilityDialog}
+		onClose={() => {
+			showVisibilityDialog = false;
+			selectedBoardForVisibility = null;
+		}}
 	/>
 {/if}

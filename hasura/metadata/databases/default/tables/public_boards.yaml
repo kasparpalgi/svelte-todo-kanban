@@ -68,13 +68,7 @@ select_permissions:
         - sort_order
         - updated_at
         - user_id
-      filter:
-        _or:
-          - user_id:
-              _eq: X-Hasura-User-Id
-          - board_members:
-              user_id:
-                _eq: X-Hasura-User-Id
+      filter: {}
     comment: ""
 update_permissions:
   - role: user

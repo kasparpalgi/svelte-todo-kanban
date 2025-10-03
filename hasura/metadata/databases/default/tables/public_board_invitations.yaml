@@ -12,22 +12,30 @@ insert_permissions:
   - role: user
     permission:
       check:
-        inviter_id:
-          _eq: X-Hasura-User-Id
+        board:
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - board_members:
+                _and:
+                  - user_id:
+                      _eq: X-Hasura-User-Id
+                  - role:
+                      _eq: owner
       set:
         inviter_id: x-hasura-User-Id
       columns:
-        - invitee_email
-        - invitee_username
+        - board_id
         - created_at
         - expires_at
-        - updated_at
-        - board_id
         - id
+        - invitee_email
+        - invitee_username
         - inviter_id
-        - status
         - role
+        - status
         - token
+        - updated_at
     comment: ""
 select_permissions:
   - role: user
@@ -45,31 +53,51 @@ select_permissions:
         - role
         - token
       filter:
-        inviter_id:
-          _eq: X-Hasura-User-Id
+        _or:
+          - inviter_id:
+              _eq: X-Hasura-User-Id
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+      allow_aggregations: true
     comment: ""
 update_permissions:
   - role: user
     permission:
       columns:
-        - board_id
-        - expires_at
-        - invitee_email
-        - invitee_username
-        - inviter_id
-        - role
         - status
-        - token
-        - updated_at
       filter:
-        inviter_id:
-          _eq: X-Hasura-User-Id
+        _or:
+          - inviter_id:
+              _eq: X-Hasura-User-Id
+          - board:
+              _or:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - board_members:
+                    _and:
+                      - user_id:
+                          _eq: X-Hasura-User-Id
+                      - role:
+                          _eq: owner
       check: null
     comment: ""
 delete_permissions:
   - role: user
     permission:
       filter:
-        inviter_id:
-          _eq: X-Hasura-User-Id
+        board:
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - board_members:
+                _and:
+                  - user_id:
+                      _eq: X-Hasura-User-Id
+                  - role:
+                      _eq: owner
     comment: ""

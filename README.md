@@ -5,7 +5,7 @@ Modern Kanban ToDo app built according to requirements [requirements](docs/todol
 ## Install
 
 1. Pre-install optional suggestion (use the same Node/npm across devices): `nvm install && nvm use` & `npm ci` & `npm run i-npm` (or pnmp/yarn)
-2. Install dependencies: `npm ci`. On Windows you may need to to `npm i` or even ` npm install --maxsockets=1` as latest Tailwind may be conflicting with current latest Vite and types may be messed or another known issue is that it won't even run due to `shadcn` current latest version some conflicts I haven't dived in.
+2. Install dependencies: `npm ci`. On Windows you may need to to `npm i` or even `npm install --maxsockets=1` as latest Tailwind may be conflicting with current latest Vite and types may be messed or another known issue is that it won't even run due to `shadcn` current latest version some conflicts I haven't dived in.
 3. Rename `.env.example` to `.env` and update URL/password and do the same woth `hasura/.env.example`. Also, `.env.test.example` to `.env.test` (needed for Playwright testing Auth.js).
 4. Set up backend.
    1. In `hasura` folder run `docker-compose up -d` to run [Hasura (enterprise-grade API engine)](https://hasura.io/)

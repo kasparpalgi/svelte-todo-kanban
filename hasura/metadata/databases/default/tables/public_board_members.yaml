@@ -30,13 +30,7 @@ select_permissions:
         - id
         - user_id
         - role
-      filter:
-        _or:
-          - user_id:
-              _eq: X-Hasura-User-Id
-          - board:
-              user_id:
-                _eq: X-Hasura-User-Id
+      filter: {}
     comment: ""
 update_permissions:
   - role: user

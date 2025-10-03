@@ -238,7 +238,9 @@ function createListsStore() {
 
 	async function updateBoard(
 		id: string,
-		updates: Partial<Pick<BoardFieldsFragment, 'name' | 'sort_order' | 'github'>>
+		updates: Partial<
+			Pick<BoardFieldsFragment, 'name' | 'sort_order' | 'github' | 'is_public' | 'allow_public_comments'>
+		>
 	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
@@ -280,6 +282,17 @@ function createListsStore() {
 			console.error('Update board error:', error);
 			return { success: false, message };
 		}
+	}
+
+	async function updateBoardVisibility(
+		id: string,
+		isPublic: boolean,
+		allowPublicComments: boolean = false
+	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
+		return updateBoard(id, {
+			is_public: isPublic,
+			allow_public_comments: isPublic ? allowPublicComments : false
+		});
 	}
 
 	async function deleteBoard(id: string): Promise<ListBoardStoreResult> {
@@ -355,6 +368,7 @@ function createListsStore() {
 		deleteList,
 		createBoard,
 		updateBoard,
+		updateBoardVisibility,
 		deleteBoard,
 		clearError: () => {
 			state.error = null;

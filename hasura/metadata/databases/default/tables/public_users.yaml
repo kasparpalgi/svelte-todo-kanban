@@ -54,9 +54,7 @@ array_relationships:
 insert_permissions:
   - role: user
     permission:
-      check:
-        id:
-          _eq: X-Hasura-User-Id
+      check: {}
       columns:
         - created_at
         - dark_mode
@@ -75,21 +73,19 @@ select_permissions:
   - role: user
     permission:
       columns:
-        - created_at
         - dark_mode
-        - default_labels
         - email
-        - emailVerified
-        - id
-        - image
         - locale
         - name
+        - default_labels
         - settings
-        - updated_at
+        - image
         - username
-      filter:
-        id:
-          _eq: X-Hasura-User-Id
+        - created_at
+        - emailVerified
+        - updated_at
+        - id
+      filter: {}
     comment: ""
 update_permissions:
   - role: user

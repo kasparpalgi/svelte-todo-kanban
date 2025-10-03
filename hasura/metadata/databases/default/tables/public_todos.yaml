@@ -55,6 +55,7 @@ select_permissions:
   - role: user
     permission:
       columns:
+        - alias
         - completed_at
         - content
         - created_at
@@ -67,8 +68,20 @@ select_permissions:
         - updated_at
         - user_id
       filter:
-        user_id:
-          _eq: X-Hasura-User-Id
+        _or:
+          - list:
+              board:
+                user_id:
+                  _eq: X-Hasura-User-Id
+          - list:
+              board:
+                board_members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - list:
+              board:
+                is_public:
+                  _eq: true
       allow_aggregations: true
       query_root_fields:
         - select
@@ -92,15 +105,28 @@ update_permissions:
         - title
         - updated_at
         - user_id
-      filter: {}
-      check:
-        user_id:
-          _eq: X-Hasura-User-Id
+      filter:
+        _or:
+          - list:
+              board:
+                user_id:
+                  _eq: X-Hasura-User-Id
+          - list:
+              board:
+                board_members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+      check: {}
     comment: ""
 delete_permissions:
   - role: user
     permission:
       filter:
-        user_id:
-          _eq: X-Hasura-User-Id
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - list:
+              board:
+                user_id:
+                  _eq: X-Hasura-User-Id
     comment: ""

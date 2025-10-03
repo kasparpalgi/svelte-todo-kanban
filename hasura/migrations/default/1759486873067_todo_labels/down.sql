@@ -1,6 +1,6 @@
 -- Could not auto-generate a down migration.
 -- Please write an appropriate down migration for the SQL below:
--- CREATE TABLE todo_labels (
+-- CREATE TABLE IF NOT EXISTS todo_labels (
 --   todo_id UUID NOT NULL REFERENCES todos(id) ON DELETE CASCADE,
 --   label_id UUID NOT NULL REFERENCES labels(id) ON DELETE CASCADE,
 --   created_at TIMESTAMPTZ DEFAULT NOW(),

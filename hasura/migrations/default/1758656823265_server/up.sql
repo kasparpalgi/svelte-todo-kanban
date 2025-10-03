@@ -1,5 +1,5 @@
 SET check_function_bodies = false;
-CREATE FUNCTION public.set_current_timestamp_updated_at() RETURNS trigger
+CREATE OR REPLACE FUNCTION public.set_current_timestamp_updated_at() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 DECLARE
@@ -10,7 +10,7 @@ BEGIN
   RETURN _new;
 END;
 $$;
-CREATE TABLE public.accounts (
+CREATE TABLE IF NOT EXISTS public.accounts (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     type character varying(255) NOT NULL,
     provider character varying(255) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE public.accounts (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
-CREATE TABLE public.boards (
+CREATE TABLE IF NOT EXISTS public.boards (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     name text NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE public.boards (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
-CREATE TABLE public.lists (
+CREATE TABLE IF NOT EXISTS public.lists (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name text NOT NULL,
     sort_order integer NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE public.lists (
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     board_id uuid
 );
-CREATE TABLE public.sessions (
+CREATE TABLE IF NOT EXISTS public.sessions (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     "sessionToken" character varying(255) NOT NULL,
     "userId" uuid NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE public.sessions (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
-CREATE TABLE public.todos (
+CREATE TABLE IF NOT EXISTS public.todos (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     list_id uuid,
@@ -64,13 +64,13 @@ CREATE TABLE public.todos (
     priority character varying DEFAULT 'medium'::character varying NOT NULL,
     CONSTRAINT priority CHECK (((priority)::text = ANY (ARRAY[('low'::character varying)::text, ('medium'::character varying)::text, ('high'::character varying)::text])))
 );
-CREATE TABLE public.uploads (
+CREATE TABLE IF NOT EXISTS public.uploads (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     todo_id uuid NOT NULL,
     url text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
-CREATE TABLE public.users (
+CREATE TABLE IF NOT EXISTS public.users (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying(255),
     email character varying(255),
@@ -79,7 +79,7 @@ CREATE TABLE public.users (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
-CREATE TABLE public.verification_tokens (
+CREATE TABLE IF NOT EXISTS public.verification_tokens (
     identifier character varying(255) NOT NULL,
     token character varying(255) NOT NULL,
     expires timestamp with time zone NOT NULL,

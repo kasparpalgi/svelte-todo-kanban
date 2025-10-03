@@ -1,6 +1,6 @@
 -- Could not auto-generate a down migration.
 -- Please write an appropriate down migration for the SQL below:
--- CREATE TABLE labels (
+-- CREATE TABLE IF NOT EXISTS labels (
 --   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 --   board_id UUID NOT NULL REFERENCES boards(id) ON DELETE CASCADE,
 --   name TEXT NOT NULL,

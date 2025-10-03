@@ -1,0 +1,18 @@
+mutation TestInvite {
+  insert_board_invitations(objects: {
+    board_id: "f937e2af-6c8e-459d-bebc-eabbc727a19d"
+    invitee_email: "test@e-stonia.co.uk"
+    role: "editor"
+    inviter_id: "replace-with-your-user-id"
+  }) {
+    returning {
+      id
+      board_id
+      inviter_id
+      invitee_email
+      role
+      status
+      token
+    }
+  }
+}
