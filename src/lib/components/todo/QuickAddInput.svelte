@@ -15,20 +15,13 @@
 	let inputEl: HTMLInputElement;
 	let mounted = false;
 	let isListening = $state(false);
+	let hasUserInteracted = $state(false);
 
 	$effect(() => {
 		mounted = true;
 		return () => {
 			mounted = false;
 		};
-	});
-
-	$effect(() => {
-		if (autofocus && inputEl && mounted && !isListening) {
-			requestAnimationFrame(() => {
-				inputEl?.focus?.();
-			});
-		}
 	});
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -40,28 +33,32 @@
 		}
 	}
 
-	function handleSubmit() {
-		onSubmit(value.trim());
-	}
-
-	function handleVoiceTranscript(transcript: string) {
-		value = transcript;
-		isListening = true;
-	}
-
 	function handleVoiceError(error: string) {
 		displayMessage(error, 3000, false);
 		isListening = false;
 	}
 
-	// Focus input if recording stops
 	$effect(() => {
-		if (!isListening && inputEl && mounted) {
+		if (autofocus && inputEl && mounted && !isListening && !hasUserInteracted) {
 			requestAnimationFrame(() => {
 				inputEl?.focus?.();
 			});
 		}
 	});
+
+	$effect(() => {
+		if (!isListening && inputEl && mounted && hasUserInteracted) {
+			requestAnimationFrame(() => {
+				inputEl?.focus?.();
+			});
+		}
+	});
+
+	function handleVoiceTranscript(transcript: string) {
+		value = transcript;
+		isListening = true;
+		hasUserInteracted = true;
+	}
 </script>
 
 <div class="space-y-2 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-2">
