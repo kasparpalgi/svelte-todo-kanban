@@ -1,12 +1,13 @@
 <!-- @file src/routes/[lang]/[username]/[board]/[card]/+page.svelte -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { todosStore } from '$lib/stores/todos.svelte';
+	import { commentsStore } from '$lib/stores/comments.svelte';
 	import { t } from '$lib/i18n';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import { Card, CardContent, CardHeader } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
@@ -20,10 +21,22 @@
 		Send,
 		Trash2,
 		ImageIcon,
-		AlertCircle
+		AlertCircle,
+		Bold,
+		Italic,
+		List,
+		ListOrdered,
+		Code,
+		Heading1,
+		Heading2
 	} from 'lucide-svelte';
 	import { z } from 'zod';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { Readable } from 'svelte/store';
+	import { createEditor, Editor, EditorContent } from 'svelte-tiptap';
+	import StarterKit from '@tiptap/starter-kit';
+	import TaskList from '@tiptap/extension-task-list';
+	import TaskItem from '@tiptap/extension-task-item';
 
 	let { data } = $props();
 
@@ -36,20 +49,19 @@
 	let loading = $state(true);
 	let editData = $state({
 		title: '',
-		content: '',
 		due_on: '',
-		priority: 0
+		priority: 'low' as 'low' | 'medium' | 'high'
 	});
-	let comments = $state<Array<{ id: string; text: string; created_at: string }>>([]);
 	let newComment = $state('');
 	let validationErrors = $state<Record<string, string>>({});
 	let isSubmitting = $state(false);
+	let editor = $state() as Readable<Editor>;
 
 	const todoEditSchema = z.object({
 		title: z.string().min(1, 'Title is required').max(200).trim(),
-		content: z.string().max(5000).optional(),
+		content: z.string().max(10000).optional(),
 		due_on: z.string().optional(),
-		priority: z.number().min(0).max(5).optional()
+		priority: z.enum(['low', 'medium', 'high']).optional()
 	});
 
 	onMount(async () => {
@@ -61,17 +73,40 @@
 			todo = foundTodo;
 			editData = {
 				title: foundTodo.title,
-				content: foundTodo.content || '',
-				due_on: foundTodo.due_on
-					? new Date(foundTodo.due_on).toISOString().split('T')[0]
-					: '',
-				priority: foundTodo.priority || 0
+				due_on: foundTodo.due_on ? new Date(foundTodo.due_on).toISOString().split('T')[0] : '',
+				priority: (foundTodo.priority as 'low' | 'medium' | 'high') || 'low'
 			};
+
+			editor = createEditor({
+				extensions: [
+					StarterKit,
+					TaskList,
+					TaskItem.configure({
+						nested: true
+					})
+				],
+				content: foundTodo.content || '<p>Add description...</p>',
+				editorProps: {
+					attributes: {
+						class:
+							'prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4 rounded-md border'
+					}
+				}
+			});
+
+			await commentsStore.loadComments(cardId);
 		}
 		loading = false;
 	});
 
+	onDestroy(() => {
+		if ($editor) {
+			$editor.destroy();
+		}
+	});
+
 	function closeModal() {
+		commentsStore.reset();
 		goto(`/${lang}/${username}/${boardAlias}`);
 	}
 
@@ -82,10 +117,16 @@
 	}
 
 	async function saveTodo() {
-		if (isSubmitting || !todo) return;
+		if (isSubmitting || !todo || !$editor) return;
 
 		try {
-			const validatedData = todoEditSchema.parse(editData);
+			const content = $editor.getHTML();
+
+			const validatedData = todoEditSchema.parse({
+				...editData,
+				content
+			});
+
 			validationErrors = {};
 			isSubmitting = true;
 
@@ -93,7 +134,7 @@
 				title: validatedData.title,
 				content: validatedData.content || null,
 				due_on: validatedData.due_on || null,
-				priority: validatedData.priority || 0
+				priority: validatedData.priority || 'low'
 			});
 
 			if (result.success) {
@@ -129,18 +170,24 @@
 	}
 
 	async function addComment() {
-		if (!newComment.trim()) return;
-		// TODO: implement
-		comments = [
-			...comments,
-			{
-				id: crypto.randomUUID(),
-				text: newComment,
-				created_at: new Date().toISOString()
-			}
-		];
-		newComment = '';
-		displayMessage('Comment added', 1500, true);
+		if (!newComment.trim() || !todo) return;
+
+		const result = await commentsStore.addComment(todo.id, newComment);
+		if (result.success) {
+			newComment = '';
+			displayMessage('Comment added', 1500, true);
+		} else {
+			displayMessage(result.message || 'Failed to add comment');
+		}
+	}
+
+	async function deleteComment(commentId: string) {
+		if (!confirm('Delete this comment?')) return;
+
+		const result = await commentsStore.deleteComment(commentId);
+		if (!result.success) {
+			displayMessage(result.message || 'Failed to delete comment');
+		}
 	}
 
 	function formatDate(dateString: string): string {
@@ -148,12 +195,21 @@
 		return date.toLocaleDateString(lang, { month: 'short', day: 'numeric', year: 'numeric' });
 	}
 
-	function getPriorityColor(priority: number): string {
-		if (priority >= 4) return 'bg-red-500';
-		if (priority >= 3) return 'bg-orange-500';
-		if (priority >= 2) return 'bg-yellow-500';
-		if (priority >= 1) return 'bg-blue-500';
-		return 'bg-gray-500';
+	function getPriorityColor(priority: string): string {
+		switch (priority) {
+			case 'high':
+				return 'bg-red-500';
+			case 'medium':
+				return 'bg-orange-500';
+			case 'low':
+				return 'bg-blue-500';
+			default:
+				return 'bg-gray-500';
+		}
+	}
+
+	function getPriorityLabel(priority: string): string {
+		return priority.charAt(0).toUpperCase() + priority.slice(1);
 	}
 </script>
 
@@ -191,7 +247,7 @@
 						variant="ghost"
 						size="sm"
 						onclick={closeModal}
-						class="absolute right-4 top-4 h-8 w-8 p-0"
+						class="absolute right-4 top-4 z-10 h-8 w-8 p-0"
 					>
 						<X class="h-4 w-4" />
 					</Button>
@@ -203,17 +259,12 @@
 									{todo.list.name}
 								</Badge>
 							{/if}
-							{#if editData.priority > 0}
-								<Badge class="{getPriorityColor(editData.priority)} text-xs text-white">
-									Priority {editData.priority}
-								</Badge>
-							{/if}
+							<Badge class="{getPriorityColor(editData.priority)} text-xs text-white">
+								{getPriorityLabel(editData.priority)}
+							</Badge>
 							{#if todo.labels && todo.labels.length > 0}
 								{#each todo.labels as { label }}
-									<Badge
-										style="background-color: {label.color}"
-										class="text-xs text-white"
-									>
+									<Badge style="background-color: {label.color}" class="text-xs text-white">
 										{label.name}
 									</Badge>
 								{/each}
@@ -238,18 +289,117 @@
 
 					<CardContent class="space-y-6">
 						<div>
-							<Label for="content" class="mb-2 flex items-center gap-2">
-								<span>Description</span>
-							</Label>
-							<Textarea
-								id="content"
-								bind:value={editData.content}
-								placeholder="Add a more detailed description..."
-								rows={6}
-								class="min-h-[150px] resize-y"
-							/>
+							<Label class="mb-2">Description</Label>
+
+							{#if $editor}
+								<!-- Toolbar -->
+								<div
+									class="mb-2 flex flex-wrap items-center gap-1 rounded-t-md border border-b-0 bg-muted/30 p-2"
+								>
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('bold') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleBold().run()}
+										disabled={!$editor.can().chain().focus().toggleBold().run()}
+										title="Bold"
+									>
+										<Bold class="h-4 w-4" />
+									</Button>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('italic') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleItalic().run()}
+										disabled={!$editor.can().chain().focus().toggleItalic().run()}
+										title="Italic"
+									>
+										<Italic class="h-4 w-4" />
+									</Button>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('code') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleCode().run()}
+										disabled={!$editor.can().chain().focus().toggleCode().run()}
+										title="Code"
+									>
+										<Code class="h-4 w-4" />
+									</Button>
+
+									<div class="mx-1 h-6 w-px bg-border"></div>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('heading', { level: 1 }) ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleHeading({ level: 1 }).run()}
+										title="Heading 1"
+									>
+										<Heading1 class="h-4 w-4" />
+									</Button>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('heading', { level: 2 }) ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleHeading({ level: 2 }).run()}
+										title="Heading 2"
+									>
+										<Heading2 class="h-4 w-4" />
+									</Button>
+
+									<div class="mx-1 h-6 w-px bg-border"></div>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('bulletList') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleBulletList().run()}
+										title="Bullet List"
+									>
+										<List class="h-4 w-4" />
+									</Button>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 w-8 p-0 {$editor.isActive('orderedList') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleOrderedList().run()}
+										title="Numbered List"
+									>
+										<ListOrdered class="h-4 w-4" />
+									</Button>
+
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										class="h-8 px-2 {$editor.isActive('taskList') ? 'bg-muted' : ''}"
+										onclick={() => $editor.chain().focus().toggleTaskList().run()}
+										title="Task List"
+									>
+										<input type="checkbox" class="pointer-events-none h-3 w-3" />
+									</Button>
+								</div>
+							{/if}
+
+							<!-- Editor Content -->
+							<div class="rounded-b-md">
+								<EditorContent editor={$editor} />
+							</div>
+
 							<p class="mt-1 text-xs text-muted-foreground">
-								Markdown supported. You can use **bold**, *italic*, lists, and more.
+								Rich text editor with markdown-style formatting
 							</p>
 							{#if validationErrors.content}
 								<p class="mt-1 text-xs text-red-500">{validationErrors.content}</p>
@@ -262,11 +412,7 @@
 									<Calendar class="h-4 w-4" />
 									Due Date
 								</Label>
-								<Input
-									id="due_on"
-									type="date"
-									bind:value={editData.due_on}
-								/>
+								<Input id="due_on" type="date" bind:value={editData.due_on} />
 							</div>
 
 							<div>
@@ -274,13 +420,15 @@
 									<Tag class="h-4 w-4" />
 									Priority
 								</Label>
-								<Input
+								<select
 									id="priority"
-									type="number"
-									min="0"
-									max="5"
 									bind:value={editData.priority}
-								/>
+									class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+								>
+									<option value="low">Low</option>
+									<option value="medium">Medium</option>
+									<option value="high">High</option>
+								</select>
 							</div>
 						</div>
 
@@ -302,21 +450,54 @@
 							</div>
 						{/if}
 
+						<!-- Comments Section -->
 						<div>
 							<Label class="mb-2 flex items-center gap-2">
 								<MessageSquare class="h-4 w-4" />
-								Comments ({comments.length})
+								Comments ({commentsStore.comments.length})
 							</Label>
 
 							<div class="space-y-3">
-								{#each comments as comment}
-									<Card class="p-3">
-										<p class="text-sm">{comment.text}</p>
-										<p class="mt-1 text-xs text-muted-foreground">
-											{formatDate(comment.created_at)}
-										</p>
-									</Card>
-								{/each}
+								{#if commentsStore.loading}
+									<div class="py-4 text-center text-sm text-muted-foreground">
+										Loading comments...
+									</div>
+								{:else if commentsStore.comments.length === 0}
+									<p class="py-4 text-center text-sm text-muted-foreground">
+										No comments yet. Be the first to comment!
+									</p>
+								{:else}
+									{#each commentsStore.comments as comment}
+										<Card class="p-3">
+											<div class="mb-1 flex items-center justify-between">
+												<div class="flex items-center gap-2">
+													{#if comment.user?.image}
+														<img
+															src={comment.user.image}
+															alt={comment.user.name || comment.user.username}
+															class="h-6 w-6 rounded-full"
+														/>
+													{/if}
+													<span class="text-sm font-medium">
+														{comment.user?.name || comment.user?.username || 'Unknown'}
+													</span>
+													<span class="text-xs text-muted-foreground">
+														{formatDate(comment.created_at)}
+													</span>
+												</div>
+												<Button
+													variant="ghost"
+													size="sm"
+													class="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+													onclick={() => deleteComment(comment.id)}
+												>
+													<Trash2 class="h-3 w-3" />
+												</Button>
+											</div>
+											<p class="whitespace-pre-wrap text-sm">{comment.content}</p>
+										</Card>
+									{/each}
+								{/if}
 
 								<div class="flex gap-2">
 									<Textarea
@@ -331,7 +512,11 @@
 											}
 										}}
 									/>
-									<Button onclick={addComment} disabled={!newComment.trim()} class="h-auto">
+									<Button
+										onclick={addComment}
+										disabled={!newComment.trim() || commentsStore.loading}
+										class="h-auto"
+									>
 										<Send class="h-4 w-4" />
 									</Button>
 								</div>
@@ -357,3 +542,65 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	:global(.ProseMirror) {
+		outline: none;
+	}
+
+	:global(.ProseMirror p.is-editor-empty:first-child::before) {
+		color: #adb5bd;
+		content: attr(data-placeholder);
+		float: left;
+		height: 0;
+		pointer-events: none;
+	}
+
+	:global(.ProseMirror h1) {
+		font-size: 1.5rem;
+		font-weight: 700;
+		margin-top: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	:global(.ProseMirror h2) {
+		font-size: 1.25rem;
+		font-weight: 600;
+		margin-top: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	:global(.ProseMirror ul),
+	:global(.ProseMirror ol) {
+		padding-left: 1.5rem;
+		margin: 0.5rem 0;
+	}
+
+	:global(.ProseMirror code) {
+		background-color: rgba(0, 0, 0, 0.05);
+		border-radius: 0.25rem;
+		padding: 0.125rem 0.25rem;
+		font-family: monospace;
+		font-size: 0.875em;
+	}
+
+	:global(.ProseMirror ul[data-type='taskList']) {
+		list-style: none;
+		padding-left: 0;
+	}
+
+	:global(.ProseMirror ul[data-type='taskList'] li) {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+
+	:global(.ProseMirror ul[data-type='taskList'] li > label) {
+		flex: 0 0 auto;
+		margin-top: 0.125rem;
+	}
+
+	:global(.ProseMirror ul[data-type='taskList'] li > div) {
+		flex: 1 1 auto;
+	}
+</style>

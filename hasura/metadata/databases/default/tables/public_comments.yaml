@@ -12,6 +12,8 @@ insert_permissions:
   - role: user
     permission:
       check: {}
+      set:
+        user_id: x-hasura-User-Id
       columns:
         - content
         - created_at

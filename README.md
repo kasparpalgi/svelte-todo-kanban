@@ -25,6 +25,7 @@ Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 * [@dnd-kit](https://dnd-kit-svelte.vercel.app/) - drag'n'drop (for Kanban)
 * [shadcn-svelte](https://shadcn-svelte.com/) - set of beautifully-designed, accessible components. Adding components: `npx shadcn-svelte add <COMPONENT>`
 * [lucide-svelte icons](https://lucide.dev/icons/)
+* [svelte-tiptap](https://tiptap.dev/docs/editor) - Rich markdown editor
 * PostgreSQL for DB. PostgreSQL functions are used where possible for speed and reliability.
 * graphql & graphql-request - handling Hasura GraphQL API requests.
 * Zod for form validation

@@ -84,6 +84,10 @@
 		"@dnd-kit-svelte/sortable": "^0.0.11",
 		"@dnd-kit-svelte/utilities": "^0.0.11",
 		"@neoconfetti/svelte": "^2.2.2",
+		"@tiptap/core": "^3.6.3",
+		"@tiptap/extension-task-item": "^3.6.3",
+		"@tiptap/extension-task-list": "^3.6.3",
+		"@tiptap/starter-kit": "^3.6.3",
 		"dotenv-cli": "^10.0.0",
 		"graphql": "^16.11.0",
 		"graphql-request": "^7.2.0",
@@ -91,6 +95,7 @@
 		"lucide-svelte": "^0.544.0",
 		"mode-watcher": "^1.1.0",
 		"nodemailer": "^6.10.1",
+		"svelte-tiptap": "^3.0.0",
 		"sveltekit-i18n": "^2.4.2",
 		"zod": "^4.1.11"
 	}
