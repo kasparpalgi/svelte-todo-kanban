@@ -24,8 +24,8 @@
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
 	import TodoItem from '$lib/components/todo/TodoItem.svelte';
-	import type { CanbanColumnProps } from '$lib/types/todo';
 	import QuickAddInput from './QuickAddInput.svelte';
+	import type { CanbanColumnProps } from '$lib/types/todo';
 
 	let {
 		list,

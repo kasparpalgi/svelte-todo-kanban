@@ -93,7 +93,7 @@
 						nested: true
 					})
 				],
-				content: foundTodo.content || '<p>Add description...</p>',
+				content: foundTodo.content || '',
 				editorProps: {
 					attributes: {
 						class:
@@ -102,7 +102,7 @@
 				}
 			});
 
-			await commentsStore.loadComments(cardId);
+			await commentsStore.loadComments(cardId || '');
 		}
 		loading = false;
 	});
@@ -500,7 +500,7 @@
 														{comment.user?.name || comment.user?.username || 'Unknown'}
 													</span>
 													<span class="text-xs text-muted-foreground">
-														{formatDate(comment.created_at)}
+														{formatDate(comment.created_at || '')}
 													</span>
 												</div>
 												<Button

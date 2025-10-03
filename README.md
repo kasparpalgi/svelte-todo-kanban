@@ -1,4 +1,4 @@
-# Svelte ToDo app (Kanban)
+# Svelte ToDo app (Kanban) |
 
 Modern Kanban ToDo app built according to requirements [requirements](docs/todolist-svelte.md).
 
