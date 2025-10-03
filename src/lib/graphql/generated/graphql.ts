@@ -985,6 +985,243 @@ export type Boards_Variance_Order_By = {
   sort_order?: InputMaybe<Order_By>;
 };
 
+/** columns and relationships of "comments" */
+export type Comments = {
+  __typename?: 'comments';
+  content: Scalars['String']['output'];
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id: Scalars['uuid']['output'];
+  /** An object relationship */
+  todo: Todos;
+  todo_id: Scalars['uuid']['output'];
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** An object relationship */
+  user: Users;
+  user_id: Scalars['uuid']['output'];
+};
+
+/** aggregated selection of "comments" */
+export type Comments_Aggregate = {
+  __typename?: 'comments_aggregate';
+  aggregate?: Maybe<Comments_Aggregate_Fields>;
+  nodes: Array<Comments>;
+};
+
+export type Comments_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Comments_Aggregate_Bool_Exp_Count>;
+};
+
+export type Comments_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Comments_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Comments_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "comments" */
+export type Comments_Aggregate_Fields = {
+  __typename?: 'comments_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Comments_Max_Fields>;
+  min?: Maybe<Comments_Min_Fields>;
+};
+
+
+/** aggregate fields of "comments" */
+export type Comments_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Comments_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "comments" */
+export type Comments_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Comments_Max_Order_By>;
+  min?: InputMaybe<Comments_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "comments" */
+export type Comments_Arr_Rel_Insert_Input = {
+  data: Array<Comments_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Comments_On_Conflict>;
+};
+
+/** Boolean expression to filter rows from the table "comments". All fields are combined with a logical 'AND'. */
+export type Comments_Bool_Exp = {
+  _and?: InputMaybe<Array<Comments_Bool_Exp>>;
+  _not?: InputMaybe<Comments_Bool_Exp>;
+  _or?: InputMaybe<Array<Comments_Bool_Exp>>;
+  content?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  todo?: InputMaybe<Todos_Bool_Exp>;
+  todo_id?: InputMaybe<Uuid_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "comments" */
+export enum Comments_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  CommentsPkey = 'comments_pkey'
+}
+
+/** input type for inserting data into table "comments" */
+export type Comments_Insert_Input = {
+  content?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  todo?: InputMaybe<Todos_Obj_Rel_Insert_Input>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Comments_Max_Fields = {
+  __typename?: 'comments_max_fields';
+  content?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by max() on columns of table "comments" */
+export type Comments_Max_Order_By = {
+  content?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Comments_Min_Fields = {
+  __typename?: 'comments_min_fields';
+  content?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "comments" */
+export type Comments_Min_Order_By = {
+  content?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "comments" */
+export type Comments_Mutation_Response = {
+  __typename?: 'comments_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Comments>;
+};
+
+/** on_conflict condition type for table "comments" */
+export type Comments_On_Conflict = {
+  constraint: Comments_Constraint;
+  update_columns?: Array<Comments_Update_Column>;
+  where?: InputMaybe<Comments_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "comments". */
+export type Comments_Order_By = {
+  content?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  todo?: InputMaybe<Todos_Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: comments */
+export type Comments_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "comments" */
+export enum Comments_Select_Column {
+  /** column name */
+  Content = 'content',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "comments" */
+export type Comments_Set_Input = {
+  content?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** Streaming cursor of the table "comments" */
+export type Comments_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Comments_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Comments_Stream_Cursor_Value_Input = {
+  content?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** update columns of table "comments" */
+export enum Comments_Update_Column {
+  /** column name */
+  Content = 'content',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Comments_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Comments_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Comments_Bool_Exp;
+};
+
 /** ordering argument of a cursor */
 export enum Cursor_Ordering {
   /** ascending ordering of the cursor */
@@ -1802,6 +2039,10 @@ export type Mutation_Root = {
   delete_boards?: Maybe<Boards_Mutation_Response>;
   /** delete single row from the table: "boards" */
   delete_boards_by_pk?: Maybe<Boards>;
+  /** delete data from the table: "comments" */
+  delete_comments?: Maybe<Comments_Mutation_Response>;
+  /** delete single row from the table: "comments" */
+  delete_comments_by_pk?: Maybe<Comments>;
   /** delete data from the table: "labels" */
   delete_labels?: Maybe<Labels_Mutation_Response>;
   /** delete single row from the table: "labels" */
@@ -1842,6 +2083,10 @@ export type Mutation_Root = {
   insert_boards?: Maybe<Boards_Mutation_Response>;
   /** insert a single row into the table: "boards" */
   insert_boards_one?: Maybe<Boards>;
+  /** insert data into the table: "comments" */
+  insert_comments?: Maybe<Comments_Mutation_Response>;
+  /** insert a single row into the table: "comments" */
+  insert_comments_one?: Maybe<Comments>;
   /** insert data into the table: "labels" */
   insert_labels?: Maybe<Labels_Mutation_Response>;
   /** insert a single row into the table: "labels" */
@@ -1886,6 +2131,12 @@ export type Mutation_Root = {
   update_boards_by_pk?: Maybe<Boards>;
   /** update multiples rows of table: "boards" */
   update_boards_many?: Maybe<Array<Maybe<Boards_Mutation_Response>>>;
+  /** update data of the table: "comments" */
+  update_comments?: Maybe<Comments_Mutation_Response>;
+  /** update single row of the table: "comments" */
+  update_comments_by_pk?: Maybe<Comments>;
+  /** update multiples rows of table: "comments" */
+  update_comments_many?: Maybe<Array<Maybe<Comments_Mutation_Response>>>;
   /** update data of the table: "labels" */
   update_labels?: Maybe<Labels_Mutation_Response>;
   /** update single row of the table: "labels" */
@@ -1957,6 +2208,18 @@ export type Mutation_RootDelete_BoardsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Boards_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_CommentsArgs = {
+  where: Comments_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Comments_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -2084,6 +2347,20 @@ export type Mutation_RootInsert_BoardsArgs = {
 export type Mutation_RootInsert_Boards_OneArgs = {
   object: Boards_Insert_Input;
   on_conflict?: InputMaybe<Boards_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_CommentsArgs = {
+  objects: Array<Comments_Insert_Input>;
+  on_conflict?: InputMaybe<Comments_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Comments_OneArgs = {
+  object: Comments_Insert_Input;
+  on_conflict?: InputMaybe<Comments_On_Conflict>;
 };
 
 
@@ -2240,6 +2517,26 @@ export type Mutation_RootUpdate_Boards_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Boards_ManyArgs = {
   updates: Array<Boards_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_CommentsArgs = {
+  _set?: InputMaybe<Comments_Set_Input>;
+  where: Comments_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Comments_By_PkArgs = {
+  _set?: InputMaybe<Comments_Set_Input>;
+  pk_columns: Comments_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Comments_ManyArgs = {
+  updates: Array<Comments_Updates>;
 };
 
 
@@ -2449,6 +2746,12 @@ export type Query_Root = {
   /** fetch data from the table: "boards" using primary key columns */
   boards_by_pk?: Maybe<Boards>;
   /** An array relationship */
+  comments: Array<Comments>;
+  /** An aggregate relationship */
+  comments_aggregate: Comments_Aggregate;
+  /** fetch data from the table: "comments" using primary key columns */
+  comments_by_pk?: Maybe<Comments>;
+  /** An array relationship */
   labels: Array<Labels>;
   /** An aggregate relationship */
   labels_aggregate: Labels_Aggregate;
@@ -2541,6 +2844,29 @@ export type Query_RootBoards_AggregateArgs = {
 
 
 export type Query_RootBoards_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootCommentsArgs = {
+  distinct_on?: InputMaybe<Array<Comments_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Comments_Order_By>>;
+  where?: InputMaybe<Comments_Bool_Exp>;
+};
+
+
+export type Query_RootComments_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Comments_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Comments_Order_By>>;
+  where?: InputMaybe<Comments_Bool_Exp>;
+};
+
+
+export type Query_RootComments_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -2983,6 +3309,14 @@ export type Subscription_Root = {
   /** fetch data from the table in a streaming manner: "boards" */
   boards_stream: Array<Boards>;
   /** An array relationship */
+  comments: Array<Comments>;
+  /** An aggregate relationship */
+  comments_aggregate: Comments_Aggregate;
+  /** fetch data from the table: "comments" using primary key columns */
+  comments_by_pk?: Maybe<Comments>;
+  /** fetch data from the table in a streaming manner: "comments" */
+  comments_stream: Array<Comments>;
+  /** An array relationship */
   labels: Array<Labels>;
   /** An aggregate relationship */
   labels_aggregate: Labels_Aggregate;
@@ -3106,6 +3440,36 @@ export type Subscription_RootBoards_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Boards_Stream_Cursor_Input>>;
   where?: InputMaybe<Boards_Bool_Exp>;
+};
+
+
+export type Subscription_RootCommentsArgs = {
+  distinct_on?: InputMaybe<Array<Comments_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Comments_Order_By>>;
+  where?: InputMaybe<Comments_Bool_Exp>;
+};
+
+
+export type Subscription_RootComments_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Comments_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Comments_Order_By>>;
+  where?: InputMaybe<Comments_Bool_Exp>;
+};
+
+
+export type Subscription_RootComments_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootComments_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Comments_Stream_Cursor_Input>>;
+  where?: InputMaybe<Comments_Bool_Exp>;
 };
 
 
@@ -3563,6 +3927,10 @@ export type Todo_Labels_Updates = {
 export type Todos = {
   __typename?: 'todos';
   alias: Scalars['String']['output'];
+  /** An array relationship */
+  comments: Array<Comments>;
+  /** An aggregate relationship */
+  comments_aggregate: Comments_Aggregate;
   completed_at?: Maybe<Scalars['timestamptz']['output']>;
   content?: Maybe<Scalars['String']['output']>;
   created_at: Scalars['timestamptz']['output'];
@@ -3586,6 +3954,26 @@ export type Todos = {
   /** An object relationship */
   user: Users;
   user_id: Scalars['uuid']['output'];
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosCommentsArgs = {
+  distinct_on?: InputMaybe<Array<Comments_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Comments_Order_By>>;
+  where?: InputMaybe<Comments_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosComments_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Comments_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Comments_Order_By>>;
+  where?: InputMaybe<Comments_Bool_Exp>;
 };
 
 
@@ -3708,6 +4096,8 @@ export type Todos_Bool_Exp = {
   _not?: InputMaybe<Todos_Bool_Exp>;
   _or?: InputMaybe<Array<Todos_Bool_Exp>>;
   alias?: InputMaybe<String_Comparison_Exp>;
+  comments?: InputMaybe<Comments_Bool_Exp>;
+  comments_aggregate?: InputMaybe<Comments_Aggregate_Bool_Exp>;
   completed_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   content?: InputMaybe<String_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -3743,6 +4133,7 @@ export type Todos_Inc_Input = {
 /** input type for inserting data into table "todos" */
 export type Todos_Insert_Input = {
   alias?: InputMaybe<Scalars['String']['input']>;
+  comments?: InputMaybe<Comments_Arr_Rel_Insert_Input>;
   completed_at?: InputMaybe<Scalars['timestamptz']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -3852,6 +4243,7 @@ export type Todos_On_Conflict = {
 /** Ordering options when selecting data from "todos". */
 export type Todos_Order_By = {
   alias?: InputMaybe<Order_By>;
+  comments_aggregate?: InputMaybe<Comments_Aggregate_Order_By>;
   completed_at?: InputMaybe<Order_By>;
   content?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
@@ -4855,11 +5247,13 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null };
 
 export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null } };
+
+export type CommentFieldsFragment = { __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } };
 
 export type LabelFieldsFragment = { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null };
 
@@ -4873,7 +5267,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -4900,7 +5294,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -4908,7 +5302,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -4993,6 +5387,38 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = { __typename?: 'mutation_root', update_users?: { __typename?: 'users_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, created_at: string, updated_at: string }> } | null };
 
+export type GetCommentsQueryVariables = Exact<{
+  where?: InputMaybe<Comments_Bool_Exp>;
+  order_by?: InputMaybe<Array<Comments_Order_By> | Comments_Order_By>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetCommentsQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> };
+
+export type CreateCommentMutationVariables = Exact<{
+  objects: Array<Comments_Insert_Input> | Comments_Insert_Input;
+}>;
+
+
+export type CreateCommentMutation = { __typename?: 'mutation_root', insert_comments?: { __typename?: 'comments_mutation_response', returning: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> } | null };
+
+export type UpdateCommentMutationVariables = Exact<{
+  where: Comments_Bool_Exp;
+  _set: Comments_Set_Input;
+}>;
+
+
+export type UpdateCommentMutation = { __typename?: 'mutation_root', update_comments?: { __typename?: 'comments_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> } | null };
+
+export type DeleteCommentMutationVariables = Exact<{
+  where: Comments_Bool_Exp;
+}>;
+
+
+export type DeleteCommentMutation = { __typename?: 'mutation_root', delete_comments?: { __typename?: 'comments_mutation_response', affected_rows: number } | null };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -5022,6 +5448,23 @@ export const LabelFieldsFragmentDoc = new TypedDocumentString(`
   updated_at
 }
     `, {"fragmentName":"LabelFields"}) as unknown as TypedDocumentString<LabelFieldsFragment, unknown>;
+export const CommentFieldsFragmentDoc = new TypedDocumentString(`
+    fragment CommentFields on comments {
+  id
+  content
+  todo_id
+  user_id
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}
+    `, {"fragmentName":"CommentFields"}) as unknown as TypedDocumentString<CommentFieldsFragment, unknown>;
 export const TodoFieldsFragmentDoc = new TypedDocumentString(`
     fragment TodoFields on todos {
   id
@@ -5038,6 +5481,9 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
     label {
       ...LabelFields
     }
+  }
+  comments(order_by: {created_at: asc}) {
+    ...CommentFields
   }
   uploads {
     id
@@ -5056,7 +5502,22 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
     }
   }
 }
-    fragment LabelFields on labels {
+    fragment CommentFields on comments {
+  id
+  content
+  todo_id
+  user_id
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}
+fragment LabelFields on labels {
   id
   name
   color
@@ -5145,6 +5606,9 @@ export const GetTodosDocument = new TypedDocumentString(`
       ...LabelFields
     }
   }
+  comments(order_by: {created_at: asc}) {
+    ...CommentFields
+  }
   uploads {
     id
     url
@@ -5160,6 +5624,21 @@ export const GetTodosDocument = new TypedDocumentString(`
       alias
       sort_order
     }
+  }
+}
+fragment CommentFields on comments {
+  id
+  content
+  todo_id
+  user_id
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    image
+    email
   }
 }
 fragment LabelFields on labels {
@@ -5246,6 +5725,9 @@ export const CreateTodoDocument = new TypedDocumentString(`
       ...LabelFields
     }
   }
+  comments(order_by: {created_at: asc}) {
+    ...CommentFields
+  }
   uploads {
     id
     url
@@ -5261,6 +5743,21 @@ export const CreateTodoDocument = new TypedDocumentString(`
       alias
       sort_order
     }
+  }
+}
+fragment CommentFields on comments {
+  id
+  content
+  todo_id
+  user_id
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    image
+    email
   }
 }
 fragment LabelFields on labels {
@@ -5297,6 +5794,9 @@ export const UpdateTodosDocument = new TypedDocumentString(`
       ...LabelFields
     }
   }
+  comments(order_by: {created_at: asc}) {
+    ...CommentFields
+  }
   uploads {
     id
     url
@@ -5312,6 +5812,21 @@ export const UpdateTodosDocument = new TypedDocumentString(`
       alias
       sort_order
     }
+  }
+}
+fragment CommentFields on comments {
+  id
+  content
+  todo_id
+  user_id
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    image
+    email
   }
 }
 fragment LabelFields on labels {
@@ -5518,3 +6033,78 @@ export const UpdateUserDocument = new TypedDocumentString(`
   created_at
   updated_at
 }`) as unknown as TypedDocumentString<UpdateUserMutation, UpdateUserMutationVariables>;
+export const GetCommentsDocument = new TypedDocumentString(`
+    query GetComments($where: comments_bool_exp = {}, $order_by: [comments_order_by!] = {created_at: asc}, $limit: Int = 100, $offset: Int = 0) {
+  comments(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+    ...CommentFields
+  }
+}
+    fragment CommentFields on comments {
+  id
+  content
+  todo_id
+  user_id
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}`) as unknown as TypedDocumentString<GetCommentsQuery, GetCommentsQueryVariables>;
+export const CreateCommentDocument = new TypedDocumentString(`
+    mutation CreateComment($objects: [comments_insert_input!]!) {
+  insert_comments(objects: $objects) {
+    returning {
+      ...CommentFields
+    }
+  }
+}
+    fragment CommentFields on comments {
+  id
+  content
+  todo_id
+  user_id
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}`) as unknown as TypedDocumentString<CreateCommentMutation, CreateCommentMutationVariables>;
+export const UpdateCommentDocument = new TypedDocumentString(`
+    mutation UpdateComment($where: comments_bool_exp!, $_set: comments_set_input!) {
+  update_comments(where: $where, _set: $_set) {
+    affected_rows
+    returning {
+      ...CommentFields
+    }
+  }
+}
+    fragment CommentFields on comments {
+  id
+  content
+  todo_id
+  user_id
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}`) as unknown as TypedDocumentString<UpdateCommentMutation, UpdateCommentMutationVariables>;
+export const DeleteCommentDocument = new TypedDocumentString(`
+    mutation DeleteComment($where: comments_bool_exp!) {
+  delete_comments(where: $where) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteCommentMutation, DeleteCommentMutationVariables>;

@@ -1,0 +1,16 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- -- Comments table
+-- CREATE TABLE comments (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   todo_id UUID NOT NULL REFERENCES todos(id) ON DELETE CASCADE,
+--   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+--   content TEXT NOT NULL,
+--   created_at TIMESTAMPTZ DEFAULT NOW(),
+--   updated_at TIMESTAMPTZ DEFAULT NOW()
+-- );
+--
+-- -- Indexes
+-- CREATE INDEX idx_comments_todo_id ON comments(todo_id);
+-- CREATE INDEX idx_comments_user_id ON comments(user_id);
+-- CREATE INDEX idx_comments_created_at ON comments(created_at DESC);

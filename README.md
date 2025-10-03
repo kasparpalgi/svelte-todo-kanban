@@ -35,7 +35,7 @@ Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
 The application is structured as a monorepo, containing the SvelteKit frontend, Hasura backend configuration, and testing suites all in one place.
 
 *   **Frontend (SvelteKit):** The core of the application resides in the `src` directory.
-    *   `src/routes`: Defines all application pages and API endpoints. It uses a `[lang]` dynamic parameter to handle internationalized routing (for future possible needs).
+    *   `src/routes`: Defines all application pages and API endpoints. See "routing" for more below.
     *   `src/lib/components`: Contains reusable Svelte components, organized by feature (`todo`, `listBoard`) and a general `ui` directory for components from mostly `shadcn-svelte`.
     *   `src/lib/stores`: Manages application state using Svelte stores, following a factory pattern to encapsulate state and business logic.
     *   `src/lib/graphql`: Holds the GraphQL client (`client.ts`), queries and mutations (`documents.ts`), and auto-generated types, ensuring a type-safe data layer.
@@ -47,6 +47,33 @@ The application is structured as a monorepo, containing the SvelteKit frontend, 
 *   **Testing:**
     *   `e2e/`: End-to-end tests are written using Playwright.
     *   `*.spec.ts`: Unit and component tests are powered by Vitest.
+
+##### Routing
+
+App generates user-friendly URLs using automatically generated aliases:
+
+- **Boards**: `/[lang]/[username]/[boardAlias]` - each board gets a unique, URL-friendly alias generated from its name
+- **Todos**: `/[lang]/[username]/[boardAlias]/[todoAlias]` - todos have user-scoped aliases (unique per user)
+
+**Alias Generation:**
+
+Username for the user and aliases for the boards and todos are generated using PostgreSQL functions.
+
+- Converts names to lowercase, URL-friendly format
+- Replaces spaces with hyphens
+- Removes special characters
+- Handles duplicates by appending numbers (e.g., `my-board`, `my-board2`)
+- **Boards**: Globally unique aliases across all users
+- **Todos**: User-scoped uniqueness (multiple users can have the same alias)
+
+Example URLs:
+- `/en/john-w/work-projects`
+- `/en/sarah/personal-tasks/shopping`
+
+**Future Plans:**
+
+1. Allow users to customize their username.
+2. Enable shareable URLs: `/[username]/[boardAlias]/[todoAlias]`
 
 ### Description of features
 
