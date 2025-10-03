@@ -1,0 +1,44 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- CREATE TABLE board_members (
+--   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--   board_id UUID NOT NULL REFERENCES boards(id) ON DELETE CASCADE,
+--   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+--   role VARCHAR(20) NOT NULL CHECK (role IN ('owner', 'editor', 'viewer')),
+--   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+--   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+--
+--   -- Ensure a user can only be a member of a board once
+--   CONSTRAINT board_members_board_user_unique UNIQUE (board_id, user_id)
+-- );
+--
+-- -- Indexes for performance
+-- CREATE INDEX idx_board_members_board_id ON board_members(board_id);
+-- CREATE INDEX idx_board_members_user_id ON board_members(user_id);
+-- CREATE INDEX idx_board_members_role ON board_members(role);
+--
+-- -- Trigger to update updated_at timestamp
+-- CREATE TRIGGER set_board_members_updated_at
+--   BEFORE UPDATE ON board_members
+--   FOR EACH ROW
+--   EXECUTE PROCEDURE set_current_timestamp_updated_at();
+--
+-- -- Function to automatically add board creator as owner
+-- -- This will be called when a new board is created
+-- CREATE OR REPLACE FUNCTION add_board_creator_as_owner()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--   INSERT INTO board_members (board_id, user_id, role)
+--   VALUES (NEW.id, NEW.user_id, 'owner');
+--   RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql;
+--
+-- -- Trigger to add board creator as owner when board is created
+-- CREATE TRIGGER board_creator_as_owner
+--   AFTER INSERT ON boards
+--   FOR EACH ROW
+--   EXECUTE PROCEDURE add_board_creator_as_owner();
+--
+-- COMMENT ON TABLE board_members IS 'Tracks board membership and user roles (owner/editor/viewer)';
+-- COMMENT ON COLUMN board_members.role IS 'User role: owner (full control), editor (can modify), viewer (read-only)';

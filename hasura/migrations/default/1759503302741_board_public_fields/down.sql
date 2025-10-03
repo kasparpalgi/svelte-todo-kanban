@@ -1,0 +1,10 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- ALTER TABLE boards
+--   ADD COLUMN is_public BOOLEAN NOT NULL DEFAULT FALSE,
+--   ADD COLUMN allow_public_comments BOOLEAN NOT NULL DEFAULT FALSE;
+--
+-- CREATE INDEX idx_boards_is_public ON boards(is_public) WHERE is_public = TRUE;
+--
+-- COMMENT ON COLUMN boards.is_public IS 'When true, board is viewable by anyone (read-only unless member)';
+-- COMMENT ON COLUMN boards.allow_public_comments IS 'When true and is_public=true, non-members can comment on todos';
