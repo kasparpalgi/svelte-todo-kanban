@@ -8,3 +8,9 @@ export interface LogEntry {
 	userAgent?: string;
 	url?: string;
 }
+
+export interface EncryptedData {
+	encrypted: string;
+	iv: string;
+	authTag: string;
+}
