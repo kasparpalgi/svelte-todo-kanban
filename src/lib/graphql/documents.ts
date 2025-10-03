@@ -13,6 +13,11 @@ export const TODO_FRAGMENT = graphql(`
 		completed_at
 		created_at
 		updated_at
+		labels {
+			label {
+				...LabelFields
+			}
+		}
 		uploads {
 			id
 			url
@@ -57,11 +62,26 @@ export const BOARD_FRAGMENT = graphql(`
 		sort_order
 		created_at
 		updated_at
+		labels {
+			...LabelFields
+		}
 		user {
 			id
 			username
 			email
 		}
+	}
+`);
+
+export const LABEL_FRAGMENT = graphql(`
+	fragment LabelFields on labels {
+		id
+		name
+		color
+		sort_order
+		board_id
+		created_at
+		updated_at
 	}
 `);
 
@@ -75,6 +95,7 @@ export const USER_FRAGMENT = graphql(`
 		locale
 		dark_mode
 		settings
+		default_labels
 		emailVerified
 		created_at
 		updated_at

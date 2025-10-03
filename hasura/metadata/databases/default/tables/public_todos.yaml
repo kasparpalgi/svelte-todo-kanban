@@ -9,7 +9,7 @@ object_relationships:
     using:
       foreign_key_constraint_on: user_id
 array_relationships:
-  - name: todo_labels
+  - name: labels
     using:
       foreign_key_constraint_on:
         column: todo_id

@@ -15,10 +15,11 @@ import * as types from './graphql';
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "\n\tfragment TodoFields on todos {\n\t\tid\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t}\n\t\t}\n\t}\n": typeof types.TodoFieldsFragmentDoc,
+    "\n\tfragment TodoFields on todos {\n\t\tid\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t}\n\t\t}\n\t}\n": typeof types.TodoFieldsFragmentDoc,
     "\n\tfragment ListFields on lists {\n\t\tid\n\t\tname\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t\tsort_order\n\t\t}\n\t}\n": typeof types.ListFieldsFragmentDoc,
-    "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t}\n": typeof types.BoardFieldsFragmentDoc,
-    "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.UserFieldsFragmentDoc,
+    "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t}\n": typeof types.BoardFieldsFragmentDoc,
+    "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.LabelFieldsFragmentDoc,
+    "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.UserFieldsFragmentDoc,
     "\n\tquery GetTodos(\n\t\t$where: todos_bool_exp = {}\n\t\t$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\ttodos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...TodoFields\n\t\t}\n\t}\n": typeof types.GetTodosDocument,
     "\n\tquery GetLists(\n\t\t$where: lists_bool_exp = {}\n\t\t$order_by: [lists_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tlists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ListFields\n\t\t}\n\t}\n": typeof types.GetListsDocument,
     "\n\tquery GetBoards(\n\t\t$where: boards_bool_exp = {}\n\t\t$order_by: [boards_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboards(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardFields\n\t\t}\n\t}\n": typeof types.GetBoardsDocument,
@@ -37,10 +38,11 @@ type Documents = {
     "\n\tmutation UpdateUser($where: users_bool_exp!, $_set: users_set_input!) {\n\t\tupdate_users(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...UserFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateUserDocument,
 };
 const documents: Documents = {
-    "\n\tfragment TodoFields on todos {\n\t\tid\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t}\n\t\t}\n\t}\n": types.TodoFieldsFragmentDoc,
+    "\n\tfragment TodoFields on todos {\n\t\tid\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t}\n\t\t}\n\t}\n": types.TodoFieldsFragmentDoc,
     "\n\tfragment ListFields on lists {\n\t\tid\n\t\tname\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t\tsort_order\n\t\t}\n\t}\n": types.ListFieldsFragmentDoc,
-    "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t}\n": types.BoardFieldsFragmentDoc,
-    "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.UserFieldsFragmentDoc,
+    "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t}\n": types.BoardFieldsFragmentDoc,
+    "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.LabelFieldsFragmentDoc,
+    "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.UserFieldsFragmentDoc,
     "\n\tquery GetTodos(\n\t\t$where: todos_bool_exp = {}\n\t\t$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\ttodos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...TodoFields\n\t\t}\n\t}\n": types.GetTodosDocument,
     "\n\tquery GetLists(\n\t\t$where: lists_bool_exp = {}\n\t\t$order_by: [lists_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tlists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ListFields\n\t\t}\n\t}\n": types.GetListsDocument,
     "\n\tquery GetBoards(\n\t\t$where: boards_bool_exp = {}\n\t\t$order_by: [boards_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboards(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardFields\n\t\t}\n\t}\n": types.GetBoardsDocument,
@@ -62,7 +64,7 @@ const documents: Documents = {
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tfragment TodoFields on todos {\n\t\tid\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').TodoFieldsFragmentDoc;
+export function graphql(source: "\n\tfragment TodoFields on todos {\n\t\tid\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').TodoFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -70,11 +72,15 @@ export function graphql(source: "\n\tfragment ListFields on lists {\n\t\tid\n\t\
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t}\n"): typeof import('./graphql').BoardFieldsFragmentDoc;
+export function graphql(source: "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t}\n"): typeof import('./graphql').BoardFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n"): typeof import('./graphql').UserFieldsFragmentDoc;
+export function graphql(source: "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n"): typeof import('./graphql').LabelFieldsFragmentDoc;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n"): typeof import('./graphql').UserFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
