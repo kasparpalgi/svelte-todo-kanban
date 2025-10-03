@@ -39,6 +39,7 @@ insert_permissions:
       columns:
         - created_at
         - dark_mode
+        - default_labels
         - email
         - emailVerified
         - id
@@ -55,6 +56,7 @@ select_permissions:
       columns:
         - created_at
         - dark_mode
+        - default_labels
         - email
         - emailVerified
         - id
@@ -73,6 +75,7 @@ update_permissions:
     permission:
       columns:
         - dark_mode
+        - default_labels
         - email
         - emailVerified
         - image

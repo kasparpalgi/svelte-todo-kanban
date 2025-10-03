@@ -23,7 +23,13 @@ insert_permissions:
 select_permissions:
   - role: user
     permission:
-      columns: []
+      columns:
+        - content
+        - created_at
+        - updated_at
+        - id
+        - todo_id
+        - user_id
       filter:
         todo:
           user_id:
