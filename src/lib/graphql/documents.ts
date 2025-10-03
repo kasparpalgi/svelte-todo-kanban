@@ -335,3 +335,48 @@ export const DELETE_COMMENT = graphql(`
 		}
 	}
 `);
+
+export const ADD_TODO_LABEL = graphql(`
+	mutation AddTodoLabel($objects: [todo_labels_insert_input!]!) {
+		insert_todo_labels(objects: $objects) {
+			affected_rows
+		}
+	}
+`);
+
+export const REMOVE_TODO_LABEL = graphql(`
+	mutation RemoveTodoLabel($where: todo_labels_bool_exp!) {
+		delete_todo_labels(where: $where) {
+			affected_rows
+		}
+	}
+`);
+
+export const CREATE_LABEL = graphql(`
+	mutation CreateLabel($objects: [labels_insert_input!]!) {
+		insert_labels(objects: $objects) {
+			returning {
+				...LabelFields
+			}
+		}
+	}
+`);
+
+export const UPDATE_LABEL = graphql(`
+	mutation UpdateLabel($where: labels_bool_exp!, $_set: labels_set_input!) {
+		update_labels(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				...LabelFields
+			}
+		}
+	}
+`);
+
+export const DELETE_LABEL = graphql(`
+	mutation DeleteLabel($where: labels_bool_exp!) {
+		delete_labels(where: $where) {
+			affected_rows
+		}
+	}
+`);

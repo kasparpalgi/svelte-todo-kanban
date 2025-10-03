@@ -41,6 +41,11 @@ type Documents = {
     "\n\tmutation CreateComment($objects: [comments_insert_input!]!) {\n\t\tinsert_comments(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...CommentFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateCommentDocument,
     "\n\tmutation UpdateComment($where: comments_bool_exp!, $_set: comments_set_input!) {\n\t\tupdate_comments(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...CommentFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateCommentDocument,
     "\n\tmutation DeleteComment($where: comments_bool_exp!) {\n\t\tdelete_comments(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteCommentDocument,
+    "\n\tmutation AddTodoLabel($objects: [todo_labels_insert_input!]!) {\n\t\tinsert_todo_labels(objects: $objects) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.AddTodoLabelDocument,
+    "\n\tmutation RemoveTodoLabel($where: todo_labels_bool_exp!) {\n\t\tdelete_todo_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.RemoveTodoLabelDocument,
+    "\n\tmutation CreateLabel($objects: [labels_insert_input!]!) {\n\t\tinsert_labels(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateLabelDocument,
+    "\n\tmutation UpdateLabel($where: labels_bool_exp!, $_set: labels_set_input!) {\n\t\tupdate_labels(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateLabelDocument,
+    "\n\tmutation DeleteLabel($where: labels_bool_exp!) {\n\t\tdelete_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteLabelDocument,
 };
 const documents: Documents = {
     "\n\tfragment TodoFields on todos {\n\t\tid\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tcomments(order_by: { created_at: asc }) {\n\t\t\t...CommentFields\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t}\n\t\t}\n\t}\n": types.TodoFieldsFragmentDoc,
@@ -69,6 +74,11 @@ const documents: Documents = {
     "\n\tmutation CreateComment($objects: [comments_insert_input!]!) {\n\t\tinsert_comments(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...CommentFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateCommentDocument,
     "\n\tmutation UpdateComment($where: comments_bool_exp!, $_set: comments_set_input!) {\n\t\tupdate_comments(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...CommentFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateCommentDocument,
     "\n\tmutation DeleteComment($where: comments_bool_exp!) {\n\t\tdelete_comments(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteCommentDocument,
+    "\n\tmutation AddTodoLabel($objects: [todo_labels_insert_input!]!) {\n\t\tinsert_todo_labels(objects: $objects) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.AddTodoLabelDocument,
+    "\n\tmutation RemoveTodoLabel($where: todo_labels_bool_exp!) {\n\t\tdelete_todo_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.RemoveTodoLabelDocument,
+    "\n\tmutation CreateLabel($objects: [labels_insert_input!]!) {\n\t\tinsert_labels(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateLabelDocument,
+    "\n\tmutation UpdateLabel($where: labels_bool_exp!, $_set: labels_set_input!) {\n\t\tupdate_labels(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateLabelDocument,
+    "\n\tmutation DeleteLabel($where: labels_bool_exp!) {\n\t\tdelete_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteLabelDocument,
 };
 
 /**
@@ -175,6 +185,26 @@ export function graphql(source: "\n\tmutation UpdateComment($where: comments_boo
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tmutation DeleteComment($where: comments_bool_exp!) {\n\t\tdelete_comments(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteCommentDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation AddTodoLabel($objects: [todo_labels_insert_input!]!) {\n\t\tinsert_todo_labels(objects: $objects) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').AddTodoLabelDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation RemoveTodoLabel($where: todo_labels_bool_exp!) {\n\t\tdelete_todo_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').RemoveTodoLabelDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation CreateLabel($objects: [labels_insert_input!]!) {\n\t\tinsert_labels(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').CreateLabelDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation UpdateLabel($where: labels_bool_exp!, $_set: labels_set_input!) {\n\t\tupdate_labels(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateLabelDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation DeleteLabel($where: labels_bool_exp!) {\n\t\tdelete_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteLabelDocument;
 
 
 export function graphql(source: string) {

@@ -5419,6 +5419,42 @@ export type DeleteCommentMutationVariables = Exact<{
 
 export type DeleteCommentMutation = { __typename?: 'mutation_root', delete_comments?: { __typename?: 'comments_mutation_response', affected_rows: number } | null };
 
+export type AddTodoLabelMutationVariables = Exact<{
+  objects: Array<Todo_Labels_Insert_Input> | Todo_Labels_Insert_Input;
+}>;
+
+
+export type AddTodoLabelMutation = { __typename?: 'mutation_root', insert_todo_labels?: { __typename?: 'todo_labels_mutation_response', affected_rows: number } | null };
+
+export type RemoveTodoLabelMutationVariables = Exact<{
+  where: Todo_Labels_Bool_Exp;
+}>;
+
+
+export type RemoveTodoLabelMutation = { __typename?: 'mutation_root', delete_todo_labels?: { __typename?: 'todo_labels_mutation_response', affected_rows: number } | null };
+
+export type CreateLabelMutationVariables = Exact<{
+  objects: Array<Labels_Insert_Input> | Labels_Insert_Input;
+}>;
+
+
+export type CreateLabelMutation = { __typename?: 'mutation_root', insert_labels?: { __typename?: 'labels_mutation_response', returning: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }> } | null };
+
+export type UpdateLabelMutationVariables = Exact<{
+  where: Labels_Bool_Exp;
+  _set: Labels_Set_Input;
+}>;
+
+
+export type UpdateLabelMutation = { __typename?: 'mutation_root', update_labels?: { __typename?: 'labels_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }> } | null };
+
+export type DeleteLabelMutationVariables = Exact<{
+  where: Labels_Bool_Exp;
+}>;
+
+
+export type DeleteLabelMutation = { __typename?: 'mutation_root', delete_labels?: { __typename?: 'labels_mutation_response', affected_rows: number } | null };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -6108,3 +6144,59 @@ export const DeleteCommentDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteCommentMutation, DeleteCommentMutationVariables>;
+export const AddTodoLabelDocument = new TypedDocumentString(`
+    mutation AddTodoLabel($objects: [todo_labels_insert_input!]!) {
+  insert_todo_labels(objects: $objects) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<AddTodoLabelMutation, AddTodoLabelMutationVariables>;
+export const RemoveTodoLabelDocument = new TypedDocumentString(`
+    mutation RemoveTodoLabel($where: todo_labels_bool_exp!) {
+  delete_todo_labels(where: $where) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<RemoveTodoLabelMutation, RemoveTodoLabelMutationVariables>;
+export const CreateLabelDocument = new TypedDocumentString(`
+    mutation CreateLabel($objects: [labels_insert_input!]!) {
+  insert_labels(objects: $objects) {
+    returning {
+      ...LabelFields
+    }
+  }
+}
+    fragment LabelFields on labels {
+  id
+  name
+  color
+  sort_order
+  board_id
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<CreateLabelMutation, CreateLabelMutationVariables>;
+export const UpdateLabelDocument = new TypedDocumentString(`
+    mutation UpdateLabel($where: labels_bool_exp!, $_set: labels_set_input!) {
+  update_labels(where: $where, _set: $_set) {
+    affected_rows
+    returning {
+      ...LabelFields
+    }
+  }
+}
+    fragment LabelFields on labels {
+  id
+  name
+  color
+  sort_order
+  board_id
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<UpdateLabelMutation, UpdateLabelMutationVariables>;
+export const DeleteLabelDocument = new TypedDocumentString(`
+    mutation DeleteLabel($where: labels_bool_exp!) {
+  delete_labels(where: $where) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteLabelMutation, DeleteLabelMutationVariables>;

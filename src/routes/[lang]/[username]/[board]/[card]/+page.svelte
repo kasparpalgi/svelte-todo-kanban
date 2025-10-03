@@ -37,6 +37,7 @@
 	import StarterKit from '@tiptap/starter-kit';
 	import TaskList from '@tiptap/extension-task-list';
 	import TaskItem from '@tiptap/extension-task-item';
+	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
 
 	let { data } = $props();
 
@@ -56,6 +57,13 @@
 	let validationErrors = $state<Record<string, string>>({});
 	let isSubmitting = $state(false);
 	let editor = $state() as Readable<Editor>;
+
+	$effect(() => {
+		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
+		if (foundTodo && todo) {
+			todo = foundTodo;
+		}
+	});
 
 	const todoEditSchema = z.object({
 		title: z.string().min(1, 'Title is required').max(200).trim(),
@@ -259,14 +267,14 @@
 						variant="ghost"
 						size="sm"
 						onclick={closeModal}
-						class="absolute right-4 top-4 z-10 h-8 w-8 p-0"
+						class="absolute right-2 top-2 z-10 h-7 w-7 p-0"
 					>
-						<X class="h-4 w-4" />
+						<X class="h-3.5 w-3.5" />
 					</Button>
 
-					<CardHeader class="pb-4">
-						<div class="mb-2 flex flex-wrap items-center justify-between gap-2">
-							<div class="flex flex-wrap items-center gap-2">
+					<CardHeader class="pb-4 pr-12">
+						<div class="mb-3 flex flex-wrap items-start justify-between gap-2">
+							<div class="flex flex-1 flex-wrap items-center gap-2">
 								{#if todo.list}
 									<Badge variant="secondary" class="text-xs">
 										{todo.list.name}
@@ -275,16 +283,9 @@
 								<Badge class="{getPriorityColor(editData.priority)} text-xs text-white">
 									{getPriorityLabel(editData.priority)}
 								</Badge>
-								{#if todo.labels && todo.labels.length > 0}
-									{#each todo.labels as { label }}
-										<Badge style="background-color: {label.color}" class="text-xs text-white">
-											{label.name}
-										</Badge>
-									{/each}
-								{/if}
 							</div>
 
-							<Button onclick={saveTodo} disabled={isSubmitting} size="sm">
+							<Button onclick={saveTodo} disabled={isSubmitting} size="sm" class="shrink-0">
 								{isSubmitting ? 'Saving...' : 'Save'}
 							</Button>
 						</div>
@@ -447,6 +448,8 @@
 								</select>
 							</div>
 						</div>
+
+						<CardLabelManager {todo} />
 
 						{#if todo.uploads && todo.uploads.length > 0}
 							<div>
