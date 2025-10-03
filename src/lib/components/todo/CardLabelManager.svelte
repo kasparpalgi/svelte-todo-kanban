@@ -14,7 +14,7 @@
 	import { Plus, X, Tag } from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { labelsStore } from '$lib/stores/labels.svelte';
-    import { LABEL_COLORS } from '$lib/settings/labelColors.ts';
+	import { LABEL_COLORS } from '$lib/settings/labelColors';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import type { LabelManagementProps } from '$lib/types/todo';
 
@@ -23,6 +23,7 @@
 	let isCreatingLabel = $state(false);
 	let newLabelName = $state('');
 	let selectedColor = $state(LABEL_COLORS[0]);
+	let dropdownOpen = $state(false);
 
 	let availableLabels = $derived(() => {
 		if (!todo.list?.board?.id) return [];
@@ -66,9 +67,30 @@
 			newLabelName = '';
 			selectedColor = LABEL_COLORS[0];
 			isCreatingLabel = false;
+			dropdownOpen = false;
+
 			await listsStore.loadBoards();
 		} else {
 			displayMessage(result.message || 'Failed to create label');
+		}
+	}
+
+	function handleCreateLabelClick() {
+		isCreatingLabel = true;
+	}
+
+	function cancelCreate() {
+		isCreatingLabel = false;
+		newLabelName = '';
+		selectedColor = LABEL_COLORS[0];
+	}
+
+	function handleOpenChange(open: boolean) {
+		dropdownOpen = open;
+		if (!open) {
+			isCreatingLabel = false;
+			newLabelName = '';
+			selectedColor = LABEL_COLORS[0];
 		}
 	}
 </script>
@@ -96,7 +118,7 @@
 			</Badge>
 		{/each}
 
-		<DropdownMenu>
+		<DropdownMenu open={dropdownOpen} onOpenChange={handleOpenChange}>
 			<DropdownMenuTrigger>
 				<Button variant="outline" size="sm" class="h-6">
 					<Plus class="h-3 w-3" />
@@ -119,12 +141,20 @@
 						<DropdownMenuSeparator />
 					{/if}
 
-					<DropdownMenuItem onclick={() => (isCreatingLabel = true)}>
+					<div
+						class="relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none hover:bg-accent hover:text-accent-foreground"
+						onclick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							handleCreateLabelClick();
+						}}
+						role="menuitem"
+					>
 						<Plus class="mr-2 h-3 w-3" />
 						Create new label
-					</DropdownMenuItem>
+					</div>
 				{:else}
-					<div class="p-2 space-y-2" onclick={(e) => e.stopPropagation()}>
+					<div class="space-y-2 p-2" onclick={(e) => e.stopPropagation()}>
 						<Input
 							bind:value={newLabelName}
 							placeholder="Label name"
@@ -134,8 +164,7 @@
 									e.preventDefault();
 									createLabel();
 								} else if (e.key === 'Escape') {
-									isCreatingLabel = false;
-									newLabelName = '';
+									cancelCreate();
 								}
 							}}
 						/>
@@ -143,7 +172,11 @@
 						<div class="grid grid-cols-6 gap-1">
 							{#each LABEL_COLORS as color}
 								<button
-									onclick={() => (selectedColor = color)}
+									type="button"
+									onclick={(e) => {
+										e.stopPropagation();
+										selectedColor = color;
+									}}
 									class="h-6 w-6 rounded border-2 transition-transform hover:scale-110 {selectedColor ===
 									color
 										? 'border-foreground'
@@ -156,19 +189,24 @@
 
 						<div class="flex gap-2">
 							<Button
+								type="button"
 								size="sm"
-								onclick={createLabel}
+								onclick={(e) => {
+									e.stopPropagation();
+									createLabel();
+								}}
 								disabled={!newLabelName.trim()}
 								class="h-7 flex-1"
 							>
 								Create
 							</Button>
 							<Button
+								type="button"
 								size="sm"
 								variant="outline"
-								onclick={() => {
-									isCreatingLabel = false;
-									newLabelName = '';
+								onclick={(e) => {
+									e.stopPropagation();
+									cancelCreate();
 								}}
 								class="h-7"
 							>
