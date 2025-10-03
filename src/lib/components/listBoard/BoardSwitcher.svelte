@@ -21,13 +21,11 @@
 		if (!listsStore.initialized) listsStore.loadBoards();
 	});
 
-	function selectBoard(board: (typeof listsStore.boards)[0] | null) {
+	function selectBoard(board: (typeof listsStore.boards)[0]) {
 		const lang = page.params.lang || 'en';
 
 		if (board && board.user?.username && board.alias) {
 			goto(`/${lang}/${board.user.username}/${board.alias}`);
-		} else {
-			goto(`/${lang}`);
 		}
 
 		listsStore.setSelectedBoard(board);
@@ -37,27 +35,22 @@
 		actionState.edit = 'showBoardManagement';
 	}
 
-	const currentBoardName = $derived(
-		() => listsStore.selectedBoard?.name || `${$t('common.all')} ${$t('board.projects')}`
-	);
-
-	const isAllBoardsSelected = $derived(() => listsStore.selectedBoard === null);
+	const currentBoardName = $derived(() => listsStore.selectedBoard?.name || '');
 
 	const listLabel = $derived(() => {
 		if (actionState.viewMode === 'list') {
-			return listsStore.selectedBoard?.id ? $t('board.categories') : $t('board.categories');
+			return $t('board.categories');
 		}
-		return listsStore.selectedBoard?.id ? $t('board.lists') : $t('board.lists');
+		return $t('board.lists');
 	});
 
-	const allBoardsLabel = $derived(() => `${$t('common.all')} ${$t('board.projects')}`);
 	const manageBoardsLabel = $derived(() => `${$t('common.manage')} ${$t('board.projects')}`);
 
 	// Helper to check if current user is owner of a board
 	function isOwner(board: any) {
 		const currentUser = userStore.user;
 		if (!currentUser) return false;
-		return board.user_id === currentUser.id;
+		return board.user?.id === currentUser.id;
 	}
 
 	// Helper to get member count (excluding owner)
@@ -77,26 +70,6 @@
 			</Button>
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="start" class="w-64">
-			<DropdownMenuItem
-				onclick={() => selectBoard(null)}
-				class={isAllBoardsSelected() ? 'bg-accent' : ''}
-			>
-				<div class="flex w-full items-center justify-between">
-					<span>{allBoardsLabel()}</span>
-					<div class="flex items-center gap-2">
-						<Badge variant="outline" class="text-xs">
-							{listsStore.boards.length}
-							{$t('board.projects')}
-						</Badge>
-						{#if isAllBoardsSelected()}
-							<div class="h-2 w-2 rounded-full bg-primary"></div>
-						{/if}
-					</div>
-				</div>
-			</DropdownMenuItem>
-
-			<DropdownMenuSeparator />
-
 			{#each listsStore.sortedBoards as board (board.id)}
 				<DropdownMenuItem
 					onclick={() => selectBoard(board)}
