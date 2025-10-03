@@ -1,3 +1,75 @@
 table:
   name: board_invitations
   schema: public
+object_relationships:
+  - name: board
+    using:
+      foreign_key_constraint_on: board_id
+  - name: user
+    using:
+      foreign_key_constraint_on: inviter_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        inviter_id:
+          _eq: X-Hasura-User-Id
+      set:
+        inviter_id: x-hasura-User-Id
+      columns:
+        - invitee_email
+        - invitee_username
+        - created_at
+        - expires_at
+        - updated_at
+        - board_id
+        - id
+        - inviter_id
+        - status
+        - role
+        - token
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - invitee_email
+        - invitee_username
+        - created_at
+        - expires_at
+        - updated_at
+        - board_id
+        - id
+        - inviter_id
+        - status
+        - role
+        - token
+      filter:
+        inviter_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - board_id
+        - expires_at
+        - invitee_email
+        - invitee_username
+        - inviter_id
+        - role
+        - status
+        - token
+        - updated_at
+      filter:
+        inviter_id:
+          _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        inviter_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
