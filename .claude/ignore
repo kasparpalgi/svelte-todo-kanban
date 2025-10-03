@@ -1,0 +1,12 @@
+node_modules/
+dev-dist/
+docs/
+static/
+.svelte-kit/
+build/
+.env
+.env.*
+dist/
+coverage/
+*.log
+hasura/
