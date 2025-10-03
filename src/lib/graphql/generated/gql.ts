@@ -17,7 +17,9 @@ import * as types from './graphql';
 type Documents = {
     "\n\tfragment TodoFields on todos {\n\t\tid\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tcomments(order_by: { created_at: asc }) {\n\t\t\t...CommentFields\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t}\n\t\t}\n\t}\n": typeof types.TodoFieldsFragmentDoc,
     "\n\tfragment ListFields on lists {\n\t\tid\n\t\tname\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t\tsort_order\n\t\t}\n\t}\n": typeof types.ListFieldsFragmentDoc,
-    "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t}\n": typeof types.BoardFieldsFragmentDoc,
+    "\n\tfragment BoardMemberFields on board_members {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\trole\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n": typeof types.BoardMemberFieldsFragmentDoc,
+    "\n\tfragment BoardInvitationFields on board_invitations {\n\t\tid\n\t\tboard_id\n\t\tinviter_id\n\t\tinvitee_email\n\t\tinvitee_username\n\t\trole\n\t\tstatus\n\t\ttoken\n\t\tcreated_at\n\t\tupdated_at\n\t\texpires_at\n\t\tinviter {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n": typeof types.BoardInvitationFieldsFragmentDoc,
+    "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tgithub\n\t\tsort_order\n\t\tis_public\n\t\tallow_public_comments\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t\tboard_members {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n": typeof types.BoardFieldsFragmentDoc,
     "\n\tfragment CommentFields on comments {\n\t\tid\n\t\tcontent\n\t\ttodo_id\n\t\tuser_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n": typeof types.CommentFieldsFragmentDoc,
     "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.LabelFieldsFragmentDoc,
     "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.UserFieldsFragmentDoc,
@@ -46,11 +48,23 @@ type Documents = {
     "\n\tmutation CreateLabel($objects: [labels_insert_input!]!) {\n\t\tinsert_labels(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateLabelDocument,
     "\n\tmutation UpdateLabel($where: labels_bool_exp!, $_set: labels_set_input!) {\n\t\tupdate_labels(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateLabelDocument,
     "\n\tmutation DeleteLabel($where: labels_bool_exp!) {\n\t\tdelete_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteLabelDocument,
+    "\n\tquery GetBoardMembers(\n\t\t$where: board_members_bool_exp = {}\n\t\t$order_by: [board_members_order_by!] = { created_at: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_members(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n": typeof types.GetBoardMembersDocument,
+    "\n\tmutation AddBoardMember($objects: [board_members_insert_input!]!) {\n\t\tinsert_board_members(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.AddBoardMemberDocument,
+    "\n\tmutation UpdateBoardMember($where: board_members_bool_exp!, $_set: board_members_set_input!) {\n\t\tupdate_board_members(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateBoardMemberDocument,
+    "\n\tmutation RemoveBoardMember($where: board_members_bool_exp!) {\n\t\tdelete_board_members(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.RemoveBoardMemberDocument,
+    "\n\tquery GetBoardInvitations(\n\t\t$where: board_invitations_bool_exp = {}\n\t\t$order_by: [board_invitations_order_by!] = { created_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_invitations(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardInvitationFields\n\t\t}\n\t}\n": typeof types.GetBoardInvitationsDocument,
+    "\n\tquery GetMyInvitations($email: String!, $username: String!) {\n\t\tboard_invitations(\n\t\t\twhere: {\n\t\t\t\t_and: [\n\t\t\t\t\t{ status: { _eq: \"pending\" } }\n\t\t\t\t\t{ expires_at: { _gt: \"now()\" } }\n\t\t\t\t\t{\n\t\t\t\t\t\t_or: [{ invitee_email: { _eq: $email } }, { invitee_username: { _eq: $username } }]\n\t\t\t\t\t}\n\t\t\t\t]\n\t\t\t}\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...BoardInvitationFields\n\t\t}\n\t}\n": typeof types.GetMyInvitationsDocument,
+    "\n\tmutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {\n\t\tinsert_board_invitations(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateBoardInvitationDocument,
+    "\n\tmutation UpdateBoardInvitation(\n\t\t$where: board_invitations_bool_exp!\n\t\t$_set: board_invitations_set_input!\n\t) {\n\t\tupdate_board_invitations(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateBoardInvitationDocument,
+    "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteBoardInvitationDocument,
+    "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n": typeof types.SearchUsersDocument,
 };
 const documents: Documents = {
     "\n\tfragment TodoFields on todos {\n\t\tid\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tcomments(order_by: { created_at: asc }) {\n\t\t\t...CommentFields\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t}\n\t\t}\n\t}\n": types.TodoFieldsFragmentDoc,
     "\n\tfragment ListFields on lists {\n\t\tid\n\t\tname\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t\tsort_order\n\t\t}\n\t}\n": types.ListFieldsFragmentDoc,
-    "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t}\n": types.BoardFieldsFragmentDoc,
+    "\n\tfragment BoardMemberFields on board_members {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\trole\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n": types.BoardMemberFieldsFragmentDoc,
+    "\n\tfragment BoardInvitationFields on board_invitations {\n\t\tid\n\t\tboard_id\n\t\tinviter_id\n\t\tinvitee_email\n\t\tinvitee_username\n\t\trole\n\t\tstatus\n\t\ttoken\n\t\tcreated_at\n\t\tupdated_at\n\t\texpires_at\n\t\tinviter {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n": types.BoardInvitationFieldsFragmentDoc,
+    "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tgithub\n\t\tsort_order\n\t\tis_public\n\t\tallow_public_comments\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t\tboard_members {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n": types.BoardFieldsFragmentDoc,
     "\n\tfragment CommentFields on comments {\n\t\tid\n\t\tcontent\n\t\ttodo_id\n\t\tuser_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n": types.CommentFieldsFragmentDoc,
     "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.LabelFieldsFragmentDoc,
     "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.UserFieldsFragmentDoc,
@@ -79,6 +93,16 @@ const documents: Documents = {
     "\n\tmutation CreateLabel($objects: [labels_insert_input!]!) {\n\t\tinsert_labels(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateLabelDocument,
     "\n\tmutation UpdateLabel($where: labels_bool_exp!, $_set: labels_set_input!) {\n\t\tupdate_labels(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateLabelDocument,
     "\n\tmutation DeleteLabel($where: labels_bool_exp!) {\n\t\tdelete_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteLabelDocument,
+    "\n\tquery GetBoardMembers(\n\t\t$where: board_members_bool_exp = {}\n\t\t$order_by: [board_members_order_by!] = { created_at: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_members(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n": types.GetBoardMembersDocument,
+    "\n\tmutation AddBoardMember($objects: [board_members_insert_input!]!) {\n\t\tinsert_board_members(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n": types.AddBoardMemberDocument,
+    "\n\tmutation UpdateBoardMember($where: board_members_bool_exp!, $_set: board_members_set_input!) {\n\t\tupdate_board_members(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateBoardMemberDocument,
+    "\n\tmutation RemoveBoardMember($where: board_members_bool_exp!) {\n\t\tdelete_board_members(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.RemoveBoardMemberDocument,
+    "\n\tquery GetBoardInvitations(\n\t\t$where: board_invitations_bool_exp = {}\n\t\t$order_by: [board_invitations_order_by!] = { created_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_invitations(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardInvitationFields\n\t\t}\n\t}\n": types.GetBoardInvitationsDocument,
+    "\n\tquery GetMyInvitations($email: String!, $username: String!) {\n\t\tboard_invitations(\n\t\t\twhere: {\n\t\t\t\t_and: [\n\t\t\t\t\t{ status: { _eq: \"pending\" } }\n\t\t\t\t\t{ expires_at: { _gt: \"now()\" } }\n\t\t\t\t\t{\n\t\t\t\t\t\t_or: [{ invitee_email: { _eq: $email } }, { invitee_username: { _eq: $username } }]\n\t\t\t\t\t}\n\t\t\t\t]\n\t\t\t}\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...BoardInvitationFields\n\t\t}\n\t}\n": types.GetMyInvitationsDocument,
+    "\n\tmutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {\n\t\tinsert_board_invitations(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateBoardInvitationDocument,
+    "\n\tmutation UpdateBoardInvitation(\n\t\t$where: board_invitations_bool_exp!\n\t\t$_set: board_invitations_set_input!\n\t) {\n\t\tupdate_board_invitations(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateBoardInvitationDocument,
+    "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteBoardInvitationDocument,
+    "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n": types.SearchUsersDocument,
 };
 
 /**
@@ -92,7 +116,15 @@ export function graphql(source: "\n\tfragment ListFields on lists {\n\t\tid\n\t\
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t}\n"): typeof import('./graphql').BoardFieldsFragmentDoc;
+export function graphql(source: "\n\tfragment BoardMemberFields on board_members {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\trole\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n"): typeof import('./graphql').BoardMemberFieldsFragmentDoc;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tfragment BoardInvitationFields on board_invitations {\n\t\tid\n\t\tboard_id\n\t\tinviter_id\n\t\tinvitee_email\n\t\tinvitee_username\n\t\trole\n\t\tstatus\n\t\ttoken\n\t\tcreated_at\n\t\tupdated_at\n\t\texpires_at\n\t\tinviter {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n"): typeof import('./graphql').BoardInvitationFieldsFragmentDoc;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tgithub\n\t\tsort_order\n\t\tis_public\n\t\tallow_public_comments\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t\tboard_members {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n"): typeof import('./graphql').BoardFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -205,6 +237,46 @@ export function graphql(source: "\n\tmutation UpdateLabel($where: labels_bool_ex
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tmutation DeleteLabel($where: labels_bool_exp!) {\n\t\tdelete_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteLabelDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetBoardMembers(\n\t\t$where: board_members_bool_exp = {}\n\t\t$order_by: [board_members_order_by!] = { created_at: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_members(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetBoardMembersDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation AddBoardMember($objects: [board_members_insert_input!]!) {\n\t\tinsert_board_members(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').AddBoardMemberDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation UpdateBoardMember($where: board_members_bool_exp!, $_set: board_members_set_input!) {\n\t\tupdate_board_members(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateBoardMemberDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation RemoveBoardMember($where: board_members_bool_exp!) {\n\t\tdelete_board_members(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').RemoveBoardMemberDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetBoardInvitations(\n\t\t$where: board_invitations_bool_exp = {}\n\t\t$order_by: [board_invitations_order_by!] = { created_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_invitations(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardInvitationFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetBoardInvitationsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetMyInvitations($email: String!, $username: String!) {\n\t\tboard_invitations(\n\t\t\twhere: {\n\t\t\t\t_and: [\n\t\t\t\t\t{ status: { _eq: \"pending\" } }\n\t\t\t\t\t{ expires_at: { _gt: \"now()\" } }\n\t\t\t\t\t{\n\t\t\t\t\t\t_or: [{ invitee_email: { _eq: $email } }, { invitee_username: { _eq: $username } }]\n\t\t\t\t\t}\n\t\t\t\t]\n\t\t\t}\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...BoardInvitationFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetMyInvitationsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {\n\t\tinsert_board_invitations(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').CreateBoardInvitationDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation UpdateBoardInvitation(\n\t\t$where: board_invitations_bool_exp!\n\t\t$_set: board_invitations_set_input!\n\t) {\n\t\tupdate_board_invitations(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateBoardInvitationDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteBoardInvitationDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n"): typeof import('./graphql').SearchUsersDocument;
 
 
 export function graphql(source: string) {

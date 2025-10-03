@@ -5,7 +5,7 @@ object_relationships:
   - name: board
     using:
       foreign_key_constraint_on: board_id
-  - name: user
+  - name: inviter
     using:
       foreign_key_constraint_on: inviter_id
 insert_permissions:

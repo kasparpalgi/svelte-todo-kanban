@@ -57,6 +57,52 @@ export const LIST_FRAGMENT = graphql(`
 	}
 `);
 
+export const BOARD_MEMBER_FRAGMENT = graphql(`
+	fragment BoardMemberFields on board_members {
+		id
+		board_id
+		user_id
+		role
+		created_at
+		updated_at
+		user {
+			id
+			name
+			username
+			email
+			image
+		}
+	}
+`);
+
+export const BOARD_INVITATION_FRAGMENT = graphql(`
+	fragment BoardInvitationFields on board_invitations {
+		id
+		board_id
+		inviter_id
+		invitee_email
+		invitee_username
+		role
+		status
+		token
+		created_at
+		updated_at
+		expires_at
+		inviter {
+			id
+			name
+			username
+			email
+			image
+		}
+		board {
+			id
+			name
+			alias
+		}
+	}
+`);
+
 export const BOARD_FRAGMENT = graphql(`
 	fragment BoardFields on boards {
 		id
@@ -64,6 +110,8 @@ export const BOARD_FRAGMENT = graphql(`
 		alias
 		github
 		sort_order
+		is_public
+		allow_public_comments
 		created_at
 		updated_at
 		labels {
@@ -73,6 +121,9 @@ export const BOARD_FRAGMENT = graphql(`
 			id
 			username
 			email
+		}
+		board_members {
+			...BoardMemberFields
 		}
 	}
 `);
@@ -378,6 +429,139 @@ export const DELETE_LABEL = graphql(`
 	mutation DeleteLabel($where: labels_bool_exp!) {
 		delete_labels(where: $where) {
 			affected_rows
+		}
+	}
+`);
+
+// ========== Board Members ==========
+
+export const GET_BOARD_MEMBERS = graphql(`
+	query GetBoardMembers(
+		$where: board_members_bool_exp = {}
+		$order_by: [board_members_order_by!] = { created_at: asc }
+		$limit: Int = 100
+		$offset: Int = 0
+	) {
+		board_members(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...BoardMemberFields
+		}
+	}
+`);
+
+export const ADD_BOARD_MEMBER = graphql(`
+	mutation AddBoardMember($objects: [board_members_insert_input!]!) {
+		insert_board_members(objects: $objects) {
+			returning {
+				...BoardMemberFields
+			}
+		}
+	}
+`);
+
+export const UPDATE_BOARD_MEMBER = graphql(`
+	mutation UpdateBoardMember($where: board_members_bool_exp!, $_set: board_members_set_input!) {
+		update_board_members(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				...BoardMemberFields
+			}
+		}
+	}
+`);
+
+export const REMOVE_BOARD_MEMBER = graphql(`
+	mutation RemoveBoardMember($where: board_members_bool_exp!) {
+		delete_board_members(where: $where) {
+			affected_rows
+		}
+	}
+`);
+
+// ========== Board Invitations ==========
+
+export const GET_BOARD_INVITATIONS = graphql(`
+	query GetBoardInvitations(
+		$where: board_invitations_bool_exp = {}
+		$order_by: [board_invitations_order_by!] = { created_at: desc }
+		$limit: Int = 100
+		$offset: Int = 0
+	) {
+		board_invitations(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...BoardInvitationFields
+		}
+	}
+`);
+
+export const GET_MY_INVITATIONS = graphql(`
+	query GetMyInvitations($email: String!, $username: String!) {
+		board_invitations(
+			where: {
+				_and: [
+					{ status: { _eq: "pending" } }
+					{ expires_at: { _gt: "now()" } }
+					{
+						_or: [{ invitee_email: { _eq: $email } }, { invitee_username: { _eq: $username } }]
+					}
+				]
+			}
+			order_by: { created_at: desc }
+		) {
+			...BoardInvitationFields
+		}
+	}
+`);
+
+export const CREATE_BOARD_INVITATION = graphql(`
+	mutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {
+		insert_board_invitations(objects: $objects) {
+			returning {
+				...BoardInvitationFields
+			}
+		}
+	}
+`);
+
+export const UPDATE_BOARD_INVITATION = graphql(`
+	mutation UpdateBoardInvitation(
+		$where: board_invitations_bool_exp!
+		$_set: board_invitations_set_input!
+	) {
+		update_board_invitations(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				...BoardInvitationFields
+			}
+		}
+	}
+`);
+
+export const DELETE_BOARD_INVITATION = graphql(`
+	mutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {
+		delete_board_invitations(where: $where) {
+			affected_rows
+		}
+	}
+`);
+
+// ========== User Search ==========
+
+export const SEARCH_USERS = graphql(`
+	query SearchUsers($search: String!) {
+		users(
+			where: {
+				_or: [
+					{ email: { _ilike: $search } }
+					{ username: { _ilike: $search } }
+					{ name: { _ilike: $search } }
+				]
+			}
+			limit: 10
+		) {
+			id
+			name
+			username
+			email
+			image
 		}
 	}
 `);

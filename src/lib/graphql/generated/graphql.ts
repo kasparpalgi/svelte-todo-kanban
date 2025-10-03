@@ -549,13 +549,605 @@ export type Bigint_Comparison_Exp = {
   _nin?: InputMaybe<Array<Scalars['bigint']['input']>>;
 };
 
+/** Tracks pending and processed invitations to boards */
+export type Board_Invitations = {
+  __typename?: 'board_invitations';
+  /** An object relationship */
+  board: Boards;
+  board_id: Scalars['uuid']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  expires_at: Scalars['timestamptz']['output'];
+  id: Scalars['uuid']['output'];
+  invitee_email?: Maybe<Scalars['String']['output']>;
+  invitee_username?: Maybe<Scalars['String']['output']>;
+  /** An object relationship */
+  inviter: Users;
+  inviter_id: Scalars['uuid']['output'];
+  /** Role to assign when invitation is accepted (editor/viewer, not owner) */
+  role: Scalars['String']['output'];
+  /** pending: awaiting response, accepted: user joined, declined: user rejected, cancelled: inviter cancelled */
+  status: Scalars['String']['output'];
+  /** Secure token for invitation links */
+  token: Scalars['String']['output'];
+  updated_at: Scalars['timestamptz']['output'];
+};
+
+/** aggregated selection of "board_invitations" */
+export type Board_Invitations_Aggregate = {
+  __typename?: 'board_invitations_aggregate';
+  aggregate?: Maybe<Board_Invitations_Aggregate_Fields>;
+  nodes: Array<Board_Invitations>;
+};
+
+export type Board_Invitations_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Board_Invitations_Aggregate_Bool_Exp_Count>;
+};
+
+export type Board_Invitations_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Board_Invitations_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Board_Invitations_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "board_invitations" */
+export type Board_Invitations_Aggregate_Fields = {
+  __typename?: 'board_invitations_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Board_Invitations_Max_Fields>;
+  min?: Maybe<Board_Invitations_Min_Fields>;
+};
+
+
+/** aggregate fields of "board_invitations" */
+export type Board_Invitations_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Board_Invitations_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "board_invitations" */
+export type Board_Invitations_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Board_Invitations_Max_Order_By>;
+  min?: InputMaybe<Board_Invitations_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "board_invitations" */
+export type Board_Invitations_Arr_Rel_Insert_Input = {
+  data: Array<Board_Invitations_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Board_Invitations_On_Conflict>;
+};
+
+/** Boolean expression to filter rows from the table "board_invitations". All fields are combined with a logical 'AND'. */
+export type Board_Invitations_Bool_Exp = {
+  _and?: InputMaybe<Array<Board_Invitations_Bool_Exp>>;
+  _not?: InputMaybe<Board_Invitations_Bool_Exp>;
+  _or?: InputMaybe<Array<Board_Invitations_Bool_Exp>>;
+  board?: InputMaybe<Boards_Bool_Exp>;
+  board_id?: InputMaybe<Uuid_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  expires_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  invitee_email?: InputMaybe<String_Comparison_Exp>;
+  invitee_username?: InputMaybe<String_Comparison_Exp>;
+  inviter?: InputMaybe<Users_Bool_Exp>;
+  inviter_id?: InputMaybe<Uuid_Comparison_Exp>;
+  role?: InputMaybe<String_Comparison_Exp>;
+  status?: InputMaybe<String_Comparison_Exp>;
+  token?: InputMaybe<String_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "board_invitations" */
+export enum Board_Invitations_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  BoardInvitationsPkey = 'board_invitations_pkey',
+  /** unique or primary key constraint on columns "token" */
+  BoardInvitationsTokenKey = 'board_invitations_token_key'
+}
+
+/** input type for inserting data into table "board_invitations" */
+export type Board_Invitations_Insert_Input = {
+  board?: InputMaybe<Boards_Obj_Rel_Insert_Input>;
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invitee_email?: InputMaybe<Scalars['String']['input']>;
+  invitee_username?: InputMaybe<Scalars['String']['input']>;
+  inviter?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  inviter_id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Role to assign when invitation is accepted (editor/viewer, not owner) */
+  role?: InputMaybe<Scalars['String']['input']>;
+  /** pending: awaiting response, accepted: user joined, declined: user rejected, cancelled: inviter cancelled */
+  status?: InputMaybe<Scalars['String']['input']>;
+  /** Secure token for invitation links */
+  token?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate max on columns */
+export type Board_Invitations_Max_Fields = {
+  __typename?: 'board_invitations_max_fields';
+  board_id?: Maybe<Scalars['uuid']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  expires_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  invitee_email?: Maybe<Scalars['String']['output']>;
+  invitee_username?: Maybe<Scalars['String']['output']>;
+  inviter_id?: Maybe<Scalars['uuid']['output']>;
+  /** Role to assign when invitation is accepted (editor/viewer, not owner) */
+  role?: Maybe<Scalars['String']['output']>;
+  /** pending: awaiting response, accepted: user joined, declined: user rejected, cancelled: inviter cancelled */
+  status?: Maybe<Scalars['String']['output']>;
+  /** Secure token for invitation links */
+  token?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** order by max() on columns of table "board_invitations" */
+export type Board_Invitations_Max_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  expires_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invitee_email?: InputMaybe<Order_By>;
+  invitee_username?: InputMaybe<Order_By>;
+  inviter_id?: InputMaybe<Order_By>;
+  /** Role to assign when invitation is accepted (editor/viewer, not owner) */
+  role?: InputMaybe<Order_By>;
+  /** pending: awaiting response, accepted: user joined, declined: user rejected, cancelled: inviter cancelled */
+  status?: InputMaybe<Order_By>;
+  /** Secure token for invitation links */
+  token?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Board_Invitations_Min_Fields = {
+  __typename?: 'board_invitations_min_fields';
+  board_id?: Maybe<Scalars['uuid']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  expires_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  invitee_email?: Maybe<Scalars['String']['output']>;
+  invitee_username?: Maybe<Scalars['String']['output']>;
+  inviter_id?: Maybe<Scalars['uuid']['output']>;
+  /** Role to assign when invitation is accepted (editor/viewer, not owner) */
+  role?: Maybe<Scalars['String']['output']>;
+  /** pending: awaiting response, accepted: user joined, declined: user rejected, cancelled: inviter cancelled */
+  status?: Maybe<Scalars['String']['output']>;
+  /** Secure token for invitation links */
+  token?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** order by min() on columns of table "board_invitations" */
+export type Board_Invitations_Min_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  expires_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invitee_email?: InputMaybe<Order_By>;
+  invitee_username?: InputMaybe<Order_By>;
+  inviter_id?: InputMaybe<Order_By>;
+  /** Role to assign when invitation is accepted (editor/viewer, not owner) */
+  role?: InputMaybe<Order_By>;
+  /** pending: awaiting response, accepted: user joined, declined: user rejected, cancelled: inviter cancelled */
+  status?: InputMaybe<Order_By>;
+  /** Secure token for invitation links */
+  token?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "board_invitations" */
+export type Board_Invitations_Mutation_Response = {
+  __typename?: 'board_invitations_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Board_Invitations>;
+};
+
+/** on_conflict condition type for table "board_invitations" */
+export type Board_Invitations_On_Conflict = {
+  constraint: Board_Invitations_Constraint;
+  update_columns?: Array<Board_Invitations_Update_Column>;
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "board_invitations". */
+export type Board_Invitations_Order_By = {
+  board?: InputMaybe<Boards_Order_By>;
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  expires_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invitee_email?: InputMaybe<Order_By>;
+  invitee_username?: InputMaybe<Order_By>;
+  inviter?: InputMaybe<Users_Order_By>;
+  inviter_id?: InputMaybe<Order_By>;
+  role?: InputMaybe<Order_By>;
+  status?: InputMaybe<Order_By>;
+  token?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: board_invitations */
+export type Board_Invitations_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "board_invitations" */
+export enum Board_Invitations_Select_Column {
+  /** column name */
+  BoardId = 'board_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  ExpiresAt = 'expires_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InviteeEmail = 'invitee_email',
+  /** column name */
+  InviteeUsername = 'invitee_username',
+  /** column name */
+  InviterId = 'inviter_id',
+  /** column name */
+  Role = 'role',
+  /** column name */
+  Status = 'status',
+  /** column name */
+  Token = 'token',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+/** input type for updating data in table "board_invitations" */
+export type Board_Invitations_Set_Input = {
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invitee_email?: InputMaybe<Scalars['String']['input']>;
+  invitee_username?: InputMaybe<Scalars['String']['input']>;
+  inviter_id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Role to assign when invitation is accepted (editor/viewer, not owner) */
+  role?: InputMaybe<Scalars['String']['input']>;
+  /** pending: awaiting response, accepted: user joined, declined: user rejected, cancelled: inviter cancelled */
+  status?: InputMaybe<Scalars['String']['input']>;
+  /** Secure token for invitation links */
+  token?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** Streaming cursor of the table "board_invitations" */
+export type Board_Invitations_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Board_Invitations_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Board_Invitations_Stream_Cursor_Value_Input = {
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invitee_email?: InputMaybe<Scalars['String']['input']>;
+  invitee_username?: InputMaybe<Scalars['String']['input']>;
+  inviter_id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Role to assign when invitation is accepted (editor/viewer, not owner) */
+  role?: InputMaybe<Scalars['String']['input']>;
+  /** pending: awaiting response, accepted: user joined, declined: user rejected, cancelled: inviter cancelled */
+  status?: InputMaybe<Scalars['String']['input']>;
+  /** Secure token for invitation links */
+  token?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** update columns of table "board_invitations" */
+export enum Board_Invitations_Update_Column {
+  /** column name */
+  BoardId = 'board_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  ExpiresAt = 'expires_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InviteeEmail = 'invitee_email',
+  /** column name */
+  InviteeUsername = 'invitee_username',
+  /** column name */
+  InviterId = 'inviter_id',
+  /** column name */
+  Role = 'role',
+  /** column name */
+  Status = 'status',
+  /** column name */
+  Token = 'token',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+export type Board_Invitations_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Board_Invitations_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Board_Invitations_Bool_Exp;
+};
+
+/** Tracks board membership and user roles (owner/editor/viewer) */
+export type Board_Members = {
+  __typename?: 'board_members';
+  /** An object relationship */
+  board: Boards;
+  board_id: Scalars['uuid']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  id: Scalars['uuid']['output'];
+  /** User role: owner (full control), editor (can modify), viewer (read-only) */
+  role: Scalars['String']['output'];
+  updated_at: Scalars['timestamptz']['output'];
+  /** An object relationship */
+  user: Users;
+  user_id: Scalars['uuid']['output'];
+};
+
+/** aggregated selection of "board_members" */
+export type Board_Members_Aggregate = {
+  __typename?: 'board_members_aggregate';
+  aggregate?: Maybe<Board_Members_Aggregate_Fields>;
+  nodes: Array<Board_Members>;
+};
+
+export type Board_Members_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Board_Members_Aggregate_Bool_Exp_Count>;
+};
+
+export type Board_Members_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Board_Members_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Board_Members_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "board_members" */
+export type Board_Members_Aggregate_Fields = {
+  __typename?: 'board_members_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Board_Members_Max_Fields>;
+  min?: Maybe<Board_Members_Min_Fields>;
+};
+
+
+/** aggregate fields of "board_members" */
+export type Board_Members_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Board_Members_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "board_members" */
+export type Board_Members_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Board_Members_Max_Order_By>;
+  min?: InputMaybe<Board_Members_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "board_members" */
+export type Board_Members_Arr_Rel_Insert_Input = {
+  data: Array<Board_Members_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Board_Members_On_Conflict>;
+};
+
+/** Boolean expression to filter rows from the table "board_members". All fields are combined with a logical 'AND'. */
+export type Board_Members_Bool_Exp = {
+  _and?: InputMaybe<Array<Board_Members_Bool_Exp>>;
+  _not?: InputMaybe<Board_Members_Bool_Exp>;
+  _or?: InputMaybe<Array<Board_Members_Bool_Exp>>;
+  board?: InputMaybe<Boards_Bool_Exp>;
+  board_id?: InputMaybe<Uuid_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  role?: InputMaybe<String_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "board_members" */
+export enum Board_Members_Constraint {
+  /** unique or primary key constraint on columns "user_id", "board_id" */
+  BoardMembersBoardUserUnique = 'board_members_board_user_unique',
+  /** unique or primary key constraint on columns "id" */
+  BoardMembersPkey = 'board_members_pkey'
+}
+
+/** input type for inserting data into table "board_members" */
+export type Board_Members_Insert_Input = {
+  board?: InputMaybe<Boards_Obj_Rel_Insert_Input>;
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** User role: owner (full control), editor (can modify), viewer (read-only) */
+  role?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Board_Members_Max_Fields = {
+  __typename?: 'board_members_max_fields';
+  board_id?: Maybe<Scalars['uuid']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  /** User role: owner (full control), editor (can modify), viewer (read-only) */
+  role?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by max() on columns of table "board_members" */
+export type Board_Members_Max_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  /** User role: owner (full control), editor (can modify), viewer (read-only) */
+  role?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Board_Members_Min_Fields = {
+  __typename?: 'board_members_min_fields';
+  board_id?: Maybe<Scalars['uuid']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  /** User role: owner (full control), editor (can modify), viewer (read-only) */
+  role?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "board_members" */
+export type Board_Members_Min_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  /** User role: owner (full control), editor (can modify), viewer (read-only) */
+  role?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "board_members" */
+export type Board_Members_Mutation_Response = {
+  __typename?: 'board_members_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Board_Members>;
+};
+
+/** on_conflict condition type for table "board_members" */
+export type Board_Members_On_Conflict = {
+  constraint: Board_Members_Constraint;
+  update_columns?: Array<Board_Members_Update_Column>;
+  where?: InputMaybe<Board_Members_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "board_members". */
+export type Board_Members_Order_By = {
+  board?: InputMaybe<Boards_Order_By>;
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  role?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: board_members */
+export type Board_Members_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "board_members" */
+export enum Board_Members_Select_Column {
+  /** column name */
+  BoardId = 'board_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Role = 'role',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "board_members" */
+export type Board_Members_Set_Input = {
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** User role: owner (full control), editor (can modify), viewer (read-only) */
+  role?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** Streaming cursor of the table "board_members" */
+export type Board_Members_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Board_Members_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Board_Members_Stream_Cursor_Value_Input = {
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** User role: owner (full control), editor (can modify), viewer (read-only) */
+  role?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** update columns of table "board_members" */
+export enum Board_Members_Update_Column {
+  /** column name */
+  BoardId = 'board_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Role = 'role',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Board_Members_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Board_Members_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Board_Members_Bool_Exp;
+};
+
 /** columns and relationships of "boards" */
 export type Boards = {
   __typename?: 'boards';
   alias: Scalars['String']['output'];
+  /** When true and is_public=true, non-members can comment on todos */
+  allow_public_comments: Scalars['Boolean']['output'];
+  /** An array relationship */
+  board_invitations: Array<Board_Invitations>;
+  /** An aggregate relationship */
+  board_invitations_aggregate: Board_Invitations_Aggregate;
+  /** An array relationship */
+  board_members: Array<Board_Members>;
+  /** An aggregate relationship */
+  board_members_aggregate: Board_Members_Aggregate;
   created_at: Scalars['timestamptz']['output'];
   github?: Maybe<Scalars['String']['output']>;
   id: Scalars['uuid']['output'];
+  /** When true, board is viewable by anyone (read-only unless member) */
+  is_public: Scalars['Boolean']['output'];
   /** An array relationship */
   labels: Array<Labels>;
   /** An aggregate relationship */
@@ -570,6 +1162,46 @@ export type Boards = {
   /** An object relationship */
   user: Users;
   user_id: Scalars['uuid']['output'];
+};
+
+
+/** columns and relationships of "boards" */
+export type BoardsBoard_InvitationsArgs = {
+  distinct_on?: InputMaybe<Array<Board_Invitations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Invitations_Order_By>>;
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+};
+
+
+/** columns and relationships of "boards" */
+export type BoardsBoard_Invitations_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Board_Invitations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Invitations_Order_By>>;
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+};
+
+
+/** columns and relationships of "boards" */
+export type BoardsBoard_MembersArgs = {
+  distinct_on?: InputMaybe<Array<Board_Members_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Members_Order_By>>;
+  where?: InputMaybe<Board_Members_Bool_Exp>;
+};
+
+
+/** columns and relationships of "boards" */
+export type BoardsBoard_Members_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Board_Members_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Members_Order_By>>;
+  where?: InputMaybe<Board_Members_Bool_Exp>;
 };
 
 
@@ -620,7 +1252,23 @@ export type Boards_Aggregate = {
 };
 
 export type Boards_Aggregate_Bool_Exp = {
+  bool_and?: InputMaybe<Boards_Aggregate_Bool_Exp_Bool_And>;
+  bool_or?: InputMaybe<Boards_Aggregate_Bool_Exp_Bool_Or>;
   count?: InputMaybe<Boards_Aggregate_Bool_Exp_Count>;
+};
+
+export type Boards_Aggregate_Bool_Exp_Bool_And = {
+  arguments: Boards_Select_Column_Boards_Aggregate_Bool_Exp_Bool_And_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Boards_Bool_Exp>;
+  predicate: Boolean_Comparison_Exp;
+};
+
+export type Boards_Aggregate_Bool_Exp_Bool_Or = {
+  arguments: Boards_Select_Column_Boards_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Boards_Bool_Exp>;
+  predicate: Boolean_Comparison_Exp;
 };
 
 export type Boards_Aggregate_Bool_Exp_Count = {
@@ -692,9 +1340,15 @@ export type Boards_Bool_Exp = {
   _not?: InputMaybe<Boards_Bool_Exp>;
   _or?: InputMaybe<Array<Boards_Bool_Exp>>;
   alias?: InputMaybe<String_Comparison_Exp>;
+  allow_public_comments?: InputMaybe<Boolean_Comparison_Exp>;
+  board_invitations?: InputMaybe<Board_Invitations_Bool_Exp>;
+  board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Bool_Exp>;
+  board_members?: InputMaybe<Board_Members_Bool_Exp>;
+  board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Bool_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   github?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
+  is_public?: InputMaybe<Boolean_Comparison_Exp>;
   labels?: InputMaybe<Labels_Bool_Exp>;
   labels_aggregate?: InputMaybe<Labels_Aggregate_Bool_Exp>;
   lists?: InputMaybe<Lists_Bool_Exp>;
@@ -722,9 +1376,15 @@ export type Boards_Inc_Input = {
 /** input type for inserting data into table "boards" */
 export type Boards_Insert_Input = {
   alias?: InputMaybe<Scalars['String']['input']>;
+  /** When true and is_public=true, non-members can comment on todos */
+  allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
+  board_invitations?: InputMaybe<Board_Invitations_Arr_Rel_Insert_Input>;
+  board_members?: InputMaybe<Board_Members_Arr_Rel_Insert_Input>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** When true, board is viewable by anyone (read-only unless member) */
+  is_public?: InputMaybe<Scalars['Boolean']['input']>;
   labels?: InputMaybe<Labels_Arr_Rel_Insert_Input>;
   lists?: InputMaybe<Lists_Arr_Rel_Insert_Input>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -810,9 +1470,13 @@ export type Boards_On_Conflict = {
 /** Ordering options when selecting data from "boards". */
 export type Boards_Order_By = {
   alias?: InputMaybe<Order_By>;
+  allow_public_comments?: InputMaybe<Order_By>;
+  board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Order_By>;
+  board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Order_By>;
   created_at?: InputMaybe<Order_By>;
   github?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  is_public?: InputMaybe<Order_By>;
   labels_aggregate?: InputMaybe<Labels_Aggregate_Order_By>;
   lists_aggregate?: InputMaybe<Lists_Aggregate_Order_By>;
   name?: InputMaybe<Order_By>;
@@ -832,11 +1496,15 @@ export enum Boards_Select_Column {
   /** column name */
   Alias = 'alias',
   /** column name */
+  AllowPublicComments = 'allow_public_comments',
+  /** column name */
   CreatedAt = 'created_at',
   /** column name */
   Github = 'github',
   /** column name */
   Id = 'id',
+  /** column name */
+  IsPublic = 'is_public',
   /** column name */
   Name = 'name',
   /** column name */
@@ -847,12 +1515,32 @@ export enum Boards_Select_Column {
   UserId = 'user_id'
 }
 
+/** select "boards_aggregate_bool_exp_bool_and_arguments_columns" columns of table "boards" */
+export enum Boards_Select_Column_Boards_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
+  /** column name */
+  AllowPublicComments = 'allow_public_comments',
+  /** column name */
+  IsPublic = 'is_public'
+}
+
+/** select "boards_aggregate_bool_exp_bool_or_arguments_columns" columns of table "boards" */
+export enum Boards_Select_Column_Boards_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
+  /** column name */
+  AllowPublicComments = 'allow_public_comments',
+  /** column name */
+  IsPublic = 'is_public'
+}
+
 /** input type for updating data in table "boards" */
 export type Boards_Set_Input = {
   alias?: InputMaybe<Scalars['String']['input']>;
+  /** When true and is_public=true, non-members can comment on todos */
+  allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** When true, board is viewable by anyone (read-only unless member) */
+  is_public?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -903,9 +1591,13 @@ export type Boards_Stream_Cursor_Input = {
 /** Initial value of the column from where the streaming should start */
 export type Boards_Stream_Cursor_Value_Input = {
   alias?: InputMaybe<Scalars['String']['input']>;
+  /** When true and is_public=true, non-members can comment on todos */
+  allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** When true, board is viewable by anyone (read-only unless member) */
+  is_public?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -928,11 +1620,15 @@ export enum Boards_Update_Column {
   /** column name */
   Alias = 'alias',
   /** column name */
+  AllowPublicComments = 'allow_public_comments',
+  /** column name */
   CreatedAt = 'created_at',
   /** column name */
   Github = 'github',
   /** column name */
   Id = 'id',
+  /** column name */
+  IsPublic = 'is_public',
   /** column name */
   Name = 'name',
   /** column name */
@@ -2035,6 +2731,14 @@ export type Mutation_Root = {
   delete_accounts?: Maybe<Accounts_Mutation_Response>;
   /** delete single row from the table: "accounts" */
   delete_accounts_by_pk?: Maybe<Accounts>;
+  /** delete data from the table: "board_invitations" */
+  delete_board_invitations?: Maybe<Board_Invitations_Mutation_Response>;
+  /** delete single row from the table: "board_invitations" */
+  delete_board_invitations_by_pk?: Maybe<Board_Invitations>;
+  /** delete data from the table: "board_members" */
+  delete_board_members?: Maybe<Board_Members_Mutation_Response>;
+  /** delete single row from the table: "board_members" */
+  delete_board_members_by_pk?: Maybe<Board_Members>;
   /** delete data from the table: "boards" */
   delete_boards?: Maybe<Boards_Mutation_Response>;
   /** delete single row from the table: "boards" */
@@ -2079,6 +2783,14 @@ export type Mutation_Root = {
   insert_accounts?: Maybe<Accounts_Mutation_Response>;
   /** insert a single row into the table: "accounts" */
   insert_accounts_one?: Maybe<Accounts>;
+  /** insert data into the table: "board_invitations" */
+  insert_board_invitations?: Maybe<Board_Invitations_Mutation_Response>;
+  /** insert a single row into the table: "board_invitations" */
+  insert_board_invitations_one?: Maybe<Board_Invitations>;
+  /** insert data into the table: "board_members" */
+  insert_board_members?: Maybe<Board_Members_Mutation_Response>;
+  /** insert a single row into the table: "board_members" */
+  insert_board_members_one?: Maybe<Board_Members>;
   /** insert data into the table: "boards" */
   insert_boards?: Maybe<Boards_Mutation_Response>;
   /** insert a single row into the table: "boards" */
@@ -2125,6 +2837,18 @@ export type Mutation_Root = {
   update_accounts_by_pk?: Maybe<Accounts>;
   /** update multiples rows of table: "accounts" */
   update_accounts_many?: Maybe<Array<Maybe<Accounts_Mutation_Response>>>;
+  /** update data of the table: "board_invitations" */
+  update_board_invitations?: Maybe<Board_Invitations_Mutation_Response>;
+  /** update single row of the table: "board_invitations" */
+  update_board_invitations_by_pk?: Maybe<Board_Invitations>;
+  /** update multiples rows of table: "board_invitations" */
+  update_board_invitations_many?: Maybe<Array<Maybe<Board_Invitations_Mutation_Response>>>;
+  /** update data of the table: "board_members" */
+  update_board_members?: Maybe<Board_Members_Mutation_Response>;
+  /** update single row of the table: "board_members" */
+  update_board_members_by_pk?: Maybe<Board_Members>;
+  /** update multiples rows of table: "board_members" */
+  update_board_members_many?: Maybe<Array<Maybe<Board_Members_Mutation_Response>>>;
   /** update data of the table: "boards" */
   update_boards?: Maybe<Boards_Mutation_Response>;
   /** update single row of the table: "boards" */
@@ -2196,6 +2920,30 @@ export type Mutation_RootDelete_AccountsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Accounts_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Board_InvitationsArgs = {
+  where: Board_Invitations_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Board_Invitations_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Board_MembersArgs = {
+  where: Board_Members_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Board_Members_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -2333,6 +3081,34 @@ export type Mutation_RootInsert_AccountsArgs = {
 export type Mutation_RootInsert_Accounts_OneArgs = {
   object: Accounts_Insert_Input;
   on_conflict?: InputMaybe<Accounts_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Board_InvitationsArgs = {
+  objects: Array<Board_Invitations_Insert_Input>;
+  on_conflict?: InputMaybe<Board_Invitations_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Board_Invitations_OneArgs = {
+  object: Board_Invitations_Insert_Input;
+  on_conflict?: InputMaybe<Board_Invitations_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Board_MembersArgs = {
+  objects: Array<Board_Members_Insert_Input>;
+  on_conflict?: InputMaybe<Board_Members_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Board_Members_OneArgs = {
+  object: Board_Members_Insert_Input;
+  on_conflict?: InputMaybe<Board_Members_On_Conflict>;
 };
 
 
@@ -2495,6 +3271,46 @@ export type Mutation_RootUpdate_Accounts_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Accounts_ManyArgs = {
   updates: Array<Accounts_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Board_InvitationsArgs = {
+  _set?: InputMaybe<Board_Invitations_Set_Input>;
+  where: Board_Invitations_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Board_Invitations_By_PkArgs = {
+  _set?: InputMaybe<Board_Invitations_Set_Input>;
+  pk_columns: Board_Invitations_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Board_Invitations_ManyArgs = {
+  updates: Array<Board_Invitations_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Board_MembersArgs = {
+  _set?: InputMaybe<Board_Members_Set_Input>;
+  where: Board_Members_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Board_Members_By_PkArgs = {
+  _set?: InputMaybe<Board_Members_Set_Input>;
+  pk_columns: Board_Members_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Board_Members_ManyArgs = {
+  updates: Array<Board_Members_Updates>;
 };
 
 
@@ -2740,6 +3556,18 @@ export type Query_Root = {
   /** fetch data from the table: "accounts" using primary key columns */
   accounts_by_pk?: Maybe<Accounts>;
   /** An array relationship */
+  board_invitations: Array<Board_Invitations>;
+  /** An aggregate relationship */
+  board_invitations_aggregate: Board_Invitations_Aggregate;
+  /** fetch data from the table: "board_invitations" using primary key columns */
+  board_invitations_by_pk?: Maybe<Board_Invitations>;
+  /** An array relationship */
+  board_members: Array<Board_Members>;
+  /** An aggregate relationship */
+  board_members_aggregate: Board_Members_Aggregate;
+  /** fetch data from the table: "board_members" using primary key columns */
+  board_members_by_pk?: Maybe<Board_Members>;
+  /** An array relationship */
   boards: Array<Boards>;
   /** An aggregate relationship */
   boards_aggregate: Boards_Aggregate;
@@ -2821,6 +3649,52 @@ export type Query_RootAccounts_AggregateArgs = {
 
 
 export type Query_RootAccounts_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootBoard_InvitationsArgs = {
+  distinct_on?: InputMaybe<Array<Board_Invitations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Invitations_Order_By>>;
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+};
+
+
+export type Query_RootBoard_Invitations_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Board_Invitations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Invitations_Order_By>>;
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+};
+
+
+export type Query_RootBoard_Invitations_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootBoard_MembersArgs = {
+  distinct_on?: InputMaybe<Array<Board_Members_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Members_Order_By>>;
+  where?: InputMaybe<Board_Members_Bool_Exp>;
+};
+
+
+export type Query_RootBoard_Members_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Board_Members_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Members_Order_By>>;
+  where?: InputMaybe<Board_Members_Bool_Exp>;
+};
+
+
+export type Query_RootBoard_Members_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -3301,6 +4175,22 @@ export type Subscription_Root = {
   /** fetch data from the table in a streaming manner: "accounts" */
   accounts_stream: Array<Accounts>;
   /** An array relationship */
+  board_invitations: Array<Board_Invitations>;
+  /** An aggregate relationship */
+  board_invitations_aggregate: Board_Invitations_Aggregate;
+  /** fetch data from the table: "board_invitations" using primary key columns */
+  board_invitations_by_pk?: Maybe<Board_Invitations>;
+  /** fetch data from the table in a streaming manner: "board_invitations" */
+  board_invitations_stream: Array<Board_Invitations>;
+  /** An array relationship */
+  board_members: Array<Board_Members>;
+  /** An aggregate relationship */
+  board_members_aggregate: Board_Members_Aggregate;
+  /** fetch data from the table: "board_members" using primary key columns */
+  board_members_by_pk?: Maybe<Board_Members>;
+  /** fetch data from the table in a streaming manner: "board_members" */
+  board_members_stream: Array<Board_Members>;
+  /** An array relationship */
   boards: Array<Boards>;
   /** An aggregate relationship */
   boards_aggregate: Boards_Aggregate;
@@ -3410,6 +4300,66 @@ export type Subscription_RootAccounts_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Accounts_Stream_Cursor_Input>>;
   where?: InputMaybe<Accounts_Bool_Exp>;
+};
+
+
+export type Subscription_RootBoard_InvitationsArgs = {
+  distinct_on?: InputMaybe<Array<Board_Invitations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Invitations_Order_By>>;
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+};
+
+
+export type Subscription_RootBoard_Invitations_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Board_Invitations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Invitations_Order_By>>;
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+};
+
+
+export type Subscription_RootBoard_Invitations_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootBoard_Invitations_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Board_Invitations_Stream_Cursor_Input>>;
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+};
+
+
+export type Subscription_RootBoard_MembersArgs = {
+  distinct_on?: InputMaybe<Array<Board_Members_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Members_Order_By>>;
+  where?: InputMaybe<Board_Members_Bool_Exp>;
+};
+
+
+export type Subscription_RootBoard_Members_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Board_Members_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Members_Order_By>>;
+  where?: InputMaybe<Board_Members_Bool_Exp>;
+};
+
+
+export type Subscription_RootBoard_Members_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootBoard_Members_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Board_Members_Stream_Cursor_Input>>;
+  where?: InputMaybe<Board_Members_Bool_Exp>;
 };
 
 
@@ -4660,9 +5610,21 @@ export type Users = {
   /** An aggregate relationship */
   accounts_aggregate: Accounts_Aggregate;
   /** An array relationship */
+  board_invitations: Array<Board_Invitations>;
+  /** An aggregate relationship */
+  board_invitations_aggregate: Board_Invitations_Aggregate;
+  /** An array relationship */
+  board_members: Array<Board_Members>;
+  /** An aggregate relationship */
+  board_members_aggregate: Board_Members_Aggregate;
+  /** An array relationship */
   boards: Array<Boards>;
   /** An aggregate relationship */
   boards_aggregate: Boards_Aggregate;
+  /** An array relationship */
+  comments: Array<Comments>;
+  /** An aggregate relationship */
+  comments_aggregate: Comments_Aggregate;
   created_at: Scalars['timestamptz']['output'];
   dark_mode: Scalars['Boolean']['output'];
   default_labels?: Maybe<Scalars['jsonb']['output']>;
@@ -4707,6 +5669,46 @@ export type UsersAccounts_AggregateArgs = {
 
 
 /** columns and relationships of "users" */
+export type UsersBoard_InvitationsArgs = {
+  distinct_on?: InputMaybe<Array<Board_Invitations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Invitations_Order_By>>;
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersBoard_Invitations_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Board_Invitations_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Invitations_Order_By>>;
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersBoard_MembersArgs = {
+  distinct_on?: InputMaybe<Array<Board_Members_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Members_Order_By>>;
+  where?: InputMaybe<Board_Members_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersBoard_Members_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Board_Members_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Board_Members_Order_By>>;
+  where?: InputMaybe<Board_Members_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
 export type UsersBoardsArgs = {
   distinct_on?: InputMaybe<Array<Boards_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -4723,6 +5725,26 @@ export type UsersBoards_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Boards_Order_By>>;
   where?: InputMaybe<Boards_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersCommentsArgs = {
+  distinct_on?: InputMaybe<Array<Comments_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Comments_Order_By>>;
+  where?: InputMaybe<Comments_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersComments_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Comments_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Comments_Order_By>>;
+  where?: InputMaybe<Comments_Bool_Exp>;
 };
 
 
@@ -4812,8 +5834,14 @@ export type Users_Bool_Exp = {
   _or?: InputMaybe<Array<Users_Bool_Exp>>;
   accounts?: InputMaybe<Accounts_Bool_Exp>;
   accounts_aggregate?: InputMaybe<Accounts_Aggregate_Bool_Exp>;
+  board_invitations?: InputMaybe<Board_Invitations_Bool_Exp>;
+  board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Bool_Exp>;
+  board_members?: InputMaybe<Board_Members_Bool_Exp>;
+  board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Bool_Exp>;
   boards?: InputMaybe<Boards_Bool_Exp>;
   boards_aggregate?: InputMaybe<Boards_Aggregate_Bool_Exp>;
+  comments?: InputMaybe<Comments_Bool_Exp>;
+  comments_aggregate?: InputMaybe<Comments_Aggregate_Bool_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   dark_mode?: InputMaybe<Boolean_Comparison_Exp>;
   default_labels?: InputMaybe<Jsonb_Comparison_Exp>;
@@ -4863,7 +5891,10 @@ export type Users_Delete_Key_Input = {
 /** input type for inserting data into table "users" */
 export type Users_Insert_Input = {
   accounts?: InputMaybe<Accounts_Arr_Rel_Insert_Input>;
+  board_invitations?: InputMaybe<Board_Invitations_Arr_Rel_Insert_Input>;
+  board_members?: InputMaybe<Board_Members_Arr_Rel_Insert_Input>;
   boards?: InputMaybe<Boards_Arr_Rel_Insert_Input>;
+  comments?: InputMaybe<Comments_Arr_Rel_Insert_Input>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   dark_mode?: InputMaybe<Scalars['Boolean']['input']>;
   default_labels?: InputMaybe<Scalars['jsonb']['input']>;
@@ -4934,7 +5965,10 @@ export type Users_On_Conflict = {
 /** Ordering options when selecting data from "users". */
 export type Users_Order_By = {
   accounts_aggregate?: InputMaybe<Accounts_Aggregate_Order_By>;
+  board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Order_By>;
+  board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Order_By>;
   boards_aggregate?: InputMaybe<Boards_Aggregate_Order_By>;
+  comments_aggregate?: InputMaybe<Comments_Aggregate_Order_By>;
   created_at?: InputMaybe<Order_By>;
   dark_mode?: InputMaybe<Order_By>;
   default_labels?: InputMaybe<Order_By>;
@@ -5251,7 +6285,11 @@ export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: stri
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null };
 
-export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null } };
+export type BoardMemberFieldsFragment = { __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } };
+
+export type BoardInvitationFieldsFragment = { __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token: string, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } };
+
+export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, github?: string | null, sort_order: number, is_public: boolean, allow_public_comments: boolean, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> };
 
 export type CommentFieldsFragment = { __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } };
 
@@ -5287,7 +6325,7 @@ export type GetBoardsQueryVariables = Exact<{
 }>;
 
 
-export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> };
+export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, alias: string, github?: string | null, sort_order: number, is_public: boolean, allow_public_comments: boolean, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> };
 
 export type CreateTodoMutationVariables = Exact<{
   objects: Array<Todos_Insert_Input> | Todos_Insert_Input;
@@ -5338,7 +6376,7 @@ export type CreateBoardMutationVariables = Exact<{
 }>;
 
 
-export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> } | null };
+export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, github?: string | null, sort_order: number, is_public: boolean, allow_public_comments: boolean, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> } | null };
 
 export type UpdateBoardMutationVariables = Exact<{
   where: Boards_Bool_Exp;
@@ -5346,7 +6384,7 @@ export type UpdateBoardMutationVariables = Exact<{
 }>;
 
 
-export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null } }> } | null };
+export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, github?: string | null, sort_order: number, is_public: boolean, allow_public_comments: boolean, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> } | null };
 
 export type DeleteBoardMutationVariables = Exact<{
   where: Boards_Bool_Exp;
@@ -5454,6 +6492,85 @@ export type DeleteLabelMutationVariables = Exact<{
 
 
 export type DeleteLabelMutation = { __typename?: 'mutation_root', delete_labels?: { __typename?: 'labels_mutation_response', affected_rows: number } | null };
+
+export type GetBoardMembersQueryVariables = Exact<{
+  where?: InputMaybe<Board_Members_Bool_Exp>;
+  order_by?: InputMaybe<Array<Board_Members_Order_By> | Board_Members_Order_By>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetBoardMembersQuery = { __typename?: 'query_root', board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> };
+
+export type AddBoardMemberMutationVariables = Exact<{
+  objects: Array<Board_Members_Insert_Input> | Board_Members_Insert_Input;
+}>;
+
+
+export type AddBoardMemberMutation = { __typename?: 'mutation_root', insert_board_members?: { __typename?: 'board_members_mutation_response', returning: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> } | null };
+
+export type UpdateBoardMemberMutationVariables = Exact<{
+  where: Board_Members_Bool_Exp;
+  _set: Board_Members_Set_Input;
+}>;
+
+
+export type UpdateBoardMemberMutation = { __typename?: 'mutation_root', update_board_members?: { __typename?: 'board_members_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> } | null };
+
+export type RemoveBoardMemberMutationVariables = Exact<{
+  where: Board_Members_Bool_Exp;
+}>;
+
+
+export type RemoveBoardMemberMutation = { __typename?: 'mutation_root', delete_board_members?: { __typename?: 'board_members_mutation_response', affected_rows: number } | null };
+
+export type GetBoardInvitationsQueryVariables = Exact<{
+  where?: InputMaybe<Board_Invitations_Bool_Exp>;
+  order_by?: InputMaybe<Array<Board_Invitations_Order_By> | Board_Invitations_Order_By>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetBoardInvitationsQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token: string, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
+
+export type GetMyInvitationsQueryVariables = Exact<{
+  email: Scalars['String']['input'];
+  username: Scalars['String']['input'];
+}>;
+
+
+export type GetMyInvitationsQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token: string, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
+
+export type CreateBoardInvitationMutationVariables = Exact<{
+  objects: Array<Board_Invitations_Insert_Input> | Board_Invitations_Insert_Input;
+}>;
+
+
+export type CreateBoardInvitationMutation = { __typename?: 'mutation_root', insert_board_invitations?: { __typename?: 'board_invitations_mutation_response', returning: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token: string, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> } | null };
+
+export type UpdateBoardInvitationMutationVariables = Exact<{
+  where: Board_Invitations_Bool_Exp;
+  _set: Board_Invitations_Set_Input;
+}>;
+
+
+export type UpdateBoardInvitationMutation = { __typename?: 'mutation_root', update_board_invitations?: { __typename?: 'board_invitations_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token: string, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> } | null };
+
+export type DeleteBoardInvitationMutationVariables = Exact<{
+  where: Board_Invitations_Bool_Exp;
+}>;
+
+
+export type DeleteBoardInvitationMutation = { __typename?: 'mutation_root', delete_board_invitations?: { __typename?: 'board_invitations_mutation_response', affected_rows: number } | null };
+
+export type SearchUsersQueryVariables = Exact<{
+  search: Scalars['String']['input'];
+}>;
+
+
+export type SearchUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }> };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -5578,6 +6695,50 @@ export const ListFieldsFragmentDoc = new TypedDocumentString(`
   }
 }
     `, {"fragmentName":"ListFields"}) as unknown as TypedDocumentString<ListFieldsFragment, unknown>;
+export const BoardInvitationFieldsFragmentDoc = new TypedDocumentString(`
+    fragment BoardInvitationFields on board_invitations {
+  id
+  board_id
+  inviter_id
+  invitee_email
+  invitee_username
+  role
+  status
+  token
+  created_at
+  updated_at
+  expires_at
+  inviter {
+    id
+    name
+    username
+    email
+    image
+  }
+  board {
+    id
+    name
+    alias
+  }
+}
+    `, {"fragmentName":"BoardInvitationFields"}) as unknown as TypedDocumentString<BoardInvitationFieldsFragment, unknown>;
+export const BoardMemberFieldsFragmentDoc = new TypedDocumentString(`
+    fragment BoardMemberFields on board_members {
+  id
+  board_id
+  user_id
+  role
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    email
+    image
+  }
+}
+    `, {"fragmentName":"BoardMemberFields"}) as unknown as TypedDocumentString<BoardMemberFieldsFragment, unknown>;
 export const BoardFieldsFragmentDoc = new TypedDocumentString(`
     fragment BoardFields on boards {
   id
@@ -5585,6 +6746,8 @@ export const BoardFieldsFragmentDoc = new TypedDocumentString(`
   alias
   github
   sort_order
+  is_public
+  allow_public_comments
   created_at
   updated_at
   labels {
@@ -5595,8 +6758,26 @@ export const BoardFieldsFragmentDoc = new TypedDocumentString(`
     username
     email
   }
+  board_members {
+    ...BoardMemberFields
+  }
 }
-    fragment LabelFields on labels {
+    fragment BoardMemberFields on board_members {
+  id
+  board_id
+  user_id
+  role
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    email
+    image
+  }
+}
+fragment LabelFields on labels {
   id
   name
   color
@@ -5713,12 +6894,29 @@ export const GetBoardsDocument = new TypedDocumentString(`
     ...BoardFields
   }
 }
-    fragment BoardFields on boards {
+    fragment BoardMemberFields on board_members {
+  id
+  board_id
+  user_id
+  role
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    email
+    image
+  }
+}
+fragment BoardFields on boards {
   id
   name
   alias
   github
   sort_order
+  is_public
+  allow_public_comments
   created_at
   updated_at
   labels {
@@ -5728,6 +6926,9 @@ export const GetBoardsDocument = new TypedDocumentString(`
     id
     username
     email
+  }
+  board_members {
+    ...BoardMemberFields
   }
 }
 fragment LabelFields on labels {
@@ -5943,12 +7144,29 @@ export const CreateBoardDocument = new TypedDocumentString(`
     }
   }
 }
-    fragment BoardFields on boards {
+    fragment BoardMemberFields on board_members {
+  id
+  board_id
+  user_id
+  role
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    email
+    image
+  }
+}
+fragment BoardFields on boards {
   id
   name
   alias
   github
   sort_order
+  is_public
+  allow_public_comments
   created_at
   updated_at
   labels {
@@ -5958,6 +7176,9 @@ export const CreateBoardDocument = new TypedDocumentString(`
     id
     username
     email
+  }
+  board_members {
+    ...BoardMemberFields
   }
 }
 fragment LabelFields on labels {
@@ -5978,12 +7199,29 @@ export const UpdateBoardDocument = new TypedDocumentString(`
     }
   }
 }
-    fragment BoardFields on boards {
+    fragment BoardMemberFields on board_members {
+  id
+  board_id
+  user_id
+  role
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    email
+    image
+  }
+}
+fragment BoardFields on boards {
   id
   name
   alias
   github
   sort_order
+  is_public
+  allow_public_comments
   created_at
   updated_at
   labels {
@@ -5993,6 +7231,9 @@ export const UpdateBoardDocument = new TypedDocumentString(`
     id
     username
     email
+  }
+  board_members {
+    ...BoardMemberFields
   }
 }
 fragment LabelFields on labels {
@@ -6204,3 +7445,241 @@ export const DeleteLabelDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteLabelMutation, DeleteLabelMutationVariables>;
+export const GetBoardMembersDocument = new TypedDocumentString(`
+    query GetBoardMembers($where: board_members_bool_exp = {}, $order_by: [board_members_order_by!] = {created_at: asc}, $limit: Int = 100, $offset: Int = 0) {
+  board_members(
+    where: $where
+    order_by: $order_by
+    limit: $limit
+    offset: $offset
+  ) {
+    ...BoardMemberFields
+  }
+}
+    fragment BoardMemberFields on board_members {
+  id
+  board_id
+  user_id
+  role
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    email
+    image
+  }
+}`) as unknown as TypedDocumentString<GetBoardMembersQuery, GetBoardMembersQueryVariables>;
+export const AddBoardMemberDocument = new TypedDocumentString(`
+    mutation AddBoardMember($objects: [board_members_insert_input!]!) {
+  insert_board_members(objects: $objects) {
+    returning {
+      ...BoardMemberFields
+    }
+  }
+}
+    fragment BoardMemberFields on board_members {
+  id
+  board_id
+  user_id
+  role
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    email
+    image
+  }
+}`) as unknown as TypedDocumentString<AddBoardMemberMutation, AddBoardMemberMutationVariables>;
+export const UpdateBoardMemberDocument = new TypedDocumentString(`
+    mutation UpdateBoardMember($where: board_members_bool_exp!, $_set: board_members_set_input!) {
+  update_board_members(where: $where, _set: $_set) {
+    affected_rows
+    returning {
+      ...BoardMemberFields
+    }
+  }
+}
+    fragment BoardMemberFields on board_members {
+  id
+  board_id
+  user_id
+  role
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    email
+    image
+  }
+}`) as unknown as TypedDocumentString<UpdateBoardMemberMutation, UpdateBoardMemberMutationVariables>;
+export const RemoveBoardMemberDocument = new TypedDocumentString(`
+    mutation RemoveBoardMember($where: board_members_bool_exp!) {
+  delete_board_members(where: $where) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<RemoveBoardMemberMutation, RemoveBoardMemberMutationVariables>;
+export const GetBoardInvitationsDocument = new TypedDocumentString(`
+    query GetBoardInvitations($where: board_invitations_bool_exp = {}, $order_by: [board_invitations_order_by!] = {created_at: desc}, $limit: Int = 100, $offset: Int = 0) {
+  board_invitations(
+    where: $where
+    order_by: $order_by
+    limit: $limit
+    offset: $offset
+  ) {
+    ...BoardInvitationFields
+  }
+}
+    fragment BoardInvitationFields on board_invitations {
+  id
+  board_id
+  inviter_id
+  invitee_email
+  invitee_username
+  role
+  status
+  token
+  created_at
+  updated_at
+  expires_at
+  inviter {
+    id
+    name
+    username
+    email
+    image
+  }
+  board {
+    id
+    name
+    alias
+  }
+}`) as unknown as TypedDocumentString<GetBoardInvitationsQuery, GetBoardInvitationsQueryVariables>;
+export const GetMyInvitationsDocument = new TypedDocumentString(`
+    query GetMyInvitations($email: String!, $username: String!) {
+  board_invitations(
+    where: {_and: [{status: {_eq: "pending"}}, {expires_at: {_gt: "now()"}}, {_or: [{invitee_email: {_eq: $email}}, {invitee_username: {_eq: $username}}]}]}
+    order_by: {created_at: desc}
+  ) {
+    ...BoardInvitationFields
+  }
+}
+    fragment BoardInvitationFields on board_invitations {
+  id
+  board_id
+  inviter_id
+  invitee_email
+  invitee_username
+  role
+  status
+  token
+  created_at
+  updated_at
+  expires_at
+  inviter {
+    id
+    name
+    username
+    email
+    image
+  }
+  board {
+    id
+    name
+    alias
+  }
+}`) as unknown as TypedDocumentString<GetMyInvitationsQuery, GetMyInvitationsQueryVariables>;
+export const CreateBoardInvitationDocument = new TypedDocumentString(`
+    mutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {
+  insert_board_invitations(objects: $objects) {
+    returning {
+      ...BoardInvitationFields
+    }
+  }
+}
+    fragment BoardInvitationFields on board_invitations {
+  id
+  board_id
+  inviter_id
+  invitee_email
+  invitee_username
+  role
+  status
+  token
+  created_at
+  updated_at
+  expires_at
+  inviter {
+    id
+    name
+    username
+    email
+    image
+  }
+  board {
+    id
+    name
+    alias
+  }
+}`) as unknown as TypedDocumentString<CreateBoardInvitationMutation, CreateBoardInvitationMutationVariables>;
+export const UpdateBoardInvitationDocument = new TypedDocumentString(`
+    mutation UpdateBoardInvitation($where: board_invitations_bool_exp!, $_set: board_invitations_set_input!) {
+  update_board_invitations(where: $where, _set: $_set) {
+    affected_rows
+    returning {
+      ...BoardInvitationFields
+    }
+  }
+}
+    fragment BoardInvitationFields on board_invitations {
+  id
+  board_id
+  inviter_id
+  invitee_email
+  invitee_username
+  role
+  status
+  token
+  created_at
+  updated_at
+  expires_at
+  inviter {
+    id
+    name
+    username
+    email
+    image
+  }
+  board {
+    id
+    name
+    alias
+  }
+}`) as unknown as TypedDocumentString<UpdateBoardInvitationMutation, UpdateBoardInvitationMutationVariables>;
+export const DeleteBoardInvitationDocument = new TypedDocumentString(`
+    mutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {
+  delete_board_invitations(where: $where) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteBoardInvitationMutation, DeleteBoardInvitationMutationVariables>;
+export const SearchUsersDocument = new TypedDocumentString(`
+    query SearchUsers($search: String!) {
+  users(
+    where: {_or: [{email: {_ilike: $search}}, {username: {_ilike: $search}}, {name: {_ilike: $search}}]}
+    limit: 10
+  ) {
+    id
+    name
+    username
+    email
+    image
+  }
+}
+    `) as unknown as TypedDocumentString<SearchUsersQuery, SearchUsersQueryVariables>;
