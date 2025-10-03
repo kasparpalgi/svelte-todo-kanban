@@ -1,0 +1,7 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- CREATE OR REPLACE TRIGGER set_todo_alias_trigger
+-- BEFORE INSERT ON todos
+-- FOR EACH ROW
+-- WHEN (NEW.alias IS NULL)
+-- EXECUTE FUNCTION set_todo_alias();

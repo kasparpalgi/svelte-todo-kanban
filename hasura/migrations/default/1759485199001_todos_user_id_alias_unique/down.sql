@@ -1,0 +1,4 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- ALTER TABLE todos
+-- ADD CONSTRAINT todos_user_id_alias_unique UNIQUE (user_id, alias);

@@ -1,0 +1,11 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- CREATE OR REPLACE FUNCTION public.set_todo_alias()
+--  RETURNS trigger
+--  LANGUAGE plpgsql
+-- AS $function$
+-- BEGIN
+--   NEW.alias := generate_unique_alias_for_user_todo(NEW.title, NEW.user_id);
+--   RETURN NEW;
+-- END;
+-- $function$;

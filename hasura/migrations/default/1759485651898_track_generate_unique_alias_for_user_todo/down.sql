@@ -1,0 +1,45 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- CREATE OR REPLACE FUNCTION public.generate_unique_alias_for_user_todo(name_input text, user_id_input uuid)
+--  RETURNS text
+--  LANGUAGE plpgsql
+-- AS $function$
+-- DECLARE
+--   base_alias TEXT;
+--   final_alias TEXT;
+--   max_existing_number INTEGER := 0;
+-- BEGIN
+--   base_alias := LOWER(name_input);
+--   base_alias := REPLACE(base_alias, ' ', '-');
+--   base_alias := REGEXP_REPLACE(base_alias, '[^a-z0-9\-_]', '', 'g');
+--   base_alias := REGEXP_REPLACE(base_alias, '-+', '-', 'g');
+--   base_alias := TRIM(BOTH '-' FROM base_alias);
+--
+--   IF LENGTH(base_alias) = 0 THEN
+--     base_alias := 'todo';
+--   END IF;
+--
+--   -- Check if available FOR THIS USER
+--   IF NOT EXISTS (
+--     SELECT 1 FROM todos
+--     WHERE alias = base_alias AND user_id = user_id_input
+--   ) THEN
+--     RETURN base_alias;
+--   END IF;
+--
+--   -- Find highest number suffix FOR THIS USER
+--   SELECT COALESCE(MAX(
+--     CASE
+--       WHEN alias ~ ('^' || base_alias || '[0-9]+$')
+--       THEN CAST(SUBSTRING(alias FROM (LENGTH(base_alias) + 1)) AS INTEGER)
+--       ELSE 0
+--     END
+--   ), 0) INTO max_existing_number
+--   FROM todos
+--   WHERE user_id = user_id_input
+--     AND alias ~ ('^' || base_alias || '[0-9]*$');
+--
+--   final_alias := base_alias || (max_existing_number + 1);
+--   RETURN final_alias;
+-- END;
+-- $function$;
