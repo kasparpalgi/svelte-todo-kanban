@@ -1,5 +1,6 @@
 - "!include public_accounts.yaml"
 - "!include public_board_invitations.yaml"
+- "!include public_board_members.yaml"
 - "!include public_boards.yaml"
 - "!include public_comments.yaml"
 - "!include public_labels.yaml"
