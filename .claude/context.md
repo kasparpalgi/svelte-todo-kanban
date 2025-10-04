@@ -617,6 +617,7 @@ import { t } from '$lib/i18n';
 - **Optimistic Updates**: Instant UI feedback
 - **Responsive Design**: Mobile-first approach
 - **Type Safety**: Full TypeScript + GraphQL codegen
+- **Production Logging**: Comprehensive logging with DB persistence, error boundary, performance monitoring
 - **Comprehensive Testing**: Unit, component, and E2E tests
 
 ## Critical Rules
@@ -669,6 +670,42 @@ if (browser) {
 - Use `displayMessage()` for all user-facing feedback
 - Set appropriate durations
 - Provide actionable error messages
+
+### 8. Logging (PRODUCTION SYSTEM)
+```typescript
+import { loggingStore } from '$lib/stores/logging.svelte';
+
+// ALWAYS log errors and warnings
+loggingStore.error('ComponentName', 'Error description', { error: errorObject });
+loggingStore.warn('ComponentName', 'Warning description', { context: 'data' });
+
+// Log important info (auto-persisted in production)
+loggingStore.info('UserStore', 'User logged in', { userId: user.id });
+
+// Debug logging (dev only, not persisted)
+loggingStore.debug('ComponentName', 'Debug info', { data: debugData });
+```
+
+**What to Log**:
+- ✅ GraphQL/API errors (ALWAYS)
+- ✅ Store operation failures (ALWAYS)
+- ✅ Authentication failures (ALWAYS)
+- ✅ Permission denied errors (ALWAYS)
+- ✅ Critical user actions (login, signup)
+- ❌ Passwords, tokens, API keys (AUTO-REDACTED)
+- ❌ Large payloads >1KB
+- ❌ High-frequency events
+
+**Features**:
+- Auto-persistence to PostgreSQL for ERROR/WARN
+- Privacy-safe (auto-redacts sensitive fields)
+- Circular reference safe (handles Error objects)
+- Performance monitoring (`measureAsync`, `measureSync`)
+- Rate limiting (100 logs/component/minute)
+- Intelligent sampling in production (10% INFO logs)
+- Retry logic for failed writes
+
+**View Logs**: `/[lang]/logs` - filter, search, export
 
 ## Development Commands
 
