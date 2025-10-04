@@ -76,6 +76,67 @@ function createTodosStore() {
 		}
 	}
 
+	/**
+	 * Sync todo changes to GitHub issue
+	 * Non-blocking: errors are logged but don't fail the todo update
+	 */
+	async function syncTodoToGithub(
+		todo: TodoFieldsFragment,
+		updates: any,
+		originalTodo: TodoFieldsFragment
+	) {
+		if (!todo.list?.board?.github || !todo.github_issue_number) {
+			return; // Board not connected or todo not linked to issue
+		}
+
+		const githubData =
+			typeof todo.list.board.github === 'string'
+				? JSON.parse(todo.list.board.github)
+				: todo.list.board.github;
+		const { owner, repo } = githubData as { owner: string; repo: string };
+
+		// Determine what changed and needs to be synced
+		const githubUpdates: any = {};
+
+		// Title changed
+		if (updates.title !== undefined && updates.title !== originalTodo.title) {
+			githubUpdates.title = updates.title;
+		}
+
+		// Content changed
+		if (updates.content !== undefined && updates.content !== originalTodo.content) {
+			githubUpdates.body = updates.content;
+		}
+
+		// Completion status changed
+		if (updates.completed_at !== undefined) {
+			if (updates.completed_at && !originalTodo.completed_at) {
+				// Todo completed → close issue
+				githubUpdates.state = 'closed';
+			} else if (!updates.completed_at && originalTodo.completed_at) {
+				// Todo reopened → reopen issue
+				githubUpdates.state = 'open';
+			}
+		}
+
+		// Only sync if there are changes
+		if (Object.keys(githubUpdates).length === 0) {
+			return;
+		}
+
+		await fetch('/api/github/update-issue', {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				todoId: todo.id,
+				githubIssueNumber: todo.github_issue_number,
+				owner,
+				repo,
+				...githubUpdates
+			})
+		});
+	}
+
 	async function addTodo(
 		title: string,
 		content?: string,
@@ -259,6 +320,15 @@ function createTodosStore() {
 				if (todoIndex !== -1) {
 					state.todos[todoIndex] = updatedTodo;
 				}
+
+				// Sync to GitHub if todo is linked to a GitHub issue
+				if (updatedTodo.github_issue_number && updatedTodo.github_issue_id) {
+					syncTodoToGithub(updatedTodo, updates, originalTodo).catch((err) => {
+						// Non-blocking: log error but don't fail todo update
+						console.error('Failed to sync todo to GitHub:', err);
+					});
+				}
+
 				return {
 					success: true,
 					message: 'Todo updated successfully',

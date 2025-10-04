@@ -39,6 +39,7 @@ export const TODO_FRAGMENT = graphql(`
 				name
 				alias
 				sort_order
+				github
 			}
 		}
 	}
@@ -140,6 +141,8 @@ export const COMMENT_FRAGMENT = graphql(`
 		user_id
 		created_at
 		updated_at
+		github_comment_id
+		github_synced_at
 		user {
 			id
 			name
