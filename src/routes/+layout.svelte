@@ -7,8 +7,14 @@
 	import faviconUrl from '$lib/assets/favicon.svg?url';
 	import { onMount } from 'svelte';
 	import { pwaInfo } from 'virtual:pwa-info';
+	import { initTranslations } from '$lib/i18n';
 
-	let { children } = $props();
+	let { children, data } = $props();
+
+	$effect(() => {
+		const locale = data?.session?.user?.locale || 'en';
+		initTranslations(locale);
+	});
 
 	onMount(async () => {
 		if (pwaInfo) {
