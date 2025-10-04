@@ -6,25 +6,14 @@ import {
 } from '$lib/graphql/documents';
 import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
+import { userStore } from './user.svelte';
 import type {
 	GetMyInvitationsQuery,
 	UpdateBoardInvitationMutation,
 	AddBoardMemberMutation,
 	BoardInvitationFieldsFragment
 } from '$lib/graphql/generated/graphql';
-import { displayMessage } from './errorSuccess.svelte';
-import { userStore } from './user.svelte';
-
-interface InvitationsState {
-	myInvitations: BoardInvitationFieldsFragment[];
-	loading: boolean;
-	error: string | null;
-}
-
-interface StoreResult {
-	success: boolean;
-	message: string;
-}
+import type { InvitationsState, StoreResult } from '$lib/types/invitation';
 
 function createInvitationsStore() {
 	const state = $state<InvitationsState>({
@@ -76,7 +65,6 @@ function createInvitationsStore() {
 		}
 
 		try {
-			// 1. Create board member
 			const memberData: AddBoardMemberMutation = await request(ADD_BOARD_MEMBER, {
 				objects: [
 					{
@@ -88,21 +76,19 @@ function createInvitationsStore() {
 			});
 
 			const newMember = memberData.insert_board_members?.returning?.[0];
-			if (!newMember) {
+			const affected = memberData.insert_board_members?.affected_rows;
+
+			if (!affected || affected === 0) {
+				console.error('Board member insertion failed:', memberData);
 				return { success: false, message: 'Failed to add you as a board member' };
 			}
 
-			// 2. Update invitation status to accepted
-			const invitationData: UpdateBoardInvitationMutation = await request(
-				UPDATE_BOARD_INVITATION,
-				{
-					where: { id: { _eq: invitationId } },
-					_set: { status: 'accepted' }
-				}
-			);
+			const invitationData: UpdateBoardInvitationMutation = await request(UPDATE_BOARD_INVITATION, {
+				where: { id: { _eq: invitationId } },
+				_set: { status: 'accepted' }
+			});
 
 			if (invitationData.update_board_invitations?.affected_rows) {
-				// Remove from my invitations
 				state.myInvitations = state.myInvitations.filter((i) => i.id !== invitationId);
 				return { success: true, message: 'Invitation accepted' };
 			}
@@ -125,7 +111,6 @@ function createInvitationsStore() {
 			});
 
 			if (data.update_board_invitations?.affected_rows) {
-				// Remove from my invitations
 				state.myInvitations = state.myInvitations.filter((i) => i.id !== invitationId);
 				return { success: true, message: 'Invitation declined' };
 			}
@@ -138,10 +123,7 @@ function createInvitationsStore() {
 		}
 	}
 
-	// Derived: count of pending invitations
 	const pendingCount = $derived(state.myInvitations.length);
-
-	// ========== Public API ==========
 
 	return {
 		get myInvitations() {
