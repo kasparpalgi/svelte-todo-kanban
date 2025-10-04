@@ -6508,7 +6508,7 @@ export type AddBoardMemberMutationVariables = Exact<{
 }>;
 
 
-export type AddBoardMemberMutation = { __typename?: 'mutation_root', insert_board_members?: { __typename?: 'board_members_mutation_response', returning: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> } | null };
+export type AddBoardMemberMutation = { __typename?: 'mutation_root', insert_board_members?: { __typename?: 'board_members_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> } | null };
 
 export type UpdateBoardMemberMutationVariables = Exact<{
   where: Board_Members_Bool_Exp;
@@ -7477,6 +7477,7 @@ export const AddBoardMemberDocument = new TypedDocumentString(`
     objects: $objects
     on_conflict: {constraint: board_members_board_user_unique, update_columns: [role, updated_at]}
   ) {
+    affected_rows
     returning {
       ...BoardMemberFields
     }

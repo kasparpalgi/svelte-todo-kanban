@@ -457,6 +457,7 @@ export const ADD_BOARD_MEMBER = graphql(`
 				update_columns: [role, updated_at]
 			}
 		) {
+			affected_rows
 			returning {
 				...BoardMemberFields
 			}

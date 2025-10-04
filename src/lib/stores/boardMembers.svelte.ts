@@ -100,6 +100,28 @@ function createBoardMembersStore() {
 			const newInvitation = data.insert_board_invitations?.returning?.[0];
 			if (newInvitation) {
 				state.invitations = [...state.invitations, newInvitation];
+
+				if (isEmail && newInvitation.board) {
+					try {
+						const inviterName = newInvitation.inviter?.name || newInvitation.inviter?.username;
+						const boardName = newInvitation.board.name;
+						const invitationUrl = `${window.location.origin}/signin`;
+
+						await fetch('/api/invitations/send', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								inviteeEmail: emailOrUsername.trim(),
+								boardName,
+								inviterName,
+								invitationUrl
+							})
+						});
+					} catch (emailError) {
+						console.error('Failed to send invitation email:', emailError);
+					}
+				}
+
 				return {
 					success: true,
 					message: 'Invitation sent successfully',
