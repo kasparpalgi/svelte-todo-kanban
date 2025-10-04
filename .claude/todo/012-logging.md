@@ -1,1 +1,3 @@
 Plan and implement a good app logging into logs table in database or what is the best practices. Log importanyt things that lead to catching bugs. Think that logs shall be read also by AI so do not log too much so too much tokens wasted to read logs and logs shall be possible to see only errors for example and then certain section maybe full logs. Also think of performance so logging won't do harm to opverall app performance.
+
+write e2e and unit tests to verify your work and then commit to a separate branch
