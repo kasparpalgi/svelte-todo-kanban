@@ -5,15 +5,48 @@
 	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
+	import { listsStore } from '$lib/stores/listsBoards.svelte';
+	import { todoFilteringStore } from '$lib/stores/todoFiltering.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { LogOut, Settings } from 'lucide-svelte';
 	import { getUserInitials } from '$lib/utils/getUserInitials';
+	import { clearAppStorage } from '$lib/utils/localStorage';
 	import BoardSwitcher from '$lib/components/listBoard/BoardSwitcher.svelte';
 
 	function navigateToSettings() {
 		const currentLang = page.params.lang || '';
 		const settingsPath = currentLang ? `/${currentLang}/settings` : '/settings';
 		goto(settingsPath);
+	}
+
+	async function handleLogout() {
+		console.log('[Logout] Starting logout process...');
+
+		try {
+			// Clear localStorage first
+			console.log('[Logout] Clearing localStorage...');
+			clearAppStorage();
+
+			// Reset stores (this should not trigger any API calls)
+			console.log('[Logout] Resetting stores...');
+			listsStore.reset();
+			userStore.reset();
+
+			console.log('[Logout] Stores reset complete');
+
+			// Add small delay to see console logs
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			// Sign out via Auth.js
+			console.log('[Logout] Calling signOut...');
+			await signOut({ callbackUrl: '/' });
+
+			console.log('[Logout] ✓ Logout complete');
+		} catch (error) {
+			console.error('[Logout] Error during logout:', error);
+			// Continue with signout even if there's an error
+			await signOut({ callbackUrl: '/' });
+		}
 	}
 </script>
 
@@ -43,7 +76,7 @@
 			<Settings class="mr-2 h-4 w-4" />
 		</Button>
 
-		<Button onclick={() => signOut({ callbackUrl: '/' })} variant="outline" size="sm">
+		<Button onclick={handleLogout} variant="outline" size="sm">
 			<LogOut class="mr-2 h-4 w-4" />
 		</Button>
 	</div>

@@ -2,7 +2,7 @@
 import { GITHUB_CLIENT_ID } from '$env/static/private';
 import { PUBLIC_APP_ENV, PUBLIC_APP_URL } from '$env/static/public';
 import { redirect } from '@sveltejs/kit';
-import type { RequestEvent } from '../auth/github/$types';
+import type { RequestEvent } from './$types';
 
 export async function GET({ url }: RequestEvent) {
 	const userId = url.searchParams.get('userId');

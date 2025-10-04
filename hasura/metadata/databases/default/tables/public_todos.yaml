@@ -34,8 +34,17 @@ insert_permissions:
   - role: user
     permission:
       check:
-        user_id:
-          _eq: X-Hasura-User-Id
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - list:
+              board:
+                _or:
+                  - user_id:
+                      _eq: X-Hasura-User-Id
+                  - board_members:
+                      user_id:
+                        _eq: X-Hasura-User-Id
       set:
         user_id: x-hasura-User-Id
       columns:
@@ -69,6 +78,8 @@ select_permissions:
         - user_id
       filter:
         _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
           - list:
               board:
                 user_id:
@@ -129,4 +140,9 @@ delete_permissions:
               board:
                 user_id:
                   _eq: X-Hasura-User-Id
+          - list:
+              board:
+                board_members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
     comment: ""

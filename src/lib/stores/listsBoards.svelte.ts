@@ -76,18 +76,49 @@ function createListsStore() {
 
 			state.boards = data.boards || [];
 
-			// Restore selectedBoard from localStorage or 1st one
+			// Restore selectedBoard from user.settings.lastBoardAlias, then localStorage, then first board
 			if (state.boards.length > 0) {
-				const savedId = localStorage.getItem('selectedBoardId');
-				const savedBoard = state.boards.find((b) => b.id === savedId);
+				const { userStore } = await import('./user.svelte');
+				const user = userStore.user;
+				const lastBoardAlias = user?.settings?.lastBoardAlias;
 
-				state.selectedBoard = savedBoard || state.boards[0];
+				console.log('[ListsStore] loadBoards - restoring selected board', {
+					lastBoardAlias,
+					totalBoards: state.boards.length
+				});
 
-				if (!savedBoard) {
-					localStorage.setItem('selectedBoardId', state.selectedBoard.id);
+				let selectedBoard: BoardFieldsFragment | undefined;
+
+				// 1. Try to find board by lastBoardAlias from user settings
+				if (lastBoardAlias) {
+					selectedBoard = state.boards.find((b) => b.alias === lastBoardAlias);
+					console.log('[ListsStore] Found board by lastBoardAlias:', selectedBoard?.alias);
+				}
+
+				// 2. Fallback to localStorage
+				if (!selectedBoard) {
+					const savedId = localStorage.getItem('selectedBoardId');
+					if (savedId) {
+						selectedBoard = state.boards.find((b) => b.id === savedId);
+						console.log('[ListsStore] Found board by localStorage:', selectedBoard?.alias);
+					}
+				}
+
+				// 3. Fallback to first board
+				if (!selectedBoard) {
+					selectedBoard = state.boards[0];
+					console.log('[ListsStore] Using first board:', selectedBoard?.alias);
+				}
+
+				state.selectedBoard = selectedBoard;
+
+				// Update localStorage for consistency
+				if (selectedBoard) {
+					localStorage.setItem('selectedBoardId', selectedBoard.id);
 				}
 			} else {
 				state.selectedBoard = null;
+				console.log('[ListsStore] No boards found');
 			}
 
 			return state.boards;
@@ -350,11 +381,41 @@ function createListsStore() {
 			return state.initialized;
 		},
 
-		setSelectedBoard(board: BoardFieldsFragment | null) {
+		async setSelectedBoard(board: BoardFieldsFragment | null) {
+			console.log('[ListsStore] setSelectedBoard called', {
+				boardAlias: board?.alias,
+				boardId: board?.id
+			});
+
 			state.selectedBoard = board;
 			if (browser) {
 				if (board) {
 					localStorage.setItem('selectedBoardId', board.id);
+
+					// Update user.settings.lastBoardAlias (only if user is logged in)
+					const { userStore } = await import('./user.svelte');
+					const user = userStore.user;
+					if (user?.id && board.alias) {
+						console.log('[ListsStore] Updating user.settings.lastBoardAlias', {
+							userId: user.id,
+							boardAlias: board.alias
+						});
+
+						try {
+							const currentSettings = user.settings || {};
+							// Use silent=true to avoid showing "Settings updated successfully" on board switch
+							await userStore.updateUser(
+								user.id,
+								{
+									settings: { ...currentSettings, lastBoardAlias: board.alias }
+								},
+								true
+							);
+						} catch (error) {
+							// Silently fail if user update fails (e.g., during logout)
+							console.warn('[ListsStore] Failed to update lastBoardAlias, likely logged out', error);
+						}
+					}
 				} else {
 					localStorage.removeItem('selectedBoardId');
 				}

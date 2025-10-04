@@ -25,6 +25,8 @@ const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFields
 	updated_at: '2025-01-01T00:00:00Z',
 	list: null,
 	uploads: [],
+	labels: [],
+	comments: [],
 	__typename: 'todos',
 	...overrides
 });

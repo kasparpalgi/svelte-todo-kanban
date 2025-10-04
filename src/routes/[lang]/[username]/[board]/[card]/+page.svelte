@@ -28,7 +28,8 @@
 		ListOrdered,
 		Code,
 		Heading1,
-		Heading2
+		Heading2,
+		Upload
 	} from 'lucide-svelte';
 	import { z } from 'zod';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
@@ -38,6 +39,8 @@
 	import TaskList from '@tiptap/extension-task-list';
 	import TaskItem from '@tiptap/extension-task-item';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
+	import type { TodoImage } from '$lib/types/imageUpload';
+	import { Dialog, DialogContent } from '$lib/components/ui/dialog';
 
 	let { data } = $props();
 
@@ -57,6 +60,11 @@
 	let validationErrors = $state<Record<string, string>>({});
 	let isSubmitting = $state(false);
 	let editor = $state() as Readable<Editor>;
+	let images = $state<TodoImage[]>([]);
+	let isDragOver = $state(false);
+	let fileInput = $state<HTMLInputElement>();
+	let showUploadArea = $state(false);
+	let selectedImage = $state<TodoImage | null>(null);
 
 	$effect(() => {
 		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
@@ -103,6 +111,14 @@
 			});
 
 			await commentsStore.loadComments(cardId || '');
+
+			images =
+				foundTodo.uploads?.map((upload) => ({
+					id: upload.id,
+					file: null,
+					preview: upload.url,
+					isExisting: true
+				})) || [];
 		}
 		loading = false;
 	});
@@ -111,6 +127,12 @@
 		if ($editor) {
 			$editor.destroy();
 		}
+
+		images.forEach((img) => {
+			if (!img.isExisting && img.preview.startsWith('blob:')) {
+				URL.revokeObjectURL(img.preview);
+			}
+		});
 	});
 
 	function closeModal() {
@@ -154,13 +176,40 @@
 				priority: validatedData.priority || 'low'
 			});
 
-			if (result.success) {
-				displayMessage('Card updated successfully', 1500, true);
-				todo = todosStore.todos.find((t) => t.id === cardId) || null;
-				setTimeout(() => closeModal(), 300);
-			} else {
+			if (!result.success) {
 				displayMessage(result.message || 'Failed to update card');
+				return;
 			}
+
+			const newImages = images.filter((img) => !img.isExisting && img.file);
+			if (newImages.length > 0 && todo) {
+				try {
+					const uploadPromises = newImages.map(async (img) => {
+						const formData = new FormData();
+						formData.append('file', img.file!);
+						const response = await fetch('/api/upload', {
+							method: 'POST',
+							body: formData
+						});
+						const uploadResult = await response.json();
+						if (uploadResult.success && todo) {
+							return await todosStore.createUpload(todo.id, uploadResult.url);
+						} else {
+							throw new Error(uploadResult.error || 'Upload failed');
+						}
+					});
+					await Promise.all(uploadPromises);
+					displayMessage('Card and images updated successfully', 2000, true);
+				} catch (error) {
+					displayMessage('Card saved, but some images failed to upload');
+					console.error('Upload error:', error);
+				}
+			} else {
+				displayMessage('Card updated successfully', 1500, true);
+			}
+
+			todo = todosStore.todos.find((t) => t.id === cardId) || null;
+			setTimeout(() => closeModal(), 300);
 		} catch (error) {
 			if (error instanceof z.ZodError) {
 				validationErrors = {};
@@ -229,6 +278,67 @@
 	function getPriorityLabel(priority: string): string {
 		return priority.charAt(0).toUpperCase() + priority.slice(1);
 	}
+
+	function handleDragOver(event: DragEvent) {
+		event.preventDefault();
+		isDragOver = true;
+	}
+
+	function handleDragLeave(event: DragEvent) {
+		event.preventDefault();
+		isDragOver = false;
+	}
+
+	function handleDrop(event: DragEvent) {
+		event.preventDefault();
+		isDragOver = false;
+		const files = Array.from(event.dataTransfer?.files || []);
+		addFiles(files);
+	}
+
+	function handleFileSelect(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const files = Array.from(target.files || []);
+		addFiles(files);
+		target.value = '';
+	}
+
+	function addFiles(files: File[]) {
+		const imageFiles = files.filter(
+			(file) => file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024
+		);
+
+		imageFiles.forEach((file) => {
+			const id = crypto.randomUUID();
+			const preview = URL.createObjectURL(file);
+			images = [...images, { id, file, preview, isExisting: false }];
+		});
+
+		const invalidFiles = files.filter(
+			(file) => !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024
+		);
+		if (invalidFiles.length > 0) {
+			displayMessage('Some files were rejected: must be images under 5MB');
+		}
+
+		if (imageFiles.length > 0) {
+			showUploadArea = true;
+		}
+	}
+
+	function removeImage(imageId: string) {
+		const image = images.find((img) => img.id === imageId);
+		if (image) {
+			if (image.isExisting && todo) {
+				todosStore.deleteUpload(imageId, todo.id);
+			} else {
+				if (image.preview.startsWith('blob:')) {
+					URL.revokeObjectURL(image.preview);
+				}
+			}
+			images = images.filter((img) => img.id !== imageId);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -240,11 +350,17 @@
 <div
 	class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
 	onclick={handleBackdropClick}
+	onkeydown={(e) => {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			closeModal();
+		}
+	}}
 	role="button"
 	tabindex="-1"
 >
 	<div class="fixed inset-4 z-50 overflow-auto md:inset-8 lg:inset-16">
-		<div class="mx-auto max-w-4xl" onclick={(e) => e.stopPropagation()}>
+		<div class="mx-auto max-w-4xl" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" tabindex="-1">
 			{#if loading}
 				<Card class="p-12 text-center">
 					<div class="flex items-center justify-center">
@@ -451,23 +567,117 @@
 
 						<CardLabelManager {todo} />
 
-						{#if todo.uploads && todo.uploads.length > 0}
-							<div>
-								<Label class="mb-2 flex items-center gap-2">
-									<ImageIcon class="h-4 w-4" />
-									Attachments
-								</Label>
-								<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-									{#each todo.uploads as upload}
-										<img
-											src={upload.url}
-											alt="Attachment"
-											class="h-24 w-full rounded border object-cover"
-										/>
+						<div>
+							<Label class="mb-2 flex items-center gap-2">
+								<ImageIcon class="h-4 w-4" />
+								Attachments ({images.filter((img) => img.isExisting).length})
+							</Label>
+
+							{#if images.filter((img) => img.isExisting).length > 0}
+								<div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+									{#each images.filter((img) => img.isExisting) as image}
+										<div class="group relative">
+											<button
+												type="button"
+												onclick={() => (selectedImage = image)}
+												class="block h-24 w-full overflow-hidden rounded border"
+											>
+												<img
+													src={image.preview}
+													alt="Attachment"
+													class="h-full w-full object-cover transition-transform group-hover:scale-105"
+												/>
+											</button>
+											<Button
+												type="button"
+												size="sm"
+												variant="destructive"
+												class="absolute right-1 top-1 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+												onclick={() => removeImage(image.id)}
+											>
+												<X class="h-3 w-3" />
+											</Button>
+										</div>
 									{/each}
 								</div>
-							</div>
-						{/if}
+							{/if}
+
+							{#if images.filter((img) => !img.isExisting).length > 0}
+								<div class="mb-4">
+									<span class="mb-2 block text-sm font-medium">New images to upload</span>
+									<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+										{#each images.filter((img) => !img.isExisting) as image}
+											<div class="group relative">
+												<div class="h-24 w-full overflow-hidden rounded border">
+													<img
+														src={image.preview}
+														alt="New upload"
+														class="h-full w-full object-cover"
+													/>
+												</div>
+												<Button
+													type="button"
+													size="sm"
+													variant="destructive"
+													class="absolute right-1 top-1 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+													onclick={() => removeImage(image.id)}
+												>
+													<X class="h-3 w-3" />
+												</Button>
+											</div>
+										{/each}
+									</div>
+								</div>
+							{/if}
+
+							{#if showUploadArea}
+								<div>
+									<span class="mb-2 block text-sm font-medium text-foreground">Add Images</span>
+									<div
+										tabindex="0"
+										aria-label="Upload images by drag and drop or click to browse"
+										role="button"
+										class="rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 text-center transition-colors {isDragOver
+											? 'border-primary bg-primary/5'
+											: ''}"
+										ondragover={handleDragOver}
+										ondragleave={handleDragLeave}
+										ondrop={handleDrop}
+									>
+										<Upload class="mx-auto h-6 w-6 text-muted-foreground" />
+										<p class="mt-2 text-sm text-muted-foreground">
+											Drag and drop images here, or
+											<button
+												type="button"
+												onclick={() => fileInput?.click()}
+												class="text-primary hover:underline focus:underline focus:outline-none"
+											>
+												click to select
+											</button>
+										</p>
+										<p class="mt-1 text-xs text-muted-foreground">PNG, JPG up to 5MB each</p>
+										<input
+											bind:this={fileInput}
+											type="file"
+											multiple
+											accept="image/*"
+											onchange={handleFileSelect}
+											class="hidden"
+										/>
+									</div>
+								</div>
+							{:else}
+								<Button
+									type="button"
+									variant="link"
+									class="flex h-auto justify-start p-0 text-muted-foreground"
+									onclick={() => (showUploadArea = true)}
+								>
+									<ImageIcon class="mr-2 h-4 w-4" />
+									Attach images
+								</Button>
+							{/if}
+						</div>
 
 						<div>
 							<Label class="mb-2 flex items-center gap-2">
@@ -555,6 +765,14 @@
 		</div>
 	</div>
 </div>
+
+{#if selectedImage}
+	<Dialog open={!!selectedImage} onOpenChange={() => (selectedImage = null)}>
+		<DialogContent class="max-w-4xl">
+			<img src={selectedImage.preview} alt="Full size" class="w-full rounded" />
+		</DialogContent>
+	</Dialog>
+{/if}
 
 <style>
 	:global(.ProseMirror) {

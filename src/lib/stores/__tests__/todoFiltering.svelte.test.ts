@@ -40,6 +40,8 @@ const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFields
 	updated_at: '2025-01-01T00:00:00Z',
 	list: null,
 	uploads: [],
+	labels: [],
+	comments: [],
 	__typename: 'todos',
 	...overrides
 });
@@ -146,6 +148,7 @@ describe('TodoFilteringStore', () => {
 					board: {
 						id: 'board1',
 						name: 'Main Board',
+						alias: 'main-board',
 						sort_order: 1,
 						__typename: 'boards'
 					},
@@ -163,6 +166,7 @@ describe('TodoFilteringStore', () => {
 					board: {
 						id: 'board1',
 						name: 'Main Board',
+						alias: 'main-board',
 						sort_order: 1,
 						__typename: 'boards'
 					},
@@ -181,6 +185,7 @@ describe('TodoFilteringStore', () => {
 					board: {
 						id: 'board1',
 						name: 'Main Board',
+						alias: 'main-board',
 						sort_order: 1,
 						__typename: 'boards'
 					},
@@ -199,6 +204,7 @@ describe('TodoFilteringStore', () => {
 					board: {
 						id: 'board1',
 						name: 'Main Board',
+						alias: 'main-board',
 						sort_order: 1,
 						__typename: 'boards'
 					},
@@ -239,6 +245,7 @@ describe('TodoFilteringStore', () => {
 						board: {
 							id: 'board1',
 							name: 'Main Board',
+							alias: 'main-board',
 							sort_order: 1,
 							__typename: 'boards'
 						},
@@ -256,6 +263,7 @@ describe('TodoFilteringStore', () => {
 						board: {
 							id: 'board1',
 							name: 'Main Board',
+							alias: 'main-board',
 							sort_order: 1,
 							__typename: 'boards'
 						},
@@ -273,6 +281,7 @@ describe('TodoFilteringStore', () => {
 						board: {
 							id: 'board1',
 							name: 'Main Board',
+							alias: 'main-board',
 							sort_order: 1,
 							__typename: 'boards'
 						},

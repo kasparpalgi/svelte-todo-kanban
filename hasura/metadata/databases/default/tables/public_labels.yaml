@@ -18,8 +18,12 @@ insert_permissions:
     permission:
       check:
         board:
-          user_id:
-            _eq: X-Hasura-User-Id
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
       columns:
         - board_id
         - color
@@ -42,8 +46,12 @@ select_permissions:
         - updated_at
       filter:
         board:
-          user_id:
-            _eq: X-Hasura-User-Id
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
     comment: ""
 update_permissions:
   - role: user
@@ -56,8 +64,12 @@ update_permissions:
         - updated_at
       filter:
         board:
-          user_id:
-            _eq: X-Hasura-User-Id
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
       check: null
     comment: ""
 delete_permissions:
@@ -65,6 +77,10 @@ delete_permissions:
     permission:
       filter:
         board:
-          user_id:
-            _eq: X-Hasura-User-Id
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
     comment: ""

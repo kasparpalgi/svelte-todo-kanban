@@ -11,7 +11,16 @@ object_relationships:
 insert_permissions:
   - role: user
     permission:
-      check: {}
+      check:
+        todo:
+          list:
+            board:
+              _or:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
       set:
         user_id: x-hasura-User-Id
       columns:
@@ -34,8 +43,14 @@ select_permissions:
         - user_id
       filter:
         todo:
-          user_id:
-            _eq: X-Hasura-User-Id
+          list:
+            board:
+              _or:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
     comment: ""
 update_permissions:
   - role: user
@@ -48,14 +63,26 @@ update_permissions:
       filter: {}
       check:
         todo:
-          user_id:
-            _eq: X-Hasura-User-Id
+          list:
+            board:
+              _or:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
     comment: ""
 delete_permissions:
   - role: user
     permission:
       filter:
         todo:
-          user_id:
-            _eq: X-Hasura-User-Id
+          list:
+            board:
+              _or:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
     comment: ""

@@ -10,8 +10,14 @@ insert_permissions:
     permission:
       check:
         todo:
-          user_id:
-            _eq: X-Hasura-User-Id
+          list:
+            board:
+              _or:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
       columns:
         - url
         - created_at
@@ -28,14 +34,26 @@ select_permissions:
         - todo_id
       filter:
         todo:
-          user_id:
-            _eq: X-Hasura-User-Id
+          list:
+            board:
+              _or:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
     comment: ""
 delete_permissions:
   - role: user
     permission:
       filter:
         todo:
-          user_id:
-            _eq: X-Hasura-User-Id
+          list:
+            board:
+              _or:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
     comment: ""

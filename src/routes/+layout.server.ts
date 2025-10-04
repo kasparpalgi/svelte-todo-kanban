@@ -22,9 +22,41 @@ function isValidApiEnv(env: string): env is ApiEnv {
 
 async function getTopBoardPath(session: any): Promise<string | null> {
 	try {
-		console.log('=== GETTING TOP BOARD ===');
-		console.log('Session user:', session?.user);
+		console.log('[Layout] === GETTING TOP BOARD ===');
+		console.log('[Layout] Session user:', { id: session?.user?.id, email: session?.user?.email });
 
+		const lastBoardAlias = session?.user?.settings?.lastBoardAlias;
+		console.log('[Layout] Last board alias from settings:', lastBoardAlias);
+
+		if (lastBoardAlias) {
+			// Try to find the board with this alias
+			const dataByAlias: GetBoardsQuery = await request(
+				GET_BOARDS,
+				{
+					where: { alias: { _eq: lastBoardAlias } },
+					limit: 1
+				},
+				session
+			);
+
+			console.log('[Layout] Board query by alias result:', dataByAlias);
+
+			if (dataByAlias.boards && dataByAlias.boards.length > 0) {
+				const board = dataByAlias.boards[0];
+				console.log('[Layout] Found last opened board:', { alias: board.alias, username: board.user?.username });
+
+				if (board.user?.username && board.alias) {
+					const locale = session.user?.locale || 'en';
+					const path = `/${locale}/${board.user.username}/${board.alias}`;
+					console.log('[Layout] ✓ Redirecting to last opened board:', path);
+					return path;
+				}
+			} else {
+				console.log('[Layout] Last opened board not found, falling back to top board');
+			}
+		}
+
+		// Fallback: Get the top board by sort order
 		const data: GetBoardsQuery = await request(
 			GET_BOARDS,
 			{
@@ -34,28 +66,28 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 			session
 		);
 
-		console.log('Boards query result:', data);
-		console.log('Boards count:', data.boards?.length);
+		console.log('[Layout] Boards query result:', data);
+		console.log('[Layout] Boards count:', data.boards?.length);
 
 		if (data.boards && data.boards.length > 0) {
 			const board = data.boards[0];
-			console.log('Top board:', board);
+			console.log('[Layout] Top board:', { alias: board.alias, username: board.user?.username });
 
 			if (board.user?.username && board.alias) {
 				const locale = session.user?.locale || 'en';
 				const path = `/${locale}/${board.user.username}/${board.alias}`;
-				console.log('✓ Redirecting to top board:', path);
+				console.log('[Layout] ✓ Redirecting to top board:', path);
 				return path;
 			} else {
-				console.warn('✗ Top board missing username or alias:', { username: board.user?.username, alias: board.alias });
+				console.warn('[Layout] ✗ Top board missing username or alias:', { username: board.user?.username, alias: board.alias });
 			}
 		} else {
-			console.log('✗ No boards found');
+			console.log('[Layout] ✗ No boards found');
 		}
 
 		return null;
 	} catch (error) {
-		console.error('✗ Error getting top board:', error);
+		console.error('[Layout] ✗ Error getting top board:', error);
 		return null;
 	}
 }
@@ -73,21 +105,22 @@ export const load: LayoutServerLoad = async (event) => {
 
 	const session = await locals.auth();
 
-	console.log('=== LAYOUT SERVER LOAD ===');
-	console.log('Path:', url.pathname);
-	console.log('Has session:', !!session);
+	console.log('[Root Layout] === LAYOUT SERVER LOAD ===');
+	console.log('[Root Layout] Path:', url.pathname);
+	console.log('[Root Layout] Has session:', !!session);
+	console.log('[Root Layout] User:', session?.user ? { id: session.user.id, email: session.user.email } : 'none');
 
 	if (url.pathname === '/') {
 		if (!session) {
-			console.log('→ Redirecting to /signin (no session)');
+			console.log('[Root Layout] → Redirecting to /signin (no session)');
 			throw redirect(302, '/signin');
 		} else {
 			const topBoardPath = await getTopBoardPath(session);
 			if (topBoardPath) {
-				console.log('→ Redirecting to top board:', topBoardPath);
+				console.log('[Root Layout] → Redirecting to top board:', topBoardPath);
 				throw redirect(302, topBoardPath);
 			} else {
-				console.log('→ Redirecting to /en (no boards)');
+				console.log('[Root Layout] → Redirecting to /en (no boards)');
 				throw redirect(302, '/en');
 			}
 		}

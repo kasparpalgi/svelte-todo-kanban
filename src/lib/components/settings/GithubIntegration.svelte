@@ -45,7 +45,7 @@
 		}
 
 		isConnecting = true;
-		window.location.href = `/api/Fgithub?userId=${user.id}`;
+		window.location.href = `/api/github?userId=${user.id}`;
 	}
 
 	async function disconnectGithub() {
@@ -77,7 +77,7 @@
 <Card>
 	<CardHeader>
 		<CardTitle class="flex items-center gap-2">
-			<img src={githubLogo} alt="GitHub" />
+			<img src={githubLogo} class="w-6 h-6" alt="GitHub" />
 			GitHub Integration
 		</CardTitle>
 		<CardDescription>
@@ -158,7 +158,7 @@
 				</div>
 
 				<Button type="button" onclick={connectGithub} disabled={isConnecting} class="w-full gap-2">
-					<img src={githubLogo} alt="GitHub" />
+					<img src={githubLogo} class="w-4 h-4" alt="GitHub" />
 					{isConnecting ? 'Connecting...' : 'Connect GitHub Account'}
 				</Button>
 			</div>

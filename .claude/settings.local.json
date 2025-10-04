@@ -10,7 +10,13 @@
       "Bash(hasura migrate apply:*)",
       "Bash(npm run generate:*)",
       "Bash(pgrep:*)",
-      "Bash(/bashes)"
+      "Bash(/bashes)",
+      "Bash(npm run check:*)",
+      "Bash(find:*)",
+      "Bash(npx svelte-check:*)",
+      "Bash(npm install:*)",
+      "Bash(cat:*)",
+      "Bash(npm run test:*)"
     ],
     "deny": [],
     "ask": []

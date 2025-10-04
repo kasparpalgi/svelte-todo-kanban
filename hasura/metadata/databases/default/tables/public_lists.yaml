@@ -16,7 +16,15 @@ array_relationships:
 insert_permissions:
   - role: user
     permission:
-      check: {}
+      check:
+        _or:
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
       columns:
         - board_id
         - created_at
@@ -44,6 +52,9 @@ select_permissions:
               board_members:
                 user_id:
                   _eq: X-Hasura-User-Id
+          - board:
+              is_public:
+                _eq: true
     comment: ""
 update_permissions:
   - role: user
@@ -54,16 +65,26 @@ update_permissions:
         - sort_order
         - updated_at
       filter:
-        board:
-          user_id:
-            _eq: X-Hasura-User-Id
+        _or:
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
       check: {}
     comment: ""
 delete_permissions:
   - role: user
     permission:
       filter:
-        board:
-          user_id:
-            _eq: X-Hasura-User-Id
+        _or:
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
     comment: ""

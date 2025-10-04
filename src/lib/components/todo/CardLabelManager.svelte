@@ -141,20 +141,20 @@
 						<DropdownMenuSeparator />
 					{/if}
 
-					<div
-						class="relative flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none hover:bg-accent hover:text-accent-foreground"
+					<button
+						type="button"
+						class="relative flex w-full cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none hover:bg-accent hover:text-accent-foreground"
 						onclick={(e) => {
 							e.preventDefault();
 							e.stopPropagation();
 							handleCreateLabelClick();
 						}}
-						role="menuitem"
 					>
 						<Plus class="mr-2 h-3 w-3" />
 						Create new label
-					</div>
+					</button>
 				{:else}
-					<div class="space-y-2 p-2" onclick={(e) => e.stopPropagation()}>
+					<div class="space-y-2 p-2">
 						<Input
 							bind:value={newLabelName}
 							placeholder="Label name"

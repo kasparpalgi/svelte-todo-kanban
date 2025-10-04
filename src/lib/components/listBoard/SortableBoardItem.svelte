@@ -56,8 +56,8 @@
 	const { attributes, listeners, setNodeRef, transform, transition } = sortable;
 
 	const style = $derived(
-		transform
-			? `transform: ${CSS.Transform.toString(transform)}; transition: ${transition || ''};`
+		transform?.current
+			? `transform: ${CSS.Transform.toString(transform.current)}; transition: ${transition || ''};`
 			: ''
 	);
 
@@ -75,11 +75,11 @@
 	{style}
 	class="flex items-center gap-2 rounded border p-2 {activeId === board.id ? 'opacity-50' : ''}"
 >
-	<button {...attributes} {...listeners} class="cursor-grab active:cursor-grabbing">
+	<button {...attributes.current} {...listeners.current} class="cursor-grab active:cursor-grabbing">
 		<GripVertical class="h-4 w-4 text-muted-foreground" />
 	</button>
 
-	{#if editingBoard?.id === board.id}
+	{#if editingBoard?.id === board.id && editingBoard}
 		<Input
 			bind:value={editingBoard.name}
 			class="h-8 flex-1"

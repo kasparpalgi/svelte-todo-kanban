@@ -28,9 +28,13 @@ function createUserStore() {
 		}
 
 		state.loading = true;
-		state.cachedUser = sessionUser;
 
 		try {
+			console.log('[UserStore] Initializing user from session', {
+				sessionId: sessionUser.id,
+				sessionEmail: sessionUser.email
+			});
+
 			const data = (await request(GET_USERS, {
 				where: { id: { _eq: sessionUser.id } },
 				limit: 1
@@ -39,9 +43,23 @@ function createUserStore() {
 			const dbUser = data.users?.[0];
 
 			if (dbUser) {
-				state.cachedUser = { ...sessionUser, ...dbUser };
+				state.cachedUser = {
+					id: sessionUser.id,
+					...dbUser
+				};
+
+				console.log('[UserStore] User hydrated from DB', {
+					userId: dbUser.id,
+					email: dbUser.email,
+					name: dbUser.name
+				});
+
 				await initializeAppState(state.cachedUser);
+			} else {
+				state.cachedUser = sessionUser;
+				console.warn('[UserStore] DB user not found, using session data');
 			}
+
 			loggingStore.info('UserStore', 'User initialized and hydrated from DB', {
 				userId: sessionUser.id
 			});
@@ -73,7 +91,7 @@ function createUserStore() {
 		}
 	}
 
-	async function updateUser(userId: string, updates: any) {
+	async function updateUser(userId: string, updates: any, silent: boolean = false) {
 		if (!browser) return { success: false, message: 'Not available on server' };
 
 		const originalUser = { ...state.cachedUser };
@@ -93,7 +111,7 @@ function createUserStore() {
 		state.error = null;
 
 		try {
-			loggingStore.info('UserStore', 'Updating user', { userId, updates });
+			loggingStore.info('UserStore', 'Updating user', { userId, updates, silent });
 
 			const data = (await request(UPDATE_USER, {
 				where: { id: { _eq: userId } },
@@ -108,10 +126,13 @@ function createUserStore() {
 					document.documentElement.classList.toggle('dark', originalUser.dark_mode);
 				}
 
-				const message = 'Failed to update user settings';
-				state.error = message;
+				const message = `Failed to update user settings - No user returned. UserId: ${userId}`;
+				const detailedMessage = `${message}, Updates: ${JSON.stringify(Object.keys(updates))}`;
+				state.error = detailedMessage;
+				console.error('[UserStore]', detailedMessage, { fullData: data });
+
 				displayMessage(message);
-				return { success: false, message };
+				return { success: false, message: detailedMessage };
 			}
 
 			state.cachedUser = updatedUser;
@@ -120,11 +141,14 @@ function createUserStore() {
 				document.documentElement.classList.toggle('dark', updatedUser.dark_mode);
 			}
 
-			displayMessage('Settings updated successfully', 3000, true);
+			if (!silent) {
+				displayMessage('Settings updated successfully', 3000, true);
+			}
 
 			loggingStore.info('UserStore', 'User updated successfully', {
 				userId,
 				updatedFields: Object.keys(updates),
+				silent,
 				newUser: updatedUser
 			});
 
@@ -135,8 +159,12 @@ function createUserStore() {
 				document.documentElement.classList.toggle('dark', originalUser.dark_mode);
 			}
 
-			const message = error.message || 'Failed to update settings';
-			state.error = message;
+			const errorMessage = error.message || 'Unknown error';
+			const message = `Failed to update settings: ${errorMessage}`;
+			const detailedMessage = `${message} (UserId: ${userId}, Updates: ${JSON.stringify(Object.keys(updates))})`;
+			state.error = detailedMessage;
+			console.error('[UserStore] Update error:', detailedMessage, { error });
+
 			displayMessage(message);
 
 			loggingStore.error('UserStore', 'Failed to update user', {
@@ -181,6 +209,14 @@ function createUserStore() {
 		return await updateUser(userId, { dark_mode: newDarkMode });
 	}
 
+	function reset() {
+		console.log('[UserStore] Resetting store');
+		state.initialized = false;
+		state.loading = true;
+		state.error = null;
+		state.cachedUser = null;
+	}
+
 	return {
 		get loading() {
 			return state.loading;
@@ -209,7 +245,8 @@ function createUserStore() {
 		initializeUser,
 		updateUser,
 		updateViewPreference,
-		toggleDarkMode
+		toggleDarkMode,
+		reset
 	};
 }
 

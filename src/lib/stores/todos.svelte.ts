@@ -157,7 +157,7 @@ function createTodosStore() {
 	async function updateTodo(
 		id: string,
 		updates: Partial<
-			Pick<TodoFieldsFragment, 'title' | 'content' | 'completed_at' | 'due_on' | 'sort_order'> & {
+			Pick<TodoFieldsFragment, 'title' | 'content' | 'completed_at' | 'due_on' | 'sort_order' | 'priority'> & {
 				list_id?: string | null;
 			}
 		>
