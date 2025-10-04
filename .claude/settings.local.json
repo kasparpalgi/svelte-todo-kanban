@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npx playwright test:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(docker-compose:*)"
     ],
     "deny": [],
     "ask": []

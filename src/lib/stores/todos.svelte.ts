@@ -80,7 +80,9 @@ function createTodosStore() {
 		title: string,
 		content?: string,
 		listId?: string,
-		addToTop: boolean = true
+		addToTop: boolean = true,
+		createGithubIssue: boolean = false,
+		priority?: 'low' | 'medium' | 'high' | null
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!title.trim()) return { success: false, message: 'Title is required' };
@@ -137,6 +139,43 @@ function createTodosStore() {
 						newTodo,
 						...state.todos.slice(todoIndex)
 					];
+				}
+
+				// Create GitHub issue if requested
+				if (createGithubIssue && newTodo.id) {
+					try {
+						const githubResponse = await fetch('/api/github/create-issue', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								todoId: newTodo.id,
+								title: title.trim(),
+								body: content?.trim() || null,
+								priority
+							})
+						});
+
+						if (githubResponse.ok) {
+							const githubData = await githubResponse.json();
+							// Update the local todo with GitHub metadata
+							const todoIdx = state.todos.findIndex((t) => t.id === newTodo.id);
+							if (todoIdx !== -1) {
+								state.todos[todoIdx] = {
+									...state.todos[todoIdx],
+									github_issue_number: githubData.issueNumber,
+									github_issue_id: githubData.issueId,
+									github_url: githubData.issueUrl,
+									github_synced_at: new Date().toISOString()
+								};
+							}
+						} else {
+							// Non-blocking: log error but don't fail todo creation
+							console.error('Failed to create GitHub issue:', await githubResponse.text());
+						}
+					} catch (githubError) {
+						// Non-blocking: log error but don't fail todo creation
+						console.error('Error creating GitHub issue:', githubError);
+					}
 				}
 
 				return {
