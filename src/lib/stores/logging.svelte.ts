@@ -13,6 +13,7 @@ function createLoggingStore() {
 		enabledLevels: new Set(['info', 'warn', 'error']) as Set<LogEntry['level']>,
 		pendingLogs: [] as LogEntry[],
 		flushTimeout: null as ReturnType<typeof setTimeout> | null,
+		isFlushingInProgress: false,
 		userId: null as string | null,
 		sessionId: browser ? crypto.randomUUID() : null,
 		// Performance monitoring
@@ -21,7 +22,9 @@ function createLoggingStore() {
 			errorCount: 0,
 			warnCount: 0,
 			avgResponseTime: 0,
-			slowOperations: [] as { operation: string; duration: number; timestamp: Date }[]
+			slowOperations: [] as { operation: string; duration: number; timestamp: Date }[],
+			flushSuccessCount: 0,
+			flushFailureCount: 0
 		},
 		// Log sampling configuration (for high-volume events)
 		sampling: {
@@ -41,44 +44,62 @@ function createLoggingStore() {
 	async function flushLogs() {
 		if (!browser || state.pendingLogs.length === 0) return;
 
-		const logsToFlush = [...state.pendingLogs];
-		state.pendingLogs = [];
+		// Prevent concurrent flushes
+		if (state.isFlushingInProgress) return;
 
-		if (state.flushTimeout) {
-			clearTimeout(state.flushTimeout);
-			state.flushTimeout = null;
+		state.isFlushingInProgress = true;
+
+		try {
+			const logsToFlush = [...state.pendingLogs];
+			state.pendingLogs = [];
+
+			if (state.flushTimeout) {
+				clearTimeout(state.flushTimeout);
+				state.flushTimeout = null;
+			}
+
+			// Only persist ERROR and WARN levels to database
+			const logsToSave = logsToFlush.filter((log) => log.level === 'error' || log.level === 'warn');
+
+			if (logsToSave.length === 0) return;
+
+			// Send logs to database
+			await Promise.all(
+				logsToSave.map((log) => {
+					const logInput = {
+						timestamp: log.timestamp.toISOString(),
+						level: log.level,
+						component: log.component,
+						message: log.message,
+						data: log.data ? JSON.stringify(log.data) : null,
+						user_id: state.userId,
+						session_id: state.sessionId,
+						user_agent: log.userAgent,
+						url: log.url
+					};
+
+					return request(CREATE_LOG, { log: logInput })
+						.then(() => {
+							state.performanceMetrics.flushSuccessCount++;
+						})
+						.catch((error) => {
+							state.performanceMetrics.flushFailureCount++;
+
+							// In development, log to console
+							if (dev) {
+								console.error('[LoggingStore] Failed to save log to database', error);
+							}
+
+							// In production, re-queue the log for retry
+							if (!dev) {
+								state.pendingLogs.push(log);
+							}
+						});
+				})
+			);
+		} finally {
+			state.isFlushingInProgress = false;
 		}
-
-		// Only persist ERROR and WARN levels to database
-		const logsToSave = logsToFlush.filter((log) => log.level === 'error' || log.level === 'warn');
-
-		if (logsToSave.length === 0) return;
-
-		// Send logs to database asynchronously (fire and forget)
-		Promise.all(
-			logsToSave.map((log) => {
-				const logInput = {
-					timestamp: log.timestamp.toISOString(),
-					level: log.level,
-					component: log.component,
-					message: log.message,
-					data: log.data ? JSON.stringify(log.data) : null,
-					user_id: state.userId,
-					session_id: state.sessionId,
-					user_agent: log.userAgent,
-					url: log.url
-				};
-
-				return request(CREATE_LOG, { log: logInput }).catch((error) => {
-					// Silent failure - don't break app if logging fails
-					if (dev) {
-						console.error('[LoggingStore] Failed to save log to database', error);
-					}
-				});
-			})
-		).catch(() => {
-			// Ignore batch failures
-		});
 	}
 
 	function scheduleBatchFlush() {
@@ -207,9 +228,6 @@ function createLoggingStore() {
 	function sanitizeData(data: any): any {
 		if (!data) return undefined;
 
-		// Clone the data to avoid mutating the original
-		const cloned = JSON.parse(JSON.stringify(data));
-
 		// Remove sensitive fields
 		const sensitiveFields = [
 			'password',
@@ -225,31 +243,72 @@ function createLoggingStore() {
 			'encrypted'
 		];
 
-		function removeSensitive(obj: any): any {
-			if (typeof obj !== 'object' || obj === null) return obj;
+		// Track seen objects to handle circular references
+		const seen = new WeakSet();
 
-			if (Array.isArray(obj)) {
-				return obj.map(removeSensitive);
+		function removeSensitive(obj: any, depth = 0): any {
+			// Prevent infinite recursion
+			if (depth > 10) return '[Max Depth Reached]';
+
+			// Handle primitives
+			if (obj === null) return null;
+			if (obj === undefined) return undefined;
+			if (typeof obj !== 'object') return obj;
+
+			// Handle Date objects
+			if (obj instanceof Date) return obj.toISOString();
+
+			// Handle Error objects specially (they have circular references)
+			if (obj instanceof Error) {
+				return {
+					name: obj.name,
+					message: obj.message,
+					stack: obj.stack,
+					cause: obj.cause ? removeSensitive(obj.cause, depth + 1) : undefined
+				};
 			}
 
+			// Check for circular references
+			if (seen.has(obj)) return '[Circular]';
+			seen.add(obj);
+
+			// Handle Arrays
+			if (Array.isArray(obj)) {
+				return obj.map((item) => removeSensitive(item, depth + 1));
+			}
+
+			// Handle Objects
 			const result: any = {};
 			for (const key in obj) {
+				// Skip functions and symbols
+				const value = obj[key];
+				if (typeof value === 'function' || typeof value === 'symbol') continue;
+
 				const lowerKey = key.toLowerCase();
 				const isSensitive = sensitiveFields.some((field) => lowerKey.includes(field.toLowerCase()));
-				const value = obj[key];
 
-				// If key is sensitive and value is an object, still recurse into it
-				// Otherwise redact primitive sensitive values
+				// If key is sensitive and value is primitive, redact it
 				if (isSensitive && (typeof value !== 'object' || value === null)) {
 					result[key] = '[REDACTED]';
 				} else {
-					result[key] = removeSensitive(value);
+					try {
+						result[key] = removeSensitive(value, depth + 1);
+					} catch (err) {
+						// If serialization fails, use safe fallback
+						result[key] = '[Serialization Error]';
+					}
 				}
 			}
+
 			return result;
 		}
 
-		return removeSensitive(cloned);
+		try {
+			return removeSensitive(data);
+		} catch (err) {
+			// Last resort fallback
+			return { error: 'Failed to sanitize data', type: typeof data };
+		}
 	}
 
 	function setUserId(userId: string | null) {
