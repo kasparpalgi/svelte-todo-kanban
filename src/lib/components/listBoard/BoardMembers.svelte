@@ -64,7 +64,8 @@
 
 		isSearching = true;
 		const results = await boardMembersStore.searchUsers(inviteInput);
-		searchResults = results;
+
+		searchResults = results.filter((user) => user.id !== currentUser?.id);
 		isSearching = false;
 	}
 
@@ -191,15 +192,21 @@
 									<button
 										class="w-full text-left px-2 py-1 rounded hover:bg-accent text-sm flex items-center gap-2"
 										onclick={() => {
-											inviteInput = user.email || user.username;
+											inviteInput = user.username || user.email;
 											searchResults = [];
 										}}
 									>
 										{#if user.image}
-											<img src={user.image} alt={user.name} class="h-6 w-6 rounded-full" />
+											<img src={user.image} alt={user.username} class="h-6 w-6 rounded-full" />
+										{:else}
+											<div
+												class="h-6 w-6 rounded-full bg-accent flex items-center justify-center text-xs font-medium"
+											>
+												{user.username?.charAt(0)?.toUpperCase() || '?'}
+											</div>
 										{/if}
 										<div>
-											<div class="font-medium">{user.name || user.username}</div>
+											<div class="font-medium">@{user.username}</div>
 											<div class="text-xs text-muted-foreground">{user.email}</div>
 										</div>
 									</button>
