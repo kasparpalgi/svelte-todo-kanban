@@ -59,6 +59,7 @@ type Documents = {
     "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteBoardInvitationDocument,
     "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n": typeof types.SearchUsersDocument,
     "\n\tmutation CreateLog($log: logs_insert_input!) {\n\t\tinsert_logs_one(object: $log) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t}\n\t}\n": typeof types.CreateLogDocument,
+    "\n\tquery GetLogs(\n\t\t$where: logs_bool_exp\n\t\t$order_by: [logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tlogs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t\tdata\n\t\t\tuser_id\n\t\t\tsession_id\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlogs_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetLogsDocument,
 };
 const documents: Documents = {
     "\n\tfragment TodoFields on todos {\n\t\tid\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tcomments(order_by: { created_at: asc }) {\n\t\t\t...CommentFields\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t}\n\t\t}\n\t}\n": types.TodoFieldsFragmentDoc,
@@ -105,6 +106,7 @@ const documents: Documents = {
     "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteBoardInvitationDocument,
     "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n": types.SearchUsersDocument,
     "\n\tmutation CreateLog($log: logs_insert_input!) {\n\t\tinsert_logs_one(object: $log) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t}\n\t}\n": types.CreateLogDocument,
+    "\n\tquery GetLogs(\n\t\t$where: logs_bool_exp\n\t\t$order_by: [logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tlogs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t\tdata\n\t\t\tuser_id\n\t\t\tsession_id\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlogs_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": types.GetLogsDocument,
 };
 
 /**
@@ -283,6 +285,10 @@ export function graphql(source: "\n\tquery SearchUsers($search: String!) {\n\t\t
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tmutation CreateLog($log: logs_insert_input!) {\n\t\tinsert_logs_one(object: $log) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t}\n\t}\n"): typeof import('./graphql').CreateLogDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetLogs(\n\t\t$where: logs_bool_exp\n\t\t$order_by: [logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tlogs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t\tdata\n\t\t\tuser_id\n\t\t\tsession_id\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlogs_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetLogsDocument;
 
 
 export function graphql(source: string) {

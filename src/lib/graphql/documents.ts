@@ -586,3 +586,30 @@ export const CREATE_LOG = graphql(`
 		}
 	}
 `);
+
+export const GET_LOGS = graphql(`
+	query GetLogs(
+		$where: logs_bool_exp
+		$order_by: [logs_order_by!]
+		$limit: Int
+		$offset: Int
+	) {
+		logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			id
+			timestamp
+			level
+			component
+			message
+			data
+			user_id
+			session_id
+			url
+			created_at
+		}
+		logs_aggregate(where: $where) {
+			aggregate {
+				count
+			}
+		}
+	}
+`);

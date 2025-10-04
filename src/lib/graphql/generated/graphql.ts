@@ -7002,6 +7002,16 @@ export type CreateLogMutationVariables = Exact<{
 
 export type CreateLogMutation = { __typename?: 'mutation_root', insert_logs_one?: { __typename?: 'logs', id: string, timestamp: string, level: string, component: string, message: string } | null };
 
+export type GetLogsQueryVariables = Exact<{
+  where?: InputMaybe<Logs_Bool_Exp>;
+  order_by?: InputMaybe<Array<Logs_Order_By> | Logs_Order_By>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetLogsQuery = { __typename?: 'query_root', logs: Array<{ __typename?: 'logs', id: string, timestamp: string, level: string, component: string, message: string, data?: any | null, user_id?: string | null, session_id?: string | null, url?: string | null, created_at: string }>, logs_aggregate: { __typename?: 'logs_aggregate', aggregate?: { __typename?: 'logs_aggregate_fields', count: number } | null } };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -8128,3 +8138,24 @@ export const CreateLogDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<CreateLogMutation, CreateLogMutationVariables>;
+export const GetLogsDocument = new TypedDocumentString(`
+    query GetLogs($where: logs_bool_exp, $order_by: [logs_order_by!], $limit: Int, $offset: Int) {
+  logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+    id
+    timestamp
+    level
+    component
+    message
+    data
+    user_id
+    session_id
+    url
+    created_at
+  }
+  logs_aggregate(where: $where) {
+    aggregate {
+      count
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetLogsQuery, GetLogsQueryVariables>;
