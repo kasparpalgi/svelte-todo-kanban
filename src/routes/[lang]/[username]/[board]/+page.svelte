@@ -16,12 +16,13 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, X, List, LayoutGrid, Settings, Funnel, ArrowRight } from 'lucide-svelte';
+	import { Plus, X, List, LayoutGrid, Settings, Funnel, ArrowRight, GithubIcon } from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
 	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
 	import TodoFiltersSidebar from '$lib/components/todo/TodoFiltersSidebar.svelte';
+	import ImportIssuesDialog from '$lib/components/github/ImportIssuesDialog.svelte';
 
 	let { data } = $props();
 
@@ -29,6 +30,7 @@
 	let viewMode = $state<'list' | 'kanban'>('kanban');
 	let boardNotFound = $state(false);
 	let loading = $state(true);
+	let showImportDialog = $state(false);
 	const username = $derived(page.params.username);
 	const boardAlias = $derived(page.params.board);
 	const lang = $derived(page.params.lang || 'en');
@@ -93,6 +95,11 @@
 			handleAddTodo();
 		}
 	}
+
+	function handleImportComplete() {
+		// Reload todos after import
+		todosStore.loadTodos();
+	}
 </script>
 
 <svelte:head>
@@ -142,6 +149,17 @@
 							<span class="hidden md:block">{$t('todo.kanban')}</span>
 						</Button>
 					</div>
+					{#if listsStore.selectedBoard?.github}
+						<Button
+							variant="outline"
+							size="sm"
+							onclick={() => (showImportDialog = true)}
+							title="Import GitHub Issues"
+						>
+							<GithubIcon class="mr-2 h-4 w-4" />
+							<span class="hidden md:block">Import Issues</span>
+						</Button>
+					{/if}
 					<Button
 						variant="outline"
 						size="sm"
@@ -242,4 +260,14 @@
 
 	<BoardManagement />
 	<ListManagement />
+
+	{#if listsStore.selectedBoard?.github && showImportDialog}
+		<ImportIssuesDialog
+			bind:open={showImportDialog}
+			boardId={listsStore.selectedBoard.id}
+			boardName={listsStore.selectedBoard.name}
+			lists={listsStore.lists.filter((l) => l.board_id === listsStore.selectedBoard?.id)}
+			onImportComplete={handleImportComplete}
+		/>
+	{/if}
 {/if}

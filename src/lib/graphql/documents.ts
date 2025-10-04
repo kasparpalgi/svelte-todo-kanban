@@ -13,6 +13,10 @@ export const TODO_FRAGMENT = graphql(`
 		completed_at
 		created_at
 		updated_at
+		github_issue_number
+		github_issue_id
+		github_synced_at
+		github_url
 		labels {
 			label {
 				...LabelFields

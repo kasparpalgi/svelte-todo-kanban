@@ -5308,6 +5308,14 @@ export type Todos = {
   content?: Maybe<Scalars['String']['output']>;
   created_at: Scalars['timestamptz']['output'];
   due_on?: Maybe<Scalars['timestamptz']['output']>;
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['bigint']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Int']['output']>;
+  /** Last sync timestamp with GitHub */
+  github_synced_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** Direct URL to GitHub issue */
+  github_url?: Maybe<Scalars['String']['output']>;
   id: Scalars['uuid']['output'];
   /** An array relationship */
   labels: Array<Todo_Labels>;
@@ -5455,11 +5463,19 @@ export type Todos_Arr_Rel_Insert_Input = {
 /** aggregate avg on columns */
 export type Todos_Avg_Fields = {
   __typename?: 'todos_avg_fields';
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['Float']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
 /** order by avg() on columns of table "todos" */
 export type Todos_Avg_Order_By = {
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Order_By>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
 };
 
@@ -5475,6 +5491,10 @@ export type Todos_Bool_Exp = {
   content?: InputMaybe<String_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   due_on?: InputMaybe<Timestamptz_Comparison_Exp>;
+  github_issue_id?: InputMaybe<Bigint_Comparison_Exp>;
+  github_issue_number?: InputMaybe<Int_Comparison_Exp>;
+  github_synced_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  github_url?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   labels?: InputMaybe<Todo_Labels_Bool_Exp>;
   labels_aggregate?: InputMaybe<Todo_Labels_Aggregate_Bool_Exp>;
@@ -5500,6 +5520,10 @@ export enum Todos_Constraint {
 
 /** input type for incrementing numeric columns in table "todos" */
 export type Todos_Inc_Input = {
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Scalars['bigint']['input']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Scalars['Int']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -5511,6 +5535,14 @@ export type Todos_Insert_Input = {
   content?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   due_on?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Scalars['bigint']['input']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Scalars['Int']['input']>;
+  /** Last sync timestamp with GitHub */
+  github_synced_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Direct URL to GitHub issue */
+  github_url?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   labels?: InputMaybe<Todo_Labels_Arr_Rel_Insert_Input>;
   list?: InputMaybe<Lists_Obj_Rel_Insert_Input>;
@@ -5532,6 +5564,14 @@ export type Todos_Max_Fields = {
   content?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   due_on?: Maybe<Scalars['timestamptz']['output']>;
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['bigint']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Int']['output']>;
+  /** Last sync timestamp with GitHub */
+  github_synced_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** Direct URL to GitHub issue */
+  github_url?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   list_id?: Maybe<Scalars['uuid']['output']>;
   priority?: Maybe<Scalars['String']['output']>;
@@ -5548,6 +5588,14 @@ export type Todos_Max_Order_By = {
   content?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   due_on?: InputMaybe<Order_By>;
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Order_By>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Order_By>;
+  /** Last sync timestamp with GitHub */
+  github_synced_at?: InputMaybe<Order_By>;
+  /** Direct URL to GitHub issue */
+  github_url?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   list_id?: InputMaybe<Order_By>;
   priority?: InputMaybe<Order_By>;
@@ -5565,6 +5613,14 @@ export type Todos_Min_Fields = {
   content?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   due_on?: Maybe<Scalars['timestamptz']['output']>;
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['bigint']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Int']['output']>;
+  /** Last sync timestamp with GitHub */
+  github_synced_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** Direct URL to GitHub issue */
+  github_url?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   list_id?: Maybe<Scalars['uuid']['output']>;
   priority?: Maybe<Scalars['String']['output']>;
@@ -5581,6 +5637,14 @@ export type Todos_Min_Order_By = {
   content?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   due_on?: InputMaybe<Order_By>;
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Order_By>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Order_By>;
+  /** Last sync timestamp with GitHub */
+  github_synced_at?: InputMaybe<Order_By>;
+  /** Direct URL to GitHub issue */
+  github_url?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   list_id?: InputMaybe<Order_By>;
   priority?: InputMaybe<Order_By>;
@@ -5621,6 +5685,10 @@ export type Todos_Order_By = {
   content?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   due_on?: InputMaybe<Order_By>;
+  github_issue_id?: InputMaybe<Order_By>;
+  github_issue_number?: InputMaybe<Order_By>;
+  github_synced_at?: InputMaybe<Order_By>;
+  github_url?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   labels_aggregate?: InputMaybe<Todo_Labels_Aggregate_Order_By>;
   list?: InputMaybe<Lists_Order_By>;
@@ -5652,6 +5720,14 @@ export enum Todos_Select_Column {
   /** column name */
   DueOn = 'due_on',
   /** column name */
+  GithubIssueId = 'github_issue_id',
+  /** column name */
+  GithubIssueNumber = 'github_issue_number',
+  /** column name */
+  GithubSyncedAt = 'github_synced_at',
+  /** column name */
+  GithubUrl = 'github_url',
+  /** column name */
   Id = 'id',
   /** column name */
   ListId = 'list_id',
@@ -5674,6 +5750,14 @@ export type Todos_Set_Input = {
   content?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   due_on?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Scalars['bigint']['input']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Scalars['Int']['input']>;
+  /** Last sync timestamp with GitHub */
+  github_synced_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Direct URL to GitHub issue */
+  github_url?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
   priority?: InputMaybe<Scalars['String']['input']>;
@@ -5686,33 +5770,57 @@ export type Todos_Set_Input = {
 /** aggregate stddev on columns */
 export type Todos_Stddev_Fields = {
   __typename?: 'todos_stddev_fields';
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['Float']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
 /** order by stddev() on columns of table "todos" */
 export type Todos_Stddev_Order_By = {
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Order_By>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
 };
 
 /** aggregate stddev_pop on columns */
 export type Todos_Stddev_Pop_Fields = {
   __typename?: 'todos_stddev_pop_fields';
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['Float']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
 /** order by stddev_pop() on columns of table "todos" */
 export type Todos_Stddev_Pop_Order_By = {
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Order_By>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
 };
 
 /** aggregate stddev_samp on columns */
 export type Todos_Stddev_Samp_Fields = {
   __typename?: 'todos_stddev_samp_fields';
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['Float']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
 /** order by stddev_samp() on columns of table "todos" */
 export type Todos_Stddev_Samp_Order_By = {
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Order_By>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
 };
 
@@ -5731,6 +5839,14 @@ export type Todos_Stream_Cursor_Value_Input = {
   content?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   due_on?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Scalars['bigint']['input']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Scalars['Int']['input']>;
+  /** Last sync timestamp with GitHub */
+  github_synced_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Direct URL to GitHub issue */
+  github_url?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
   priority?: InputMaybe<Scalars['String']['input']>;
@@ -5743,11 +5859,19 @@ export type Todos_Stream_Cursor_Value_Input = {
 /** aggregate sum on columns */
 export type Todos_Sum_Fields = {
   __typename?: 'todos_sum_fields';
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['bigint']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Int']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
 };
 
 /** order by sum() on columns of table "todos" */
 export type Todos_Sum_Order_By = {
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Order_By>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
 };
 
@@ -5763,6 +5887,14 @@ export enum Todos_Update_Column {
   CreatedAt = 'created_at',
   /** column name */
   DueOn = 'due_on',
+  /** column name */
+  GithubIssueId = 'github_issue_id',
+  /** column name */
+  GithubIssueNumber = 'github_issue_number',
+  /** column name */
+  GithubSyncedAt = 'github_synced_at',
+  /** column name */
+  GithubUrl = 'github_url',
   /** column name */
   Id = 'id',
   /** column name */
@@ -5791,33 +5923,57 @@ export type Todos_Updates = {
 /** aggregate var_pop on columns */
 export type Todos_Var_Pop_Fields = {
   __typename?: 'todos_var_pop_fields';
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['Float']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
 /** order by var_pop() on columns of table "todos" */
 export type Todos_Var_Pop_Order_By = {
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Order_By>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
 };
 
 /** aggregate var_samp on columns */
 export type Todos_Var_Samp_Fields = {
   __typename?: 'todos_var_samp_fields';
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['Float']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
 /** order by var_samp() on columns of table "todos" */
 export type Todos_Var_Samp_Order_By = {
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Order_By>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
 };
 
 /** aggregate variance on columns */
 export type Todos_Variance_Fields = {
   __typename?: 'todos_variance_fields';
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: Maybe<Scalars['Float']['output']>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
 /** order by variance() on columns of table "todos" */
 export type Todos_Variance_Order_By = {
+  /** GitHub internal issue ID (immutable, for API calls) */
+  github_issue_id?: InputMaybe<Order_By>;
+  /** GitHub issue number (human-readable, e.g., 42) */
+  github_issue_number?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
 };
 
@@ -6704,7 +6860,7 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null };
 
@@ -6728,7 +6884,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -6755,7 +6911,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -6763,7 +6919,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -7070,6 +7226,10 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  github_issue_number
+  github_issue_id
+  github_synced_at
+  github_url
   labels {
     label {
       ...LabelFields
@@ -7259,6 +7419,10 @@ export const GetTodosDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  github_issue_number
+  github_issue_id
+  github_synced_at
+  github_url
   labels {
     label {
       ...LabelFields
@@ -7399,6 +7563,10 @@ export const CreateTodoDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  github_issue_number
+  github_issue_id
+  github_synced_at
+  github_url
   labels {
     label {
       ...LabelFields
@@ -7468,6 +7636,10 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  github_issue_number
+  github_issue_id
+  github_synced_at
+  github_url
   labels {
     label {
       ...LabelFields
