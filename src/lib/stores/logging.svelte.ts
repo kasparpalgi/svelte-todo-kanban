@@ -4,20 +4,39 @@ import { dev } from '$app/environment';
 import type { LogEntry } from '$lib/types/common';
 import { request } from '$lib/graphql/client';
 import { CREATE_LOG } from '$lib/graphql/documents';
+import { LOGGING_CONFIG } from '$lib/config/logging';
 
 function createLoggingStore() {
 	const state = $state({
 		logs: [] as LogEntry[],
-		maxLogs: 1000,
+		maxLogs: LOGGING_CONFIG.maxInMemoryLogs,
 		enabledLevels: new Set(['info', 'warn', 'error']) as Set<LogEntry['level']>,
 		pendingLogs: [] as LogEntry[],
 		flushTimeout: null as ReturnType<typeof setTimeout> | null,
 		userId: null as string | null,
-		sessionId: browser ? crypto.randomUUID() : null
+		sessionId: browser ? crypto.randomUUID() : null,
+		// Performance monitoring
+		performanceMetrics: {
+			pageLoads: 0,
+			errorCount: 0,
+			warnCount: 0,
+			avgResponseTime: 0,
+			slowOperations: [] as { operation: string; duration: number; timestamp: Date }[]
+		},
+		// Log sampling configuration (for high-volume events)
+		sampling: {
+			enabled: LOGGING_CONFIG.sampling.enabled,
+			sampleRate: LOGGING_CONFIG.sampling.defaultRate,
+			componentRates: { ...LOGGING_CONFIG.sampling.componentRates } as Record<string, number>
+		},
+		// Rate limiting (prevent log flooding)
+		rateLimiter: {} as Record<string, { count: number; resetTime: number }>
 	});
 
-	const BATCH_SIZE = 50;
-	const BATCH_TIMEOUT = 10000; // 10 seconds
+	const BATCH_SIZE = LOGGING_CONFIG.batchSize;
+	const BATCH_TIMEOUT = LOGGING_CONFIG.batchTimeout;
+	const RATE_LIMIT_WINDOW = LOGGING_CONFIG.rateLimitWindow;
+	const RATE_LIMIT_MAX = LOGGING_CONFIG.rateLimitMax;
 
 	async function flushLogs() {
 		if (!browser || state.pendingLogs.length === 0) return;
@@ -74,10 +93,65 @@ function createLoggingStore() {
 		}, BATCH_TIMEOUT);
 	}
 
+	function shouldSample(component: string, level: LogEntry['level']): boolean {
+		// Always log errors and warnings
+		if (level === 'error' || level === 'warn') return true;
+
+		// Never sample in development
+		if (dev || !state.sampling.enabled) return true;
+
+		// Check component-specific sample rate
+		const componentRate = state.sampling.componentRates[component];
+		const sampleRate = componentRate !== undefined ? componentRate : state.sampling.sampleRate;
+
+		return Math.random() < sampleRate;
+	}
+
+	function checkRateLimit(component: string): boolean {
+		const now = Date.now();
+		const limiter = state.rateLimiter[component];
+
+		if (!limiter || now > limiter.resetTime) {
+			// Reset or create new rate limiter
+			state.rateLimiter[component] = {
+				count: 1,
+				resetTime: now + RATE_LIMIT_WINDOW
+			};
+			return true;
+		}
+
+		if (limiter.count >= RATE_LIMIT_MAX) {
+			// Rate limit exceeded
+			if (limiter.count === RATE_LIMIT_MAX) {
+				// Log once that we're rate limiting
+				console.warn(`[LoggingStore] Rate limit exceeded for component: ${component}`);
+			}
+			limiter.count++;
+			return false;
+		}
+
+		limiter.count++;
+		return true;
+	}
+
 	function log(level: LogEntry['level'], component: string, message: string, data?: any) {
 		if (!browser) return;
 
 		if (!state.enabledLevels.has(level)) return;
+
+		// Check rate limiting (except for errors)
+		if (level !== 'error' && !checkRateLimit(component)) {
+			return;
+		}
+
+		// Apply sampling for high-volume logs
+		if (!shouldSample(component, level)) {
+			return;
+		}
+
+		// Update performance metrics
+		if (level === 'error') state.performanceMetrics.errorCount++;
+		if (level === 'warn') state.performanceMetrics.warnCount++;
 
 		// Sanitize data - remove sensitive fields
 		const sanitizedData = sanitizeData(data);
@@ -221,6 +295,75 @@ function createLoggingStore() {
 		state.enabledLevels = new Set(levels);
 	}
 
+	// Performance monitoring functions
+	function trackPerformance(operation: string, duration: number) {
+		if (!browser) return;
+
+		// Track slow operations (configurable threshold)
+		if (duration > LOGGING_CONFIG.performance.slowOperationThreshold) {
+			state.performanceMetrics.slowOperations.push({
+				operation,
+				duration,
+				timestamp: new Date()
+			});
+
+			// Keep only configured number of slow operations
+			if (
+				state.performanceMetrics.slowOperations.length >
+				LOGGING_CONFIG.performance.maxSlowOperationsTracked
+			) {
+				state.performanceMetrics.slowOperations.shift();
+			}
+
+			// Log slow operations
+			warn('Performance', `Slow operation detected: ${operation}`, {
+				duration: `${duration}ms`,
+				threshold: `${LOGGING_CONFIG.performance.slowOperationThreshold}ms`
+			});
+		}
+	}
+
+	function measureAsync<T>(operation: string, fn: () => Promise<T>): Promise<T> {
+		const start = performance.now();
+		return fn()
+			.then((result) => {
+				const duration = performance.now() - start;
+				trackPerformance(operation, duration);
+				return result;
+			})
+			.catch((err) => {
+				const duration = performance.now() - start;
+				trackPerformance(operation, duration);
+				throw err;
+			});
+	}
+
+	function measureSync<T>(operation: string, fn: () => T): T {
+		const start = performance.now();
+		try {
+			const result = fn();
+			const duration = performance.now() - start;
+			trackPerformance(operation, duration);
+			return result;
+		} catch (err) {
+			const duration = performance.now() - start;
+			trackPerformance(operation, duration);
+			throw err;
+		}
+	}
+
+	function setSampleRate(component: string, rate: number) {
+		state.sampling.componentRates[component] = rate;
+	}
+
+	function enableSampling(enabled: boolean) {
+		state.sampling.enabled = enabled;
+	}
+
+	function getPerformanceMetrics() {
+		return { ...state.performanceMetrics };
+	}
+
 	const recentErrors = $derived(state.logs.filter((log) => log.level === 'error').slice(0, 10));
 
 	const recentWarnings = $derived(state.logs.filter((log) => log.level === 'warn').slice(0, 10));
@@ -257,7 +400,15 @@ function createLoggingStore() {
 		exportLogs,
 		setLogLevel,
 		setUserId,
-		flushLogs
+		flushLogs,
+		// Performance monitoring
+		trackPerformance,
+		measureAsync,
+		measureSync,
+		getPerformanceMetrics,
+		// Sampling configuration
+		setSampleRate,
+		enableSampling
 	};
 }
 
