@@ -35,12 +35,9 @@
 	const members = $derived(boardMembersStore.members);
 	const invitations = $derived(boardMembersStore.invitations);
 
-	// Check if current user is owner (either board owner or has owner role as member)
 	const isOwner = $derived(() => {
 		if (!currentUser) return false;
-		// Check if user is the board owner (creator)
-		if (board.user_id === currentUser.id) return true;
-		// Check if user has owner role as a member
+		if (board.user.id === currentUser.id) return true;
 		const userMember = members.find((m) => m.user_id === currentUser.id);
 		return userMember?.role === 'owner';
 	});
@@ -217,7 +214,6 @@
 				</Card>
 			{/if}
 
-			<!-- Current Members -->
 			<Card>
 				<CardHeader>
 					<CardTitle class="text-sm flex items-center justify-between">
@@ -275,7 +271,6 @@
 				</CardContent>
 			</Card>
 
-			<!-- Pending Invitations -->
 			{#if invitations.length > 0}
 				<Card>
 					<CardHeader>

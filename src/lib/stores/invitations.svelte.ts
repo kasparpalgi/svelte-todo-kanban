@@ -65,6 +65,13 @@ function createInvitationsStore() {
 		}
 
 		try {
+			console.log('=== ACCEPTING INVITATION ===');
+			console.log('Invitation ID:', invitationId);
+			console.log('Board ID:', invitation.board_id);
+			console.log('User ID:', user.id);
+			console.log('Role:', invitation.role);
+			console.log('Step 1: Creating board member...');
+
 			const memberData: AddBoardMemberMutation = await request(ADD_BOARD_MEMBER, {
 				objects: [
 					{
@@ -75,28 +82,37 @@ function createInvitationsStore() {
 				]
 			});
 
-			const newMember = memberData.insert_board_members?.returning?.[0];
-			const affected = memberData.insert_board_members?.affected_rows;
-
-			if (!affected || affected === 0) {
-				console.error('Board member insertion failed:', memberData);
-				return { success: false, message: 'Failed to add you as a board member' };
-			}
-
+			console.log('Board member mutation result:', memberData);
+			console.log('Affected rows:', memberData.insert_board_members?.affected_rows);
+			console.log('Returning:', memberData.insert_board_members?.returning);
+			console.log('Step 2: Updating invitation status...');
 			const invitationData: UpdateBoardInvitationMutation = await request(UPDATE_BOARD_INVITATION, {
 				where: { id: { _eq: invitationId } },
 				_set: { status: 'accepted' }
 			});
 
-			if (invitationData.update_board_invitations?.affected_rows) {
+			console.log('Invitation update mutation result:', invitationData);
+			console.log('Update affected rows:', invitationData?.update_board_invitations?.affected_rows);
+			console.log('Update returning:', invitationData?.update_board_invitations?.returning);
+
+			const updateSuccess = invitationData?.update_board_invitations?.affected_rows &&
+			                      invitationData.update_board_invitations.affected_rows > 0;
+
+			console.log('Update success check:', updateSuccess);
+
+			if (updateSuccess) {
+				console.log('✓ Invitation accepted successfully');
 				state.myInvitations = state.myInvitations.filter((i) => i.id !== invitationId);
 				return { success: true, message: 'Invitation accepted' };
 			}
 
-			return { success: false, message: 'Failed to update invitation' };
+			console.error('✗ Invitation status update failed');
+			console.error('Full invitationData object:', JSON.stringify(invitationData, null, 2));
+			return { success: false, message: 'Failed to update invitation status' };
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error accepting invitation';
-			console.error('Accept invitation error:', error);
+			console.error('✗ Accept invitation error:', error);
+			console.error('Error details:', JSON.stringify(error, null, 2));
 			return { success: false, message };
 		}
 	}

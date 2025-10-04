@@ -78,6 +78,10 @@ update_permissions:
         _or:
           - inviter_id:
               _eq: X-Hasura-User-Id
+          - invitee_email:
+              _eq: X-Hasura-User-Email
+          - invitee_username:
+              _eq: X-Hasura-User-Username
           - board:
               _or:
                 - user_id:

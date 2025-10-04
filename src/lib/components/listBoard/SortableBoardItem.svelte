@@ -60,10 +60,18 @@
 			? `transform: ${CSS.Transform.toString(transform)}; transition: ${transition || ''};`
 			: ''
 	);
+
+	let nodeRef = $state<HTMLElement>();
+
+	$effect(() => {
+		if (nodeRef) {
+			setNodeRef(nodeRef);
+		}
+	});
 </script>
 
 <div
-	bind:this={setNodeRef}
+	bind:this={nodeRef}
 	{style}
 	class="flex items-center gap-2 rounded border p-2 {activeId === board.id ? 'opacity-50' : ''}"
 >

@@ -24,11 +24,12 @@
 		Plus,
 		Trash2,
 		SquarePen,
-		GripVertical,
 		Layers,
 		Ellipsis,
 		Users,
-		Globe
+		Globe,
+		ChevronUp,
+		ChevronDown
 	} from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -53,6 +54,15 @@
 	let selectedBoardForVisibility = $state<any>(null);
 
 	const hasGithubConnected = $derived(userStore.hasGithubConnected);
+	const currentUser = $derived(userStore.user);
+
+	const ownedBoards = $derived(() => {
+		return listsStore.sortedBoards.filter((board) => board.user?.id === currentUser?.id);
+	});
+
+	const sharedBoards = $derived(() => {
+		return listsStore.sortedBoards.filter((board) => board.user?.id !== currentUser?.id);
+	});
 
 	$effect(() => {
 		listsStore.loadBoards();
@@ -159,6 +169,50 @@
 		selectedBoardForVisibility = board;
 		showVisibilityDialog = true;
 	}
+
+	async function moveBoardUp(boardId: string) {
+		const boards = ownedBoards();
+		const currentIndex = boards.findIndex((b) => b.id === boardId);
+
+		if (currentIndex <= 0) return;
+
+		const temp = boards[currentIndex];
+		boards[currentIndex] = boards[currentIndex - 1];
+		boards[currentIndex - 1] = temp;
+
+		try {
+			await Promise.all([
+				listsStore.updateBoard(boards[currentIndex].id, { sort_order: currentIndex + 1 }),
+				listsStore.updateBoard(boards[currentIndex - 1].id, { sort_order: currentIndex })
+			]);
+			await listsStore.loadBoards();
+		} catch (error) {
+			console.error('Failed to move board up:', error);
+			displayMessage('Failed to reorder boards');
+		}
+	}
+
+	async function moveBoardDown(boardId: string) {
+		const boards = ownedBoards();
+		const currentIndex = boards.findIndex((b) => b.id === boardId);
+
+		if (currentIndex === -1 || currentIndex >= boards.length - 1) return;
+
+		const temp = boards[currentIndex];
+		boards[currentIndex] = boards[currentIndex + 1];
+		boards[currentIndex + 1] = temp;
+
+		try {
+			await Promise.all([
+				listsStore.updateBoard(boards[currentIndex].id, { sort_order: currentIndex + 1 }),
+				listsStore.updateBoard(boards[currentIndex + 1].id, { sort_order: currentIndex + 2 })
+			]);
+			await listsStore.loadBoards();
+		} catch (error) {
+			console.error('Failed to move board down:', error);
+			displayMessage('Failed to reorder boards');
+		}
+	}
 </script>
 
 {#if actionState.edit === 'showBoardManagement'}
@@ -231,70 +285,152 @@
 							<p class="text-xs">Create a board to organize your lists</p>
 						</div>
 					{:else}
-						{#each listsStore.sortedBoards as board (board.id)}
-							<div class="flex items-center gap-2 rounded border p-2">
-								<GripVertical class="h-4 w-4 text-muted-foreground" />
+						{#if ownedBoards().length > 0}
+							<div class="space-y-2">
+								{#each ownedBoards() as board, index (board.id)}
+									<div class="flex items-center gap-2 rounded border p-2">
+										<div class="flex flex-col gap-0.5">
+											<Button
+												variant="ghost"
+												size="sm"
+												class="h-5 w-5 p-0"
+												disabled={index === 0}
+												onclick={() => moveBoardUp(board.id)}
+											>
+												<ChevronUp class="h-3 w-3" />
+											</Button>
+											<Button
+												variant="ghost"
+												size="sm"
+												class="h-5 w-5 p-0"
+												disabled={index === ownedBoards().length - 1}
+												onclick={() => moveBoardDown(board.id)}
+											>
+												<ChevronDown class="h-3 w-3" />
+											</Button>
+										</div>
 
-								{#if editingBoard?.id === board.id}
-									<Input
-										bind:value={editingBoard.name}
-										class="h-8 flex-1"
-										onkeydown={(e) => handleBoardKeydown(e, board.id, editingBoard?.name || '')}
-										onblur={() => handleUpdateBoard(board.id, editingBoard?.name || '')}
-									/>
-								{:else}
-									<div class="flex flex-1 flex-col gap-1">
-										<span class="font-medium">{board.name}</span>
-										{#if board.github}
-											<span class="flex items-center gap-1 text-xs text-muted-foreground">
-												<img src={githubLogo} alt="GitHub" class="h-4 w-4" />
-												{board.github}
-											</span>
+										{#if editingBoard?.id === board.id}
+											<Input
+												bind:value={editingBoard.name}
+												class="h-8 flex-1"
+												onkeydown={(e) => handleBoardKeydown(e, board.id, editingBoard?.name || '')}
+												onblur={() => handleUpdateBoard(board.id, editingBoard?.name || '')}
+											/>
+										{:else}
+											<div class="flex flex-1 flex-col gap-1">
+												<span class="font-medium">{board.name}</span>
+												{#if board.github}
+													<span class="flex items-center gap-1 text-xs text-muted-foreground">
+														<img src={githubLogo} alt="GitHub" class="h-4 w-4" />
+														{board.github}
+													</span>
+												{/if}
+											</div>
 										{/if}
+
+										<Badge variant="outline" class="text-xs">
+											{todoCountByBoard().get(board.id) || 0} tasks
+										</Badge>
+
+										<DropdownMenu>
+											<DropdownMenuTrigger>
+												<Button variant="ghost" size="sm" class="h-6 w-6 p-0">
+													<Ellipsis class="h-3 w-3" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem onclick={() => startEditBoard(board)}>
+													<SquarePen class="mr-2 h-3 w-3" />
+													Edit Name
+												</DropdownMenuItem>
+												<DropdownMenuItem onclick={() => openMembersDialog(board)}>
+													<Users class="mr-2 h-3 w-3" />
+													Manage Members
+												</DropdownMenuItem>
+												<DropdownMenuItem onclick={() => openVisibilityDialog(board)}>
+													<Globe class="mr-2 h-3 w-3" />
+													Sharing & Visibility
+												</DropdownMenuItem>
+												{#if hasGithubConnected}
+													<DropdownMenuItem onclick={() => openGithubSelector(board)}>
+														<img src={githubLogo} alt="GitHub" class="mr-2 h-3 w-3" />
+														{board.github ? 'Change' : 'Connect'} GitHub Repo
+													</DropdownMenuItem>
+												{/if}
+												<DropdownMenuSeparator />
+												<DropdownMenuItem
+													onclick={() => handleDeleteBoard(board.id, board.name)}
+													class="text-red-600"
+												>
+													<Trash2 class="mr-2 h-3 w-3" />
+													Delete
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
 									</div>
-								{/if}
-
-								<Badge variant="outline" class="text-xs">
-									{todoCountByBoard().get(board.id) || 0} tasks
-								</Badge>
-
-								<DropdownMenu>
-									<DropdownMenuTrigger>
-										<Button variant="ghost" size="sm" class="h-6 w-6 p-0">
-											<Ellipsis class="h-3 w-3" />
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent align="end">
-										<DropdownMenuItem onclick={() => startEditBoard(board)}>
-											<SquarePen class="mr-2 h-3 w-3" />
-											Edit Name
-										</DropdownMenuItem>
-										<DropdownMenuItem onclick={() => openMembersDialog(board)}>
-											<Users class="mr-2 h-3 w-3" />
-											Manage Members
-										</DropdownMenuItem>
-										<DropdownMenuItem onclick={() => openVisibilityDialog(board)}>
-											<Globe class="mr-2 h-3 w-3" />
-											Sharing & Visibility
-										</DropdownMenuItem>
-										{#if hasGithubConnected}
-											<DropdownMenuItem onclick={() => openGithubSelector(board)}>
-												<img src={githubLogo} alt="GitHub" class="mr-2 h-3 w-3" />
-												{board.github ? 'Change' : 'Connect'} GitHub Repo
-											</DropdownMenuItem>
-										{/if}
-										<DropdownMenuSeparator />
-										<DropdownMenuItem
-											onclick={() => handleDeleteBoard(board.id, board.name)}
-											class="text-red-600"
-										>
-											<Trash2 class="mr-2 h-3 w-3" />
-											Delete
-										</DropdownMenuItem>
-									</DropdownMenuContent>
-								</DropdownMenu>
+								{/each}
 							</div>
-						{/each}
+						{/if}
+
+						{#if sharedBoards().length > 0}
+							{#if ownedBoards().length > 0}
+								<div class="my-4 flex items-center gap-2 text-sm text-muted-foreground">
+									<div class="h-px flex-1 bg-border"></div>
+									<span>Shared with me</span>
+									<div class="h-px flex-1 bg-border"></div>
+								</div>
+							{/if}
+							<div class="space-y-2">
+								{#each sharedBoards() as board (board.id)}
+									<div class="flex items-center gap-2 rounded border p-2 opacity-80">
+										{#if editingBoard?.id === board.id}
+											<Input
+												bind:value={editingBoard.name}
+												class="h-8 flex-1"
+												onkeydown={(e) => handleBoardKeydown(e, board.id, editingBoard?.name || '')}
+												onblur={() => handleUpdateBoard(board.id, editingBoard?.name || '')}
+											/>
+										{:else}
+											<div class="flex flex-1 flex-col gap-1">
+												<span class="font-medium">{board.name}</span>
+												{#if board.user?.username}
+													<span class="text-xs text-muted-foreground">by @{board.user.username}</span>
+												{/if}
+												{#if board.github}
+													<span class="flex items-center gap-1 text-xs text-muted-foreground">
+														<img src={githubLogo} alt="GitHub" class="h-4 w-4" />
+														{board.github}
+													</span>
+												{/if}
+											</div>
+										{/if}
+
+										<Badge variant="outline" class="text-xs">
+											{todoCountByBoard().get(board.id) || 0} tasks
+										</Badge>
+
+										<DropdownMenu>
+											<DropdownMenuTrigger>
+												<Button variant="ghost" size="sm" class="h-6 w-6 p-0">
+													<Ellipsis class="h-3 w-3" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem onclick={() => openMembersDialog(board)}>
+													<Users class="mr-2 h-3 w-3" />
+													View Members
+												</DropdownMenuItem>
+												<DropdownMenuItem onclick={() => openVisibilityDialog(board)}>
+													<Globe class="mr-2 h-3 w-3" />
+													View Visibility
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</div>
+								{/each}
+							</div>
+						{/if}
 					{/if}
 				</CardContent>
 			</Card>
