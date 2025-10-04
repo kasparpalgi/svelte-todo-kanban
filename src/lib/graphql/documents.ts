@@ -572,3 +572,17 @@ export const SEARCH_USERS = graphql(`
 		}
 	}
 `);
+
+// ========== Logging ==========
+
+export const CREATE_LOG = graphql(`
+	mutation CreateLog($log: logs_insert_input!) {
+		insert_logs_one(object: $log) {
+			id
+			timestamp
+			level
+			component
+			message
+		}
+	}
+`);

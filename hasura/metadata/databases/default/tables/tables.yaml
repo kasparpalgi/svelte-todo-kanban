@@ -5,6 +5,7 @@
 - "!include public_comments.yaml"
 - "!include public_labels.yaml"
 - "!include public_lists.yaml"
+- "!include public_logs.yaml"
 - "!include public_sessions.yaml"
 - "!include public_todo_labels.yaml"
 - "!include public_todos.yaml"

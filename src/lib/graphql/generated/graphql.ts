@@ -2724,6 +2724,292 @@ export type Lists_Variance_Order_By = {
   sort_order?: InputMaybe<Order_By>;
 };
 
+/** Application logs with structured data for debugging and monitoring */
+export type Logs = {
+  __typename?: 'logs';
+  component: Scalars['String']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  data?: Maybe<Scalars['jsonb']['output']>;
+  id: Scalars['uuid']['output'];
+  level: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  session_id?: Maybe<Scalars['String']['output']>;
+  timestamp: Scalars['timestamptz']['output'];
+  url?: Maybe<Scalars['String']['output']>;
+  /** An object relationship */
+  user?: Maybe<Users>;
+  user_agent?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+
+/** Application logs with structured data for debugging and monitoring */
+export type LogsDataArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregated selection of "logs" */
+export type Logs_Aggregate = {
+  __typename?: 'logs_aggregate';
+  aggregate?: Maybe<Logs_Aggregate_Fields>;
+  nodes: Array<Logs>;
+};
+
+/** aggregate fields of "logs" */
+export type Logs_Aggregate_Fields = {
+  __typename?: 'logs_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Logs_Max_Fields>;
+  min?: Maybe<Logs_Min_Fields>;
+};
+
+
+/** aggregate fields of "logs" */
+export type Logs_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Logs_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type Logs_Append_Input = {
+  data?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** Boolean expression to filter rows from the table "logs". All fields are combined with a logical 'AND'. */
+export type Logs_Bool_Exp = {
+  _and?: InputMaybe<Array<Logs_Bool_Exp>>;
+  _not?: InputMaybe<Logs_Bool_Exp>;
+  _or?: InputMaybe<Array<Logs_Bool_Exp>>;
+  component?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  data?: InputMaybe<Jsonb_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  level?: InputMaybe<String_Comparison_Exp>;
+  message?: InputMaybe<String_Comparison_Exp>;
+  session_id?: InputMaybe<String_Comparison_Exp>;
+  timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
+  url?: InputMaybe<String_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_agent?: InputMaybe<String_Comparison_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "logs" */
+export enum Logs_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  LogsPkey = 'logs_pkey'
+}
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type Logs_Delete_At_Path_Input = {
+  data?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type Logs_Delete_Elem_Input = {
+  data?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type Logs_Delete_Key_Input = {
+  data?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** input type for inserting data into table "logs" */
+export type Logs_Insert_Input = {
+  component?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  data?: InputMaybe<Scalars['jsonb']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  level?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  session_id?: InputMaybe<Scalars['String']['input']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_agent?: InputMaybe<Scalars['String']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Logs_Max_Fields = {
+  __typename?: 'logs_max_fields';
+  component?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  level?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  session_id?: Maybe<Scalars['String']['output']>;
+  timestamp?: Maybe<Scalars['timestamptz']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+  user_agent?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** aggregate min on columns */
+export type Logs_Min_Fields = {
+  __typename?: 'logs_min_fields';
+  component?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  level?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  session_id?: Maybe<Scalars['String']['output']>;
+  timestamp?: Maybe<Scalars['timestamptz']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+  user_agent?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** response of any mutation on the table "logs" */
+export type Logs_Mutation_Response = {
+  __typename?: 'logs_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Logs>;
+};
+
+/** on_conflict condition type for table "logs" */
+export type Logs_On_Conflict = {
+  constraint: Logs_Constraint;
+  update_columns?: Array<Logs_Update_Column>;
+  where?: InputMaybe<Logs_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "logs". */
+export type Logs_Order_By = {
+  component?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  data?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  level?: InputMaybe<Order_By>;
+  message?: InputMaybe<Order_By>;
+  session_id?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_agent?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: logs */
+export type Logs_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type Logs_Prepend_Input = {
+  data?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** select columns of table "logs" */
+export enum Logs_Select_Column {
+  /** column name */
+  Component = 'component',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Data = 'data',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Level = 'level',
+  /** column name */
+  Message = 'message',
+  /** column name */
+  SessionId = 'session_id',
+  /** column name */
+  Timestamp = 'timestamp',
+  /** column name */
+  Url = 'url',
+  /** column name */
+  UserAgent = 'user_agent',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "logs" */
+export type Logs_Set_Input = {
+  component?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  data?: InputMaybe<Scalars['jsonb']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  level?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  session_id?: InputMaybe<Scalars['String']['input']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+  user_agent?: InputMaybe<Scalars['String']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** Streaming cursor of the table "logs" */
+export type Logs_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Logs_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Logs_Stream_Cursor_Value_Input = {
+  component?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  data?: InputMaybe<Scalars['jsonb']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  level?: InputMaybe<Scalars['String']['input']>;
+  message?: InputMaybe<Scalars['String']['input']>;
+  session_id?: InputMaybe<Scalars['String']['input']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+  user_agent?: InputMaybe<Scalars['String']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** update columns of table "logs" */
+export enum Logs_Update_Column {
+  /** column name */
+  Component = 'component',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Data = 'data',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Level = 'level',
+  /** column name */
+  Message = 'message',
+  /** column name */
+  SessionId = 'session_id',
+  /** column name */
+  Timestamp = 'timestamp',
+  /** column name */
+  Url = 'url',
+  /** column name */
+  UserAgent = 'user_agent',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Logs_Updates = {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: InputMaybe<Logs_Append_Input>;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _delete_at_path?: InputMaybe<Logs_Delete_At_Path_Input>;
+  /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+  _delete_elem?: InputMaybe<Logs_Delete_Elem_Input>;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _delete_key?: InputMaybe<Logs_Delete_Key_Input>;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: InputMaybe<Logs_Prepend_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Logs_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Logs_Bool_Exp;
+};
+
 /** mutation root */
 export type Mutation_Root = {
   __typename?: 'mutation_root';
@@ -2755,6 +3041,10 @@ export type Mutation_Root = {
   delete_lists?: Maybe<Lists_Mutation_Response>;
   /** delete single row from the table: "lists" */
   delete_lists_by_pk?: Maybe<Lists>;
+  /** delete data from the table: "logs" */
+  delete_logs?: Maybe<Logs_Mutation_Response>;
+  /** delete single row from the table: "logs" */
+  delete_logs_by_pk?: Maybe<Logs>;
   /** delete data from the table: "sessions" */
   delete_sessions?: Maybe<Sessions_Mutation_Response>;
   /** delete single row from the table: "sessions" */
@@ -2807,6 +3097,10 @@ export type Mutation_Root = {
   insert_lists?: Maybe<Lists_Mutation_Response>;
   /** insert a single row into the table: "lists" */
   insert_lists_one?: Maybe<Lists>;
+  /** insert data into the table: "logs" */
+  insert_logs?: Maybe<Logs_Mutation_Response>;
+  /** insert a single row into the table: "logs" */
+  insert_logs_one?: Maybe<Logs>;
   /** insert data into the table: "sessions" */
   insert_sessions?: Maybe<Sessions_Mutation_Response>;
   /** insert a single row into the table: "sessions" */
@@ -2873,6 +3167,12 @@ export type Mutation_Root = {
   update_lists_by_pk?: Maybe<Lists>;
   /** update multiples rows of table: "lists" */
   update_lists_many?: Maybe<Array<Maybe<Lists_Mutation_Response>>>;
+  /** update data of the table: "logs" */
+  update_logs?: Maybe<Logs_Mutation_Response>;
+  /** update single row of the table: "logs" */
+  update_logs_by_pk?: Maybe<Logs>;
+  /** update multiples rows of table: "logs" */
+  update_logs_many?: Maybe<Array<Maybe<Logs_Mutation_Response>>>;
   /** update data of the table: "sessions" */
   update_sessions?: Maybe<Sessions_Mutation_Response>;
   /** update single row of the table: "sessions" */
@@ -2992,6 +3292,18 @@ export type Mutation_RootDelete_ListsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Lists_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_LogsArgs = {
+  where: Logs_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Logs_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -3165,6 +3477,20 @@ export type Mutation_RootInsert_ListsArgs = {
 export type Mutation_RootInsert_Lists_OneArgs = {
   object: Lists_Insert_Input;
   on_conflict?: InputMaybe<Lists_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_LogsArgs = {
+  objects: Array<Logs_Insert_Input>;
+  on_conflict?: InputMaybe<Logs_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Logs_OneArgs = {
+  object: Logs_Insert_Input;
+  on_conflict?: InputMaybe<Logs_On_Conflict>;
 };
 
 
@@ -3401,6 +3727,36 @@ export type Mutation_RootUpdate_Lists_ManyArgs = {
 
 
 /** mutation root */
+export type Mutation_RootUpdate_LogsArgs = {
+  _append?: InputMaybe<Logs_Append_Input>;
+  _delete_at_path?: InputMaybe<Logs_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Logs_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Logs_Delete_Key_Input>;
+  _prepend?: InputMaybe<Logs_Prepend_Input>;
+  _set?: InputMaybe<Logs_Set_Input>;
+  where: Logs_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Logs_By_PkArgs = {
+  _append?: InputMaybe<Logs_Append_Input>;
+  _delete_at_path?: InputMaybe<Logs_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Logs_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Logs_Delete_Key_Input>;
+  _prepend?: InputMaybe<Logs_Prepend_Input>;
+  _set?: InputMaybe<Logs_Set_Input>;
+  pk_columns: Logs_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Logs_ManyArgs = {
+  updates: Array<Logs_Updates>;
+};
+
+
+/** mutation root */
 export type Mutation_RootUpdate_SessionsArgs = {
   _set?: InputMaybe<Sessions_Set_Input>;
   where: Sessions_Bool_Exp;
@@ -3591,6 +3947,12 @@ export type Query_Root = {
   lists_aggregate: Lists_Aggregate;
   /** fetch data from the table: "lists" using primary key columns */
   lists_by_pk?: Maybe<Lists>;
+  /** fetch data from the table: "logs" */
+  logs: Array<Logs>;
+  /** fetch aggregated fields from the table: "logs" */
+  logs_aggregate: Logs_Aggregate;
+  /** fetch data from the table: "logs" using primary key columns */
+  logs_by_pk?: Maybe<Logs>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -3787,6 +4149,29 @@ export type Query_RootLists_AggregateArgs = {
 
 
 export type Query_RootLists_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootLogsArgs = {
+  distinct_on?: InputMaybe<Array<Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Logs_Order_By>>;
+  where?: InputMaybe<Logs_Bool_Exp>;
+};
+
+
+export type Query_RootLogs_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Logs_Order_By>>;
+  where?: InputMaybe<Logs_Bool_Exp>;
+};
+
+
+export type Query_RootLogs_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -4222,6 +4607,14 @@ export type Subscription_Root = {
   lists_by_pk?: Maybe<Lists>;
   /** fetch data from the table in a streaming manner: "lists" */
   lists_stream: Array<Lists>;
+  /** fetch data from the table: "logs" */
+  logs: Array<Logs>;
+  /** fetch aggregated fields from the table: "logs" */
+  logs_aggregate: Logs_Aggregate;
+  /** fetch data from the table: "logs" using primary key columns */
+  logs_by_pk?: Maybe<Logs>;
+  /** fetch data from the table in a streaming manner: "logs" */
+  logs_stream: Array<Logs>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -4480,6 +4873,36 @@ export type Subscription_RootLists_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Lists_Stream_Cursor_Input>>;
   where?: InputMaybe<Lists_Bool_Exp>;
+};
+
+
+export type Subscription_RootLogsArgs = {
+  distinct_on?: InputMaybe<Array<Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Logs_Order_By>>;
+  where?: InputMaybe<Logs_Bool_Exp>;
+};
+
+
+export type Subscription_RootLogs_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Logs_Order_By>>;
+  where?: InputMaybe<Logs_Bool_Exp>;
+};
+
+
+export type Subscription_RootLogs_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootLogs_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Logs_Stream_Cursor_Input>>;
+  where?: InputMaybe<Logs_Bool_Exp>;
 };
 
 
@@ -6572,6 +6995,13 @@ export type SearchUsersQueryVariables = Exact<{
 
 export type SearchUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }> };
 
+export type CreateLogMutationVariables = Exact<{
+  log: Logs_Insert_Input;
+}>;
+
+
+export type CreateLogMutation = { __typename?: 'mutation_root', insert_logs_one?: { __typename?: 'logs', id: string, timestamp: string, level: string, component: string, message: string } | null };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -7687,3 +8117,14 @@ export const SearchUsersDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<SearchUsersQuery, SearchUsersQueryVariables>;
+export const CreateLogDocument = new TypedDocumentString(`
+    mutation CreateLog($log: logs_insert_input!) {
+  insert_logs_one(object: $log) {
+    id
+    timestamp
+    level
+    component
+    message
+  }
+}
+    `) as unknown as TypedDocumentString<CreateLogMutation, CreateLogMutationVariables>;
