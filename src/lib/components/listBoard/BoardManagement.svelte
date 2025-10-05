@@ -64,6 +64,22 @@
 		return listsStore.sortedBoards.filter((board) => board.user?.id !== currentUser?.id);
 	});
 
+	// Helper function to format GitHub repo data
+	function formatGithubRepo(github: any): string | null {
+		if (!github) return null;
+
+		try {
+			const githubData = typeof github === 'string' ? JSON.parse(github) : github;
+			if (githubData.owner && githubData.repo) {
+				return `${githubData.owner}/${githubData.repo}`;
+			}
+		} catch (e) {
+			console.error('Error parsing GitHub data:', e);
+		}
+
+		return null;
+	}
+
 	$effect(() => {
 		listsStore.loadBoards();
 	});
@@ -320,10 +336,10 @@
 										{:else}
 											<div class="flex flex-1 flex-col gap-1">
 												<span class="font-medium">{board.name}</span>
-												{#if board.github}
+												{#if formatGithubRepo(board.github)}
 													<span class="flex items-center gap-1 text-xs text-muted-foreground">
 														<img src={githubLogo} alt="GitHub" class="h-4 w-4" />
-														{board.github}
+														{formatGithubRepo(board.github)}
 													</span>
 												{/if}
 											</div>
@@ -397,10 +413,10 @@
 												{#if board.user?.username}
 													<span class="text-xs text-muted-foreground">by @{board.user.username}</span>
 												{/if}
-												{#if board.github}
+												{#if formatGithubRepo(board.github)}
 													<span class="flex items-center gap-1 text-xs text-muted-foreground">
 														<img src={githubLogo} alt="GitHub" class="h-4 w-4" />
-														{board.github}
+														{formatGithubRepo(board.github)}
 													</span>
 												{/if}
 											</div>

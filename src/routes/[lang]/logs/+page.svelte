@@ -79,6 +79,14 @@
 
 			const offset = (pagination.page - 1) * pagination.pageSize;
 
+			console.log('[LogsPage] Fetching logs with params:', {
+				where,
+				order_by: [{ timestamp: 'desc' }],
+				limit: pagination.pageSize,
+				offset,
+				user_id: user?.id
+			});
+
 			const data = await request(GET_LOGS, {
 				where,
 				order_by: [{ timestamp: 'desc' }],
@@ -86,8 +94,12 @@
 				offset
 			});
 
+			console.log('[LogsPage] Response data:', data);
+
 			logs = (data as any).logs || [];
 			pagination.total = (data as any).logs_aggregate?.aggregate?.count || 0;
+
+			console.log('[LogsPage] Parsed logs:', logs, 'Total:', pagination.total);
 
 			loggingStore.info('LogsPage', 'Logs fetched successfully', {
 				count: logs.length,
