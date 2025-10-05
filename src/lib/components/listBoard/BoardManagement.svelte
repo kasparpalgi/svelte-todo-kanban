@@ -442,6 +442,7 @@
 	<GithubRepoSelector
 		bind:open={showGithubDialog}
 		currentRepo={selectedBoardForGithub.github}
+		boardId={selectedBoardForGithub.id}
 		onSelect={handleGithubRepoSelected}
 	/>
 {/if}

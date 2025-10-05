@@ -580,6 +580,40 @@ export const SEARCH_USERS = graphql(`
 	}
 `);
 
+// ========== GitHub Webhooks ==========
+
+export const GET_TODO_BY_GITHUB_ISSUE = graphql(`
+	query GetTodoByGithubIssue($githubIssueId: bigint!) {
+		todos(where: { github_issue_id: { _eq: $githubIssueId } }, limit: 1) {
+			id
+			title
+			content
+			completed_at
+			github_issue_number
+			github_issue_id
+			github_synced_at
+			list {
+				id
+				board {
+					id
+					github
+				}
+			}
+		}
+	}
+`);
+
+export const GET_COMMENT_BY_GITHUB_ID = graphql(`
+	query GetCommentByGithubId($githubCommentId: bigint!) {
+		comments(where: { github_comment_id: { _eq: $githubCommentId } }, limit: 1) {
+			id
+			content
+			todo_id
+			github_comment_id
+		}
+	}
+`);
+
 // ========== Logging ==========
 
 export const CREATE_LOG = graphql(`

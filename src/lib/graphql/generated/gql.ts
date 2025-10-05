@@ -58,6 +58,8 @@ type Documents = {
     "\n\tmutation UpdateBoardInvitation(\n\t\t$where: board_invitations_bool_exp!\n\t\t$_set: board_invitations_set_input!\n\t) {\n\t\tupdate_board_invitations(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateBoardInvitationDocument,
     "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteBoardInvitationDocument,
     "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n": typeof types.SearchUsersDocument,
+    "\n\tquery GetTodoByGithubIssue($githubIssueId: bigint!) {\n\t\ttodos(where: { github_issue_id: { _eq: $githubIssueId } }, limit: 1) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tcontent\n\t\t\tcompleted_at\n\t\t\tgithub_issue_number\n\t\t\tgithub_issue_id\n\t\t\tgithub_synced_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tgithub\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetTodoByGithubIssueDocument,
+    "\n\tquery GetCommentByGithubId($githubCommentId: bigint!) {\n\t\tcomments(where: { github_comment_id: { _eq: $githubCommentId } }, limit: 1) {\n\t\t\tid\n\t\t\tcontent\n\t\t\ttodo_id\n\t\t\tgithub_comment_id\n\t\t}\n\t}\n": typeof types.GetCommentByGithubIdDocument,
     "\n\tmutation CreateLog($log: logs_insert_input!) {\n\t\tinsert_logs_one(object: $log) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t}\n\t}\n": typeof types.CreateLogDocument,
     "\n\tquery GetLogs(\n\t\t$where: logs_bool_exp\n\t\t$order_by: [logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tlogs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t\tdata\n\t\t\tuser_id\n\t\t\tsession_id\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlogs_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetLogsDocument,
 };
@@ -105,6 +107,8 @@ const documents: Documents = {
     "\n\tmutation UpdateBoardInvitation(\n\t\t$where: board_invitations_bool_exp!\n\t\t$_set: board_invitations_set_input!\n\t) {\n\t\tupdate_board_invitations(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateBoardInvitationDocument,
     "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteBoardInvitationDocument,
     "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n": types.SearchUsersDocument,
+    "\n\tquery GetTodoByGithubIssue($githubIssueId: bigint!) {\n\t\ttodos(where: { github_issue_id: { _eq: $githubIssueId } }, limit: 1) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tcontent\n\t\t\tcompleted_at\n\t\t\tgithub_issue_number\n\t\t\tgithub_issue_id\n\t\t\tgithub_synced_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tgithub\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.GetTodoByGithubIssueDocument,
+    "\n\tquery GetCommentByGithubId($githubCommentId: bigint!) {\n\t\tcomments(where: { github_comment_id: { _eq: $githubCommentId } }, limit: 1) {\n\t\t\tid\n\t\t\tcontent\n\t\t\ttodo_id\n\t\t\tgithub_comment_id\n\t\t}\n\t}\n": types.GetCommentByGithubIdDocument,
     "\n\tmutation CreateLog($log: logs_insert_input!) {\n\t\tinsert_logs_one(object: $log) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t}\n\t}\n": types.CreateLogDocument,
     "\n\tquery GetLogs(\n\t\t$where: logs_bool_exp\n\t\t$order_by: [logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tlogs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t\tdata\n\t\t\tuser_id\n\t\t\tsession_id\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlogs_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": types.GetLogsDocument,
 };
@@ -281,6 +285,14 @@ export function graphql(source: "\n\tmutation DeleteBoardInvitation($where: boar
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n"): typeof import('./graphql').SearchUsersDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetTodoByGithubIssue($githubIssueId: bigint!) {\n\t\ttodos(where: { github_issue_id: { _eq: $githubIssueId } }, limit: 1) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tcontent\n\t\t\tcompleted_at\n\t\t\tgithub_issue_number\n\t\t\tgithub_issue_id\n\t\t\tgithub_synced_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tgithub\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetTodoByGithubIssueDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetCommentByGithubId($githubCommentId: bigint!) {\n\t\tcomments(where: { github_comment_id: { _eq: $githubCommentId } }, limit: 1) {\n\t\t\tid\n\t\t\tcontent\n\t\t\ttodo_id\n\t\t\tgithub_comment_id\n\t\t}\n\t}\n"): typeof import('./graphql').GetCommentByGithubIdDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

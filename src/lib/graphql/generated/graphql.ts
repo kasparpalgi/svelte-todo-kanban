@@ -7325,6 +7325,20 @@ export type SearchUsersQueryVariables = Exact<{
 
 export type SearchUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }> };
 
+export type GetTodoByGithubIssueQueryVariables = Exact<{
+  githubIssueId: Scalars['bigint']['input'];
+}>;
+
+
+export type GetTodoByGithubIssueQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, completed_at?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, github?: string | null } | null } | null }> };
+
+export type GetCommentByGithubIdQueryVariables = Exact<{
+  githubCommentId: Scalars['bigint']['input'];
+}>;
+
+
+export type GetCommentByGithubIdQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, github_comment_id?: number | null }> };
+
 export type CreateLogMutationVariables = Exact<{
   log: Logs_Insert_Input;
 }>;
@@ -8493,6 +8507,36 @@ export const SearchUsersDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<SearchUsersQuery, SearchUsersQueryVariables>;
+export const GetTodoByGithubIssueDocument = new TypedDocumentString(`
+    query GetTodoByGithubIssue($githubIssueId: bigint!) {
+  todos(where: {github_issue_id: {_eq: $githubIssueId}}, limit: 1) {
+    id
+    title
+    content
+    completed_at
+    github_issue_number
+    github_issue_id
+    github_synced_at
+    list {
+      id
+      board {
+        id
+        github
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetTodoByGithubIssueQuery, GetTodoByGithubIssueQueryVariables>;
+export const GetCommentByGithubIdDocument = new TypedDocumentString(`
+    query GetCommentByGithubId($githubCommentId: bigint!) {
+  comments(where: {github_comment_id: {_eq: $githubCommentId}}, limit: 1) {
+    id
+    content
+    todo_id
+    github_comment_id
+  }
+}
+    `) as unknown as TypedDocumentString<GetCommentByGithubIdQuery, GetCommentByGithubIdQueryVariables>;
 export const CreateLogDocument = new TypedDocumentString(`
     mutation CreateLog($log: logs_insert_input!) {
   insert_logs_one(object: $log) {
