@@ -21,6 +21,7 @@
 	import { Download, RefreshCw, Search, Filter, AlertCircle, AlertTriangle, Info, Bug } from 'lucide-svelte';
 
 	let user = $derived(userStore.user);
+	let userLoading = $derived(userStore.loading);
 
 	// Filter state
 	let filters = $state({
@@ -207,12 +208,21 @@
 		}
 	}
 
-	onMount(() => {
+	// Wait for user to load, then check authentication
+	$effect(() => {
+		if (userLoading) return; // Still loading user data
+
 		if (!user?.id) {
+			// User is not authenticated, redirect to signin
 			goto(`/${page.params.lang}/signin`);
-			return;
 		}
-		fetchLogs();
+	});
+
+	// Fetch logs when user is available
+	onMount(() => {
+		if (user?.id) {
+			fetchLogs();
+		}
 	});
 </script>
 
