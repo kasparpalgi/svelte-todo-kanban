@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Log Viewer', () => {
-	test.use({ storageState: 'e2e/.auth/user.json' });
+	test.use({ storageState: 'playwright/.auth/user.json' });
 
 	test('should display logs page and filters', async ({ page }) => {
 		await page.goto('/en/logs');
@@ -150,5 +150,34 @@ test.describe('Log Viewer', () => {
 		// Should redirect to signin
 		await page.waitForURL('**/signin');
 		await expect(page).toHaveURL(/\/signin/);
+	});
+
+	test('should not redirect authenticated users prematurely', async ({ page }) => {
+		// This test specifically verifies the fix for the premature redirect issue
+		// The page should wait for user data to load before checking authentication
+
+		await page.goto('/en/logs');
+
+		// Should remain on logs page (not redirect to signin)
+		await page.waitForTimeout(1000); // Wait for potential redirect
+		await expect(page).toHaveURL(/\/logs/);
+
+		// Page should be visible
+		await expect(page.locator('h1:has-text("System Logs")')).toBeVisible();
+	});
+
+	test('should load user data before checking authentication', async ({ page }) => {
+		// Test that the page waits for userStore.loading to complete
+		// before making authentication decisions
+
+		// Navigate to logs page
+		await page.goto('/en/logs');
+
+		// The page should load successfully without premature redirects
+		await expect(page.locator('h1:has-text("System Logs")')).toBeVisible({ timeout: 3000 });
+
+		// Filters should be interactive (proving the page fully loaded)
+		await expect(page.locator('#level')).toBeEnabled();
+		await expect(page.locator('button:has-text("Apply Filters")')).toBeEnabled();
 	});
 });
