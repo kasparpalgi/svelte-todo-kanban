@@ -1,10 +1,16 @@
 {
   "permissions": {
     "allow": [
+      "Bash(npx playwright test:*)",
+      "Bash(git commit:*)",
+      "Bash(docker-compose:*)",
+      "Bash(npm run generate:*)",
+      "Bash(npm run check:*)",
+      "Bash(git add:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
       "Bash(cat:*)",
-      "Bash(npm run codegen:*)",
-      "Bash(npm run:*)",
-      "Bash(npx svelte-kit sync)"
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
