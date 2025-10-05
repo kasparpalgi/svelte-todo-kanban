@@ -11,7 +11,7 @@
 		await loadTranslations(lang, '/');
 		locale.set(lang);
 
-		const pathWithoutLang = currentPath.replace(/^\/(en|cs)/, '') || '/';
+		const pathWithoutLang = currentPath.replace(/^\/(en|cs|et)/, '') || '/';
 		const newPath = lang === 'en' ? pathWithoutLang : `/${lang}${pathWithoutLang}`;
 
 		if (!currentPath.startsWith('/signin')) {
@@ -27,4 +27,5 @@
 >
 	<option value="en">English</option>
 	<option value="cs">Čeština</option>
+	<option value="et">Eesti</option>
 </select>
