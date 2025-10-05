@@ -237,7 +237,7 @@
 		const { active, over } = event;
 		const finalDropPosition = dropPosition;
 
-		if (over && finalDropPosition && active.id !== over.id) {
+		if (over && finalDropPosition) {
 			const draggedId = active.id as string;
 			const draggedTodo = todosStore.todos.find((t) => t.id === draggedId);
 			if (!draggedTodo) {
@@ -274,8 +274,14 @@
 					const listIdToUpdate = targetListId === 'inbox' ? null : targetListId;
 					const activeIndex = sourceList.findIndex((t) => t.id === draggedId);
 					const [movedItem] = sourceList.splice(activeIndex, 1);
-					let insertIndex = position === 'above' ? targetIndex : targetIndex + 1;
-					if (finalDropPosition.todoId === 'column') insertIndex = 0;
+
+					// Handle empty target list
+					let insertIndex = 0;
+					if (targetList.length > 0) {
+						insertIndex = position === 'above' ? targetIndex : targetIndex + 1;
+						if (finalDropPosition.todoId === 'column') insertIndex = 0;
+					}
+
 					targetList.splice(insertIndex, 0, movedItem);
 
 					const sourceUpdates = sourceList.map((todo, index) =>

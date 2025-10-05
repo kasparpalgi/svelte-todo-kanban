@@ -41,22 +41,15 @@
 		} | null;
 	} = $props();
 
-	let droppable = useDroppable({
+	let { setNodeRef } = useDroppable({
 		id: `column-${list.id}`
 	});
-	let { setNodeRef } = droppable;
-	let columnElement: HTMLElement;
+
 	let isEditing = $state(false);
 	let editName = $state(list.name);
 	let newTaskTitleTop = $state('');
 	let newTaskTitleBottom = $state('');
 	let showQuickAdd = $state(false);
-
-	$effect(() => {
-		if (columnElement && setNodeRef) {
-			setNodeRef(columnElement);
-		}
-	});
 
 	$effect(() => {
 		editName = list.name;
@@ -143,7 +136,7 @@
 	}
 </script>
 
-<div bind:this={columnElement} class="h-full">
+<div class="h-full">
 	<Card
 		class="h-fit transition-all duration-200 {isHighlighted
 			? 'bg-primary/5 ring-2 ring-primary/50 dark:bg-primary/10 dark:ring-primary/30'
@@ -210,30 +203,31 @@
 				{todos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
 			</CardDescription>
 		</CardHeader>
-		<CardContent class="group min-h-24 space-y-2 pb-3">
-			{#if showQuickAdd}
-				<div class="mt-2">
-					<QuickAddInput
-						bind:value={newTaskTitleTop}
-						autofocus={true}
-						id={`quickadd-${list.id}`}
-						onSubmit={(val: string) => {
-							if (val) {
-								handleQuickAddTask(val, true);
-							}
-						}}
-						onCancel={() => {
-							showQuickAdd = false;
-							newTaskTitleTop = '';
-						}}
-					/>
-				</div>
-			{/if}
-			{#if todos.length > 0}
+		<CardContent class="group min-h-[200px] space-y-2 pb-3">
+			<div use:setNodeRef class="min-h-[180px]">
+				{#if showQuickAdd}
+					<div class="mt-2">
+						<QuickAddInput
+							bind:value={newTaskTitleTop}
+							autofocus={true}
+							id={`quickadd-${list.id}`}
+							onSubmit={(val: string) => {
+								if (val) {
+									handleQuickAddTask(val, true);
+								}
+							}}
+							onCancel={() => {
+								showQuickAdd = false;
+								newTaskTitleTop = '';
+							}}
+						/>
+					</div>
+				{/if}
 				<SortableContext
 					items={todos.map((todo) => todo.id)}
 					strategy={verticalListSortingStrategy}
 				>
+				{#if todos.length > 0}
 					{#each todos as todo, index (todo.id)}
 						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'above'}
 							<div
@@ -255,47 +249,48 @@
 							></div>
 						{/if}
 					{/each}
+					<div class="mt-3"></div>
+
+					<QuickAddInput
+						bind:value={newTaskTitleBottom}
+						autofocus={false}
+						id={`quickaddBottom-${list.id}`}
+						onSubmit={(val: string) => {
+							if (val) {
+								handleQuickAddTask(val, false);
+							}
+						}}
+						onCancel={() => {
+							showQuickAdd = false;
+							newTaskTitleBottom = '';
+						}}
+					/>
+				{:else}
+					{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
+						<div
+							class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
+						></div>
+					{/if}
+
+					{#if !showQuickAdd}
+						<div class="py-8 text-center text-xs text-muted-foreground">
+							<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
+							{#if list.id !== 'inbox'}
+								<Button
+									size="sm"
+									variant="ghost"
+									class="h-auto p-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+									onclick={() => (showQuickAdd = true)}
+								>
+									<Plus class="mr-1 h-3 w-3" />
+									Add task
+								</Button>
+							{/if}
+						</div>
+					{/if}
+				{/if}
 				</SortableContext>
-				<div class="mt-3"></div>
-
-				<QuickAddInput
-					bind:value={newTaskTitleBottom}
-					autofocus={false}
-					id={`quickaddBottom-${list.id}`}
-					onSubmit={(val: string) => {
-						if (val) {
-							handleQuickAddTask(val, false);
-						}
-					}}
-					onCancel={() => {
-						showQuickAdd = false;
-						newTaskTitleBottom = '';
-					}}
-				/>
-			{:else}
-				{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
-					<div
-						class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-					></div>
-				{/if}
-
-				{#if !showQuickAdd}
-					<div class="py-8 text-center text-xs text-muted-foreground">
-						<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
-						{#if list.id !== 'inbox'}
-							<Button
-								size="sm"
-								variant="ghost"
-								class="h-auto p-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
-								onclick={() => (showQuickAdd = true)}
-							>
-								<Plus class="mr-1 h-3 w-3" />
-								Add task
-							</Button>
-						{/if}
-					</div>
-				{/if}
-			{/if}
+			</div>
 		</CardContent>
 	</Card>
 </div>
