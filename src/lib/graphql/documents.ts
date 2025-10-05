@@ -58,6 +58,7 @@ export const LIST_FRAGMENT = graphql(`
 			name
 			alias
 			sort_order
+			github
 		}
 	}
 `);
@@ -114,6 +115,7 @@ export const BOARD_FRAGMENT = graphql(`
 		name
 		alias
 		sort_order
+		github
 		is_public
 		allow_public_comments
 		created_at

@@ -2,15 +2,19 @@
 <script lang="ts">
 	import VoiceInput from './VoiceInput.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { GithubIcon } from 'lucide-svelte';
 
 	let {
 		value = $bindable(''),
 		autofocus = true,
-		onSubmit = (val: string) => {},
+		onSubmit = (val: string, skipGithub: boolean) => {},
 		onCancel = () => {},
 		id = `quickadd-${crypto.randomUUID()}`,
-		showVoiceButton = true
+		showVoiceButton = true,
+		showGithubCheckbox = false
 	} = $props();
+
+	let skipGithubIssue = $state(false);
 
 	let inputEl: HTMLInputElement;
 	let mounted = false;
@@ -27,7 +31,8 @@
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
 			event.preventDefault();
-			onSubmit(value.trim());
+			onSubmit(value.trim(), skipGithubIssue);
+			skipGithubIssue = false; // Reset after submit
 		} else if (event.key === 'Escape') {
 			onCancel();
 		}
@@ -76,4 +81,16 @@
 			<VoiceInput onTranscript={handleVoiceTranscript} onError={handleVoiceError} />
 		{/if}
 	</div>
+
+	{#if showGithubCheckbox}
+		<label class="flex items-center gap-2 text-xs cursor-pointer">
+			<input
+				type="checkbox"
+				bind:checked={skipGithubIssue}
+				class="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary"
+			/>
+			<GithubIcon class="h-3 w-3" />
+			<span>Do not create GitHub issue</span>
+		</label>
+	{/if}
 </div>

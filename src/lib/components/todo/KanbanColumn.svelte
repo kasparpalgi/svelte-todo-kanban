@@ -104,11 +104,16 @@
 		}
 	}
 
-	async function handleQuickAddTask(title: string, addToTop: boolean = true) {
+	async function handleQuickAddTask(title: string, addToTop: boolean = true, skipGithub: boolean = false) {
 		if (!title.trim()) return;
 
 		const listIdForTask = list.id === 'inbox' ? undefined : list.id;
-		const result = await todosStore.addTodo(title.trim(), undefined, listIdForTask, addToTop);
+
+		// Create GitHub issue unless skipGithub is true
+		const boardGithub = list.board?.github;
+		const createGithubIssue = boardGithub && !skipGithub;
+
+		const result = await todosStore.addTodo(title.trim(), undefined, listIdForTask, addToTop, createGithubIssue);
 
 		if (result.success) {
 			if (addToTop) {
@@ -217,9 +222,10 @@
 						bind:value={newTaskTitleTop}
 						autofocus={true}
 						id={`quickadd-${list.id}`}
-						onSubmit={(val: string) => {
+						showGithubCheckbox={!!list.board?.github}
+						onSubmit={(val: string, skipGithub: boolean) => {
 							if (val) {
-								handleQuickAddTask(val, true);
+								handleQuickAddTask(val, true, skipGithub);
 							}
 						}}
 						onCancel={() => {

@@ -34,6 +34,11 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			throw error(400, 'Missing boardId or targetListId');
 		}
 
+		const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+		if (!uuidRegex.test(boardId) || !uuidRegex.test(targetListId)) {
+			throw error(400, 'Invalid boardId or targetListId format');
+		}
+
 		// 1. Get board with GitHub repo info
 		const boardData = await serverRequest<GetBoardsQuery, { where: any }>(GET_BOARDS, {
 			where: { id: { _eq: boardId } }
@@ -51,15 +56,12 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 		const githubData = typeof board.github === 'string' ? JSON.parse(board.github) : board.github;
 		const { owner, repo } = githubData as { owner: string; repo: string };
-
-		// 2. Get decrypted GitHub token
 		const githubToken = await getGithubToken(session.user.id);
 
 		if (!githubToken) {
 			throw error(401, 'GitHub not connected. Please connect GitHub in settings.');
 		}
 
-		// 3. Fetch issues from GitHub
 		const issues = await githubRequest<GitHubIssue[]>(
 			`/repos/${owner}/${repo}/issues?state=open&per_page=100`,
 			githubToken
@@ -74,11 +76,9 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			});
 		}
 
-		// 4. Convert issues to todos (exclude PRs)
-		const issuesOnly = issues.filter((issue) => !issue.pull_request);
+		const issuesOnly = issues.filter((issue) => !issue.pull_request && issue.title?.trim());
 
 		const todos = issuesOnly.map((issue, index) => {
-			// Map GitHub labels to priority
 			let priority: 'low' | 'medium' | 'high' | null = null;
 			const priorityLabel = issue.labels.find((l) =>
 				l.name.toLowerCase().includes('priority')
@@ -93,8 +93,8 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			}
 
 			return {
-				title: issue.title,
-				content: issue.body || null,
+				title: issue.title.trim(),
+				content: issue.body?.trim() || null,
 				list_id: targetListId,
 				user_id: session.user.id,
 				github_issue_number: issue.number,
@@ -102,20 +102,18 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 				github_url: issue.html_url,
 				github_synced_at: new Date().toISOString(),
 				sort_order: index,
-				priority,
+				priority: priority || 'medium',
 				completed_at: issue.state === 'closed' ? issue.closed_at : null,
 				due_on: issue.milestone?.due_on || null
 			};
 		});
 
-		// 5. Bulk insert todos (handle conflicts by skipping)
 		const result = await serverRequest(CREATE_TODO, {
 			objects: todos
 		});
 
 		const imported = result.insert_todos?.returning?.length || 0;
 
-		// 6. Log success
 		loggingStore.info('GithubImport', 'Successfully imported GitHub issues', {
 			boardId,
 			listId: targetListId,
@@ -139,7 +137,6 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			userId: session?.user?.id
 		});
 
-		// Handle specific GitHub errors
 		if (err.message?.includes('404')) {
 			throw error(404, 'Repository not found or access denied');
 		}

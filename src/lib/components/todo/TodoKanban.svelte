@@ -98,11 +98,7 @@
 
 		for (const list of filteredLists) {
 			result.push({
-				list: {
-					id: list.id,
-					name: list.name,
-					sort_order: list.sort_order || 999
-				},
+				list: list,  // Pass the full list object including board data
 				todos: todosByListId.get(list.id) || []
 			});
 		}

@@ -31,10 +31,11 @@
 	let boardNotFound = $state(false);
 	let loading = $state(true);
 	let showImportDialog = $state(false);
-	let createGithubIssue = $state(false);
+	let skipGithubIssue = $state(false); // Inverse: unchecked = create GitHub issue
 	const username = $derived(page.params.username);
 	const boardAlias = $derived(page.params.board);
 	const lang = $derived(page.params.lang || 'en');
+
 
 	onMount(async () => {
 		if (data?.session) {
@@ -85,10 +86,13 @@
 			}
 		}
 
+		// Create GitHub issue unless checkbox is checked
+		const createGithubIssue = listsStore.selectedBoard?.github && !skipGithubIssue;
+
 		const result = await todosStore.addTodo(newTodoTitle.trim(), undefined, listId, true, createGithubIssue);
 		if (result.success) {
 			newTodoTitle = '';
-			createGithubIssue = false; // Reset checkbox after todo creation
+			skipGithubIssue = false; // Reset checkbox after todo creation
 		}
 	}
 
@@ -225,11 +229,11 @@
 								<label class="flex items-center gap-2 text-sm cursor-pointer">
 									<input
 										type="checkbox"
-										bind:checked={createGithubIssue}
+										bind:checked={skipGithubIssue}
 										class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 									/>
 									<GithubIcon class="h-3.5 w-3.5" />
-									<span>Create GitHub issue</span>
+									<span>Do not create GitHub issue</span>
 								</label>
 							{/if}
 						</div>

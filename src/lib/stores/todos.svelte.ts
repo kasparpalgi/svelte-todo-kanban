@@ -435,12 +435,42 @@ function createTodosStore() {
 	async function deleteTodo(id: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
+		// Get the todo to check if it has a GitHub issue
+		const todo = state.todos.find((t) => t.id === id);
+		const githubIssueNumber = (todo as any)?.github_issue_number;
+		const githubIssueId = (todo as any)?.github_issue_id;
+		const boardGithub = todo?.list?.board?.github;
+
 		try {
 			const data: DeleteTodosMutation = await request(DELETE_TODOS, {
 				where: { id: { _eq: id } }
 			});
 
 			if (data.delete_todos?.affected_rows && data.delete_todos.affected_rows > 0) {
+				// Close GitHub issue if this todo was linked to one
+				if (githubIssueNumber && githubIssueId && boardGithub) {
+					try {
+						const githubData = typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
+						const { owner, repo } = githubData as { owner: string; repo: string };
+
+						await fetch('/api/github/delete-issue', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								todoId: id,
+								githubIssueNumber,
+								owner,
+								repo,
+								closeIssue: true
+							})
+						});
+						// Non-blocking: don't wait for response, don't fail if GitHub sync fails
+					} catch (githubError) {
+						// Non-blocking: log error but don't fail todo deletion
+						console.error('Failed to close GitHub issue on deletion:', githubError);
+					}
+				}
+
 				// Optimistically remove from local state
 				state.todos = state.todos.filter((t) => t.id !== id);
 				return { success: true, message: 'Todo deleted successfully' };

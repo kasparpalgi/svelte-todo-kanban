@@ -154,8 +154,15 @@
 	async function handleGithubRepoSelected(repo: string | null) {
 		if (!selectedBoardForGithub) return;
 
+		// Convert "owner/repo" string to JSON object format
+		let githubData: string | null = null;
+		if (repo) {
+			const [owner, repoName] = repo.split('/');
+			githubData = JSON.stringify({ owner, repo: repoName, full_name: repo });
+		}
+
 		const result = await listsStore.updateBoard(selectedBoardForGithub.id, {
-			github: repo
+			github: githubData
 		});
 
 		if (result.success) {

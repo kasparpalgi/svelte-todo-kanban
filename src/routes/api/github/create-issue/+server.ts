@@ -75,6 +75,14 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			throw error(404, 'Todo not found');
 		}
 
+		if (!todo.list) {
+			throw error(400, 'Todo must be assigned to a list to create GitHub issue');
+		}
+
+		if (!todo.list.board) {
+			throw error(400, 'List must be assigned to a board to create GitHub issue');
+		}
+
 		const boardGithub = todo.list.board.github;
 
 		if (!boardGithub) {
