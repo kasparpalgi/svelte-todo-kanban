@@ -10,7 +10,11 @@
       "Bash(npm run build:*)",
       "Bash(npm run dev:*)",
       "Bash(cat:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
