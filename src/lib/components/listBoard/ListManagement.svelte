@@ -71,7 +71,7 @@
 		);
 
 		if (result.success) {
-			displayMessage('List created successfully', 1500, true);
+			displayMessage($t('list.create_success'), 1500, true);
 			newListName = '';
 			showListDialog = false;
 		} else {
@@ -85,7 +85,7 @@
 		const result = await listsStore.updateList(id, { name: name.trim() });
 
 		if (result.success) {
-			displayMessage('List updated successfully', 1500, true);
+			displayMessage($t('list.update_success'), 1500, true);
 			editingList = null;
 			editingListName = '';
 		} else {
@@ -97,15 +97,15 @@
 		const todoCount = todoCountByList().get(id) || 0;
 		const confirmMessage =
 			todoCount > 0
-				? `Delete "${listName}" and its ${todoCount} todo(s)?`
-				: `Delete "${listName}"?`;
+				? $t('list.delete_confirm_with_todos', { name: listName, count: todoCount })
+				: $t('list.delete_confirm_empty', { name: listName });
 
 		if (!confirm(confirmMessage)) return;
 
 		const result = await listsStore.deleteList(id);
 
 		if (result.success) {
-			displayMessage('List deleted successfully', 1500, true);
+			displayMessage($t('list.delete_success'), 1500, true);
 		} else {
 			displayMessage(result.message);
 		}
@@ -181,7 +181,7 @@
 				<CardHeader class="flex flex-row items-center justify-between space-y-0 pb-4">
 					<div class="flex items-center gap-2">
 						<FolderKanban class="h-5 w-5" />
-						<CardTitle class="text-lg">Lists</CardTitle>
+						<CardTitle class="text-lg">{$t('board.lists')}</CardTitle>
 						<Badge variant="secondary">{filteredLists.length}</Badge>
 					</div>
 					<Dialog bind:open={showListDialog}>
@@ -202,15 +202,15 @@
 									<Input
 										id="list-name"
 										bind:value={newListName}
-										placeholder="Enter list name..."
+										placeholder={$t('list.enter_name_placeholder')}
 										onkeydown={(e) => e.key === 'Enter' && handleCreateList()}
 									/>
 								</div>
 							</div>
 							<DialogFooter>
-								<Button variant="outline" onclick={() => (showListDialog = false)}>Cancel</Button>
+								<Button variant="outline" onclick={() => (showListDialog = false)}>{$t('common.cancel')}</Button>
 								<Button onclick={handleCreateList} disabled={!newListName.trim()}>
-									Create List
+									{$t('todo.create_list')}
 								</Button>
 							</DialogFooter>
 						</DialogContent>

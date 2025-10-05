@@ -33,12 +33,12 @@
 	const todoEditSchema = z.object({
 		title: z
 			.string()
-			.min(1, 'Title is required')
-			.max(200, 'Title must be less than 200 characters')
+			.min(1, $t('validation.title_required'))
+			.max(200, $t('validation.title_max_length'))
 			.trim(),
 		content: z
 			.string()
-			.max(1000, 'Content must be less than 1000 characters')
+			.max(1000, $t('validation.content_max_length'))
 			.optional()
 			.transform((val) => (val === '' ? undefined : val)),
 		due_on: z
@@ -51,7 +51,7 @@
 					const date = new Date(val);
 					return !isNaN(date.getTime());
 				},
-				{ message: 'Invalid date format' }
+				{ message: $t('validation.invalid_date') }
 			)
 	});
 
@@ -194,7 +194,7 @@
 			const result = await todosStore.updateTodo(todo.id, updateData);
 
 			if (!result.success) {
-				displayMessage(result.message || 'Failed to update todo');
+				displayMessage(result.message || $t('todo.update_failed'));
 				return;
 			}
 
@@ -220,13 +220,13 @@
 						}
 					});
 					await Promise.all(uploadPromises);
-					displayMessage('Upload completed successfully', 2000, true);
+					displayMessage($t('todo.upload_success'), 2000, true);
 				} catch (error) {
-					displayMessage('Some images failed to upload, but todo was saved');
+					displayMessage($t('todo.upload_partial_failure'));
 					console.error('Upload error:', error);
 				}
 			} else {
-				displayMessage('Todo updated successfully', 1500, true);
+				displayMessage($t('todo.update_success'), 1500, true);
 			}
 		} catch (error) {
 			if (error instanceof z.ZodError) {
@@ -237,7 +237,7 @@
 					}
 				});
 			} else {
-				displayMessage('An unexpected error occurred');
+				displayMessage($t('common.unexpected_error'));
 			}
 		} finally {
 			isSubmitting = false;
@@ -247,14 +247,14 @@
 	async function toggleComplete() {
 		const result = await todosStore.toggleTodo(todo.id);
 		if (!result.success) {
-			displayMessage(result.message || 'Failed to update todo status');
+			displayMessage(result.message || $t('todo.status_update_failed'));
 		}
 	}
 
 	async function deleteTodo() {
 		const result = await todosStore.deleteTodo(todo.id);
 		if (!result.success) {
-			displayMessage(result.message || 'Failed to delete todo');
+			displayMessage(result.message || $t('todo.delete_failed'));
 		}
 	}
 
@@ -301,7 +301,7 @@
 			(file) => !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024
 		);
 		if (invalidFiles.length > 0) {
-			displayMessage('Some files were rejected: must be images under 5MB');
+			displayMessage($t('todo.file_upload_validation_error'));
 		}
 	}
 
@@ -324,11 +324,11 @@
 		const now = new Date();
 		const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-		if (diffDays === 0) return 'Today';
-		if (diffDays === 1) return 'Tomorrow';
-		if (diffDays === -1) return 'Yesterday';
-		if (diffDays > 0) return `In ${diffDays} days`;
-		return `${Math.abs(diffDays)} days ago`;
+		if (diffDays === 0) return $t('date.today');
+		if (diffDays === 1) return $t('date.tomorrow');
+		if (diffDays === -1) return $t('date.yesterday');
+		if (diffDays > 0) return $t('date.in_days', { days: diffDays });
+		return $t('date.days_ago', { days: Math.abs(diffDays) });
 	}
 
 	function isOverdue(dateString: string): boolean {
@@ -416,7 +416,7 @@
 						class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-muted-foreground transition-colors hover:border-primary {todo.completed_at
 							? 'border-primary bg-primary'
 							: ''}"
-						aria-label={todo.completed_at ? 'Mark as incomplete' : 'Mark as complete'}
+						aria-label={todo.completed_at ? $t('todo.mark_incomplete') : $t('todo.mark_complete')}
 					>
 						{#if todo.completed_at}
 							<Check class="h-3 w-3 text-primary-foreground" />
@@ -515,10 +515,10 @@
 
 <ConfirmDialog
 	bind:open={showDeleteConfirm}
-	title="Delete Task"
-	description="Are you sure you want to delete this task? This action cannot be undone."
-	confirmText="Delete"
-	cancelText="Cancel"
+	title={$t('todo.delete_task_title')}
+	description={$t('todo.delete_task_description')}
+	confirmText={$t('common.delete')}
+	cancelText={$t('common.cancel')}
 	variant="destructive"
 	icon="delete"
 	onConfirm={deleteTodo}
@@ -527,10 +527,10 @@
 
 <ConfirmDialog
 	bind:open={showUnsavedChangesConfirm}
-	title="Unsaved Changes"
-	description="You have unsaved changes. Are you sure you want to discard them?"
-	confirmText="Discard Changes"
-	cancelText="Keep Editing"
+	title={$t('todo.unsaved_changes_title')}
+	description={$t('todo.unsaved_changes_description')}
+	confirmText={$t('common.discard_changes')}
+	cancelText={$t('common.keep_editing')}
 	variant="warning"
 	icon="unsaved"
 	onConfirm={handleConfirmAction}
@@ -539,10 +539,10 @@
 
 <ConfirmDialog
 	bind:open={showStartEditConfirm}
-	title="Unsaved Changes"
-	description="You have unsaved changes in another todo. Do you want to discard them and continue editing this one?"
-	confirmText="Discard & Continue"
-	cancelText="Cancel"
+	title={$t('todo.unsaved_changes_title')}
+	description={$t('todo.unsaved_changes_description')}
+	confirmText={$t('common.discard_changes')}
+	cancelText={$t('common.cancel')}
 	variant="warning"
 	icon="unsaved"
 	onConfirm={handleConfirmAction}

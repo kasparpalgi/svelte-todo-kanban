@@ -1,5 +1,6 @@
 <!-- @file src/lib/components/listBoard/BoardManagement.svelte -->
 <script lang="ts">
+	import { t } from '$lib/i18n';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
@@ -101,7 +102,7 @@
 		const result = await listsStore.createBoard(newBoardName.trim());
 
 		if (result.success) {
-			displayMessage('Board created successfully', 1500, true);
+			displayMessage($t('board.board_created'), 1500, true);
 			newBoardName = '';
 			showBoardDialog = false;
 		} else {
@@ -115,7 +116,7 @@
 		const result = await listsStore.updateBoard(id, { name: name.trim() });
 
 		if (result.success) {
-			displayMessage('Board updated successfully', 1500, true);
+			displayMessage($t('board.board_updated'), 1500, true);
 			editingBoard = null;
 		} else {
 			displayMessage(result.message);
@@ -126,9 +127,9 @@
 		const todoCount = todoCountByBoard().get(id) || 0;
 		const listsInBoard = listsStore.lists.filter((l) => l.board_id === id);
 
-		let confirmMessage = `Delete "${boardName}"?`;
+		let confirmMessage = $t('board.delete_board_confirm', { name: boardName });
 		if (listsInBoard.length > 0 || todoCount > 0) {
-			confirmMessage = `Delete "${boardName}" with ${listsInBoard.length} list(s) and ${todoCount} todo(s)?`;
+			confirmMessage = $t('board.delete_board_with_items', { name: boardName, lists: listsInBoard.length, todos: todoCount });
 		}
 
 		if (!confirm(confirmMessage)) return;
@@ -136,7 +137,7 @@
 		const result = await listsStore.deleteBoard(id);
 
 		if (result.success) {
-			displayMessage('Board deleted successfully', 1500, true);
+			displayMessage($t('board.board_deleted'), 1500, true);
 		} else {
 			displayMessage(result.message);
 		}

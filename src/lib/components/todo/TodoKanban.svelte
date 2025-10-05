@@ -136,7 +136,7 @@
 	async function toggleTodoCompletion(todoId: string) {
 		const result = await todosStore.toggleTodo(todoId);
 		if (!result.success) {
-			displayMessage('Failed to mark completed.');
+			displayMessage($t('todo.failed_to_mark_completed'));
 		}
 	}
 
@@ -311,25 +311,25 @@
 		const parts: string[] = [];
 
 		if (filters.search) {
-			parts.push(`Search: "${filters.search}"`);
+			parts.push($t('todo.search_filter', { query: filters.search }));
 		}
 		if (filters.listId) {
 			if (filters.listId === 'inbox') {
-				parts.push('Inbox only');
+				parts.push($t('todo.inbox_only'));
 			} else if (filters.listId === 'completed') {
-				parts.push('Completed only');
+				parts.push($t('todo.completed_only'));
 			} else {
 				const list = listsStore.lists.find((l) => l.id === filters.listId);
 				if (list) {
-					parts.push(`List: ${list.name}`);
+					parts.push($t('todo.list_filter', { name: list.name }));
 				}
 			}
 		}
 		if (filters.dueToday) {
-			parts.push('Due today');
+			parts.push($t('todo.due_today_filter'));
 		}
 		if (filters.overdue) {
-			parts.push('Overdue');
+			parts.push($t('todo.overdue_filter'));
 		}
 
 		return parts.join(', ');
@@ -341,7 +341,7 @@
 		{#if getFilterSummary()}
 			<div class="mb-4 rounded-md bg-muted/50 p-3">
 				<p class="text-sm text-muted-foreground">
-					<span class="font-medium">Active filters:</span>
+					<span class="font-medium">{$t('todo.active_filters')}</span>
 					{getFilterSummary()}
 				</p>
 			</div>
@@ -373,7 +373,7 @@
 								</CardTitle>
 								<CardDescription class="text-xs">
 									{filteredCompletedTodos().length}
-									{filteredCompletedTodos().length === 1 ? 'task' : 'tasks'}
+									{filteredCompletedTodos().length === 1 ? $t('todo.task') : $t('todo.tasks')}
 								</CardDescription>
 							</CardHeader>
 							<CardContent class="space-y-2">
@@ -403,10 +403,12 @@
 											onclick={loadMoreCompletedTodos}
 										>
 											<ChevronDown class="mr-1 h-3 w-3" />
-											Load {Math.min(
-												completedItemsInitially,
-												filteredCompletedTodos().length - completedItemsToShow
-											)} more completed
+											{$t('todo.load_more', {
+												count: Math.min(
+													completedItemsInitially,
+													filteredCompletedTodos().length - completedItemsToShow
+												)
+											})}
 										</Button>
 									</div>
 								{/if}
@@ -418,7 +420,7 @@
 				<div class="w-80 flex-shrink-0">
 					<Card class="border-2 border-dashed border-muted-foreground/25 bg-muted/10">
 						<CardHeader>
-							<CardTitle class="text-sm text-muted-foreground">Add New List</CardTitle>
+							<CardTitle class="text-sm text-muted-foreground">{$t('todo.add_new_list')}</CardTitle>
 						</CardHeader>
 						<CardContent class="flex flex-col gap-2">
 							<Button
@@ -427,7 +429,7 @@
 								onclick={openListManagement}
 							>
 								<Plus class="h-8 w-8" />
-								<span class="text-xs">Create List</span>
+								<span class="text-xs">{$t('todo.create_list')}</span>
 							</Button>
 						</CardContent>
 					</Card>
