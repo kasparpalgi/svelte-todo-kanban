@@ -7,9 +7,10 @@ import { serverRequest } from '$lib/graphql/server-client';
 import {
 	UPDATE_TODOS,
 	CREATE_COMMENT,
-	UPDATE_COMMENT,
-	GET_TODO_BY_GITHUB_ISSUE,
-	GET_COMMENT_BY_GITHUB_ID
+	UPDATE_COMMENT
+	// TODO: Uncomment when database migrations are applied
+	// GET_TODO_BY_GITHUB_ISSUE,
+	// GET_COMMENT_BY_GITHUB_ID
 } from '$lib/graphql/documents';
 
 /**
@@ -245,6 +246,10 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
  * POST handler for GitHub webhooks
  */
 export const POST: RequestHandler = async ({ request }) => {
+	// TODO: Remove this when database migrations are applied
+	throw error(503, 'GitHub webhook endpoint temporarily disabled - database migrations required');
+
+	/* eslint-disable @typescript-eslint/no-unreachable */
 	try {
 		// Get raw body for signature verification
 		const body = await request.text();
