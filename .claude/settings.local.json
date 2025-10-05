@@ -7,7 +7,8 @@
       "Bash(npm run generate:*)",
       "Bash(npm run check:*)",
       "Bash(git add:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(echo \"\n\n**Summary - Logging Investigation**\n\nThe logging system works as follows:\n1. Only ERROR and WARN logs are saved to database (INFO/DEBUG are memory-only)\n2. Logs are batched and flushed every $BATCH_TIMEOUTms or when $BATCH_SIZE logs accumulate\n3. The user_id is set via loggingStore.setUserId() in the user store\n4. Logs are sent to database via CREATE_LOG GraphQL mutation\n\nTo see logs in the /en/logs page:\n1. Navigate to http://localhost:5174/en/logs\n2. You should see any ERROR or WARN level logs\n3. INFO and DEBUG logs will NOT appear (only in browser console)\n\nTo test logging is working:\n1. Check browser console for logging output (enabled in development)\n2. Trigger an actual error in the app\n3. Go to /en/logs and check if the error appears\n\nLet me check if there are any errors being logged in the console...\")"
     ],
     "deny": [],
     "ask": []

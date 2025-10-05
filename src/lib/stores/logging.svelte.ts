@@ -72,7 +72,8 @@ function createLoggingStore() {
 						component: log.component,
 						message: log.message,
 						data: log.data ? JSON.stringify(log.data) : null,
-						user_id: state.userId,
+						// Note: user_id is set by Hasura column preset (x-hasura-user-id)
+						// Do not include it in the mutation input
 						session_id: state.sessionId,
 						user_agent: log.userAgent,
 						url: log.url
