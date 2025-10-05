@@ -57,7 +57,7 @@ function createCommentsStore() {
 		}
 	}
 
-	async function addComment(todoId: string, content: string): Promise<StoreResult> {
+	async function addComment(todoId: string, content: string, todo?: any): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!content.trim()) return { success: false, message: 'Comment content is required' };
 
@@ -74,6 +74,38 @@ function createCommentsStore() {
 			const newComment = data.insert_comments?.returning?.[0];
 			if (newComment) {
 				state.comments = [...state.comments, newComment];
+
+				// Sync to GitHub if todo has a GitHub issue
+				const githubIssueNumber = todo?.github_issue_number;
+				const githubIssueId = todo?.github_issue_id;
+				const boardGithub = todo?.list?.board?.github;
+
+				if (githubIssueNumber && githubIssueId && boardGithub) {
+					try {
+						const githubData = typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
+						const { owner, repo } = githubData as { owner: string; repo: string };
+
+						fetch('/api/github/create-comment', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								commentId: newComment.id,
+								todoId,
+								githubIssueNumber,
+								owner,
+								repo,
+								body: content.trim()
+							})
+						}).catch((err) => {
+							// Non-blocking: log error but don't fail comment creation
+							console.error('Failed to sync comment to GitHub:', err);
+						});
+					} catch (githubError) {
+						// Non-blocking: log error but don't fail comment creation
+						console.error('Failed to sync comment to GitHub:', githubError);
+					}
+				}
+
 				return {
 					success: true,
 					message: 'Comment added successfully',

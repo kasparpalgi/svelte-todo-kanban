@@ -3,7 +3,8 @@
     "allow": [
       "Bash(cat:*)",
       "Bash(npm run codegen:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx svelte-kit sync)"
     ],
     "deny": [],
     "ask": []
