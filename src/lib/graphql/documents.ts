@@ -13,6 +13,10 @@ export const TODO_FRAGMENT = graphql(`
 		completed_at
 		created_at
 		updated_at
+		github_issue_number
+		github_issue_id
+		github_synced_at
+		github_url
 		labels {
 			label {
 				...LabelFields
@@ -35,6 +39,7 @@ export const TODO_FRAGMENT = graphql(`
 				name
 				alias
 				sort_order
+				github
 			}
 		}
 	}
@@ -135,6 +140,8 @@ export const COMMENT_FRAGMENT = graphql(`
 		user_id
 		created_at
 		updated_at
+		github_comment_id
+		github_synced_at
 		user {
 			id
 			name
@@ -573,38 +580,37 @@ export const SEARCH_USERS = graphql(`
 `);
 
 // ========== GitHub Webhooks ==========
-// TODO: Uncomment when database migrations are applied
-// export const GET_TODO_BY_GITHUB_ISSUE = graphql(`
-// 	query GetTodoByGithubIssue($githubIssueId: bigint!) {
-// 		todos(where: { github_issue_id: { _eq: $githubIssueId } }, limit: 1) {
-// 			id
-// 			title
-// 			content
-// 			completed_at
-// 			github_issue_number
-// 			github_issue_id
-// 			github_synced_at
-// 			list {
-// 				id
-// 				board {
-// 					id
-// 					github
-// 				}
-// 			}
-// 		}
-// 	}
-// `);
+export const GET_TODO_BY_GITHUB_ISSUE = graphql(`
+	query GetTodoByGithubIssue($githubIssueId: bigint!) {
+		todos(where: { github_issue_id: { _eq: $githubIssueId } }, limit: 1) {
+			id
+			title
+			content
+			completed_at
+			github_issue_number
+			github_issue_id
+			github_synced_at
+			list {
+				id
+				board {
+					id
+					github
+				}
+			}
+		}
+	}
+`);
 
-// export const GET_COMMENT_BY_GITHUB_ID = graphql(`
-// 	query GetCommentByGithubId($githubCommentId: bigint!) {
-// 		comments(where: { github_comment_id: { _eq: $githubCommentId } }, limit: 1) {
-// 			id
-// 			content
-// 			todo_id
-// 			github_comment_id
-// 		}
-// 	}
-// `);
+export const GET_COMMENT_BY_GITHUB_ID = graphql(`
+	query GetCommentByGithubId($githubCommentId: bigint!) {
+		comments(where: { github_comment_id: { _eq: $githubCommentId } }, limit: 1) {
+			id
+			content
+			todo_id
+			github_comment_id
+		}
+	}
+`);
 
 // ========== Logging ==========
 

@@ -79,67 +79,62 @@ function createTodosStore() {
 	/**
 	 * Sync todo changes to GitHub issue
 	 * Non-blocking: errors are logged but don't fail the todo update
-	 *
-	 * TODO: Uncomment when database migrations are applied
 	 */
 	async function syncTodoToGithub(
 		todo: TodoFieldsFragment,
 		updates: any,
 		originalTodo: TodoFieldsFragment
 	) {
-		// Temporarily disabled until GitHub fields are added to database
-		return;
+		if (!(todo.list?.board as any)?.github || !(todo as any).github_issue_number) {
+			return; // Board not connected or todo not linked to issue
+		}
 
-		// if (!(todo.list?.board as any)?.github || !(todo as any).github_issue_number) {
-		// 	return; // Board not connected or todo not linked to issue
-		// }
+		const githubData =
+			typeof (todo.list.board as any).github === 'string'
+				? JSON.parse((todo.list.board as any).github)
+				: (todo.list.board as any).github;
+		const { owner, repo } = githubData as { owner: string; repo: string };
 
-		// const githubData =
-		// 	typeof (todo.list.board as any).github === 'string'
-		// 		? JSON.parse((todo.list.board as any).github)
-		// 		: (todo.list.board as any).github;
-		// const { owner, repo } = githubData as { owner: string; repo: string };
+		// Determine what changed and needs to be synced
+		const githubUpdates: any = {};
 
-		// // Determine what changed and needs to be synced
-		// const githubUpdates: any = {};
+		// Title changed
+		if (updates.title !== undefined && updates.title !== originalTodo.title) {
+			githubUpdates.title = updates.title;
+		}
 
-		// // Title changed
-		// if (updates.title !== undefined && updates.title !== originalTodo.title) {
-		// 	githubUpdates.title = updates.title;
-		// }
+		// Content changed
+		if (updates.content !== undefined && updates.content !== originalTodo.content) {
+			githubUpdates.body = updates.content;
+		}
 
-		// // Content changed
-		// if (updates.content !== undefined && updates.content !== originalTodo.content) {
-		// 	githubUpdates.body = updates.content;
-		// }
+		// Completion status changed
+		if (updates.completed_at !== undefined) {
+			if (updates.completed_at && !originalTodo.completed_at) {
+				// Todo completed → close issue
+				githubUpdates.state = 'closed';
+			} else if (!updates.completed_at && originalTodo.completed_at) {
+				// Todo reopened → reopen issue
+				githubUpdates.state = 'open';
+			}
+		}
 
-		// // Completion status changed
-		// if (updates.completed_at !== undefined) {
-		// 	if (updates.completed_at && !originalTodo.completed_at) {
-		// 		// Todo completed → close issue
-		// 		githubUpdates.state = 'closed';
-		// 	} else if (!updates.completed_at && originalTodo.completed_at) {
-		// 		// Todo reopened → reopen issue
-		// 		githubUpdates.state = 'open';
-		// 	}
-		// }
+		// Only sync if there are changes
+		if (Object.keys(githubUpdates).length === 0) {
+			return;
+		}
 
-		// // Only sync if there are changes
-		// if (Object.keys(githubUpdates).length === 0) {
-		// 	return;
-		// }
-
-		// await fetch('/api/github/update-issue', {
-		// 	method: 'PATCH',
-		// 	headers: { 'Content-Type': 'application/json' },
-		// 	body: JSON.stringify({
-		// 		todoId: todo.id,
-		// 		githubIssueNumber: (todo as any).github_issue_number,
-		// 		owner,
-		// 		repo,
-		// 		...githubUpdates
-		// 	})
-		// });
+		await fetch('/api/github/update-issue', {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				todoId: todo.id,
+				githubIssueNumber: (todo as any).github_issue_number,
+				owner,
+				repo,
+				...githubUpdates
+			})
+		});
 	}
 
 	async function addTodo(
@@ -222,19 +217,18 @@ function createTodosStore() {
 						});
 
 						if (githubResponse.ok) {
-							// TODO: Uncomment when GitHub fields are added to database
-							// const githubData = await githubResponse.json();
-							// // Update the local todo with GitHub metadata
-							// const todoIdx = state.todos.findIndex((t) => t.id === newTodo.id);
-							// if (todoIdx !== -1) {
-							// 	state.todos[todoIdx] = {
-							// 		...state.todos[todoIdx],
-							// 		github_issue_number: githubData.issueNumber,
-							// 		github_issue_id: githubData.issueId,
-							// 		github_url: githubData.issueUrl,
-							// 		github_synced_at: new Date().toISOString()
-							// 	} as any;
-							// }
+							const githubData = await githubResponse.json();
+							// Update the local todo with GitHub metadata
+							const todoIdx = state.todos.findIndex((t) => t.id === newTodo.id);
+							if (todoIdx !== -1) {
+								state.todos[todoIdx] = {
+									...state.todos[todoIdx],
+									github_issue_number: githubData.issueNumber,
+									github_issue_id: githubData.issueId,
+									github_url: githubData.issueUrl,
+									github_synced_at: new Date().toISOString()
+								} as any;
+							}
 						} else {
 							// Non-blocking: log error but don't fail todo creation
 							console.error('Failed to create GitHub issue:', await githubResponse.text());
@@ -328,13 +322,12 @@ function createTodosStore() {
 				}
 
 				// Sync to GitHub if todo is linked to a GitHub issue
-				// TODO: Uncomment when GitHub fields are added to database
-				// if ((updatedTodo as any).github_issue_number && (updatedTodo as any).github_issue_id) {
-				// 	syncTodoToGithub(updatedTodo, updates, originalTodo).catch((err) => {
-				// 		// Non-blocking: log error but don't fail todo update
-				// 		console.error('Failed to sync todo to GitHub:', err);
-				// 	});
-				// }
+				if ((updatedTodo as any).github_issue_number && (updatedTodo as any).github_issue_id) {
+					syncTodoToGithub(updatedTodo, updates, originalTodo).catch((err) => {
+						// Non-blocking: log error but don't fail todo update
+						console.error('Failed to sync todo to GitHub:', err);
+					});
+				}
 
 				return {
 					success: true,

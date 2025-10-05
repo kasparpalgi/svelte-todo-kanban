@@ -7034,7 +7034,7 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null };
 
@@ -7044,7 +7044,7 @@ export type BoardInvitationFieldsFragment = { __typename?: 'board_invitations', 
 
 export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, is_public: boolean, allow_public_comments: boolean, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> };
 
-export type CommentFieldsFragment = { __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } };
+export type CommentFieldsFragment = { __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } };
 
 export type LabelFieldsFragment = { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null };
 
@@ -7058,7 +7058,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -7085,7 +7085,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -7093,7 +7093,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority: string, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -7186,14 +7186,14 @@ export type GetCommentsQueryVariables = Exact<{
 }>;
 
 
-export type GetCommentsQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> };
+export type GetCommentsQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> };
 
 export type CreateCommentMutationVariables = Exact<{
   objects: Array<Comments_Insert_Input> | Comments_Insert_Input;
 }>;
 
 
-export type CreateCommentMutation = { __typename?: 'mutation_root', insert_comments?: { __typename?: 'comments_mutation_response', returning: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> } | null };
+export type CreateCommentMutation = { __typename?: 'mutation_root', insert_comments?: { __typename?: 'comments_mutation_response', returning: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> } | null };
 
 export type UpdateCommentMutationVariables = Exact<{
   where: Comments_Bool_Exp;
@@ -7201,7 +7201,7 @@ export type UpdateCommentMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCommentMutation = { __typename?: 'mutation_root', update_comments?: { __typename?: 'comments_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> } | null };
+export type UpdateCommentMutation = { __typename?: 'mutation_root', update_comments?: { __typename?: 'comments_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> } | null };
 
 export type DeleteCommentMutationVariables = Exact<{
   where: Comments_Bool_Exp;
@@ -7325,6 +7325,20 @@ export type SearchUsersQueryVariables = Exact<{
 
 export type SearchUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }> };
 
+export type GetTodoByGithubIssueQueryVariables = Exact<{
+  githubIssueId: Scalars['bigint']['input'];
+}>;
+
+
+export type GetTodoByGithubIssueQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, completed_at?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, github?: string | null } | null } | null }> };
+
+export type GetCommentByGithubIdQueryVariables = Exact<{
+  githubCommentId: Scalars['bigint']['input'];
+}>;
+
+
+export type GetCommentByGithubIdQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, github_comment_id?: number | null }> };
+
 export type CreateLogMutationVariables = Exact<{
   log: Logs_Insert_Input;
 }>;
@@ -7379,6 +7393,8 @@ export const CommentFieldsFragmentDoc = new TypedDocumentString(`
   user_id
   created_at
   updated_at
+  github_comment_id
+  github_synced_at
   user {
     id
     name
@@ -7400,6 +7416,10 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  github_issue_number
+  github_issue_id
+  github_synced_at
+  github_url
   labels {
     label {
       ...LabelFields
@@ -7422,6 +7442,7 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
       name
       alias
       sort_order
+      github
     }
   }
 }
@@ -7432,6 +7453,8 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   user_id
   created_at
   updated_at
+  github_comment_id
+  github_synced_at
   user {
     id
     name
@@ -7588,6 +7611,10 @@ export const GetTodosDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  github_issue_number
+  github_issue_id
+  github_synced_at
+  github_url
   labels {
     label {
       ...LabelFields
@@ -7610,6 +7637,7 @@ export const GetTodosDocument = new TypedDocumentString(`
       name
       alias
       sort_order
+      github
     }
   }
 }
@@ -7620,6 +7648,8 @@ fragment CommentFields on comments {
   user_id
   created_at
   updated_at
+  github_comment_id
+  github_synced_at
   user {
     id
     name
@@ -7727,6 +7757,10 @@ export const CreateTodoDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  github_issue_number
+  github_issue_id
+  github_synced_at
+  github_url
   labels {
     label {
       ...LabelFields
@@ -7749,6 +7783,7 @@ export const CreateTodoDocument = new TypedDocumentString(`
       name
       alias
       sort_order
+      github
     }
   }
 }
@@ -7759,6 +7794,8 @@ fragment CommentFields on comments {
   user_id
   created_at
   updated_at
+  github_comment_id
+  github_synced_at
   user {
     id
     name
@@ -7796,6 +7833,10 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  github_issue_number
+  github_issue_id
+  github_synced_at
+  github_url
   labels {
     label {
       ...LabelFields
@@ -7818,6 +7859,7 @@ export const UpdateTodosDocument = new TypedDocumentString(`
       name
       alias
       sort_order
+      github
     }
   }
 }
@@ -7828,6 +7870,8 @@ fragment CommentFields on comments {
   user_id
   created_at
   updated_at
+  github_comment_id
+  github_synced_at
   user {
     id
     name
@@ -8093,6 +8137,8 @@ export const GetCommentsDocument = new TypedDocumentString(`
   user_id
   created_at
   updated_at
+  github_comment_id
+  github_synced_at
   user {
     id
     name
@@ -8116,6 +8162,8 @@ export const CreateCommentDocument = new TypedDocumentString(`
   user_id
   created_at
   updated_at
+  github_comment_id
+  github_synced_at
   user {
     id
     name
@@ -8140,6 +8188,8 @@ export const UpdateCommentDocument = new TypedDocumentString(`
   user_id
   created_at
   updated_at
+  github_comment_id
+  github_synced_at
   user {
     id
     name
@@ -8453,6 +8503,36 @@ export const SearchUsersDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<SearchUsersQuery, SearchUsersQueryVariables>;
+export const GetTodoByGithubIssueDocument = new TypedDocumentString(`
+    query GetTodoByGithubIssue($githubIssueId: bigint!) {
+  todos(where: {github_issue_id: {_eq: $githubIssueId}}, limit: 1) {
+    id
+    title
+    content
+    completed_at
+    github_issue_number
+    github_issue_id
+    github_synced_at
+    list {
+      id
+      board {
+        id
+        github
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetTodoByGithubIssueQuery, GetTodoByGithubIssueQueryVariables>;
+export const GetCommentByGithubIdDocument = new TypedDocumentString(`
+    query GetCommentByGithubId($githubCommentId: bigint!) {
+  comments(where: {github_comment_id: {_eq: $githubCommentId}}, limit: 1) {
+    id
+    content
+    todo_id
+    github_comment_id
+  }
+}
+    `) as unknown as TypedDocumentString<GetCommentByGithubIdQuery, GetCommentByGithubIdQueryVariables>;
 export const CreateLogDocument = new TypedDocumentString(`
     mutation CreateLog($log: logs_insert_input!) {
   insert_logs_one(object: $log) {
