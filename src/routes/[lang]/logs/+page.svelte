@@ -23,7 +23,6 @@
 	let user = $derived(userStore.user);
 	let userLoading = $derived(userStore.loading);
 
-	// Filter state
 	let filters = $state({
 		level: 'all' as 'all' | 'error' | 'warn' | 'info' | 'debug',
 		component: '',
@@ -32,19 +31,16 @@
 		dateTo: ''
 	});
 
-	// Pagination state
 	let pagination = $state({
 		page: 1,
 		pageSize: 50,
 		total: 0
 	});
 
-	// Data state
 	let logs = $state<any[]>([]);
 	let loading = $state(false);
 	let error = $state<string | null>(null);
 
-	// Fetch logs from database
 	async function fetchLogs() {
 		if (!user?.id) return;
 
@@ -110,7 +106,6 @@
 		}
 	}
 
-	// Export logs to JSON
 	function exportLogs() {
 		const exportData = {
 			exportTime: new Date().toISOString(),
@@ -135,7 +130,6 @@
 		loggingStore.info('LogsPage', 'Logs exported', { count: logs.length });
 	}
 
-	// Reset filters
 	function resetFilters() {
 		filters = {
 			level: 'all',
@@ -167,7 +161,6 @@
 		}
 	}
 
-	// Get log level badge variant
 	function getLevelBadgeVariant(level: string): 'destructive' | 'secondary' | 'default' | 'outline' {
 		switch (level) {
 			case 'error':
@@ -198,12 +191,10 @@
 		}
 	}
 
-	// Format timestamp
 	function formatTimestamp(timestamp: string): string {
 		return new Date(timestamp).toLocaleString();
 	}
 
-	// Parse JSON data safely
 	function parseData(data: string | null): any {
 		if (!data) return null;
 		try {
@@ -213,9 +204,8 @@
 		}
 	}
 
-	// Wait for user to load, then check authentication
 	$effect(() => {
-		if (userLoading) return; // Still loading user data
+		if (userLoading) return;
 
 		if (!user?.id) {
 			// User is not authenticated, redirect to signin

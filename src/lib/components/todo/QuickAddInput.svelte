@@ -3,6 +3,7 @@
 	import VoiceInput from './VoiceInput.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { GithubIcon } from 'lucide-svelte';
+	import { t } from '$lib/i18n';
 
 	let {
 		value = $bindable(''),
@@ -72,7 +73,7 @@
 			bind:this={inputEl}
 			bind:value
 			onkeydown={handleKeydown}
-			placeholder="Enter task title..."
+			placeholder={$t('todo.enter_task_title_placeholder_short')}
 			class="flex h-9 flex-1 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 			{id}
 		/>
@@ -90,7 +91,7 @@
 				class="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary"
 			/>
 			<GithubIcon class="h-3 w-3" />
-			<span>Do not create GitHub issue</span>
+			<span>{$t('todo.do_not_create_github_issue_label')}</span>
 		</label>
 	{/if}
 </div>

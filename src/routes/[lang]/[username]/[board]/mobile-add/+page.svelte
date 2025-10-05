@@ -7,6 +7,7 @@
 	import VoiceInput from '$lib/components/todo/VoiceInput.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { t } from '$lib/i18n';
 
 	let transcribedText = $state('');
 	let isRecording = $state(false);
@@ -49,26 +50,26 @@
 
 	async function addTodo() {
 		if (!transcribedText.trim() || !selectedListId) {
-			displayMessage('Please record a message and select a list.', 3000, false);
+			displayMessage($t('todo.record_message_prompt'), 3000, false);
 			return;
 		}
 
 		const result = await todosStore.addTodo(transcribedText.trim(), undefined, selectedListId);
 		if (result.success) {
 			transcribedText = '';
-			displayMessage('Todo added successfully!', 3000, true);
+			displayMessage($t('todo.todo_added'), 3000, true);
 		} else {
-			displayMessage(`Error adding todo: ${result.message}`, 3000, false);
+			displayMessage($t('todo.error_adding_todo', { message: result.message }), 3000, false);
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>Quick Add</title>
+	<title>{$t('todo.quick_add_board')}</title>
 </svelte:head>
 
 <div class="p-4">
-	<h1 class="mb-4 text-2xl font-bold">Quick Add to Board</h1>
+	<h1 class="mb-4 text-2xl font-bold">{$t('todo.quick_add_board')}</h1>
 
 	<div class="mb-4">
 		<VoiceInput
@@ -86,27 +87,27 @@
 
 	<div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
 		<div>
-			<label for="board-select" class="mb-1 block text-sm font-medium">Board</label>
+			<label for="board-select" class="mb-1 block text-sm font-medium">{$t('todo.board_label')}</label>
 			<select
 				id="board-select"
 				bind:value={selectedBoardId}
 				class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 			>
-				<option disabled value="">Select a board</option>
+				<option disabled value="">{$t('common.select_board')}</option>
 				{#each listsStore.boards as board (board.id)}
 					<option value={board.id}>{board.name}</option>
 				{/each}
 			</select>
 		</div>
 		<div>
-			<label for="list-select" class="mb-1 block text-sm font-medium">List</label>
+			<label for="list-select" class="mb-1 block text-sm font-medium">{$t('todo.list_label')}</label>
 			<select
 				id="list-select"
 				bind:value={selectedListId}
 				disabled={!selectedBoardId || availableLists.length === 0}
 				class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 			>
-				<option disabled value="">Select a list</option>
+				<option disabled value="">{$t('common.select_list')}</option>
 				{#each availableLists as list (list.id)}
 					<option value={list.id}>{list.name}</option>
 				{/each}
@@ -115,6 +116,6 @@
 	</div>
 
 	<Button onclick={addTodo} disabled={!transcribedText.trim() || !selectedListId}>
-		Add to Board
+		{$t('todo.add_to_board')}
 	</Button>
 </div>
