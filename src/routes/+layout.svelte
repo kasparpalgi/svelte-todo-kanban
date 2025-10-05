@@ -4,6 +4,7 @@
 	import '../app.css';
 	import { ModeWatcher } from 'mode-watcher';
 	import ErrorSuccess from '$lib/components/ui/ErrorSuccess.svelte';
+	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
 	import faviconUrl from '$lib/assets/favicon.svg?url';
 	import { onMount } from 'svelte';
 	import { pwaInfo } from 'virtual:pwa-info';
@@ -44,8 +45,10 @@
 
 <ModeWatcher />
 
-<div class="min-h-screen w-full bg-background">
-	{@render children?.()}
-</div>
+<ErrorBoundary>
+	<div class="min-h-screen w-full bg-background">
+		{@render children?.()}
+	</div>
+</ErrorBoundary>
 
 <ErrorSuccess />

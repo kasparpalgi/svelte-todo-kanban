@@ -88,6 +88,15 @@ Example URLs:
     *   **Optimistic Updates:**
     *   **Responsive Design:**
     *   **Toast Notifications:** A centralized system provides clear, non-intrusive feedback for user actions.
+*   **Production Logging System:**
+    *   **Structured Logging:** Comprehensive logging with levels (debug, info, warn, error)
+    *   **Database Persistence:** Automatic logging of errors and warnings to PostgreSQL
+    *   **Log Viewer UI:** View, filter, search, and export logs at `/[lang]/logs`
+    *   **Performance Monitoring:** Track slow operations and application performance
+    *   **Error Boundary:** Global error catching and logging for uncaught exceptions
+    *   **Privacy-Safe:** Automatic sanitization of sensitive data (passwords, tokens, etc.)
+    *   **Intelligent Sampling:** Production-ready sampling to reduce database load
+    *   **Rate Limiting:** Prevents log flooding
 *   **Developer Experience:**
     *   **GraphQL Codegen:** Automatically generates TypeScript types from GraphQL queries, ensuring a type-safe data layer and reducing bugs.
     *   **AI-powered Translations:** A utility script in the `scripts` folder helps automate the translation of locales using AI. Work in progress.
@@ -251,6 +260,117 @@ Success Messages:
 
 ```typescript
 displayMessage('Operation completed successfully etc. bla bla', 3000, true); // longer than default 1.5sec success for longer success messages & true sets the 'success' as true that is false by default
+```
+
+### Production Logging System
+
+A comprehensive logging system with database persistence, performance monitoring, and intelligent sampling.
+
+**Logging to the System:**
+
+```typescript
+import { loggingStore } from '$lib/stores/logging.svelte';
+
+// Log levels (from least to most severe)
+loggingStore.debug('ComponentName', 'Debug message', { data: 'optional' });
+loggingStore.info('ComponentName', 'Info message', { userId: '123' });
+loggingStore.warn('ComponentName', 'Warning message', { issue: 'something' });
+loggingStore.error('ComponentName', 'Error message', { error: errorObject });
+```
+
+**When to Log:**
+
+✅ **ALWAYS LOG (ERROR/WARN):**
+- GraphQL/API errors
+- Store operation failures
+- Permission denied errors
+- Authentication failures
+- Uncaught exceptions
+
+✅ **CONDITIONALLY LOG (INFO):**
+- Critical user actions (login, signup)
+- Important state changes
+
+❌ **NEVER LOG:**
+- Passwords, tokens, API keys
+- Full user objects (only IDs)
+- Large data payloads (>1KB)
+- High-frequency events (every keystroke, etc.)
+
+**Features:**
+
+- **Auto-persistence**: ERROR and WARN logs automatically saved to PostgreSQL
+- **Batching**: Logs sent to DB every 10s or when 50 logs accumulated
+- **Privacy-safe**: Automatically redacts sensitive fields (password, token, etc.)
+- **Circular reference safe**: Safely handles Error objects with circular refs
+- **Performance monitoring**: Track slow operations (>1s)
+- **Rate limiting**: Prevents log flooding (100 logs/component/minute)
+- **Sampling**: In production, samples 10% of INFO logs to reduce DB load
+- **Retry logic**: Failed logs re-queued in production
+
+**Performance Monitoring:**
+
+```typescript
+// Measure async operations
+const result = await loggingStore.measureAsync('fetchUserData', async () => {
+  return await fetch('/api/users');
+});
+
+// Measure sync operations
+const computed = loggingStore.measureSync('heavyCalculation', () => {
+  return performHeavyCalculation();
+});
+
+// Manual tracking
+const start = performance.now();
+// ... your operation ...
+const duration = performance.now() - start;
+loggingStore.trackPerformance('operationName', duration);
+
+// Get metrics
+const metrics = loggingStore.getPerformanceMetrics();
+console.log('Errors:', metrics.errorCount);
+console.log('Slow operations:', metrics.slowOperations);
+```
+
+**Viewing Logs:**
+
+Visit `/[lang]/logs` to access the log viewer with:
+- Filtering by level, component, date range
+- Full-text search in messages
+- Export to JSON
+- Pagination (50 logs per page)
+
+**Error Boundary:**
+
+Automatically catches and logs:
+- Uncaught JavaScript errors
+- Unhandled promise rejections
+- Displays user-friendly error UI
+
+**Note**: Error boundary catches window-level errors only. For component-level error handling, use try/catch in your code.
+
+**Configuration:**
+
+Environment-aware settings in `src/lib/config/logging.ts`:
+- Dev: Smaller batches (10), shorter timeout (5s), no sampling
+- Production: Larger batches (50), longer timeout (10s), 10% sampling
+
+**Database Cleanup:**
+
+Logs older than 30 days can be cleaned up:
+
+```sql
+-- Manual cleanup (run via cron job)
+SELECT cleanup_old_logs();
+
+-- Custom retention (e.g., 7 days)
+SELECT cleanup_old_logs(7);
+```
+
+Recommended cron job:
+```bash
+0 2 * * * psql -d yourdb -c "SELECT cleanup_old_logs();"
 ```
 
 ### Localisation

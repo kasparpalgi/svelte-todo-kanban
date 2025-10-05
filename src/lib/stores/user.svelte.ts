@@ -60,6 +60,9 @@ function createUserStore() {
 				console.warn('[UserStore] DB user not found, using session data');
 			}
 
+			// Set user ID in logging store for tracking
+			loggingStore.setUserId(sessionUser.id);
+
 			loggingStore.info('UserStore', 'User initialized and hydrated from DB', {
 				userId: sessionUser.id
 			});
@@ -215,6 +218,7 @@ function createUserStore() {
 		state.loading = true;
 		state.error = null;
 		state.cachedUser = null;
+		loggingStore.setUserId(null);
 	}
 
 	return {

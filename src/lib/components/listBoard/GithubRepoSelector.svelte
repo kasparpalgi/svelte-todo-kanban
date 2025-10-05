@@ -15,8 +15,9 @@
 	import { Search, Loader } from 'lucide-svelte';
 	import githubLogo from '$lib/assets/github.svg';
 	import type { GithubRepoSelectorProps } from '$lib/types/listBoard';
+	import WebhookManager from '$lib/components/github/WebhookManager.svelte';
 
-	let { open = $bindable(), currentRepo, onSelect }: GithubRepoSelectorProps = $props();
+	let { open = $bindable(), currentRepo, onSelect, boardId }: GithubRepoSelectorProps & { boardId?: string } = $props();
 
 	let repos = $state<Array<{ full_name: string; description: string | null }>>([]);
 	let loading = $state(false);
@@ -85,6 +86,12 @@
 					<p class="text-sm text-muted-foreground">Currently connected:</p>
 					<p class="font-medium">{currentRepo}</p>
 				</div>
+
+				<!-- Webhook Manager - shown when repo is connected -->
+				{#if boardId && currentRepo.includes('/')}
+					{@const [owner, repo] = currentRepo.split('/')}
+					<WebhookManager {owner} {repo} {boardId} />
+				{/if}
 			{/if}
 
 			<div class="relative">

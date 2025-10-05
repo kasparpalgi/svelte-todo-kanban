@@ -30,9 +30,14 @@
 		const currentPath = page.url.pathname;
 		const params = page.params;
 		const lang = params.lang || 'en';
+
+		// Don't redirect if user is on a special page (logs, settings, etc.)
+		const specialPages = ['/logs', '/settings', '/profile'];
+		const isOnSpecialPage = specialPages.some(specialPage => currentPath.includes(specialPage));
+
 		const needsRedirect = !params.username || !params.board;
 
-		if (needsRedirect) {
+		if (needsRedirect && !isOnSpecialPage) {
 			await listsStore.loadBoards();
 
 			const defaultBoard = listsStore.boards
@@ -51,8 +56,12 @@
 	});
 
 	$effect(() => {
+		const currentPath = page.url.pathname;
+		const specialPages = ['/logs', '/settings', '/profile'];
+		const isOnSpecialPage = specialPages.some(specialPage => currentPath.includes(specialPage));
+
 		const needsRedirect = !page.params.username || !page.params.board;
-		if (needsRedirect) {
+		if (needsRedirect && !isOnSpecialPage) {
 			redirectHandled = false;
 		}
 	});

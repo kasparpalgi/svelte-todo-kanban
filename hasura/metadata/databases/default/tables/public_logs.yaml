@@ -1,0 +1,54 @@
+table:
+  name: logs
+  schema: public
+object_relationships:
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      set:
+        user_id: x-hasura-User-Id
+      columns:
+        - component
+        - data
+        - id
+        - level
+        - message
+        - session_id
+        - timestamp
+        - url
+        - user_agent
+    comment: "Users can only insert logs for themselves"
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - component
+        - created_at
+        - data
+        - id
+        - level
+        - message
+        - session_id
+        - timestamp
+        - url
+        - user_agent
+        - user_id
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      allow_aggregations: true
+      query_root_fields:
+        - select
+        - select_aggregate
+        - select_by_pk
+      subscription_root_fields:
+        - select
+        - select_aggregate
+        - select_by_pk
+    comment: "Users can only view their own logs"

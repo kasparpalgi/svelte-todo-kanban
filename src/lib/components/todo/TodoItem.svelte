@@ -6,7 +6,7 @@
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Check, SquarePen, Calendar, Trash2, ImageIcon } from 'lucide-svelte';
+	import { Check, SquarePen, Calendar, Trash2, ImageIcon, GithubIcon } from 'lucide-svelte';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import { CSS } from '@dnd-kit-svelte/utilities';
 	import { Card, CardContent } from '$lib/components/ui/card';
@@ -452,6 +452,20 @@
 									{formatDate(todo.due_on)}
 								</Badge>
 							</div>
+						{/if}
+
+						{#if todo.github_issue_number}
+							<a
+								href={todo.github_url}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="mt-1 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+								onclick={(e) => e.stopPropagation()}
+								title="View on GitHub"
+							>
+								<GithubIcon class="h-2.5 w-2.5" />
+								<span>#{todo.github_issue_number}</span>
+							</a>
 						{/if}
 					</div>
 

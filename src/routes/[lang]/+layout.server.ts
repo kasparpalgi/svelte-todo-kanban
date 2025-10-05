@@ -94,7 +94,11 @@ export const load: LayoutServerLoad = async (event) => {
 	}
 
 	// If user IS signed in and accessing just /[lang] (like /en), redirect to top board
-	if (session && params.lang && !url.pathname.split('/').filter(Boolean).slice(1).length) {
+	// Only redirect if the path is exactly /{lang} with no additional segments
+	const pathSegments = url.pathname.split('/').filter(Boolean);
+	const isLanguageRootOnly = pathSegments.length === 1 && pathSegments[0] === params.lang;
+
+	if (session && isLanguageRootOnly) {
 		console.log('[Lang Layout] → User accessing language root, redirecting to top board');
 		const topBoardPath = await getTopBoardPath(session);
 		if (topBoardPath) {
