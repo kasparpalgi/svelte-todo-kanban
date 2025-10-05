@@ -379,7 +379,7 @@
 <div
 	use:setNodeRef
 	{style}
-	class="touch-none"
+	class="touch-none mt-2"
 	class:opacity-50={sortableIsDragging.current || isDragging}
 >
 	{#if !isEditing}
