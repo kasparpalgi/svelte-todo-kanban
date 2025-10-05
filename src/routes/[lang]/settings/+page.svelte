@@ -194,13 +194,13 @@
 				<CardHeader>
 					<CardTitle class="flex items-center gap-2">
 						<Brain class="h-5 w-5" />
-						AI Settings
+						{$t('settings.ai.title')}
 					</CardTitle>
-					<CardDescription>Configure AI model and voice input behavior</CardDescription>
+					<CardDescription>{$t('settings.ai.description')}</CardDescription>
 				</CardHeader>
 				<CardContent class="space-y-6">
 					<div class="space-y-2">
-						<Label for="ai-model">AI Model</Label>
+						<Label for="ai-model">{$t('settings.ai.model')}</Label>
 						<select
 							id="ai-model"
 							bind:value={formData.aiModel}
@@ -211,15 +211,15 @@
 							{/each}
 						</select>
 						<p class="text-xs text-muted-foreground">
-							Choose the AI model for voice input corrections and improvements
+							{$t('settings.ai.model_description')}
 						</p>
 					</div>
 
 					<div class="flex items-center justify-between">
 						<div class="space-y-0.5">
-							<Label>Auto AI Correct Voice Inputs</Label>
+							<Label>{$t('settings.ai.auto_correct')}</Label>
 							<p class="text-sm text-muted-foreground">
-								Automatically apply AI corrections to voice input without manual confirmation
+								{$t('settings.ai.auto_correct_description')}
 							</p>
 						</div>
 						<Switch

@@ -65,7 +65,6 @@
 		return listsStore.sortedBoards.filter((board) => board.user?.id !== currentUser?.id);
 	});
 
-	// Helper function to format GitHub repo data
 	function formatGithubRepo(github: any): string | null {
 		if (!github) return null;
 
@@ -155,7 +154,6 @@
 	async function handleGithubRepoSelected(repo: string | null) {
 		if (!selectedBoardForGithub) return;
 
-		// Convert "owner/repo" string to JSON object format
 		let githubData: string | null = null;
 		if (repo) {
 			const [owner, repoName] = repo.split('/');
@@ -167,7 +165,7 @@
 		});
 
 		if (result.success) {
-			displayMessage(repo ? 'GitHub repo connected' : 'GitHub repo disconnected', 1500, true);
+			displayMessage(repo ? $t('github.repo_connected') : $t('github.repo_disconnected'), 1500, true);
 			showGithubDialog = false;
 			selectedBoardForGithub = null;
 		} else {
@@ -212,7 +210,7 @@
 			await listsStore.loadBoards();
 		} catch (error) {
 			console.error('Failed to move board up:', error);
-			displayMessage('Failed to reorder boards');
+			displayMessage($t('board.failed_reorder'));
 		}
 	}
 
@@ -234,7 +232,7 @@
 			await listsStore.loadBoards();
 		} catch (error) {
 			console.error('Failed to move board down:', error);
-			displayMessage('Failed to reorder boards');
+			displayMessage($t('board.failed_reorder'));
 		}
 	}
 </script>
@@ -256,7 +254,7 @@
 			onkeydown={(e) => e.stopPropagation()}
 		>
 			<div class="mb-6 flex items-center justify-between">
-				<h3 class="text-lg font-semibold">Manage Boards</h3>
+				<h3 class="text-lg font-semibold">{$t('board.manage_boards')}</h3>
 				<Button variant="ghost" onclick={() => (actionState.edit = '')}>✕</Button>
 			</div>
 
@@ -264,38 +262,38 @@
 				<CardHeader class="flex flex-row items-center justify-between space-y-0 pb-4">
 					<div class="flex items-center gap-2">
 						<Layers class="h-5 w-5" />
-						<CardTitle class="text-lg">Boards</CardTitle>
+						<CardTitle class="text-lg">{$t('board.boards')}</CardTitle>
 						<Badge variant="secondary">{listsStore.boards.length}</Badge>
 					</div>
 					<Dialog bind:open={showBoardDialog}>
 						<DialogTrigger>
 							<Button size="sm" class="h-8">
 								<Plus class="mr-1 h-3 w-3" />
-								New Board
+								{$t('board.new_board')}
 							</Button>
 						</DialogTrigger>
 						<DialogContent class="sm:max-w-[425px]">
 							<DialogHeader>
-								<DialogTitle>Create New Board</DialogTitle>
+								<DialogTitle>{$t('board.create_new_board')}</DialogTitle>
 								<DialogDescription>
-									Boards help organize your lists into different projects or categories.
+									{$t('board.board_help_text')}
 								</DialogDescription>
 							</DialogHeader>
 							<div class="grid gap-4 py-4">
 								<div class="grid gap-2">
-									<label for="board-name" class="text-sm font-medium">Board Name</label>
+									<label for="board-name" class="text-sm font-medium">{$t('board.board_name_label')}</label>
 									<Input
 										id="board-name"
 										bind:value={newBoardName}
-										placeholder="Enter board name..."
+										placeholder={$t('board.board_name_placeholder')}
 										onkeydown={(e) => e.key === 'Enter' && handleCreateBoard()}
 									/>
 								</div>
 							</div>
 							<DialogFooter>
-								<Button variant="outline" onclick={() => (showBoardDialog = false)}>Cancel</Button>
+								<Button variant="outline" onclick={() => (showBoardDialog = false)}>{$t('common.cancel')}</Button>
 								<Button onclick={handleCreateBoard} disabled={!newBoardName.trim()}>
-									Create Board
+									{$t('board.create_board')}
 								</Button>
 							</DialogFooter>
 						</DialogContent>
@@ -305,8 +303,8 @@
 					{#if listsStore.boards.length === 0}
 						<div class="py-8 text-center text-muted-foreground">
 							<Layers class="mx-auto h-12 w-12 opacity-20" />
-							<p class="mt-2 text-sm">No boards yet</p>
-							<p class="text-xs">Create a board to organize your lists</p>
+							<p class="mt-2 text-sm">{$t('board.no_boards_yet')}</p>
+							<p class="text-xs">{$t('board.create_board_prompt')}</p>
 						</div>
 					{:else}
 						{#if ownedBoards().length > 0}
@@ -354,7 +352,7 @@
 										{/if}
 
 										<Badge variant="outline" class="text-xs">
-											{todoCountByBoard().get(board.id) || 0} tasks
+											{$t('board.tasks_count', { count: todoCountByBoard().get(board.id) || 0 })}
 										</Badge>
 
 										<DropdownMenu>
@@ -366,20 +364,20 @@
 											<DropdownMenuContent align="end">
 												<DropdownMenuItem onclick={() => startEditBoard(board)}>
 													<SquarePen class="mr-2 h-3 w-3" />
-													Edit Name
+													{$t('board.edit_name')}
 												</DropdownMenuItem>
 												<DropdownMenuItem onclick={() => openMembersDialog(board)}>
 													<Users class="mr-2 h-3 w-3" />
-													Manage Members
+													{$t('board.manage_members')}
 												</DropdownMenuItem>
 												<DropdownMenuItem onclick={() => openVisibilityDialog(board)}>
 													<Globe class="mr-2 h-3 w-3" />
-													Sharing & Visibility
+													{$t('board.sharing_visibility')}
 												</DropdownMenuItem>
 												{#if hasGithubConnected}
 													<DropdownMenuItem onclick={() => openGithubSelector(board)}>
 														<img src={githubLogo} alt="GitHub" class="mr-2 h-3 w-3" />
-														{board.github ? 'Change' : 'Connect'} GitHub Repo
+														{board.github ? $t('board.change_github_repo') : $t('board.connect_github_repo')}
 													</DropdownMenuItem>
 												{/if}
 												<DropdownMenuSeparator />
@@ -388,7 +386,7 @@
 													class="text-red-600"
 												>
 													<Trash2 class="mr-2 h-3 w-3" />
-													Delete
+													{$t('common.delete')}
 												</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>
@@ -401,7 +399,7 @@
 							{#if ownedBoards().length > 0}
 								<div class="my-4 flex items-center gap-2 text-sm text-muted-foreground">
 									<div class="h-px flex-1 bg-border"></div>
-									<span>Shared with me</span>
+									<span>{$t('board.shared_with_me')}</span>
 									<div class="h-px flex-1 bg-border"></div>
 								</div>
 							{/if}
@@ -419,7 +417,7 @@
 											<div class="flex flex-1 flex-col gap-1">
 												<span class="font-medium">{board.name}</span>
 												{#if board.user?.username}
-													<span class="text-xs text-muted-foreground">by @{board.user.username}</span>
+													<span class="text-xs text-muted-foreground">{$t('board.by_user', { username: board.user.username })}</span>
 												{/if}
 												{#if formatGithubRepo(board.github)}
 													<span class="flex items-center gap-1 text-xs text-muted-foreground">
@@ -431,7 +429,7 @@
 										{/if}
 
 										<Badge variant="outline" class="text-xs">
-											{todoCountByBoard().get(board.id) || 0} tasks
+											{$t('board.tasks_count', { count: todoCountByBoard().get(board.id) || 0 })}
 										</Badge>
 
 										<DropdownMenu>
@@ -443,11 +441,11 @@
 											<DropdownMenuContent align="end">
 												<DropdownMenuItem onclick={() => openMembersDialog(board)}>
 													<Users class="mr-2 h-3 w-3" />
-													View Members
+													{$t('board.view_members')}
 												</DropdownMenuItem>
 												<DropdownMenuItem onclick={() => openVisibilityDialog(board)}>
 													<Globe class="mr-2 h-3 w-3" />
-													View Visibility
+													{$t('board.view_visibility')}
 												</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>

@@ -117,6 +117,12 @@
         "github_repo_connected": "GitHub repo connected",
         "github_repo_disconnected": "GitHub repo disconnected",
         "shared_with_me": "Shared with me",
+        "new_board": "New Board",
+        "boards_count": "{count} Boards",
+        "view_members": "View Members",
+        "view_visibility": "View Visibility",
+        "manage_members": "Manage Members",
+        "failed_reorder": "Failed to reorder boards",
         "no_boards_yet": "No boards yet",
         "create_board_prompt": "Create a board to organize your lists",
         "board_help_text": "Boards help organize your lists into different projects or categories.",
@@ -187,7 +193,9 @@
         "connect_github_account": "Connect GitHub Account",
         "connecting": "Connecting...",
         "please_login_first": "Please log in first",
-        "github_connected_success": "GitHub connected successfully!"
+        "github_connected_success": "GitHub connected successfully!",
+        "repo_connected": "GitHub repo connected",
+        "repo_disconnected": "GitHub repo disconnected"
     },
     "nav": {
         "dashboard": "Dashboard",
@@ -424,6 +432,14 @@
             "description": "Set your preferred language and regional settings",
             "select": "Language",
             "select_placeholder": "Select your language"
+        },
+        "ai": {
+            "title": "AI Settings",
+            "description": "Configure AI model and voice input behavior",
+            "model": "AI Model",
+            "model_description": "Choose the AI model for voice input corrections and improvements",
+            "auto_correct": "Auto AI Correct Voice Inputs",
+            "auto_correct_description": "Automatically apply AI corrections to voice input without manual confirmation"
         }
     }
 }

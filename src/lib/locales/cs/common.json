@@ -117,6 +117,12 @@
         "github_repo_connected": "GitHub repozitář připojen",
         "github_repo_disconnected": "GitHub repozitář odpojen",
         "shared_with_me": "Sdíleno se mnou",
+        "new_board": "Nová deska",
+        "boards_count": "{count} Desky",
+        "view_members": "Zobrazit členy",
+        "view_visibility": "Zobrazit viditelnost",
+        "manage_members": "Spravovat členy",
+        "failed_reorder": "Nepodařilo se přeuspořádat desky",
         "no_boards_yet": "Zatím žádné desky",
         "create_board_prompt": "Vytvořte desku pro organizaci seznamů",
         "board_help_text": "Desky pomáhají organizovat seznamy do různých projektů nebo kategorií.",
@@ -187,7 +193,9 @@
         "connect_github_account": "Připojit GitHub účet",
         "connecting": "Připojování...",
         "please_login_first": "Nejprve se prosím přihlaste",
-        "github_connected_success": "GitHub úspěšně připojen!"
+        "github_connected_success": "GitHub úspěšně připojen!",
+        "repo_connected": "GitHub repozitář připojen",
+        "repo_disconnected": "GitHub repozitář odpojen"
     },
     "nav": {
         "dashboard": "Přehled",
@@ -424,6 +432,14 @@
             "description": "Nastavte preferovaný jazyk a regionální nastavení",
             "select": "Jazyk",
             "select_placeholder": "Vyberte svůj jazyk"
+        },
+        "ai": {
+            "title": "Nastavení AI",
+            "description": "Nakonfigurujte AI model a chování hlasového vstupu",
+            "model": "AI Model",
+            "model_description": "Vyberte AI model pro korekce a vylepšení hlasového vstupu",
+            "auto_correct": "Automatická AI korekce hlasového vstupu",
+            "auto_correct_description": "Automaticky aplikovat AI korekce na hlasový vstup bez manuálního potvrzení"
         }
     }
 }
