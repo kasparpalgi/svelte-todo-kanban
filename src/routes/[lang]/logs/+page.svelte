@@ -19,6 +19,7 @@
 	} from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Download, RefreshCw, Search, Filter, AlertCircle, AlertTriangle, Info, Bug } from 'lucide-svelte';
+	import { t } from '$lib/i18n';
 
 	let user = $derived(userStore.user);
 	let userLoading = $derived(userStore.loading);
@@ -219,11 +220,6 @@
 			fetchLogs();
 		}
 	});
-
-
-	function $t(arg0: string) {
-		throw new Error('Function not implemented.');
-	}
 </script>
 
 <svelte:head>
