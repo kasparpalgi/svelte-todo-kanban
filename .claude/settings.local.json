@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npx playwright test:*)",
       "Bash(git commit:*)",
-      "Bash(docker-compose:*)"
+      "Bash(docker-compose:*)",
+      "Bash(npm run generate:*)",
+      "Bash(npm run check:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
