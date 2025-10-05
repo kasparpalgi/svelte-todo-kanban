@@ -195,7 +195,15 @@
         "please_login_first": "Please log in first",
         "github_connected_success": "GitHub connected successfully!",
         "repo_connected": "GitHub repo connected",
-        "repo_disconnected": "GitHub repo disconnected"
+        "repo_disconnected": "GitHub repo disconnected",
+        "import_issues": "Import GitHub Issues",
+        "import_issues_into_list": "Import issues into list",
+        "importing": "Importing...",
+        "import_info": "This will import all open issues from the connected GitHub repository. Issues that have already been imported will be skipped.",
+        "import_success": "Successfully imported {{imported}} of {{total}} issues",
+        "no_issues_to_import": "No issues to import",
+        "import_failed": "Failed to import issues",
+        "please_select_list": "Please select a list"
     },
     "nav": {
         "dashboard": "Dashboard",

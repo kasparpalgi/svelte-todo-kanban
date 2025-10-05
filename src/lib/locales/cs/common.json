@@ -195,7 +195,15 @@
         "please_login_first": "Nejprve se prosím přihlaste",
         "github_connected_success": "GitHub úspěšně připojen!",
         "repo_connected": "GitHub repozitář připojen",
-        "repo_disconnected": "GitHub repozitář odpojen"
+        "repo_disconnected": "GitHub repozitář odpojen",
+        "import_issues": "Importovat GitHub Issues",
+        "import_issues_into_list": "Importovat issues do seznamu",
+        "importing": "Importuji...",
+        "import_info": "Tímto importujete všechny otevřené issues z připojeného GitHub repozitáře. Issues, které již byly importovány, budou přeskočeny.",
+        "import_success": "Úspěšně importováno {{imported}} z {{total}} issues",
+        "no_issues_to_import": "Žádné issues k importu",
+        "import_failed": "Import issues se nezdařil",
+        "please_select_list": "Vyberte prosím seznam"
     },
     "nav": {
         "dashboard": "Přehled",

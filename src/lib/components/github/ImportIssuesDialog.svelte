@@ -7,6 +7,7 @@
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { GithubIcon, Loader2 } from 'lucide-svelte';
 	import type { ListFieldsFragment } from '$lib/graphql/generated/graphql';
+	import { t } from '$lib/i18n';
 
 	let {
 		open = $bindable(false),
@@ -27,7 +28,7 @@
 
 	async function importIssues() {
 		if (!selectedListId) {
-			displayMessage('Please select a list');
+			displayMessage($t('github.please_select_list'));
 			return;
 		}
 
@@ -46,7 +47,7 @@
 			const result = await response.json();
 
 			if (!response.ok) {
-				throw new Error(result.message || result.error || 'Import failed');
+				throw new Error(result.message || result.error || $t('github.import_failed'));
 			}
 
 			loggingStore.info('GithubImport', 'Successfully imported issues', {
@@ -57,10 +58,10 @@
 			});
 
 			if (result.imported === 0) {
-				displayMessage(result.message || 'No issues to import', 3000);
+				displayMessage(result.message || $t('github.no_issues_to_import'), 3000);
 			} else {
 				displayMessage(
-					`Successfully imported ${result.imported} of ${result.total} issues`,
+					$t('github.import_success', { imported: result.imported, total: result.total }),
 					3000,
 					true
 				);
@@ -78,7 +79,7 @@
 				boardId
 			});
 
-			displayMessage(err.message || 'Failed to import issues');
+			displayMessage(err.message || $t('github.import_failed'));
 		} finally {
 			importing = false;
 		}
@@ -97,14 +98,14 @@
 		<DialogHeader>
 			<DialogTitle class="flex items-center gap-2">
 				<GithubIcon class="h-5 w-5" />
-				Import GitHub Issues
+				{$t('github.import_issues')}
 			</DialogTitle>
 		</DialogHeader>
 
 		<div class="space-y-4 py-4">
 			<div class="space-y-2">
 				<Label for="board-name" class="text-sm font-medium">
-					Board
+					{$t('board.board')}
 				</Label>
 				<div class="rounded-md border bg-muted/30 px-3 py-2 text-sm">
 					{boardName}
@@ -113,7 +114,7 @@
 
 			<div class="space-y-2">
 				<Label for="target-list" class="text-sm font-medium">
-					Import issues into list
+					{$t('github.import_issues_into_list')}
 				</Label>
 				<select
 					id="target-list"
@@ -128,23 +129,22 @@
 
 			<div class="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950">
 				<p class="text-sm text-blue-900 dark:text-blue-100">
-					This will import all open issues from the connected GitHub repository.
-					Issues that have already been imported will be skipped.
+					{$t('github.import_info')}
 				</p>
 			</div>
 		</div>
 
 		<div class="flex justify-end gap-2">
 			<Button variant="outline" onclick={() => (open = false)} disabled={importing}>
-				Cancel
+				{$t('common.cancel')}
 			</Button>
 			<Button onclick={importIssues} disabled={importing || !selectedListId} class="gap-2">
 				{#if importing}
 					<Loader2 class="h-4 w-4 animate-spin" />
-					Importing...
+					{$t('github.importing')}
 				{:else}
 					<GithubIcon class="h-4 w-4" />
-					Import Issues
+					{$t('github.import_issues')}
 				{/if}
 			</Button>
 		</div>

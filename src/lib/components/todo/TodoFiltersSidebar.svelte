@@ -11,6 +11,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Search, SortAsc, SortDesc, Calendar, AlertTriangle, X, Filter } from 'lucide-svelte';
+	import { t } from '$lib/i18n';
 
 	let searchTerm = $state('');
 
@@ -62,16 +63,14 @@
 	let currentSorting = $derived(todoFilteringStore.sorting);
 </script>
 
-<!-- Trello-style sidebar -->
 <div
 	class="fixed top-0 right-0 z-50 h-screen w-80 overflow-y-auto border-l bg-background shadow-lg"
 >
 	<div class="space-y-4 p-4">
-		<!-- Header -->
 		<div class="flex items-center justify-between">
 			<h2 class="flex items-center gap-2 text-lg font-semibold">
 				<Filter class="h-5 w-5" />
-				Filters
+				{$t('filters.title')}
 			</h2>
 			<Button
 				variant="ghost"
@@ -83,14 +82,13 @@
 			</Button>
 		</div>
 
-		<!-- Active Filters Badge -->
 		{#if activeFilterCount > 0}
 			<div class="flex items-center justify-between">
 				<Badge variant="secondary" class="text-xs">
-					{activeFilterCount} active filter{activeFilterCount === 1 ? '' : 's'}
+					{activeFilterCount === 1 ? $t('filters.active_filter', { count: activeFilterCount }) : $t('filters.active_filters', { count: activeFilterCount })}
 				</Badge>
 				<Button variant="ghost" size="sm" onclick={clearAllFilters} class="h-6 text-xs">
-					Clear all
+					{$t('filters.clear_all')}
 				</Button>
 			</div>
 		{/if}
@@ -98,12 +96,12 @@
 		<Separator />
 
 		<div class="space-y-2">
-			<label for="search" class="text-sm font-medium">Search</label>
+			<label for="search" class="text-sm font-medium">{$t('filters.search')}</label>
 			<div class="relative">
 				<Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 				<Input
 					type="text"
-					placeholder="Search todos..."
+					placeholder={$t('filters.search_placeholder')}
 					bind:value={searchTerm}
 					oninput={handleSearchInput}
 					class="pl-9"
@@ -115,7 +113,7 @@
 
 		<!-- Quick Filters -->
 		<div class="space-y-3">
-			<label for="due" class="text-sm font-medium">Quick Filters</label>
+			<label for="due" class="text-sm font-medium">{$t('filters.quick_filters')}</label>
 			<div class="space-y-2">
 				<Button
 					variant={currentFilters.dueToday ? 'default' : 'outline'}
@@ -124,7 +122,7 @@
 					class="w-full justify-start"
 				>
 					<Calendar class="mr-2 h-4 w-4" />
-					Due today
+					{$t('filters.due_today')}
 				</Button>
 
 				<Button
@@ -134,7 +132,7 @@
 					class="w-full justify-start"
 				>
 					<AlertTriangle class="mr-2 h-4 w-4" />
-					Overdue
+					{$t('filters.overdue')}
 				</Button>
 			</div>
 		</div>
@@ -143,7 +141,7 @@
 
 		<!-- Sorting -->
 		<div class="space-y-3">
-			<label for="sort" class="text-sm font-medium">Sort by</label>
+			<label for="sort" class="text-sm font-medium">{$t('filters.sort_by')}</label>
 			<div class="space-y-1">
 				<Button
 					variant={currentSorting.order === 'sort_order' ? 'default' : 'ghost'}
@@ -151,7 +149,7 @@
 					onclick={() => setSorting('sort_order')}
 					class="w-full justify-between"
 				>
-					<span>Manual order</span>
+					<span>{$t('filters.manual_order')}</span>
 					{#if currentSorting.order === 'sort_order'}
 						{#if currentSorting.direction === 'asc'}
 							<SortAsc class="h-3 w-3" />
@@ -167,7 +165,7 @@
 					onclick={() => setSorting('due_date')}
 					class="w-full justify-between"
 				>
-					<span>Due date</span>
+					<span>{$t('filters.due_date')}</span>
 					{#if currentSorting.order === 'due_date'}
 						{#if currentSorting.direction === 'asc'}
 							<SortAsc class="h-3 w-3" />
@@ -183,7 +181,7 @@
 					onclick={() => setSorting('created_date')}
 					class="w-full justify-between"
 				>
-					<span>Created date</span>
+					<span>{$t('filters.created_date')}</span>
 					{#if currentSorting.order === 'created_date'}
 						{#if currentSorting.direction === 'asc'}
 							<SortAsc class="h-3 w-3" />
@@ -199,7 +197,7 @@
 					onclick={() => setSorting('updated_at')}
 					class="w-full justify-between"
 				>
-					<span>Recently active</span>
+					<span>{$t('filters.recently_active')}</span>
 					{#if currentSorting.order === 'updated_at'}
 						{#if currentSorting.direction === 'asc'}
 							<SortAsc class="h-3 w-3" />
@@ -215,7 +213,7 @@
 
 		<!-- Items per page -->
 		<div class="space-y-3">
-			<label for="amount" class="text-sm font-medium">Items per page</label>
+			<label for="amount" class="text-sm font-medium">{$t('filters.items_per_page')}</label>
 			<div class="grid grid-cols-3 gap-1">
 				{#each [10, 25, 50, 100, 200] as limit}
 					<Button

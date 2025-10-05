@@ -54,22 +54,18 @@
 		try {
 			const where: any = {};
 
-			// Filter by level
 			if (filters.level !== 'all') {
 				where.level = { _eq: filters.level };
 			}
 
-			// Filter by component
 			if (filters.component) {
 				where.component = { _ilike: `%${filters.component}%` };
 			}
 
-			// Filter by search (message)
 			if (filters.search) {
 				where.message = { _ilike: `%${filters.search}%` };
 			}
 
-			// Filter by date range
 			if (filters.dateFrom) {
 				where.timestamp = { ...where.timestamp, _gte: new Date(filters.dateFrom).toISOString() };
 			}
@@ -152,13 +148,11 @@
 		fetchLogs();
 	}
 
-	// Apply filters
 	function applyFilters() {
 		pagination.page = 1;
 		fetchLogs();
 	}
 
-	// Pagination handlers
 	function nextPage() {
 		if (pagination.page * pagination.pageSize < pagination.total) {
 			pagination.page++;
@@ -189,7 +183,6 @@
 		}
 	}
 
-	// Get log level icon
 	function getLevelIcon(level: string) {
 		switch (level) {
 			case 'error':
@@ -236,6 +229,11 @@
 			fetchLogs();
 		}
 	});
+
+
+	function $t(arg0: string) {
+		throw new Error('Function not implemented.');
+	}
 </script>
 
 <svelte:head>
@@ -248,12 +246,11 @@
 		<p class="text-muted-foreground">View and filter application logs for debugging and monitoring</p>
 	</div>
 
-	<!-- Filters Card -->
 	<Card class="mb-6">
 		<CardHeader>
 			<CardTitle class="flex items-center gap-2">
 				<Filter class="h-5 w-5" />
-				Filters
+				{$t('filters.title')}
 			</CardTitle>
 			<CardDescription>Filter logs by level, component, date, or search term</CardDescription>
 		</CardHeader>
