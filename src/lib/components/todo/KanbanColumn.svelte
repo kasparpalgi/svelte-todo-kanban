@@ -229,11 +229,11 @@
 					/>
 				</div>
 			{/if}
-			{#if todos.length > 0}
-				<SortableContext
-					items={todos.map((todo) => todo.id)}
-					strategy={verticalListSortingStrategy}
-				>
+			<SortableContext
+				items={todos.map((todo) => todo.id)}
+				strategy={verticalListSortingStrategy}
+			>
+				{#if todos.length > 0}
 					{#each todos as todo, index (todo.id)}
 						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'above'}
 							<div
@@ -255,47 +255,47 @@
 							></div>
 						{/if}
 					{/each}
-				</SortableContext>
-				<div class="mt-3"></div>
+					<div class="mt-3"></div>
 
-				<QuickAddInput
-					bind:value={newTaskTitleBottom}
-					autofocus={false}
-					id={`quickaddBottom-${list.id}`}
-					onSubmit={(val: string) => {
-						if (val) {
-							handleQuickAddTask(val, false);
-						}
-					}}
-					onCancel={() => {
-						showQuickAdd = false;
-						newTaskTitleBottom = '';
-					}}
-				/>
-			{:else}
-				{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
-					<div
-						class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-					></div>
-				{/if}
+					<QuickAddInput
+						bind:value={newTaskTitleBottom}
+						autofocus={false}
+						id={`quickaddBottom-${list.id}`}
+						onSubmit={(val: string) => {
+							if (val) {
+								handleQuickAddTask(val, false);
+							}
+						}}
+						onCancel={() => {
+							showQuickAdd = false;
+							newTaskTitleBottom = '';
+						}}
+					/>
+				{:else}
+					{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
+						<div
+							class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
+						></div>
+					{/if}
 
-				{#if !showQuickAdd}
-					<div class="py-8 text-center text-xs text-muted-foreground">
-						<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
-						{#if list.id !== 'inbox'}
-							<Button
-								size="sm"
-								variant="ghost"
-								class="h-auto p-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
-								onclick={() => (showQuickAdd = true)}
-							>
-								<Plus class="mr-1 h-3 w-3" />
-								Add task
-							</Button>
-						{/if}
-					</div>
+					{#if !showQuickAdd}
+						<div class="py-8 text-center text-xs text-muted-foreground">
+							<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
+							{#if list.id !== 'inbox'}
+								<Button
+									size="sm"
+									variant="ghost"
+									class="h-auto p-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+									onclick={() => (showQuickAdd = true)}
+								>
+									<Plus class="mr-1 h-3 w-3" />
+									Add task
+								</Button>
+							{/if}
+						</div>
+					{/if}
 				{/if}
-			{/if}
+			</SortableContext>
 		</CardContent>
 	</Card>
 </div>
