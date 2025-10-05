@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
 setup('authenticate with test user', async ({ page }) => {
-	await page.goto('/auth/signin');
+	await page.goto('/en/signin');
 
 	const testLoginContainer = page.locator('div.provider').filter({
 		hasText: 'Sign in with Test Login'

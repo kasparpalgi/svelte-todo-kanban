@@ -239,7 +239,7 @@
 	async function addComment() {
 		if (!newComment.trim() || !todo) return;
 
-		const result = await commentsStore.addComment(todo.id, newComment);
+		const result = await commentsStore.addComment(todo.id, newComment, todo);
 		if (result.success) {
 			newComment = '';
 			displayMessage('Comment added', 1500, true);

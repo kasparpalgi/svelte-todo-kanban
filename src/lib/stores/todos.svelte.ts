@@ -76,11 +76,74 @@ function createTodosStore() {
 		}
 	}
 
+	/**
+	 * Sync todo changes to GitHub issue
+	 * Non-blocking: errors are logged but don't fail the todo update
+	 */
+	async function syncTodoToGithub(
+		todo: TodoFieldsFragment,
+		updates: any,
+		originalTodo: TodoFieldsFragment
+	) {
+		if (!(todo.list?.board as any)?.github || !(todo as any).github_issue_number) {
+			return; // Board not connected or todo not linked to issue
+		}
+
+		const githubData =
+			typeof (todo.list.board as any).github === 'string'
+				? JSON.parse((todo.list.board as any).github)
+				: (todo.list.board as any).github;
+		const { owner, repo } = githubData as { owner: string; repo: string };
+
+		// Determine what changed and needs to be synced
+		const githubUpdates: any = {};
+
+		// Title changed
+		if (updates.title !== undefined && updates.title !== originalTodo.title) {
+			githubUpdates.title = updates.title;
+		}
+
+		// Content changed
+		if (updates.content !== undefined && updates.content !== originalTodo.content) {
+			githubUpdates.body = updates.content;
+		}
+
+		// Completion status changed
+		if (updates.completed_at !== undefined) {
+			if (updates.completed_at && !originalTodo.completed_at) {
+				// Todo completed → close issue
+				githubUpdates.state = 'closed';
+			} else if (!updates.completed_at && originalTodo.completed_at) {
+				// Todo reopened → reopen issue
+				githubUpdates.state = 'open';
+			}
+		}
+
+		// Only sync if there are changes
+		if (Object.keys(githubUpdates).length === 0) {
+			return;
+		}
+
+		await fetch('/api/github/update-issue', {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				todoId: todo.id,
+				githubIssueNumber: (todo as any).github_issue_number,
+				owner,
+				repo,
+				...githubUpdates
+			})
+		});
+	}
+
 	async function addTodo(
 		title: string,
 		content?: string,
 		listId?: string,
-		addToTop: boolean = true
+		addToTop: boolean = true,
+		createGithubIssue: boolean = false,
+		priority?: 'low' | 'medium' | 'high' | null
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!title.trim()) return { success: false, message: 'Title is required' };
@@ -137,6 +200,43 @@ function createTodosStore() {
 						newTodo,
 						...state.todos.slice(todoIndex)
 					];
+				}
+
+				// Create GitHub issue if requested
+				if (createGithubIssue && newTodo.id) {
+					try {
+						const githubResponse = await fetch('/api/github/create-issue', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								todoId: newTodo.id,
+								title: title.trim(),
+								body: content?.trim() || null,
+								priority
+							})
+						});
+
+						if (githubResponse.ok) {
+							const githubData = await githubResponse.json();
+							// Update the local todo with GitHub metadata
+							const todoIdx = state.todos.findIndex((t) => t.id === newTodo.id);
+							if (todoIdx !== -1) {
+								state.todos[todoIdx] = {
+									...state.todos[todoIdx],
+									github_issue_number: githubData.issueNumber,
+									github_issue_id: githubData.issueId,
+									github_url: githubData.issueUrl,
+									github_synced_at: new Date().toISOString()
+								} as any;
+							}
+						} else {
+							// Non-blocking: log error but don't fail todo creation
+							console.error('Failed to create GitHub issue:', await githubResponse.text());
+						}
+					} catch (githubError) {
+						// Non-blocking: log error but don't fail todo creation
+						console.error('Error creating GitHub issue:', githubError);
+					}
 				}
 
 				return {
@@ -220,6 +320,15 @@ function createTodosStore() {
 				if (todoIndex !== -1) {
 					state.todos[todoIndex] = updatedTodo;
 				}
+
+				// Sync to GitHub if todo is linked to a GitHub issue
+				if ((updatedTodo as any).github_issue_number && (updatedTodo as any).github_issue_id) {
+					syncTodoToGithub(updatedTodo, updates, originalTodo).catch((err) => {
+						// Non-blocking: log error but don't fail todo update
+						console.error('Failed to sync todo to GitHub:', err);
+					});
+				}
+
 				return {
 					success: true,
 					message: 'Todo updated successfully',
@@ -326,12 +435,42 @@ function createTodosStore() {
 	async function deleteTodo(id: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
+		// Get the todo to check if it has a GitHub issue
+		const todo = state.todos.find((t) => t.id === id);
+		const githubIssueNumber = (todo as any)?.github_issue_number;
+		const githubIssueId = (todo as any)?.github_issue_id;
+		const boardGithub = todo?.list?.board?.github;
+
 		try {
 			const data: DeleteTodosMutation = await request(DELETE_TODOS, {
 				where: { id: { _eq: id } }
 			});
 
 			if (data.delete_todos?.affected_rows && data.delete_todos.affected_rows > 0) {
+				// Close GitHub issue if this todo was linked to one
+				if (githubIssueNumber && githubIssueId && boardGithub) {
+					try {
+						const githubData = typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
+						const { owner, repo } = githubData as { owner: string; repo: string };
+
+						await fetch('/api/github/delete-issue', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								todoId: id,
+								githubIssueNumber,
+								owner,
+								repo,
+								closeIssue: true
+							})
+						});
+						// Non-blocking: don't wait for response, don't fail if GitHub sync fails
+					} catch (githubError) {
+						// Non-blocking: log error but don't fail todo deletion
+						console.error('Failed to close GitHub issue on deletion:', githubError);
+					}
+				}
+
 				// Optimistically remove from local state
 				state.todos = state.todos.filter((t) => t.id !== id);
 				return { success: true, message: 'Todo deleted successfully' };

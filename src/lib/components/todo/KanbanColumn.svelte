@@ -68,8 +68,8 @@
 		const taskCount = todos.length;
 		const confirmMessage =
 			taskCount > 0
-				? `Delete "${list.name}" and move ${taskCount} task(s) to inbox?`
-				: `Delete "${list.name}"?`;
+				? $t('todo.delete_list_confirm', { name: list.name, count: taskCount })
+				: $t('todo.delete_list_confirm_empty', { name: list.name });
 
 		if (confirm(confirmMessage)) {
 			const result = await listsStore.deleteList(list.id);
@@ -88,7 +88,7 @@
 
 		const result = await listsStore.updateList(list.id, { name: editName.trim() });
 		if (result.success) {
-			displayMessage('List renamed successfully', 1500, true);
+			displayMessage($t('todo.list_renamed'), 1500, true);
 			isEditing = false;
 		} else {
 			displayMessage(result.message);
@@ -97,11 +97,16 @@
 		}
 	}
 
-	async function handleQuickAddTask(title: string, addToTop: boolean = true) {
+	async function handleQuickAddTask(title: string, addToTop: boolean = true, skipGithub: boolean = false) {
 		if (!title.trim()) return;
 
 		const listIdForTask = list.id === 'inbox' ? undefined : list.id;
-		const result = await todosStore.addTodo(title.trim(), undefined, listIdForTask, addToTop);
+
+		// Create GitHub issue unless skipGithub is true
+		const boardGithub = list.board?.github;
+		const createGithubIssue = boardGithub && !skipGithub;
+
+		const result = await todosStore.addTodo(title.trim(), undefined, listIdForTask, addToTop, createGithubIssue);
 
 		if (result.success) {
 			if (addToTop) {
@@ -110,7 +115,7 @@
 				newTaskTitleBottom = '';
 			}
 			showQuickAdd = false;
-			displayMessage('Task added successfully', 1500, true);
+			displayMessage($t('todo.task_added'), 1500, true);
 		} else {
 			displayMessage(result.message);
 		}
@@ -182,16 +187,16 @@
 						<DropdownMenuContent align="end" class="w-48">
 							<DropdownMenuItem onclick={startEdit}>
 								<SquarePen class="mr-2 h-3 w-3" />
-								Rename List
+								{$t('todo.rename_list')}
 							</DropdownMenuItem>
 							<DropdownMenuItem onclick={() => (showQuickAdd = !showQuickAdd)}>
 								<Plus class="mr-2 h-3 w-3" />
-								Add Task
+								{$t('todo.add_task')}
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem onclick={handleDeleteList} class="text-red-600 focus:text-red-600">
 								<Trash2 class="mr-2 h-3 w-3" />
-								Delete List
+								{$t('todo.delete_list')}
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
@@ -203,7 +208,7 @@
 				{todos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
 			</CardDescription>
 		</CardHeader>
-		<CardContent class="group min-h-[200px] space-y-2 pb-3">
+		<CardContent class="group min-h-24 space-y-2 pb-3">
 			<div use:setNodeRef class="min-h-[180px]">
 				{#if showQuickAdd}
 					<div class="mt-2">
@@ -211,9 +216,10 @@
 							bind:value={newTaskTitleTop}
 							autofocus={true}
 							id={`quickadd-${list.id}`}
-							onSubmit={(val: string) => {
+							showGithubCheckbox={!!list.board?.github}
+							onSubmit={(val: string, skipGithub: boolean) => {
 								if (val) {
-									handleQuickAddTask(val, true);
+									handleQuickAddTask(val, true, skipGithub);
 								}
 							}}
 							onCancel={() => {
@@ -283,7 +289,7 @@
 									onclick={() => (showQuickAdd = true)}
 								>
 									<Plus class="mr-1 h-3 w-3" />
-									Add task
+									{$t('todo.add_task')}
 								</Button>
 							{/if}
 						</div>
