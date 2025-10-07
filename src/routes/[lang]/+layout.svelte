@@ -30,10 +30,8 @@
 		const currentPath = page.url.pathname;
 		const params = page.params;
 		const lang = params.lang || 'en';
-
-		// Don't redirect if user is on a special page (logs, settings, etc.)
 		const specialPages = ['/logs', '/settings', '/profile'];
-		const isOnSpecialPage = specialPages.some(specialPage => currentPath.includes(specialPage));
+		const isOnSpecialPage = specialPages.some((specialPage) => currentPath.includes(specialPage));
 
 		const needsRedirect = !params.username || !params.board;
 
@@ -58,7 +56,7 @@
 	$effect(() => {
 		const currentPath = page.url.pathname;
 		const specialPages = ['/logs', '/settings', '/profile'];
-		const isOnSpecialPage = specialPages.some(specialPage => currentPath.includes(specialPage));
+		const isOnSpecialPage = specialPages.some((specialPage) => currentPath.includes(specialPage));
 
 		const needsRedirect = !page.params.username || !page.params.board;
 		if (needsRedirect && !isOnSpecialPage) {
@@ -89,7 +87,7 @@
 </script>
 
 <header
-	class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+	class="sticky top-0 z-50 w-full border-b bg-slate-400/10 backdrop-blur dark:bg-slate-500/10 backdrop-blur"
 >
 	<div class="w-full px-4 py-4">
 		<nav class="flex items-center justify-between">
