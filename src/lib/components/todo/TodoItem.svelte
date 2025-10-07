@@ -370,6 +370,7 @@
 	function handleCardClick(event: MouseEvent) {
 		const target = event.target as HTMLElement;
 		if (target.closest('button') || target.closest('[role="button"]') || isEditing) {
+			event.preventDefault();
 			return;
 		}
 		goto(`/${lang}/${username}/${boardAlias}/${todo.id}`);
@@ -383,11 +384,17 @@
 	class:opacity-50={sortableIsDragging.current || isDragging}
 >
 	{#if !isEditing}
+		<a
+			href="/{lang}/{username}/{boardAlias}/{todo.id}"
+			data-sveltekit-preload-data="hover"
+			data-sveltekit-noscroll
+			class="block"
+			onclick={handleCardClick}
+		>
 		<Card
 			class="cursor-pointer relative transition-all duration-200 hover:shadow-md"
 			onmouseenter={handleMouseEnter}
 			onmouseleave={handleMouseLeave}
-			onclick={handleCardClick}
 		>
 			<Button
 				variant="ghost"
@@ -492,6 +499,7 @@
 				</div>
 			</CardContent>
 		</Card>
+		</a>
 	{:else}
 		<TodoEditForm
 			{todo}

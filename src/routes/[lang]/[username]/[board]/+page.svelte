@@ -39,12 +39,18 @@
 
 	onMount(async () => {
 		if (data?.session) {
-			await listsStore.loadBoards();
+			if (listsStore.boards.length === 0) {
+				await listsStore.loadBoards();
+			}
+
 			const board = listsStore.boards.find((b) => b.alias === boardAlias);
 
 			if (board) {
 				listsStore.setSelectedBoard(board);
-				todosStore.loadTodos();
+
+				if (!todosStore.initialized) {
+					todosStore.loadTodos();
+				}
 				boardNotFound = false;
 			} else {
 				boardNotFound = true;
@@ -92,7 +98,7 @@
 		const result = await todosStore.addTodo(newTodoTitle.trim(), undefined, listId, true, createGithubIssue);
 		if (result.success) {
 			newTodoTitle = '';
-			skipGithubIssue = false; // Reset checkbox after todo creation
+			skipGithubIssue = false;
 		}
 	}
 
@@ -103,7 +109,6 @@
 	}
 
 	function handleImportComplete() {
-		// Reload todos after import
 		todosStore.loadTodos();
 	}
 </script>

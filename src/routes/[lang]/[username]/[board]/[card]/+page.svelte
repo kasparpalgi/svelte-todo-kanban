@@ -73,9 +73,6 @@
 	});
 
 	onMount(async () => {
-		if (!todosStore.initialized) {
-			await todosStore.loadTodos();
-		}
 		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
 		if (foundTodo) {
 			todo = foundTodo;
