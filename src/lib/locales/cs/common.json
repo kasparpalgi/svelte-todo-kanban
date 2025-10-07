@@ -366,7 +366,16 @@
         "toolbar_bullet_list": "Odrážkový seznam",
         "toolbar_numbered_list": "Číslovaný seznam",
         "toolbar_task_list": "Seznam úkolů",
-        "unknown_user": "Neznámý"
+        "unknown_user": "Neznámý",
+        "title": "Karta",
+        "update_failed": "Aktualizace karty se nezdařila",
+        "delete_failed": "Smazání karty se nezdařilo",
+        "add_comment_failed": "Přidání komentáře se nezdařilo",
+        "delete_comment_failed": "Smazání komentáře se nezdařilo",
+        "new_upload_alt": "Nové nahrání",
+        "drag_drop_prompt": "Přetáhněte sem obrázky nebo ",
+        "click_to_select": "klikněte pro výběr",
+        "image_size_limit": "PNG, JPG do 5 MB každý"
     },
     "labels": {
         "labels": "Štítky",

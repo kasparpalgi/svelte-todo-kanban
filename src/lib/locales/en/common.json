@@ -366,7 +366,16 @@
         "toolbar_bullet_list": "Bullet List",
         "toolbar_numbered_list": "Numbered List",
         "toolbar_task_list": "Task List",
-        "unknown_user": "Unknown"
+        "unknown_user": "Unknown",
+        "title": "Card",
+        "update_failed": "Failed to update card",
+        "delete_failed": "Failed to delete card",
+        "add_comment_failed": "Failed to add comment",
+        "delete_comment_failed": "Failed to delete comment",
+        "new_upload_alt": "New upload",
+        "drag_drop_prompt": "Drag and drop images here, or ",
+        "click_to_select": "click to select",
+        "image_size_limit": "PNG, JPG up to 5MB each"
     },
     "labels": {
         "labels": "Labels",

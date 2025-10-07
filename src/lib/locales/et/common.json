@@ -366,7 +366,16 @@
         "toolbar_bullet_list": "Täpploend",
         "toolbar_numbered_list": "Nummerdatud loend",
         "toolbar_task_list": "Ülesannete loend",
-        "unknown_user": "Tundmatu"
+        "unknown_user": "Tundmatu",
+        "title": "Ülesanne",
+        "update_failed": "Ülesande uuendamine ebaõnnestus",
+        "delete_failed": "Ülesande kustutamine ebaõnnestus",
+        "add_comment_failed": "Kommentaari lisamine ebaõnnestus",
+        "delete_comment_failed": "Kommentaari kustutamine ebaõnnestus",
+        "new_upload_alt": "Lae üles",
+        "drag_drop_prompt": "Lohista pildid siia või ",
+        "click_to_select": "vali klikates siia",
+        "image_size_limit": "Kuni 10MB faili kohta"
     },
     "labels": {
         "labels": "Sildid",

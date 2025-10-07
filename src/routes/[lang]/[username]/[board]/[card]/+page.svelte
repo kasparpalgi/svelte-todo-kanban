@@ -145,7 +145,7 @@
 			});
 
 			if (!result.success) {
-				displayMessage(result.message || 'Failed to update card');
+				displayMessage(result.message || $t('card.update_failed'));
 				return;
 			}
 
@@ -167,13 +167,13 @@
 						}
 					});
 					await Promise.all(uploadPromises);
-					displayMessage('Card and images updated successfully', 2000, true);
+					displayMessage($t('card.card_and_images_updated'), 2000, true);
 				} catch (error) {
-					displayMessage('Card saved, but some images failed to upload');
+					displayMessage($t('card.card_saved_upload_failed'));
 					console.error('Upload error:', error);
 				}
 			} else {
-				displayMessage('Card updated successfully', 1500, true);
+				displayMessage($t('card.card_updated'), 1500, true);
 			}
 
 			todo = todosStore.todos.find((t) => t.id === cardId) || null;
@@ -193,14 +193,14 @@
 	}
 
 	async function deleteTodo() {
-		if (!todo || !confirm('Are you sure you want to delete this card?')) return;
+		if (!todo || !confirm($t('card.delete_card_confirm'))) return;
 
 		const result = await todosStore.deleteTodo(todo.id);
 		if (result.success) {
-			displayMessage('Card deleted', 1500, true);
+			displayMessage($t('card.card_deleted'), 1500, true);
 			closeModal();
 		} else {
-			displayMessage(result.message || 'Failed to delete card');
+			displayMessage(result.message || $t('card.delete_failed'));
 		}
 	}
 
@@ -210,18 +210,18 @@
 		const result = await commentsStore.addComment(todo.id, newComment, todo);
 		if (result.success) {
 			newComment = '';
-			displayMessage('Comment added', 1500, true);
+			displayMessage($t('card.comment_added'), 1500, true);
 		} else {
-			displayMessage(result.message || 'Failed to add comment');
+			displayMessage(result.message || $t('card.add_comment_failed'));
 		}
 	}
 
 	async function deleteComment(commentId: string) {
-		if (!confirm('Delete this comment?')) return;
+		if (!confirm($t('card.delete_comment_confirm'))) return;
 
 		const result = await commentsStore.deleteComment(commentId);
 		if (!result.success) {
-			displayMessage(result.message || 'Failed to delete comment');
+			displayMessage(result.message || $t('card.delete_comment_failed'));
 		}
 	}
 
@@ -243,8 +243,9 @@
 		}
 	}
 
-	function getPriorityLabel(priority: string): string {
-		return priority.charAt(0).toUpperCase() + priority.slice(1);
+	function getPriorityLabel(priority: 'low' | 'medium' | 'high'): string {
+		const key = `card.priority_${priority}` as const;
+		return $t(key);
 	}
 
 	function handleDragOver(event: DragEvent) {
@@ -286,7 +287,7 @@
 			(file) => !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024
 		);
 		if (invalidFiles.length > 0) {
-			displayMessage('Some files were rejected: must be images under 5MB');
+			displayMessage($t('card.some_files_rejected'));
 		}
 
 		if (imageFiles.length > 0) {
@@ -310,7 +311,7 @@
 </script>
 
 <svelte:head>
-	<title>{todo?.title || 'Card'} | ToDzz</title>
+	<title>{todo?.title || $t('card.title')} | ToDzz</title>
 </svelte:head>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -376,7 +377,7 @@
 							</div>
 
 							<Button onclick={saveTodo} disabled={isSubmitting} size="sm" class="shrink-0">
-								{isSubmitting ? $t('commin.saving') : $t('commin.save')}
+								{isSubmitting ? $t('common.saving') : $t('common.save')}
 							</Button>
 						</div>
 
@@ -411,7 +412,7 @@
 							<div>
 								<Label for="due_on" class="mb-2 flex items-center gap-2">
 									<Calendar class="h-4 w-4" />
-									Due Date
+									{$t('card.due_date_label')}
 								</Label>
 								<Input id="due_on" type="date" bind:value={editData.due_on} />
 							</div>
@@ -419,16 +420,16 @@
 							<div>
 								<Label for="priority" class="mb-2 flex items-center gap-2">
 									<Tag class="h-4 w-4" />
-									Priority
+									{$t('card.priority_label')}
 								</Label>
 								<select
 									id="priority"
 									bind:value={editData.priority}
 									class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
 								>
-									<option value="low">Low</option>
-									<option value="medium">Medium</option>
-									<option value="high">High</option>
+									<option value="low">{$t('card.priority_low')}</option>
+									<option value="medium">{$t('card.priority_medium')}</option>
+									<option value="high">{$t('card.priority_high')}</option>
 								</select>
 							</div>
 						</div>
@@ -438,7 +439,9 @@
 						<div>
 							<Label class="mb-2 flex items-center gap-2">
 								<ImageIcon class="h-4 w-4" />
-								Attachments ({images.filter((img) => img.isExisting).length})
+								{$t('card.attachments', {
+									values: { count: images.filter((img) => img.isExisting).length }
+								})}
 							</Label>
 
 							{#if images.filter((img) => img.isExisting).length > 0}
@@ -452,7 +455,7 @@
 											>
 												<img
 													src={image.preview}
-													alt="Attachment"
+													alt={$t('common.attachment')}
 													class="h-full w-full object-cover transition-transform group-hover:scale-105"
 												/>
 											</button>
@@ -472,14 +475,16 @@
 
 							{#if images.filter((img) => !img.isExisting).length > 0}
 								<div class="mb-4">
-									<span class="mb-2 block text-sm font-medium">New images to upload</span>
+									<span class="mb-2 block text-sm font-medium">
+										{$t('card.new_images_upload')}
+									</span>
 									<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
 										{#each images.filter((img) => !img.isExisting) as image}
 											<div class="group relative">
 												<div class="h-24 w-full overflow-hidden rounded border">
 													<img
 														src={image.preview}
-														alt="New upload"
+														alt={$t('card.new_upload_alt')}
 														class="h-full w-full object-cover"
 													/>
 												</div>
@@ -500,10 +505,12 @@
 
 							{#if showUploadArea}
 								<div>
-									<span class="mb-2 block text-sm font-medium text-foreground">Add Images</span>
+									<span class="mb-2 block text-sm font-medium text-foreground">
+										{$t('card.add_images')}
+									</span>
 									<div
 										tabindex="0"
-										aria-label="Upload images by drag and drop or click to browse"
+										aria-label={$t('card.upload_drag_drop_label')}
 										role="button"
 										class="rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 text-center transition-colors {isDragOver
 											? 'border-primary bg-primary/5'
@@ -514,16 +521,18 @@
 									>
 										<Upload class="mx-auto h-6 w-6 text-muted-foreground" />
 										<p class="mt-2 text-sm text-muted-foreground">
-											Drag and drop images here, or
+											{$t('card.drag_drop_prompt')}
 											<button
 												type="button"
 												onclick={() => fileInput?.click()}
 												class="text-primary hover:underline focus:underline focus:outline-none"
 											>
-												click to select
+												{$t('card.click_to_select')}
 											</button>
 										</p>
-										<p class="mt-1 text-xs text-muted-foreground">PNG, JPG up to 5MB each</p>
+										<p class="mt-1 text-xs text-muted-foreground">
+											{$t('card.image_size_limit')}
+										</p>
 										<input
 											bind:this={fileInput}
 											type="file"
@@ -542,7 +551,7 @@
 									onclick={() => (showUploadArea = true)}
 								>
 									<ImageIcon class="mr-2 h-4 w-4" />
-									Attach images
+									{$t('card.attach_images')}
 								</Button>
 							{/if}
 						</div>
@@ -550,17 +559,17 @@
 						<div>
 							<Label class="mb-2 flex items-center gap-2">
 								<MessageSquare class="h-4 w-4" />
-								Comments ({commentsStore.comments.length})
+								{$t('card.comments', { values: { count: commentsStore.comments.length } })}
 							</Label>
 
 							<div class="space-y-3">
 								{#if commentsStore.loading}
 									<div class="py-4 text-center text-sm text-muted-foreground">
-										Loading comments...
+										{$t('card.loading_comments')}
 									</div>
 								{:else if commentsStore.comments.length === 0}
 									<p class="py-4 text-center text-sm text-muted-foreground">
-										No comments yet. Be the first to comment!
+										{$t('card.no_comments')}
 									</p>
 								{:else}
 									{#each commentsStore.comments as comment}
@@ -575,7 +584,9 @@
 														/>
 													{/if}
 													<span class="text-sm font-medium">
-														{comment.user?.name || comment.user?.username || 'Unknown'}
+														{comment.user?.name ||
+															comment.user?.username ||
+															$t('card.unknown_user')}
 													</span>
 													<span class="text-xs text-muted-foreground">
 														{formatDate(comment.created_at || '')}
@@ -598,7 +609,7 @@
 								<div class="flex gap-2">
 									<Textarea
 										bind:value={newComment}
-										placeholder="Add a comment..."
+										placeholder={$t('card.add_comment_placeholder')}
 										rows={2}
 										class="flex-1"
 										onkeydown={(e) => {
@@ -616,16 +627,16 @@
 										<Send class="h-4 w-4" />
 									</Button>
 								</div>
-								<p class="text-xs text-muted-foreground">Press Ctrl+Enter to submit</p>
+								<p class="text-xs text-muted-foreground">{$t('card.press_ctrl_enter_submit')}</p>
 							</div>
 						</div>
 
 						<div class="flex justify-between border-t pt-4">
 							<Button variant="destructive" onclick={deleteTodo}>
 								<Trash2 class="mr-2 h-4 w-4" />
-								Delete Card
+								{$t('card.delete_card')}
 							</Button>
-							<Button variant="outline" onclick={closeModal}>Close</Button>
+							<Button variant="outline" onclick={closeModal}>{$t('common.close')}</Button>
 						</div>
 					</CardContent>
 				</Card>
@@ -637,7 +648,7 @@
 {#if selectedImage}
 	<Dialog open={!!selectedImage} onOpenChange={() => (selectedImage = null)}>
 		<DialogContent class="max-w-4xl">
-			<img src={selectedImage.preview} alt="Full size" class="w-full rounded" />
+			<img src={selectedImage.preview} alt={$t('common.full_size')} class="w-full rounded" />
 		</DialogContent>
 	</Dialog>
 {/if}
