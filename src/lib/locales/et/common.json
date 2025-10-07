@@ -334,7 +334,6 @@
         "title_label": "Pealkiri",
         "title_placeholder": "Kaardi pealkiri",
         "description_label": "Kirjeldus",
-        "rich_text_description": "Rikastekstiredaktor markdown-stiilis vormindusega",
         "due_date_label": "Tähtaeg",
         "priority_label": "Prioriteet",
         "priority_low": "Madal",

@@ -334,7 +334,6 @@
         "title_label": "Název",
         "title_placeholder": "Název karty",
         "description_label": "Popis",
-        "rich_text_description": "Rich text editor s markdown formátováním",
         "due_date_label": "Termín dokončení",
         "priority_label": "Priorita",
         "priority_low": "Nízká",

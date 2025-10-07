@@ -3,9 +3,11 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { get } from 'svelte/store';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { commentsStore } from '$lib/stores/comments.svelte';
 	import { t } from '$lib/i18n';
+	import { z } from 'zod';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { Card, CardContent, CardHeader } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
@@ -13,6 +15,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Label } from '$lib/components/ui/label';
+	import { Dialog, DialogContent } from '$lib/components/ui/dialog';
 	import {
 		X,
 		Calendar,
@@ -21,18 +24,15 @@
 		Send,
 		Trash2,
 		ImageIcon,
-		AlertCircle,
+		CircleAlert,
 		Upload
 	} from 'lucide-svelte';
-	import { z } from 'zod';
-	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
-	import type { TodoImage } from '$lib/types/imageUpload';
-	import { Dialog, DialogContent } from '$lib/components/ui/dialog';
 	import type { Readable } from 'svelte/store';
 	import type { Editor } from 'svelte-tiptap';
-	import { get } from 'svelte/store';
+	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { TodoImage } from '$lib/types/imageUpload';
 
 	let { data } = $props();
 
@@ -341,15 +341,15 @@
 						<div
 							class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
 						></div>
-						<span class="ml-3">Loading card...</span>
+						<span class="ml-3">{$t('card.loading_card')}</span>
 					</div>
 				</Card>
 			{:else if !todo}
 				<Card class="p-12 text-center">
-					<AlertCircle class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-					<h2 class="mb-2 text-xl font-semibold">Card not found</h2>
-					<p class="mb-4 text-muted-foreground">This card doesn't exist or has been deleted.</p>
-					<Button onclick={closeModal}>Go back to board</Button>
+					<CircleAlert class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+					<h2 class="mb-2 text-xl font-semibold">{$t('card.card_not_found')}</h2>
+					<p class="mb-4 text-muted-foreground">{$t('card.card_not_found_description')}</p>
+					<Button onclick={closeModal}>{$t('card.go_back_to_board')}</Button>
 				</Card>
 			{:else}
 				<Card class="relative">
@@ -376,18 +376,18 @@
 							</div>
 
 							<Button onclick={saveTodo} disabled={isSubmitting} size="sm" class="shrink-0">
-								{isSubmitting ? 'Saving...' : 'Save'}
+								{isSubmitting ? $t('commin.saving') : $t('commin.save')}
 							</Button>
 						</div>
 
 						<div class="space-y-4">
 							<div>
-								<Label for="title">Title</Label>
+								<Label for="title">{$t('card.title_label')}</Label>
 								<Input
 									id="title"
 									bind:value={editData.title}
 									class="text-lg font-semibold"
-									placeholder="Card title"
+									placeholder={$t('card.title_placeholder')}
 								/>
 								{#if validationErrors.title}
 									<p class="mt-1 text-xs text-red-500">{validationErrors.title}</p>
@@ -398,13 +398,10 @@
 
 					<CardContent class="space-y-6">
 						<div>
-							<Label class="mb-2">Description</Label>
+							<Label class="mb-2">{$t('card.description_label')}</Label>
 
 							<RichTextEditor bind:editor content={todo.content || ''} />
 
-							<p class="mt-1 text-xs text-muted-foreground">
-								Rich text editor with markdown-style formatting
-							</p>
 							{#if validationErrors.content}
 								<p class="mt-1 text-xs text-red-500">{validationErrors.content}</p>
 							{/if}

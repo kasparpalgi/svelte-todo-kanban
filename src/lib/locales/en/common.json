@@ -334,7 +334,6 @@
         "title_label": "Title",
         "title_placeholder": "Card title",
         "description_label": "Description",
-        "rich_text_description": "Rich text editor with markdown-style formatting",
         "due_date_label": "Due Date",
         "priority_label": "Priority",
         "priority_low": "Low",
