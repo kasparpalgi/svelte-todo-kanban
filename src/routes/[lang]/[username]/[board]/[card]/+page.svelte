@@ -22,25 +22,17 @@
 		Trash2,
 		ImageIcon,
 		AlertCircle,
-		Bold,
-		Italic,
-		List,
-		ListOrdered,
-		Code,
-		Heading1,
-		Heading2,
 		Upload
 	} from 'lucide-svelte';
 	import { z } from 'zod';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
-	import type { Readable } from 'svelte/store';
-	import { createEditor, Editor, EditorContent } from 'svelte-tiptap';
-	import StarterKit from '@tiptap/starter-kit';
-	import TaskList from '@tiptap/extension-task-list';
-	import TaskItem from '@tiptap/extension-task-item';
+	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
 	import type { TodoImage } from '$lib/types/imageUpload';
 	import { Dialog, DialogContent } from '$lib/components/ui/dialog';
+	import type { Readable } from 'svelte/store';
+	import type { Editor } from 'svelte-tiptap';
+	import { get } from 'svelte/store';
 
 	let { data } = $props();
 
@@ -59,7 +51,7 @@
 	let newComment = $state('');
 	let validationErrors = $state<Record<string, string>>({});
 	let isSubmitting = $state(false);
-	let editor = $state() as Readable<Editor>;
+	let editor: Readable<Editor> | null = $state(null);
 	let images = $state<TodoImage[]>([]);
 	let isDragOver = $state(false);
 	let fileInput = $state<HTMLInputElement>();
@@ -93,23 +85,6 @@
 				priority: (foundTodo.priority as 'low' | 'medium' | 'high') || 'low'
 			};
 
-			editor = createEditor({
-				extensions: [
-					StarterKit,
-					TaskList,
-					TaskItem.configure({
-						nested: true
-					})
-				],
-				content: foundTodo.content || '',
-				editorProps: {
-					attributes: {
-						class:
-							'prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4 rounded-md border'
-					}
-				}
-			});
-
 			await commentsStore.loadComments(cardId || '');
 
 			images =
@@ -124,10 +99,6 @@
 	});
 
 	onDestroy(() => {
-		if ($editor) {
-			$editor.destroy();
-		}
-
 		images.forEach((img) => {
 			if (!img.isExisting && img.preview.startsWith('blob:')) {
 				URL.revokeObjectURL(img.preview);
@@ -156,10 +127,10 @@
 	}
 
 	async function saveTodo() {
-		if (isSubmitting || !todo || !$editor) return;
+		if (isSubmitting || !todo || !editor) return;
 
 		try {
-			const content = $editor.getHTML();
+			const content = get(editor).getHTML();
 
 			const validatedData = todoEditSchema.parse({
 				...editData,
@@ -360,7 +331,13 @@
 	tabindex="-1"
 >
 	<div class="fixed inset-4 z-50 overflow-auto md:inset-8 lg:inset-16">
-		<div class="mx-auto max-w-4xl" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" tabindex="-1">
+		<div
+			class="mx-auto max-w-4xl"
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => e.stopPropagation()}
+			role="dialog"
+			tabindex="-1"
+		>
 			{#if loading}
 				<Card class="p-12 text-center">
 					<div class="flex items-center justify-center">
@@ -383,12 +360,12 @@
 						variant="ghost"
 						size="sm"
 						onclick={closeModal}
-						class="absolute right-2 top-2 z-10 h-7 w-7 p-0"
+						class="absolute top-2 right-2 z-10 h-7 w-7 p-0"
 					>
 						<X class="h-3.5 w-3.5" />
 					</Button>
 
-					<CardHeader class="pb-4 pr-12">
+					<CardHeader class="pr-12 pb-4">
 						<div class="mb-3 flex flex-wrap items-start justify-between gap-2">
 							<div class="flex flex-1 flex-wrap items-center gap-2">
 								{#if todo.list}
@@ -426,110 +403,7 @@
 						<div>
 							<Label class="mb-2">Description</Label>
 
-							{#if $editor}
-								<div
-									class="mb-2 flex flex-wrap items-center gap-1 rounded-t-md border border-b-0 bg-muted/30 p-2"
-								>
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										class="h-8 w-8 p-0 {$editor.isActive('bold') ? 'bg-muted' : ''}"
-										onclick={() => $editor.chain().focus().toggleBold().run()}
-										disabled={!$editor.can().chain().focus().toggleBold().run()}
-										title="Bold"
-									>
-										<Bold class="h-4 w-4" />
-									</Button>
-
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										class="h-8 w-8 p-0 {$editor.isActive('italic') ? 'bg-muted' : ''}"
-										onclick={() => $editor.chain().focus().toggleItalic().run()}
-										disabled={!$editor.can().chain().focus().toggleItalic().run()}
-										title="Italic"
-									>
-										<Italic class="h-4 w-4" />
-									</Button>
-
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										class="h-8 w-8 p-0 {$editor.isActive('code') ? 'bg-muted' : ''}"
-										onclick={() => $editor.chain().focus().toggleCode().run()}
-										disabled={!$editor.can().chain().focus().toggleCode().run()}
-										title="Code"
-									>
-										<Code class="h-4 w-4" />
-									</Button>
-
-									<div class="mx-1 h-6 w-px bg-border"></div>
-
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										class="h-8 w-8 p-0 {$editor.isActive('heading', { level: 1 }) ? 'bg-muted' : ''}"
-										onclick={() => $editor.chain().focus().toggleHeading({ level: 1 }).run()}
-										title="Heading 1"
-									>
-										<Heading1 class="h-4 w-4" />
-									</Button>
-
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										class="h-8 w-8 p-0 {$editor.isActive('heading', { level: 2 }) ? 'bg-muted' : ''}"
-										onclick={() => $editor.chain().focus().toggleHeading({ level: 2 }).run()}
-										title="Heading 2"
-									>
-										<Heading2 class="h-4 w-4" />
-									</Button>
-
-									<div class="mx-1 h-6 w-px bg-border"></div>
-
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										class="h-8 w-8 p-0 {$editor.isActive('bulletList') ? 'bg-muted' : ''}"
-										onclick={() => $editor.chain().focus().toggleBulletList().run()}
-										title="Bullet List"
-									>
-										<List class="h-4 w-4" />
-									</Button>
-
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										class="h-8 w-8 p-0 {$editor.isActive('orderedList') ? 'bg-muted' : ''}"
-										onclick={() => $editor.chain().focus().toggleOrderedList().run()}
-										title="Numbered List"
-									>
-										<ListOrdered class="h-4 w-4" />
-									</Button>
-
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										class="h-8 px-2 {$editor.isActive('taskList') ? 'bg-muted' : ''}"
-										onclick={() => $editor.chain().focus().toggleTaskList().run()}
-										title="Task List"
-									>
-										<input type="checkbox" class="pointer-events-none h-3 w-3" />
-									</Button>
-								</div>
-							{/if}
-
-							<div class="rounded-b-md">
-								<EditorContent editor={$editor} />
-							</div>
+							<RichTextEditor bind:editor content={todo.content || ''} />
 
 							<p class="mt-1 text-xs text-muted-foreground">
 								Rich text editor with markdown-style formatting
@@ -556,7 +430,7 @@
 								<select
 									id="priority"
 									bind:value={editData.priority}
-									class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+									class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
 								>
 									<option value="low">Low</option>
 									<option value="medium">Medium</option>
@@ -592,7 +466,7 @@
 												type="button"
 												size="sm"
 												variant="destructive"
-												class="absolute right-1 top-1 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+												class="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
 												onclick={() => removeImage(image.id)}
 											>
 												<X class="h-3 w-3" />
@@ -619,7 +493,7 @@
 													type="button"
 													size="sm"
 													variant="destructive"
-													class="absolute right-1 top-1 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+													class="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
 													onclick={() => removeImage(image.id)}
 												>
 													<X class="h-3 w-3" />
@@ -722,7 +596,7 @@
 													<Trash2 class="h-3 w-3" />
 												</Button>
 											</div>
-											<p class="whitespace-pre-wrap text-sm">{comment.content}</p>
+											<p class="text-sm whitespace-pre-wrap">{comment.content}</p>
 										</Card>
 									{/each}
 								{/if}

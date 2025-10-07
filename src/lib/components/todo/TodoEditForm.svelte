@@ -2,7 +2,6 @@
 <script lang="ts">
 	import { scale } from 'svelte/transition';
 	import { Input } from '$lib/components/ui/input';
-	import { Textarea } from '$lib/components/ui/textarea';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Dialog, DialogContent, DialogTrigger } from '$lib/components/ui/dialog';
@@ -11,6 +10,10 @@
 	import VoiceInput from './VoiceInput.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import type { TodoEditProps } from '$lib/types/todo';
+	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
+	import type { Readable } from 'svelte/store';
+	import type { Editor } from 'svelte-tiptap';
+	import { get } from 'svelte/store';
 
 	let {
 		todo,
@@ -38,7 +41,7 @@
 	let showImageDeleteConfirm = $state(false);
 	let imageToDelete = $state<string>('');
 	let titleInputEl: any;
-	let contentInputEl: any;
+	let editor: Readable<Editor> | null = $state(null);
 
 	function confirmRemoveImage(imageId: string) {
 		const image = images.find((img) => img.id === imageId);
@@ -71,16 +74,20 @@
 	}
 
 	function handleContentVoice(transcript: string) {
-		editData.content = transcript;
-		setTimeout(() => {
-			if (contentInputEl && typeof contentInputEl.focus === 'function') {
-				contentInputEl.focus();
-			}
-		}, 100);
+		if (editor) {
+			get(editor).commands.setContent(transcript);
+		}
 	}
 
 	function handleVoiceError(error: string) {
 		displayMessage(error, 3000, false);
+	}
+
+	function handleSave() {
+		if (editor) {
+			editData.content = get(editor).getHTML();
+		}
+		onSave();
 	}
 </script>
 
@@ -121,17 +128,7 @@
 						Description
 					</label>
 					<div class="space-y-2">
-						<Textarea
-							bind:this={contentInputEl}
-							id="content-{todo.id}"
-							bind:value={editData.content}
-							placeholder="Task description (optional)"
-							rows={2}
-							class={validationErrors.content
-								? 'border-destructive focus-visible:ring-destructive'
-								: ''}
-							disabled={isSubmitting}
-						/>
+						<RichTextEditor bind:editor content={editData.content} />
 						<div class="flex justify-start">
 							<VoiceInput
 								onTranscript={handleContentVoice}
@@ -300,7 +297,7 @@
 					>
 						Cancel
 					</Button>
-					<Button onclick={onSave} disabled={isSubmitting} class="order-1 sm:order-2">
+					<Button onclick={handleSave} disabled={isSubmitting} class="order-1 sm:order-2">
 						{#if isSubmitting}
 							<div
 								class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"

@@ -21,7 +21,7 @@
 </script>
 
 {#if errorSuccessMessage.text}
-	<div class="fixed bottom-6 right-6 z-[9999] {classes}" transition:fly={{ x: 300, duration: 300 }}>
+	<div class="fixed right-6 bottom-6 z-[9999] {classes}" transition:fly={{ x: 300, duration: 300 }}>
 		<div
 			class={`flex max-w-lg min-w-96 items-start gap-4 rounded-xl border p-5 shadow-2xl backdrop-blur-md
         ${
@@ -30,7 +30,6 @@
 						: 'border-red-200 bg-red-50/95 text-red-800'
 				}`}
 		>
-			<!-- Icon -->
 			<div class="flex-shrink-0">
 				{#if errorSuccessMessage.type === 'success'}
 					<CircleCheckBig size="28" class="text-green-600" />
@@ -39,14 +38,12 @@
 				{/if}
 			</div>
 
-			<!-- Message content -->
 			<div class="flex-1">
 				<div class="text-base leading-6 font-semibold">
 					{errorSuccessMessage.text}
 				</div>
 			</div>
 
-			<!-- Dismiss button -->
 			<button
 				type="button"
 				class="flex-shrink-0 rounded p-1.5 transition-colors hover:bg-black/10"

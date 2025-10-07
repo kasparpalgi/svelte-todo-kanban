@@ -29,7 +29,6 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 		console.log('[Layout] Last board alias from settings:', lastBoardAlias);
 
 		if (lastBoardAlias) {
-			// Try to find the board with this alias
 			const dataByAlias: GetBoardsQuery = await request(
 				GET_BOARDS,
 				{
@@ -56,7 +55,6 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 			}
 		}
 
-		// Fallback: Get the top board by sort order
 		const data: GetBoardsQuery = await request(
 			GET_BOARDS,
 			{
