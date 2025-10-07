@@ -16,7 +16,16 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, X, List, LayoutGrid, Settings, Funnel, ArrowRight, GithubIcon } from 'lucide-svelte';
+	import {
+		Plus,
+		X,
+		List,
+		LayoutGrid,
+		Settings,
+		Funnel,
+		ArrowRight,
+		Github
+	} from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
@@ -35,7 +44,6 @@
 	const username = $derived(page.params.username);
 	const boardAlias = $derived(page.params.board);
 	const lang = $derived(page.params.lang || 'en');
-
 
 	onMount(async () => {
 		if (data?.session) {
@@ -92,10 +100,15 @@
 			}
 		}
 
-		// Create GitHub issue unless checkbox is checked
 		const createGithubIssue = listsStore.selectedBoard?.github && !skipGithubIssue;
 
-		const result = await todosStore.addTodo(newTodoTitle.trim(), undefined, listId, true, createGithubIssue);
+		const result = await todosStore.addTodo(
+			newTodoTitle.trim(),
+			undefined,
+			listId,
+			true,
+			createGithubIssue
+		);
 		if (result.success) {
 			newTodoTitle = '';
 			skipGithubIssue = false;
@@ -167,7 +180,7 @@
 							onclick={() => (showImportDialog = true)}
 							title="Import GitHub Issues"
 						>
-							<GithubIcon class="mr-2 h-4 w-4" />
+							<Github class="mr-2 h-4 w-4" />
 							<span class="hidden md:block">Import Issues</span>
 						</Button>
 					{/if}
@@ -227,21 +240,21 @@
 									/>
 									<Button onclick={handleAddTodo} disabled={!newTodoTitle.trim()} class="px-6">
 										<Plus class="mr-2 h-4 w-4" />
-									{$t('todo.add')}
-								</Button>
+										{$t('todo.add')}
+									</Button>
+								</div>
+								{#if listsStore.selectedBoard?.github}
+									<label class="flex cursor-pointer items-center gap-2 text-sm">
+										<input
+											type="checkbox"
+											bind:checked={skipGithubIssue}
+											class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+										/>
+										<Github class="h-3.5 w-3.5" />
+										<span>{$t('todo.do_not_create_github_issue')}</span>
+									</label>
+								{/if}
 							</div>
-							{#if listsStore.selectedBoard?.github}
-								<label class="flex items-center gap-2 text-sm cursor-pointer">
-									<input
-										type="checkbox"
-										bind:checked={skipGithubIssue}
-										class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-									/>
-									<GithubIcon class="h-3.5 w-3.5" />
-									<span>Do not create GitHub issue</span>
-								</label>
-							{/if}
-						</div>
 						</CardContent>
 					</Card>
 				</div>
