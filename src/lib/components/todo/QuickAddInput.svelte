@@ -91,7 +91,7 @@
 				class="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary"
 			/>
 			<GithubIcon class="h-3 w-3" />
-			<span>{$t('todo.do_not_create_github_issue_label')}</span>
+			<span>{$t('todo.do_not_create_github_issue')}</span>
 		</label>
 	{/if}
 </div>

@@ -1,6 +1,8 @@
 <!-- @file src/lib/components/TodoEditForm.svelte -->
 <script lang="ts">
 	import { scale } from 'svelte/transition';
+	import { get } from 'svelte/store';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
@@ -8,12 +10,10 @@
 	import { Check, X, Image as ImageIcon, Upload, Trash2 } from 'lucide-svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import VoiceInput from './VoiceInput.svelte';
-	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
-	import type { TodoEditProps } from '$lib/types/todo';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
+	import type { TodoEditProps } from '$lib/types/todo';
 	import type { Readable } from 'svelte/store';
 	import type { Editor } from 'svelte-tiptap';
-	import { get } from 'svelte/store';
 
 	let {
 		todo,
@@ -128,7 +128,7 @@
 						Description
 					</label>
 					<div class="space-y-2">
-						<RichTextEditor bind:editor content={editData.content} />
+						<RichTextEditor bind:editor content={editData.content} showToolbar={false} />
 						<div class="flex justify-start">
 							<VoiceInput
 								onTranscript={handleContentVoice}
