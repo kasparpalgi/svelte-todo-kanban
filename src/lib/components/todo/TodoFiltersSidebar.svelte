@@ -208,25 +208,6 @@
 				</Button>
 			</div>
 		</div>
-
-		<Separator />
-
-		<!-- Items per page -->
-		<div class="space-y-3">
-			<label for="amount" class="text-sm font-medium">{$t('filters.items_per_page')}</label>
-			<div class="grid grid-cols-3 gap-1">
-				{#each [10, 25, 50, 100, 200] as limit}
-					<Button
-						variant={todoFilteringStore.pagination.limit === limit ? 'default' : 'outline'}
-						size="sm"
-						onclick={() => todoFilteringStore.setPaginationLimit(limit)}
-						class="text-xs"
-					>
-						{limit}
-					</Button>
-				{/each}
-			</div>
-		</div>
 	</div>
 </div>
 

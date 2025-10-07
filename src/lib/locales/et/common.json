@@ -62,7 +62,6 @@
         "due_date": "Tähtaeg",
         "created_date": "Loomise kuupäev",
         "recently_active": "Hiljuti aktiivne",
-        "items_per_page": "Elemente lehel",
         "close": "Sulge"
     },
     "board": {

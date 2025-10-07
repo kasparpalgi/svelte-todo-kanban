@@ -62,7 +62,6 @@
         "due_date": "Termín dokončení",
         "created_date": "Datum vytvoření",
         "recently_active": "Nedávno aktivní",
-        "items_per_page": "Položek na stránku",
         "close": "Zavřít"
     },
     "board": {

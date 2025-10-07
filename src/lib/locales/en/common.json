@@ -62,7 +62,6 @@
         "due_date": "Due date",
         "created_date": "Created date",
         "recently_active": "Recently active",
-        "items_per_page": "Items per page",
         "close": "Close"
     },
     "board": {
