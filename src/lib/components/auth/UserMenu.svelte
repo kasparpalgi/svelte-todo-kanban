@@ -6,7 +6,6 @@
 	import { t } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
-	import { todoFilteringStore } from '$lib/stores/todoFiltering.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { LogOut, Settings } from 'lucide-svelte';
 	import { getUserInitials } from '$lib/utils/getUserInitials';
@@ -23,28 +22,16 @@
 		console.log('[Logout] Starting logout process...');
 
 		try {
-			// Clear localStorage first
-			console.log('[Logout] Clearing localStorage...');
 			clearAppStorage();
 
-			// Reset stores (this should not trigger any API calls)
-			console.log('[Logout] Resetting stores...');
 			listsStore.reset();
 			userStore.reset();
 
 			console.log('[Logout] Stores reset complete');
 
-			// Add small delay to see console logs
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			// Sign out via Auth.js
-			console.log('[Logout] Calling signOut...');
+			await new Promise((resolve) => setTimeout(resolve, 10));
 			await signOut({ callbackUrl: '/' });
-
-			console.log('[Logout] ✓ Logout complete');
 		} catch (error) {
-			console.error('[Logout] Error during logout:', error);
-			// Continue with signout even if there's an error
 			await signOut({ callbackUrl: '/' });
 		}
 	}
