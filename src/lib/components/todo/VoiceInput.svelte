@@ -16,7 +16,7 @@
 		onTranscript = (text: string) => {},
 		onError = (error: string) => {},
 		disabled = false,
-		title = '', // Context for AI correction for content
+		title = '',
 		minimal = false,
 		startAutomatically = false
 	} = $props();
@@ -48,7 +48,6 @@
 		);
 	}
 
-	// Clean duplicate words
 	function removeDuplicates(text: string): string {
 		if (!text) return text;
 
@@ -128,7 +127,6 @@
 		}
 	}
 
-	// Auto AI correct or manual button
 	async function handleAICorrection(text: string) {
 		if (!text.trim() || isProcessingAI) return;
 
@@ -346,7 +344,6 @@
 						speechSegments: speechSegments.length
 					});
 
-					// Handle AI correction after speech ends
 					if (finalTranscript.trim()) {
 						setTimeout(() => {
 							handleAICorrection(finalTranscript);
@@ -402,8 +399,8 @@
 </script>
 
 {#if isSupported}
-	<div class="flex flex-col gap-2">
-		<div class="flex items-center gap-2">
+	<div class="flex flex-col gap-1">
+		<div class="flex flex-col items-start gap-1">
 			<div class="relative">
 				<button
 					onclick={toggleRecording}
@@ -422,56 +419,51 @@
 				</button>
 			</div>
 
-			{#if isProcessingAI}
-				<div class="flex items-center gap-2 text-sm text-blue-600">
-					<div
-						class="h-3 w-3 animate-spin rounded-full border border-blue-600 border-t-transparent"
-					></div>
-					{minimal ? '' : 'AI improving...'}
-				</div>
-			{/if}
+			<div class="flex items-center gap-1">
+				{#if isProcessingAI}
+					<div class="flex items-center gap-1 text-sm text-blue-600">
+						<div
+							class="h-3 w-3 animate-spin rounded-full border border-blue-600 border-t-transparent"
+						></div>
+					</div>
+				{/if}
 
-			{#if showAICorrectButton && !autoAICorrect}
-				<button
-					onclick={triggerManualCorrection}
-					class="flex items-center gap-1 rounded bg-blue-100 px-2 py-1 text-xs text-blue-800 transition-colors hover:bg-blue-200"
-					title="Apply AI correction"
-				>
-					<Sparkles class="h-3 w-3" />
-					{minimal ? '' : 'AI correct'}
-				</button>
-			{/if}
+				{#if showAICorrectButton && !autoAICorrect}
+					<button
+						onclick={triggerManualCorrection}
+						class="rounded bg-blue-100 p-1 text-blue-800 transition-colors hover:bg-blue-200"
+						title="Apply AI correction"
+					>
+						<Sparkles class="h-3 w-3" />
+					</button>
+				{/if}
 
-			{#if showRevertButton}
-				<div class="flex items-center gap-1">
+				{#if showRevertButton}
 					{#if isAIUndone}
 						<button
 							onclick={reapplyAI}
-							class="flex items-center gap-1 rounded bg-green-100 px-1 py-0.5 text-xs text-green-800 transition-colors hover:bg-green-200"
+							class="rounded bg-green-100 p-1 text-green-800 transition-colors hover:bg-green-200"
 							title="Redo AI changes"
 						>
 							<Check class="h-3 w-3" />
-							{minimal ? '' : 'AI redo'}
 						</button>
 					{:else}
 						<button
 							onclick={revertToOriginal}
-							class="flex items-center gap-1 rounded bg-orange-100 px-1 py-0.5 text-xs text-orange-800 transition-colors hover:bg-orange-200"
+							class="rounded bg-orange-100 p-1 text-orange-800 transition-colors hover:bg-orange-200"
 							title="Undo AI changes"
 						>
 							<RotateCcw class="h-3 w-3" />
-							{minimal ? '' : 'AI undo'}
 						</button>
 					{/if}
-				</div>
-			{/if}
+				{/if}
+			</div>
 		</div>
+
+		{#if (processingTime && processingCost) || (showRevertButton && processingTime)}
+			<div class="text-xs text-gray-400">
+				{processingTime} €{processingCost}
+			</div>
+		{/if}
 	</div>
-	{#if (processingTime && processingCost) || (showRevertButton && processingTime)}
-		<div class="text-xs text-gray-400">
-			{processingTime} €{processingCost}
-		</div>
-	{/if}
-{:else}
-	<div class="text-xs text-muted-foreground">Voice input not supported in this browser</div>
 {/if}
