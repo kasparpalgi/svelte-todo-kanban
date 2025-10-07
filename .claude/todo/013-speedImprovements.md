@@ -1,0 +1,3 @@
+1. When I open the card fro  [lang]/[username]/[board] and go to [lang]/[username]/[board]/[card] then it currently shows me "Loading your cards" as it re-loads from API all my cards. Do not re-load all my cards. We can have them in the store and I think we already even have them. Just do not reload so it will shall be as quick as possible.
+
+2. When I open the card it can be faster, too. I think Svelte makes it possible to start loading the data already when my mouse moves on top of the card? Or think how to make it faster also open the card.
