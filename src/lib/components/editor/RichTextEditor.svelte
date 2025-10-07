@@ -2,12 +2,12 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { createEditor, Editor } from 'svelte-tiptap';
-	import type { Readable } from 'svelte/store';
 	import { get } from 'svelte/store';
 	import StarterKit from '@tiptap/starter-kit';
 	import TaskList from '@tiptap/extension-task-list';
 	import TaskItem from '@tiptap/extension-task-item';
 	import EditorToolbar from './EditorToolbar.svelte';
+	import type { Readable } from 'svelte/store';
 
 	let {
 		content = '',
@@ -45,7 +45,7 @@
 
 	onDestroy(() => {
 		if (editorStore) {
-			get(editorStore)?.destroy();
+			(get(editorStore) as Editor)?.destroy();
 		}
 	});
 </script>
