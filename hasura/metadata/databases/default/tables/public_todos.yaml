@@ -48,7 +48,9 @@ insert_permissions:
       set:
         user_id: x-hasura-User-Id
       columns:
+        - actual_hours
         - alias
+        - comment_hours
         - completed_at
         - content
         - created_at
@@ -59,6 +61,8 @@ insert_permissions:
         - github_url
         - id
         - list_id
+        - max_hours
+        - min_hours
         - priority
         - sort_order
         - title
@@ -69,7 +73,9 @@ select_permissions:
   - role: user
     permission:
       columns:
+        - actual_hours
         - alias
+        - comment_hours
         - completed_at
         - content
         - created_at
@@ -80,6 +86,8 @@ select_permissions:
         - github_url
         - id
         - list_id
+        - max_hours
+        - min_hours
         - priority
         - sort_order
         - title
@@ -116,7 +124,9 @@ update_permissions:
   - role: user
     permission:
       columns:
+        - actual_hours
         - alias
+        - comment_hours
         - completed_at
         - content
         - due_on
@@ -125,6 +135,8 @@ update_permissions:
         - github_synced_at
         - github_url
         - list_id
+        - max_hours
+        - min_hours
         - priority
         - sort_order
         - title

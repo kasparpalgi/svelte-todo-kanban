@@ -122,6 +122,7 @@ export const BOARD_FRAGMENT = graphql(`
 		github
 		is_public
 		allow_public_comments
+		settings
 		created_at
 		updated_at
 		labels {

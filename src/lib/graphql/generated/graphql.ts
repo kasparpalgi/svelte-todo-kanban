@@ -1158,6 +1158,7 @@ export type Boards = {
   /** An aggregate relationship */
   lists_aggregate: Lists_Aggregate;
   name: Scalars['String']['output'];
+  settings: Scalars['jsonb']['output'];
   sort_order: Scalars['Int']['output'];
   updated_at: Scalars['timestamptz']['output'];
   /** An object relationship */
@@ -1245,6 +1246,12 @@ export type BoardsLists_AggregateArgs = {
   where?: InputMaybe<Lists_Bool_Exp>;
 };
 
+
+/** columns and relationships of "boards" */
+export type BoardsSettingsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** aggregated selection of "boards" */
 export type Boards_Aggregate = {
   __typename?: 'boards_aggregate';
@@ -1317,6 +1324,11 @@ export type Boards_Aggregate_Order_By = {
   variance?: InputMaybe<Boards_Variance_Order_By>;
 };
 
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type Boards_Append_Input = {
+  settings?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
 /** input type for inserting array relation for remote table "boards" */
 export type Boards_Arr_Rel_Insert_Input = {
   data: Array<Boards_Insert_Input>;
@@ -1355,6 +1367,7 @@ export type Boards_Bool_Exp = {
   lists?: InputMaybe<Lists_Bool_Exp>;
   lists_aggregate?: InputMaybe<Lists_Aggregate_Bool_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
+  settings?: InputMaybe<Jsonb_Comparison_Exp>;
   sort_order?: InputMaybe<Int_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   user?: InputMaybe<Users_Bool_Exp>;
@@ -1368,6 +1381,21 @@ export enum Boards_Constraint {
   /** unique or primary key constraint on columns "id" */
   BoardsPkey = 'boards_pkey'
 }
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type Boards_Delete_At_Path_Input = {
+  settings?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type Boards_Delete_Elem_Input = {
+  settings?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type Boards_Delete_Key_Input = {
+  settings?: InputMaybe<Scalars['String']['input']>;
+};
 
 /** input type for incrementing numeric columns in table "boards" */
 export type Boards_Inc_Input = {
@@ -1389,6 +1417,7 @@ export type Boards_Insert_Input = {
   labels?: InputMaybe<Labels_Arr_Rel_Insert_Input>;
   lists?: InputMaybe<Lists_Arr_Rel_Insert_Input>;
   name?: InputMaybe<Scalars['String']['input']>;
+  settings?: InputMaybe<Scalars['jsonb']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
@@ -1481,6 +1510,7 @@ export type Boards_Order_By = {
   labels_aggregate?: InputMaybe<Labels_Aggregate_Order_By>;
   lists_aggregate?: InputMaybe<Lists_Aggregate_Order_By>;
   name?: InputMaybe<Order_By>;
+  settings?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
   user?: InputMaybe<Users_Order_By>;
@@ -1490,6 +1520,11 @@ export type Boards_Order_By = {
 /** primary key columns input for table: boards */
 export type Boards_Pk_Columns_Input = {
   id: Scalars['uuid']['input'];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type Boards_Prepend_Input = {
+  settings?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
 /** select columns of table "boards" */
@@ -1508,6 +1543,8 @@ export enum Boards_Select_Column {
   IsPublic = 'is_public',
   /** column name */
   Name = 'name',
+  /** column name */
+  Settings = 'settings',
   /** column name */
   SortOrder = 'sort_order',
   /** column name */
@@ -1543,6 +1580,7 @@ export type Boards_Set_Input = {
   /** When true, board is viewable by anyone (read-only unless member) */
   is_public?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  settings?: InputMaybe<Scalars['jsonb']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   user_id?: InputMaybe<Scalars['uuid']['input']>;
@@ -1600,6 +1638,7 @@ export type Boards_Stream_Cursor_Value_Input = {
   /** When true, board is viewable by anyone (read-only unless member) */
   is_public?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  settings?: InputMaybe<Scalars['jsonb']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   user_id?: InputMaybe<Scalars['uuid']['input']>;
@@ -1633,6 +1672,8 @@ export enum Boards_Update_Column {
   /** column name */
   Name = 'name',
   /** column name */
+  Settings = 'settings',
+  /** column name */
   SortOrder = 'sort_order',
   /** column name */
   UpdatedAt = 'updated_at',
@@ -1641,8 +1682,18 @@ export enum Boards_Update_Column {
 }
 
 export type Boards_Updates = {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: InputMaybe<Boards_Append_Input>;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _delete_at_path?: InputMaybe<Boards_Delete_At_Path_Input>;
+  /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+  _delete_elem?: InputMaybe<Boards_Delete_Elem_Input>;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _delete_key?: InputMaybe<Boards_Delete_Key_Input>;
   /** increments the numeric columns with given value of the filtered values */
   _inc?: InputMaybe<Boards_Inc_Input>;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: InputMaybe<Boards_Prepend_Input>;
   /** sets the columns of the filtered rows to the given values */
   _set?: InputMaybe<Boards_Set_Input>;
   /** filter the rows which have to be updated */
@@ -3815,7 +3866,12 @@ export type Mutation_RootUpdate_Board_Members_ManyArgs = {
 
 /** mutation root */
 export type Mutation_RootUpdate_BoardsArgs = {
+  _append?: InputMaybe<Boards_Append_Input>;
+  _delete_at_path?: InputMaybe<Boards_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Boards_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Boards_Delete_Key_Input>;
   _inc?: InputMaybe<Boards_Inc_Input>;
+  _prepend?: InputMaybe<Boards_Prepend_Input>;
   _set?: InputMaybe<Boards_Set_Input>;
   where: Boards_Bool_Exp;
 };
@@ -3823,7 +3879,12 @@ export type Mutation_RootUpdate_BoardsArgs = {
 
 /** mutation root */
 export type Mutation_RootUpdate_Boards_By_PkArgs = {
+  _append?: InputMaybe<Boards_Append_Input>;
+  _delete_at_path?: InputMaybe<Boards_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Boards_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Boards_Delete_Key_Input>;
   _inc?: InputMaybe<Boards_Inc_Input>;
+  _prepend?: InputMaybe<Boards_Prepend_Input>;
   _set?: InputMaybe<Boards_Set_Input>;
   pk_columns: Boards_Pk_Columns_Input;
 };
@@ -7163,7 +7224,7 @@ export type BoardMemberFieldsFragment = { __typename?: 'board_members', id: stri
 
 export type BoardInvitationFieldsFragment = { __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token?: string | null, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } };
 
-export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> };
+export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> };
 
 export type CommentFieldsFragment = { __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } };
 
@@ -7199,7 +7260,7 @@ export type GetBoardsQueryVariables = Exact<{
 }>;
 
 
-export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> };
+export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> };
 
 export type CreateTodoMutationVariables = Exact<{
   objects: Array<Todos_Insert_Input> | Todos_Insert_Input;
@@ -7250,7 +7311,7 @@ export type CreateBoardMutationVariables = Exact<{
 }>;
 
 
-export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> } | null };
+export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> } | null };
 
 export type UpdateBoardMutationVariables = Exact<{
   where: Boards_Bool_Exp;
@@ -7258,7 +7319,7 @@ export type UpdateBoardMutationVariables = Exact<{
 }>;
 
 
-export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> } | null };
+export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> } | null };
 
 export type DeleteBoardMutationVariables = Exact<{
   where: Boards_Bool_Exp;
@@ -7667,6 +7728,7 @@ export const BoardFieldsFragmentDoc = new TypedDocumentString(`
   github
   is_public
   allow_public_comments
+  settings
   created_at
   updated_at
   labels {
@@ -7848,6 +7910,7 @@ fragment BoardFields on boards {
   github
   is_public
   allow_public_comments
+  settings
   created_at
   updated_at
   labels {
@@ -8122,6 +8185,7 @@ fragment BoardFields on boards {
   github
   is_public
   allow_public_comments
+  settings
   created_at
   updated_at
   labels {
@@ -8177,6 +8241,7 @@ fragment BoardFields on boards {
   github
   is_public
   allow_public_comments
+  settings
   created_at
   updated_at
   labels {

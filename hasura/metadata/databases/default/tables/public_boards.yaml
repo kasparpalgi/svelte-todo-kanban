@@ -50,6 +50,7 @@ insert_permissions:
         - id
         - is_public
         - name
+        - settings
         - sort_order
         - updated_at
         - user_id
@@ -65,6 +66,7 @@ select_permissions:
         - id
         - is_public
         - name
+        - settings
         - sort_order
         - updated_at
         - user_id
@@ -93,6 +95,7 @@ update_permissions:
         - github
         - is_public
         - name
+        - settings
         - sort_order
         - updated_at
         - user_id

@@ -1,0 +1,1 @@
+ALTER TABLE public.boards ADD COLUMN settings jsonb NOT NULL DEFAULT '{"enable_hour_tracking": false}';
