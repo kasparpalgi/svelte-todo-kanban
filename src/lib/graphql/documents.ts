@@ -44,6 +44,7 @@ export const TODO_FRAGMENT = graphql(`
 				alias
 				sort_order
 				github
+				settings
 			}
 		}
 	}
