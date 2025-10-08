@@ -17,6 +17,10 @@ export const TODO_FRAGMENT = graphql(`
 		github_issue_id
 		github_synced_at
 		github_url
+		min_hours
+		max_hours
+		actual_hours
+		comment_hours
 		labels {
 			label {
 				...LabelFields

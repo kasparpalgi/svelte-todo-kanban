@@ -48,10 +48,15 @@ insert_permissions:
       set:
         user_id: x-hasura-User-Id
       columns:
+        - alias
         - completed_at
         - content
         - created_at
         - due_on
+        - github_issue_id
+        - github_issue_number
+        - github_synced_at
+        - github_url
         - id
         - list_id
         - priority
@@ -69,6 +74,10 @@ select_permissions:
         - content
         - created_at
         - due_on
+        - github_issue_id
+        - github_issue_number
+        - github_synced_at
+        - github_url
         - id
         - list_id
         - priority
@@ -107,9 +116,14 @@ update_permissions:
   - role: user
     permission:
       columns:
+        - alias
         - completed_at
         - content
         - due_on
+        - github_issue_id
+        - github_issue_number
+        - github_synced_at
+        - github_url
         - list_id
         - priority
         - sort_order

@@ -15,6 +15,7 @@ insert_permissions:
         user_id: x-hasura-User-Id
       columns:
         - component
+        - created_at
         - data
         - id
         - level
@@ -23,7 +24,8 @@ insert_permissions:
         - timestamp
         - url
         - user_agent
-    comment: "Users can only insert logs for themselves"
+        - user_id
+    comment: Users can only insert logs for themselves
 select_permissions:
   - role: user
     permission:
@@ -51,4 +53,29 @@ select_permissions:
         - select
         - select_aggregate
         - select_by_pk
-    comment: "Users can only view their own logs"
+    comment: Users can only view their own logs
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - component
+        - data
+        - level
+        - message
+        - session_id
+        - timestamp
+        - url
+        - user_agent
+        - user_id
+      filter: {}
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
