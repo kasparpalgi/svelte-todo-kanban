@@ -125,7 +125,9 @@
         "create_board_prompt": "Create a board to organize your lists",
         "board_help_text": "Boards help organize your lists into different projects or categories.",
         "tasks_count": "{{count}} tasks",
-        "by_user": "by @{{username}}"
+        "by_user": "by @{{username}}",
+        "enable_hour_tracking": "Enable hour tracking",
+        "settings_updated": "Board settings updated"
     },
     "members": {
         "board_members": "Board Members",
@@ -374,7 +376,12 @@
         "new_upload_alt": "New upload",
         "drag_drop_prompt": "Drag and drop images here, or ",
         "click_to_select": "click to select",
-        "image_size_limit": "PNG, JPG up to 5MB each"
+        "image_size_limit": "PNG, JPG up to 5MB each",
+        "hour_tracking": "Estimated hours & hrs spent",
+        "min_hours": "Min Hrs",
+        "max_hours": "Max Hrs",
+        "actual_hours": "Hours spent",
+        "comment_hours": "Comment Hours"
     },
     "labels": {
         "labels": "Labels",

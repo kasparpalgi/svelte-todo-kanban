@@ -25,7 +25,8 @@
 		Trash2,
 		ImageIcon,
 		CircleAlert,
-		Upload
+		Upload,
+		Clock
 	} from 'lucide-svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
@@ -46,7 +47,11 @@
 	let editData = $state({
 		title: '',
 		due_on: '',
-		priority: 'low' as 'low' | 'medium' | 'high'
+		priority: 'low' as 'low' | 'medium' | 'high',
+		min_hours: null as number | null,
+		max_hours: null as number | null,
+		actual_hours: null as number | null,
+		comment_hours: ''
 	});
 	let newComment = $state('');
 	let validationErrors = $state<Record<string, string>>({});
@@ -69,7 +74,11 @@
 		title: z.string().min(1, 'Title is required').max(200).trim(),
 		content: z.string().max(10000).optional(),
 		due_on: z.string().optional(),
-		priority: z.enum(['low', 'medium', 'high']).optional()
+		priority: z.enum(['low', 'medium', 'high']).optional(),
+		min_hours: z.number().positive().nullable().optional(),
+		max_hours: z.number().positive().nullable().optional(),
+		actual_hours: z.number().positive().nullable().optional(),
+		comment_hours: z.string().max(10000).optional()
 	});
 
 	onMount(async () => {
@@ -79,7 +88,11 @@
 			editData = {
 				title: foundTodo.title,
 				due_on: foundTodo.due_on ? new Date(foundTodo.due_on).toISOString().split('T')[0] : '',
-				priority: (foundTodo.priority as 'low' | 'medium' | 'high') || 'low'
+				priority: (foundTodo.priority as 'low' | 'medium' | 'high') || 'low',
+				min_hours: foundTodo.min_hours ?? null,
+				max_hours: foundTodo.max_hours ?? null,
+				actual_hours: foundTodo.actual_hours ?? null,
+				comment_hours: foundTodo.comment_hours || ''
 			};
 
 			await commentsStore.loadComments(cardId || '');
@@ -141,7 +154,11 @@
 				title: validatedData.title,
 				content: validatedData.content || null,
 				due_on: validatedData.due_on || null,
-				priority: validatedData.priority || 'low'
+				priority: validatedData.priority || 'low',
+				min_hours: validatedData.min_hours,
+				max_hours: validatedData.max_hours,
+				actual_hours: validatedData.actual_hours,
+				comment_hours: validatedData.comment_hours
 			});
 
 			if (!result.success) {
@@ -433,6 +450,29 @@
 								</select>
 							</div>
 						</div>
+
+						{#if todo.list?.board?.settings?.enable_hour_tracking}
+							<div>board
+								<div class="grid gap-4 sm:grid-cols-3">
+									<div>
+										<Label for="min_hours">{$t('card.min_hours')}</Label>
+										<Input id="min_hours" type="number" bind:value={editData.min_hours} />
+									</div>
+									<div>
+										<Label for="max_hours">{$t('card.max_hours')}</Label>
+										<Input id="max_hours" type="number" bind:value={editData.max_hours} />
+									</div>
+									<div>
+										<Label for="actual_hours">{$t('card.actual_hours')}</Label>
+										<Input id="actual_hours" type="number" bind:value={editData.actual_hours} />
+									</div>
+								</div>
+								<div class="mt-4">
+									<Label for="comment_hours">{$t('card.comment_hours')}</Label>
+									<Textarea id="comment_hours" bind:value={editData.comment_hours} />
+								</div>
+							</div>
+						{/if}
 
 						<CardLabelManager {todo} />
 

@@ -139,22 +139,22 @@ describe('TodoFilteringStore', () => {
 		const mockTodos: TodoFieldsFragment[] = [
 			createMockTodo({
 				id: '1',
-				title: 'Active Todo',
-				completed_at: null,
-				list: {
-					id: 'list1',
-					name: 'Work',
-					sort_order: 1,
-					board: {
-						id: 'board1',
-						name: 'Main Board',
-						alias: 'main-board',
-						sort_order: 1,
-						__typename: 'boards'
-					},
-					__typename: 'lists'
-				}
-			}),
+				                title: 'Active Todo',
+				                completed_at: null,
+				                list: {
+				                    id: 'list1',
+				                    name: 'Work',
+				                    sort_order: 1,
+				                    board: {
+				                        id: 'board1',
+				                        name: 'Main Board',
+				                        alias: 'main-board',
+				                        sort_order: 1,
+				                        settings: {},
+				                        __typename: 'boards'
+				                    },
+				                    __typename: 'lists'
+				                }			}),
 			createMockTodo({
 				id: '2',
 				title: 'Completed Todo',
@@ -168,6 +168,7 @@ describe('TodoFilteringStore', () => {
 						name: 'Main Board',
 						alias: 'main-board',
 						sort_order: 1,
+						settings: {},
 						__typename: 'boards'
 					},
 					__typename: 'lists'
@@ -176,22 +177,22 @@ describe('TodoFilteringStore', () => {
 			createMockTodo({
 				id: '3',
 				title: 'Overdue Todo',
-				due_on: '2024-12-01T00:00:00Z',
-				completed_at: null,
-				list: {
-					id: 'list1',
-					name: 'Work',
-					sort_order: 1,
-					board: {
-						id: 'board1',
-						name: 'Main Board',
-						alias: 'main-board',
-						sort_order: 1,
-						__typename: 'boards'
-					},
-					__typename: 'lists'
-				}
-			}),
+				                due_on: '2024-12-01T00:00:00Z',
+				                completed_at: null,
+				                list: {
+				                    id: 'list1',
+				                    name: 'Work',
+				                    sort_order: 1,
+				                    board: {
+				                        id: 'board1',
+				                        name: 'Main Board',
+				                        alias: 'main-board',
+				                        sort_order: 1,
+				                        settings: {},
+				                        __typename: 'boards'
+				                    },
+				                    __typename: 'lists'
+				                }			}),
 			createMockTodo({
 				id: '4',
 				title: 'High Priority Task',

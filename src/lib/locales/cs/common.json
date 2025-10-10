@@ -125,7 +125,9 @@
         "create_board_prompt": "Vytvořte desku pro organizaci seznamů",
         "board_help_text": "Desky pomáhají organizovat seznamy do různých projektů nebo kategorií.",
         "tasks_count": "{{count}} úkolů",
-        "by_user": "od @{{username}}"
+        "by_user": "od @{{username}}",
+        "enable_hour_tracking": "Povolit sledování hodin",
+        "settings_updated": "Nastavení desky aktualizováno"
     },
     "members": {
         "board_members": "Členové desky",
@@ -374,7 +376,12 @@
         "new_upload_alt": "Nové nahrání",
         "drag_drop_prompt": "Přetáhněte sem obrázky nebo ",
         "click_to_select": "klikněte pro výběr",
-        "image_size_limit": "PNG, JPG do 5 MB každý"
+        "image_size_limit": "PNG, JPG do 5 MB každý",
+        "hour_tracking": "Sledování hodin",
+        "min_hours": "Min. hodiny",
+        "max_hours": "Max. hodiny",
+        "actual_hours": "Skutečné hodiny",
+        "comment_hours": "Komentář k hodinám"
     },
     "labels": {
         "labels": "Štítky",

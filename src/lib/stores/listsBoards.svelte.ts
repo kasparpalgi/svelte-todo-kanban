@@ -270,7 +270,7 @@ function createListsStore() {
 	async function updateBoard(
 		id: string,
 		updates: Partial<
-			Pick<BoardFieldsFragment, 'name' | 'sort_order' | 'github' | 'is_public' | 'allow_public_comments'>
+			Pick<BoardFieldsFragment, 'name' | 'sort_order' | 'github' | 'is_public' | 'allow_public_comments' | 'settings'>
 		>
 	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
 		if (!browser) return { success: false, message: 'Not in browser' };

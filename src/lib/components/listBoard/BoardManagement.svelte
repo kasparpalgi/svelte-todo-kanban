@@ -130,7 +130,11 @@
 
 		let confirmMessage = $t('board.delete_board_confirm', { name: boardName });
 		if (listsInBoard.length > 0 || todoCount > 0) {
-			confirmMessage = $t('board.delete_board_with_items', { name: boardName, lists: listsInBoard.length, todos: todoCount });
+			confirmMessage = $t('board.delete_board_with_items', {
+				name: boardName,
+				lists: listsInBoard.length,
+				todos: todoCount
+			});
 		}
 
 		if (!confirm(confirmMessage)) return;
@@ -167,7 +171,11 @@
 		});
 
 		if (result.success) {
-			displayMessage(repo ? $t('github.repo_connected') : $t('github.repo_disconnected'), 1500, true);
+			displayMessage(
+				repo ? $t('github.repo_connected') : $t('github.repo_disconnected'),
+				1500,
+				true
+			);
 			showGithubDialog = false;
 			selectedBoardForGithub = null;
 		} else {
@@ -237,6 +245,23 @@
 			displayMessage($t('board.failed_reorder'));
 		}
 	}
+
+	async function handleUpdateBoardSettings(boardId: string, enable: boolean) {
+		const board = listsStore.boards.find((b) => b.id === boardId);
+		if (!board) return;
+
+		const newSettings = { ...board.settings, enable_hour_tracking: enable };
+
+		const result = await listsStore.updateBoard(boardId, {
+			settings: newSettings
+		});
+
+		if (result.success) {
+			displayMessage($t('board.settings_updated'), 1500, true);
+		} else {
+			displayMessage(result.message);
+		}
+	}
 </script>
 
 {#if actionState.edit === 'showBoardManagement'}
@@ -283,7 +308,9 @@
 							</DialogHeader>
 							<div class="grid gap-4 py-4">
 								<div class="grid gap-2">
-									<label for="board-name" class="text-sm font-medium">{$t('board.board_name_label')}</label>
+									<label for="board-name" class="text-sm font-medium"
+										>{$t('board.board_name_label')}</label
+									>
 									<Input
 										id="board-name"
 										bind:value={newBoardName}
@@ -293,7 +320,9 @@
 								</div>
 							</div>
 							<DialogFooter>
-								<Button variant="outline" onclick={() => (showBoardDialog = false)}>{$t('common.cancel')}</Button>
+								<Button variant="outline" onclick={() => (showBoardDialog = false)}
+									>{$t('common.cancel')}</Button
+								>
 								<Button onclick={handleCreateBoard} disabled={!newBoardName.trim()}>
 									{$t('board.create_board')}
 								</Button>
@@ -375,120 +404,142 @@
 												<DropdownMenuItem onclick={() => openVisibilityDialog(board)}>
 													<Globe class="mr-2 h-3 w-3" />
 													{$t('board.sharing_visibility')}
-												                 </DropdownMenuItem>
-																								{#if hasGithubConnected}
-																									<DropdownMenuItem onclick={() => openGithubSelector(board)}>
-																										<img src={githubLogo} alt="GitHub" class="mr-2 h-3 w-3" />
-																										{board.github ? $t('board.change_github_repo') : $t('board.connect_github_repo')}
-																									</DropdownMenuItem>
-																								{/if}
-																								                                                                <DropdownMenuSeparator />
-																								                                                                <DropdownMenuItem
-																								                                                                    onclick={() => handleDeleteBoard(board.id, board.name)}
-																								                                                                    class="text-red-600"
-																								                                                                >
-																								                                                                    <Trash2 class="mr-2 h-3 w-3" />
-																								                                                                    {$t('common.delete')}
-																								                                                                </DropdownMenuItem>
-																								                                                            </DropdownMenuContent>
-																								                                                        </DropdownMenu>
-																								                                                    </div>
-																								                                                {/each}
-																								                                            </div>
-																								                                        {/if}
-																								                                
-																								                                        {#if sharedBoards().length > 0}
-																								                                            {#if ownedBoards().length > 0}
-																								                                                <div class="my-4 flex items-center gap-2 text-sm text-muted-foreground">
-																								                                                    <div class="h-px flex-1 bg-border"></div>
-																								                                s                       <span>{$t('board.shared_with_me')}</span>
-																								                                                    <div class="h-px flex-1 bg-border"></div>
-																								                                                </div>
-																								                                            {/if}
-																								                                            <div class="space-y-2">
-																								                                                {#each sharedBoards() as board (board.id)}
-																								                                                    <div class="flex items-center gap-2 rounded border p-2 opacity-80">
-																								                                                        {#if editingBoard?.id === board.id}
-																								                                                            <Input
-																								                                                                bind:value={editingBoard.name}
-																								                                                                class="h-8 flex-1"
-																								                                                                onkeydown={(e) => handleBoardKeydown(e, board.id, editingBoard?.name || '')}
-																								                                                                onblur={() => handleUpdateBoard(board.id, editingBoard?.name || '')}
-																								                                                            />
-																								                                                        {:else}
-																								                                                            <div class="flex flex-1 flex-col gap-1">
-																								                                                                <span class="font-medium">{board.name}</span>
-																								                                                                {#if board.user?.username}
-																								                                                                    <span class="text-xs text-muted-foreground">{$t('board.by_user', { username: board.user.username })}</span>
-																								                                                                {/if}
-																								                                                                {#if formatGithubRepo(board.github)}
-																								                                                                    <span class="flex items-center gap-1 text-xs text-muted-foreground">
-																								                                                                        <img src={githubLogo} alt="GitHub" class="h-4 w-4" />
-																								                                                                        {formatGithubRepo(board.github)}
-																								                                                                    </span>
-																								                                                                {/if}
-																								                                                            </div>
-																								                                                        {/if}
-																								                                
-																								                                                        <Badge variant="outline" class="text-xs">
-																								                                                            {$t('board.tasks_count', { count: todoCountByBoard().get(board.id) || 0 })}
-																								                                                        </Badge>
-																								                                
-																								                                                        <DropdownMenu>
-																								                                                            <DropdownMenuTrigger>
-																								                                                                <Button variant="ghost" size="sm" class="h-6 w-6 p-0">
-																								                                                                    <Ellipsis class="h-3 w-3" />
-																								                                                                </Button>
-																								                                                            </DropdownMenuTrigger>
-																								                                                            <DropdownMenuContent align="end">
-																								                                                                <DropdownMenuItem onclick={() => openMembersDialog(board)}>
-																								                                                                    <Users class="mr-2 h-3 w-3" />
-																								                                                                    {$t('board.view_members')}
-																								                                                                </DropdownMenuItem>
-																								                                                                <DropdownMenuItem onclick={() => openVisibilityDialog(board)}>
-																								                                                                    <Globe class="mr-2 h-3 w-3" />
-																								                                                                    {$t('board.view_visibility')}
-																								                                                                </DropdownMenuItem>
-																								                                                            </DropdownMenuContent>
-																								                                                        </DropdownMenu>
-																								                                                    </div>
-																								                                                {/each}
-																								                                            </div>
-																								                                        {/if}
-																								                                    {/if}
-																								                                </CardContent>
-																								                            </Card>
-																								                        </div>
-																								                    </div>
-																								                {/if}
-																								                
-																								                {#if showGithubDialog && selectedBoardForGithub}
-																								                    <GithubRepoSelector
-																								                        bind:open={showGithubDialog}
-																								                        currentRepo={selectedBoardForGithub.github}
-																								                        boardId={selectedBoardForGithub.id}
-																								                        onSelect={handleGithubRepoSelected}
-																								                    />
-																								                {/if}
-																								                
-																								                {#if showMembersDialog && selectedBoardForMembers}
-																								                    <BoardMembers
-																								                        board={selectedBoardForMembers}
-																								                        bind:open={showMembersDialog}
-																								                        onClose={() => {
-																								                            showMembersDialog = false;
-																								                            selectedBoardForMembers = null;
-																								                        }}
-																								                    />
-																								                {/if}
-																								                
-																								                {#if showVisibilityDialog && selectedBoardForVisibility}
-																								                    <BoardVisibilitySettings
-																								                        board={selectedBoardForVisibility}
-																								                        bind:open={showVisibilityDialog}
-																								                        onClose={() => {
-																								                            showVisibilityDialog = false;
-																								                            selectedBoardForVisibility = null;
-																								                        }}
-																								                    />
-																								                {/if}
+												</DropdownMenuItem>
+												{#if hasGithubConnected}
+													<DropdownMenuItem onclick={() => openGithubSelector(board)}>
+														<img src={githubLogo} alt="GitHub" class="mr-2 h-3 w-3" />
+														{board.github
+															? $t('board.change_github_repo')
+															: $t('board.connect_github_repo')}
+													</DropdownMenuItem>
+												{/if}
+												<DropdownMenuSeparator />
+												<div class="px-2 py-1.5 text-sm">
+													<Label
+														for="hour-tracking-switch-{board.id}"
+														class="flex cursor-pointer items-center gap-2"
+													>
+														<Switch
+															id="hour-tracking-switch-{board.id}"
+															checked={board.settings?.enable_hour_tracking ?? false}
+															onCheckedChange={() =>
+																handleUpdateBoardSettings(
+																	board.id,
+																	!board.settings?.enable_hour_tracking
+																)}
+														/>
+														<span>{$t('board.enable_hour_tracking')}</span>
+													</Label>
+												</div>
+												<DropdownMenuSeparator />
+												<DropdownMenuItem
+													onclick={() => handleDeleteBoard(board.id, board.name)}
+													class="text-red-600"
+												>
+													<Trash2 class="mr-2 h-3 w-3" />
+													{$t('common.delete')}
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</div>
+								{/each}
+							</div>
+						{/if}
+
+						{#if sharedBoards().length > 0}
+							{#if ownedBoards().length > 0}
+								<div class="my-4 flex items-center gap-2 text-sm text-muted-foreground">
+									<div class="h-px flex-1 bg-border"></div>
+									s<span>{$t('board.shared_with_me')}</span>
+									<div class="h-px flex-1 bg-border"></div>
+								</div>
+							{/if}
+							<div class="space-y-2">
+								{#each sharedBoards() as board (board.id)}
+									<div class="flex items-center gap-2 rounded border p-2 opacity-80">
+										{#if editingBoard?.id === board.id}
+											<Input
+												bind:value={editingBoard.name}
+												class="h-8 flex-1"
+												onkeydown={(e) => handleBoardKeydown(e, board.id, editingBoard?.name || '')}
+												onblur={() => handleUpdateBoard(board.id, editingBoard?.name || '')}
+											/>
+										{:else}
+											<div class="flex flex-1 flex-col gap-1">
+												<span class="font-medium">{board.name}</span>
+												{#if board.user?.username}
+													<span class="text-xs text-muted-foreground"
+														>{$t('board.by_user', { username: board.user.username })}</span
+													>
+												{/if}
+												{#if formatGithubRepo(board.github)}
+													<span class="flex items-center gap-1 text-xs text-muted-foreground">
+														<img src={githubLogo} alt="GitHub" class="h-4 w-4" />
+														{formatGithubRepo(board.github)}
+													</span>
+												{/if}
+											</div>
+										{/if}
+
+										<Badge variant="outline" class="text-xs">
+											{$t('board.tasks_count', { count: todoCountByBoard().get(board.id) || 0 })}
+										</Badge>
+
+										<DropdownMenu>
+											<DropdownMenuTrigger>
+												<Button variant="ghost" size="sm" class="h-6 w-6 p-0">
+													<Ellipsis class="h-3 w-3" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem onclick={() => openMembersDialog(board)}>
+													<Users class="mr-2 h-3 w-3" />
+													{$t('board.view_members')}
+												</DropdownMenuItem>
+												<DropdownMenuItem onclick={() => openVisibilityDialog(board)}>
+													<Globe class="mr-2 h-3 w-3" />
+													{$t('board.view_visibility')}
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</div>
+								{/each}
+							</div>
+						{/if}
+					{/if}
+				</CardContent>
+			</Card>
+		</div>
+	</div>
+{/if}
+
+{#if showGithubDialog && selectedBoardForGithub}
+	<GithubRepoSelector
+		bind:open={showGithubDialog}
+		currentRepo={selectedBoardForGithub.github}
+		boardId={selectedBoardForGithub.id}
+		onSelect={handleGithubRepoSelected}
+	/>
+{/if}
+
+{#if showMembersDialog && selectedBoardForMembers}
+	<BoardMembers
+		board={selectedBoardForMembers}
+		bind:open={showMembersDialog}
+		onClose={() => {
+			showMembersDialog = false;
+			selectedBoardForMembers = null;
+		}}
+	/>
+{/if}
+
+{#if showVisibilityDialog && selectedBoardForVisibility}
+	<BoardVisibilitySettings
+		board={selectedBoardForVisibility}
+		bind:open={showVisibilityDialog}
+		onClose={() => {
+			showVisibilityDialog = false;
+			selectedBoardForVisibility = null;
+		}}
+	/>
+{/if}

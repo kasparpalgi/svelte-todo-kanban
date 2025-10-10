@@ -85,11 +85,11 @@ function createTodosStore() {
 		updates: any,
 		originalTodo: TodoFieldsFragment
 	) {
-		if (!(todo.list?.board as any)?.github || !(todo as any).github_issue_number) {
+		if (!todo.list || !(todo.list.board as any)?.github || !(todo as any).github_issue_number) {
 			return; // Board not connected or todo not linked to issue
 		}
 
-		const githubData =
+		const githubData = 
 			typeof (todo.list.board as any).github === 'string'
 				? JSON.parse((todo.list.board as any).github)
 				: (todo.list.board as any).github;
@@ -257,7 +257,19 @@ function createTodosStore() {
 	async function updateTodo(
 		id: string,
 		updates: Partial<
-			Pick<TodoFieldsFragment, 'title' | 'content' | 'completed_at' | 'due_on' | 'sort_order' | 'priority'> & {
+			Pick<
+				TodoFieldsFragment,
+				| 'title'
+				| 'content'
+				| 'completed_at'
+				| 'due_on'
+				| 'sort_order'
+				| 'priority'
+				| 'min_hours'
+				| 'max_hours'
+				| 'actual_hours'
+				| 'comment_hours'
+			> & {
 				list_id?: string | null;
 			}
 		>

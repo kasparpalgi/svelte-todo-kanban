@@ -125,7 +125,9 @@
         "create_board_prompt": "Loo tahvel oma nimekirjade organiseerimiseks",
         "board_help_text": "Tahvlid aitavad organiseerida teie nimekirju erinevatesse projektidesse või kategooriatesse.",
         "tasks_count": "{{count}} ülesannet",
-        "by_user": "kasutajalt @{{username}}"
+        "by_user": "kasutajalt @{{username}}",
+        "enable_hour_tracking": "Luba tundide jälgimine",
+        "settings_updated": "Tahvli seaded on uuendatud"
     },
     "members": {
         "board_members": "Tahvli liikmed",
@@ -374,7 +376,12 @@
         "new_upload_alt": "Lae üles",
         "drag_drop_prompt": "Lohista pildid siia või ",
         "click_to_select": "vali klikates siia",
-        "image_size_limit": "Kuni 10MB faili kohta"
+        "image_size_limit": "Kuni 10MB faili kohta",
+        "hour_tracking": "Töömahu hinnangud & kulunud tunnid",
+        "min_hours": "Min. tunde",
+        "max_hours": "Maks. tunde",
+        "actual_hours": "Kulus tunde",
+        "comment_hours": "Kommentaar töömahu kohta"
     },
     "labels": {
         "labels": "Sildid",
