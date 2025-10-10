@@ -67,9 +67,7 @@
 	async function handleDeleteList() {
 		const taskCount = todos.length;
 		const confirmMessage =
-			taskCount > 0
-				? $t('todo.delete_list_confirm', { name: list.name, count: taskCount })
-				: $t('todo.delete_list_confirm_empty', { name: list.name });
+			taskCount > 0 ? $t('todo.delete_list_confirm') : $t('todo.delete_list_confirm_empty');
 
 		if (confirm(confirmMessage)) {
 			const result = await listsStore.deleteList(list.id);
@@ -97,7 +95,11 @@
 		}
 	}
 
-	async function handleQuickAddTask(title: string, addToTop: boolean = true, skipGithub: boolean = false) {
+	async function handleQuickAddTask(
+		title: string,
+		addToTop: boolean = true,
+		skipGithub: boolean = false
+	) {
 		if (!title.trim()) return;
 
 		const listIdForTask = list.id === 'inbox' ? undefined : list.id;
@@ -106,7 +108,13 @@
 		const boardGithub = list.board?.github;
 		const createGithubIssue = boardGithub && !skipGithub;
 
-		const result = await todosStore.addTodo(title.trim(), undefined, listIdForTask, addToTop, createGithubIssue);
+		const result = await todosStore.addTodo(
+			title.trim(),
+			undefined,
+			listIdForTask,
+			addToTop,
+			createGithubIssue
+		);
 
 		if (result.success) {
 			if (addToTop) {
@@ -233,68 +241,68 @@
 					items={todos.map((todo) => todo.id)}
 					strategy={verticalListSortingStrategy}
 				>
-				{#if todos.length > 0}
-					{#each todos as todo, index (todo.id)}
-						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'above'}
-							<div
-								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-							></div>
-						{/if}
-
-						{#if index === 0 && dropPosition?.listId === list.id && dropPosition?.todoId === 'column' && dropPosition?.position === 'above'}
-							<div
-								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-							></div>
-						{/if}
-
-						<TodoItem {todo} />
-
-						{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'below'}
-							<div
-								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-							></div>
-						{/if}
-					{/each}
-					<div class="mt-3"></div>
-
-					<QuickAddInput
-						bind:value={newTaskTitleBottom}
-						autofocus={false}
-						id={`quickaddBottom-${list.id}`}
-						onSubmit={(val: string) => {
-							if (val) {
-								handleQuickAddTask(val, false);
-							}
-						}}
-						onCancel={() => {
-							showQuickAdd = false;
-							newTaskTitleBottom = '';
-						}}
-					/>
-				{:else}
-					{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
-						<div
-							class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-						></div>
-					{/if}
-
-					{#if !showQuickAdd}
-						<div class="py-8 text-center text-xs text-muted-foreground">
-							<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
-							{#if list.id !== 'inbox'}
-								<Button
-									size="sm"
-									variant="ghost"
-									class="h-auto p-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
-									onclick={() => (showQuickAdd = true)}
-								>
-									<Plus class="mr-1 h-3 w-3" />
-									{$t('todo.add_task')}
-								</Button>
+					{#if todos.length > 0}
+						{#each todos as todo, index (todo.id)}
+							{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'above'}
+								<div
+									class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
+								></div>
 							{/if}
-						</div>
+
+							{#if index === 0 && dropPosition?.listId === list.id && dropPosition?.todoId === 'column' && dropPosition?.position === 'above'}
+								<div
+									class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
+								></div>
+							{/if}
+
+							<TodoItem {todo} />
+
+							{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'below'}
+								<div
+									class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
+								></div>
+							{/if}
+						{/each}
+						<div class="mt-3"></div>
+
+						<QuickAddInput
+							bind:value={newTaskTitleBottom}
+							autofocus={false}
+							id={`quickaddBottom-${list.id}`}
+							onSubmit={(val: string) => {
+								if (val) {
+									handleQuickAddTask(val, false);
+								}
+							}}
+							onCancel={() => {
+								showQuickAdd = false;
+								newTaskTitleBottom = '';
+							}}
+						/>
+					{:else}
+						{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
+							<div
+								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
+							></div>
+						{/if}
+
+						{#if !showQuickAdd}
+							<div class="py-8 text-center text-xs text-muted-foreground">
+								<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
+								{#if list.id !== 'inbox'}
+									<Button
+										size="sm"
+										variant="ghost"
+										class="h-auto p-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+										onclick={() => (showQuickAdd = true)}
+									>
+										<Plus class="mr-1 h-3 w-3" />
+										{$t('todo.add_task')}
+									</Button>
+								{/if}
+							</div>
+						{/if}
 					{/if}
-				{/if}
 				</SortableContext>
 			</div>
 		</CardContent>

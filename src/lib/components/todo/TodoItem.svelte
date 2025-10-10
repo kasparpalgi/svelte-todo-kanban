@@ -336,8 +336,8 @@
 		if (diffDays === 0) return $t('date.today');
 		if (diffDays === 1) return $t('date.tomorrow');
 		if (diffDays === -1) return $t('date.yesterday');
-		if (diffDays > 0) return $t('date.in_days', { days: diffDays });
-		return $t('date.days_ago', { days: Math.abs(diffDays) });
+		if (diffDays > 0) return $t('date.in_days') + diffDays;
+		return $t('date.days_ago') + Math.abs(diffDays);
 	}
 
 	function isOverdue(dateString: string): boolean {

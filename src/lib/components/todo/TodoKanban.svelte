@@ -98,7 +98,7 @@
 
 		for (const list of filteredLists) {
 			result.push({
-				list: list,  // Pass the full list object including board data
+				list: list,
 				todos: todosByListId.get(list.id) || []
 			});
 		}
@@ -311,7 +311,7 @@
 		const parts: string[] = [];
 
 		if (filters.search) {
-			parts.push($t('todo.search_filter', { query: filters.search }));
+			parts.push($t('todo.search_filter'));
 		}
 		if (filters.listId) {
 			if (filters.listId === 'inbox') {
@@ -321,7 +321,7 @@
 			} else {
 				const list = listsStore.lists.find((l) => l.id === filters.listId);
 				if (list) {
-					parts.push($t('todo.list_filter', { name: list.name }));
+					parts.push($t('todo.list_filter') + list.name);
 				}
 			}
 		}
@@ -359,8 +359,31 @@
 				onDragCancel={handleDragCancel}
 			>
 				{#each kanbanLists() as { list, todos } (list.id)}
+					{@const stats = todos.reduce(
+						(acc, todo) => {
+							const min = todo.min_hours || 0;
+							const max = todo.max_hours || 0;
+							if (min > 0 || max > 0) {
+								const effectiveMin = min || max;
+								const effectiveMax = max || min;
+								acc.min += min;
+								acc.max += max;
+								acc.avg += (effectiveMin + effectiveMax) / 2;
+								acc.count++;
+							}
+							return acc;
+						},
+						{ min: 0, max: 0, avg: 0, count: 0 }
+					)}
 					<div class="w-80 flex-shrink-0">
 						<KanbanColumn {list} {todos} isHighlighted={hoveredListId === list.id} {dropPosition} />
+						{#if stats.count > 0}
+							<div class="-mt-2 text-center text-xs text-gray-400">
+								<span title="Total Minimum Hours">Min: {stats.min.toFixed(1)}h</span> |
+								<span title="Total Average Hours">Avg: {stats.avg.toFixed(1)}h</span> |
+								<span title="Total Maximum Hours">Max: {stats.max.toFixed(1)}h</span>
+							</div>
+						{/if}
 					</div>
 				{/each}
 
@@ -403,12 +426,10 @@
 											onclick={loadMoreCompletedTodos}
 										>
 											<ChevronDown class="mr-1 h-3 w-3" />
-											{$t('todo.load_more', {
-												count: Math.min(
-													completedItemsInitially,
-													filteredCompletedTodos().length - completedItemsToShow
-												)
-											})}
+											{$t('todo.load_more')} ({Math.min(
+												completedItemsInitially,
+												filteredCompletedTodos().length - completedItemsToShow
+											)})
 										</Button>
 									</div>
 								{/if}
