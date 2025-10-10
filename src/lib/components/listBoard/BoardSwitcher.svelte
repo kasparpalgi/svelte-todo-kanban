@@ -44,16 +44,12 @@
 		return $t('board.lists');
 	});
 
-	const manageBoardsLabel = $derived(() => `${$t('common.manage')} ${$t('board.projects')}`);
-
-	// Helper to check if current user is owner of a board
 	function isOwner(board: any) {
 		const currentUser = userStore.user;
 		if (!currentUser) return false;
 		return board.user?.id === currentUser.id;
 	}
 
-	// Helper to get member count (excluding owner)
 	function getMemberCount(board: any) {
 		if (!board.board_members) return 0;
 		return board.board_members.filter((m: any) => m.role !== 'owner').length;
@@ -83,25 +79,19 @@
 									<Globe class="h-3 w-3 text-muted-foreground" />
 								{/if}
 								{#if !isOwner(board)}
-									<Badge variant="secondary" class="text-xs h-4 px-1">Shared</Badge>
+									<Badge variant="secondary" class="h-4 px-1 text-xs">Shared</Badge>
 								{/if}
 							</div>
 							<div class="flex items-center gap-2">
 								{#if board.user?.username}
 									<span class="text-xs text-muted-foreground">@{board.user.username}</span>
 								{/if}
-								{#if getMemberCount(board) > 0}
-									<span class="text-xs text-muted-foreground flex items-center gap-1">
-										<Users class="h-3 w-3" />
-										{getMemberCount(board)}
-									</span>
-								{/if}
 							</div>
 						</div>
 						<div class="flex items-center gap-2">
 							<Badge variant="outline" class="text-xs">
-								{listsStore.lists.filter((l) => l.board_id === board.id).length}
-								{listLabel()}
+								<Users class="h-3 w-3" />
+								{getMemberCount(board) + 1}
 							</Badge>
 							{#if listsStore.selectedBoard?.id === board.id}
 								<div class="h-2 w-2 rounded-full bg-primary"></div>
@@ -115,7 +105,7 @@
 
 			<DropdownMenuItem onclick={openBoardManagement}>
 				<Settings class="mr-2 h-4 w-4" />
-				{manageBoardsLabel()}
+				{$t('board.manage_boards')}
 			</DropdownMenuItem>
 		</DropdownMenuContent>
 	</DropdownMenu>

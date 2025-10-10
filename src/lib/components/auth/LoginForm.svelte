@@ -22,7 +22,7 @@
 	async function handleEmailSignIn() {
 		isLoading = true;
 		try {
-			await signIn('nodemailer', { email, callbackUrl: '/' });
+			await signIn('nodemailer', { email, callbackUrl: '/et' });
 		} catch (error) {
 			console.error('Sign in error:', error);
 		} finally {
@@ -32,7 +32,7 @@
 
 	async function handleGoogleSignIn() {
 		try {
-			await signIn('google', { callbackUrl: '/' });
+			await signIn('google', { callbackUrl: '/et' });
 		} catch (error) {
 			console.error('Google sign in error:', error);
 		}
