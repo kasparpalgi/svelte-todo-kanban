@@ -34,19 +34,12 @@ async function getTopBoardPath(
 
 			if (dataByAlias.boards && dataByAlias.boards.length > 0) {
 				const board = dataByAlias.boards[0];
-				console.log('[Lang Layout] Found last opened board:', {
-					alias: board.alias,
-					username: board.user?.username
-				});
 
 				if (board.user?.username && board.alias) {
-					const locale = session.user?.locale || 'en';
+					const locale = session.user?.locale || 'et';
 					const path = `/${locale}/${board.user.username}/${board.alias}`;
-					console.log('[Lang Layout] ✓ Redirecting to last opened board:', path);
 					return path;
 				}
-			} else {
-				console.log('[Lang Layout] Last opened board not found, falling back to top board');
 			}
 		}
 
@@ -71,7 +64,7 @@ async function getTopBoardPath(
 			});
 
 			if (board.user?.username && board.alias) {
-				const locale = session.user?.locale || 'en';
+				const locale = session.user?.locale || 'et';
 				const path = `/${locale}/${board.user.username}/${board.alias}`;
 				console.log('[Lang Layout] ✓ Redirecting to top board:', path);
 				return path;
