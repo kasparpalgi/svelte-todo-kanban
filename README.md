@@ -1,396 +1,454 @@
-# Svelte ToDo app (Kanban) |
+# Svelte ToDo app (Kanban)
 
-Modern Kanban ToDo app built according to requirements [requirements](docs/todolist-svelte.md).
+Modern Kanban ToDo app built with SvelteKit, Hasura GraphQL, and PostgreSQL.
 
-## Install
+## Quick Start
 
-1. Pre-install optional suggestion (use the same Node/npm across devices): `nvm install && nvm use` & `npm ci` & `npm run i-npm` (or pnmp/yarn)
-2. Install dependencies: `npm ci`. On Windows you may need to to `npm i` or even `npm install --maxsockets=1` as latest Tailwind may be conflicting with current latest Vite and types may be messed or another known issue is that it won't even run due to `shadcn` current latest version some conflicts I haven't dived in.
-3. Rename `.env.example` to `.env` and update URL/password and do the same woth `hasura/.env.example`. Also, `.env.test.example` to `.env.test` (needed for Playwright testing Auth.js).
-4. Set up backend.
-   1. In `hasura` folder run `docker-compose up -d` to run [Hasura (enterprise-grade API engine)](https://hasura.io/)
-   2. Rename `hasura/config.example.yaml` to `hasura/config.yaml` and update the password. 
-   3. Install [Hasura CLI](https://hasura.io/docs/2.0/hasura-cli/install-hasura-cli/)
-   4. Run `hasura migrate apply --all-databases` and `hasura metadata apply`
-   5. If you want to test with some seed data, do `hasura seed apply` and if you have in your `.env` the `NODE_ENV` set to `development` then you are also able to access Auth.js built-in sign-in page at `/auth/signin` where you can login with `test@test.com` below in the test login section. It is also suggested to delete the test yser in production and do the testing with actually signed up accounts.
-   6. You can run `hasura console` for web UI to manage back-end tables/relations, run test API queries and much more.
-5. Always good idea to see if all works now: `npm run check` & `npm run test`
+### Prerequisites
+- Node.js 18+ (recommended: use `nvm`)
+- Docker & Docker Compose (for Hasura)
+- [Hasura CLI](https://hasura.io/docs/latest/hasura-cli/install-hasura-cli/)
+- **Claude Code with MCP servers** (see MCP Setup below)
 
-Fresh re-install Svelte: `npm run cu` (Unix-like), `npm run cw` (Windows).
+### Installation
 
-## Dependencies & explanations
+1. **Node & Dependencies**
+   ```bash
+   # Optional: Use same Node version across devices
+   nvm install && nvm use
+   
+   # Install dependencies
+   npm ci
+   
+   # Windows troubleshooting (if needed)
+   npm install --maxsockets=1
+   ```
 
-* [Auth.js](https://authjs.dev/) - for authentication. JWT token is used to make API requests from front-end so the app can be run with adapter 'static' that is needed for building Capacitor mobile app.
-* [nodemailer](https://nodemailer.com/) - sending email. For production paid and more "reliable" in terms of not going to spam paid service with API access will be used.
-* [@dnd-kit](https://dnd-kit-svelte.vercel.app/) - drag'n'drop (for Kanban)
-* [shadcn-svelte](https://shadcn-svelte.com/) - set of beautifully-designed, accessible components. Adding components: `npx shadcn-svelte add <COMPONENT>`
-* [lucide-svelte icons](https://lucide.dev/icons/)
-* [svelte-tiptap](https://tiptap.dev/docs/editor) - Rich markdown editor
-* PostgreSQL for DB. PostgreSQL functions are used where possible for speed and reliability.
-* graphql & graphql-request - handling Hasura GraphQL API requests.
-* Zod for form validation
-* [sveltekit-i18n](https://github.com/sveltekit-i18n/lib) - straightforward sveltekit-i18n solution (tiny library with no external dependencies)
+2. **Environment Setup**
+   ```bash
+   # Copy and configure environment files
+   cp .env.example .env
+   cp hasura/.env.example hasura/.env
+   cp .env.test.example .env.test
+   
+   # Edit .env files with your database credentials
+   ```
 
-### Application architecture
+3. **Backend Setup**
+   ```bash
+   # Start Hasura
+   cd hasura
+   docker-compose up -d
+   
+   # Configure Hasura
+   cp config.example.yaml config.yaml
+   # Edit config.yaml with your admin password
+   
+   # Apply migrations and metadata
+   hasura migrate apply --all-databases
+   hasura metadata apply
+   
+   # Optional: Load seed data (creates test@test.com user)
+   hasura seed apply
+   
+   # Open Hasura Console
+   hasura console
+   # Console opens at http://localhost:9695
+   ```
 
-The application is structured as a monorepo, containing the SvelteKit frontend, Hasura backend configuration, and testing suites all in one place.
+4. **Verify Installation**
+   ```bash
+   npm run check
+   npm test
+   ```
 
-*   **Frontend (SvelteKit):** The core of the application resides in the `src` directory.
-    *   `src/routes`: Defines all application pages and API endpoints. See "routing" for more below.
-    *   `src/lib/components`: Contains reusable Svelte components, organized by feature (`todo`, `listBoard`) and a general `ui` directory for components from mostly `shadcn-svelte`.
-    *   `src/lib/stores`: Manages application state using Svelte stores, following a factory pattern to encapsulate state and business logic.
-    *   `src/lib/graphql`: Holds the GraphQL client (`client.ts`), queries and mutations (`documents.ts`), and auto-generated types, ensuring a type-safe data layer.
-*   **Backend (Hasura & SvelteKit):** A hybrid approach is used for the backend.
-    *   `hasura/`: Contains the entire backend setup. Hasura provides the primary API for PostgreSQL database.
-        *   `hasura/metadata`: Defines the GraphQL API, including table relationships and permissions.
-        *   `hasura/seeds`: Optional test data.
-    *   `src/routes/api`: SvelteKit server routes handle specific backend tasks that don't fit into the Hasura model, such as authentication with Auth.js and file uploads.
-*   **Testing:**
-    *   `e2e/`: End-to-end tests are written using Playwright.
-    *   `*.spec.ts`: Unit and component tests are powered by Vitest.
+5. **Start Development**
+   ```bash
+   npm run dev
+   # Opens at http://localhost:5173
+   ```
 
-##### Routing
+---
 
-App generates user-friendly URLs using automatically generated aliases:
+## MCP Setup for Claude Code
 
-- **Boards**: `/[lang]/[username]/[boardAlias]` - each board gets a unique, URL-friendly alias generated from its name
-- **Todos**: `/[lang]/[username]/[boardAlias]/[todoAlias]` - todos have user-scoped aliases (unique per user)
+MCP (Model Context Protocol) servers enhance Claude Code with browser automation, database access, and advanced problem-solving capabilities.
 
-**Alias Generation:**
+### One-Time Setup
 
-Username for the user and aliases for the boards and todos are generated using PostgreSQL functions.
+**Required MCP Servers:**
 
-- Converts names to lowercase, URL-friendly format
-- Replaces spaces with hyphens
-- Removes special characters
-- Handles duplicates by appending numbers (e.g., `my-board`, `my-board2`)
-- **Boards**: Globally unique aliases across all users
-- **Todos**: User-scoped uniqueness (multiple users can have the same alias)
+```bash
+# 1. Playwright - Browser testing & console logs
+claude mcp add playwright -- npx @playwright/mcp@latest
 
-Example URLs:
-- `/en/john-w/work-projects`
-- `/en/sarah/personal-tasks/shopping`
+# 2. Sequential Thinking - Complex problem solving
+claude mcp add sequential-thinking -- npx -y @modelcontextprotocol/server-sequential-thinking
 
-**Future Plans:**
+# 3. Filesystem - Direct file operations (RECOMMENDED)
+# Windows:
+claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem C:/git/svelte-todo-kanban
 
-1. Allow users to customize their username.
-2. Enable shareable URLs: `/[username]/[boardAlias]/[todoAlias]`
-
-### Description of features
-
-*   **Kanban Board:** A fully interactive, drag-and-drop board for organising tasks into lists.
-*   **Rich Task Details:** Tasks can be enhanced with priority levels and due dates.
-*   **File Attachments:** Upload and attach relevant files.
-*   **User Preferences:**
-    *   **Dark Mode:**
-    *   **Language Selection:**
-*   **Modern UI/UX:**
-    *   **Optimistic Updates:**
-    *   **Responsive Design:**
-    *   **Toast Notifications:** A centralized system provides clear, non-intrusive feedback for user actions.
-*   **Production Logging System:**
-    *   **Structured Logging:** Comprehensive logging with levels (debug, info, warn, error)
-    *   **Database Persistence:** Automatic logging of errors and warnings to PostgreSQL
-    *   **Log Viewer UI:** View, filter, search, and export logs at `/[lang]/logs`
-    *   **Performance Monitoring:** Track slow operations and application performance
-    *   **Error Boundary:** Global error catching and logging for uncaught exceptions
-    *   **Privacy-Safe:** Automatic sanitization of sensitive data (passwords, tokens, etc.)
-    *   **Intelligent Sampling:** Production-ready sampling to reduce database load
-    *   **Rate Limiting:** Prevents log flooding
-*   **Developer Experience:**
-    *   **GraphQL Codegen:** Automatically generates TypeScript types from GraphQL queries, ensuring a type-safe data layer and reducing bugs.
-    *   **AI-powered Translations:** A utility script in the `scripts` folder helps automate the translation of locales using AI. Work in progress.
-
-### Invitation flow
-                                                  
-  1. Inviter sends invitation → Creates row in `board_invitations` table with status='pending'
-  2. Invitee logs in → The InvitationNotifications component (bell icon in header) automatically:
-    - Loads invitations where invitee_email matches their email
-    - Shows a badge with the count
-  3. Invitee clicks bell icon → Sees list of pending invitations with:                                                                      
-    - Board name
-    - Who invited them
-    - Role (editor/viewer)
-    - Accept/Decline buttons
-  4. Invitee clicks Accept → The store:
-    - Creates a row in board_members table
-    - Updates invitation status to 'accepted'
-    - Reloads boards (so the new board appears)
-  5. User now sees the shared board in BoardSwitcher with a "Shared" badge
-
-## Developing
-
-Once installed, run:  `npm run dev -- --open`
-
-### Stores
-
-Stores are defined in `src/lib/stores/<name>.svelte.ts` files and follow a factory pattern (create...Store) to encapsulate state and logic:
-
-* State - managed by a single `$state` rune object. This keeps all reactive state in one place. Global states: [states.svelte.ts](src/lib/stores/states.svelte.ts).
-* Actions - async functions within the store that handle all interactions with API.
-* Getters - public state is exposed via getters to prevent direct mutation from outside the store's defined actions.
-* Derived state - $derived for computed values (e.g., sorting / filtering).
-
-```svelte
-/** @file src/lib/stores/someStore.svelte.ts */
-import { browser } from '$app/environment';
-
-function createSomeStore() {
-	const state = $state({
-		items: [],
-		loading: false,
-		error: null
-	});
-
-	// --- Actions ---
-	async function loadItems() { /* ... */ }
-	async function updateItem(id, data) { /* ... */ }
-
-	// --- Derived State ---
-	const sortedItems = $derived([...state.items].sort(/*...*/));
-
-	// --- Public API ---
-	return {
-		get items() { return state.items; },
-		get loading() { return state.loading; },
-		get sortedItems() { return sortedItems; },
-		loadItems,
-		updateItem
-	};
-}
-
-export const someStore = createSomeStore();
+# macOS/Linux:
+claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem /path/to/svelte-todo-kanban
 ```
 
-**Database Interaction**
+**Optional MCP Servers:**
 
-DB operations are async & managed in stores. Use the `request` function from [client.ts](src/lib/graphql/client.ts) for all queries. GraphQL documents are imported from [documents.ts](src/lib/graphql/documents.ts). It is important to keep them all there as the codegen will then automatically generate all types.
+```bash
+# Context7 - Latest framework documentation
+claude mcp add --transport http context7 https://mcp.context7.com/mcp/
 
-**Environment Check**
-Start actions (that fetches data or interacts with browser APIs) with a `if (!browser) return;` guard to prevent server-side execution errors!
-
-**Loading/Error State** 
-Set `state.loading = true` at the beginning of any data operations and `state.loading = false` in a finally block. Use `state.error` on failure.
-
-**Action Return Value**
-Actions that perform mutations should return a consistent result object: `{ success: boolean, message: string, data?: T }`.
-
-**Optimistic Updates**
-When you do mutations, modify the state immediately & roll back if the API call fails.
-
-**Pattern**
-- Find the item in the local state array
-- Create a copy of the original item
-- Apply the updates to the local state (the "optimistic" part)
-- Execute the request call in a try/catch block
-- Success? Update local item with data returned from API (ensure consistency)
-- Failure? Revert the item in the local state to its original version and set the error message.
-
-```ts
-async function updateList(id, updates) {
-	const listIndex = state.lists.findIndex((l) => l.id === id);
-	if (listIndex === -1) return { success: false, message: 'Not found' };
-
-	const originalList = { ...state.lists[listIndex] };
-
-	// Optimistic update
-	state.lists[listIndex] = { ...originalList, ...updates };
-
-	try {
-		const data = await request(UPDATE_LIST, { /*...*/ });
-		const updatedList = data.update_lists?.returning?.[0];
-
-		if (!updatedList) {
-			// Revert on failed API op.
-			state.lists[listIndex] = originalList;
-			return { success: false, message: 'Failed to update' };
-		}
-		// Final update (with server data)
-		state.lists[listIndex] = updatedList;
-		return { success: true, data: updatedList };
-	} catch (error) {
-		// Revert on network/request error
-		state.lists[listIndex] = originalList;
-		return { success: false, message: error.message };
-	}
-}
+# GitHub - Version control operations
+claude mcp add --transport http github https://api.githubcopilot.com/mcp/
 ```
 
-**Using localStorage**
-Use `localStorage` only for non-critical, persistent UI states. Store simple user preferences, like the ID of the last selected item, to improve the user experience across sessions also when mobe app will support offline in the next versions.
+### Verify MCP Configuration
 
-Obvious NB: don'y store sensitive info or large/complex data. DB is THE single source of truth for all app's data!!! And always wrap `localStorage` access in a if (browser) check.
+```bash
+claude mcp list
 
-Example (from loadBoards):
-
-```ts
-// Restore selectedBoard from localStorage
-if (state.boards.length > 0) {
-    const savedId = localStorage.getItem('selectedBoardId');
-    const savedBoard = state.boards.find((b) => b.id === savedId);
-    state.selectedBoard = savedBoard || state.boards[0];
-}
+# Should show (✓ Connected):
+# - playwright
+# - sequential-thinking
+# - filesystem
+# - context7 (if installed)
 ```
 
-### Routing
+### MCP Usage in Development
 
-At the moment the whole authenticated action goes on in `src/routes/[lang]` but there's no real usage reason for changing language with URL not SEO perspective but as it felt easier to to change it later as app grows to `src/routes/(app)` than implement URL based localisation then I made it like this in the first place.
+Once configured, MCP servers are automatically available in all Claude Code sessions:
 
-Next implementation plan in routing:
-1. Generate (eg. with PostgreSQL function) automatic username to every user from first name, surname initial and if neccesary use also numbers. Eg. "Tom Woods" could be the first one "tom", many others "tom.w", "tom.p" etc. And then "tom1...9" etc. And let user to change it. Obviously unique.
-2. Then we can have nice urls `/user/boardName/cardName` that can be shared
+- **Playwright**: Test features in browser, capture console logs, take UI snapshots
+- **Sequential Thinking**: Plan complex features, analyze architecture decisions
+- **Filesystem**: Bulk file operations, project-wide refactoring
+- **Context7**: Get latest SvelteKit/Svelte 5 documentation
 
-### Error & Success Handling
+**Example workflow:**
+```bash
+# In Claude Code, you can now say:
+"Use Playwright to test the drag-and-drop at localhost:5173"
+"Use sequential thinking to plan the real-time collaboration feature"
+"Use filesystem to rename all .svelte files to use new naming convention"
+```
 
-Use centralised error/success system:
+---
 
-Central state management in [errorSuccess.svelte.ts](src/lib/stores/errorSuccess.svelte.ts)
+## Tech Stack
 
-Display component [ErrorSuccess.svelte](src/lib/components/ui/ErrorSuccess.svelte) renders messages as toast notifications. It is added to the top level [+layout.svelte](src/routes/+layout.svelte) so there's nothing you need to do with it!
+**Frontend**: Svelte 5, SvelteKit, TypeScript, Tailwind CSS, shadcn-svelte  
+**Backend**: Hasura GraphQL, PostgreSQL  
+**Auth**: Auth.js with JWT tokens  
+**Drag & Drop**: @dnd-kit/svelte  
+**Rich Text**: svelte-tiptap (Markdown support)  
+**Testing**: Playwright (E2E), Vitest (unit/component)  
+**i18n**: sveltekit-i18n
 
-**Usage Patterns:**
+---
 
-Error Messages:
+## Project Structure
+
+```
+src/
+├── routes/
+│   ├── [lang]/              # Language-based routing
+│   └── api/                 # Auth & file uploads
+├── lib/
+│   ├── components/
+│   │   ├── todo/            # Todo components
+│   │   ├── listBoard/       # Board/list components
+│   │   └── ui/              # Shared UI (shadcn)
+│   ├── stores/              # State management
+│   ├── graphql/
+│   │   ├── client.ts        # GraphQL client
+│   │   ├── documents.ts     # All queries/mutations
+│   │   └── generated.ts     # Auto-generated types
+│   └── locales/             # i18n translations
+hasura/
+├── metadata/                # GraphQL schema, permissions
+├── migrations/              # Database migrations
+└── seeds/                   # Test data
+tests/
+└── e2e/                     # Playwright tests
+```
+
+---
+
+## Key Features
+
+- **Kanban Board**: Drag-and-drop task management
+- **Rich Tasks**: Priority levels, due dates, markdown descriptions
+- **File Attachments**: Upload files to tasks
+- **User Preferences**: Dark mode, language selection
+- **Optimistic Updates**: Instant UI feedback
+- **Production Logging**: Comprehensive logging with database persistence
+- **Responsive Design**: Mobile-first approach
+- **Type Safety**: Full TypeScript + GraphQL codegen
+- **Sharing & Collaboration**: Board invitations with role-based access
+
+---
+
+## Development Workflow
+
+### State Management (Stores)
+
+Stores follow a factory pattern in `src/lib/stores/*.svelte.ts`:
 
 ```typescript
-displayMessage('Something went wrong', 3000); // or default 7000ms for longer messages
+function createStore() {
+  const state = $state({
+    items: [],
+    loading: false,
+    error: null
+  });
+
+  async function loadItems() {
+    if (!browser) return; // Always check browser
+    state.loading = true;
+    try {
+      const data = await request(GET_ITEMS, {});
+      state.items = data.items || [];
+    } catch (error) {
+      state.error = error.message;
+    } finally {
+      state.loading = false;
+    }
+  }
+
+  return {
+    get items() { return state.items; },
+    get loading() { return state.loading; },
+    loadItems
+  };
+}
+
+export const store = createStore();
 ```
 
-Success Messages:
+**Key Rules:**
+- Single `$state` object for all reactive state
+- Always check `if (!browser)` before browser APIs
+- Use `finally` for loading state
+- Return `{ success, message, data? }` from mutations
+- Use optimistic updates for instant UI feedback
+
+### GraphQL Workflow
+
+1. Add query/mutation to `src/lib/graphql/documents.ts`
+2. Run `npm run generate` to generate types
+3. Import types from `src/lib/graphql/generated.ts`
+4. Use `request()` from `src/lib/graphql/client.ts`
 
 ```typescript
-displayMessage('Operation completed successfully etc. bla bla', 3000, true); // longer than default 1.5sec success for longer success messages & true sets the 'success' as true that is false by default
+import { request } from '$lib/graphql/client';
+import { GET_BOARDS } from '$lib/graphql/documents';
+import type { GetBoardsQuery } from '$lib/graphql/generated';
+
+const data: GetBoardsQuery = await request(GET_BOARDS, { user_id });
 ```
 
-### Production Logging System
+### Database Verification
 
-A comprehensive logging system with database persistence, performance monitoring, and intelligent sampling.
+```bash
+# Open Hasura Console
+cd hasura
+hasura console
 
-**Logging to the System:**
+# Console features:
+# - Data tab: Browse tables, run SQL
+# - API tab: Test GraphQL queries
+# - Events tab: Check triggers
+```
+
+### Logging System
 
 ```typescript
 import { loggingStore } from '$lib/stores/logging.svelte';
 
-// Log levels (from least to most severe)
-loggingStore.debug('ComponentName', 'Debug message', { data: 'optional' });
-loggingStore.info('ComponentName', 'Info message', { userId: '123' });
-loggingStore.warn('ComponentName', 'Warning message', { issue: 'something' });
-loggingStore.error('ComponentName', 'Error message', { error: errorObject });
+// Production logs (auto-saved to DB)
+loggingStore.error('Component', 'Error msg', { error });
+loggingStore.warn('Component', 'Warning', { context });
+loggingStore.info('Component', 'Info', { data });
+
+// Dev only (not persisted)
+loggingStore.debug('Component', 'Debug', { data });
 ```
 
-**When to Log:**
+View logs at: `/[lang]/logs`
 
-✅ **ALWAYS LOG (ERROR/WARN):**
-- GraphQL/API errors
-- Store operation failures
-- Permission denied errors
-- Authentication failures
-- Uncaught exceptions
+---
 
-✅ **CONDITIONALLY LOG (INFO):**
-- Critical user actions (login, signup)
-- Important state changes
+## Common Commands
 
-❌ **NEVER LOG:**
-- Passwords, tokens, API keys
-- Full user objects (only IDs)
-- Large data payloads (>1KB)
-- High-frequency events (every keystroke, etc.)
-
-**Features:**
-
-- **Auto-persistence**: ERROR and WARN logs automatically saved to PostgreSQL
-- **Batching**: Logs sent to DB every 10s or when 50 logs accumulated
-- **Privacy-safe**: Automatically redacts sensitive fields (password, token, etc.)
-- **Circular reference safe**: Safely handles Error objects with circular refs
-- **Performance monitoring**: Track slow operations (>1s)
-- **Rate limiting**: Prevents log flooding (100 logs/component/minute)
-- **Sampling**: In production, samples 10% of INFO logs to reduce DB load
-- **Retry logic**: Failed logs re-queued in production
-
-**Performance Monitoring:**
-
-```typescript
-// Measure async operations
-const result = await loggingStore.measureAsync('fetchUserData', async () => {
-  return await fetch('/api/users');
-});
-
-// Measure sync operations
-const computed = loggingStore.measureSync('heavyCalculation', () => {
-  return performHeavyCalculation();
-});
-
-// Manual tracking
-const start = performance.now();
-// ... your operation ...
-const duration = performance.now() - start;
-loggingStore.trackPerformance('operationName', duration);
-
-// Get metrics
-const metrics = loggingStore.getPerformanceMetrics();
-console.log('Errors:', metrics.errorCount);
-console.log('Slow operations:', metrics.slowOperations);
-```
-
-**Viewing Logs:**
-
-Visit `/[lang]/logs` to access the log viewer with:
-- Filtering by level, component, date range
-- Full-text search in messages
-- Export to JSON
-- Pagination (50 logs per page)
-
-**Error Boundary:**
-
-Automatically catches and logs:
-- Uncaught JavaScript errors
-- Unhandled promise rejections
-- Displays user-friendly error UI
-
-**Note**: Error boundary catches window-level errors only. For component-level error handling, use try/catch in your code.
-
-**Configuration:**
-
-Environment-aware settings in `src/lib/config/logging.ts`:
-- Dev: Smaller batches (10), shorter timeout (5s), no sampling
-- Production: Larger batches (50), longer timeout (10s), 10% sampling
-
-**Database Cleanup:**
-
-Logs older than 30 days can be cleaned up:
-
-```sql
--- Manual cleanup (run via cron job)
-SELECT cleanup_old_logs();
-
--- Custom retention (e.g., 7 days)
-SELECT cleanup_old_logs(7);
-```
-
-Recommended cron job:
 ```bash
-0 2 * * * psql -d yourdb -c "SELECT cleanup_old_logs();"
+# Development
+npm run dev              # Start dev server
+npm run check            # Type checking
+npm test                 # Run tests
+npm run generate         # Generate GraphQL types
+
+# Backend (from hasura/ directory)
+hasura console           # Open Hasura Console
+hasura metadata apply    # Apply metadata changes
+hasura migrate apply --all-databases
+hasura migrate create "migration_name" --from-server
+
+# MCP
+claude mcp list          # List configured servers
+claude mcp add           # Add new server
+claude mcp remove        # Remove server
+
+# Clean install
+npm run cu               # Unix-like systems
+npm run cw               # Windows
 ```
 
-### Localisation
+---
 
-There are some translations but the app is not fully translated due to time limitations. To use multilang:
+## Testing
 
-1. Add your translations to [locales](src/lib/locales) folder
-```json
-{
-    "parent": {
-        "translation1": "Lorem",
-        "translation2": "Ipsum"
-	}
-}
+### Test Credentials (Development Only)
+
+When `NODE_ENV=development`:
+- Email: `test@test.com`
+- Access: `/auth/signin`
+- **Delete in production!**
+
+### Running Tests
+
+```bash
+# All tests
+npm test
+
+# E2E only
+npm run test:e2e
+
+# Unit/Component only
+npm run test:unit
+
+# With UI
+npm run test:e2e -- --ui
 ```
-2. Import `import { t } from '$lib/i18n';`
-3. Use eg. `$t('parent.translation')`
 
-## Building
+---
 
-To create a production version of your app: `npm run build`
+## URL Structure
 
-You can preview the production build with `npm run preview`.
+SEO-friendly URLs with auto-generated aliases:
+
+- **Boards**: `/[lang]/[username]/[boardAlias]`
+- **Todos**: `/[lang]/[username]/[boardAlias]/[todoAlias]`
+
+**Examples:**
+- `/en/john-w/work-projects`
+- `/en/sarah/personal-tasks/shopping`
+
+Aliases are auto-generated by PostgreSQL functions:
+- Lowercase, hyphenated format
+- Duplicate handling with numbers (`my-board`, `my-board-2`)
+- **Boards**: Globally unique
+- **Todos**: User-scoped unique
+
+**Planned**: Custom usernames, shareable URLs without `/[lang]`
+
+---
+
+## Invitation Flow
+
+1. User sends invitation → Creates `board_invitations` row (status='pending')
+2. Invitee logs in → Bell icon shows notification count
+3. Invitee clicks bell → Views pending invitations
+4. Invitee accepts → Creates `board_members` row, updates status
+5. Board appears in BoardSwitcher with "Shared" badge
+
+---
+
+## Production Build
+
+```bash
+npm run build
+npm run preview
+```
+
+---
+
+## Dependencies Explained
+
+- **Auth.js**: Authentication with JWT tokens (supports static adapter for mobile)
+- **nodemailer**: Email sending (production: use paid service API)
+- **@dnd-kit/svelte**: Drag-and-drop for Kanban
+- **shadcn-svelte**: Accessible UI components (`npx shadcn-svelte add <component>`)
+- **lucide-svelte**: Icon library
+- **svelte-tiptap**: Rich markdown editor
+- **graphql-request**: GraphQL client for Hasura
+- **Zod**: Form validation
+- **sveltekit-i18n**: Lightweight i18n (zero dependencies)
+
+---
+
+## Contributing
+
+### Before Committing
+
+```bash
+npm run check           # Must pass
+npm test                # Must pass
+```
+
+### Development Guidelines
+
+1. **Use MCP tools for verification**:
+   - Playwright for browser testing
+   - Sequential Thinking for complex planning
+   - Hasura Console for database verification
+
+2. **Follow store patterns**:
+   - Factory pattern with `$state`
+   - Browser guards on all actions
+   - Optimistic updates for mutations
+
+3. **Write tests**:
+   - Unit tests for stores
+   - Component tests for UI
+   - E2E tests for workflows
+
+4. **Document changes**:
+   - Update task files in `todo/` folder
+   - Document MCP verification performed
+   - Note test coverage
+
+---
+
+## Troubleshooting
+
+### Windows Installation Issues
+
+If you encounter dependency conflicts:
+```bash
+npm install --maxsockets=1
+```
+
+### Hasura Connection Issues
+
+Check `.env` and `hasura/.env` files have correct credentials.
+
+### MCP Server Not Connected
+
+```bash
+# Check status
+claude mcp list
+
+# Reconnect
+claude mcp remove <server-name>
+claude mcp add <server-name> -- <command>
+```
+
+---
+
+## License
+
+[Your License Here]
+
+## Support
+
+For issues or questions, please open an issue on GitHub.
