@@ -4,6 +4,7 @@
 	import { boardMembersStore } from '$lib/stores/boardMembers.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
+	import { formatDate } from '$lib/utils/dateTime.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Badge } from '$lib/components/ui/badge';
@@ -123,18 +124,6 @@
 				return 'outline';
 		}
 	}
-
-	function formatDate(dateString: string) {
-		const date = new Date(dateString);
-		const now = new Date();
-		const diff = now.getTime() - date.getTime();
-		const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-		if (days === 0) return $t('members.today');
-		if (days === 1) return $t('members.yesterday');
-		if (days < 7) return $t('members.days_ago', { days });
-		return date.toLocaleDateString();
-	}
 </script>
 
 <Dialog bind:open>
@@ -145,12 +134,11 @@
 				{$t('members.board_members')}
 			</DialogTitle>
 			<DialogDescription>
-				{$t('members.manage_access', { boardName: board.name })}
+				{$t('members.manage_access')} "{board.name}"
 			</DialogDescription>
 		</DialogHeader>
 
 		<div class="space-y-6">
-			<!-- Invite Section -->
 			{#if isOwner()}
 				<Card>
 					<CardHeader>
@@ -212,7 +200,7 @@
 			<Card>
 				<CardHeader>
 					<CardTitle class="flex items-center justify-between text-sm">
-						<span>{$t('members.members_count', { count: members.length })}</span>
+						<span>{$t('members.members_count')} ({members.length})</span>
 					</CardTitle>
 				</CardHeader>
 				<CardContent class="space-y-2">
@@ -267,7 +255,7 @@
 					<CardHeader>
 						<CardTitle class="flex items-center gap-2 text-sm">
 							<Clock class="h-4 w-4" />
-							{$t('members.pending_invitations_count', { count: invitations.length })}
+							{$t('members.pending_invitations_count')} ({invitations.length})
 						</CardTitle>
 					</CardHeader>
 					<CardContent class="space-y-2">
@@ -279,7 +267,8 @@
 										{invitation.invitee_email || invitation.invitee_username}
 									</div>
 									<div class="text-xs text-muted-foreground">
-										{$t('members.invited_date', { date: formatDate(invitation.created_at) })}
+										{$t('members.invited_date')}
+										{formatDate(invitation.created_at)}
 									</div>
 								</div>
 

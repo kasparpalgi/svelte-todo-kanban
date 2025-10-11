@@ -113,7 +113,6 @@
         "board_created": "Deska úspěšně vytvořena",
         "board_updated": "Deska úspěšně aktualizována",
         "board_deleted": "Deska úspěšně smazána",
-        "delete_board_confirm": "Smazat \"{{name}}\"?",
         "delete_board_with_items": "Smazat \"{{name}}\" s {{lists}} seznam(y) a {{todos}} úkol(y)?",
         "edit_name": "Upravit název",
         "sharing_visibility": "Sdílení a viditelnost",
@@ -130,8 +129,8 @@
         "no_boards_yet": "Zatím žádné desky",
         "create_board_prompt": "Vytvořte desku pro organizaci seznamů",
         "board_help_text": "Desky pomáhají organizovat seznamy do různých projektů nebo kategorií.",
-        "tasks_count": "{{count}} úkolů",
-        "by_user": "od @{{username}}",
+        "tasks_count": "úkolů",
+        "by_user": "od",
         "enable_hour_tracking": "Povolit sledování hodin",
         "settings_updated": "Nastavení desky aktualizováno"
     },
@@ -154,7 +153,7 @@
         "days_ago": "Před {{days}} dny",
         "board_invitations": "Pozvánky na desku",
         "no_pending_invitations": "Žádné čekající pozvánky",
-        "invited_by": "Pozván uživatelem {{name}}",
+        "invited_by": "Pozván uživatelem",
         "invitation_accepted_message": "Pozvánka přijata! Deska přidána.",
         "invitation_declined_message": "Pozvánka odmítnuta"
     },

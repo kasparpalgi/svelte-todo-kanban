@@ -1,29 +1,30 @@
 <!-- @file src/lib/components/todo/TodoItem.svelte -->
 <script lang="ts">
+	import { z } from 'zod';
+	import { t } from '$lib/i18n';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { useSortable } from '@dnd-kit-svelte/sortable';
+	import { CSS } from '@dnd-kit-svelte/utilities';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
+	import { formatDate } from '$lib/utils/dateTime.svelte';
+	import { shortenText } from '$lib/utils/shortenText';
+	import { stripHtml } from '$lib/utils/stripHtml';
 	import { Button } from '$lib/components/ui/button';
+	import { Card, CardContent } from '$lib/components/ui/card';
+	import { Badge } from '$lib/components/ui/badge';
 	import {
 		Check,
 		SquarePen,
 		Calendar,
 		Trash2,
 		ImageIcon,
-		GithubIcon,
 		Clock,
 		MessageSquareText
 	} from 'lucide-svelte';
-	import { useSortable } from '@dnd-kit-svelte/sortable';
-	import { CSS } from '@dnd-kit-svelte/utilities';
-	import { Card, CardContent } from '$lib/components/ui/card';
-	import { Badge } from '$lib/components/ui/badge';
-	import { z } from 'zod';
-	import { t } from '$lib/i18n';
-	import { shortenText } from '$lib/utils/shortenText';
-	import { stripHtml } from '$lib/utils/stripHtml';
+	import githubLogo from '$lib/assets/github.svg';
 	import TodoEditForm from './TodoEditForm.svelte';
 	import DragHandle from './DragHandle.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
@@ -328,18 +329,6 @@
 		}
 	}
 
-	function formatDate(dateString: string): string {
-		const date = new Date(dateString);
-		const now = new Date();
-		const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-
-		if (diffDays === 0) return $t('date.today');
-		if (diffDays === 1) return $t('date.tomorrow');
-		if (diffDays === -1) return $t('date.yesterday');
-		if (diffDays > 0) return $t('date.in_days') + diffDays;
-		return $t('date.days_ago') + Math.abs(diffDays);
-	}
-
 	function isOverdue(dateString: string): boolean {
 		return new Date(dateString) < new Date();
 	}
@@ -479,7 +468,7 @@
 									onclick={(e) => e.stopPropagation()}
 									title="View on GitHub"
 								>
-									<GithubIcon class="h-2.5 w-2.5" />
+									<img src={githubLogo} alt="GitHub" class="h-2.5 w-2.5 mt-0.5" />
 									<span>#{todo.github_issue_number}</span>
 								</a>
 							{/if}

@@ -37,3 +37,9 @@ export interface MembersProps {
 	open: boolean;
 	onClose: () => void;
 }
+
+export interface VisibilityProps {
+	board: BoardFieldsFragment;
+	open: boolean;
+	onClose: () => void;
+}

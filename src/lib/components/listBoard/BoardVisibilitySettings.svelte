@@ -1,9 +1,16 @@
 <!-- @file src/lib/components/listBoard/BoardVisibilitySettings.svelte -->
 <script lang="ts">
+	import { t } from '$lib/i18n';
 	import { Button } from '$lib/components/ui/button';
 	import { Switch } from '$lib/components/ui/switch';
 	import { Label } from '$lib/components/ui/label';
-	import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$lib/components/ui/card';
+	import {
+		Card,
+		CardContent,
+		CardHeader,
+		CardTitle,
+		CardDescription
+	} from '$lib/components/ui/card';
 	import {
 		Dialog,
 		DialogContent,
@@ -16,15 +23,9 @@
 	import { Globe, Copy, Check, MessageSquare } from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
-	import type { BoardFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { VisibilityProps } from '$lib/types/listBoard';
 
-	interface Props {
-		board: BoardFieldsFragment;
-		open: boolean;
-		onClose: () => void;
-	}
-
-	let { board, open = $bindable(), onClose }: Props = $props();
+	let { board, open = $bindable(), onClose }: VisibilityProps = $props();
 
 	let isPublic = $state(board.is_public || false);
 	let allowPublicComments = $state(board.allow_public_comments || false);
@@ -37,7 +38,6 @@
 		}
 	});
 
-	// Generate public URL
 	const publicUrl = $derived(() => {
 		if (!board.user?.username || !board.alias) return '';
 		const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -45,14 +45,10 @@
 	});
 
 	async function handleSave() {
-		const result = await listsStore.updateBoardVisibility(
-			board.id,
-			isPublic,
-			allowPublicComments
-		);
+		const result = await listsStore.updateBoardVisibility(board.id, isPublic, allowPublicComments);
 
 		if (result.success) {
-			displayMessage('Visibility settings updated', 1500, true);
+			displayMessage($t('visibility.visibility_updated'), 1500, true);
 			onClose();
 		} else {
 			displayMessage(result.message);
@@ -66,12 +62,12 @@
 		try {
 			await navigator.clipboard.writeText(url);
 			copied = true;
-			displayMessage('URL copied to clipboard', 1500, true);
+			displayMessage($t('visibility.url_copied'), 1500, true);
 			setTimeout(() => {
 				copied = false;
 			}, 2000);
 		} catch (error) {
-			displayMessage('Failed to copy URL');
+			displayMessage($t('visibility.failed_copy_url'));
 		}
 	}
 </script>
@@ -81,24 +77,27 @@
 		<DialogHeader>
 			<DialogTitle class="flex items-center gap-2">
 				<Globe class="h-5 w-5" />
-				Sharing & Visibility
+				{$t('visibility.sharing_visibility')}
 			</DialogTitle>
 			<DialogDescription>
-				Control who can view and interact with "{board.name}"
+				{$t('visibility.control_access')}
+				{board.name}
 			</DialogDescription>
 		</DialogHeader>
 
 		<div class="space-y-6">
 			<Card>
 				<CardHeader>
-					<CardTitle class="text-sm">Public Access</CardTitle>
+					<CardTitle class="text-sm">{$t('visibility.public_access')}</CardTitle>
 					<CardDescription class="text-xs">
-						Allow anyone with the link to view this board
+						{$t('visibility.public_access_description')}
 					</CardDescription>
 				</CardHeader>
 				<CardContent class="space-y-4">
 					<div class="flex items-center justify-between">
-						<Label for="public-toggle" class="cursor-pointer">Make board public</Label>
+						<Label for="public-toggle" class="cursor-pointer">
+							{$t('visibility.make_board_public')}
+						</Label>
 						<Switch id="public-toggle" bind:checked={isPublic} />
 					</div>
 
@@ -106,19 +105,20 @@
 						<Alert>
 							<Globe class="h-4 w-4" />
 							<AlertDescription>
-								Anyone with the link can view this board, but only members can edit it.
+								{$t('visibility.public_notice')}
 							</AlertDescription>
 						</Alert>
 
-						<!-- Public URL -->
 						<div class="space-y-2">
-							<Label class="text-xs text-muted-foreground">Public URL</Label>
+							<Label class="text-xs text-muted-foreground">
+								{$t('visibility.public_url_label')}
+							</Label>
 							<div class="flex gap-2">
 								<input
 									type="text"
 									readonly
 									value={publicUrl()}
-									class="flex-1 px-3 py-2 text-sm border rounded-md bg-muted"
+									class="flex-1 rounded-md border bg-muted px-3 py-2 text-sm"
 								/>
 								<Button variant="outline" size="sm" onclick={copyUrl}>
 									{#if copied}
@@ -130,15 +130,14 @@
 							</div>
 						</div>
 
-						<!-- Public Comments Toggle -->
-						<div class="flex items-center justify-between pt-2 border-t">
+						<div class="flex items-center justify-between border-t pt-2">
 							<div class="flex-1">
-								<Label for="comments-toggle" class="cursor-pointer flex items-center gap-2">
+								<Label for="comments-toggle" class="flex cursor-pointer items-center gap-2">
 									<MessageSquare class="h-4 w-4" />
-									Allow public comments
+									{$t('visibility.allow_public_comments')}
 								</Label>
-								<p class="text-xs text-muted-foreground mt-1">
-									Let non-members comment on tasks
+								<p class="mt-1 text-xs text-muted-foreground">
+									{$t('visibility.public_comments_description')}
 								</p>
 							</div>
 							<Switch id="comments-toggle" bind:checked={allowPublicComments} />
@@ -147,19 +146,18 @@
 				</CardContent>
 			</Card>
 
-			<!-- Privacy Notice -->
 			{#if !isPublic}
 				<Alert>
 					<AlertDescription>
-						This board is private. Only board members can view and edit it.
+						{$t('visibility.private_notice')}
 					</AlertDescription>
 				</Alert>
 			{/if}
 		</div>
 
 		<DialogFooter>
-			<Button variant="outline" onclick={onClose}>Cancel</Button>
-			<Button onclick={handleSave}>Save Changes</Button>
+			<Button variant="outline" onclick={onClose}>{$t('common.cancel')}</Button>
+			<Button onclick={handleSave}>{$t('visibility.save_changes')}</Button>
 		</DialogFooter>
 	</DialogContent>
 </Dialog>

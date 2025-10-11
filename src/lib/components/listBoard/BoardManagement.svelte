@@ -128,13 +128,9 @@
 		const todoCount = todoCountByBoard().get(id) || 0;
 		const listsInBoard = listsStore.lists.filter((l) => l.board_id === id);
 
-		let confirmMessage = $t('board.delete_board_confirm', { name: boardName });
+		let confirmMessage = `${$t('common.delete')} "${boardName}"`;
 		if (listsInBoard.length > 0 || todoCount > 0) {
-			confirmMessage = $t('board.delete_board_with_items', {
-				name: boardName,
-				lists: listsInBoard.length,
-				todos: todoCount
-			});
+			confirmMessage = `${$t('board.delete_board_with_items')} ${todoCount}`;
 		}
 
 		if (!confirm(confirmMessage)) return;
@@ -383,7 +379,8 @@
 										{/if}
 
 										<Badge variant="outline" class="text-xs">
-											{$t('board.tasks_count', { count: todoCountByBoard().get(board.id) || 0 })}
+											{todoCountByBoard().get(board.id) || 0}
+											{$t('board.tasks_count')}
 										</Badge>
 
 										<DropdownMenu>
@@ -469,7 +466,7 @@
 												<span class="font-medium">{board.name}</span>
 												{#if board.user?.username}
 													<span class="text-xs text-muted-foreground"
-														>{$t('board.by_user', { username: board.user.username })}</span
+														>{$t('board.by_user')} @{board.user.username}</span
 													>
 												{/if}
 												{#if formatGithubRepo(board.github)}
@@ -482,7 +479,8 @@
 										{/if}
 
 										<Badge variant="outline" class="text-xs">
-											{$t('board.tasks_count', { count: todoCountByBoard().get(board.id) || 0 })}
+											{todoCountByBoard().get(board.id) || 0}
+											{$t('board.tasks_count')}
 										</Badge>
 
 										<DropdownMenu>

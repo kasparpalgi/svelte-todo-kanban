@@ -1,5 +1,11 @@
 <!-- @file src/lib/components/listBoard/InvitationNotifications.svelte -->
 <script lang="ts">
+	import { t } from '$lib/i18n';
+	import { browser } from '$app/environment';
+	import { invitationsStore } from '$lib/stores/invitations.svelte';
+	import { listsStore } from '$lib/stores/listsBoards.svelte';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { formatDate } from '$lib/utils/dateTime.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
 	import {
@@ -8,16 +14,11 @@
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
 	import { Bell, Check, X } from 'lucide-svelte';
-	import { invitationsStore } from '$lib/stores/invitations.svelte';
-	import { listsStore } from '$lib/stores/listsBoards.svelte';
-	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
-	import { browser } from '$app/environment';
 
 	const invitations = $derived(invitationsStore.myInvitations);
 	const pendingCount = $derived(invitationsStore.pendingCount);
 
 	$effect(() => {
-		// Load invitations on mount
 		invitationsStore.loadMyInvitations();
 	});
 
@@ -25,7 +26,7 @@
 		const result = await invitationsStore.acceptInvitation(invitationId);
 
 		if (result.success) {
-			displayMessage('Invitation accepted! Refreshing page...', 1500, true);
+			displayMessage($t('members.invitation_accepted_message'), 1500, true);
 			await listsStore.loadBoards();
 
 			if (browser) {
@@ -42,22 +43,10 @@
 		const result = await invitationsStore.declineInvitation(invitationId);
 
 		if (result.success) {
-			displayMessage('Invitation declined', 1500, true);
+			displayMessage($t('members.invitation_declined_message'), 1500, true);
 		} else {
 			displayMessage(result.message);
 		}
-	}
-
-	function formatDate(dateString: string) {
-		const date = new Date(dateString);
-		const now = new Date();
-		const diff = now.getTime() - date.getTime();
-		const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-		if (days === 0) return 'Today';
-		if (days === 1) return 'Yesterday';
-		if (days < 7) return `${days}d ago`;
-		return date.toLocaleDateString();
 	}
 </script>
 
@@ -68,7 +57,7 @@
 			{#if pendingCount > 0}
 				<Badge
 					variant="destructive"
-					class="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+					class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center p-0 text-xs"
 				>
 					{pendingCount}
 				</Badge>
@@ -77,8 +66,8 @@
 	</DropdownMenuTrigger>
 	<DropdownMenuContent align="end" class="w-80">
 		<div class="p-2">
-			<div class="flex items-center justify-between mb-2">
-				<h3 class="font-semibold text-sm">Board Invitations</h3>
+			<div class="mb-2 flex items-center justify-between">
+				<h3 class="text-sm font-semibold">{$t('members.board_invitations')}</h3>
 				{#if pendingCount > 0}
 					<Badge variant="secondary" class="text-xs">{pendingCount}</Badge>
 				{/if}
@@ -86,45 +75,42 @@
 
 			{#if invitations.length === 0}
 				<div class="py-8 text-center text-sm text-muted-foreground">
-					<Bell class="h-8 w-8 mx-auto mb-2 opacity-20" />
-					<p>No pending invitations</p>
+					<Bell class="mx-auto mb-2 h-8 w-8 opacity-20" />
+					<p>{$t('members.no_pending_invitations')}</p>
 				</div>
 			{:else}
-				<div class="space-y-2 max-h-96 overflow-y-auto">
+				<div class="max-h-96 space-y-2 overflow-y-auto">
 					{#each invitations as invitation (invitation.id)}
-						<div class="border rounded-md p-3 space-y-2">
+						<div class="space-y-2 rounded-md border p-3">
 							<div class="flex items-start justify-between">
 								<div class="flex-1">
-									<div class="font-medium text-sm">{invitation.board.name}</div>
+									<div class="text-sm font-medium">{invitation.board.name}</div>
 									<div class="text-xs text-muted-foreground">
-										Invited by {invitation.inviter.name || invitation.inviter.username}
+										{$t('members.invited_by')}
+										{invitation.inviter.name || invitation.inviter.username}
 									</div>
 									<div class="text-xs text-muted-foreground">
 										{formatDate(invitation.created_at)}
 									</div>
 								</div>
 								<Badge variant="outline" class="text-xs">
-									{invitation.role}
+									{$t(`board.${invitation.role.toLowerCase()}`)}
 								</Badge>
 							</div>
 
 							<div class="flex gap-2">
-								<Button
-									size="sm"
-									class="flex-1 h-8"
-									onclick={() => handleAccept(invitation.id)}
-								>
+								<Button size="sm" class="h-8 flex-1" onclick={() => handleAccept(invitation.id)}>
 									<Check class="mr-1 h-3 w-3" />
-									Accept
+									{$t('board.accept')}
 								</Button>
 								<Button
 									variant="outline"
 									size="sm"
-									class="flex-1 h-8"
+									class="h-8 flex-1"
 									onclick={() => handleDecline(invitation.id)}
 								>
 									<X class="mr-1 h-3 w-3" />
-									Decline
+									{$t('board.decline')}
 								</Button>
 							</div>
 						</div>
