@@ -5,22 +5,20 @@
 		type SortOrder,
 		type SortDirection
 	} from '$lib/stores/todoFiltering.svelte';
+	import { t } from '$lib/i18n';
 	import { actionState } from '$lib/stores/states.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Search, SortAsc, SortDesc, Calendar, AlertTriangle, X, Filter } from 'lucide-svelte';
-	import { t } from '$lib/i18n';
 
 	let searchTerm = $state('');
 
-	// Handle search input
 	function handleSearchInput() {
 		if (todoFilteringStore.setSearchFilter) {
 			todoFilteringStore.setSearchFilter(searchTerm);
 		} else {
-			// Fallback if setSearchFilter doesn't exist yet
 			if (searchTerm.trim()) {
 				todoFilteringStore.setFilter('search', searchTerm.trim());
 			} else {
@@ -52,9 +50,7 @@
 	function getActiveFilterCount() {
 		const filters = todoFilteringStore.filters;
 		return Object.keys(filters).filter(
-			(key) =>
-				key !== 'boardId' && // Don't count board filter as it's set automatically
-				filters[key as keyof typeof filters] !== undefined
+			(key) => key !== 'boardId' && filters[key as keyof typeof filters] !== undefined
 		).length;
 	}
 
@@ -85,7 +81,9 @@
 		{#if activeFilterCount > 0}
 			<div class="flex items-center justify-between">
 				<Badge variant="secondary" class="text-xs">
-					{activeFilterCount === 1 ? $t('filters.active_filter', { count: activeFilterCount }) : $t('filters.active_filters', { count: activeFilterCount })}
+					{activeFilterCount} {activeFilterCount === 1
+						? $t('filters.active_filter')
+						: $t('filters.active_filters')}
 				</Badge>
 				<Button variant="ghost" size="sm" onclick={clearAllFilters} class="h-6 text-xs">
 					{$t('filters.clear_all')}

@@ -24,7 +24,13 @@
         "nothing_here": "With such search/filters we have nothing here 🤪",
         "app_broken_joke": "(if this also doesn't work then the whole app is SO broken that the all the developers around the world will be laughing)",
         "discard_changes": "Discard Changes",
-        "keep_editing": "Keep Editing"
+        "keep_editing": "Keep Editing",
+        "try_this": "Try to go here",
+        "error_page": "if this also doesn't work then the whole app is SO SO SO broken that the all the developers around the world will be laughing",
+        "invited": "You have been invited as a user",
+        "invited_you": "You are invited to collaborate on task planning and project management in:",
+        "to_view": "If you wish to see existing tasks and participate in managing them, click the bell icon in the top bar and accept the invitation.",
+        "no_board_or_permissions": "You don’t have permission to view this project or it has been deleted. Or your invitation has expired/been deleted."
     },
     "date": {
         "today": "Today",
@@ -49,8 +55,8 @@
     },
     "filters": {
         "title": "Filters",
-        "active_filter": "{{count}} active filter",
-        "active_filters": "{{count}} active filters",
+        "active_filter": "active filter",
+        "active_filters": "active filters",
         "clear_all": "Clear all",
         "search": "Search",
         "search_placeholder": "Search todos...",

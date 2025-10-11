@@ -1,15 +1,14 @@
 /** @file src/lib/graphql/client.ts */
-import { GraphQLClient } from 'graphql-request';
 import { PUBLIC_API_ENDPOINT, PUBLIC_API_ENDPOINT_DEV, PUBLIC_API_ENV } from '$env/static/public';
+import { GraphQLClient } from 'graphql-request';
 import { browser } from '$app/environment';
 
 const apiEndpoint = PUBLIC_API_ENV === 'production' ? PUBLIC_API_ENDPOINT : PUBLIC_API_ENDPOINT_DEV;
 const client = new GraphQLClient(apiEndpoint);
 
-async function getJWTToken(): Promise<string> {
-	const response = await fetch('/api/auth/token');
+async function getJWTToken(fetchFn: typeof globalThis.fetch = globalThis.fetch): Promise<string> {
+	const response = await fetchFn('/api/auth/token');
 	if (!response.ok) {
-		// Log token fetch failures
 		if (browser) {
 			const { loggingStore } = await import('$lib/stores/logging.svelte');
 			loggingStore.error('GraphQLClient', 'Failed to fetch JWT token', {
@@ -26,18 +25,18 @@ async function getJWTToken(): Promise<string> {
 export async function request<TResult, TVariables = any>(
 	document: { toString(): string },
 	variables?: TVariables,
-	customHeaders?: HeadersInit
+	customHeaders?: HeadersInit,
+	fetchFn?: typeof globalThis.fetch
 ): Promise<TResult> {
 	const startTime = browser ? performance.now() : 0;
 	const query = document.toString();
-
-	// Extract operation name from query for better logging
 	const operationMatch = query.match(/(query|mutation)\s+(\w+)/);
 	const operationName = operationMatch ? operationMatch[2] : 'Unknown';
 	const operationType = operationMatch ? operationMatch[1] : 'unknown';
 
 	try {
-		const token = await getJWTToken();
+		const useFetch = fetchFn || globalThis.fetch;
+		const token = await getJWTToken(useFetch);
 
 		const headers = {
 			Authorization: `Bearer ${token}`,
@@ -61,17 +60,17 @@ export async function request<TResult, TVariables = any>(
 
 		return result;
 	} catch (error: any) {
-		// Enhanced error logging
 		if (browser) {
 			const duration = performance.now() - startTime;
 			const { loggingStore } = await import('$lib/stores/logging.svelte');
 
-			// Determine error type and severity
-			const isAuthError = error?.message?.toLowerCase().includes('auth') ||
+			const isAuthError =
+				error?.message?.toLowerCase().includes('auth') ||
 				error?.message?.toLowerCase().includes('token') ||
 				error?.message?.toLowerCase().includes('permission');
 
-			const isNetworkError = error?.message?.toLowerCase().includes('network') ||
+			const isNetworkError =
+				error?.message?.toLowerCase().includes('network') ||
 				error?.message?.toLowerCase().includes('fetch');
 
 			loggingStore.error('GraphQLClient', `${operationType} failed: ${operationName}`, {

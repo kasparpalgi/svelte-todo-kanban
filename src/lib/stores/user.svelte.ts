@@ -48,19 +48,12 @@ function createUserStore() {
 					...dbUser
 				};
 
-				console.log('[UserStore] User hydrated from DB', {
-					userId: dbUser.id,
-					email: dbUser.email,
-					name: dbUser.name
-				});
-
 				await initializeAppState(state.cachedUser);
 			} else {
 				state.cachedUser = sessionUser;
 				console.warn('[UserStore] DB user not found, using session data');
 			}
 
-			// Set user ID in logging store for tracking
 			loggingStore.setUserId(sessionUser.id);
 
 			loggingStore.info('UserStore', 'User initialized and hydrated from DB', {

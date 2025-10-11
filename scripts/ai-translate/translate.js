@@ -36,7 +36,6 @@ async function translateJsonFile(filePath, targetLang) {
     return await translateObject(jsonContent);
 }
 
-// Usage
 const enFile = './src/locales/en/common.json';
 const translated = await translateJsonFile(enFile, 'Chinese');
 await fs.writeFile('./src/locales/zh/common.json', JSON.stringify(translated, null, 2));

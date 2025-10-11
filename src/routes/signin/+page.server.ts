@@ -1,13 +1,12 @@
 /** @file src/routes/signin/+page.server.ts */
-import { redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
-import { request } from '$lib/graphql/client';
 import { GET_BOARDS } from '$lib/graphql/documents';
+import { redirect } from '@sveltejs/kit';
+import { request } from '$lib/graphql/client';
+import type { PageServerLoad } from './$types';
 import type { GetBoardsQuery } from '$lib/graphql/generated/graphql';
 
 async function getTopBoardPath(session: any): Promise<string | null> {
 	try {
-		console.log('[Signin] === GETTING TOP BOARD ===');
 		console.log('[Signin] Session user:', { id: session?.user?.id, email: session?.user?.email });
 		const lastBoardAlias = session?.user?.settings?.lastBoardAlias;
 		console.log('[Signin] Last board alias from settings:', lastBoardAlias);
@@ -29,7 +28,7 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 				console.log('[Signin] Found last opened board:', { alias: board.alias, username: board.user?.username });
 
 				if (board.user?.username && board.alias) {
-					const locale = session.user?.locale || 'en';
+					const locale = session.user?.locale || 'et';
 					const path = `/${locale}/${board.user.username}/${board.alias}`;
 					console.log('[Signin] ✓ Redirecting to last opened board:', path);
 					return path;
@@ -48,9 +47,6 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 			session
 		);
 
-		console.log('[Signin] Boards query result:', data);
-		console.log('[Signin] Boards count:', data.boards?.length);
-
 		if (data.boards && data.boards.length > 0) {
 			const board = data.boards[0];
 			console.log('[Signin] Top board:', { alias: board.alias, username: board.user?.username });
@@ -58,7 +54,6 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 			if (board.user?.username && board.alias) {
 				const locale = session.user?.locale || 'en';
 				const path = `/${locale}/${board.user.username}/${board.alias}`;
-				console.log('[Signin] ✓ Redirecting to top board:', path);
 				return path;
 			} else {
 				console.warn('[Signin] ✗ Top board missing username or alias:', {
@@ -79,9 +74,7 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 
 export const load: PageServerLoad = async (event) => {
 	const session = await event.locals.auth();
-
-	console.log('=== SIGNIN PAGE LOAD ===');
-	console.log('Has session:', !!session);
+	const locale = session.user?.locale || 'et';
 
 	if (session) {
 		const topBoardPath = await getTopBoardPath(session);
@@ -89,8 +82,8 @@ export const load: PageServerLoad = async (event) => {
 			console.log('→ Redirecting to top board:', topBoardPath);
 			throw redirect(302, topBoardPath);
 		} else {
-			console.log('→ Redirecting to /en (no boards)');
-			throw redirect(302, '/en');
+			console.log('→ Redirecting to locale from session');
+			throw redirect(302, `/${locale}`);
 		}
 	}
 

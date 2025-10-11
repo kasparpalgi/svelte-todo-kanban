@@ -45,7 +45,7 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 				console.log('[Layout] Found last opened board:', { alias: board.alias, username: board.user?.username });
 
 				if (board.user?.username && board.alias) {
-					const locale = session.user?.locale || 'en';
+					const locale = session.user?.locale || 'et';
 					const path = `/${locale}/${board.user.username}/${board.alias}`;
 					console.log('[Layout] ✓ Redirecting to last opened board:', path);
 					return path;
@@ -103,11 +103,6 @@ export const load: LayoutServerLoad = async (event) => {
 
 	const session = await locals.auth();
 
-	console.log('[Root Layout] === LAYOUT SERVER LOAD ===');
-	console.log('[Root Layout] Path:', url.pathname);
-	console.log('[Root Layout] Has session:', !!session);
-	console.log('[Root Layout] User:', session?.user ? { id: session.user.id, email: session.user.email } : 'none');
-
 	if (url.pathname === '/') {
 		if (!session) {
 			console.log('[Root Layout] → Redirecting to /signin (no session)');
@@ -118,8 +113,8 @@ export const load: LayoutServerLoad = async (event) => {
 				console.log('[Root Layout] → Redirecting to top board:', topBoardPath);
 				throw redirect(302, topBoardPath);
 			} else {
-				console.log('[Root Layout] → Redirecting to /en (no boards)');
-				throw redirect(302, '/en');
+				const locale = session.user?.locale || 'et';
+				throw redirect(302, `/${locale}`);
 			}
 		}
 	}

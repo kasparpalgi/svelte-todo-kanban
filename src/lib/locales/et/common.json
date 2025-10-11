@@ -24,7 +24,13 @@
         "nothing_here": "Sellise otsingu/filtritega ei leidnud me siit midagi 🤪",
         "app_broken_joke": "(kui ka see ei tööta, siis on kogu rakendus NII katki, et kõik arendajad üle maailma naeravad)",
         "discard_changes": "Hülga muudatused",
-        "keep_editing": "Jätka muutmist"
+        "keep_editing": "Jätka muutmist",
+        "try_this": "Proovi siia klikata",
+        "error_page": "ja kui see ka ei aita siis on see äpp no NIII katki, et kõik progejad üle ilma hirnuvad kõhud kõveras",
+        "invited": "Sind on kutsutud kasutajaks",
+        "invited_you": "Sind palutakse teha koostööd ülesannete planeerimise ja tööde haldamisega projektis:",
+        "to_view": "Kui soovid näha olemasolevaid ülesandeid ning kaasa töötada nende haldamisega, siis klikka üleval ribal kellukese ikoonile ning aksepteeri see kutse.",
+        "no_board_or_permissions": "Sul pole õiguseid seda projekti näha või see on kustutatud. Või sinu kutse on aegunud/kustutatud."
     },
     "date": {
         "today": "Täna",
@@ -49,8 +55,8 @@
     },
     "filters": {
         "title": "Filtrid",
-        "active_filter": "{{count}} aktiivne filter",
-        "active_filters": "{{count}} aktiivset filtrit",
+        "active_filter": "aktiivne filter",
+        "active_filters": "aktiivset filtrit",
         "clear_all": "Tühjenda kõik",
         "search": "Otsi",
         "search_placeholder": "Otsi ülesandeid...",

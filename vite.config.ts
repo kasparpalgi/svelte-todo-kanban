@@ -18,8 +18,8 @@ export default defineConfig({
 			manifest: {
 				short_name: 'ToDzz',
 				name: 'ToDzz',
-				start_url: '/en',
-				scope: '/en',
+				start_url: '/et',
+				scope: '/et',
 				display: 'standalone',
 				theme_color: '#19183B',
 				background_color: '#A1C2BD',

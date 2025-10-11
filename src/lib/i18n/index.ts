@@ -2,8 +2,8 @@
 import i18n from 'sveltekit-i18n';
 
 const config = {
-	fallbackLocale: 'en',
-	initialLocale: 'en',
+	fallbackLocale: 'et',
+	initialLocale: 'et',
 	loaders: [
 		{
 			locale: 'en',

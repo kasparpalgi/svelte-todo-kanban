@@ -27,7 +27,6 @@
 			colno: event.colno
 		});
 
-		// Prevent default error handling
 		event.preventDefault();
 	}
 
@@ -40,7 +39,6 @@
 			stack: event.reason?.stack
 		});
 
-		// Prevent default error handling
 		event.preventDefault();
 	}
 
@@ -53,7 +51,7 @@
 	function goHome() {
 		error = null;
 		errorInfo = null;
-		goto('/en');
+		goto('/et');
 	}
 
 	onMount(() => {

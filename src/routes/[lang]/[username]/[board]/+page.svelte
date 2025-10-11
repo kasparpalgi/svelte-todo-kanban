@@ -16,16 +16,7 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import {
-		Plus,
-		X,
-		List,
-		LayoutGrid,
-		Settings,
-		Funnel,
-		ArrowRight,
-		Github
-	} from 'lucide-svelte';
+	import { Plus, X, List, LayoutGrid, Settings, Funnel, ArrowRight, Github } from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
@@ -61,14 +52,12 @@
 			if (board) {
 				listsStore.setSelectedBoard(board);
 
-				// Check if user is a member of the board
 				const currentUser = userStore.user;
 				const isMember = board.board_members?.some((m) => m.user_id === currentUser?.id);
 				const isOwner = board.user?.id === currentUser?.id;
 
 				isNotMember = !isMember && !isOwner;
 
-				// Check if user has pending invitation for this board
 				if (isNotMember) {
 					await invitationsStore.loadMyInvitations();
 					const invitation = invitationsStore.myInvitations.find(
@@ -170,29 +159,26 @@
 	<div class="py-12 text-center">
 		<Card class="mx-auto max-w-md">
 			<CardHeader>
-				<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+				<div
+					class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10"
+				>
 					<Bell class="h-6 w-6 text-primary" />
 				</div>
-				<CardTitle>You've Been Invited!</CardTitle>
+				<CardTitle>{$t('commmon.invited')}</CardTitle>
 				<CardDescription>
-					You have been invited to access the board "{listsStore.selectedBoard?.name}".
+					{$t('commmon.invited_you')} "{listsStore.selectedBoard?.name}"
 				</CardDescription>
 			</CardHeader>
 			<CardContent class="space-y-4">
 				{#if hasPendingInvitation}
 					<p class="text-sm text-muted-foreground">
-						To view the cards and collaborate on this board, please accept the invitation by clicking
-						the bell icon <Bell class="inline h-4 w-4" /> in the top navigation bar.
+						<Bell class="inline h-4 w-4" /> {$t('commmon.to_view')}
 					</p>
-					<Button onclick={() => goto(`/${lang}`)} variant="outline" class="w-full">
-						Go back to boards
-					</Button>
 				{:else}
 					<p class="text-sm text-muted-foreground">
-						You don't have permission to view this board. The invitation may have expired or been
-						cancelled.
+						{$t('common.no_board_or_permissions')}
 					</p>
-					<Button onclick={() => goto(`/${lang}`)} class="w-full">Go back to boards</Button>
+					<Button onclick={() => goto(`/${lang}`)} class="w-full">{$t('common.try_this')}</Button>
 				{/if}
 			</CardContent>
 		</Card>
@@ -225,17 +211,6 @@
 							<span class="hidden md:block">{$t('todo.kanban')}</span>
 						</Button>
 					</div>
-					{#if listsStore.selectedBoard?.github}
-						<Button
-							variant="outline"
-							size="sm"
-							onclick={() => (showImportDialog = true)}
-							title="Import GitHub Issues"
-						>
-							<Github class="mr-2 h-4 w-4" />
-							<span class="hidden md:block">Import Issues</span>
-						</Button>
-					{/if}
 					<Button
 						variant="outline"
 						size="sm"
@@ -333,6 +308,17 @@
 				<TodoKanban />
 			{/if}
 
+			{#if listsStore.selectedBoard?.github}
+						<Button
+							variant="outline"
+							size="sm"
+							onclick={() => (showImportDialog = true)}
+							title="Import GitHub Issues"
+						>
+							<Github class="mr-2 h-4 w-4" />
+							<span class="hidden md:block">Import</span>
+						</Button>
+					{/if}
 			{#if !todosStore.loading}
 				<Button
 					onclick={() => goto(`/${lang}/${username}/${boardAlias}/mobile-add`)}
