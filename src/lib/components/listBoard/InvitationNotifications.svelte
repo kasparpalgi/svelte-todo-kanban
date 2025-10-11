@@ -11,6 +11,7 @@
 	import { invitationsStore } from '$lib/stores/invitations.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { browser } from '$app/environment';
 
 	const invitations = $derived(invitationsStore.myInvitations);
 	const pendingCount = $derived(invitationsStore.pendingCount);
@@ -24,9 +25,14 @@
 		const result = await invitationsStore.acceptInvitation(invitationId);
 
 		if (result.success) {
-			displayMessage('Invitation accepted! Board added.', 2000, true);
-			// Reload boards to show the new board
+			displayMessage('Invitation accepted! Refreshing page...', 1500, true);
 			await listsStore.loadBoards();
+
+			if (browser) {
+				setTimeout(() => {
+					window.location.reload();
+				}, 500);
+			}
 		} else {
 			displayMessage(result.message);
 		}

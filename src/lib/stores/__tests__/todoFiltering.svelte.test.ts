@@ -207,6 +207,7 @@ describe('TodoFilteringStore', () => {
 						name: 'Main Board',
 						alias: 'main-board',
 						sort_order: 1,
+						settings: null,
 						__typename: 'boards'
 					},
 					__typename: 'lists'
@@ -248,6 +249,7 @@ describe('TodoFilteringStore', () => {
 							name: 'Main Board',
 							alias: 'main-board',
 							sort_order: 1,
+							settings: null,
 							__typename: 'boards'
 						},
 						__typename: 'lists'
@@ -266,6 +268,7 @@ describe('TodoFilteringStore', () => {
 							name: 'Main Board',
 							alias: 'main-board',
 							sort_order: 1,
+							settings: null,
 							__typename: 'boards'
 						},
 						__typename: 'lists'
@@ -284,6 +287,7 @@ describe('TodoFilteringStore', () => {
 							name: 'Main Board',
 							alias: 'main-board',
 							sort_order: 1,
+							settings: null,
 							__typename: 'boards'
 						},
 						__typename: 'lists'

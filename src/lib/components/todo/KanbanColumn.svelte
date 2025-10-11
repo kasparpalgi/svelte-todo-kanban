@@ -106,7 +106,7 @@
 
 		// Create GitHub issue unless skipGithub is true
 		const boardGithub = list.board?.github;
-		const createGithubIssue = boardGithub && !skipGithub;
+		const createGithubIssue = !!(boardGithub && !skipGithub);
 
 		const result = await todosStore.addTodo(
 			title.trim(),

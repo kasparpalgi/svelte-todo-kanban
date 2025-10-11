@@ -15,7 +15,12 @@ export interface StoreResult<T = any> {
 }
 
 export interface CanbanColumnProps {
-	list: { id: string; name: string; sort_order: number };
+	list: {
+		id: string;
+		name: string;
+		sort_order: number;
+		board?: { id: string; name: string; alias: string; sort_order: number; github?: string | null } | null;
+	};
 	todos: TodoFieldsFragment[];
 	isHighlighted?: boolean;
 }

@@ -59,7 +59,7 @@
 			transcribedText = '';
 			displayMessage($t('todo.todo_added'), 3000, true);
 		} else {
-			displayMessage($t('todo.error_adding_todo', { message: result.message }), 3000, false);
+			displayMessage($t('todo.error_adding_todo') + result.message);
 		}
 	}
 </script>

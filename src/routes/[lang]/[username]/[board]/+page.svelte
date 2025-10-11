@@ -32,6 +32,9 @@
 	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
 	import TodoFiltersSidebar from '$lib/components/todo/TodoFiltersSidebar.svelte';
 	import ImportIssuesDialog from '$lib/components/github/ImportIssuesDialog.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
+	import { invitationsStore } from '$lib/stores/invitations.svelte';
+	import { Bell } from 'lucide-svelte';
 
 	let { data } = $props();
 
@@ -41,6 +44,8 @@
 	let loading = $state(true);
 	let showImportDialog = $state(false);
 	let skipGithubIssue = $state(false); // Inverse: unchecked = create GitHub issue
+	let isNotMember = $state(false);
+	let hasPendingInvitation = $state(false);
 	const username = $derived(page.params.username);
 	const boardAlias = $derived(page.params.board);
 	const lang = $derived(page.params.lang || 'en');
@@ -56,7 +61,23 @@
 			if (board) {
 				listsStore.setSelectedBoard(board);
 
-				if (!todosStore.initialized) {
+				// Check if user is a member of the board
+				const currentUser = userStore.user;
+				const isMember = board.board_members?.some((m) => m.user_id === currentUser?.id);
+				const isOwner = board.user?.id === currentUser?.id;
+
+				isNotMember = !isMember && !isOwner;
+
+				// Check if user has pending invitation for this board
+				if (isNotMember) {
+					await invitationsStore.loadMyInvitations();
+					const invitation = invitationsStore.myInvitations.find(
+						(inv) => inv.board_id === board.id
+					);
+					hasPendingInvitation = !!invitation;
+				}
+
+				if (!todosStore.initialized && (isMember || isOwner)) {
 					todosStore.loadTodos();
 				}
 				boardNotFound = false;
@@ -100,7 +121,7 @@
 			}
 		}
 
-		const createGithubIssue = listsStore.selectedBoard?.github && !skipGithubIssue;
+		const createGithubIssue = !!(listsStore.selectedBoard?.github && !skipGithubIssue);
 
 		const result = await todosStore.addTodo(
 			newTodoTitle.trim(),
@@ -144,6 +165,37 @@
 			The board "{boardAlias}" by user "{username}" could not be found.
 		</p>
 		<Button onclick={() => goto(`/${lang}`)}>Go back to boards</Button>
+	</div>
+{:else if isNotMember}
+	<div class="py-12 text-center">
+		<Card class="mx-auto max-w-md">
+			<CardHeader>
+				<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+					<Bell class="h-6 w-6 text-primary" />
+				</div>
+				<CardTitle>You've Been Invited!</CardTitle>
+				<CardDescription>
+					You have been invited to access the board "{listsStore.selectedBoard?.name}".
+				</CardDescription>
+			</CardHeader>
+			<CardContent class="space-y-4">
+				{#if hasPendingInvitation}
+					<p class="text-sm text-muted-foreground">
+						To view the cards and collaborate on this board, please accept the invitation by clicking
+						the bell icon <Bell class="inline h-4 w-4" /> in the top navigation bar.
+					</p>
+					<Button onclick={() => goto(`/${lang}`)} variant="outline" class="w-full">
+						Go back to boards
+					</Button>
+				{:else}
+					<p class="text-sm text-muted-foreground">
+						You don't have permission to view this board. The invitation may have expired or been
+						cancelled.
+					</p>
+					<Button onclick={() => goto(`/${lang}`)} class="w-full">Go back to boards</Button>
+				{/if}
+			</CardContent>
+		</Card>
 	</div>
 {:else}
 	<div class="relative w-full">
