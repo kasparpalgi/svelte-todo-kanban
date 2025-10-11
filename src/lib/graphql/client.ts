@@ -6,20 +6,33 @@ import { browser } from '$app/environment';
 const apiEndpoint = PUBLIC_API_ENV === 'production' ? PUBLIC_API_ENDPOINT : PUBLIC_API_ENDPOINT_DEV;
 const client = new GraphQLClient(apiEndpoint);
 
-async function getJWTToken(fetchFn: typeof globalThis.fetch = globalThis.fetch): Promise<string> {
-	const response = await fetchFn('/api/auth/token');
-	if (!response.ok) {
-		if (browser) {
-			const { loggingStore } = await import('$lib/stores/logging.svelte');
-			loggingStore.error('GraphQLClient', 'Failed to fetch JWT token', {
+async function getJWTToken(
+	fetchFn: typeof globalThis.fetch = globalThis.fetch
+): Promise<string | null> {
+	try {
+		const response = await fetchFn('/api/auth/token');
+
+		if (response.status === 401) {
+			console.debug('[GraphQLClient] User not authenticated (401)');
+			return null;
+		}
+
+		if (!response.ok) {
+			console.error('[GraphQLClient] Failed to fetch JWT token', {
 				status: response.status,
 				statusText: response.statusText
 			});
+			throw new Error(`Failed to get JWT token: ${response.status}`);
 		}
-		throw new Error('Failed to get JWT token');
+
+		const data = await response.json();
+		return data.token;
+	} catch (error) {
+		if (error instanceof TypeError) {
+			console.debug('[GraphQLClient] Network error fetching token:', error.message);
+		}
+		throw error;
 	}
-	const data = await response.json();
-	return data.token;
 }
 
 export async function request<TResult, TVariables = any>(
@@ -38,6 +51,12 @@ export async function request<TResult, TVariables = any>(
 		const useFetch = fetchFn || globalThis.fetch;
 		const token = await getJWTToken(useFetch);
 
+		if (!token) {
+			const authError = new Error('Authentication required');
+			authError.name = 'AuthenticationError';
+			throw authError;
+		}
+
 		const headers = {
 			Authorization: `Bearer ${token}`,
 			...customHeaders
@@ -49,49 +68,65 @@ export async function request<TResult, TVariables = any>(
 		if (browser) {
 			const duration = performance.now() - startTime;
 			if (duration > 1000) {
-				const { loggingStore } = await import('$lib/stores/logging.svelte');
-				loggingStore.warn('GraphQLClient', `Slow ${operationType}: ${operationName}`, {
-					operation: operationName,
-					duration: `${Math.round(duration)}ms`,
-					type: operationType
-				});
+				try {
+					const { loggingStore } = await import('$lib/stores/logging.svelte');
+					loggingStore.warn('GraphQLClient', `Slow ${operationType}: ${operationName}`, {
+						operation: operationName,
+						duration: `${Math.round(duration)}ms`,
+						type: operationType
+					});
+				} catch (logError) {
+					console.debug('[GraphQLClient] Failed to log slow operation:', logError);
+				}
 			}
 		}
 
 		return result;
 	} catch (error: any) {
-		if (browser) {
+		const isAuthError =
+			error?.name === 'AuthenticationError' ||
+			error?.message === 'Authentication required' ||
+			error?.message?.toLowerCase().includes('auth') ||
+			error?.message?.toLowerCase().includes('token') ||
+			error?.message?.toLowerCase().includes('permission');
+
+		// log only non-auth errors (prev. infinite loop)
+		if (browser && !isAuthError) {
 			const duration = performance.now() - startTime;
-			const { loggingStore } = await import('$lib/stores/logging.svelte');
 
-			const isAuthError =
-				error?.message?.toLowerCase().includes('auth') ||
-				error?.message?.toLowerCase().includes('token') ||
-				error?.message?.toLowerCase().includes('permission');
+			try {
+				const { loggingStore } = await import('$lib/stores/logging.svelte');
 
-			const isNetworkError =
-				error?.message?.toLowerCase().includes('network') ||
-				error?.message?.toLowerCase().includes('fetch');
+				const isNetworkError =
+					error?.message?.toLowerCase().includes('network') ||
+					error?.message?.toLowerCase().includes('fetch');
 
-			loggingStore.error('GraphQLClient', `${operationType} failed: ${operationName}`, {
-				operation: operationName,
-				type: operationType,
-				error: {
-					message: error?.message,
-					response: error?.response,
-					status: error?.response?.status
-				},
-				duration: `${Math.round(duration)}ms`,
-				variables: variables ? Object.keys(variables as object) : [],
-				errorType: isAuthError ? 'authentication' : isNetworkError ? 'network' : 'graphql'
-			});
+				loggingStore.error('GraphQLClient', `${operationType} failed: ${operationName}`, {
+					operation: operationName,
+					type: operationType,
+					error: {
+						message: error?.message,
+						response: error?.response,
+						status: error?.response?.status
+					},
+					duration: `${Math.round(duration)}ms`,
+					variables: variables ? Object.keys(variables as object) : [],
+					errorType: isNetworkError ? 'network' : 'graphql'
+				});
+			} catch (logError) {
+				console.debug('[GraphQLClient] Failed to log error:', logError);
+			}
 		}
 
-		console.error('[GraphQLClient] Request failed:', {
-			operation: operationName,
-			type: operationType,
-			error
-		});
+		if (isAuthError) {
+			console.debug('[GraphQLClient] Authentication error:', operationName);
+		} else {
+			console.error('[GraphQLClient] Request failed:', {
+				operation: operationName,
+				type: operationType,
+				error
+			});
+		}
 
 		throw error;
 	}

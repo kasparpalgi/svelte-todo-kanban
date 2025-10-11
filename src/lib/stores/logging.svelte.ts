@@ -6,6 +6,17 @@ import { request } from '$lib/graphql/client';
 import { CREATE_LOG } from '$lib/graphql/documents';
 import { LOGGING_CONFIG } from '$lib/config/logging';
 
+async function isUserAuthenticated(): Promise<boolean> {
+	if (!browser) return false;
+
+	try {
+		const response = await fetch('/api/auth/token');
+		return response.ok;
+	} catch {
+		return false;
+	}
+}
+
 function createLoggingStore() {
 	const state = $state({
 		logs: [] as LogEntry[],
@@ -43,9 +54,14 @@ function createLoggingStore() {
 
 	async function flushLogs() {
 		if (!browser || state.pendingLogs.length === 0) return;
-
-		// Prevent concurrent flushes
 		if (state.isFlushingInProgress) return;
+
+		const isAuthenticated = await isUserAuthenticated();
+		if (!isAuthenticated) {
+			console.debug('[LoggingStore] Skipping log flush - user not authenticated');
+			state.pendingLogs = [];
+			return;
+		}
 
 		state.isFlushingInProgress = true;
 
@@ -58,12 +74,10 @@ function createLoggingStore() {
 				state.flushTimeout = null;
 			}
 
-			// Only persist ERROR and WARN levels to database
 			const logsToSave = logsToFlush.filter((log) => log.level === 'error' || log.level === 'warn');
 
 			if (logsToSave.length === 0) return;
 
-			// Send logs to database
 			await Promise.all(
 				logsToSave.map((log) => {
 					const logInput = {
@@ -72,8 +86,6 @@ function createLoggingStore() {
 						component: log.component,
 						message: log.message,
 						data: log.data ? JSON.stringify(log.data) : null,
-						// Note: user_id is set by Hasura column preset (x-hasura-user-id)
-						// Do not include it in the mutation input
 						session_id: state.sessionId,
 						user_agent: log.userAgent,
 						url: log.url
@@ -86,13 +98,15 @@ function createLoggingStore() {
 						.catch((error) => {
 							state.performanceMetrics.flushFailureCount++;
 
-							// In development, log to console
 							if (dev) {
 								console.error('[LoggingStore] Failed to save log to database', error);
 							}
 
-							// In production, re-queue the log for retry
-							if (!dev) {
+							const isAuthError =
+								error?.name === 'AuthenticationError' ||
+								error?.message === 'Authentication required';
+
+							if (!dev && !isAuthError) {
 								state.pendingLogs.push(log);
 							}
 						});
@@ -116,13 +130,10 @@ function createLoggingStore() {
 	}
 
 	function shouldSample(component: string, level: LogEntry['level']): boolean {
-		// Always log errors and warnings
 		if (level === 'error' || level === 'warn') return true;
 
-		// Never sample in development
 		if (dev || !state.sampling.enabled) return true;
 
-		// Check component-specific sample rate
 		const componentRate = state.sampling.componentRates[component];
 		const sampleRate = componentRate !== undefined ? componentRate : state.sampling.sampleRate;
 
@@ -134,7 +145,6 @@ function createLoggingStore() {
 		const limiter = state.rateLimiter[component];
 
 		if (!limiter || now > limiter.resetTime) {
-			// Reset or create new rate limiter
 			state.rateLimiter[component] = {
 				count: 1,
 				resetTime: now + RATE_LIMIT_WINDOW
@@ -145,7 +155,6 @@ function createLoggingStore() {
 		if (limiter.count >= RATE_LIMIT_MAX) {
 			// Rate limit exceeded
 			if (limiter.count === RATE_LIMIT_MAX) {
-				// Log once that we're rate limiting
 				console.warn(`[LoggingStore] Rate limit exceeded for component: ${component}`);
 			}
 			limiter.count++;
@@ -161,21 +170,17 @@ function createLoggingStore() {
 
 		if (!state.enabledLevels.has(level)) return;
 
-		// Check rate limiting (except for errors)
 		if (level !== 'error' && !checkRateLimit(component)) {
 			return;
 		}
 
-		// Apply sampling for high-volume logs
 		if (!shouldSample(component, level)) {
 			return;
 		}
 
-		// Update performance metrics
 		if (level === 'error') state.performanceMetrics.errorCount++;
 		if (level === 'warn') state.performanceMetrics.warnCount++;
 
-		// Sanitize data - remove sensitive fields
 		const sanitizedData = sanitizeData(data);
 
 		const entry: LogEntry = {
@@ -189,24 +194,20 @@ function createLoggingStore() {
 			url: window.location.href
 		};
 
-		// Add to in-memory logs
 		state.logs.unshift(entry);
 
 		if (state.logs.length > state.maxLogs) {
 			state.logs.splice(state.maxLogs);
 		}
 
-		// Add to pending batch for database persistence
 		state.pendingLogs.push(entry);
 
-		// Flush immediately if batch size reached, otherwise schedule
 		if (state.pendingLogs.length >= BATCH_SIZE) {
 			flushLogs();
 		} else {
 			scheduleBatchFlush();
 		}
 
-		// Console output in development or for errors/warnings
 		if (dev || level === 'error' || level === 'warn') {
 			const consoleMessage = `[${component}] ${message}`;
 			switch (level) {
@@ -229,7 +230,6 @@ function createLoggingStore() {
 	function sanitizeData(data: any): any {
 		if (!data) return undefined;
 
-		// Remove sensitive fields
 		const sensitiveFields = [
 			'password',
 			'token',
@@ -244,22 +244,15 @@ function createLoggingStore() {
 			'encrypted'
 		];
 
-		// Track seen objects to handle circular references
 		const seen = new WeakSet();
 
 		function removeSensitive(obj: any, depth = 0): any {
-			// Prevent infinite recursion
 			if (depth > 10) return '[Max Depth Reached]';
-
-			// Handle primitives
 			if (obj === null) return null;
 			if (obj === undefined) return undefined;
 			if (typeof obj !== 'object') return obj;
-
-			// Handle Date objects
 			if (obj instanceof Date) return obj.toISOString();
 
-			// Handle Error objects specially (they have circular references)
 			if (obj instanceof Error) {
 				return {
 					name: obj.name,
@@ -269,33 +262,27 @@ function createLoggingStore() {
 				};
 			}
 
-			// Check for circular references
 			if (seen.has(obj)) return '[Circular]';
 			seen.add(obj);
 
-			// Handle Arrays
 			if (Array.isArray(obj)) {
 				return obj.map((item) => removeSensitive(item, depth + 1));
 			}
 
-			// Handle Objects
 			const result: any = {};
 			for (const key in obj) {
-				// Skip functions and symbols
 				const value = obj[key];
 				if (typeof value === 'function' || typeof value === 'symbol') continue;
 
 				const lowerKey = key.toLowerCase();
 				const isSensitive = sensitiveFields.some((field) => lowerKey.includes(field.toLowerCase()));
 
-				// If key is sensitive and value is primitive, redact it
 				if (isSensitive && (typeof value !== 'object' || value === null)) {
 					result[key] = '[REDACTED]';
 				} else {
 					try {
 						result[key] = removeSensitive(value, depth + 1);
 					} catch (err) {
-						// If serialization fails, use safe fallback
 						result[key] = '[Serialization Error]';
 					}
 				}
@@ -307,7 +294,6 @@ function createLoggingStore() {
 		try {
 			return removeSensitive(data);
 		} catch (err) {
-			// Last resort fallback
 			return { error: 'Failed to sanitize data', type: typeof data };
 		}
 	}
@@ -355,11 +341,10 @@ function createLoggingStore() {
 		state.enabledLevels = new Set(levels);
 	}
 
-	// Performance monitoring functions
 	function trackPerformance(operation: string, duration: number) {
 		if (!browser) return;
 
-		// Track slow operations (configurable threshold)
+		// Slow
 		if (duration > LOGGING_CONFIG.performance.slowOperationThreshold) {
 			state.performanceMetrics.slowOperations.push({
 				operation,
@@ -367,7 +352,6 @@ function createLoggingStore() {
 				timestamp: new Date()
 			});
 
-			// Keep only configured number of slow operations
 			if (
 				state.performanceMetrics.slowOperations.length >
 				LOGGING_CONFIG.performance.maxSlowOperationsTracked
@@ -375,7 +359,6 @@ function createLoggingStore() {
 				state.performanceMetrics.slowOperations.shift();
 			}
 
-			// Log slow operations
 			warn('Performance', `Slow operation detected: ${operation}`, {
 				duration: `${duration}ms`,
 				threshold: `${LOGGING_CONFIG.performance.slowOperationThreshold}ms`
@@ -461,12 +444,10 @@ function createLoggingStore() {
 		setLogLevel,
 		setUserId,
 		flushLogs,
-		// Performance monitoring
 		trackPerformance,
 		measureAsync,
 		measureSync,
 		getPerformanceMetrics,
-		// Sampling configuration
 		setSampleRate,
 		enableSampling
 	};
