@@ -5,7 +5,10 @@ import { request } from '$lib/graphql/client';
 import type { PageServerLoad } from './$types';
 import type { GetBoardsQuery } from '$lib/graphql/generated/graphql';
 
-async function getTopBoardPath(session: any): Promise<string | null> {
+async function getTopBoardPath(
+	session: any,
+	fetch: typeof globalThis.fetch
+): Promise<string | null> {
 	try {
 		console.log('[Signin] Session user:', { id: session?.user?.id, email: session?.user?.email });
 		const lastBoardAlias = session?.user?.settings?.lastBoardAlias;
@@ -18,14 +21,18 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 					where: { alias: { _eq: lastBoardAlias } },
 					limit: 1
 				},
-				session
+				undefined,
+				fetch
 			);
 
 			console.log('[Signin] Board query by alias result:', dataByAlias);
 
 			if (dataByAlias.boards && dataByAlias.boards.length > 0) {
 				const board = dataByAlias.boards[0];
-				console.log('[Signin] Found last opened board:', { alias: board.alias, username: board.user?.username });
+				console.log('[Signin] Found last opened board:', {
+					alias: board.alias,
+					username: board.user?.username
+				});
 
 				if (board.user?.username && board.alias) {
 					const locale = session.user?.locale || 'et';
@@ -44,7 +51,8 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 				order_by: [{ sort_order: 'asc' }, { name: 'asc' }],
 				limit: 1
 			},
-			session
+			undefined,
+			fetch
 		);
 
 		if (data.boards && data.boards.length > 0) {
@@ -74,10 +82,10 @@ async function getTopBoardPath(session: any): Promise<string | null> {
 
 export const load: PageServerLoad = async (event) => {
 	const session = await event.locals.auth();
-	const locale = session.user?.locale || 'et';
+	const locale = session?.user?.locale || 'et';
 
 	if (session) {
-		const topBoardPath = await getTopBoardPath(session);
+		const topBoardPath = await getTopBoardPath(session, event.fetch);
 		if (topBoardPath) {
 			console.log('→ Redirecting to top board:', topBoardPath);
 			throw redirect(302, topBoardPath);

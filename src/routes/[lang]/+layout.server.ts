@@ -11,7 +11,13 @@ async function getTopBoardPath(
 ): Promise<string | null> {
 	try {
 		console.log('[Lang Layout] === GETTING TOP BOARD ===');
+		console.log('[Lang Layout] Session user:', {
+			id: session?.user?.id,
+			email: session?.user?.email
+		});
+
 		const lastBoardAlias = session?.user?.settings?.lastBoardAlias;
+		console.log('[Lang Layout] Last board alias from settings:', lastBoardAlias);
 
 		if (lastBoardAlias) {
 			const dataByAlias: GetBoardsQuery = await request(
@@ -20,36 +26,63 @@ async function getTopBoardPath(
 					where: { alias: { _eq: lastBoardAlias } },
 					limit: 1
 				},
-				session,
+				undefined,
 				fetch
 			);
 
+			console.log('[Lang Layout] Board query by alias result:', dataByAlias);
+
 			if (dataByAlias.boards && dataByAlias.boards.length > 0) {
 				const board = dataByAlias.boards[0];
+				console.log('[Lang Layout] Found last opened board:', {
+					alias: board.alias,
+					username: board.user?.username
+				});
+
 				if (board.user?.username && board.alias) {
 					const locale = session.user?.locale || 'en';
-					return `/${locale}/${board.user.username}/${board.alias}`;
+					const path = `/${locale}/${board.user.username}/${board.alias}`;
+					console.log('[Lang Layout] ✓ Redirecting to last opened board:', path);
+					return path;
 				}
+			} else {
+				console.log('[Lang Layout] Last opened board not found, falling back to top board');
 			}
 		}
 
-		// Fallback: Get the top board by sort order
 		const data: GetBoardsQuery = await request(
 			GET_BOARDS,
 			{
 				order_by: [{ sort_order: 'asc' }, { name: 'asc' }],
 				limit: 1
 			},
-			session,
-			fetch // Pass fetch here
+			undefined,
+			fetch
 		);
+
+		console.log('[Lang Layout] Boards query result:', data);
+		console.log('[Lang Layout] Boards count:', data.boards?.length);
 
 		if (data.boards && data.boards.length > 0) {
 			const board = data.boards[0];
+			console.log('[Lang Layout] Top board:', {
+				alias: board.alias,
+				username: board.user?.username
+			});
+
 			if (board.user?.username && board.alias) {
 				const locale = session.user?.locale || 'en';
-				return `/${locale}/${board.user.username}/${board.alias}`;
+				const path = `/${locale}/${board.user.username}/${board.alias}`;
+				console.log('[Lang Layout] ✓ Redirecting to top board:', path);
+				return path;
+			} else {
+				console.warn('[Lang Layout] ✗ Top board missing username or alias:', {
+					username: board.user?.username,
+					alias: board.alias
+				});
 			}
+		} else {
+			console.log('[Lang Layout] ✗ No boards found');
 		}
 
 		return null;
@@ -60,11 +93,12 @@ async function getTopBoardPath(
 }
 
 export const load: LayoutServerLoad = async (event) => {
-	const { params, url, locals, fetch } = event; // Get fetch from event
+	const { params, url, locals, fetch } = event;
 
 	const session = await locals.auth();
 
 	if (!session && !url.pathname.includes('/signin') && !url.pathname.includes('/api/auth')) {
+		console.log('[Lang Layout] → Redirecting to /signin (no session)');
 		throw redirect(302, `/signin`);
 	}
 
@@ -72,8 +106,10 @@ export const load: LayoutServerLoad = async (event) => {
 	const isLanguageRootOnly = pathSegments.length === 1 && pathSegments[0] === params.lang;
 
 	if (session && isLanguageRootOnly) {
+		console.log('[Lang Layout] → User accessing language root, redirecting to top board');
 		const topBoardPath = await getTopBoardPath(session, fetch); // Pass fetch
 		if (topBoardPath) {
+			console.log('[Lang Layout] → Redirecting to top board:', topBoardPath);
 			throw redirect(302, topBoardPath);
 		}
 	}
