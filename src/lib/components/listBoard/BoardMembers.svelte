@@ -1,5 +1,9 @@
 <!-- @file src/lib/components/listBoard/BoardMembers.svelte -->
 <script lang="ts">
+	import { t } from '$lib/i18n';
+	import { boardMembersStore } from '$lib/stores/boardMembers.svelte';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Badge } from '$lib/components/ui/badge';
@@ -13,18 +17,9 @@
 		DialogTitle
 	} from '$lib/components/ui/dialog';
 	import { Users, Trash2, Mail, Clock, X } from 'lucide-svelte';
-	import { boardMembersStore } from '$lib/stores/boardMembers.svelte';
-	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
-	import { userStore } from '$lib/stores/user.svelte';
-	import type { BoardFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { MembersProps } from '$lib/types/listBoard';
 
-	interface Props {
-		board: BoardFieldsFragment;
-		open: boolean;
-		onClose: () => void;
-	}
-
-	let { board, open = $bindable(), onClose }: Props = $props();
+	let { board, open = $bindable(), onClose }: MembersProps = $props();
 
 	let inviteInput = $state('');
 	let inviteRole = $state<'editor' | 'viewer'>('editor');
@@ -143,7 +138,7 @@
 </script>
 
 <Dialog bind:open>
-	<DialogContent class="max-w-2xl max-h-[80vh] overflow-y-auto">
+	<DialogContent class="max-h-[80vh] max-w-2xl overflow-y-auto">
 		<DialogHeader>
 			<DialogTitle class="flex items-center gap-2">
 				<Users class="h-5 w-5" />
@@ -171,7 +166,7 @@
 							/>
 							<select
 								bind:value={inviteRole}
-								class="h-9 w-32 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+								class="h-9 w-32 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:ring-1 focus:ring-ring focus:outline-none"
 							>
 								<option value="editor">Editor</option>
 								<option value="viewer">Viewer</option>
@@ -184,10 +179,10 @@
 
 						<!-- Search Results -->
 						{#if searchResults.length > 0}
-							<div class="border rounded-md p-2 space-y-1 max-h-32 overflow-y-auto">
+							<div class="max-h-32 space-y-1 overflow-y-auto rounded-md border p-2">
 								{#each searchResults as user}
 									<button
-										class="w-full text-left px-2 py-1 rounded hover:bg-accent text-sm flex items-center gap-2"
+										class="flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm hover:bg-accent"
 										onclick={() => {
 											inviteInput = user.username || user.email;
 											searchResults = [];
@@ -197,7 +192,7 @@
 											<img src={user.image} alt={user.username} class="h-6 w-6 rounded-full" />
 										{:else}
 											<div
-												class="h-6 w-6 rounded-full bg-accent flex items-center justify-center text-xs font-medium"
+												class="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-medium"
 											>
 												{user.username?.charAt(0)?.toUpperCase() || '?'}
 											</div>
@@ -216,29 +211,25 @@
 
 			<Card>
 				<CardHeader>
-					<CardTitle class="text-sm flex items-center justify-between">
+					<CardTitle class="flex items-center justify-between text-sm">
 						<span>Members ({members.length})</span>
 					</CardTitle>
 				</CardHeader>
 				<CardContent class="space-y-2">
 					{#each members as member (member.id)}
-						<div class="flex items-center gap-3 p-2 border rounded-md">
+						<div class="flex items-center gap-3 rounded-md border p-2">
 							{#if member.user.image}
-								<img
-									src={member.user.image}
-									alt={member.user.name}
-									class="h-8 w-8 rounded-full"
-								/>
+								<img src={member.user.image} alt={member.user.name} class="h-8 w-8 rounded-full" />
 							{:else}
 								<div
-									class="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-sm font-medium"
+									class="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-medium"
 								>
 									{member.user.name?.charAt(0) || member.user.username?.charAt(0) || '?'}
 								</div>
 							{/if}
 
 							<div class="flex-1">
-								<div class="font-medium text-sm">{member.user.name || member.user.username}</div>
+								<div class="text-sm font-medium">{member.user.name || member.user.username}</div>
 								<div class="text-xs text-muted-foreground">{member.user.email}</div>
 							</div>
 
@@ -250,7 +241,7 @@
 								<select
 									value={member.role}
 									onchange={(e) => handleUpdateRole(member.id, e.currentTarget.value as any)}
-									class="h-8 w-24 rounded-md border border-input bg-background px-2 text-xs shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+									class="h-8 w-24 rounded-md border border-input bg-background px-2 text-xs shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:ring-1 focus:ring-ring focus:outline-none"
 								>
 									<option value="owner">Owner</option>
 									<option value="editor">Editor</option>
@@ -274,17 +265,17 @@
 			{#if invitations.length > 0}
 				<Card>
 					<CardHeader>
-						<CardTitle class="text-sm flex items-center gap-2">
+						<CardTitle class="flex items-center gap-2 text-sm">
 							<Clock class="h-4 w-4" />
-							Pending Invitations ({invitations.length})
+							{$t('board.pending_invitations')} ({invitations.length})
 						</CardTitle>
 					</CardHeader>
 					<CardContent class="space-y-2">
 						{#each invitations as invitation (invitation.id)}
-							<div class="flex items-center gap-3 p-2 border rounded-md">
+							<div class="flex items-center gap-3 rounded-md border p-2">
 								<Mail class="h-4 w-4 text-muted-foreground" />
 								<div class="flex-1">
-									<div class="font-medium text-sm">
+									<div class="text-sm font-medium">
 										{invitation.invitee_email || invitation.invitee_username}
 									</div>
 									<div class="text-xs text-muted-foreground">

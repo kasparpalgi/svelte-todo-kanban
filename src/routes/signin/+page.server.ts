@@ -60,7 +60,7 @@ async function getTopBoardPath(
 			console.log('[Signin] Top board:', { alias: board.alias, username: board.user?.username });
 
 			if (board.user?.username && board.alias) {
-				const locale = session.user?.locale || 'en';
+				const locale = session.user?.locale || 'et';
 				const path = `/${locale}/${board.user.username}/${board.alias}`;
 				return path;
 			} else {

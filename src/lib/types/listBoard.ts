@@ -31,3 +31,9 @@ export interface GithubRepoSelectorProps {
 	currentRepo?: string | null;
 	onSelect: (repo: string | null) => void;
 }
+
+export interface MembersProps {
+	board: BoardFieldsFragment;
+	open: boolean;
+	onClose: () => void;
+}

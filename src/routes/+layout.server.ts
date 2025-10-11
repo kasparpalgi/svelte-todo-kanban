@@ -80,7 +80,7 @@ async function getTopBoardPath(
 			console.log('[Layout] Top board:', { alias: board.alias, username: board.user?.username });
 
 			if (board.user?.username && board.alias) {
-				const locale = session.user?.locale || 'en';
+				const locale = session.user?.locale || 'et';
 				const path = `/${locale}/${board.user.username}/${board.alias}`;
 				console.log('[Layout] ✓ Redirecting to top board:', path);
 				return path;
