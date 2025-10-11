@@ -22,7 +22,7 @@
 	});
 
 	function selectBoard(board: (typeof listsStore.boards)[0]) {
-		const lang = page.params.lang || 'en';
+		const lang = page.params.lang || 'et';
 
 		if (board && board.user?.username && board.alias) {
 			goto(`/${lang}/${board.user.username}/${board.alias}`);

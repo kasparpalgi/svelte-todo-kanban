@@ -29,7 +29,7 @@
 
 		const currentPath = page.url.pathname;
 		const params = page.params;
-		const lang = params.lang || 'en';
+		const lang = params.lang || 'et';
 		const specialPages = ['/logs', '/settings', '/profile'];
 		const isOnSpecialPage = specialPages.some((specialPage) => currentPath.includes(specialPage));
 
@@ -64,11 +64,11 @@
 		}
 	});
 
-	const currentLang = $derived(page.params.lang || 'en');
+	const currentLang = $derived(page.params.lang || 'et');
 
 	const logoUrl = $derived(() => {
 		const params = page.params;
-		const lang = params.lang || 'en';
+		const lang = params.lang || 'et';
 
 		if (params.username && params.board) {
 			return `/${lang}/${params.username}/${params.board}`;

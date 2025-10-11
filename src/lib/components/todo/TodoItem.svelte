@@ -33,7 +33,7 @@
 
 	let { todo, isDragging = false }: TodoItemProps = $props();
 
-	const lang = $derived(page.params.lang || 'en');
+	const lang = $derived(page.params.lang || 'et');
 	const username = $derived(page.params.username);
 	const boardAlias = $derived(page.params.board);
 	let sortable = useSortable({ id: todo.id });

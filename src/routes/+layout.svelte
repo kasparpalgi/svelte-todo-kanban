@@ -13,7 +13,7 @@
 	let { children, data } = $props();
 
 	$effect(() => {
-		const locale = data?.session?.user?.locale || 'en';
+		const locale = data?.session?.user?.locale || 'et';
 		initTranslations(locale);
 	});
 

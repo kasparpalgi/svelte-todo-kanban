@@ -1,7 +1,7 @@
 /** @file src/lib/utils/url.ts */
 import type { BoardFieldsFragment } from '$lib/graphql/generated/graphql';
 
-export function generateBoardUrl(board: BoardFieldsFragment, lang: string = 'en'): string {
+export function generateBoardUrl(board: BoardFieldsFragment, lang: string = 'et'): string {
 	if (!board.user?.username || !board.alias) {
 		return `/${lang}`;
 	}
@@ -10,7 +10,7 @@ export function generateBoardUrl(board: BoardFieldsFragment, lang: string = 'en'
 
 export function parseBoardFromUrl(params: { lang?: string; username?: string; board?: string }) {
 	return {
-		lang: params.lang || 'en',
+		lang: params.lang || 'et',
 		username: params.username,
 		boardAlias: params.board
 	};

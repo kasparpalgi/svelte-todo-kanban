@@ -29,7 +29,7 @@
 		name: '',
 		email: '',
 		image: '',
-		locale: 'en',
+		locale: 'et',
 		darkMode: false,
 		viewMode: 'kanban' as 'kanban' | 'list',
 		aiModel: 'gpt-5-mini',
@@ -69,12 +69,12 @@
 		if (result.success) {
 			const currentPath = page.url.pathname;
 			const params = page.params;
-			const currentLang = params.lang || 'en';
+			const currentLang = params.lang || 'et';
 			const newPath = currentPath.replace(`/${currentLang}/`, `/${newLanguage}/`);
 
 			await goto(newPath, { replaceState: true });
 		} else {
-			formData.locale = user.locale || 'en';
+			formData.locale = user.locale || 'et';
 		}
 	}
 
@@ -122,7 +122,7 @@
 			formData.name = user.name || '';
 			formData.email = user.email || '';
 			formData.image = user.image || '';
-			formData.locale = user.locale || 'en';
+			formData.locale = user.locale || 'et';
 			formData.darkMode = user.dark_mode || false;
 			formData.viewMode = user.settings?.viewMode || 'kanban';
 			formData.aiModel = user.settings?.ai_model || 'gpt-5-mini';

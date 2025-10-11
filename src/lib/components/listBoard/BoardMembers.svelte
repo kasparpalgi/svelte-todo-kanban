@@ -67,7 +67,7 @@
 		const result = await boardMembersStore.inviteUser(board.id, inviteInput.trim(), inviteRole);
 
 		if (result.success) {
-			displayMessage('Invitation sent successfully', 1500, true);
+			displayMessage($t('members.invitation_sent'), 1500, true);
 			inviteInput = '';
 			searchResults = [];
 			await loadData();
@@ -77,12 +77,12 @@
 	}
 
 	async function handleRemoveMember(memberId: string) {
-		if (!confirm('Remove this member from the board?')) return;
+		if (!confirm($t('members.remove_member_confirm'))) return;
 
 		const result = await boardMembersStore.removeMember(memberId);
 
 		if (result.success) {
-			displayMessage('Member removed', 1500, true);
+			displayMessage($t('members.member_removed'), 1500, true);
 			await loadData();
 		} else {
 			displayMessage(result.message);
@@ -93,7 +93,7 @@
 		const result = await boardMembersStore.updateMemberRole(memberId, newRole);
 
 		if (result.success) {
-			displayMessage('Role updated', 1500, true);
+			displayMessage($t('members.role_updated'), 1500, true);
 			await loadData();
 		} else {
 			displayMessage(result.message);
@@ -104,7 +104,7 @@
 		const result = await boardMembersStore.cancelInvitation(invitationId);
 
 		if (result.success) {
-			displayMessage('Invitation cancelled', 1500, true);
+			displayMessage($t('members.invitation_cancelled'), 1500, true);
 			await loadData();
 		} else {
 			displayMessage(result.message);
@@ -130,9 +130,9 @@
 		const diff = now.getTime() - date.getTime();
 		const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-		if (days === 0) return 'Today';
-		if (days === 1) return 'Yesterday';
-		if (days < 7) return `${days} days ago`;
+		if (days === 0) return $t('members.today');
+		if (days === 1) return $t('members.yesterday');
+		if (days < 7) return $t('members.days_ago', { days });
 		return date.toLocaleDateString();
 	}
 </script>
@@ -142,10 +142,10 @@
 		<DialogHeader>
 			<DialogTitle class="flex items-center gap-2">
 				<Users class="h-5 w-5" />
-				Board Members
+				{$t('members.board_members')}
 			</DialogTitle>
 			<DialogDescription>
-				Manage who has access to "{board.name}"
+				{$t('members.manage_access', { boardName: board.name })}
 			</DialogDescription>
 		</DialogHeader>
 
@@ -154,13 +154,13 @@
 			{#if isOwner()}
 				<Card>
 					<CardHeader>
-						<CardTitle class="text-sm">Invite Users</CardTitle>
+						<CardTitle class="text-sm">{$t('members.invite_users')}</CardTitle>
 					</CardHeader>
 					<CardContent class="space-y-3">
 						<div class="flex gap-2">
 							<Input
 								bind:value={inviteInput}
-								placeholder="Enter email or username..."
+								placeholder={$t('members.invite_email_username_placeholder')}
 								oninput={handleSearch}
 								class="flex-1"
 							/>
@@ -168,12 +168,12 @@
 								bind:value={inviteRole}
 								class="h-9 w-32 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:ring-1 focus:ring-ring focus:outline-none"
 							>
-								<option value="editor">Editor</option>
-								<option value="viewer">Viewer</option>
+								<option value="editor">{$t('board.editor')}</option>
+								<option value="viewer">{$t('board.viewer')}</option>
 							</select>
 							<Button onclick={handleInvite} disabled={!inviteInput.trim()}>
 								<Mail class="mr-2 h-4 w-4" />
-								Invite
+								{$t('members.invite')}
 							</Button>
 						</div>
 
@@ -212,7 +212,7 @@
 			<Card>
 				<CardHeader>
 					<CardTitle class="flex items-center justify-between text-sm">
-						<span>Members ({members.length})</span>
+						<span>{$t('members.members_count', { count: members.length })}</span>
 					</CardTitle>
 				</CardHeader>
 				<CardContent class="space-y-2">
@@ -234,7 +234,7 @@
 							</div>
 
 							<Badge variant={getRoleBadgeVariant(member.role)}>
-								{member.role}
+								{$t(`board.${member.role.toLowerCase()}`)}
 							</Badge>
 
 							{#if isOwner() && member.user_id !== currentUser?.id}
@@ -243,9 +243,9 @@
 									onchange={(e) => handleUpdateRole(member.id, e.currentTarget.value as any)}
 									class="h-8 w-24 rounded-md border border-input bg-background px-2 text-xs shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:ring-1 focus:ring-ring focus:outline-none"
 								>
-									<option value="owner">Owner</option>
-									<option value="editor">Editor</option>
-									<option value="viewer">Viewer</option>
+									<option value="owner">{$t('board.owner')}</option>
+									<option value="editor">{$t('board.editor')}</option>
+									<option value="viewer">{$t('board.viewer')}</option>
 								</select>
 
 								<Button
@@ -267,7 +267,7 @@
 					<CardHeader>
 						<CardTitle class="flex items-center gap-2 text-sm">
 							<Clock class="h-4 w-4" />
-							{$t('board.pending_invitations')} ({invitations.length})
+							{$t('members.pending_invitations_count', { count: invitations.length })}
 						</CardTitle>
 					</CardHeader>
 					<CardContent class="space-y-2">
@@ -279,11 +279,11 @@
 										{invitation.invitee_email || invitation.invitee_username}
 									</div>
 									<div class="text-xs text-muted-foreground">
-										Invited {formatDate(invitation.created_at)}
+										{$t('members.invited_date', { date: formatDate(invitation.created_at) })}
 									</div>
 								</div>
 
-								<Badge variant="outline">{invitation.role}</Badge>
+								<Badge variant="outline">{$t(`board.${invitation.role.toLowerCase()}`)}</Badge>
 
 								{#if isOwner()}
 									<Button
@@ -303,7 +303,7 @@
 		</div>
 
 		<DialogFooter>
-			<Button variant="outline" onclick={onClose}>Close</Button>
+			<Button variant="outline" onclick={onClose}>{$t('common.close')}</Button>
 		</DialogFooter>
 	</DialogContent>
 </Dialog>

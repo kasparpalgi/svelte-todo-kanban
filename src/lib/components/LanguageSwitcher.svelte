@@ -12,7 +12,7 @@
 		locale.set(lang);
 
 		const pathWithoutLang = currentPath.replace(/^\/(en|cs|et)/, '') || '/';
-		const newPath = lang === 'en' ? pathWithoutLang : `/${lang}${pathWithoutLang}`;
+		const newPath = lang === 'et' ? pathWithoutLang : `/${lang}${pathWithoutLang}`;
 
 		if (!currentPath.startsWith('/signin')) {
 			await goto(newPath);
@@ -25,7 +25,7 @@
 	value={currentLocale}
 	class="rounded border bg-background px-2 py-1 text-sm"
 >
+	<option value="et">Eesti</option>
 	<option value="en">English</option>
 	<option value="cs">Čeština</option>
-	<option value="et">Eesti</option>
 </select>

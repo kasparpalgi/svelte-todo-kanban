@@ -89,7 +89,6 @@
 		</DialogHeader>
 
 		<div class="space-y-6">
-			<!-- Public Access Toggle -->
 			<Card>
 				<CardHeader>
 					<CardTitle class="text-sm">Public Access</CardTitle>

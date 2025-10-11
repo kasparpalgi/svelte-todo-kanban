@@ -16,7 +16,7 @@ function createUserStore() {
 	const user = $derived(() => state.cachedUser);
 	const viewMode = $derived(() => user()?.settings?.viewMode || 'kanban');
 	const isDarkMode = $derived(() => user()?.dark_mode || false);
-	const userLocale = $derived(() => user()?.locale || 'en');
+	const userLocale = $derived(() => user()?.locale || 'et');
 
 	async function initializeUser(sessionUser: any | null) {
 		if (!browser || state.initialized) return

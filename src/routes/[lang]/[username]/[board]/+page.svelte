@@ -39,7 +39,7 @@
 	let hasPendingInvitation = $state(false);
 	const username = $derived(page.params.username);
 	const boardAlias = $derived(page.params.board);
-	const lang = $derived(page.params.lang || 'en');
+	const lang = $derived(page.params.lang || 'et');
 
 	onMount(async () => {
 		if (data?.session) {

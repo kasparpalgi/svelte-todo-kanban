@@ -37,7 +37,7 @@
 	import type { TodoImage } from '$lib/types/imageUpload';
 
 	const cardId = $derived(page.params.card);
-	const lang = $derived(page.params.lang || 'en');
+	const lang = $derived(page.params.lang || 'et');
 	const username = $derived(page.params.username);
 	const boardAlias = $derived(page.params.board);
 
