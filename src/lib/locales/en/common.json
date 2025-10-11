@@ -49,8 +49,7 @@
         "create_success": "List created successfully",
         "update_success": "List updated successfully",
         "delete_success": "List deleted successfully",
-        "delete_confirm_with_todos": "Delete \"{{name}}\" and its {{count}} tasks?",
-        "delete_confirm_empty": "Delete \"{{name}}\"?",
+        "delete_confirm": "Are you sure that you want to delete permanently the list with its tasks?",
         "enter_name_placeholder": "Enter list name..."
     },
     "filters": {

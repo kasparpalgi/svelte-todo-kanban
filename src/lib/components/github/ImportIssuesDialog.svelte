@@ -60,11 +60,7 @@
 			if (result.imported === 0) {
 				displayMessage(result.message || $t('github.no_issues_to_import'), 3000);
 			} else {
-				displayMessage(
-					$t('github.import_success', { imported: result.imported, total: result.total }),
-					3000,
-					true
-				);
+				displayMessage($t('github.import_success') + ' ' + result.total, 3000, true);
 			}
 
 			open = false;
@@ -119,7 +115,7 @@
 				<select
 					id="target-list"
 					bind:value={selectedListId}
-					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
 				>
 					{#each lists as list (list.id)}
 						<option value={list.id}>{list.name}</option>
@@ -127,7 +123,9 @@
 				</select>
 			</div>
 
-			<div class="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950">
+			<div
+				class="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950"
+			>
 				<p class="text-sm text-blue-900 dark:text-blue-100">
 					{$t('github.import_info')}
 				</p>

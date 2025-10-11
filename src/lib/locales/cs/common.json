@@ -49,8 +49,7 @@
         "create_success": "Seznam úspěšně vytvořen",
         "update_success": "Seznam úspěšně aktualizován",
         "delete_success": "Seznam úspěšně smazán",
-        "delete_confirm_with_todos": "Smazat \"{{name}}\" a jeho {{count}} úkol(ů)?",
-        "delete_confirm_empty": "Smazat \"{{name}}\"?",
+        "delete_confirm": "Smazat a jeho úkol(ů)?",
         "enter_name_placeholder": "Zadejte název seznamu..."
     },
     "filters": {

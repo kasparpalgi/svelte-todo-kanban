@@ -94,11 +94,7 @@
 	}
 
 	async function handleDeleteList(id: string, listName: string) {
-		const todoCount = todoCountByList().get(id) || 0;
-		const confirmMessage =
-			todoCount > 0
-				? $t('list.delete_confirm_with_todos', { name: listName, count: todoCount })
-				: $t('list.delete_confirm_empty', { name: listName });
+		const confirmMessage = $t('list.delete_confirm');
 
 		if (!confirm(confirmMessage)) return;
 
@@ -208,7 +204,9 @@
 								</div>
 							</div>
 							<DialogFooter>
-								<Button variant="outline" onclick={() => (showListDialog = false)}>{$t('common.cancel')}</Button>
+								<Button variant="outline" onclick={() => (showListDialog = false)}
+									>{$t('common.cancel')}</Button
+								>
 								<Button onclick={handleCreateList} disabled={!newListName.trim()}>
 									{$t('todo.create_list')}
 								</Button>
