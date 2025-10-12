@@ -14,6 +14,9 @@
 	$effect(() => {
 		if (data.session?.user) {
 			userStore.initializeUser(data.session.user);
+		} else if (!data.session && userStore.user) {
+			userStore.reset();
+			listsStore.reset();
 		}
 	});
 
@@ -22,8 +25,6 @@
 			initTranslations(userStore.user.locale);
 		}
 	});
-
-	const currentLang = $derived(page.params.lang || 'et');
 
 	const logoUrl = $derived(() => {
 		const params = page.params;
@@ -46,7 +47,7 @@
 </script>
 
 <header
-	class="sticky top-0 z-50 w-full border-b bg-slate-400/10 backdrop-blur dark:bg-slate-500/10 backdrop-blur"
+	class="sticky top-0 z-50 w-full border-b bg-slate-400/10 backdrop-blur dark:bg-slate-500/10"
 >
 	<div class="w-full px-4 py-4">
 		<nav class="flex items-center justify-between">

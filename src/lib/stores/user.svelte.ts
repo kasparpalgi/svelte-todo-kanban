@@ -10,7 +10,8 @@ function createUserStore() {
 		initialized: false,
 		loading: true,
 		error: null as string | null,
-		cachedUser: null as any
+		cachedUser: null as any,
+		isLoggingOut: false
 	});
 
 	const user = $derived(() => state.cachedUser);
@@ -19,7 +20,7 @@ function createUserStore() {
 	const userLocale = $derived(() => user()?.locale || 'et');
 
 	async function initializeUser(sessionUser: any | null) {
-		if (!browser || state.initialized) return
+		if (!browser || state.initialized || state.isLoggingOut) return;
 
 		if (!sessionUser?.id) {
 			state.loading = false;
@@ -30,11 +31,6 @@ function createUserStore() {
 		state.loading = true;
 
 		try {
-			console.log('[UserStore] Initializing user from session', {
-				sessionId: sessionUser.id,
-				sessionEmail: sessionUser.email
-			});
-
 			const data = (await request(GET_USERS, {
 				where: { id: { _eq: sessionUser.id } },
 				limit: 1
@@ -206,12 +202,16 @@ function createUserStore() {
 	}
 
 	function reset() {
-		console.log('[UserStore] Resetting store');
+		state.isLoggingOut = true;
 		state.initialized = false;
 		state.loading = true;
 		state.error = null;
 		state.cachedUser = null;
 		loggingStore.setUserId(null);
+	}
+
+	function clearLogoutFlag() {
+		state.isLoggingOut = false;
 	}
 
 	return {
@@ -243,7 +243,8 @@ function createUserStore() {
 		updateUser,
 		updateViewPreference,
 		toggleDarkMode,
-		reset
+		reset,
+		clearLogoutFlag
 	};
 }
 

@@ -5,7 +5,6 @@ import { getTopBoardPath } from '$lib/utils/getTopBoardPath';
 
 export const load: LayoutServerLoad = async (event) => {
 	const { params, url, locals, fetch } = event;
-
 	const session = await locals.auth();
 
 	if (!session && !url.pathname.includes('/signin') && !url.pathname.includes('/api/auth')) {

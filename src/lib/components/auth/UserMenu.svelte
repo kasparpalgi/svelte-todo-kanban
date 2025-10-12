@@ -1,15 +1,14 @@
 <!-- @file src/lib/components/auth/UserMenu.svelte -->
 <script lang="ts">
-	import { signOut } from '@auth/sveltekit/client';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
+	import { getUserInitials } from '$lib/utils/getUserInitials';
+	import { clearAllStorage } from '$lib/utils/localStorage';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { LogOut, Settings } from 'lucide-svelte';
-	import { getUserInitials } from '$lib/utils/getUserInitials';
-	import { clearAppStorage } from '$lib/utils/localStorage';
 	import BoardSwitcher from '$lib/components/listBoard/BoardSwitcher.svelte';
 
 	function navigateToSettings() {
@@ -19,21 +18,16 @@
 	}
 
 	async function handleLogout() {
-		console.log('[Logout] Starting logout process...');
+		listsStore.reset();
+		userStore.reset();
 
-		try {
-			clearAppStorage();
+		await clearAllStorage();
 
-			listsStore.reset();
-			userStore.reset();
-
-			console.log('[Logout] Stores reset complete');
-
-			await new Promise((resolve) => setTimeout(resolve, 10));
-			await signOut({ callbackUrl: '/' });
-		} catch (error) {
-			await signOut({ callbackUrl: '/' });
-		}
+		const form = document.createElement('form');
+		form.method = 'POST';
+		form.action = '/logout';
+		document.body.appendChild(form);
+		form.submit();
 	}
 </script>
 
@@ -42,7 +36,7 @@
 		<BoardSwitcher />
 		<button
 			onclick={navigateToSettings}
-			class="ml-2 cursor-pointer flex items-center gap-3 transition-opacity hover:opacity-80"
+			class="ml-2 flex cursor-pointer items-center gap-3 transition-opacity hover:opacity-80"
 		>
 			<div class="relative h-8 w-8 overflow-hidden rounded-full">
 				{#if userStore.user.image}
