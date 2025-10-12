@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import VoiceInput from './VoiceInput.svelte';
 	import githubLogo from '$lib/assets/github.svg';
 
@@ -67,7 +68,10 @@
 	}
 </script>
 
-<div class="space-y-2 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-2">
+<div
+	class="space-y-2 rounded-lg border-2 border-dashed border-primary/30
+	       bg-green-50 p-2 dark:bg-primary/5"
+>
 	<div class="flex gap-2">
 		<input
 			bind:this={inputEl}
@@ -84,11 +88,11 @@
 	</div>
 
 	{#if showGithubCheckbox}
-		<label class="flex items-center gap-2 text-xs cursor-pointer">
-			<input
-				type="checkbox"
+		<label class="flex cursor-pointer items-center gap-2 text-xs select-none">
+			<Checkbox
 				bind:checked={skipGithubIssue}
-				class="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary"
+				id="skip-github"
+				class="data-[state=checked]:border-primary data-[state=checked]:bg-primary"
 			/>
 			<img src={githubLogo} alt="GitHub" class="h-3 w-3" />
 			<span>{$t('todo.do_not_create_github_issue')}</span>
