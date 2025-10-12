@@ -352,7 +352,11 @@
 		<div
 			class="mx-auto max-w-4xl"
 			onclick={(e) => e.stopPropagation()}
-			onkeydown={(e) => e.stopPropagation()}
+			onkeydown={(e) => {
+				if (e.key !== 'Escape' && !(e.key === 'Enter' && (e.ctrlKey || e.metaKey))) {
+					e.stopPropagation();
+				}
+			}}
 			role="dialog"
 			tabindex="-1"
 		>

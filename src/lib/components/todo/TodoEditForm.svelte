@@ -90,12 +90,32 @@
 		}
 		onSave();
 	}
+
+	function handleKeydownLocal(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			onCancel();
+			return;
+		}
+
+		if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+			event.preventDefault();
+			if (!isSubmitting) {
+				handleSave();
+			}
+			return;
+		}
+
+		if (onKeydown) {
+			onKeydown(event);
+		}
+	}
 </script>
 
 <div
 	role="dialog"
 	aria-label={$t('todo.edit_todo') + ' ' + todo.title}
-	onkeydown={onKeydown}
+	onkeydown={handleKeydownLocal}
 	tabindex="0"
 >
 	<Card class="group relative transition-all duration-200">
