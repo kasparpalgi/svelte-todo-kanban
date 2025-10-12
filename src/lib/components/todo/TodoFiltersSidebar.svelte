@@ -11,7 +11,15 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
-	import { Search, SortAsc, SortDesc, Calendar, AlertTriangle, X, Filter } from 'lucide-svelte';
+	import {
+		Search,
+		ArrowUpNarrowWide,
+		ArrowDownWideNarrow,
+		Calendar,
+		TriangleAlert,
+		X,
+		Funnel
+	} from 'lucide-svelte';
 
 	let searchTerm = $state('');
 
@@ -65,7 +73,7 @@
 	<div class="space-y-4 p-4">
 		<div class="flex items-center justify-between">
 			<h2 class="flex items-center gap-2 text-lg font-semibold">
-				<Filter class="h-5 w-5" />
+				<Funnel class="h-5 w-5" />
 				{$t('filters.title')}
 			</h2>
 			<Button
@@ -81,9 +89,8 @@
 		{#if activeFilterCount > 0}
 			<div class="flex items-center justify-between">
 				<Badge variant="secondary" class="text-xs">
-					{activeFilterCount} {activeFilterCount === 1
-						? $t('filters.active_filter')
-						: $t('filters.active_filters')}
+					{activeFilterCount}
+					{activeFilterCount === 1 ? $t('filters.active_filter') : $t('filters.active_filters')}
 				</Badge>
 				<Button variant="ghost" size="sm" onclick={clearAllFilters} class="h-6 text-xs">
 					{$t('filters.clear_all')}
@@ -129,7 +136,7 @@
 					onclick={() => toggleFilter('overdue', true)}
 					class="w-full justify-start"
 				>
-					<AlertTriangle class="mr-2 h-4 w-4" />
+					<TriangleAlert class="mr-2 h-4 w-4" />
 					{$t('filters.overdue')}
 				</Button>
 			</div>
@@ -150,9 +157,9 @@
 					<span>{$t('filters.manual_order')}</span>
 					{#if currentSorting.order === 'sort_order'}
 						{#if currentSorting.direction === 'asc'}
-							<SortAsc class="h-3 w-3" />
+							<ArrowUpNarrowWide class="h-3 w-3" />
 						{:else}
-							<SortDesc class="h-3 w-3" />
+							<ArrowDownWideNarrow class="h-3 w-3" />
 						{/if}
 					{/if}
 				</Button>
@@ -166,9 +173,9 @@
 					<span>{$t('filters.due_date')}</span>
 					{#if currentSorting.order === 'due_date'}
 						{#if currentSorting.direction === 'asc'}
-							<SortAsc class="h-3 w-3" />
+							<ArrowUpNarrowWide class="h-3 w-3" />
 						{:else}
-							<SortDesc class="h-3 w-3" />
+							<ArrowDownWideNarrow class="h-3 w-3" />
 						{/if}
 					{/if}
 				</Button>
@@ -182,9 +189,9 @@
 					<span>{$t('filters.created_date')}</span>
 					{#if currentSorting.order === 'created_date'}
 						{#if currentSorting.direction === 'asc'}
-							<SortAsc class="h-3 w-3" />
+							<ArrowUpNarrowWide class="h-3 w-3" />
 						{:else}
-							<SortDesc class="h-3 w-3" />
+							<ArrowDownWideNarrow class="h-3 w-3" />
 						{/if}
 					{/if}
 				</Button>
@@ -198,9 +205,9 @@
 					<span>{$t('filters.recently_active')}</span>
 					{#if currentSorting.order === 'updated_at'}
 						{#if currentSorting.direction === 'asc'}
-							<SortAsc class="h-3 w-3" />
+							<ArrowUpNarrowWide class="h-3 w-3" />
 						{:else}
-							<SortDesc class="h-3 w-3" />
+							<ArrowDownWideNarrow class="h-3 w-3" />
 						{/if}
 					{/if}
 				</Button>

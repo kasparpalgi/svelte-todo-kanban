@@ -1,5 +1,6 @@
 <!-- @file src/lib/components/todo/CardLabelManager.svelte -->
 <script lang="ts">
+	import { t } from '$lib/i18n';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
@@ -38,18 +39,18 @@
 	async function addLabel(labelId: string) {
 		const result = await labelsStore.addTodoLabel(todo.id, labelId);
 		if (result.success) {
-			displayMessage('Label added', 1500, true);
+			displayMessage($t('labels.label_added'), 1500, true);
 		} else {
-			displayMessage(result.message || 'Failed to add label');
+			displayMessage(result.message || $t('labels.failed_add_label'));
 		}
 	}
 
 	async function removeLabel(labelId: string) {
 		const result = await labelsStore.removeTodoLabel(todo.id, labelId);
 		if (result.success) {
-			displayMessage('Label removed', 1500, true);
+			displayMessage($t('labels.label_removed'), 1500, true);
 		} else {
-			displayMessage(result.message || 'Failed to remove label');
+			displayMessage(result.message || $t('labels.failed_remove_label'));
 		}
 	}
 
@@ -63,7 +64,7 @@
 		);
 
 		if (result.success) {
-			displayMessage('Label created', 1500, true);
+			displayMessage($t('labels.label_created'), 1500, true);
 			newLabelName = '';
 			selectedColor = LABEL_COLORS[0];
 			isCreatingLabel = false;
@@ -71,7 +72,7 @@
 
 			await listsStore.loadBoards();
 		} else {
-			displayMessage(result.message || 'Failed to create label');
+			displayMessage(result.message || $t('labels.failed_create_label'));
 		}
 	}
 
@@ -98,7 +99,7 @@
 <div>
 	<Label class="mb-2 flex items-center gap-2">
 		<Tag class="h-4 w-4" />
-		Labels
+		{$t('labels.labels')}
 	</Label>
 
 	<div class="flex flex-wrap items-center gap-2">
@@ -111,7 +112,7 @@
 				<button
 					onclick={() => removeLabel(label.id)}
 					class="ml-1 opacity-0 transition-opacity group-hover:opacity-100"
-					aria-label="Remove label"
+					aria-label={$t('labels.remove_label')}
 				>
 					<X class="h-3 w-3" />
 				</button>
@@ -151,13 +152,13 @@
 						}}
 					>
 						<Plus class="mr-2 h-3 w-3" />
-						Create new label
+						{$t('labels.create_new_label')}
 					</button>
 				{:else}
 					<div class="space-y-2 p-2">
 						<Input
 							bind:value={newLabelName}
-							placeholder="Label name"
+							placeholder={$t('labels.label_name_placeholder')}
 							class="h-8"
 							onkeydown={(e) => {
 								if (e.key === 'Enter') {
@@ -182,7 +183,7 @@
 										? 'border-foreground'
 										: 'border-transparent'}"
 									style="background-color: {color}"
-									aria-label="Select color"
+									aria-label={$t('labels.select_color')}
 								></button>
 							{/each}
 						</div>
@@ -198,7 +199,7 @@
 								disabled={!newLabelName.trim()}
 								class="h-7 flex-1"
 							>
-								Create
+								{$t('labels.create')}
 							</Button>
 							<Button
 								type="button"
@@ -210,7 +211,7 @@
 								}}
 								class="h-7"
 							>
-								Cancel
+								{$t('common.cancel')}
 							</Button>
 						</div>
 					</div>

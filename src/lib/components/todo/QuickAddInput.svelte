@@ -1,9 +1,9 @@
 <!-- @file src/lib/components/todo/QuickAddInput.svelte -->
 <script lang="ts">
-	import VoiceInput from './VoiceInput.svelte';
-	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
-	import { GithubIcon } from 'lucide-svelte';
 	import { t } from '$lib/i18n';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import VoiceInput from './VoiceInput.svelte';
+	import githubLogo from '$lib/assets/github.svg';
 
 	let {
 		value = $bindable(''),
@@ -33,7 +33,7 @@
 		if (event.key === 'Enter') {
 			event.preventDefault();
 			onSubmit(value.trim(), skipGithubIssue);
-			skipGithubIssue = false; // Reset after submit
+			skipGithubIssue = false;
 		} else if (event.key === 'Escape') {
 			onCancel();
 		}
@@ -90,7 +90,7 @@
 				bind:checked={skipGithubIssue}
 				class="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary"
 			/>
-			<GithubIcon class="h-3 w-3" />
+			<img src={githubLogo} alt="GitHub" class="h-3 w-3" />
 			<span>{$t('todo.do_not_create_github_issue')}</span>
 		</label>
 	{/if}
