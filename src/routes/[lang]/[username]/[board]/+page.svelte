@@ -35,13 +35,15 @@
 	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
 	import TodoFiltersSidebar from '$lib/components/todo/TodoFiltersSidebar.svelte';
 	import ImportIssuesDialog from '$lib/components/github/ImportIssuesDialog.svelte';
+	import CardModal from './CardModal.svelte';
 
 	let { data } = $props();
 
+	const openCardId = $derived(page.url.searchParams.get('card'));
 	let newTodoTitle: string = $state('');
 	let viewMode: 'list' | 'kanban' = $state('kanban');
 	let boardNotFound: boolean = $state(false);
-	let loading: boolean = $state(true);
+	let loading: boolean = $state(false);
 	let showImportDialog: boolean = $state(false);
 	let skipGithubIssue: boolean = $state(false);
 
@@ -67,6 +69,19 @@
 	});
 
 	onMount(async () => {
+		const alreadyInitialized =
+			listsStore.boards.length > 0 &&
+			listsStore.selectedBoard?.alias === boardAlias &&
+			todosStore.initialized;
+
+		if (alreadyInitialized) {
+			loading = false;
+			boardNotFound = false;
+			return;
+		}
+
+		loading = true;
+
 		if (data?.session) {
 			if (listsStore.boards.length === 0) {
 				await listsStore.loadBoards();
@@ -75,7 +90,9 @@
 			const board = listsStore.boards.find((b: any) => b.alias === boardAlias);
 
 			if (board) {
-				listsStore.setSelectedBoard(board);
+				if (listsStore.selectedBoard?.id !== board.id) {
+					listsStore.setSelectedBoard(board);
+				}
 
 				const currentUser = userStore.user;
 				const isMember = board.board_members?.some((m: any) => m.user_id === currentUser?.id);
@@ -107,12 +124,6 @@
 
 	$effect(() => {
 		localStorage.setItem('todo-view-mode', viewMode);
-	});
-
-	$effect(() => {
-		if (data?.session && !todosStore.initialized && !todosStore.loading && !isNotMember) {
-			todosStore.loadTodos();
-		}
 	});
 
 	async function handleAddTodo() {
@@ -368,6 +379,14 @@
 			boardName={listsStore.selectedBoard.name}
 			lists={listsStore.lists.filter((l: any) => l.board_id === listsStore.selectedBoard?.id)}
 			onImportComplete={handleImportComplete}
+		/>
+	{/if}
+
+	{#if openCardId}
+		<CardModal
+			cardId={openCardId}
+			{lang}
+			onClose={() => goto(`/${lang}/${username}/${boardAlias}`)}
 		/>
 	{/if}
 {/if}

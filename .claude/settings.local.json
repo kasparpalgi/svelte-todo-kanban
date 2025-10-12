@@ -25,7 +25,8 @@
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_close",
       "WebFetch(domain:authjs.dev)",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+      "Bash(npx vite dev:*)"
     ],
     "deny": [],
     "ask": []

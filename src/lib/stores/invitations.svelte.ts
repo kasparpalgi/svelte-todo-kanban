@@ -19,7 +19,8 @@ function createInvitationsStore() {
 	const state = $state<InvitationsState>({
 		myInvitations: [],
 		loading: false,
-		error: null
+		error: null,
+		initialized: false
 	});
 
 	async function loadMyInvitations(): Promise<BoardInvitationFieldsFragment[]> {
@@ -29,6 +30,8 @@ function createInvitationsStore() {
 		if (!user?.email || !user?.username) {
 			return [];
 		}
+
+		if (state.loading) return state.myInvitations;
 
 		state.loading = true;
 		state.error = null;
@@ -40,6 +43,7 @@ function createInvitationsStore() {
 			});
 
 			state.myInvitations = data.board_invitations || [];
+			state.initialized = true;
 			return state.myInvitations;
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error loading invitations';
@@ -131,6 +135,9 @@ function createInvitationsStore() {
 		get error() {
 			return state.error;
 		},
+		get initialized() {
+			return state.initialized;
+		},
 		get pendingCount() {
 			return pendingCount;
 		},
@@ -146,6 +153,7 @@ function createInvitationsStore() {
 			state.myInvitations = [];
 			state.loading = false;
 			state.error = null;
+			state.initialized = false;
 		}
 	};
 }

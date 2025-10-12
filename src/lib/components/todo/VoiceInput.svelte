@@ -217,7 +217,7 @@
 
 	onMount(() => {
 		isMobile = detectMobile();
-		loggingStore.info('VoiceInput', 'Component mounted', {
+		loggingStore.debug('VoiceInput', 'Component mounted', {
 			isMobile,
 			userAgent: navigator.userAgent,
 			autoAICorrect,

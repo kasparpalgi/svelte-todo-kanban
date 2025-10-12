@@ -1,9 +1,7 @@
-<!-- @file src/routes/[lang]/[username]/[board]/[card]/+page.svelte -->
+<!-- @file src/routes/[lang]/[username]/[board]/CardModal.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { scale } from 'svelte/transition';
-	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
 	import { get } from 'svelte/store';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { commentsStore } from '$lib/stores/comments.svelte';
@@ -32,13 +30,11 @@
 	import type { Editor } from 'svelte-tiptap';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
-	const cardId = $derived(page.params.card);
-	const lang = $derived(page.params.lang || 'et');
-	const username = $derived(page.params.username);
-	const boardAlias = $derived(page.params.board);
+	let { cardId, lang, onClose }: { cardId: string; lang: string; onClose: () => void } = $props();
 
 	let todo = $state<TodoFieldsFragment | null>(null);
 	let loading = $state(true);
+	let isClosing = $state(false);
 	let editData = $state({
 		title: '',
 		due_on: '',
@@ -84,8 +80,13 @@
 	});
 
 	function closeModal() {
+		// Hide modal immediately with CSS
+		isClosing = true;
 		commentsStore.reset();
-		goto(`/${lang}/${username}/${boardAlias}`);
+		// Call the onClose callback after a tiny delay to let CSS hide the modal
+		setTimeout(() => {
+			onClose();
+		}, 50);
 	}
 
 	function handleBackdropClick(event: MouseEvent) {
@@ -189,14 +190,12 @@
 	}
 </script>
 
-<svelte:head>
-	<title>{todo?.title || $t('card.title')} | ToDzz</title>
-</svelte:head>
-
 <svelte:window onkeydown={handleKeydown} />
 
 <div
-	class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+	class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity duration-200"
+	class:opacity-0={isClosing}
+	class:pointer-events-none={isClosing}
 	onclick={handleBackdropClick}
 	onkeydown={(e) => {
 		if (e.key === 'Enter' || e.key === ' ') {

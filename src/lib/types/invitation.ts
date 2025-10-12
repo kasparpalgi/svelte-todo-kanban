@@ -4,6 +4,7 @@ export interface InvitationsState {
 	myInvitations: BoardInvitationFieldsFragment[];
 	loading: boolean;
 	error: string | null;
+	initialized: boolean;
 }
 
 export interface StoreResult {

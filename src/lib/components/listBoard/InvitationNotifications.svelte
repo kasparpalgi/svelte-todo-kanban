@@ -19,7 +19,9 @@
 	const pendingCount = $derived(invitationsStore.pendingCount);
 
 	$effect(() => {
-		invitationsStore.loadMyInvitations();
+		if (!invitationsStore.initialized && !invitationsStore.loading) {
+			invitationsStore.loadMyInvitations();
+		}
 	});
 
 	async function handleAccept(invitationId: string) {
