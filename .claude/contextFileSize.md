@@ -1,0 +1,4 @@
+- Keep individual component files between 200-300 lines max
+- Extract repetitive code patterns into separate, reusable components
+- Create dedicated components for distinct UI/functionality blocks
+- Separate business logic, utilities, and data fetching into dedicated files

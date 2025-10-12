@@ -1,6 +1,6 @@
 <!-- @file src/routes/[lang]/[username]/[board]/[card]/+page.svelte -->
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { scale } from 'svelte/transition';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
@@ -10,31 +10,27 @@
 	import { t, locale } from '$lib/i18n';
 	import { z } from 'zod';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import {
+		todoEditSchema,
+		getPriorityColor,
+		getPriorityLabel,
+		calculateAverageHours
+	} from '$lib/utils/cardHelpers';
 	import { Card, CardContent, CardHeader } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Label } from '$lib/components/ui/label';
-	import { Dialog, DialogContent } from '$lib/components/ui/dialog';
-	import {
-		X,
-		Calendar,
-		Tag,
-		MessageSquare,
-		Send,
-		Trash2,
-		ImageIcon,
-		CircleAlert,
-		Upload,
-		Clock
-	} from 'lucide-svelte';
+	import { X, Calendar, Tag, CircleAlert, Clock } from 'lucide-svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
+	import CardImageManager from '$lib/components/card/CardImageManager.svelte';
+	import CardComments from '$lib/components/card/CardComments.svelte';
+	import CardLoading from '$lib/components/card/CardLoading.svelte';
 	import type { Readable } from 'svelte/store';
 	import type { Editor } from 'svelte-tiptap';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
-	import type { TodoImage } from '$lib/types/imageUpload';
 
 	const cardId = $derived(page.params.card);
 	const lang = $derived(page.params.lang || 'et');
@@ -52,15 +48,10 @@
 		actual_hours: null as number | null,
 		comment_hours: ''
 	});
-	let newComment = $state('');
 	let validationErrors = $state<Record<string, string>>({});
 	let isSubmitting = $state(false);
 	let editor: Readable<Editor> | null = $state(null);
-	let images = $state<TodoImage[]>([]);
-	let isDragOver = $state(false);
-	let fileInput = $state<HTMLInputElement>();
-	let showUploadArea = $state(false);
-	let selectedImage = $state<TodoImage | null>(null);
+	let imageManager = $state<CardImageManager>();
 
 	$effect(() => {
 		locale.set(lang);
@@ -71,17 +62,6 @@
 		if (foundTodo && todo) {
 			todo = foundTodo;
 		}
-	});
-
-	const todoEditSchema = z.object({
-		title: z.string().min(1, 'Title is required').max(200).trim(),
-		content: z.string().max(10000).optional(),
-		due_on: z.string().optional(),
-		priority: z.enum(['low', 'medium', 'high']).optional(),
-		min_hours: z.number().positive().nullable().optional(),
-		max_hours: z.number().positive().nullable().optional(),
-		actual_hours: z.number().positive().nullable().optional(),
-		comment_hours: z.string().max(10000).optional()
 	});
 
 	onMount(async () => {
@@ -99,24 +79,8 @@
 			};
 
 			await commentsStore.loadComments(cardId || '');
-
-			images =
-				foundTodo.uploads?.map((upload) => ({
-					id: upload.id,
-					file: null,
-					preview: upload.url,
-					isExisting: true
-				})) || [];
 		}
 		loading = false;
-	});
-
-	onDestroy(() => {
-		images.forEach((img) => {
-			if (!img.isExisting && img.preview.startsWith('blob:')) {
-				URL.revokeObjectURL(img.preview);
-			}
-		});
 	});
 
 	function closeModal() {
@@ -169,7 +133,7 @@
 				return;
 			}
 
-			const newImages = images.filter((img) => !img.isExisting && img.file);
+			const newImages = imageManager?.getNewImages() || [];
 			if (newImages.length > 0 && todo) {
 				try {
 					const uploadPromises = newImages.map(async (img) => {
@@ -223,111 +187,6 @@
 			displayMessage(result.message || $t('card.delete_failed'));
 		}
 	}
-
-	async function addComment() {
-		if (!newComment.trim() || !todo) return;
-
-		const result = await commentsStore.addComment(todo.id, newComment, todo);
-		if (result.success) {
-			newComment = '';
-			displayMessage($t('card.comment_added'), 1500, true);
-		} else {
-			displayMessage(result.message || $t('card.add_comment_failed'));
-		}
-	}
-
-	async function deleteComment(commentId: string) {
-		if (!confirm($t('card.delete_comment_confirm'))) return;
-
-		const result = await commentsStore.deleteComment(commentId);
-		if (!result.success) {
-			displayMessage(result.message || $t('card.delete_comment_failed'));
-		}
-	}
-
-	function formatDate(dateString: string): string {
-		const date = new Date(dateString);
-		return date.toLocaleDateString(lang, { month: 'short', day: 'numeric', year: 'numeric' });
-	}
-
-	function getPriorityColor(priority: string): string {
-		switch (priority) {
-			case 'high':
-				return 'bg-red-500';
-			case 'medium':
-				return 'bg-orange-500';
-			case 'low':
-				return 'bg-blue-500';
-			default:
-				return 'bg-gray-500';
-		}
-	}
-
-	function getPriorityLabel(priority: 'low' | 'medium' | 'high'): string {
-		const key = `card.priority_${priority}` as const;
-		return $t(key);
-	}
-
-	function handleDragOver(event: DragEvent) {
-		event.preventDefault();
-		isDragOver = true;
-	}
-
-	function handleDragLeave(event: DragEvent) {
-		event.preventDefault();
-		isDragOver = false;
-	}
-
-	function handleDrop(event: DragEvent) {
-		event.preventDefault();
-		isDragOver = false;
-		const files = Array.from(event.dataTransfer?.files || []);
-		addFiles(files);
-	}
-
-	function handleFileSelect(event: Event) {
-		const target = event.target as HTMLInputElement;
-		const files = Array.from(target.files || []);
-		addFiles(files);
-		target.value = '';
-	}
-
-	function addFiles(files: File[]) {
-		const imageFiles = files.filter(
-			(file) => file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024
-		);
-
-		imageFiles.forEach((file) => {
-			const id = crypto.randomUUID();
-			const preview = URL.createObjectURL(file);
-			images = [...images, { id, file, preview, isExisting: false }];
-		});
-
-		const invalidFiles = files.filter(
-			(file) => !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024
-		);
-		if (invalidFiles.length > 0) {
-			displayMessage($t('card.some_files_rejected'));
-		}
-
-		if (imageFiles.length > 0) {
-			showUploadArea = true;
-		}
-	}
-
-	function removeImage(imageId: string) {
-		const image = images.find((img) => img.id === imageId);
-		if (image) {
-			if (image.isExisting && todo) {
-				todosStore.deleteUpload(imageId, todo.id);
-			} else {
-				if (image.preview.startsWith('blob:')) {
-					URL.revokeObjectURL(image.preview);
-				}
-			}
-			images = images.filter((img) => img.id !== imageId);
-		}
-	}
 </script>
 
 <svelte:head>
@@ -361,14 +220,7 @@
 			tabindex="-1"
 		>
 			{#if loading}
-				<Card class="p-12 text-center">
-					<div class="flex items-center justify-center">
-						<div
-							class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
-						></div>
-						<span class="ml-3">{$t('card.loading_card')}</span>
-					</div>
-				</Card>
+				<CardLoading />
 			{:else if !todo}
 				<Card class="p-12 text-center">
 					<CircleAlert class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
@@ -396,7 +248,7 @@
 									</Badge>
 								{/if}
 								<Badge class="{getPriorityColor(editData.priority)} text-xs text-white">
-									{getPriorityLabel(editData.priority)}
+									{getPriorityLabel(editData.priority, $t)}
 								</Badge>
 							</div>
 
@@ -424,9 +276,7 @@
 					<CardContent class="space-y-6">
 						<div>
 							<Label class="mb-2">{$t('card.description_label')}</Label>
-
 							<RichTextEditor bind:editor content={todo.content || ''} />
-
 							{#if validationErrors.content}
 								<p class="mt-1 text-xs text-red-500">{validationErrors.content}</p>
 							{/if}
@@ -472,17 +322,13 @@
 										<Label for="max_hours">{$t('card.max_hours')}</Label>
 										<Input id="max_hours" type="number" bind:value={editData.max_hours} />
 									</div>
-
 									<div>
 										<Label for="actual_hours">{$t('card.actual_hours')}</Label>
 										<Input id="actual_hours" type="number" bind:value={editData.actual_hours} />
 									</div>
-
 									{#if editData.min_hours && editData.max_hours}
 										<div in:scale class="mt-5 text-2xl">
-											~{editData.min_hours && editData.max_hours
-												? ((editData.min_hours + editData.max_hours) / 2).toFixed(1)
-												: '?'}h
+											~{calculateAverageHours(editData.min_hours, editData.max_hours)}h
 										</div>
 									{/if}
 								</div>
@@ -495,202 +341,22 @@
 
 						<CardLabelManager {todo} />
 
-						<div>
-							<Label class="mb-2 flex items-center gap-2">
-								<ImageIcon class="h-4 w-4" />
-								{$t('card.attachments')} ({images.filter((img) => img.isExisting).length})
-							</Label>
+						<CardImageManager
+							bind:this={imageManager}
+							todoId={todo.id}
+							initialImages={todo.uploads?.map((upload) => ({
+								id: upload.id,
+								file: null,
+								preview: upload.url,
+								isExisting: true
+							})) || []}
+						/>
 
-							{#if images.filter((img) => img.isExisting).length > 0}
-								<div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-									{#each images.filter((img) => img.isExisting) as image}
-										<div class="group relative">
-											<button
-												type="button"
-												onclick={() => (selectedImage = image)}
-												class="block h-24 w-full overflow-hidden rounded border"
-											>
-												<img
-													src={image.preview}
-													alt={$t('common.attachment')}
-													class="h-full w-full object-cover transition-transform group-hover:scale-105"
-												/>
-											</button>
-											<Button
-												type="button"
-												size="sm"
-												variant="destructive"
-												class="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
-												onclick={() => removeImage(image.id)}
-											>
-												<X class="h-3 w-3" />
-											</Button>
-										</div>
-									{/each}
-								</div>
-							{/if}
-
-							{#if images.filter((img) => !img.isExisting).length > 0}
-								<div class="mb-4">
-									<span class="mb-2 block text-sm font-medium">
-										{$t('card.new_images_upload')}
-									</span>
-									<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-										{#each images.filter((img) => !img.isExisting) as image}
-											<div class="group relative">
-												<div class="h-24 w-full overflow-hidden rounded border">
-													<img
-														src={image.preview}
-														alt={$t('card.new_upload_alt')}
-														class="h-full w-full object-cover"
-													/>
-												</div>
-												<Button
-													type="button"
-													size="sm"
-													variant="destructive"
-													class="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
-													onclick={() => removeImage(image.id)}
-												>
-													<X class="h-3 w-3" />
-												</Button>
-											</div>
-										{/each}
-									</div>
-								</div>
-							{/if}
-
-							{#if showUploadArea}
-								<div>
-									<span class="mb-2 block text-sm font-medium text-foreground">
-										{$t('card.add_images')}
-									</span>
-									<div
-										tabindex="0"
-										aria-label={$t('card.upload_drag_drop_label')}
-										role="button"
-										class="rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 text-center transition-colors {isDragOver
-											? 'border-primary bg-primary/5'
-											: ''}"
-										ondragover={handleDragOver}
-										ondragleave={handleDragLeave}
-										ondrop={handleDrop}
-									>
-										<Upload class="mx-auto h-6 w-6 text-muted-foreground" />
-										<p class="mt-2 text-sm text-muted-foreground">
-											{$t('card.drag_drop_prompt')}
-											<button
-												type="button"
-												onclick={() => fileInput?.click()}
-												class="text-primary hover:underline focus:underline focus:outline-none"
-											>
-												{$t('card.click_to_select')}
-											</button>
-										</p>
-										<p class="mt-1 text-xs text-muted-foreground">
-											{$t('card.image_size_limit')}
-										</p>
-										<input
-											bind:this={fileInput}
-											type="file"
-											multiple
-											accept="image/*"
-											onchange={handleFileSelect}
-											class="hidden"
-										/>
-									</div>
-								</div>
-							{:else}
-								<Button
-									type="button"
-									variant="link"
-									class="flex h-auto justify-start p-0 text-muted-foreground"
-									onclick={() => (showUploadArea = true)}
-								>
-									<ImageIcon class="mr-2 h-4 w-4" />
-									{$t('card.attach_images')}
-								</Button>
-							{/if}
-						</div>
-
-						<div>
-							<Label class="mb-2 flex items-center gap-2">
-								<MessageSquare class="h-4 w-4" />
-								{$t('card.comments')} ({commentsStore.comments.length})
-							</Label>
-
-							<div class="space-y-3">
-								{#if commentsStore.loading}
-									<div class="py-4 text-center text-sm text-muted-foreground">
-										{$t('card.loading_comments')}
-									</div>
-								{:else if commentsStore.comments.length === 0}
-									<p class="py-4 text-center text-sm text-muted-foreground">
-										{$t('card.no_comments')}
-									</p>
-								{:else}
-									{#each commentsStore.comments as comment}
-										<Card class="p-3">
-											<div class="mb-1 flex items-center justify-between">
-												<div class="flex items-center gap-2">
-													{#if comment.user?.image}
-														<img
-															src={comment.user.image}
-															alt={comment.user.name || comment.user.username}
-															class="h-6 w-6 rounded-full"
-														/>
-													{/if}
-													<span class="text-sm font-medium">
-														{comment.user?.name ||
-															comment.user?.username ||
-															$t('card.unknown_user')}
-													</span>
-													<span class="text-xs text-muted-foreground">
-														{formatDate(comment.created_at || '')}
-													</span>
-												</div>
-												<Button
-													variant="ghost"
-													size="sm"
-													class="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-													onclick={() => deleteComment(comment.id)}
-												>
-													<Trash2 class="h-3 w-3" />
-												</Button>
-											</div>
-											<p class="text-sm whitespace-pre-wrap">{comment.content}</p>
-										</Card>
-									{/each}
-								{/if}
-
-								<div class="flex gap-2">
-									<Textarea
-										bind:value={newComment}
-										placeholder={$t('card.add_comment_placeholder')}
-										rows={2}
-										class="flex-1"
-										onkeydown={(e) => {
-											if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-												e.preventDefault();
-												addComment();
-											}
-										}}
-									/>
-									<Button
-										onclick={addComment}
-										disabled={!newComment.trim() || commentsStore.loading}
-										class="h-auto"
-									>
-										<Send class="h-4 w-4" />
-									</Button>
-								</div>
-								<p class="text-xs text-muted-foreground">{$t('card.press_ctrl_enter_submit')}</p>
-							</div>
-						</div>
+						<CardComments {todo} {lang} />
 
 						<div class="flex justify-between border-t pt-4">
 							<Button variant="destructive" onclick={deleteTodo}>
-								<Trash2 class="mr-2 h-4 w-4" />
+								<X class="mr-2 h-4 w-4" />
 								{$t('card.delete_card')}
 							</Button>
 
@@ -709,14 +375,6 @@
 		</div>
 	</div>
 </div>
-
-{#if selectedImage}
-	<Dialog open={!!selectedImage} onOpenChange={() => (selectedImage = null)}>
-		<DialogContent class="max-w-4xl">
-			<img src={selectedImage.preview} alt={$t('common.full_size')} class="w-full rounded" />
-		</DialogContent>
-	</Dialog>
-{/if}
 
 <style>
 	:global(.ProseMirror) {

@@ -470,3 +470,21 @@ claude
 - ❌ Store sensitive data in localStorage
 - ❌ Skip testing
 - ❌ Forget to verify database changes
+
+# General instructions
+
+### File Structure
+- Keep individual component files between 200-300 lines max
+- Extract repetitive code patterns into separate, reusable components
+- Create dedicated components for distinct UI/functionality blocks
+- Separate business logic, utilities, and data fetching into dedicated files
+
+### Bundle Optimization
+- Use server load functions (+page.server.ts) for heavy dependencies (date libraries, markdown parsers, etc.) — they won't ship to client
+- Use dynamic imports for components below the fold: `const Component = await import('./Heavy.svelte')`
+- Maintain tree-shaking compatibility using ES module imports
+- Prefer lightweight alternatives to large libraries
+
+### Performance Monitoring
+- Install and configure rollup-plugin-visualizer to analyze bundle composition
+- Review stats during development when adding new dependencies
