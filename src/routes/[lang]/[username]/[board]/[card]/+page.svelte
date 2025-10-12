@@ -689,7 +689,15 @@
 								<Trash2 class="mr-2 h-4 w-4" />
 								{$t('card.delete_card')}
 							</Button>
-							<Button variant="outline" onclick={closeModal}>{$t('common.close')}</Button>
+
+							<div class="flex gap-2">
+								<Button variant="outline" onclick={closeModal}>
+									{$t('common.close')}
+								</Button>
+								<Button onclick={saveTodo} disabled={isSubmitting} size="sm">
+									{isSubmitting ? $t('common.saving') : $t('common.save')}
+								</Button>
+							</div>
 						</div>
 					</CardContent>
 				</Card>
