@@ -20,7 +20,11 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Label } from '$lib/components/ui/label';
-	import { X, Calendar, Tag, CircleAlert, Clock } from 'lucide-svelte';
+	import { Calendar as CalendarPrimitive } from '$lib/components/ui/calendar';
+	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
+	import { X, Calendar as CalendarIcon, Tag, CircleAlert, Clock } from 'lucide-svelte';
+	import { CalendarDate, parseDate, getLocalTimeZone, today } from '@internationalized/date';
+	import { cn } from '$lib/utils';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
 	import CardImageManager from '$lib/components/card/CardImageManager.svelte';
@@ -29,6 +33,7 @@
 	import type { Readable } from 'svelte/store';
 	import type { Editor } from 'svelte-tiptap';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { DateValue } from '@internationalized/date';
 
 	let { cardId, lang, onClose }: { cardId: string; lang: string; onClose: () => void } = $props();
 
@@ -44,6 +49,8 @@
 		actual_hours: null as number | null,
 		comment_hours: ''
 	});
+	let selectedDate = $state<DateValue | undefined>(undefined);
+	let datePickerOpen = $state(false);
 	let validationErrors = $state<Record<string, string>>({});
 	let isSubmitting = $state(false);
 	let editor: Readable<Editor> | null = $state(null);
@@ -60,13 +67,21 @@
 		}
 	});
 
+	$effect(() => {
+		if (selectedDate) {
+			editData.due_on = `${selectedDate.year}-${String(selectedDate.month).padStart(2, '0')}-${String(selectedDate.day).padStart(2, '0')}`;
+		} else if (selectedDate === undefined && editData.due_on) {
+			editData.due_on = '';
+		}
+	});
+
 	onMount(async () => {
 		if (!todosStore.initialized && !todosStore.loading) {
 			await todosStore.loadTodos();
 		}
 
 		while (todosStore.loading) {
-			await new Promise(resolve => setTimeout(resolve, 50));
+			await new Promise((resolve) => setTimeout(resolve, 50));
 		}
 
 		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
@@ -82,16 +97,18 @@
 				comment_hours: foundTodo.comment_hours || ''
 			};
 
+			if (editData.due_on) {
+				selectedDate = parseDate(editData.due_on);
+			}
+
 			await commentsStore.loadComments(cardId || '');
 		}
 		loading = false;
 	});
 
 	function closeModal() {
-		// Hide modal immediately with CSS
 		isClosing = true;
 		commentsStore.reset();
-		// Call the onClose callback after a tiny delay to let CSS hide the modal
 		setTimeout(() => {
 			onClose();
 		}, 50);
@@ -110,6 +127,17 @@
 			event.preventDefault();
 			saveTodo();
 		}
+	}
+
+	function formatDate(date: DateValue | undefined, locale: string): string {
+		if (!date) return '';
+
+		const jsDate = new Date(date.year, date.month - 1, date.day);
+		return new Intl.DateTimeFormat(locale, {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric'
+		}).format(jsDate);
 	}
 
 	async function saveTodo() {
@@ -292,10 +320,34 @@
 						<div class="grid gap-4 sm:grid-cols-2">
 							<div>
 								<Label for="due_on" class="mb-2 flex items-center gap-2">
-									<Calendar class="h-4 w-4" />
+									<CalendarIcon class="h-4 w-4" />
 									{$t('card.due_date_label')}
 								</Label>
-								<Input id="due_on" type="date" bind:value={editData.due_on} />
+								<Popover bind:open={datePickerOpen}>
+									<PopoverTrigger>
+										<Button
+											variant="outline"
+											class={cn(
+												'w-full justify-start text-left font-normal',
+												!selectedDate && 'text-muted-foreground'
+											)}
+										>
+											<CalendarIcon class="mr-2 h-4 w-4" />
+											{selectedDate ? formatDate(selectedDate, lang) : $t('card.pick_date')}
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent class="w-auto p-0" align="start">
+										<CalendarPrimitive
+											type="single"
+											value={selectedDate}
+											locale={lang}
+											onValueChange={(date: DateValue | undefined) => {
+												selectedDate = date;
+												datePickerOpen = false;
+											}}
+										/>
+									</PopoverContent>
+								</Popover>
 							</div>
 
 							<div>
