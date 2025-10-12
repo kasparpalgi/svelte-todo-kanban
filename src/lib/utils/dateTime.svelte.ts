@@ -21,6 +21,6 @@ export function formatDateWithFuture(dateString: string): string {
 	if (diffDays === 0) return t.get('date.today');
 	if (diffDays === 1) return t.get('date.tomorrow');
 	if (diffDays === -1) return t.get('date.yesterday');
-	if (diffDays > 0) return `${t.get('date.in_days')} ${diffDays}`;
-	return `${t.get('date.days_ago')} ${Math.abs(diffDays)}`;
+	if (diffDays > 0) return `${diffDays} ${t.get('date.in_days')}`;
+	return `${Math.abs(diffDays)} ${t.get('date.days_ago')}`;
 }

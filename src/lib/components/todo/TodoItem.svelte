@@ -9,7 +9,7 @@
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
-	import { formatDate } from '$lib/utils/dateTime.svelte';
+	import { formatDateWithFuture } from '$lib/utils/dateTime.svelte';
 	import { shortenText } from '$lib/utils/shortenText';
 	import { stripHtml } from '$lib/utils/stripHtml';
 	import { Button } from '$lib/components/ui/button';
@@ -454,7 +454,7 @@
 										variant={isOverdue(todo.due_on) ? 'destructive' : 'secondary'}
 										class="h-auto px-1 py-0 text-xs"
 									>
-										{formatDate(todo.due_on)}
+										{formatDateWithFuture(todo.due_on)}
 									</Badge>
 								</div>
 							{/if}
@@ -468,7 +468,7 @@
 									onclick={(e) => e.stopPropagation()}
 									title="View on GitHub"
 								>
-									<img src={githubLogo} alt="GitHub" class="h-2.5 w-2.5 mt-0.5" />
+									<img src={githubLogo} alt="GitHub" class="mt-0.5 h-2.5 w-2.5" />
 									<span>#{todo.github_issue_number}</span>
 								</a>
 							{/if}
