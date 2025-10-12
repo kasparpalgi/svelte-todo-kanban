@@ -104,7 +104,7 @@
 			onclick={() => $editor.chain().focus().toggleTaskList().run()}
 			title="Task List"
 		>
-			<input type="checkbox" class="pointer-events-none h-3 w-3" />
+			<span class="toolbar-checkbox"></span>
 		</Button>
 	</div>
 {/if}

@@ -1,9 +1,10 @@
 <script>
-	import { confetti } from '@neoconfetti/svelte';
-	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import NothingHere from '$lib/components/NothingHere.svelte';
+	import { page } from '$app/state';
+	import { t } from '$lib/i18n';
 	import { loggingStore } from '$lib/stores/logging.svelte';
+	import { confetti } from '@neoconfetti/svelte';
+	import NothingHere from '$lib/components/NothingHere.svelte';
 
 	let confet = '';
 	setInterval(function () {
@@ -11,18 +12,10 @@
 	}, 10);
 
 	onMount(() => {
-		// Log the error that occurred
-		const errorData = $page.error;
-		const status = $page.status;
-		const url = $page.url.pathname;
+		const errorData = page.error;
+		const status = page.status;
+		const url = page.url.pathname;
 
-		console.log('[ErrorPage] Error occurred', {
-			status,
-			message: errorData?.message,
-			url
-		});
-
-		// Log different severity based on error type
 		if (status === 404) {
 			loggingStore.warn('ErrorPage', `404 Not Found: ${url}`, {
 				status,
@@ -47,11 +40,11 @@
 </script>
 
 <svelte:head>
-	<title>Ooooops... 🤪 Todzzzzz broken</title>
+	<title>{$t('common.error_title')}</title>
 </svelte:head>
 
 {#if confet}
 	<div use:confetti></div>
 {/if}
 
-<NothingHere text="Just a casual 404 aka. this exact URL doesn't exist (anymore)! OR maybe we have error in this super error prone app? 🤪🤪🤪" />
+<NothingHere text={$t('common.error')} />

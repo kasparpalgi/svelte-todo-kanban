@@ -70,3 +70,8 @@ export interface GenericStoreResult {
 export interface LabelManagementProps {
 	todo: TodoFieldsFragment;
 }
+
+export interface CardImageProps {
+	todoId: string;
+	initialImages?: TodoImage[];
+}

@@ -30,7 +30,9 @@
         "invited": "You have been invited as a user",
         "invited_you": "You are invited to collaborate on task planning and work management in the project:",
         "to_view": "If you want to see existing tasks and contribute to their management, click the bell icon in the top bar and accept this invitation.",
-        "no_board_or_permissions": "You do not have permission to view this board, or it has been deleted. Or your invitation has expired/been deleted."
+        "no_board_or_permissions": "You do not have permission to view this board, or it has been deleted. Or your invitation has expired/been deleted.",
+        "error_title": "Ooooops... 🤪 Todzzzzz broken",
+        "error": "Just a casual 404 aka. this exact URL doesn't exist (anymore)! OR maybe we have error in this super error prone app? 🤪🤪🤪"
     },
     "date": {
         "today": "Today",

@@ -1,21 +1,17 @@
 <!-- @file src/lib/components/card/CardImageManager.svelte -->
 <script lang="ts">
 	import { onDestroy } from 'svelte';
-	import { Button } from '$lib/components/ui/button';
-	import { Label } from '$lib/components/ui/label';
-	import { Dialog, DialogContent } from '$lib/components/ui/dialog';
-	import { X, ImageIcon, Upload } from 'lucide-svelte';
+	import { t } from '$lib/i18n';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
-	import { t } from '$lib/i18n';
+	import { Dialog, DialogContent } from '$lib/components/ui/dialog';
+	import { Button } from '$lib/components/ui/button';
+	import { Label } from '$lib/components/ui/label';
+	import { X, ImageIcon, Upload } from 'lucide-svelte';
 	import type { TodoImage } from '$lib/types/imageUpload';
+	import type { CardImageProps } from '$lib/types/todo';
 
-	interface Props {
-		todoId: string;
-		initialImages?: TodoImage[];
-	}
-
-	let { todoId, initialImages = [] }: Props = $props();
+	let { todoId, initialImages = [] }: CardImageProps = $props();
 
 	let images = $state<TodoImage[]>(initialImages);
 	let isDragOver = $state(false);
@@ -23,7 +19,6 @@
 	let showUploadArea = $state(false);
 	let selectedImage = $state<TodoImage | null>(null);
 
-	// Cleanup blob URLs on destroy
 	onDestroy(() => {
 		images.forEach((img) => {
 			if (!img.isExisting && img.preview.startsWith('blob:')) {
@@ -94,7 +89,6 @@
 		}
 	}
 
-	// Export methods for parent component
 	export function getNewImages(): TodoImage[] {
 		return images.filter((img) => !img.isExisting && img.file);
 	}
@@ -110,7 +104,6 @@
 		{$t('card.attachments')} ({images.filter((img) => img.isExisting).length})
 	</Label>
 
-	<!-- Existing Images -->
 	{#if images.filter((img) => img.isExisting).length > 0}
 		<div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
 			{#each images.filter((img) => img.isExisting) as image}
@@ -140,7 +133,6 @@
 		</div>
 	{/if}
 
-	<!-- New Images Pending Upload -->
 	{#if images.filter((img) => !img.isExisting).length > 0}
 		<div class="mb-4">
 			<span class="mb-2 block text-sm font-medium">
@@ -171,7 +163,6 @@
 		</div>
 	{/if}
 
-	<!-- Upload Area -->
 	{#if showUploadArea}
 		<div>
 			<span class="mb-2 block text-sm font-medium text-foreground">
@@ -225,7 +216,6 @@
 	{/if}
 </div>
 
-<!-- Image Preview Dialog -->
 {#if selectedImage}
 	<Dialog open={!!selectedImage} onOpenChange={() => (selectedImage = null)}>
 		<DialogContent class="max-w-4xl">

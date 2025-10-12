@@ -1,9 +1,6 @@
-// @file src/lib/utils/cardHelpers.ts
+/** @file src/lib/utils/cardHelpers.ts  */
 import { z } from 'zod';
 
-/**
- * Validation schema for card editing
- */
 export const todoEditSchema = z.object({
 	title: z.string().min(1, 'Title is required').max(200).trim(),
 	content: z.string().max(10000).optional(),
@@ -15,9 +12,6 @@ export const todoEditSchema = z.object({
 	comment_hours: z.string().max(10000).optional()
 });
 
-/**
- * Format a date string according to locale
- */
 export function formatDate(dateString: string, lang: string): string {
 	const date = new Date(dateString);
 	return date.toLocaleDateString(lang, {
@@ -27,9 +21,6 @@ export function formatDate(dateString: string, lang: string): string {
 	});
 }
 
-/**
- * Get Tailwind color class for priority level
- */
 export function getPriorityColor(priority: string): string {
 	switch (priority) {
 		case 'high':
@@ -43,9 +34,6 @@ export function getPriorityColor(priority: string): string {
 	}
 }
 
-/**
- * Get translated priority label
- */
 export function getPriorityLabel(
 	priority: 'low' | 'medium' | 'high',
 	t: (key: string) => string
@@ -54,9 +42,6 @@ export function getPriorityLabel(
 	return t(key);
 }
 
-/**
- * Calculate average hours from min and max
- */
 export function calculateAverageHours(minHours: number | null, maxHours: number | null): string {
 	if (minHours && maxHours) {
 		return ((minHours + maxHours) / 2).toFixed(1);

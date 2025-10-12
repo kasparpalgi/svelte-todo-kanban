@@ -436,4 +436,81 @@
 	:global(.ProseMirror ul[data-type='taskList'] li > div) {
 		flex: 1 1 auto;
 	}
+
+	:global(.ProseMirror ul[data-type='taskList'] input[type='checkbox']) {
+		appearance: none;
+		-webkit-appearance: none;
+		width: 1.125rem;
+		height: 1.125rem;
+		border: 2px solid #d1d5db;
+		border-radius: 0.25rem;
+		cursor: pointer;
+		position: relative;
+		background-color: white;
+		transition: all 0.15s ease;
+		flex-shrink: 0;
+	}
+
+	:global(.dark .ProseMirror ul[data-type='taskList'] input[type='checkbox']) {
+		border-color: #4b5563;
+		background-color: #1f2937;
+	}
+
+	:global(.ProseMirror ul[data-type='taskList'] input[type='checkbox']:hover) {
+		border-color: #9ca3af;
+	}
+
+	:global(.dark .ProseMirror ul[data-type='taskList'] input[type='checkbox']:hover) {
+		border-color: #6b7280;
+	}
+
+	:global(.ProseMirror ul[data-type='taskList'] input[type='checkbox']:checked) {
+		background-color: hsl(142 76% 36%);
+		border-color: hsl(142 76% 36%);
+	}
+
+	:global(.dark .ProseMirror ul[data-type='taskList'] input[type='checkbox']:checked) {
+		background-color: hsl(142 70% 30%);
+		border-color: hsl(142 70% 30%);
+	}
+
+	:global(.ProseMirror ul[data-type='taskList'] input[type='checkbox']:checked::after) {
+		content: '';
+		position: absolute;
+		left: 0.28rem;
+		top: 0.07rem;
+		width: 0.375rem;
+		height: 0.625rem;
+		border: solid white;
+		border-width: 0 2px 2px 0;
+		transform: rotate(45deg);
+	}
+
+	:global(.toolbar-checkbox) {
+		appearance: none;
+		-webkit-appearance: none;
+		width: 0.875rem;
+		height: 0.875rem;
+		border: 1.5px solid #9ca3af;
+		border-radius: 0.25rem;
+		cursor: pointer;
+		position: relative;
+		background-color: white;
+		transition: all 0.15s ease;
+		margin: 0;
+		pointer-events: none;
+	}
+
+	:global(.dark .toolbar-checkbox) {
+		border-color: #4b5563;
+		background-color: #1f2937;
+	}
+
+	:global(button:hover .toolbar-checkbox) {
+		border-color: #6b7280;
+	}
+
+	:global(.dark button:hover .toolbar-checkbox) {
+		border-color: #6b7280;
+	}
 </style>

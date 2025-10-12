@@ -30,7 +30,9 @@
         "invited": "Byl(a) jsi pozván(a) jako uživatel",
         "invited_you": "Jsi pozván(a) ke spolupráci na plánování úkolů a správě projektu:",
         "to_view": "Pokud chceš vidět existující úkoly a podílet se na jejich správě, klikni na ikonu zvonku v horní liště a přijmi pozvání.",
-        "no_board_or_permissions": "Nemáš oprávnění zobrazit tento projekt nebo byl smazán. Nebo tvoje pozvánka vypršela/byla smazána."
+        "no_board_or_permissions": "Nemáš oprávnění zobrazit tento projekt nebo byl smazán. Nebo tvoje pozvánka vypršela/byla smazána.",
+        "error_title": "Ooooops... 🤪 Todzzzzz je rozbitý",
+        "error": "Jen taková nenápadná 404, aneb tahle adresa už (možná) neexistuje! NEBO máme chybu v této supersnadno rozbité aplikaci? 🤪🤪🤪"
     },
     "date": {
         "today": "Dnes",
