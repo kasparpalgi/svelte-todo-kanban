@@ -61,6 +61,14 @@
 	});
 
 	onMount(async () => {
+		if (!todosStore.initialized && !todosStore.loading) {
+			await todosStore.loadTodos();
+		}
+
+		while (todosStore.loading) {
+			await new Promise(resolve => setTimeout(resolve, 50));
+		}
+
 		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
 		if (foundTodo) {
 			todo = foundTodo;
