@@ -2,14 +2,14 @@
 <script>
 	// @ts-nocheck
 	import '../app.css';
-	import { ModeWatcher } from 'mode-watcher';
-	import ErrorSuccess from '$lib/components/ui/ErrorSuccess.svelte';
-	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
-	import faviconUrl from '$lib/assets/favicon.svg?url';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { pwaInfo } from 'virtual:pwa-info';
 	import { initTranslations } from '$lib/i18n';
+	import { ModeWatcher } from 'mode-watcher';
+	import ErrorSuccess from '$lib/components/ui/ErrorSuccess.svelte';
+	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
+	import faviconUrl from '$lib/assets/favicon.svg?url';
 
 	let { children, data } = $props();
 
