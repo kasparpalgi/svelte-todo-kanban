@@ -100,6 +100,8 @@ const securityHandle: Handle = async ({ event, resolve }) => {
 	const session = await event.locals.auth();
 	const isBoardRoute = url.pathname.match(/^\/[^/]+\/[^/]+\/[^/]+/);
 
+	console.log('Google OAuth redirect URL:', `${event.url.origin}/api/auth/callback/google`);
+
 	if (
 		!session &&
 		isBoardRoute &&
