@@ -131,7 +131,8 @@
         "tasks_count": "ülesannet",
         "by_user": "kasutajalt",
         "enable_hour_tracking": "Luba tundide jälgimine",
-        "settings_updated": "Projekti seaded on uuendatud"
+        "settings_updated": "Projekti seaded on uuendatud",
+        "mobile_add": "Mobiili kiirlisamine (link avaekraanile lisamiseks)"
     },
     "members": {
         "board_members": "Projekti liikmed",

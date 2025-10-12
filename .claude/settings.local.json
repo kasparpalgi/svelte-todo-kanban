@@ -16,7 +16,14 @@
       "WebFetch(domain:www.npmjs.com)",
       "Bash(npm install:*)",
       "Bash(npm test:*)",
-      "Bash(npm run test:unit:all:*)"
+      "Bash(npm run test:unit:all:*)",
+      "Bash(timeout:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_close"
     ],
     "deny": [],
     "ask": []

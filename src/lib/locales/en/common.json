@@ -131,7 +131,8 @@
         "tasks_count": "tasks",
         "by_user": "by",
         "enable_hour_tracking": "Enable hour tracking",
-        "settings_updated": "Board settings updated"
+        "settings_updated": "Board settings updated",
+        "mobile_add": "Mobile quick add (for adding to homescreen)"
     },
     "members": {
         "board_members": "Board Members",

@@ -2,7 +2,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onMount } from 'svelte';
 	import { initTranslations } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
@@ -12,55 +11,15 @@
 
 	let { data, children } = $props();
 
-	let redirectHandled = $state(false);
-
 	$effect(() => {
-		userStore.initializeUser(data.session.user);
+		if (data.session?.user) {
+			userStore.initializeUser(data.session.user);
+		}
 	});
 
 	$effect(() => {
 		if (userStore.user) {
 			initTranslations(userStore.user.locale);
-		}
-	});
-
-	onMount(async () => {
-		if (!data?.session || redirectHandled) return;
-
-		const currentPath = page.url.pathname;
-		const params = page.params;
-		const lang = params.lang || 'et';
-		const specialPages = ['/logs', '/settings', '/profile'];
-		const isOnSpecialPage = specialPages.some((specialPage) => currentPath.includes(specialPage));
-
-		const needsRedirect = !params.username || !params.board;
-
-		if (needsRedirect && !isOnSpecialPage) {
-			await listsStore.loadBoards();
-
-			const defaultBoard = listsStore.boards
-				.filter((board) => board.user?.username && board.alias)
-				.sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999))[0];
-
-			if (defaultBoard && defaultBoard.user?.username && defaultBoard.alias) {
-				redirectHandled = true;
-				const newPath = `/${lang}/${defaultBoard.user.username}/${defaultBoard.alias}`;
-
-				if (currentPath !== newPath) {
-					await goto(newPath, { replaceState: true });
-				}
-			}
-		}
-	});
-
-	$effect(() => {
-		const currentPath = page.url.pathname;
-		const specialPages = ['/logs', '/settings', '/profile'];
-		const isOnSpecialPage = specialPages.some((specialPage) => currentPath.includes(specialPage));
-
-		const needsRedirect = !page.params.username || !page.params.board;
-		if (needsRedirect && !isOnSpecialPage) {
-			redirectHandled = false;
 		}
 	});
 

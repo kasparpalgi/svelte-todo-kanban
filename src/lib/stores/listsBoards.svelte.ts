@@ -27,20 +27,26 @@ import type { ListBoardStoreResult, ListsState } from '$lib/types/listBoard';
 import { displayMessage } from './errorSuccess.svelte';
 
 function createListsStore() {
-	const state = $state<ListsState & { selectedBoard: BoardFieldsFragment | null }>({
-		lists: [],
-		boards: [],
-		loading: false,
-		error: null,
-		initialized: false,
-		selectedBoard: null
-	});
+	let lists = $state<ListFieldsFragment[]>([]);
+	let boards = $state<BoardFieldsFragment[]>([]);
+	let selectedBoard = $state<BoardFieldsFragment | null>(null);
+	let loading = $state(false);
+	let error = $state<string | null>(null);
+	let initialized = $state(false);
+
+	const sortedLists = $derived(
+		[...lists].sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999))
+	);
+
+	const sortedBoards = $derived(
+		[...boards].sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999))
+	);
 
 	async function loadLists(): Promise<ListFieldsFragment[]> {
 		if (!browser) return [];
 
-		state.loading = true;
-		state.error = null;
+		loading = true;
+		error = null;
 
 		try {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
@@ -50,16 +56,16 @@ function createListsStore() {
 				order_by: [{ sort_order: Order_By.Asc }, { name: Order_By.Asc }]
 			});
 
-			state.lists = data.lists || [];
-			state.initialized = true;
-			return state.lists;
-		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error loading lists';
-			state.error = message;
-			console.error('Load lists error:', error);
+			lists = data.lists || [];
+			initialized = true;
+			return lists;
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Error loading lists';
+			error = message;
+			console.error('Load lists error:', err);
 			return [];
 		} finally {
-			state.loading = false;
+			loading = false;
 		}
 	}
 
@@ -74,42 +80,42 @@ function createListsStore() {
 				order_by: [{ sort_order: Order_By.Asc }, { name: Order_By.Asc }]
 			});
 
-			state.boards = data.boards || [];
+			boards = data.boards || [];
 
-			if (state.boards.length > 0) {
+			if (boards.length > 0) {
 				const { userStore } = await import('./user.svelte');
 				const user = userStore.user;
 				const lastBoardAlias = user?.settings?.lastBoardAlias;
 
-				let selectedBoard: BoardFieldsFragment | undefined;
+				let selected: BoardFieldsFragment | undefined;
 
 				if (lastBoardAlias) {
-					selectedBoard = state.boards.find((b) => b.alias === lastBoardAlias);
+					selected = boards.find((b) => b.alias === lastBoardAlias);
 				}
 
-				if (!selectedBoard) {
+				if (!selected) {
 					const savedId = localStorage.getItem('selectedBoardId');
 					if (savedId) {
-						selectedBoard = state.boards.find((b) => b.id === savedId);
+						selected = boards.find((b) => b.id === savedId);
 					}
 				}
 
-				if (!selectedBoard) {
-					selectedBoard = state.boards[0];
+				if (!selected) {
+					selected = boards[0];
 				}
 
-				state.selectedBoard = selectedBoard;
+				selectedBoard = selected || null;
 
-				if (selectedBoard) {
-					localStorage.setItem('selectedBoardId', selectedBoard.id);
+				if (selected) {
+					localStorage.setItem('selectedBoardId', selected.id);
 				}
 			} else {
-				state.selectedBoard = null;
+				selectedBoard = null;
 			}
 
-			return state.boards;
-		} catch (error) {
-			displayMessage('Load boards error:' + error);
+			return boards;
+		} catch (err) {
+			displayMessage('Load boards error:' + err);
 			return [];
 		}
 	}
@@ -122,7 +128,7 @@ function createListsStore() {
 		if (!name.trim()) return { success: false, message: 'Name is required' };
 
 		try {
-			const maxSortOrder = Math.max(...state.lists.map((l) => l.sort_order || 0), 0);
+			const maxSortOrder = Math.max(...lists.map((l) => l.sort_order || 0), 0);
 
 			const data: CreateListMutation = await request(CREATE_LIST, {
 				objects: [
@@ -136,7 +142,7 @@ function createListsStore() {
 
 			const newList = data.insert_lists?.returning?.[0];
 			if (newList) {
-				state.lists = [...state.lists, newList];
+				lists = [...lists, newList];
 				return {
 					success: true,
 					message: 'List created successfully',
@@ -145,9 +151,9 @@ function createListsStore() {
 			}
 
 			return { success: false, message: 'Failed to create list' };
-		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error creating list';
-			console.error('Create list error:', error);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Error creating list';
+			console.error('Create list error:', err);
 			return { success: false, message };
 		}
 	}
@@ -158,11 +164,11 @@ function createListsStore() {
 	): Promise<ListBoardStoreResult<ListFieldsFragment>> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		const listIndex = state.lists.findIndex((l) => l.id === id);
-		const originalList = listIndex !== -1 ? { ...state.lists[listIndex] } : null;
+		const listIndex = lists.findIndex((l) => l.id === id);
+		const originalList = listIndex !== -1 ? { ...lists[listIndex] } : null;
 
 		if (listIndex !== -1) {
-			state.lists[listIndex] = { ...state.lists[listIndex], ...updates };
+			lists[listIndex] = { ...lists[listIndex], ...updates };
 		}
 
 		try {
@@ -174,7 +180,7 @@ function createListsStore() {
 			const updatedList = data.update_lists?.returning?.[0];
 			if (updatedList) {
 				if (listIndex !== -1) {
-					state.lists[listIndex] = updatedList;
+					lists[listIndex] = updatedList;
 				}
 				return {
 					success: true,
@@ -183,16 +189,16 @@ function createListsStore() {
 				};
 			} else {
 				if (listIndex !== -1 && originalList) {
-					state.lists[listIndex] = originalList;
+					lists[listIndex] = originalList;
 				}
 				return { success: false, message: 'Failed to update list' };
 			}
-		} catch (error) {
+		} catch (err) {
 			if (listIndex !== -1 && originalList) {
-				state.lists[listIndex] = originalList;
+				lists[listIndex] = originalList;
 			}
-			const message = error instanceof Error ? error.message : 'Error updating list';
-			console.error('Update list error:', error);
+			const message = err instanceof Error ? err.message : 'Error updating list';
+			console.error('Update list error:', err);
 			return { success: false, message };
 		}
 	}
@@ -206,14 +212,14 @@ function createListsStore() {
 			});
 
 			if (data.delete_lists?.affected_rows && data.delete_lists.affected_rows > 0) {
-				state.lists = state.lists.filter((l) => l.id !== id);
+				lists = lists.filter((l) => l.id !== id);
 				return { success: true, message: 'List deleted successfully' };
 			}
 
 			return { success: false, message: 'Failed to delete list' };
-		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error deleting list';
-			console.error('Delete list error:', error);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Error deleting list';
+			console.error('Delete list error:', err);
 			return { success: false, message };
 		}
 	}
@@ -223,7 +229,7 @@ function createListsStore() {
 		if (!name.trim()) return { success: false, message: 'Name is required' };
 
 		try {
-			const maxSortOrder = Math.max(...state.boards.map((b) => b.sort_order || 0), 0);
+			const maxSortOrder = Math.max(...boards.map((b) => b.sort_order || 0), 0);
 
 			const data: CreateBoardMutation = await request(CREATE_BOARD, {
 				objects: [
@@ -236,7 +242,7 @@ function createListsStore() {
 
 			const newBoard = data.insert_boards?.returning?.[0];
 			if (newBoard) {
-				state.boards = [...state.boards, newBoard];
+				boards = [...boards, newBoard];
 				return {
 					success: true,
 					message: 'Board created successfully',
@@ -245,9 +251,9 @@ function createListsStore() {
 			}
 
 			return { success: false, message: 'Failed to create board' };
-		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error creating board';
-			console.error('Create board error:', error);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Error creating board';
+			console.error('Create board error:', err);
 			return { success: false, message };
 		}
 	}
@@ -255,16 +261,19 @@ function createListsStore() {
 	async function updateBoard(
 		id: string,
 		updates: Partial<
-			Pick<BoardFieldsFragment, 'name' | 'sort_order' | 'github' | 'is_public' | 'allow_public_comments' | 'settings'>
+			Pick<
+				BoardFieldsFragment,
+				'name' | 'sort_order' | 'github' | 'is_public' | 'allow_public_comments' | 'settings'
+			>
 		>
 	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		const boardIndex = state.boards.findIndex((b) => b.id === id);
-		const originalBoard = boardIndex !== -1 ? { ...state.boards[boardIndex] } : null;
+		const boardIndex = boards.findIndex((b) => b.id === id);
+		const originalBoard = boardIndex !== -1 ? { ...boards[boardIndex] } : null;
 
 		if (boardIndex !== -1) {
-			state.boards[boardIndex] = { ...state.boards[boardIndex], ...updates };
+			boards[boardIndex] = { ...boards[boardIndex], ...updates };
 		}
 
 		try {
@@ -276,7 +285,7 @@ function createListsStore() {
 			const updatedBoard = data.update_boards?.returning?.[0];
 			if (updatedBoard) {
 				if (boardIndex !== -1) {
-					state.boards[boardIndex] = updatedBoard;
+					boards[boardIndex] = updatedBoard;
 				}
 				return {
 					success: true,
@@ -285,16 +294,16 @@ function createListsStore() {
 				};
 			} else {
 				if (boardIndex !== -1 && originalBoard) {
-					state.boards[boardIndex] = originalBoard;
+					boards[boardIndex] = originalBoard;
 				}
 				return { success: false, message: 'Failed to update board' };
 			}
-		} catch (error) {
+		} catch (err) {
 			if (boardIndex !== -1 && originalBoard) {
-				state.boards[boardIndex] = originalBoard;
+				boards[boardIndex] = originalBoard;
 			}
-			const message = error instanceof Error ? error.message : 'Error updating board';
-			console.error('Update board error:', error);
+			const message = err instanceof Error ? err.message : 'Error updating board';
+			console.error('Update board error:', err);
 			return { success: false, message };
 		}
 	}
@@ -319,32 +328,65 @@ function createListsStore() {
 			});
 
 			if (data.delete_boards?.affected_rows && data.delete_boards.affected_rows > 0) {
-				state.boards = state.boards.filter((b) => b.id !== id);
+				boards = boards.filter((b) => b.id !== id);
 				return { success: true, message: 'Board deleted successfully' };
 			}
 
 			return { success: false, message: 'Failed to delete board' };
-		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error deleting board';
-			console.error('Delete board error:', error);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Error deleting board';
+			console.error('Delete board error:', err);
 			return { success: false, message };
 		}
 	}
 
-	const sortedLists = $derived(
-		[...state.lists].sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999))
-	);
+	async function setSelectedBoard(board: BoardFieldsFragment | null) {
+		selectedBoard = board;
+		if (browser) {
+			if (board) {
+				localStorage.setItem('selectedBoardId', board.id);
 
-	const sortedBoards = $derived(
-		[...state.boards].sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999))
-	);
+				const { userStore } = await import('./user.svelte');
+				const user = userStore.user;
+				if (user?.id && board.alias) {
+					try {
+						const currentSettings = user.settings || {};
+						await userStore.updateUser(
+							user.id,
+							{
+								settings: { ...currentSettings, lastBoardAlias: board.alias }
+							},
+							true
+						);
+					} catch (err) {
+						console.warn('[ListsStore] Failed to update lastBoardAlias, likely logged out', err);
+					}
+				}
+			} else {
+				localStorage.removeItem('selectedBoardId');
+			}
+		}
+	}
+
+	function clearError() {
+		error = null;
+	}
+
+	function reset() {
+		lists = [];
+		boards = [];
+		selectedBoard = null;
+		loading = false;
+		error = null;
+		initialized = false;
+	}
 
 	return {
 		get lists() {
-			return state.lists;
+			return lists;
 		},
 		get boards() {
-			return state.boards;
+			return boards;
 		},
 		get sortedLists() {
 			return sortedLists;
@@ -353,44 +395,16 @@ function createListsStore() {
 			return sortedBoards;
 		},
 		get selectedBoard() {
-			return state.selectedBoard;
+			return selectedBoard;
 		},
 		get loading() {
-			return state.loading;
+			return loading;
 		},
 		get error() {
-			return state.error;
+			return error;
 		},
 		get initialized() {
-			return state.initialized;
-		},
-
-		async setSelectedBoard(board: BoardFieldsFragment | null) {
-			state.selectedBoard = board;
-			if (browser) {
-				if (board) {
-					localStorage.setItem('selectedBoardId', board.id);
-
-					const { userStore } = await import('./user.svelte');
-					const user = userStore.user;
-					if (user?.id && board.alias) {
-						try {
-							const currentSettings = user.settings || {};
-							await userStore.updateUser(
-								user.id,
-								{
-									settings: { ...currentSettings, lastBoardAlias: board.alias }
-								},
-								true
-							);
-						} catch (error) {
-							console.warn('[ListsStore] Failed to update lastBoardAlias, likely logged out', error);
-						}
-					}
-				} else {
-					localStorage.removeItem('selectedBoardId');
-				}
-			}
+			return initialized;
 		},
 
 		loadLists,
@@ -402,17 +416,9 @@ function createListsStore() {
 		updateBoard,
 		updateBoardVisibility,
 		deleteBoard,
-		clearError: () => {
-			state.error = null;
-		},
-		reset: () => {
-			state.lists = [];
-			state.boards = [];
-			state.selectedBoard = null;
-			state.loading = false;
-			state.error = null;
-			state.initialized = false;
-		}
+		setSelectedBoard,
+		clearError,
+		reset
 	};
 }
 

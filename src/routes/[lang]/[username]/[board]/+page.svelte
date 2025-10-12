@@ -7,6 +7,8 @@
 	import { t } from '$lib/i18n';
 	import { actionState } from '$lib/stores/states.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte.js';
+	import { userStore } from '$lib/stores/user.svelte';
+	import { invitationsStore } from '$lib/stores/invitations.svelte';
 	import {
 		Card,
 		CardContent,
@@ -16,30 +18,53 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, X, List, LayoutGrid, Settings, Funnel, ArrowRight, Github } from 'lucide-svelte';
+	import {
+		Plus,
+		X,
+		List,
+		LayoutGrid,
+		Settings,
+		Funnel,
+		ArrowRight,
+		Github,
+		Bell
+	} from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
 	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
 	import TodoFiltersSidebar from '$lib/components/todo/TodoFiltersSidebar.svelte';
 	import ImportIssuesDialog from '$lib/components/github/ImportIssuesDialog.svelte';
-	import { userStore } from '$lib/stores/user.svelte';
-	import { invitationsStore } from '$lib/stores/invitations.svelte';
-	import { Bell } from 'lucide-svelte';
 
 	let { data } = $props();
 
-	let newTodoTitle = $state('');
-	let viewMode = $state<'list' | 'kanban'>('kanban');
-	let boardNotFound = $state(false);
-	let loading = $state(true);
-	let showImportDialog = $state(false);
-	let skipGithubIssue = $state(false); // Inverse: unchecked = create GitHub issue
-	let isNotMember = $state(false);
-	let hasPendingInvitation = $state(false);
-	const username = $derived(page.params.username);
-	const boardAlias = $derived(page.params.board);
-	const lang = $derived(page.params.lang || 'et');
+	let newTodoTitle: string = $state('');
+	let viewMode: 'list' | 'kanban' = $state('kanban');
+	let boardNotFound: boolean = $state(false);
+	let loading: boolean = $state(true);
+	let showImportDialog: boolean = $state(false);
+	let skipGithubIssue: boolean = $state(false);
+
+	const username: string = $derived(page.params.username || '');
+	const boardAlias: string = $derived(page.params.board || '');
+	const lang: string = $derived(page.params.lang || 'et');
+	const isNotMember: boolean = $derived.by(() => {
+		const board = listsStore.selectedBoard;
+		const currentUser = userStore.user;
+
+		if (!board || !currentUser) return false;
+
+		const isMember = board.board_members?.some((m: any) => m.user_id === currentUser.id);
+		const isOwner = board.user?.id === currentUser.id;
+
+		return !isMember && !isOwner;
+	});
+
+	const hasPendingInvitation: boolean = $derived.by(() => {
+		const board = listsStore.selectedBoard;
+		if (!isNotMember || !board) return false;
+		return invitationsStore.myInvitations.some((inv: any) => inv.board_id === board.id);
+	});
 
 	onMount(async () => {
 		if (data?.session) {
@@ -47,28 +72,19 @@
 				await listsStore.loadBoards();
 			}
 
-			const board = listsStore.boards.find((b) => b.alias === boardAlias);
+			const board = listsStore.boards.find((b: any) => b.alias === boardAlias);
 
 			if (board) {
 				listsStore.setSelectedBoard(board);
 
 				const currentUser = userStore.user;
-				const isMember = board.board_members?.some((m) => m.user_id === currentUser?.id);
+				const isMember = board.board_members?.some((m: any) => m.user_id === currentUser?.id);
 				const isOwner = board.user?.id === currentUser?.id;
 
-				isNotMember = !isMember && !isOwner;
-
-				if (isNotMember) {
-					await invitationsStore.loadMyInvitations();
-					const invitation = invitationsStore.myInvitations.find(
-						(inv) => inv.board_id === board.id
-					);
-					hasPendingInvitation = !!invitation;
-				}
-
-				if (!todosStore.initialized && (isMember || isOwner)) {
+				if (!isNotMember && !todosStore.initialized) {
 					todosStore.loadTodos();
 				}
+
 				boardNotFound = false;
 			} else {
 				boardNotFound = true;
@@ -84,13 +100,19 @@
 	});
 
 	$effect(() => {
-		if (data?.session && !todosStore.initialized && !todosStore.loading) {
-			todosStore.loadTodos();
+		if (isNotMember) {
+			invitationsStore.loadMyInvitations();
 		}
 	});
 
 	$effect(() => {
 		localStorage.setItem('todo-view-mode', viewMode);
+	});
+
+	$effect(() => {
+		if (data?.session && !todosStore.initialized && !todosStore.loading && !isNotMember) {
+			todosStore.loadTodos();
+		}
 	});
 
 	async function handleAddTodo() {
@@ -100,13 +122,13 @@
 
 		if (listsStore.selectedBoard) {
 			const boardLists = listsStore.lists.filter(
-				(l) => l.board_id === listsStore.selectedBoard?.id
+				(l: any) => l.board_id === listsStore.selectedBoard?.id
 			);
 
 			if (boardLists.length > 0) {
-				listId = boardLists.sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999))[0].id;
-			} else {
-				listId = undefined;
+				listId = boardLists.sort(
+					(a: any, b: any) => (a.sort_order || 999) - (b.sort_order || 999)
+				)[0].id;
 			}
 		}
 
@@ -164,15 +186,16 @@
 				>
 					<Bell class="h-6 w-6 text-primary" />
 				</div>
-				<CardTitle>{$t('commmon.invited')}</CardTitle>
+				<CardTitle>{$t('common.invited')}</CardTitle>
 				<CardDescription>
-					{$t('commmon.invited_you')} "{listsStore.selectedBoard?.name}"
+					{$t('common.invited_you')} "{listsStore.selectedBoard?.name}"
 				</CardDescription>
 			</CardHeader>
 			<CardContent class="space-y-4">
 				{#if hasPendingInvitation}
 					<p class="text-sm text-muted-foreground">
-						<Bell class="inline h-4 w-4" /> {$t('commmon.to_view')}
+						<Bell class="inline h-4 w-4" />
+						{$t('common.to_view')}
 					</p>
 				{:else}
 					<p class="text-sm text-muted-foreground">
@@ -309,22 +332,24 @@
 			{/if}
 
 			{#if listsStore.selectedBoard?.github}
-						<Button
-							variant="outline"
-							size="sm"
-							onclick={() => (showImportDialog = true)}
-							title="Import GitHub Issues"
-						>
-							<Github class="mr-2 h-4 w-4" />
-							<span class="hidden md:block">Import</span>
-						</Button>
-					{/if}
+				<Button
+					variant="outline"
+					size="sm"
+					onclick={() => (showImportDialog = true)}
+					title="Import GitHub Issues"
+				>
+					<Github class="mr-2 h-4 w-4" />
+					<span class="hidden md:block">Import</span>
+				</Button>
+			{/if}
 			{#if !todosStore.loading}
 				<Button
 					onclick={() => goto(`/${lang}/${username}/${boardAlias}/mobile-add`)}
 					variant="link"
-					class="mt-4">Mobile quick add (for adding to homescreen)<ArrowRight /></Button
+					class="mt-4"
 				>
+					{$t('board.mobile_add')}<ArrowRight />
+				</Button>
 			{/if}
 		</div>
 
@@ -341,7 +366,7 @@
 			bind:open={showImportDialog}
 			boardId={listsStore.selectedBoard.id}
 			boardName={listsStore.selectedBoard.name}
-			lists={listsStore.lists.filter((l) => l.board_id === listsStore.selectedBoard?.id)}
+			lists={listsStore.lists.filter((l: any) => l.board_id === listsStore.selectedBoard?.id)}
 			onImportComplete={handleImportComplete}
 		/>
 	{/if}

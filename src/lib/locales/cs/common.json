@@ -131,7 +131,8 @@
         "tasks_count": "úkolů",
         "by_user": "od",
         "enable_hour_tracking": "Povolit sledování hodin",
-        "settings_updated": "Nastavení desky aktualizováno"
+        "settings_updated": "Nastavení desky aktualizováno",
+        "mobile_add": "Rychlé přidání na mobilu (pro přidání na domovskou obrazovku)"
     },
     "members": {
         "board_members": "Členové desky",
