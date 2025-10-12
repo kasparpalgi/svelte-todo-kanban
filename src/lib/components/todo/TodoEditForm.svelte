@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { scale } from 'svelte/transition';
 	import { get } from 'svelte/store';
+	import { t } from '$lib/i18n';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { Input } from '$lib/components/ui/input';
 	import { Card, CardContent } from '$lib/components/ui/card';
@@ -37,7 +38,7 @@
 	let existingImages = $derived(images.filter((img) => img.isExisting));
 	let newImages = $derived(images.filter((img) => !img.isExisting));
 	let hasNewImages = $derived(newImages.length > 0);
-	let saveButtonText = $derived(hasNewImages ? 'Upload & Save' : 'Save');
+	let saveButtonText = $derived(hasNewImages ? $t('todo.upload_and_save') : $t('common.save'));
 	let showImageDeleteConfirm = $state(false);
 	let imageToDelete = $state<string>('');
 	let titleInputEl: any;
@@ -91,20 +92,25 @@
 	}
 </script>
 
-<div role="dialog" aria-label="Edit todo: {todo.title}" onkeydown={onKeydown} tabindex="0">
+<div
+	role="dialog"
+	aria-label={$t('todo.edit_todo') + ' ' + todo.title}
+	onkeydown={onKeydown}
+	tabindex="0"
+>
 	<Card class="group relative transition-all duration-200">
 		<CardContent class="p-4">
 			<div class="space-y-3">
 				<div>
 					<label for="title-{todo.id}" class="mb-1 block text-sm font-medium text-foreground">
-						Title *
+						{$t('todo.title_label')}
 					</label>
 					<div class="flex gap-2">
 						<Input
 							bind:this={titleInputEl}
 							id="title-{todo.id}"
 							bind:value={editData.title}
-							placeholder="Task title"
+							placeholder={$t('todo.task_title_placeholder')}
 							class="flex-1 {validationErrors.title
 								? 'border-destructive focus-visible:ring-destructive'
 								: ''}"
@@ -125,7 +131,7 @@
 
 				<div>
 					<label for="content-{todo.id}" class="mb-1 block text-sm font-medium text-foreground">
-						Description
+						{$t('todo.description_label')}
 					</label>
 					<div class="space-y-2">
 						<RichTextEditor bind:editor content={editData.content} showToolbar={false} />
@@ -146,7 +152,7 @@
 				<!-- Due Date -->
 				<div>
 					<label for="due-date-{todo.id}" class="mb-1 block text-sm font-medium text-foreground">
-						Due Date
+						{$t('todo.due_date_label')}
 					</label>
 					<Input
 						id="due-date-{todo.id}"
@@ -164,7 +170,9 @@
 
 				{#if existingImages.length > 0}
 					<div>
-						<span class="mb-2 block text-sm font-medium text-foreground">Attached Images</span>
+						<span class="mb-2 block text-sm font-medium text-foreground"
+							>{$t('todo.attached_images')}</span
+						>
 						<div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
 							{#each existingImages as image (image.id)}
 								<div class="group relative">
@@ -180,7 +188,7 @@
 											<div class="flex flex-col items-center">
 												<img
 													src={image.preview}
-													alt="Image {image.file}"
+													alt={$t('common.image') + ' ' + image.file}
 													class="max-h-[70vh] w-full object-contain p-4"
 												/>
 												<div class="mt-4">
@@ -191,7 +199,7 @@
 														class="rounded-full"
 													>
 														<Trash2 class="mr-2 h-4 w-4" />
-														Remove Image
+														{$t('todo.remove_image')}
 													</Button>
 												</div>
 											</div>
@@ -205,7 +213,9 @@
 
 				{#if newImages.length > 0}
 					<div>
-						<span class="mb-2 block text-sm font-medium text-foreground">Images to Upload</span>
+						<span class="mb-2 block text-sm font-medium text-foreground"
+							>{$t('todo.images_to_upload')}</span
+						>
 						<div class="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
 							{#each newImages as image (image.id)}
 								<div class="group relative">
@@ -230,6 +240,7 @@
 											onclick={() => confirmRemoveImage(image.id)}
 											class="text-destructive-foreground absolute -top-1 -right-1 rounded-full bg-destructive p-1"
 											type="button"
+											aria-label={$t('todo.remove_image')}
 										>
 											<X class="h-3 w-3" />
 										</button>
@@ -242,10 +253,12 @@
 
 				{#if showUploadArea}
 					<div in:scale>
-						<span class="mb-2 block text-sm font-medium text-foreground">Add Images / Files</span>
+						<span class="mb-2 block text-sm font-medium text-foreground"
+							>{$t('todo.add_images_files')}</span
+						>
 						<div
 							tabindex="0"
-							aria-label="Upload images by dragg'n'drop or click to browse"
+							aria-label={$t('todo.upload_drag_drop')}
 							role="button"
 							class="rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 text-center transition-colors {isDragOver
 								? 'border-primary bg-primary/5'
@@ -256,16 +269,16 @@
 						>
 							<Upload class="mx-auto h-6 w-6 text-muted-foreground" />
 							<p class="mt-2 text-sm text-muted-foreground">
-								Drag and drop images here, or
+								{$t('todo.drag_drop_images')}
 								<button
 									type="button"
 									onclick={() => fileInput?.click()}
 									class="text-primary hover:underline focus:underline focus:outline-none"
 								>
-									click to select
+									{$t('todo.click_to_select')}
 								</button>
 							</p>
-							<p class="mt-1 text-xs text-muted-foreground">PNG, JPG up to 5MB each</p>
+							<p class="mt-1 text-xs text-muted-foreground">{$t('todo.image_size_limit')}</p>
 							<input
 								bind:this={fileInput}
 								type="file"
@@ -283,7 +296,7 @@
 						onclick={() => (showUploadArea = true)}
 					>
 						<ImageIcon class="mr-2 h-4 w-4" />
-						Attach images/files
+						{$t('todo.attach_images_files')}
 					</Button>
 				{/if}
 
@@ -295,14 +308,14 @@
 						disabled={isSubmitting}
 						class="order-2 sm:order-1"
 					>
-						Cancel
+						{$t('common.cancel')}
 					</Button>
 					<Button onclick={handleSave} disabled={isSubmitting} class="order-1 sm:order-2">
 						{#if isSubmitting}
 							<div
 								class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
 							></div>
-							Saving...
+							{$t('common.saving')}
 						{:else}
 							<Check class="mr-2 h-4 w-4" />
 							{saveButtonText}
@@ -310,8 +323,8 @@
 					</Button>
 				</div>
 				<p class="text-center text-xs text-muted-foreground sm:text-right">
-					Press <kbd class="rounded bg-muted px-1 py-0.5 text-xs">Esc</kbd> to cancel,
-					<kbd class="rounded bg-muted px-1 py-0.5 text-xs">Ctrl+Enter</kbd> to save
+					{@html $t('todo.keyboard_hint_esc')}
+					{@html $t('todo.keyboard_hint_save')}
 				</p>
 			</div>
 		</CardContent>
@@ -320,10 +333,10 @@
 
 <ConfirmDialog
 	bind:open={showImageDeleteConfirm}
-	title="Remove Image"
-	description="Are you sure you want to remove this image? This action cannot be undone."
-	confirmText="Remove"
-	cancelText="Cancel"
+	title={$t('todo.remove_image')}
+	description={$t('todo.remove_image_description')}
+	confirmText={$t('common.remove')}
+	cancelText={$t('common.cancel')}
 	variant="destructive"
 	icon="delete"
 	onConfirm={handleConfirmImageDelete}

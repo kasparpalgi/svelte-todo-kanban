@@ -267,7 +267,7 @@
         "due": "Termín",
         "everything": "Všechno",
         "confirm_delete": "Opravdu chcete smazat tento úkol?",
-        "edit_todo": "Upravit úkol: {{title}}",
+        "edit_todo": "Upravit úkol:",
         "title_label": "Název *",
         "title_placeholder": "Název úkolu",
         "description_label": "Popis",
