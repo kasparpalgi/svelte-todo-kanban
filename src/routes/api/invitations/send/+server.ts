@@ -13,15 +13,11 @@ import type { EmailTemplate, InvitationEmailData } from '$lib/types/email';
 
 async function loadTranslations(locale: string) {
 	try {
-		console.log(`[EMAIL] Attempting to load translations for locale: ${locale}`);
 		const translations = await import(`../../../../lib/locales/${locale}/common.json`);
-		console.log(`[EMAIL] Successfully loaded translations for locale: ${locale}`);
-		console.log(`[EMAIL] Email translations:`, translations.default?.email || translations.email);
 		return translations.default || translations;
 	} catch (error) {
 		console.error(`[EMAIL] Failed to load translations for locale: ${locale}`, error);
 		const fallback = await import(`../../../../lib/locales/et/common.json`);
-		console.log(`[EMAIL] Using fallback Estonian translations`);
 		return fallback.default || fallback;
 	}
 }
@@ -36,7 +32,6 @@ function getTranslation(translations: any, key: string, fallback: string): strin
 	}
 
 	const result = value || fallback;
-	console.log(`[EMAIL] Translation for '${key}': ${result.substring(0, 50)}...`);
 	return result;
 }
 
@@ -46,9 +41,6 @@ async function getEmailTemplate(
 	invitationUrl: string,
 	locale: string = 'et'
 ): Promise<EmailTemplate> {
-	console.log(`[EMAIL] Creating email template with locale: ${locale}`);
-	console.log(`[EMAIL] Data: inviter=${inviterName}, board=${boardName}`);
-
 	const translations = await loadTranslations(locale);
 
 	const subject =
@@ -217,8 +209,6 @@ ${expiryNotice}
 ${footerText} support@todzz.eu
     `;
 
-	console.log(`[EMAIL] Template created successfully. Subject: ${subject}`);
-
 	return { html, text, subject };
 }
 
@@ -226,7 +216,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 	const session = await locals.auth();
 
 	if (!session?.user?.id) {
-		console.log('[EMAIL] Unauthorized: No session');
+		console.error('[EMAIL] Unauthorized: No session');
 		return json({ error: 'Not authenticated' }, { status: 401 });
 	}
 
@@ -234,15 +224,6 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 		const body: InvitationEmailData = await request.json();
 		const { inviteeEmail, boardName, inviterName, invitationUrl } = body;
 		const locale = body.locale || cookies.get('locale') || 'et';
-
-		console.log('[EMAIL] Request received:', {
-			inviteeEmail,
-			boardName,
-			inviterName,
-			locale,
-			bodyLocale: body.locale,
-			cookieLocale: cookies.get('locale')
-		});
 
 		if (!inviteeEmail || !boardName || !invitationUrl) {
 			console.log('[EMAIL] Missing required fields');
@@ -265,9 +246,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 			locale
 		);
 
-		console.log('[EMAIL] Sending email to:', inviteeEmail);
-
-		await transporter.sendMail({
+		const mailResponse = await transporter.sendMail({
 			from: EMAIL_FROM,
 			to: inviteeEmail,
 			subject,
@@ -275,7 +254,6 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 			html
 		});
 
-		console.log('[EMAIL] Email sent successfully');
 		return json({ success: true });
 	} catch (error) {
 		console.error('[EMAIL] Failed to send invitation email:', error);

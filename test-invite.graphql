@@ -1,7 +1,7 @@
 mutation TestInvite {
   insert_board_invitations(objects: {
     board_id: "f937e2af-6c8e-459d-bebc-eabbc727a19d"
-    invitee_email: "test@e-stonia.co.uk"
+    invitee_email: "support@todzz.eu"
     role: "editor"
     inviter_id: "replace-with-your-user-id"
   }) {
