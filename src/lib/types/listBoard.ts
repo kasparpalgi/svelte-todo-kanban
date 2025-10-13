@@ -1,4 +1,9 @@
-import type { BoardFieldsFragment, ListFieldsFragment } from '$lib/graphql/generated/graphql';
+import type {
+	BoardFieldsFragment,
+	BoardInvitationFieldsFragment,
+	BoardMemberFieldsFragment,
+	ListFieldsFragment
+} from '$lib/graphql/generated/graphql';
 
 export interface ListBoardStoreResult<T = any> {
 	success: boolean;
@@ -26,6 +31,12 @@ export interface BoardStoreResult {
 	data?: BoardFieldsFragment;
 }
 
+export interface BoardStoreResultGeneric<T = void> {
+	success: boolean;
+	message: string;
+	data?: T;
+}
+
 export interface GithubRepoSelectorProps {
 	open: boolean;
 	currentRepo?: string | null;
@@ -42,4 +53,11 @@ export interface VisibilityProps {
 	board: BoardFieldsFragment;
 	open: boolean;
 	onClose: () => void;
+}
+
+export interface BoardMembersState {
+	members: BoardMemberFieldsFragment[];
+	invitations: BoardInvitationFieldsFragment[];
+	loading: boolean;
+	error: string | null;
 }

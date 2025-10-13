@@ -469,5 +469,14 @@
             "auto_correct": "Automatická AI korekce hlasového vstupu",
             "auto_correct_description": "Automaticky aplikovat AI korekce na hlasový vstup bez manuálního potvrzení"
         }
+    },
+    "email": {
+        "invitation_subject": "Byli jste pozváni ke spolupráci na správě úkolů v projektu",
+        "greeting": "Ahoj!",
+        "invite_text": "vás pozval(a), abyste mohli zobrazovat, spravovat a vytvářet nové úkoly. Komentujte stávající úkoly, sledujte průběh práce, hlaste chyby v softwaru a mnoho dalšího.",
+        "description": "ToDzz je nástroj pro týmovou správu úkolů, který pomáhá týmům zůstat organizované a produktivní. Veškerá komunikace a materiály týkající se určitého problému jsou soustředěny v jednom úkolu (nebo kartě v Kanban boardu) a pro vývojáře je vše synchronizováno s GitHub Issues.",
+        "button_text": "Zaregistrujte se a po přihlášení můžete pozvání přijmout",
+        "expiry_notice": "Toto pozvání vyprší za 7 dní. Pokud jej nechcete přijmout, můžete tento e-mail jednoduše smazat.",
+        "footer_text": "Tento e-mail byl odeslán z ToDzz.eu. Pokud máte jakékoli dotazy, kontaktujte nás na"
     }
 }

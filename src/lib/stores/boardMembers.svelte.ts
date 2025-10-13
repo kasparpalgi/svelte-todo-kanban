@@ -2,43 +2,29 @@
 import {
 	GET_BOARD_MEMBERS,
 	GET_BOARD_INVITATIONS,
-	ADD_BOARD_MEMBER,
 	UPDATE_BOARD_MEMBER,
 	REMOVE_BOARD_MEMBER,
 	CREATE_BOARD_INVITATION,
-	UPDATE_BOARD_INVITATION,
 	DELETE_BOARD_INVITATION,
 	SEARCH_USERS
 } from '$lib/graphql/documents';
-import { request } from '$lib/graphql/client';
+import { get } from 'svelte/store';
 import { browser } from '$app/environment';
+import { request } from '$lib/graphql/client';
+import { locale } from '$lib/i18n';
+import { displayMessage } from './errorSuccess.svelte';
 import type {
 	GetBoardMembersQuery,
 	GetBoardInvitationsQuery,
-	AddBoardMemberMutation,
 	UpdateBoardMemberMutation,
 	RemoveBoardMemberMutation,
 	CreateBoardInvitationMutation,
-	UpdateBoardInvitationMutation,
 	DeleteBoardInvitationMutation,
 	SearchUsersQuery,
 	BoardMemberFieldsFragment,
 	BoardInvitationFieldsFragment
 } from '$lib/graphql/generated/graphql';
-import { displayMessage } from './errorSuccess.svelte';
-
-interface BoardMembersState {
-	members: BoardMemberFieldsFragment[];
-	invitations: BoardInvitationFieldsFragment[];
-	loading: boolean;
-	error: string | null;
-}
-
-interface StoreResult<T = void> {
-	success: boolean;
-	message: string;
-	data?: T;
-}
+import type { BoardMembersState, BoardStoreResultGeneric } from '$lib/types/listBoard';
 
 function createBoardMembersStore() {
 	const state = $state<BoardMembersState>({
@@ -47,8 +33,6 @@ function createBoardMembersStore() {
 		loading: false,
 		error: null
 	});
-
-	// ========== Board Members ==========
 
 	async function loadMembers(boardId: string): Promise<BoardMemberFieldsFragment[]> {
 		if (!browser) return [];
@@ -78,7 +62,7 @@ function createBoardMembersStore() {
 		boardId: string,
 		emailOrUsername: string,
 		role: 'editor' | 'viewer'
-	): Promise<StoreResult<BoardInvitationFieldsFragment>> {
+	): Promise<BoardStoreResultGeneric<BoardInvitationFieldsFragment>> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!emailOrUsername.trim())
 			return { success: false, message: 'Email or username is required' };
@@ -106,6 +90,7 @@ function createBoardMembersStore() {
 						const inviterName = newInvitation.inviter?.name || newInvitation.inviter?.username;
 						const boardName = newInvitation.board.name;
 						const invitationUrl = `${window.location.origin}/signin`;
+						const currentLocale = get(locale);
 
 						await fetch('/api/invitations/send', {
 							method: 'POST',
@@ -114,7 +99,8 @@ function createBoardMembersStore() {
 								inviteeEmail: emailOrUsername.trim(),
 								boardName,
 								inviterName,
-								invitationUrl
+								invitationUrl,
+								locale: currentLocale
 							})
 						});
 					} catch (emailError) {
@@ -141,13 +127,12 @@ function createBoardMembersStore() {
 	async function updateMemberRole(
 		memberId: string,
 		role: 'owner' | 'editor' | 'viewer'
-	): Promise<StoreResult<BoardMemberFieldsFragment>> {
+	): Promise<BoardStoreResultGeneric<BoardMemberFieldsFragment>> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		const memberIndex = state.members.findIndex((m) => m.id === memberId);
 		const originalMember = memberIndex !== -1 ? { ...state.members[memberIndex] } : null;
 
-		// Optimistic update
 		if (memberIndex !== -1) {
 			state.members[memberIndex] = { ...state.members[memberIndex], role };
 		}
@@ -184,11 +169,10 @@ function createBoardMembersStore() {
 		}
 	}
 
-	async function removeMember(memberId: string): Promise<StoreResult> {
+	async function removeMember(memberId: string): Promise<BoardStoreResultGeneric> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		const originalMembers = [...state.members];
-		// Optimistic update
 		state.members = state.members.filter((m) => m.id !== memberId);
 
 		try {
@@ -209,8 +193,6 @@ function createBoardMembersStore() {
 			return { success: false, message };
 		}
 	}
-
-	// ========== Board Invitations ==========
 
 	async function loadInvitations(boardId: string): Promise<BoardInvitationFieldsFragment[]> {
 		if (!browser) return [];
@@ -236,11 +218,10 @@ function createBoardMembersStore() {
 		}
 	}
 
-	async function cancelInvitation(invitationId: string): Promise<StoreResult> {
+	async function cancelInvitation(invitationId: string): Promise<BoardStoreResultGeneric> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		const originalInvitations = [...state.invitations];
-		// Optimistic update
 		state.invitations = state.invitations.filter((i) => i.id !== invitationId);
 
 		try {
@@ -265,8 +246,6 @@ function createBoardMembersStore() {
 		}
 	}
 
-	// ========== User Search ==========
-
 	async function searchUsers(searchTerm: string): Promise<SearchUsersQuery['users']> {
 		if (!browser) return [];
 		if (!searchTerm.trim()) return [];
@@ -283,8 +262,6 @@ function createBoardMembersStore() {
 			return [];
 		}
 	}
-
-	// ========== Public API ==========
 
 	return {
 		get members() {

@@ -469,5 +469,14 @@
             "auto_correct": "Auto-correct voice input with AI",
             "auto_correct_description": "Apply AI corrections to voice input automatically without manual confirmation"
         }
+    },
+    "email": {
+        "invitation_subject": "You've been invited to collaborate in tasks' management in the project",
+        "greeting": "Hi there!",
+        "invite_text": "has invited you to see, manage and create new tasks. Comment exiting tasks, see the work progress, report software bugs and much more.",
+        "description": "ToDzz is a collaborative task management tool that helps teams stay organised and productive. All the communication and materials related to a certain issue are under a single task (or card in Kanban board) and for developers it is also synced with GitHub issues.",
+        "button_text": "Sign up and as you login, you can accept the invitation",
+        "expiry_notice": "This invitation will expire in 7 days. If you don't want to accept this invitation, you can safely just delete this email.",
+        "footer_text": "This email was sent from ToDzz.eu and if you have any questions, please contact"
     }
 }

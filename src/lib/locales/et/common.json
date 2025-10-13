@@ -469,5 +469,14 @@
             "auto_correct": "Paranda häälsisestus automaatselt AI-ga",
             "auto_correct_description": "Rakenda AI parandused häälsisestusele automaatselt ilma käsitsi kinnitamata"
         }
+    },
+    "email": {
+        "invitation_subject": "Sind on kutsutud kaasa lööma ülesannete haldamisega projektis",
+        "greeting": "Hei!",
+        "invite_text": "on kutsunud Sind koostööd tegema. Saad vaadata pooleli olevaid, kui ka lõpetatud ülesandeid. Kommenteerida tööde käiku, lisada uusi ülesandeid ning palju muud.",
+        "description": "ToDzz on ülesannete haldamise tööriist, mis aitab hoida töökorralduse selgena. Iga ülesandega seonduvad vestlused on kõik ühes kohas ning arendajate jaoks sünkroniseerib äpp kõiki ülesandeid GitHub task'dega.",
+        "button_text": "Loo omale konto ning sisse logituna saad kutse vastu võtta",
+        "expiry_notice": "See kutse aegub 7 päeva jooksul. Kui sa ei soovi kutset vastu võtta, võid selle e-kirja lihtsalt ära kustutada.",
+        "footer_text": "See kiri saadeti rakendusest ToDzz.eu ning küsimuste korral võta ühendust aadressil"
     }
 }
