@@ -90,6 +90,8 @@
 		"@tiptap/extension-task-item": "^3.6.3",
 		"@tiptap/extension-task-list": "^3.6.3",
 		"@tiptap/starter-kit": "^3.6.3",
+		"@vercel/analytics": "^1.5.0",
+		"@vercel/speed-insights": "^1.2.0",
 		"dotenv-cli": "^10.0.0",
 		"graphql": "^16.11.0",
 		"graphql-request": "^7.2.0",
