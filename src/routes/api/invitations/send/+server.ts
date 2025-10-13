@@ -246,6 +246,8 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 			locale
 		);
 
+		console.log('EMAIL_FROM: ', EMAIL_FROM);
+
 		const mailResponse = await transporter.sendMail({
 			from: EMAIL_FROM,
 			to: inviteeEmail,
@@ -253,6 +255,8 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 			text,
 			html
 		});
+
+		console.log('resp: ',mailResponse);
 
 		return json({ success: true });
 	} catch (error) {

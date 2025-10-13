@@ -557,6 +557,12 @@ export type Board_Invitations = {
   board: Boards;
   board_id: Scalars['uuid']['output'];
   created_at: Scalars['timestamptz']['output'];
+  email_browser?: Maybe<Scalars['String']['output']>;
+  email_device_type?: Maybe<Scalars['String']['output']>;
+  /** 'opened' | 'delivered' | 'sent' | 'soft_bounced' | 'hard_bounced' | 'clicked' | 'opened_unique' | 'clicked_unique' | 'unsubscriberd' | 'spam_complaint' */
+  email_status?: Maybe<Scalars['String']['output']>;
+  email_subject?: Maybe<Scalars['String']['output']>;
+  email_user_agent?: Maybe<Scalars['String']['output']>;
   expires_at: Scalars['timestamptz']['output'];
   id: Scalars['uuid']['output'];
   invitee_email?: Maybe<Scalars['String']['output']>;
@@ -628,6 +634,11 @@ export type Board_Invitations_Bool_Exp = {
   board?: InputMaybe<Boards_Bool_Exp>;
   board_id?: InputMaybe<Uuid_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  email_browser?: InputMaybe<String_Comparison_Exp>;
+  email_device_type?: InputMaybe<String_Comparison_Exp>;
+  email_status?: InputMaybe<String_Comparison_Exp>;
+  email_subject?: InputMaybe<String_Comparison_Exp>;
+  email_user_agent?: InputMaybe<String_Comparison_Exp>;
   expires_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   invitee_email?: InputMaybe<String_Comparison_Exp>;
@@ -653,6 +664,12 @@ export type Board_Invitations_Insert_Input = {
   board?: InputMaybe<Boards_Obj_Rel_Insert_Input>;
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  email_browser?: InputMaybe<Scalars['String']['input']>;
+  email_device_type?: InputMaybe<Scalars['String']['input']>;
+  /** 'opened' | 'delivered' | 'sent' | 'soft_bounced' | 'hard_bounced' | 'clicked' | 'opened_unique' | 'clicked_unique' | 'unsubscriberd' | 'spam_complaint' */
+  email_status?: InputMaybe<Scalars['String']['input']>;
+  email_subject?: InputMaybe<Scalars['String']['input']>;
+  email_user_agent?: InputMaybe<Scalars['String']['input']>;
   expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   invitee_email?: InputMaybe<Scalars['String']['input']>;
@@ -673,6 +690,12 @@ export type Board_Invitations_Max_Fields = {
   __typename?: 'board_invitations_max_fields';
   board_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
+  email_browser?: Maybe<Scalars['String']['output']>;
+  email_device_type?: Maybe<Scalars['String']['output']>;
+  /** 'opened' | 'delivered' | 'sent' | 'soft_bounced' | 'hard_bounced' | 'clicked' | 'opened_unique' | 'clicked_unique' | 'unsubscriberd' | 'spam_complaint' */
+  email_status?: Maybe<Scalars['String']['output']>;
+  email_subject?: Maybe<Scalars['String']['output']>;
+  email_user_agent?: Maybe<Scalars['String']['output']>;
   expires_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   invitee_email?: Maybe<Scalars['String']['output']>;
@@ -691,6 +714,12 @@ export type Board_Invitations_Max_Fields = {
 export type Board_Invitations_Max_Order_By = {
   board_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
+  email_browser?: InputMaybe<Order_By>;
+  email_device_type?: InputMaybe<Order_By>;
+  /** 'opened' | 'delivered' | 'sent' | 'soft_bounced' | 'hard_bounced' | 'clicked' | 'opened_unique' | 'clicked_unique' | 'unsubscriberd' | 'spam_complaint' */
+  email_status?: InputMaybe<Order_By>;
+  email_subject?: InputMaybe<Order_By>;
+  email_user_agent?: InputMaybe<Order_By>;
   expires_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   invitee_email?: InputMaybe<Order_By>;
@@ -710,6 +739,12 @@ export type Board_Invitations_Min_Fields = {
   __typename?: 'board_invitations_min_fields';
   board_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
+  email_browser?: Maybe<Scalars['String']['output']>;
+  email_device_type?: Maybe<Scalars['String']['output']>;
+  /** 'opened' | 'delivered' | 'sent' | 'soft_bounced' | 'hard_bounced' | 'clicked' | 'opened_unique' | 'clicked_unique' | 'unsubscriberd' | 'spam_complaint' */
+  email_status?: Maybe<Scalars['String']['output']>;
+  email_subject?: Maybe<Scalars['String']['output']>;
+  email_user_agent?: Maybe<Scalars['String']['output']>;
   expires_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   invitee_email?: Maybe<Scalars['String']['output']>;
@@ -728,6 +763,12 @@ export type Board_Invitations_Min_Fields = {
 export type Board_Invitations_Min_Order_By = {
   board_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
+  email_browser?: InputMaybe<Order_By>;
+  email_device_type?: InputMaybe<Order_By>;
+  /** 'opened' | 'delivered' | 'sent' | 'soft_bounced' | 'hard_bounced' | 'clicked' | 'opened_unique' | 'clicked_unique' | 'unsubscriberd' | 'spam_complaint' */
+  email_status?: InputMaybe<Order_By>;
+  email_subject?: InputMaybe<Order_By>;
+  email_user_agent?: InputMaybe<Order_By>;
   expires_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   invitee_email?: InputMaybe<Order_By>;
@@ -763,6 +804,11 @@ export type Board_Invitations_Order_By = {
   board?: InputMaybe<Boards_Order_By>;
   board_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
+  email_browser?: InputMaybe<Order_By>;
+  email_device_type?: InputMaybe<Order_By>;
+  email_status?: InputMaybe<Order_By>;
+  email_subject?: InputMaybe<Order_By>;
+  email_user_agent?: InputMaybe<Order_By>;
   expires_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   invitee_email?: InputMaybe<Order_By>;
@@ -787,6 +833,16 @@ export enum Board_Invitations_Select_Column {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
+  EmailBrowser = 'email_browser',
+  /** column name */
+  EmailDeviceType = 'email_device_type',
+  /** column name */
+  EmailStatus = 'email_status',
+  /** column name */
+  EmailSubject = 'email_subject',
+  /** column name */
+  EmailUserAgent = 'email_user_agent',
+  /** column name */
   ExpiresAt = 'expires_at',
   /** column name */
   Id = 'id',
@@ -810,6 +866,12 @@ export enum Board_Invitations_Select_Column {
 export type Board_Invitations_Set_Input = {
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  email_browser?: InputMaybe<Scalars['String']['input']>;
+  email_device_type?: InputMaybe<Scalars['String']['input']>;
+  /** 'opened' | 'delivered' | 'sent' | 'soft_bounced' | 'hard_bounced' | 'clicked' | 'opened_unique' | 'clicked_unique' | 'unsubscriberd' | 'spam_complaint' */
+  email_status?: InputMaybe<Scalars['String']['input']>;
+  email_subject?: InputMaybe<Scalars['String']['input']>;
+  email_user_agent?: InputMaybe<Scalars['String']['input']>;
   expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   invitee_email?: InputMaybe<Scalars['String']['input']>;
@@ -836,6 +898,12 @@ export type Board_Invitations_Stream_Cursor_Input = {
 export type Board_Invitations_Stream_Cursor_Value_Input = {
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  email_browser?: InputMaybe<Scalars['String']['input']>;
+  email_device_type?: InputMaybe<Scalars['String']['input']>;
+  /** 'opened' | 'delivered' | 'sent' | 'soft_bounced' | 'hard_bounced' | 'clicked' | 'opened_unique' | 'clicked_unique' | 'unsubscriberd' | 'spam_complaint' */
+  email_status?: InputMaybe<Scalars['String']['input']>;
+  email_subject?: InputMaybe<Scalars['String']['input']>;
+  email_user_agent?: InputMaybe<Scalars['String']['input']>;
   expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   invitee_email?: InputMaybe<Scalars['String']['input']>;
@@ -856,6 +924,16 @@ export enum Board_Invitations_Update_Column {
   BoardId = 'board_id',
   /** column name */
   CreatedAt = 'created_at',
+  /** column name */
+  EmailBrowser = 'email_browser',
+  /** column name */
+  EmailDeviceType = 'email_device_type',
+  /** column name */
+  EmailStatus = 'email_status',
+  /** column name */
+  EmailSubject = 'email_subject',
+  /** column name */
+  EmailUserAgent = 'email_user_agent',
   /** column name */
   ExpiresAt = 'expires_at',
   /** column name */
