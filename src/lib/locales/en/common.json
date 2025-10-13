@@ -388,7 +388,8 @@
         "min_hours": "Min. hours",
         "max_hours": "Max. hours",
         "actual_hours": "Actual hours",
-        "comment_hours": "Comment on hours"
+        "comment_hours": "Comment on hours",
+        "pick_date": "Set Due Date"
     },
     "labels": {
         "labels": "Labels",
