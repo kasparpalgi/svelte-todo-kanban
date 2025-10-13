@@ -50,10 +50,22 @@
 		return board.user?.id === currentUser.id;
 	}
 
+	function isMember(board: any) {
+		const currentUser = userStore.user;
+		if (!currentUser) return false;
+		return board.board_members?.some((m: any) => m.user_id === currentUser.id);
+	}
+
+	function canSeeBoard(board: any) {
+		return isOwner(board) || isMember(board);
+	}
+
 	function getMemberCount(board: any) {
 		if (!board.board_members) return 0;
 		return board.board_members.filter((m: any) => m.role !== 'owner').length;
 	}
+
+	const filteredBoards = $derived(listsStore.sortedBoards.filter(canSeeBoard));
 </script>
 
 <div class="flex items-center gap-2">
@@ -66,7 +78,7 @@
 			</Button>
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="start" class="w-64">
-			{#each listsStore.sortedBoards as board (board.id)}
+			{#each filteredBoards as board (board.id)}
 				<DropdownMenuItem
 					onclick={() => selectBoard(board)}
 					class={listsStore.selectedBoard?.id === board.id ? 'bg-accent' : ''}
