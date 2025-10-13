@@ -388,7 +388,8 @@
         "min_hours": "Min. hodiny",
         "max_hours": "Max. hodiny",
         "actual_hours": "Skutečné hodiny",
-        "comment_hours": "Komentář k hodinám"
+        "comment_hours": "Komentář k hodinám",
+        "pick_date": "Nastavit termín dokončení"
     },
     "labels": {
         "labels": "Štítky",

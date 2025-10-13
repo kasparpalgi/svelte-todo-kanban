@@ -388,7 +388,8 @@
         "min_hours": "Min. tunde",
         "max_hours": "Maks. tunde",
         "actual_hours": "Kulus tunde",
-        "comment_hours": "Kommentaar töömahu kohta"
+        "comment_hours": "Kommentaar töömahu kohta",
+        "pick_date": "Lisa tähtaeg"
     },
     "labels": {
         "labels": "Sildid",
