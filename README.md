@@ -1,4 +1,4 @@
-# Svelte ToDo app (Kanban)
+# Svelte ToDo app (Kanban) |
 
 Modern Kanban ToDo app built with SvelteKit, Hasura GraphQL, and PostgreSQL.
 

@@ -1,0 +1,1 @@
+comment on column "public"."board_invitations"."email_status" is E'\'opened\' | \'delivered\' | \'sent\' | \'soft_bounced\' | \'hard_bounced\' | \'clicked\' | \'opened_unique\' | \'clicked_unique\' | \'unsubscriberd\' | \'spam_complaint\'';
