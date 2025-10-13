@@ -1,3 +1,4 @@
+/** @file vite.config.ts */
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
@@ -40,6 +41,21 @@ export default defineConfig({
 						sizes: '512x512',
 						type: 'image/png',
 						purpose: 'maskable'
+					}
+				],
+				shortcuts: [
+					{
+						name: 'Quick Add to Board',
+						short_name: 'Quick Add',
+						description: 'Quickly add items with voice',
+						url: '/en/username/boardname/mobile-add',
+						icons: [
+							{
+								src: '/pwa-192x192.png',
+								sizes: '192x192',
+								type: 'image/png'
+							}
+						]
 					}
 				]
 			},
