@@ -26,7 +26,11 @@
       "mcp__playwright__browser_close",
       "WebFetch(domain:authjs.dev)",
       "Bash(ping:*)",
-      "Bash(npx vite dev:*)"
+      "Bash(npx vite dev:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__playwright__browser_wait_for",
+      "WebFetch(domain:dev.to)"
     ],
     "deny": [],
     "ask": []

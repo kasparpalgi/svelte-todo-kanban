@@ -17,7 +17,7 @@
 	import {
 		DndContext,
 		DragOverlay,
-		closestCorners,
+		pointerWithin,
 		KeyboardSensor,
 		PointerSensor,
 		useSensor,
@@ -31,6 +31,7 @@
 	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { throttle } from '$lib/utils/throttle';
 
 	let activeId = $state<string | null>(null);
 	let activeTodo = $state<TodoFieldsFragment | null>(null);
@@ -157,9 +158,16 @@
 		activeTodo = todosStore.todos.find((todo: TodoFieldsFragment) => todo.id === activeId) || null;
 	}
 
-	function handleDragMove(event: DragMoveEvent) {
+	function handleDragMoveCore(event: DragMoveEvent) {
 		const { active, over } = event;
-		if (!over || !active.id) return;
+		if (!over || !active.id) {
+			// Clear states if not over anything
+			if (dropPosition !== null || hoveredListId !== null) {
+				dropPosition = null;
+				hoveredListId = null;
+			}
+			return;
+		}
 
 		const overId = over.id as string;
 		const isOverAColumn = overId.startsWith('column-');
@@ -167,7 +175,6 @@
 
 		if (overTodo) {
 			const targetListId = overTodo.list?.id || 'inbox';
-			hoveredListId = targetListId;
 			const listGroup = kanbanLists().find((g) => g.list.id === targetListId);
 			if (!listGroup) return;
 
@@ -180,21 +187,39 @@
 
 			const overMiddleY = overRect.top + overRect.height / 2;
 			const cursorY = draggingRect.top + draggingRect.height / 2;
-			const position = cursorY < overMiddleY ? 'above' : 'below';
-			dropPosition = { listId: targetListId, todoId: overId, position, targetIndex: todoIndex };
+			const position: 'above' | 'below' = cursorY < overMiddleY ? 'above' : 'below';
+
+			// Only update if position actually changed
+			const newDropPosition = { listId: targetListId, todoId: overId, position, targetIndex: todoIndex };
+			if (
+				!dropPosition ||
+				dropPosition.listId !== newDropPosition.listId ||
+				dropPosition.todoId !== newDropPosition.todoId ||
+				dropPosition.position !== newDropPosition.position
+			) {
+				dropPosition = newDropPosition;
+				hoveredListId = targetListId;
+			}
 		} else if (isOverAColumn) {
 			const targetListId = overId.replace('column-', '');
 			const listGroup = kanbanLists().find((g) => g.list.id === targetListId);
 			if (!listGroup) return;
 
-			hoveredListId = targetListId;
 			if (listGroup.todos.length === 0) {
-				dropPosition = {
+				const newDropPosition = {
 					listId: targetListId,
 					todoId: 'column',
-					position: 'above',
+					position: 'above' as const,
 					targetIndex: 0
 				};
+				if (
+					!dropPosition ||
+					dropPosition.listId !== newDropPosition.listId ||
+					dropPosition.todoId !== newDropPosition.todoId
+				) {
+					dropPosition = newDropPosition;
+					hoveredListId = targetListId;
+				}
 			} else {
 				const draggingRect = active.rect.translated;
 				const columnRect = over.rect;
@@ -204,26 +229,40 @@
 				const columnTop = columnRect.top;
 				const columnBottom = columnRect.top + columnRect.height;
 
+				let newDropPosition;
 				if (Math.abs(cursorY - columnTop) < Math.abs(cursorY - columnBottom)) {
 					const firstTodo = listGroup.todos[0];
-					dropPosition = {
+					newDropPosition = {
 						listId: targetListId,
 						todoId: firstTodo.id,
-						position: 'above',
+						position: 'above' as const,
 						targetIndex: 0
 					};
 				} else {
 					const lastTodo = listGroup.todos[listGroup.todos.length - 1];
-					dropPosition = {
+					newDropPosition = {
 						listId: targetListId,
 						todoId: lastTodo.id,
-						position: 'below',
+						position: 'below' as const,
 						targetIndex: listGroup.todos.length - 1
 					};
+				}
+
+				if (
+					!dropPosition ||
+					dropPosition.listId !== newDropPosition.listId ||
+					dropPosition.todoId !== newDropPosition.todoId ||
+					dropPosition.position !== newDropPosition.position
+				) {
+					dropPosition = newDropPosition;
+					hoveredListId = targetListId;
 				}
 			}
 		}
 	}
+
+	// Throttle to ~60fps (16ms) for better performance
+	const handleDragMove = throttle(handleDragMoveCore, 16);
 
 	function handleDragCancel() {
 		cleanup();
@@ -352,7 +391,7 @@
 		<div class="flex min-w-max gap-6 p-6 pt-0">
 			<DndContext
 				{sensors}
-				collisionDetection={closestCorners}
+				collisionDetection={pointerWithin}
 				onDragStart={handleDragStart}
 				onDragMove={handleDragMove}
 				onDragEnd={handleDragEnd}

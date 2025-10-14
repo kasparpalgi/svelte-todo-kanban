@@ -85,6 +85,7 @@
 		"@dnd-kit-svelte/sortable": "^0.0.11",
 		"@dnd-kit-svelte/utilities": "^0.0.11",
 		"@neoconfetti/svelte": "^2.2.2",
+		"@neodrag/svelte": "^2.3.3",
 		"@sveltekit-i18n/parser-default": "^1.1.1",
 		"@tiptap/core": "^3.6.3",
 		"@tiptap/extension-task-item": "^3.6.3",

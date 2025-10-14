@@ -30,7 +30,7 @@
 		Bell
 	} from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
-	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
+	import TodoKanban from '$lib/components/todo/TodoKanban_neodrag.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
 	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
 	import TodoFiltersSidebar from '$lib/components/todo/TodoFiltersSidebar.svelte';
