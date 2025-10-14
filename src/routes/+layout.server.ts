@@ -20,7 +20,6 @@ function isValidApiEnv(env: string): env is ApiEnv {
 
 export const load: LayoutServerLoad = async (event) => {
 	const { url, locals, fetch } = event;
-
 	const appEnv = isValidAppEnv(PUBLIC_APP_ENV) ? PUBLIC_APP_ENV : 'development';
 	const apiEnv = isValidApiEnv(PUBLIC_API_ENV) ? PUBLIC_API_ENV : 'development';
 
@@ -45,7 +44,7 @@ export const load: LayoutServerLoad = async (event) => {
 		}
 	}
 
-	if (url.pathname === '/auth/signin' && PUBLIC_APP_ENV !== 'development') {
+	if (PUBLIC_APP_ENV !== 'testing') {
 		throw redirect(302, '/signin');
 	}
 

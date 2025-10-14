@@ -413,9 +413,10 @@ claude
 
 ## Test Credentials
 
-**Dev only** (NODE_ENV=development):
+**Dev only** (works only when .env='testing'):
 - Email: `test@test.com`
 - Access: `/auth/signin`
+- Once clicked "Sign in with Test Login" you will be redirected to `/` where is normal signin page. You can now manually navigate to `/et/test/tests-board` and you're authenticated as a test user. 
 
 ---
 
