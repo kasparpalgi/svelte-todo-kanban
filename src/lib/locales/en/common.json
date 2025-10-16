@@ -389,6 +389,7 @@
         "max_hours": "Max. hours",
         "actual_hours": "Actual hours",
         "comment_hours": "Comment on hours",
+        "add_hours_comment": "Comment hours →",
         "pick_date": "Set Due Date"
     },
     "labels": {

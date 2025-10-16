@@ -389,6 +389,7 @@
         "max_hours": "Maks. tunde",
         "actual_hours": "Kulus tunde",
         "comment_hours": "Kommentaar töömahu kohta",
+        "add_hours_comment": "Kommenteeri töötunde →",
         "pick_date": "Lisa tähtaeg"
     },
     "labels": {
