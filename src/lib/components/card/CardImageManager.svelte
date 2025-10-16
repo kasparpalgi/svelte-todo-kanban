@@ -4,10 +4,9 @@
 	import { t } from '$lib/i18n';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
-	import { Dialog, DialogContent } from '$lib/components/ui/dialog';
 	import { Button } from '$lib/components/ui/button';
 	import { Label } from '$lib/components/ui/label';
-	import { X, ImageIcon, Upload } from 'lucide-svelte';
+	import { X, ImageIcon, Upload, ZoomIn, ZoomOut, Maximize2, Download } from 'lucide-svelte';
 	import type { TodoImage } from '$lib/types/imageUpload';
 	import type { CardImageProps } from '$lib/types/todo';
 
@@ -18,6 +17,12 @@
 	let fileInput = $state<HTMLInputElement>();
 	let showUploadArea = $state(false);
 	let selectedImage = $state<TodoImage | null>(null);
+	let imageNaturalSize = $state<{ width: number; height: number } | null>(null);
+	let zoomLevel = $state(1);
+	let isPanning = $state(false);
+	let panStart = $state({ x: 0, y: 0 });
+	let panOffset = $state({ x: 0, y: 0 });
+	let imageContainer = $state<HTMLDivElement>();
 
 	onDestroy(() => {
 		images.forEach((img) => {
@@ -26,6 +31,79 @@
 			}
 		});
 	});
+
+	function handleImageLoad(event: Event) {
+		const img = event.target as HTMLImageElement;
+		imageNaturalSize = {
+			width: img.naturalWidth,
+			height: img.naturalHeight
+		};
+	}
+
+	function resetZoom() {
+		zoomLevel = 1;
+		panOffset = { x: 0, y: 0 };
+	}
+
+	function handleZoomIn() {
+		zoomLevel = Math.min(zoomLevel + 0.25, 3);
+	}
+
+	function handleZoomOut() {
+		zoomLevel = Math.max(zoomLevel - 0.25, 0.5);
+		// Adjust pan if zoomed out
+		if (zoomLevel === 1) {
+			panOffset = { x: 0, y: 0 };
+		}
+	}
+
+	function handleFitToScreen() {
+		zoomLevel = 1;
+		panOffset = { x: 0, y: 0 };
+	}
+
+	function handleMouseDown(event: MouseEvent) {
+		if (zoomLevel > 1) {
+			isPanning = true;
+			panStart = {
+				x: event.clientX - panOffset.x,
+				y: event.clientY - panOffset.y
+			};
+		}
+	}
+
+	function handleMouseMove(event: MouseEvent) {
+		if (isPanning && zoomLevel > 1) {
+			panOffset = {
+				x: event.clientX - panStart.x,
+				y: event.clientY - panStart.y
+			};
+		}
+	}
+
+	function handleMouseUp() {
+		isPanning = false;
+	}
+
+	function handleWheel(event: WheelEvent) {
+		event.preventDefault();
+		if (event.deltaY < 0) {
+			handleZoomIn();
+		} else {
+			handleZoomOut();
+		}
+	}
+
+	function handleDownload() {
+		if (selectedImage) {
+			window.open(selectedImage.preview, '_blank');
+		}
+	}
+
+	function handleDialogClose() {
+		selectedImage = null;
+		resetZoom();
+	}
 
 	function handleDragOver(event: DragEvent) {
 		event.preventDefault();
@@ -98,6 +176,8 @@
 	}
 </script>
 
+<svelte:window onmousemove={handleMouseMove} onmouseup={handleMouseUp} />
+
 <div>
 	<Label class="mb-2 flex items-center gap-2">
 		<ImageIcon class="h-4 w-4" />
@@ -105,13 +185,13 @@
 	</Label>
 
 	{#if images.filter((img) => img.isExisting).length > 0}
-		<div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+		<div class="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
 			{#each images.filter((img) => img.isExisting) as image}
 				<div class="group relative">
 					<button
 						type="button"
 						onclick={() => (selectedImage = image)}
-						class="block h-24 w-full overflow-hidden rounded border"
+						class="block h-24 w-full overflow-hidden rounded border transition-all hover:shadow-md"
 					>
 						<img
 							src={image.preview}
@@ -138,7 +218,7 @@
 			<span class="mb-2 block text-sm font-medium">
 				{$t('card.new_images_upload')}
 			</span>
-			<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+			<div class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
 				{#each images.filter((img) => !img.isExisting) as image}
 					<div class="group relative">
 						<div class="h-24 w-full overflow-hidden rounded border">
@@ -217,9 +297,92 @@
 </div>
 
 {#if selectedImage}
-	<Dialog open={!!selectedImage} onOpenChange={() => (selectedImage = null)}>
-		<DialogContent class="max-w-4xl">
-			<img src={selectedImage.preview} alt={$t('common.full_size')} class="w-full rounded" />
-		</DialogContent>
-	</Dialog>
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/95">
+		<Button
+			type="button"
+			size="icon"
+			variant="secondary"
+			class="absolute top-4 right-4 z-20 h-10 w-10"
+			onclick={handleDialogClose}
+			title="Close"
+		>
+			<X class="h-5 w-5" />
+		</Button>
+
+		<div
+			class="absolute top-4 left-4 z-10 flex gap-2 rounded-lg bg-background/90 p-2 shadow-lg backdrop-blur-sm"
+		>
+			<Button
+				type="button"
+				size="sm"
+				variant="secondary"
+				onclick={handleZoomOut}
+				disabled={zoomLevel <= 0.5}
+				title="Zoom Out"
+			>
+				<ZoomOut class="h-4 w-4" />
+			</Button>
+			<span class="flex items-center px-2 text-sm font-medium">
+				{Math.round(zoomLevel * 100)}%
+			</span>
+			<Button
+				type="button"
+				size="sm"
+				variant="secondary"
+				onclick={handleZoomIn}
+				disabled={zoomLevel >= 3}
+				title="Zoom In"
+			>
+				<ZoomIn class="h-4 w-4" />
+			</Button>
+			<Button
+				type="button"
+				size="sm"
+				variant="secondary"
+				onclick={handleFitToScreen}
+				title="Fit to Screen"
+			>
+				<Maximize2 class="h-4 w-4" />
+			</Button>
+			<Button
+				type="button"
+				size="sm"
+				variant="secondary"
+				onclick={handleDownload}
+				title="Open in New Tab"
+			>
+				<Download class="h-4 w-4" />
+			</Button>
+		</div>
+
+		<div
+			bind:this={imageContainer}
+			role="button"
+			tabindex="0"
+			aria-label="Zoomable image viewer - click and drag to pan when zoomed"
+			class="flex h-full w-full items-center justify-center overflow-hidden"
+			class:cursor-grab={zoomLevel > 1 && !isPanning}
+			class:cursor-grabbing={isPanning}
+			onmousedown={handleMouseDown}
+			onwheel={handleWheel}
+		>
+			<img
+				src={selectedImage.preview}
+				alt={$t('common.full_size')}
+				class="h-auto max-h-[96vh] w-auto max-w-[96vw] object-contain transition-transform duration-200"
+				style="transform: scale({zoomLevel}) translate({panOffset.x / zoomLevel}px, {panOffset.y /
+					zoomLevel}px);"
+				onload={handleImageLoad}
+				draggable="false"
+			/>
+		</div>
+
+		{#if imageNaturalSize}
+			<div
+				class="absolute bottom-4 left-4 rounded-lg bg-background/90 px-3 py-1 text-xs text-muted-foreground shadow-lg backdrop-blur-sm"
+			>
+				{imageNaturalSize.width} × {imageNaturalSize.height}
+			</div>
+		{/if}
+	</div>
 {/if}
