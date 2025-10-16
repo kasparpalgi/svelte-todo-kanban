@@ -11,7 +11,6 @@
 	import { Card, CardContent, CardHeader } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Textarea } from '$lib/components/ui/textarea';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Label } from '$lib/components/ui/label';
 	import { Calendar as CalendarPrimitive } from '$lib/components/ui/calendar';
@@ -27,13 +26,15 @@
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { DateValue } from '@internationalized/date';
 
+	type Priority = 'low' | 'medium' | 'high';
+
 	let { todo, lang, onClose }: { todo: TodoFieldsFragment; lang: string; onClose: () => void } =
 		$props();
 
 	let editData = $state({
 		title: todo.title,
 		due_on: todo.due_on ? new Date(todo.due_on).toISOString().split('T')[0] : '',
-		priority: (todo.priority as 'low' | 'medium' | 'high') || 'low',
+		priority: (todo.priority as Priority | null) ?? null,
 		min_hours: todo.min_hours ?? null,
 		max_hours: todo.max_hours ?? null,
 		actual_hours: todo.actual_hours ?? null,
@@ -71,7 +72,10 @@
 	}
 
 	async function saveTodo() {
-		if (isSubmitting || !todo || !editor) return;
+		if (isSubmitting || !todo || !editor) {
+			console.warn('CardDetailView: saveTodo() aborted due to guard conditions.');
+			return;
+		}
 
 		try {
 			const content = get(editor).getHTML();
@@ -88,7 +92,7 @@
 				title: validatedData.title,
 				content: validatedData.content || null,
 				due_on: validatedData.due_on || null,
-				priority: validatedData.priority || 'low',
+				priority: validatedData.priority || null,
 				min_hours: validatedData.min_hours,
 				max_hours: validatedData.max_hours,
 				actual_hours: validatedData.actual_hours,
@@ -97,6 +101,7 @@
 
 			if (!result.success) {
 				displayMessage(result.message || $t('card.update_failed'));
+				console.error('CardDetailView: Store update failed.', result.message);
 				return;
 			}
 
@@ -129,6 +134,7 @@
 
 			setTimeout(() => onClose(), 300);
 		} catch (error) {
+			console.error('CardDetailView: An error occurred in saveTodo():', error);
 			if (error instanceof z.ZodError) {
 				validationErrors = {};
 				error.issues.forEach((issue) => {
@@ -177,9 +183,12 @@
 						{todo.list.name}
 					</Badge>
 				{/if}
-				<Badge class="{getPriorityColor(editData.priority)} text-xs text-white">
-					{getPriorityLabel(editData.priority, $t)}
-				</Badge>
+				{#if editData.priority}
+					<Badge class="{getPriorityColor(editData.priority)} text-xs text-white">
+						{getPriorityLabel(editData.priority, $t)}
+					</Badge>
+				{/if}
+				<CardLabelManager {todo} />
 			</div>
 
 			<Button onclick={saveTodo} disabled={isSubmitting} size="sm" class="shrink-0">
@@ -255,6 +264,7 @@
 					bind:value={editData.priority}
 					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
 				>
+					<option value={null}>-</option>
 					<option value="low">{$t('card.priority_low')}</option>
 					<option value="medium">{$t('card.priority_medium')}</option>
 					<option value="high">{$t('card.priority_high')}</option>
@@ -270,8 +280,6 @@
 				bind:comment_hours={editData.comment_hours}
 			/>
 		{/if}
-
-		<CardLabelManager {todo} />
 
 		<CardImageManager
 			bind:this={imageManager}

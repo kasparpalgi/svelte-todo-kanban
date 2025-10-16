@@ -3,7 +3,6 @@
 	import { t } from '$lib/i18n';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
-	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
 	import {
 		DropdownMenu,
@@ -12,7 +11,7 @@
 		DropdownMenuSeparator,
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
-	import { Plus, X, Tag } from 'lucide-svelte';
+	import { Plus, X } from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { labelsStore } from '$lib/stores/labels.svelte';
 	import { LABEL_COLORS } from '$lib/settings/labelColors';
@@ -97,11 +96,6 @@
 </script>
 
 <div>
-	<Label class="mb-2 flex items-center gap-2">
-		<Tag class="h-4 w-4" />
-		{$t('labels.labels')}
-	</Label>
-
 	<div class="flex flex-wrap items-center gap-2">
 		{#each todo.labels || [] as { label }}
 			<Badge
@@ -121,9 +115,9 @@
 
 		<DropdownMenu open={dropdownOpen} onOpenChange={handleOpenChange}>
 			<DropdownMenuTrigger>
-				<Button variant="outline" size="sm" class="h-6">
-					<Plus class="h-3 w-3" />
-				</Button>
+				<button class="cursor-pointer">
+					<Plus class="h-4 w-4" />
+				</button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="start" class="w-64">
 				{#if !isCreatingLabel}

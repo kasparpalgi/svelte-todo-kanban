@@ -61,14 +61,20 @@
 		}
 	}
 
+	async function handleSave() {
+		if (cardDetailView) {
+			await cardDetailView.save();
+		} else {
+			console.error('CardModal: cardDetailView instance NOT found!');
+		}
+	}
+
 	async function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
 			closeModal();
 		} else if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
 			event.preventDefault();
-			if (cardDetailView) {
-				await cardDetailView.save();
-			}
+			await handleSave();
 		}
 	}
 </script>
