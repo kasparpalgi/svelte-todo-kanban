@@ -1,6 +1,6 @@
 <!-- @file src/lib/components/todo/TodoItem_neodrag.svelte -->
 <script lang="ts">
-	import { draggable } from '@neodrag/svelte';
+	import { draggable, type DragEventData } from '@neodrag/svelte';
 	import { z } from 'zod';
 	import { t } from '$lib/i18n';
 	import { goto } from '$app/navigation';
@@ -37,10 +37,8 @@
 		showDropAbove = false,
 		showDropBelow = false,
 		listId,
-		index,
 		onDragStart,
 		onDragEnd,
-		onDragOver,
 		onDelete
 	}: {
 		todo: TodoFieldsFragment;
@@ -49,10 +47,8 @@
 		showDropAbove?: boolean;
 		showDropBelow?: boolean;
 		listId: string;
-		index: number;
 		onDragStart: (todo: TodoFieldsFragment) => void;
 		onDragEnd: () => void;
-		onDragOver: (listId: string, index: number, position: 'above' | 'below') => void;
 		onDelete: (todoId: string) => void;
 	} = $props();
 
@@ -158,25 +154,13 @@
 		onDragStart(todo);
 	}
 
-	function handleNeodragEnd(data: { offsetX: number; offsetY: number }) {
+	function handleNeodragEnd(data: DragEventData) {
 		if (isEditing) return;
-		// Reset position immediately
+		// Reset transform to prevent visual issues
 		if (cardEl) {
 			cardEl.style.transform = '';
 		}
 		onDragEnd();
-	}
-
-	function handleNeodragMove(data: { offsetX: number; offsetY: number }) {
-		if (!draggedTodo || draggedTodo.id === todo.id || !cardEl) return;
-
-		// Calculate mouse position relative to this card
-		const rect = cardEl.getBoundingClientRect();
-		const mouseY = rect.top + data.offsetY;
-		const cardMiddleY = rect.top + rect.height / 2;
-		const position = mouseY < cardMiddleY ? 'above' : 'below';
-
-		onDragOver(listId, index, position);
 	}
 
 	function startEdit() {
@@ -416,7 +400,7 @@
 <div class="relative">
 	{#if showDropAbove}
 		<div
-			class="absolute -top-1 left-0 right-0 h-0.5 bg-primary shadow-lg shadow-primary/50 z-50"
+			class="absolute -top-1 right-0 left-0 z-50 h-0.5 bg-primary shadow-lg shadow-primary/50"
 			style="margin-top: -4px;"
 		></div>
 	{/if}
@@ -428,11 +412,11 @@
 			disabled: isEditing,
 			handle: '.drag-handle',
 			onDragStart: handleNeodragStart,
-			onDrag: handleNeodragMove,
 			onDragEnd: handleNeodragEnd,
 			applyUserSelectHack: true
 		}}
-		class="mt-2 {isDragging ? 'opacity-30 pointer-events-none' : ''}"
+		class="mt-2 {isDragging ? 'opacity-50' : ''}"
+		style={isDragging ? 'pointer-events: none !important;' : ''}
 	>
 		{#if !isEditing}
 			<a
@@ -474,7 +458,9 @@
 								class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-muted-foreground transition-colors hover:border-primary {todo.completed_at
 									? 'border-primary bg-primary'
 									: ''}"
-								aria-label={todo.completed_at ? $t('todo.mark_incomplete') : $t('todo.mark_complete')}
+								aria-label={todo.completed_at
+									? $t('todo.mark_incomplete')
+									: $t('todo.mark_complete')}
 							>
 								{#if todo.completed_at}
 									<Check class="h-3 w-3 text-primary-foreground" />
@@ -592,10 +578,9 @@
 			/>
 		{/if}
 	</div>
-
 	{#if showDropBelow}
 		<div
-			class="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary shadow-lg shadow-primary/50 z-50"
+			class="absolute right-0 -bottom-1 left-0 z-50 h-0.5 bg-primary shadow-lg shadow-primary/50"
 			style="margin-bottom: -4px;"
 		></div>
 	{/if}

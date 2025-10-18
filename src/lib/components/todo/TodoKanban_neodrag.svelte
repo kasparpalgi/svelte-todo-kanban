@@ -127,47 +127,67 @@
 		dropTarget = { listId, index, position };
 	}
 
-
 	function handleDragEnd() {
-		// If we have a valid drop target, perform the drop
 		if (draggedTodo && dropTarget) {
 			const sourceListId = draggedTodo.list?.id || 'inbox';
-			let { listId: targetListId, index: targetIndex, position } = dropTarget;
-
-			// Adjust target index based on position
-			if (position === 'below') {
-				targetIndex++;
-			}
+			const { listId: targetListId, index: targetIndex, position } = dropTarget;
 
 			if (sourceListId === targetListId) {
 				// Reorder within same list
 				const listGroup = kanbanLists().find((g) => g.list.id === sourceListId);
 				if (listGroup) {
-					const reorderedList = [...listGroup.todos];
-					const activeIndex = reorderedList.findIndex((t) => t.id === draggedTodo!.id);
-					if (activeIndex !== targetIndex) {
-						// targetIndex is already calculated without the dragged card
-						// So we can use it directly after removing the dragged card
-						const [movedItem] = reorderedList.splice(activeIndex, 1);
-						reorderedList.splice(targetIndex, 0, movedItem);
-						Promise.all(
-							reorderedList.map((todo, index) =>
-								todosStore.updateTodo(todo.id, { sort_order: index + 1 })
-							)
-						).catch((err) => console.error('Failed to update order:', err));
+					const currentList = [...listGroup.todos];
+					const draggedIndex = currentList.findIndex((t) => t.id === draggedTodo!.id);
+
+					// Calculate final position: targetIndex is the position in the list WITHOUT the dragged item
+					let finalIndex = targetIndex;
+					if (position === 'below') {
+						finalIndex++;
 					}
+
+					// Skip if already in correct position
+					if (draggedIndex === finalIndex || draggedIndex === finalIndex - 1) {
+						draggedTodo = null;
+						dropTarget = null;
+						return;
+					}
+
+					// Remove dragged item
+					const [movedItem] = currentList.splice(draggedIndex, 1);
+
+					// Adjust index if needed
+					let adjustedIndex = finalIndex;
+					if (draggedIndex < finalIndex) {
+						adjustedIndex--;
+					}
+
+					// Insert at new position
+					currentList.splice(adjustedIndex, 0, movedItem);
+
+					Promise.all(
+						currentList.map((todo, index) =>
+							todosStore.updateTodo(todo.id, { sort_order: index + 1 })
+						)
+					).catch((err) => console.error('Failed to update order:', err));
 				}
 			} else {
 				// Move between lists
 				const sourceListGroup = kanbanLists().find((g) => g.list.id === sourceListId);
 				const targetListGroup = kanbanLists().find((g) => g.list.id === targetListId);
+
 				if (sourceListGroup && targetListGroup) {
 					const sourceList = [...sourceListGroup.todos];
 					const targetList = [...targetListGroup.todos];
 					const listIdToUpdate = targetListId === 'inbox' ? null : targetListId;
 					const activeIndex = sourceList.findIndex((t) => t.id === draggedTodo!.id);
+
+					let finalIndex = targetIndex;
+					if (position === 'below') {
+						finalIndex++;
+					}
+
 					const [movedItem] = sourceList.splice(activeIndex, 1);
-					targetList.splice(targetIndex, 0, movedItem);
+					targetList.splice(finalIndex, 0, movedItem);
 
 					const sourceUpdates = sourceList.map((todo, index) =>
 						todosStore.updateTodo(todo.id, { sort_order: index + 1 })
@@ -193,7 +213,6 @@
 	function handleGlobalMouseMove(e: MouseEvent) {
 		if (!draggedTodo) return;
 
-		// Find which card the mouse is over (skip the dragged card)
 		const elements = document.elementsFromPoint(e.clientX, e.clientY);
 		let foundValidTarget = false;
 
@@ -202,8 +221,6 @@
 			if (!cardEl) continue;
 
 			const todoId = cardEl.getAttribute('data-todo-id');
-
-			// Skip the dragged card itself
 			if (todoId === draggedTodo!.id) continue;
 
 			const listEl = cardEl.closest('[data-list-id]');
@@ -211,16 +228,17 @@
 				const listId = listEl.getAttribute('data-list-id')!;
 				const rect = cardEl.getBoundingClientRect();
 				const mouseY = e.clientY;
-				const cardMiddleY = rect.top + rect.height / 2;
-				const position = mouseY < cardMiddleY ? 'above' : 'below';
 
-				// Find the index - for same list, exclude dragged card from counting
+				// Simple 50/50 split for above/below
+				const position = mouseY < rect.top + rect.height / 2 ? 'above' : 'below';
+
+				// Get index in the visual list (excluding dragged card)
 				const sourceListId = draggedTodo!.list?.id || 'inbox';
 				const allCards = Array.from(listEl.querySelectorAll('[data-todo-id]'));
 
 				let index: number;
 				if (listId === sourceListId) {
-					// Same list: filter out dragged card to get "final" index
+					// Same list: filter out dragged card
 					const filteredCards = allCards.filter(
 						(c) => c.getAttribute('data-todo-id') !== draggedTodo!.id
 					);
@@ -238,15 +256,24 @@
 			}
 		}
 
-		// If no card found, check if we're over an empty list area
+		// Check for empty list area
 		if (!foundValidTarget) {
 			for (const el of elements) {
 				const listEl = el.closest('[data-list-id]');
 				if (listEl && !el.closest('[data-todo-id]')) {
 					const listId = listEl.getAttribute('data-list-id')!;
-					// Drop at the end of the list
+					const sourceListId = draggedTodo!.list?.id || 'inbox';
 					const allCards = Array.from(listEl.querySelectorAll('[data-todo-id]'));
-					handleDragOver(listId, allCards.length, 'above');
+
+					let finalIndex = allCards.length;
+					if (listId === sourceListId && allCards.length > 0) {
+						// Same list: filter out dragged card
+						finalIndex = allCards.filter(
+							(c) => c.getAttribute('data-todo-id') !== draggedTodo!.id
+						).length;
+					}
+
+					handleDragOver(listId, finalIndex, 'above');
 					break;
 				}
 			}
@@ -285,6 +312,15 @@
 
 		return parts.join(', ');
 	}
+
+	async function handleDelete(todoId: string) {
+		const result = await todosStore.deleteTodo(todoId);
+		if (result.success) {
+			displayMessage($t('todo.delete_success'), 1500, true);
+		} else {
+			displayMessage(result.message || $t('todo.delete_failed'));
+		}
+	}
 </script>
 
 <svelte:window onmousemove={handleGlobalMouseMove} />
@@ -321,14 +357,14 @@
 					{ min: 0, max: 0, avg: 0, count: 0 }
 				)}
 				<div class="w-80 flex-shrink-0">
-					<KanbanColumnNeodrag
+				<KanbanColumnNeodrag
 						{list}
 						{todos}
 						{draggedTodo}
 						{dropTarget}
 						onDragStart={handleDragStart}
 						onDragEnd={handleDragEnd}
-						onDragOver={handleDragOver}
+						onDelete={handleDelete}
 					/>
 					{#if stats.count > 0}
 						<div class="-mt-2 text-center text-xs text-gray-400">
