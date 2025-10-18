@@ -398,7 +398,7 @@
 	}
 </script>
 
-<div class="relative">
+<div class="relative {isDragging ? 'z-50' : ''}">
 	{#if showDropAbove}
 		<div
 			class="absolute right-0 left-0 z-50 h-0.5 bg-primary shadow-lg shadow-primary/50"
