@@ -159,6 +159,9 @@
 		// Reset transform to prevent visual issues
 		if (cardEl) {
 			cardEl.style.transform = '';
+			cardEl.style.translate = 'none';
+			cardEl.style.left = '';
+			cardEl.style.top = '';
 		}
 		onDragEnd();
 	}
@@ -413,7 +416,8 @@
 			handle: '.drag-handle',
 			onDragStart: handleNeodragStart,
 			onDragEnd: handleNeodragEnd,
-			applyUserSelectHack: true
+			applyUserSelectHack: true,
+			position: { x: 0, y: 0 }
 		}}
 		class="mt-2 {isDragging ? 'opacity-50' : ''}"
 		style={isDragging ? 'pointer-events: none !important;' : ''}
