@@ -127,7 +127,7 @@
 		dropTarget = { listId, index, position };
 	}
 
-	function handleDragEnd() {
+	async function handleDragEnd() {
 		if (draggedTodo && dropTarget) {
 			const sourceListId = draggedTodo.list?.id || 'inbox';
 			const { listId: targetListId, index: targetIndex, position } = dropTarget;
@@ -139,32 +139,21 @@
 					const currentList = [...listGroup.todos];
 					const draggedIndex = currentList.findIndex((t) => t.id === draggedTodo!.id);
 
-					// Calculate final position: targetIndex is the position in the list WITHOUT the dragged item
-					let finalIndex = targetIndex;
+					let insertionIndex = targetIndex;
 					if (position === 'below') {
-						finalIndex++;
+						insertionIndex++;
 					}
 
-					// Skip if already in correct position
-					if (draggedIndex === finalIndex || draggedIndex === finalIndex - 1) {
+					if (insertionIndex === draggedIndex) {
 						draggedTodo = null;
 						dropTarget = null;
 						return;
 					}
 
-					// Remove dragged item
 					const [movedItem] = currentList.splice(draggedIndex, 1);
+					currentList.splice(insertionIndex, 0, movedItem);
 
-					// Adjust index if needed
-					let adjustedIndex = finalIndex;
-					if (draggedIndex < finalIndex) {
-						adjustedIndex--;
-					}
-
-					// Insert at new position
-					currentList.splice(adjustedIndex, 0, movedItem);
-
-					Promise.all(
+					await Promise.all(
 						currentList.map((todo, index) =>
 							todosStore.updateTodo(todo.id, { sort_order: index + 1 })
 						)
@@ -199,7 +188,7 @@
 						if (todo.id === draggedTodo!.id) updates.list_id = listIdToUpdate;
 						return todosStore.updateTodo(todo.id, updates);
 					});
-					Promise.all([...sourceUpdates, ...targetUpdates]).catch((err) =>
+					await Promise.all([...sourceUpdates, ...targetUpdates]).catch((err) =>
 						console.error('Failed to update:', err)
 					);
 				}
