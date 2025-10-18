@@ -1,6 +1,12 @@
 <!-- @file src/lib/components/todo/KanbanColumn_neodrag.svelte -->
 <script lang="ts">
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { Plus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import TodoItemNeodrag from './TodoItem_neodrag.svelte';
@@ -77,7 +83,8 @@
 	<CardHeader>
 		<CardTitle class="text-sm font-medium">{list.name}</CardTitle>
 		<CardDescription class="text-xs">
-			{todos.length} {todos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
+			{todos.length}
+			{todos.length === 1 ? $t('todo.task') : $t('todo.tasks')}
 		</CardDescription>
 	</CardHeader>
 	<CardContent class="flex-grow space-y-2">
@@ -109,30 +116,29 @@
 			{@const sourceListId = draggedTodo?.list?.id || 'inbox'}
 			{@const isSameList = isDropTargetInThisList && sourceListId === list.id}
 			{@const isDraggedCard = draggedTodo?.id === todo.id}
-
-			<!-- For same list: dropTarget.index is in "filtered" space (excluding dragged card) -->
-			<!-- For different list: dropTarget.index is in "full" space -->
 			{@const targetIndex = dropTarget?.index ?? -1}
 
 			<!-- Calculate which index this card is at in the filtered list (for same-list) -->
-			{@const filteredIndex = isSameList && draggedTodo
-				? todos.filter((t) => t.id !== draggedTodo.id).findIndex((t) => t.id === todo.id)
-				: idx}
+			{@const filteredIndex =
+				isSameList && draggedTodo
+					? todos.filter((t) => t.id !== draggedTodo.id).findIndex((t) => t.id === todo.id)
+					: idx}
 
-			{@const showAbove = isDropTargetInThisList &&
-				targetIndex === filteredIndex &&
-				dropTarget?.position === 'above'}
+			{@const isTargetedDirectlyAbove =
+				isDropTargetInThisList && targetIndex === filteredIndex && dropTarget?.position === 'above'}
 
-			{@const showBelow = isDropTargetInThisList &&
-				targetIndex === filteredIndex &&
+			{@const isTargetedBelowPrevious =
+				isDropTargetInThisList &&
+				targetIndex === filteredIndex - 1 &&
 				dropTarget?.position === 'below'}
+
+			{@const showAbove = isTargetedDirectlyAbove || isTargetedBelowPrevious}
 
 			<TodoItemNeodrag
 				{todo}
 				{draggedTodo}
 				isDragging={isDraggedCard}
 				showDropAbove={showAbove}
-				showDropBelow={showBelow}
 				listId={list.id}
 				{onDragStart}
 				{onDragEnd}
@@ -144,11 +150,16 @@
 		{#if dropTarget?.listId === list.id}
 			{@const sourceListId = draggedTodo?.list?.id || 'inbox'}
 			{@const isSameList = sourceListId === list.id}
-			{@const filteredLength = isSameList && draggedTodo
-				? todos.filter((t) => t.id !== draggedTodo.id).length
-				: todos.length}
+			{@const filteredLength =
+				isSameList && draggedTodo
+					? todos.filter((t) => t.id !== draggedTodo.id).length
+					: todos.length}
 
-			{#if dropTarget.index >= filteredLength}
+			{@const isTargetingBelowLastItem =
+				dropTarget.index === filteredLength - 1 && dropTarget.position === 'below'}
+			{@const isTargetingEmptyListSpace = dropTarget.index >= filteredLength}
+
+			{#if isTargetingBelowLastItem || isTargetingEmptyListSpace}
 				<div class="h-1 rounded bg-primary shadow-lg shadow-primary/50"></div>
 			{/if}
 		{/if}

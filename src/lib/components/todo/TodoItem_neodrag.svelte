@@ -35,7 +35,6 @@
 		draggedTodo,
 		isDragging = false,
 		showDropAbove = false,
-		showDropBelow = false,
 		listId,
 		onDragStart,
 		onDragEnd,
@@ -45,7 +44,6 @@
 		draggedTodo: TodoFieldsFragment | null;
 		isDragging?: boolean;
 		showDropAbove?: boolean;
-		showDropBelow?: boolean;
 		listId: string;
 		onDragStart: (todo: TodoFieldsFragment) => void;
 		onDragEnd: () => void;
@@ -403,8 +401,8 @@
 <div class="relative">
 	{#if showDropAbove}
 		<div
-			class="absolute -top-1 right-0 left-0 z-50 h-0.5 bg-primary shadow-lg shadow-primary/50"
-			style="margin-top: -4px;"
+			class="absolute right-0 left-0 z-50 h-0.5 bg-primary shadow-lg shadow-primary/50"
+			style="top: -4px;"
 		></div>
 	{/if}
 
@@ -582,12 +580,6 @@
 			/>
 		{/if}
 	</div>
-	{#if showDropBelow}
-		<div
-			class="absolute right-0 -bottom-1 left-0 z-50 h-0.5 bg-primary shadow-lg shadow-primary/50"
-			style="margin-bottom: -4px;"
-		></div>
-	{/if}
 </div>
 
 <ConfirmDialog

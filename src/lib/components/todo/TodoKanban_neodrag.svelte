@@ -363,7 +363,7 @@
 					{ min: 0, max: 0, avg: 0, count: 0 }
 				)}
 				<div class="w-80 flex-shrink-0">
-				<KanbanColumnNeodrag
+					<KanbanColumnNeodrag
 						{list}
 						{todos}
 						{draggedTodo}
