@@ -13,8 +13,6 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { SortableContext, verticalListSortingStrategy } from '@dnd-kit-svelte/sortable';
-	import { useDroppable } from '@dnd-kit-svelte/core';
 	import { Trash2, Plus, Ellipsis, SquarePen } from 'lucide-svelte';
 	import {
 		DropdownMenu,
@@ -25,25 +23,29 @@
 	} from '$lib/components/ui/dropdown-menu';
 	import TodoItem from '$lib/components/todo/TodoItem.svelte';
 	import QuickAddInput from './QuickAddInput.svelte';
-	import type { CanbanColumnProps } from '$lib/types/todo';
+	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
 	let {
 		list,
 		todos,
-		isHighlighted = false,
-		dropPosition = null
-	}: CanbanColumnProps & {
-		dropPosition?: {
+		draggedTodo,
+		dropTarget,
+		onDragStart,
+		onDragEnd,
+		onDelete
+	}: {
+		list: { id: string; name: string; board?: { github?: string } };
+		todos: TodoFieldsFragment[];
+		draggedTodo: TodoFieldsFragment | null;
+		dropTarget: {
 			listId: string;
-			todoId: string;
+			index: number;
 			position: 'above' | 'below';
-			targetIndex: number;
 		} | null;
+		onDragStart: (todo: TodoFieldsFragment) => void;
+		onDragEnd: () => void;
+		onDelete: (todoId: string) => void;
 	} = $props();
-
-	let { setNodeRef } = useDroppable({
-		id: `column-${list.id}`
-	});
 
 	let isEditing = $state(false);
 	let editName = $state(list.name);
@@ -150,11 +152,7 @@
 </script>
 
 <div class="h-full">
-	<Card
-		class="h-fit transition-all duration-200 {isHighlighted
-			? 'bg-primary/5 ring-2 ring-primary/50 dark:bg-primary/10 dark:ring-primary/30'
-			: ''}"
-	>
+	<Card data-list-id={list.id} class="h-fit transition-all duration-200">
 		<CardHeader class="pb-2">
 			<div class="flex items-center justify-between">
 				<div class="min-w-0 flex-1">
@@ -217,7 +215,7 @@
 			</CardDescription>
 		</CardHeader>
 		<CardContent class="group min-h-24 space-y-2 pb-3">
-			<div use:setNodeRef class="min-h-[180px]">
+			<div class="min-h-[180px]">
 				{#if showQuickAdd}
 					<div class="mt-2">
 						<QuickAddInput
@@ -237,73 +235,103 @@
 						/>
 					</div>
 				{/if}
-				<SortableContext
-					items={todos.map((todo) => todo.id)}
-					strategy={verticalListSortingStrategy}
-				>
-					{#if todos.length > 0}
-						{#each todos as todo, index (todo.id)}
-							{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'above'}
-								<div
-									class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-								></div>
-							{/if}
 
-							{#if index === 0 && dropPosition?.listId === list.id && dropPosition?.todoId === 'column' && dropPosition?.position === 'above'}
-								<div
-									class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-								></div>
-							{/if}
+				{#if todos.length > 0}
+					{#each todos as todo, idx (todo.id)}
+						{@const isDropTargetInThisList = dropTarget?.listId === list.id}
+						{@const sourceListId = draggedTodo?.list?.id || 'inbox'}
+						{@const isSameList = isDropTargetInThisList && sourceListId === list.id}
+						{@const isDraggedCard = draggedTodo?.id === todo.id}
+						{@const targetIndex = dropTarget?.index ?? -1}
 
-							<TodoItem {todo} />
+						{@const filteredIndex =
+							isSameList && draggedTodo
+								? todos.filter((t) => t.id !== draggedTodo.id).findIndex((t) => t.id === todo.id)
+								: idx}
 
-							{#if dropPosition?.listId === list.id && dropPosition?.todoId === todo.id && dropPosition?.position === 'below'}
-								<div
-									class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-								></div>
-							{/if}
-						{/each}
-						<div class="mt-3"></div>
+						{@const isTargetedDirectlyAbove =
+							isDropTargetInThisList &&
+							targetIndex === filteredIndex &&
+							dropTarget?.position === 'above'}
 
-						<QuickAddInput
-							bind:value={newTaskTitleBottom}
-							autofocus={false}
-							id={`quickaddBottom-${list.id}`}
-							onSubmit={(val: string) => {
-								if (val) {
-									handleQuickAddTask(val, false);
-								}
-							}}
-							onCancel={() => {
-								showQuickAdd = false;
-								newTaskTitleBottom = '';
-							}}
+						{@const isTargetedBelowPrevious =
+							isDropTargetInThisList &&
+							targetIndex === filteredIndex - 1 &&
+							dropTarget?.position === 'below'}
+
+						{@const showAbove = isTargetedDirectlyAbove || isTargetedBelowPrevious}
+
+						<TodoItem
+							{todo}
+							{draggedTodo}
+							isDragging={isDraggedCard}
+							showDropAbove={showAbove}
+							listId={list.id}
+							{onDragStart}
+							{onDragEnd}
+							{onDelete}
 						/>
-					{:else}
-						{#if dropPosition?.listId === list.id && dropPosition?.todoId === 'column'}
-							<div
-								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-							></div>
-						{/if}
+					{/each}
+					<div class="mt-3"></div>
 
-						{#if !showQuickAdd}
-							<div class="py-8 text-center text-xs text-muted-foreground">
-								<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
-								{#if list.id !== 'inbox'}
-									<Button
-										size="sm"
-										variant="ghost"
-										class="h-auto p-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
-										onclick={() => (showQuickAdd = true)}
-									>
-										<Plus class="mr-1 h-3 w-3" />
-										{$t('todo.add_task')}
-									</Button>
-								{/if}
-							</div>
-						{/if}
+					<QuickAddInput
+						bind:value={newTaskTitleBottom}
+						autofocus={false}
+						id={`quickaddBottom-${list.id}`}
+						onSubmit={(val: string) => {
+							if (val) {
+								handleQuickAddTask(val, false);
+							}
+						}}
+						onCancel={() => {
+							showQuickAdd = false;
+							newTaskTitleBottom = '';
+						}}
+					/>
+				{:else}
+					{#if dropTarget?.listId === list.id && dropTarget?.todoId === 'column'}
+						<div
+							class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
+						></div>
 					{/if}
-				</SortableContext>
+
+					{#if !showQuickAdd}
+						<div class="py-8 text-center text-xs text-muted-foreground">
+							<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
+							{#if list.id !== 'inbox'}
+								<Button
+									size="sm"
+									variant="ghost"
+									class="h-auto p-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+									onclick={() => (showQuickAdd = true)}
+								>
+									<Plus class="mr-1 h-3 w-3" />
+									{$t('todo.add_task')}
+								</Button>
+							{/if}
+						</div>
+					{/if}
+				{/if}
+
+				<!-- Show drop indicator at the end of the list -->
+				{#if dropTarget?.listId === list.id}
+					{@const sourceListId = draggedTodo?.list?.id || 'inbox'}
+					{@const isSameList = sourceListId === list.id}
+					{@const filteredLength =
+						isSameList && draggedTodo
+							? todos.filter((t) => t.id !== draggedTodo.id).length
+							: todos.length}
+
+					{@const isTargetingBelowLastItem =
+						dropTarget.index === filteredLength - 1 && dropTarget.position === 'below'}
+					{@const isTargetingEmptyListSpace = dropTarget.index >= filteredLength}
+
+					{#if isTargetingBelowLastItem || isTargetingEmptyListSpace}
+						<div
+							class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
+						></div>
+					{/if}
+				{/if}
 			</div>
 		</CardContent>
 	</Card>
