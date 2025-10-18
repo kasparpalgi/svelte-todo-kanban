@@ -1,10 +1,10 @@
 <!-- @file src/lib/components/todo/TodoItem_neodrag.svelte -->
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { draggable, type DragEventData } from '@neodrag/svelte';
 	import { z } from 'zod';
 	import { t } from '$lib/i18n';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
@@ -99,6 +99,7 @@
 	let showStartEditConfirm = $state(false);
 	let pendingAction = $state<(() => void) | null>(null);
 	let cardEl = $state<HTMLElement>();
+	let dragKey = $state(0);
 
 	$effect(() => {
 		if (!isEditing) {
@@ -149,18 +150,14 @@
 
 	function handleNeodragStart() {
 		if (isEditing) return;
+		console.log('🎯 Drag START for todo:', todo.id);
+		console.log('  Card element position:', cardEl?.style.transform);
 		onDragStart(todo);
 	}
 
 	function handleNeodragEnd(data: DragEventData) {
 		if (isEditing) return;
-		// Reset transform to prevent visual issues
-		if (cardEl) {
-			cardEl.style.transform = '';
-			cardEl.style.translate = 'none';
-			cardEl.style.left = '';
-			cardEl.style.top = '';
-		}
+		dragKey++;
 		onDragEnd();
 	}
 
@@ -406,180 +403,182 @@
 		></div>
 	{/if}
 
-	<div
-		bind:this={cardEl}
-		data-todo-id={todo.id}
-		use:draggable={{
-			disabled: isEditing,
-			handle: '.drag-handle',
-			onDragStart: handleNeodragStart,
-			onDragEnd: handleNeodragEnd,
-			applyUserSelectHack: true,
-			position: { x: 0, y: 0 }
-		}}
-		class="mt-2 {isDragging ? 'opacity-50' : ''}"
-		style={isDragging ? 'pointer-events: none !important;' : ''}
-	>
-		{#if !isEditing}
-			<a
-				href="/{lang}/{username}/{boardAlias}?card={todo.id}"
-				data-sveltekit-preload-data="hover"
-				data-sveltekit-noscroll
-				class="block"
-				onclick={handleCardClick}
-			>
-				<Card
-					class="relative cursor-pointer transition-all duration-200 hover:shadow-md"
-					onmouseenter={handleMouseEnter}
-					onmouseleave={handleMouseLeave}
+	{#key dragKey}
+		<div
+			bind:this={cardEl}
+			data-todo-id={todo.id}
+			use:draggable={{
+				disabled: isEditing,
+				handle: '.drag-handle',
+				onDragStart: handleNeodragStart,
+				onDragEnd: handleNeodragEnd,
+				applyUserSelectHack: true,
+				position: { x: 0, y: 0 }
+			}}
+			class="mt-2 {isDragging ? 'opacity-50' : ''}"
+			style={isDragging ? 'pointer-events: none !important;' : ''}
+		>
+			{#if !isEditing}
+				<a
+					href="/{lang}/{username}/{boardAlias}?card={todo.id}"
+					data-sveltekit-preload-data="hover"
+					data-sveltekit-noscroll
+					class="block"
+					onclick={handleCardClick}
 				>
-					<Button
-						variant="ghost"
-						size="sm"
-						onclick={confirmDeleteTodo}
-						class="absolute top-1 right-1 z-10 h-6 w-6 p-0 transition-opacity hover:bg-red-50 hover:text-red-700 {isHovered
-							? 'opacity-100'
-							: 'opacity-0'}"
+					<Card
+						class="relative cursor-pointer transition-all duration-200 hover:shadow-md"
+						onmouseenter={handleMouseEnter}
+						onmouseleave={handleMouseLeave}
 					>
-						<Trash2 class="h-3 w-3" />
-						<span class="sr-only">{$t('common.delete')}</span>
-					</Button>
+						<Button
+							variant="ghost"
+							size="sm"
+							onclick={confirmDeleteTodo}
+							class="absolute top-1 right-1 z-10 h-6 w-6 p-0 transition-opacity hover:bg-red-50 hover:text-red-700 {isHovered
+								? 'opacity-100'
+								: 'opacity-0'}"
+						>
+							<Trash2 class="h-3 w-3" />
+							<span class="sr-only">{$t('common.delete')}</span>
+						</Button>
 
-					<CardContent class="pl-2">
-						<div class="flex items-start gap-2">
-							<button
-								class="drag-handle mt-0.5 cursor-grab text-muted-foreground opacity-0 transition-opacity hover:text-foreground active:cursor-grabbing max-md:flex max-md:h-5 max-md:w-5 max-md:items-center max-md:justify-center max-md:rounded max-md:bg-muted/30 max-md:!opacity-100 md:opacity-0 md:group-hover:opacity-100 {isHovered
-									? 'md:opacity-100'
-									: ''}"
-							>
-								<GripVertical class="h-3 w-3 max-md:h-4 max-md:w-4" />
-							</button>
-
-							<button
-								onclick={toggleComplete}
-								class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-muted-foreground transition-colors hover:border-primary {todo.completed_at
-									? 'border-primary bg-primary'
-									: ''}"
-								aria-label={todo.completed_at
-									? $t('todo.mark_incomplete')
-									: $t('todo.mark_complete')}
-							>
-								{#if todo.completed_at}
-									<Check class="h-3 w-3 text-primary-foreground" />
-								{/if}
-							</button>
-
-							<div class="min-w-0 flex-1 pr-8">
-								<h3
-									class="text-sm leading-tight font-medium {todo.completed_at
-										? 'text-muted-foreground line-through'
+						<CardContent class="pl-2">
+							<div class="flex items-start gap-2">
+								<button
+									class="drag-handle mt-0.5 cursor-grab text-muted-foreground opacity-0 transition-opacity hover:text-foreground active:cursor-grabbing max-md:flex max-md:h-5 max-md:w-5 max-md:items-center max-md:justify-center max-md:rounded max-md:bg-muted/30 max-md:!opacity-100 md:opacity-0 md:group-hover:opacity-100 {isHovered
+										? 'md:opacity-100'
 										: ''}"
 								>
-									{todo.title}
-								</h3>
+									<GripVertical class="h-3 w-3 max-md:h-4 max-md:w-4" />
+								</button>
 
-								{#if todo.content}
-									<p
-										class="mt-0.5 text-xs leading-tight text-muted-foreground {todo.completed_at
-											? 'line-through'
+								<button
+									onclick={toggleComplete}
+									class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-muted-foreground transition-colors hover:border-primary {todo.completed_at
+										? 'border-primary bg-primary'
+										: ''}"
+									aria-label={todo.completed_at
+										? $t('todo.mark_incomplete')
+										: $t('todo.mark_complete')}
+								>
+									{#if todo.completed_at}
+										<Check class="h-3 w-3 text-primary-foreground" />
+									{/if}
+								</button>
+
+								<div class="min-w-0 flex-1 pr-8">
+									<h3
+										class="text-sm leading-tight font-medium {todo.completed_at
+											? 'text-muted-foreground line-through'
 											: ''}"
 									>
-										{shortenText(stripHtml(todo.content))}
-									</p>
-								{/if}
+										{todo.title}
+									</h3>
 
-								{#if todo.due_on}
-									<div class="mt-1 flex items-center gap-1">
-										<Calendar class="h-2.5 w-2.5" />
-										<Badge
-											variant={isOverdue(todo.due_on) ? 'destructive' : 'secondary'}
-											class="h-auto px-1 py-0 text-xs"
+									{#if todo.content}
+										<p
+											class="mt-0.5 text-xs leading-tight text-muted-foreground {todo.completed_at
+												? 'line-through'
+												: ''}"
 										>
-											{formatDateWithFuture(todo.due_on)}
-										</Badge>
-									</div>
-								{/if}
-
-								{#if todo.github_issue_number}
-									<a
-										href={todo.github_url}
-										target="_blank"
-										rel="noopener noreferrer"
-										class="mt-1 flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-										onclick={(e) => e.stopPropagation()}
-										title="View on GitHub"
-									>
-										<img src={githubLogo} alt="GitHub" class="mt-0.5 h-2.5 w-2.5" />
-										<span>#{todo.github_issue_number}</span>
-									</a>
-								{/if}
-							</div>
-
-							<div
-								class="absolute top-1 right-8 transition-opacity {isHovered
-									? 'opacity-100'
-									: 'opacity-0'}"
-							>
-								<Button
-									variant="ghost"
-									size="sm"
-									onclick={startEdit}
-									class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
-								>
-									<SquarePen class="h-3 w-3" />
-									<span class="sr-only">{$t('common.edit')}</span>
-								</Button>
-							</div>
-						</div>
-						<div class="absolute right-3 bottom-2 flex items-center gap-1 text-xs text-gray-400">
-							{#if todo.priority === 'high'}
-								<div class="h-2 w-2 rounded-full bg-red-500"></div>
-							{/if}
-
-							{#if todo.comments.length > 0}
-								<MessageSquareText class="h-3 w-3 text-muted-foreground" />
-							{/if}
-
-							{#if todo.uploads && todo.uploads.length > 0}
-								<ImageIcon class="h-3 w-3 text-muted-foreground" />
-							{/if}
-
-							{#if todo.min_hours || todo.max_hours}
-								<Clock class="h-3 w-3 text-muted-foreground" />
-								<span>
-									{#if todo.min_hours && todo.max_hours}
-										~{((todo.min_hours + todo.max_hours) / 2).toFixed(1)}h
-									{:else if todo.min_hours}
-										{todo.min_hours}+h
-									{:else if todo.max_hours}
-										&lt;{todo.max_hours}h
+											{shortenText(stripHtml(todo.content))}
+										</p>
 									{/if}
-								</span>
-							{/if}
-						</div>
-					</CardContent>
-				</Card>
-			</a>
-		{:else}
-			<TodoEditForm
-				{todo}
-				bind:editData
-				bind:validationErrors
-				bind:images
-				bind:isDragOver
-				{isSubmitting}
-				onSave={saveEdit}
-				onCancel={cancelEdit}
-				onKeydown={handleKeydown}
-				onDragOver={handleFileDropOver}
-				onDragLeave={handleFileDropLeave}
-				onDrop={handleFileDrop}
-				onFileSelect={handleFileSelect}
-				onRemoveImage={removeImage}
-				bind:fileInput
-			/>
-		{/if}
-	</div>
+
+									{#if todo.due_on}
+										<div class="mt-1 flex items-center gap-1">
+											<Calendar class="h-2.5 w-2.5" />
+											<Badge
+												variant={isOverdue(todo.due_on) ? 'destructive' : 'secondary'}
+												class="h-auto px-1 py-0 text-xs"
+											>
+												{formatDateWithFuture(todo.due_on)}
+											</Badge>
+										</div>
+									{/if}
+
+									{#if todo.github_issue_number}
+										<a
+											href={todo.github_url}
+											target="_blank"
+											rel="noopener noreferrer"
+											class="mt-1 flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+											onclick={(e) => e.stopPropagation()}
+											title="View on GitHub"
+										>
+											<img src={githubLogo} alt="GitHub" class="mt-0.5 h-2.5 w-2.5" />
+											<span>#{todo.github_issue_number}</span>
+										</a>
+									{/if}
+								</div>
+
+								<div
+									class="absolute top-1 right-8 transition-opacity {isHovered
+										? 'opacity-100'
+										: 'opacity-0'}"
+								>
+									<Button
+										variant="ghost"
+										size="sm"
+										onclick={startEdit}
+										class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
+									>
+										<SquarePen class="h-3 w-3" />
+										<span class="sr-only">{$t('common.edit')}</span>
+									</Button>
+								</div>
+							</div>
+							<div class="absolute right-3 bottom-2 flex items-center gap-1 text-xs text-gray-400">
+								{#if todo.priority === 'high'}
+									<div class="h-2 w-2 rounded-full bg-red-500"></div>
+								{/if}
+
+								{#if todo.comments.length > 0}
+									<MessageSquareText class="h-3 w-3 text-muted-foreground" />
+								{/if}
+
+								{#if todo.uploads && todo.uploads.length > 0}
+									<ImageIcon class="h-3 w-3 text-muted-foreground" />
+								{/if}
+
+								{#if todo.min_hours || todo.max_hours}
+									<Clock class="h-3 w-3 text-muted-foreground" />
+									<span>
+										{#if todo.min_hours && todo.max_hours}
+											~{((todo.min_hours + todo.max_hours) / 2).toFixed(1)}h
+										{:else if todo.min_hours}
+											{todo.min_hours}+h
+										{:else if todo.max_hours}
+											&lt;{todo.max_hours}h
+										{/if}
+									</span>
+								{/if}
+							</div>
+						</CardContent>
+					</Card>
+				</a>
+			{:else}
+				<TodoEditForm
+					{todo}
+					bind:editData
+					bind:validationErrors
+					bind:images
+					bind:isDragOver
+					{isSubmitting}
+					onSave={saveEdit}
+					onCancel={cancelEdit}
+					onKeydown={handleKeydown}
+					onDragOver={handleFileDropOver}
+					onDragLeave={handleFileDropLeave}
+					onDrop={handleFileDrop}
+					onFileSelect={handleFileSelect}
+					onRemoveImage={removeImage}
+					bind:fileInput
+				/>
+			{/if}
+		</div>
+	{/key}
 </div>
 
 <ConfirmDialog
