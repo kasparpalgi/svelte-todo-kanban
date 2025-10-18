@@ -265,15 +265,21 @@
 					const sourceListId = draggedTodo!.list?.id || 'inbox';
 					const allCards = Array.from(listEl.querySelectorAll('[data-todo-id]'));
 
-					let finalIndex = allCards.length;
-					if (listId === sourceListId && allCards.length > 0) {
+					// Calculate final index in filtered space
+					let finalIndex: number;
+					if (listId === sourceListId) {
 						// Same list: filter out dragged card
-						finalIndex = allCards.filter(
+						const filteredCards = allCards.filter(
 							(c) => c.getAttribute('data-todo-id') !== draggedTodo!.id
-						).length;
+						);
+						finalIndex = filteredCards.length;
+					} else {
+						// Different list: use all cards
+						finalIndex = allCards.length;
 					}
 
 					handleDragOver(listId, finalIndex, 'above');
+					foundValidTarget = true;
 					break;
 				}
 			}

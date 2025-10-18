@@ -12,21 +12,19 @@
 		dropTarget,
 		onDragStart,
 		onDragEnd,
-		onDelete,
-		onDragMove // Add this
+		onDelete
 	}: {
 		list: { id: string; name: string };
 		todos: TodoFieldsFragment[];
 		draggedTodo: TodoFieldsFragment | null;
 		dropTarget: {
 			listId: string;
-			hoveredTodoId: string | null;
+			index: number;
 			position: 'above' | 'below';
 		} | null;
 		onDragStart: (todo: TodoFieldsFragment) => void;
 		onDragEnd: () => void;
 		onDelete: (todoId: string) => void;
-		onDragMove: (e: MouseEvent) => void; // Add this
 	} = $props();
 </script>
 
@@ -38,27 +36,53 @@
 		</CardDescription>
 	</CardHeader>
 	<CardContent class="flex-grow space-y-2">
-		<!-- Show a drop zone if the list is empty or if dragging over the empty space at the bottom -->
-		{#if (todos.length === 0 && dropTarget?.listId === list.id) || (dropTarget?.listId === list.id && dropTarget.hoveredTodoId === null)}
-			<div class="h-20 rounded-md border-2 border-dashed border-primary/50 bg-primary/10"></div>
-		{/if}
-
-		{#each todos as todo (todo.id)}
+		{#each todos as todo, idx (todo.id)}
 			{@const isDropTargetInThisList = dropTarget?.listId === list.id}
-			{@const isHoveredCard = isDropTargetInThisList && dropTarget?.hoveredTodoId === todo.id}
+			{@const sourceListId = draggedTodo?.list?.id || 'inbox'}
+			{@const isSameList = isDropTargetInThisList && sourceListId === list.id}
+			{@const isDraggedCard = draggedTodo?.id === todo.id}
+
+			<!-- For same list: dropTarget.index is in "filtered" space (excluding dragged card) -->
+			<!-- For different list: dropTarget.index is in "full" space -->
+			{@const targetIndex = dropTarget?.index ?? -1}
+
+			<!-- Calculate which index this card is at in the filtered list (for same-list) -->
+			{@const filteredIndex = isSameList && draggedTodo
+				? todos.filter((t) => t.id !== draggedTodo.id).findIndex((t) => t.id === todo.id)
+				: idx}
+
+			{@const showAbove = isDropTargetInThisList &&
+				targetIndex === filteredIndex &&
+				dropTarget?.position === 'above'}
+
+			{@const showBelow = isDropTargetInThisList &&
+				targetIndex === filteredIndex &&
+				dropTarget?.position === 'below'}
 
 			<TodoItemNeodrag
 				{todo}
 				{draggedTodo}
-				isDragging={draggedTodo?.id === todo.id}
-				showDropAbove={isHoveredCard && dropTarget?.position === 'above'}
-				showDropBelow={isHoveredCard && dropTarget?.position === 'below'}
+				isDragging={isDraggedCard}
+				showDropAbove={showAbove}
+				showDropBelow={showBelow}
 				listId={list.id}
 				{onDragStart}
 				{onDragEnd}
 				{onDelete}
-				{onDragMove}
 			/>
 		{/each}
+
+		<!-- Show drop indicator at the end of the list -->
+		{#if dropTarget?.listId === list.id}
+			{@const sourceListId = draggedTodo?.list?.id || 'inbox'}
+			{@const isSameList = sourceListId === list.id}
+			{@const filteredLength = isSameList && draggedTodo
+				? todos.filter((t) => t.id !== draggedTodo.id).length
+				: todos.length}
+
+			{#if dropTarget.index >= filteredLength}
+				<div class="h-1 rounded bg-primary shadow-lg shadow-primary/50"></div>
+			{/if}
+		{/if}
 	</CardContent>
 </Card>
