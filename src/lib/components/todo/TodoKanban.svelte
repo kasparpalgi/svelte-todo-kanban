@@ -198,10 +198,10 @@
 		dropTarget = null;
 	}
 
-	function handleGlobalMouseMove(e: MouseEvent) {
+	function updateDropTarget(clientX: number, clientY: number) {
 		if (!draggedTodo) return;
 
-		const elements = document.elementsFromPoint(e.clientX, e.clientY);
+		const elements = document.elementsFromPoint(clientX, clientY);
 		let foundValidTarget = false;
 
 		for (const el of elements) {
@@ -215,7 +215,7 @@
 			if (listEl) {
 				const listId = listEl.getAttribute('data-list-id')!;
 				const rect = cardEl.getBoundingClientRect();
-				const mouseY = e.clientY;
+				const mouseY = clientY;
 
 				const position = mouseY < rect.top + rect.height / 2 ? 'above' : 'below';
 
@@ -267,6 +267,16 @@
 		}
 	}
 
+	function handleGlobalMouseMove(e: MouseEvent) {
+		updateDropTarget(e.clientX, e.clientY);
+	}
+
+	function handleGlobalTouchMove(e: TouchEvent) {
+		if (!draggedTodo || e.touches.length === 0) return;
+		const touch = e.touches[0];
+		updateDropTarget(touch.clientX, touch.clientY);
+	}
+
 	async function handleDelete(todoId: string) {
 		const result = await todosStore.deleteTodo(todoId);
 		if (result.success) {
@@ -310,7 +320,7 @@
 	}
 </script>
 
-<svelte:window onmousemove={handleGlobalMouseMove} />
+<svelte:window onmousemove={handleGlobalMouseMove} ontouchmove={handleGlobalTouchMove} />
 
 <div class="w-full" in:scale>
 	<div class="px-6 pt-6 pb-2">
