@@ -376,7 +376,7 @@ npm run preview
 
 - **Auth.js**: Authentication with JWT tokens (supports static adapter for mobile)
 - **nodemailer**: Email sending (production: use paid service API)
-- **@dnd-kit/svelte**: Drag-and-drop for Kanban
+- **@neodrag/svelte**: Drag-and-drop for Kanban
 - **shadcn-svelte**: Accessible UI components (`npx shadcn-svelte add <component>`)
 - **lucide-svelte**: Icon library
 - **svelte-tiptap**: Rich markdown editor

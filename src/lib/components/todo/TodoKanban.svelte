@@ -27,6 +27,8 @@
 	} | null>(null);
 	let completedItemsToShow = $state(10);
 	const completedItemsInitially = 10;
+	let scrollContainer: HTMLElement;
+	let scrollInterval: number | null = null;
 
 	$effect(() => {
 		if (!listsStore.initialized) {
@@ -130,7 +132,47 @@
 		dropTarget = { listId, index, position };
 	}
 
+	function stopAutoScroll() {
+		if (scrollInterval) {
+			clearInterval(scrollInterval);
+			scrollInterval = null;
+		}
+	}
+
+	function startAutoScroll(direction: 'left' | 'right') {
+		stopAutoScroll();
+		const scrollSpeed = 15;
+		scrollInterval = setInterval(() => {
+			if (scrollContainer) {
+				if (direction === 'left') {
+					scrollContainer.scrollLeft -= scrollSpeed;
+				} else {
+					scrollContainer.scrollLeft += scrollSpeed;
+				}
+			}
+		}, 20);
+	}
+
+	function handleAutoScroll(clientX: number) {
+		if (!scrollContainer || !draggedTodo) {
+			stopAutoScroll();
+			return;
+		}
+
+		const rect = scrollContainer.getBoundingClientRect();
+		const hotZoneWidth = 60; // 60px from the edge
+
+		if (clientX > rect.right - hotZoneWidth) {
+			startAutoScroll('right');
+		} else if (clientX < rect.left + hotZoneWidth) {
+			startAutoScroll('left');
+		} else {
+			stopAutoScroll();
+		}
+	}
+
 	async function handleDragEnd() {
+		stopAutoScroll();
 		dragStartTime = 0;
 		const hadDraggedTodo = !!draggedTodo;
 		const hadDropTarget = !!dropTarget;
@@ -292,16 +334,23 @@
 	}
 
 	function handleGlobalMouseMove(e: MouseEvent) {
+		if (draggedTodo) {
+			handleAutoScroll(e.clientX);
+		}
 		updateDropTarget(e.clientX, e.clientY);
 	}
 
 	function handleGlobalTouchMove(e: TouchEvent) {
 		if (!draggedTodo || e.touches.length === 0) return;
 		const touch = e.touches[0];
+		if (draggedTodo) {
+			handleAutoScroll(touch.clientX);
+		}
 		updateDropTarget(touch.clientX, touch.clientY);
 	}
 
 	function handleGlobalTouchEnd(e: TouchEvent) {
+		stopAutoScroll();
 		// Safety net: if touch ends with active drag state but neodrag didn't fire dragEnd
 		if (draggedTodo && dragStartTime > 0) {
 			const dragDuration = Date.now() - dragStartTime;
@@ -379,7 +428,7 @@
 		{/if}
 	</div>
 
-	<div class="w-full overflow-x-auto">
+	<div class="w-full overflow-x-auto" bind:this={scrollContainer}>
 		<div class="flex min-w-max gap-6 p-6 pt-0">
 			{#each kanbanLists() as { list, todos } (list.id)}
 				{@const stats = todos.reduce(
