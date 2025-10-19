@@ -118,7 +118,9 @@
 	}
 
 	function handleDragStart(todo: TodoFieldsFragment) {
+		console.log('[Kanban] Drag start:', todo.id);
 		draggedTodo = todo;
+		dropTarget = null;
 	}
 
 	function handleDragOver(listId: string, index: number, position: 'above' | 'below') {
@@ -127,6 +129,11 @@
 	}
 
 	async function handleDragEnd() {
+		console.log('[Kanban] Drag end - draggedTodo:', draggedTodo?.id, 'dropTarget:', dropTarget);
+		
+		const hadDraggedTodo = !!draggedTodo;
+		const hadDropTarget = !!dropTarget;
+		
 		if (draggedTodo && dropTarget) {
 			const sourceListId = draggedTodo.list?.id || 'inbox';
 			const { listId: targetListId, index: targetIndex, position } = dropTarget;
@@ -144,6 +151,7 @@
 					}
 
 					if (insertionIndex === draggedIndex) {
+						console.log('[Kanban] Same position, clearing state');
 						draggedTodo = null;
 						dropTarget = null;
 						return;
@@ -152,11 +160,19 @@
 					const [movedItem] = currentList.splice(draggedIndex, 1);
 					currentList.splice(insertionIndex, 0, movedItem);
 
+					// Clear state BEFORE async operation
+					const todoId = draggedTodo.id;
+					draggedTodo = null;
+					dropTarget = null;
+					console.log('[Kanban] State cleared before update');
+
 					await Promise.all(
 						currentList.map((todo, index) =>
 							todosStore.updateTodo(todo.id, { sort_order: index + 1 })
 						)
 					).catch((err) => console.error('Failed to update order:', err));
+					
+					return;
 				}
 			} else {
 				// move between lists
@@ -177,6 +193,12 @@
 					const [movedItem] = sourceList.splice(activeIndex, 1);
 					targetList.splice(finalIndex, 0, movedItem);
 
+					// Clear state BEFORE async operation
+					const todoId = draggedTodo.id;
+					draggedTodo = null;
+					dropTarget = null;
+					console.log('[Kanban] State cleared before cross-list update');
+
 					const sourceUpdates = sourceList.map((todo, index) =>
 						todosStore.updateTodo(todo.id, { sort_order: index + 1 })
 					);
@@ -184,18 +206,24 @@
 						const updates: { sort_order: number; list_id?: string | null } = {
 							sort_order: index + 1
 						};
-						if (todo.id === draggedTodo!.id) updates.list_id = listIdToUpdate;
+						if (todo.id === todoId) updates.list_id = listIdToUpdate;
 						return todosStore.updateTodo(todo.id, updates);
 					});
 					await Promise.all([...sourceUpdates, ...targetUpdates]).catch((err) =>
 						console.error('Failed to update:', err)
 					);
+					
+					return;
 				}
 			}
 		}
 
-		draggedTodo = null;
-		dropTarget = null;
+		// Always clear state if we had any
+		if (hadDraggedTodo || hadDropTarget) {
+			console.log('[Kanban] Final cleanup - clearing all drag state');
+			draggedTodo = null;
+			dropTarget = null;
+		}
 	}
 
 	function updateDropTarget(clientX: number, clientY: number) {
@@ -265,6 +293,12 @@
 				}
 			}
 		}
+
+		// Clear drop target if no valid target found
+		if (!foundValidTarget && dropTarget) {
+			console.log('[Kanban] No valid target, clearing dropTarget');
+			dropTarget = null;
+		}
 	}
 
 	function handleGlobalMouseMove(e: MouseEvent) {
@@ -275,6 +309,12 @@
 		if (!draggedTodo || e.touches.length === 0) return;
 		const touch = e.touches[0];
 		updateDropTarget(touch.clientX, touch.clientY);
+	}
+
+	function handleGlobalTouchEnd(e: TouchEvent) {
+		console.log('[Kanban] Touch end - draggedTodo:', draggedTodo?.id, 'dropTarget:', dropTarget);
+		// Don't clear anything here - let handleDragEnd do all the cleanup
+		// This was causing issues with state management
 	}
 
 	async function handleDelete(todoId: string) {
@@ -320,7 +360,11 @@
 	}
 </script>
 
-<svelte:window onmousemove={handleGlobalMouseMove} ontouchmove={handleGlobalTouchMove} />
+<svelte:window 
+	onmousemove={handleGlobalMouseMove} 
+	ontouchmove={handleGlobalTouchMove}
+	ontouchend={handleGlobalTouchEnd}
+/>
 
 <div class="w-full" in:scale>
 	<div class="px-6 pt-6 pb-2">

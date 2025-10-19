@@ -90,6 +90,8 @@
 	let pendingAction = $state<(() => void) | null>(null);
 	let cardEl = $state<HTMLElement>();
 	let dragKey = $state(0);
+	let dragStartTime = $state(0);
+	let isDraggingLocal = $state(false);
 
 	$effect(() => {
 		if (!isEditing) {
@@ -138,15 +140,60 @@
 		}
 	});
 
-	function handleNeodragStart() {
-		if (isEditing) return;
+	function handleNeodragStart(data: DragEventData) {
+		console.log('[TodoItem] Neodrag start:', todo.id);
+		if (isEditing) {
+			console.log('[TodoItem] Aborting drag - in edit mode');
+			return;
+		}
+		isDraggingLocal = true;
+		dragStartTime = Date.now();
 		onDragStart(todo);
 	}
 
 	function handleNeodragEnd(data: DragEventData) {
-		if (isEditing) return;
-		dragKey++;
+		console.log('[TodoItem] Neodrag end:', todo.id, 'position:', data.offsetX, data.offsetY);
+		
+		// CRITICAL: Clear isDraggingLocal IMMEDIATELY to re-enable dragging
+		isDraggingLocal = false;
+		dragStartTime = 0;
+		
+		if (isEditing) {
+			console.log('[TodoItem] Skipping drag end - in edit mode');
+			return;
+		}
+		
+		// Call parent's drag end handler FIRST
+		console.log('[TodoItem] Calling parent onDragEnd for:', todo.id);
 		onDragEnd();
+		
+		// Then force re-render after a delay to ensure clean state
+		setTimeout(() => {
+			console.log('[TodoItem] Incrementing dragKey for clean slate:', todo.id);
+			dragKey++;
+		}, 100);
+	}
+
+	function handleTouchEnd(e: TouchEvent) {
+		// Safety net: If touch ends but neodrag didn't fire its end event
+		// This can happen on some mobile browsers
+		if (isDraggingLocal && dragStartTime > 0) {
+			const dragDuration = Date.now() - dragStartTime;
+			console.log('[TodoItem] Touch ended but still dragging locally:', todo.id, 'duration:', dragDuration);
+			
+			// If we've been dragging for more than 100ms, something went wrong
+			// Force a cleanup after a short delay
+			if (dragDuration > 100) {
+				setTimeout(() => {
+					if (isDraggingLocal) {
+						console.log('[TodoItem] Forcing cleanup after touch end:', todo.id);
+						isDraggingLocal = false;
+						dragStartTime = 0;
+						dragKey++;
+					}
+				}, 200);
+			}
+		}
 	}
 
 	function startEdit() {
@@ -383,7 +430,7 @@
 	}
 </script>
 
-<div class="relative {isDragging ? 'z-50' : ''}">
+<div class="relative {isDragging || isDraggingLocal ? 'z-50' : ''}">
 	{#if showDropAbove}
 		<div
 			class="absolute right-0 left-0 z-50 h-0.5 bg-primary shadow-lg shadow-primary/50"
@@ -401,10 +448,13 @@
 				onDragStart: handleNeodragStart,
 				onDragEnd: handleNeodragEnd,
 				applyUserSelectHack: true,
-				position: { x: 0, y: 0 }
+				position: { x: 0, y: 0 },
+				defaultPosition: { x: 0, y: 0 },
+				ignoreMultitouch: true
 			}}
-			class="mt-2 {isDragging ? 'opacity-50' : ''}"
-			style={isDragging ? 'pointer-events: none !important;' : ''}
+			ontouchend={handleTouchEnd}
+			class="mt-2 {isDragging || isDraggingLocal ? 'opacity-50' : ''}"
+			style={(isDragging || isDraggingLocal) ? 'pointer-events: none !important; touch-action: none;' : ''}
 		>
 			{#if !isEditing}
 				<a
