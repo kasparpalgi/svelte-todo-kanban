@@ -20,6 +20,7 @@
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
 	let draggedTodo = $state<TodoFieldsFragment | null>(null);
+	let draggedElement = $state<HTMLElement | null>(null);
 	let dropTarget = $state<{
 		listId: string;
 		index: number;
@@ -121,8 +122,9 @@
 
 	let dragStartTime = $state(0);
 
-	function handleDragStart(todo: TodoFieldsFragment) {
+	function handleDragStart(todo: TodoFieldsFragment, element: HTMLElement) {
 		draggedTodo = todo;
+		draggedElement = element;
 		dropTarget = null;
 		dragStartTime = Date.now();
 	}
@@ -195,6 +197,7 @@
 					if (insertionIndex === draggedIndex) {
 						draggedTodo = null;
 						dropTarget = null;
+						draggedElement = null;
 						return;
 					}
 
@@ -204,6 +207,7 @@
 					const todoId = draggedTodo.id;
 					draggedTodo = null;
 					dropTarget = null;
+					draggedElement = null;
 
 					await Promise.all(
 						currentList.map((todo, index) =>
@@ -234,6 +238,7 @@
 					const todoId = draggedTodo.id;
 					draggedTodo = null;
 					dropTarget = null;
+					draggedElement = null;
 
 					const sourceUpdates = sourceList.map((todo, index) =>
 						todosStore.updateTodo(todo.id, { sort_order: index + 1 })
@@ -257,13 +262,17 @@
 		if (hadDraggedTodo || hadDropTarget) {
 			draggedTodo = null;
 			dropTarget = null;
+			draggedElement = null;
 		}
 	}
 
 	function updateDropTarget(clientX: number, clientY: number) {
-		if (!draggedTodo) return;
+		if (!draggedTodo || !draggedElement) return;
 
+		draggedElement.style.visibility = 'hidden';
 		const elements = document.elementsFromPoint(clientX, clientY);
+		draggedElement.style.visibility = 'visible';
+
 		let foundValidTarget = false;
 
 		for (const el of elements) {
@@ -355,6 +364,7 @@
 			draggedTodo = null;
 			dropTarget = null;
 			dragStartTime = 0;
+			draggedElement = null;
 		}
 	}
 
