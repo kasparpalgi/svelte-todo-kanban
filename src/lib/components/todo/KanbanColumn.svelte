@@ -1,4 +1,4 @@
-<!-- @file src/lib/components/todo/KanbanColumn.svelte -->
+<!-- @file src/lib/components/todo/KanbanColumn_neodrag.svelte -->
 <script lang="ts">
 	import { t } from '$lib/i18n';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -21,7 +21,7 @@
 		DropdownMenuSeparator,
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
-	import TodoItem from '$lib/components/todo/TodoItem.svelte';
+	import TodoItem from './TodoItem.svelte';
 	import QuickAddInput from './QuickAddInput.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
