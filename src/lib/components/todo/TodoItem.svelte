@@ -141,52 +141,33 @@
 	});
 
 	function handleNeodragStart(data: DragEventData) {
-		console.log('[TodoItem] Neodrag start:', todo.id);
-		if (isEditing) {
-			console.log('[TodoItem] Aborting drag - in edit mode');
-			return;
-		}
+		if (isEditing) return;
 		isDraggingLocal = true;
 		dragStartTime = Date.now();
 		onDragStart(todo);
 	}
 
 	function handleNeodragEnd(data: DragEventData) {
-		console.log('[TodoItem] Neodrag end:', todo.id, 'position:', data.offsetX, data.offsetY);
-		
-		// CRITICAL: Clear isDraggingLocal IMMEDIATELY to re-enable dragging
 		isDraggingLocal = false;
 		dragStartTime = 0;
-		
-		if (isEditing) {
-			console.log('[TodoItem] Skipping drag end - in edit mode');
-			return;
-		}
-		
-		// Call parent's drag end handler FIRST
-		console.log('[TodoItem] Calling parent onDragEnd for:', todo.id);
+
+		if (isEditing) return;
+
 		onDragEnd();
-		
-		// Then force re-render after a delay to ensure clean state
+
 		setTimeout(() => {
-			console.log('[TodoItem] Incrementing dragKey for clean slate:', todo.id);
 			dragKey++;
 		}, 100);
 	}
 
 	function handleTouchEnd(e: TouchEvent) {
 		// Safety net: If touch ends but neodrag didn't fire its end event
-		// This can happen on some mobile browsers
 		if (isDraggingLocal && dragStartTime > 0) {
 			const dragDuration = Date.now() - dragStartTime;
-			console.log('[TodoItem] Touch ended but still dragging locally:', todo.id, 'duration:', dragDuration);
-			
-			// If we've been dragging for more than 100ms, something went wrong
-			// Force a cleanup after a short delay
+
 			if (dragDuration > 100) {
 				setTimeout(() => {
 					if (isDraggingLocal) {
-						console.log('[TodoItem] Forcing cleanup after touch end:', todo.id);
 						isDraggingLocal = false;
 						dragStartTime = 0;
 						dragKey++;
@@ -454,7 +435,9 @@
 			}}
 			ontouchend={handleTouchEnd}
 			class="mt-2 {isDragging || isDraggingLocal ? 'opacity-50' : ''}"
-			style={(isDragging || isDraggingLocal) ? 'pointer-events: none !important; touch-action: none;' : ''}
+			style={isDragging || isDraggingLocal
+				? 'pointer-events: none !important; touch-action: none;'
+				: ''}
 		>
 			{#if !isEditing}
 				<a
