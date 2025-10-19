@@ -19,7 +19,13 @@ export interface CanbanColumnProps {
 		id: string;
 		name: string;
 		sort_order: number;
-		board?: { id: string; name: string; alias: string; sort_order: number; github?: string | null } | null;
+		board?: {
+			id: string;
+			name: string;
+			alias: string;
+			sort_order: number;
+			github?: string | null;
+		} | null;
 	};
 	todos: TodoFieldsFragment[];
 	isHighlighted?: boolean;
@@ -52,6 +58,20 @@ export type DragHandleProps = {
 	attributes: Record<string, any>;
 	listeners: Record<string, any>;
 	isVisible?: boolean;
+};
+
+export type KanbanColumnProps = {
+	list: { id: string; name: string; board?: { github?: string } };
+	todos: TodoFieldsFragment[];
+	draggedTodo: TodoFieldsFragment | null;
+	dropTarget: {
+		listId: string;
+		index: number;
+		position: 'above' | 'below';
+	} | null;
+	onDragStart: (todo: TodoFieldsFragment) => void;
+	onDragEnd: () => void;
+	onDelete: (todoId: string) => void;
 };
 
 // Store results

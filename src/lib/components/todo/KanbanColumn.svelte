@@ -1,4 +1,4 @@
-<!-- @file src/lib/components/todo/KanbanColumn_neodrag.svelte -->
+<!-- @file src/lib/components/todo/KanbanColumn.svelte -->
 <script lang="ts">
 	import { t } from '$lib/i18n';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -23,7 +23,7 @@
 	} from '$lib/components/ui/dropdown-menu';
 	import TodoItem from './TodoItem.svelte';
 	import QuickAddInput from './QuickAddInput.svelte';
-	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { KanbanColumnProps } from '$lib/types/todo';
 
 	let {
 		list,
@@ -33,19 +33,7 @@
 		onDragStart,
 		onDragEnd,
 		onDelete
-	}: {
-		list: { id: string; name: string; board?: { github?: string } };
-		todos: TodoFieldsFragment[];
-		draggedTodo: TodoFieldsFragment | null;
-		dropTarget: {
-			listId: string;
-			index: number;
-			position: 'above' | 'below';
-		} | null;
-		onDragStart: (todo: TodoFieldsFragment) => void;
-		onDragEnd: () => void;
-		onDelete: (todoId: string) => void;
-	} = $props();
+	}: KanbanColumnProps = $props();
 
 	let isEditing = $state(false);
 	let editName = $state(list.name);
@@ -56,15 +44,6 @@
 	$effect(() => {
 		editName = list.name;
 	});
-
-	async function handleDeleteTodo(todoId: string) {
-		if (confirm($t('todo.confirm_delete') || 'Are you sure?')) {
-			const result = await todosStore.deleteTodo(todoId);
-			if (!result.success) {
-				displayMessage(result.message);
-			}
-		}
-	}
 
 	async function handleDeleteList() {
 		const taskCount = todos.length;
@@ -272,6 +251,26 @@
 							{onDelete}
 						/>
 					{/each}
+
+					{#if dropTarget?.listId === list.id}
+						{@const sourceListId = draggedTodo?.list?.id || 'inbox'}
+						{@const isSameList = sourceListId === list.id}
+						{@const filteredLength =
+							isSameList && draggedTodo
+								? todos.filter((t) => t.id !== draggedTodo.id).length
+								: todos.length}
+
+						{@const isTargetingBelowLastItem =
+							dropTarget.index === filteredLength - 1 && dropTarget.position === 'below'}
+						{@const isTargetingEmptyListSpace = dropTarget.index >= filteredLength}
+
+						{#if isTargetingBelowLastItem || isTargetingEmptyListSpace}
+							<div
+								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
+							></div>
+						{/if}
+					{/if}
+
 					<div class="mt-3"></div>
 
 					<QuickAddInput
@@ -303,25 +302,6 @@
 							</Button>
 						{/if}
 					</div>
-				{/if}
-
-				{#if dropTarget?.listId === list.id && todos.length > 0}
-					{@const sourceListId = draggedTodo?.list?.id || 'inbox'}
-					{@const isSameList = sourceListId === list.id}
-					{@const filteredLength =
-						isSameList && draggedTodo
-							? todos.filter((t) => t.id !== draggedTodo.id).length
-							: todos.length}
-
-					{@const isTargetingBelowLastItem =
-						dropTarget.index === filteredLength - 1 && dropTarget.position === 'below'}
-					{@const isTargetingEmptyListSpace = dropTarget.index >= filteredLength}
-
-					{#if isTargetingBelowLastItem || isTargetingEmptyListSpace}
-						<div
-							class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-						></div>
-					{/if}
 				{/if}
 			</div>
 		</CardContent>

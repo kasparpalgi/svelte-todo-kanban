@@ -346,7 +346,14 @@
 				)}
 				<div class="w-80 flex-shrink-0">
 					<KanbanColumn
-						{list}
+						list={{
+							id: list.id,
+							name: list.name,
+							board:
+								'board' in list && list.board && list.board.github
+									? { github: list.board.github }
+									: undefined
+						}}
 						{todos}
 						{draggedTodo}
 						{dropTarget}
