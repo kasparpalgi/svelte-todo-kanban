@@ -1,4 +1,4 @@
-<!-- @file src/lib/components/todo/TodoKanban_neodrag.svelte -->
+<!-- @file src/lib/components/TodoKanban.svelte -->
 <script lang="ts">
 	import { scale } from 'svelte/transition';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -218,22 +218,18 @@
 				const rect = cardEl.getBoundingClientRect();
 				const mouseY = e.clientY;
 
-				// Simple 50/50 split for above/below
 				const position = mouseY < rect.top + rect.height / 2 ? 'above' : 'below';
 
-				// Get index in the visual list (excluding dragged card)
 				const sourceListId = draggedTodo!.list?.id || 'inbox';
 				const allCards = Array.from(listEl.querySelectorAll('[data-todo-id]'));
 
 				let index: number;
 				if (listId === sourceListId) {
-					// Same list: filter out dragged card
 					const filteredCards = allCards.filter(
 						(c) => c.getAttribute('data-todo-id') !== draggedTodo!.id
 					);
 					index = filteredCards.findIndex((c) => c.getAttribute('data-todo-id') === todoId);
 				} else {
-					// Different list: use all cards
 					index = allCards.findIndex((c) => c.getAttribute('data-todo-id') === todoId);
 				}
 
@@ -254,16 +250,13 @@
 					const sourceListId = draggedTodo!.list?.id || 'inbox';
 					const allCards = Array.from(listEl.querySelectorAll('[data-todo-id]'));
 
-					// Calculate final index in filtered space
 					let finalIndex: number;
 					if (listId === sourceListId) {
-						// Same list: filter out dragged card
 						const filteredCards = allCards.filter(
 							(c) => c.getAttribute('data-todo-id') !== draggedTodo!.id
 						);
 						finalIndex = filteredCards.length;
 					} else {
-						// Different list: use all cards
 						finalIndex = allCards.length;
 					}
 

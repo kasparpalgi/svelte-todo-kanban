@@ -288,33 +288,24 @@
 							newTaskTitleBottom = '';
 						}}
 					/>
-				{:else}
-					{#if dropTarget?.listId === list.id && dropTarget?.todoId === 'column'}
-						<div
-							class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-						></div>
-					{/if}
-
-					{#if !showQuickAdd}
-						<div class="py-8 text-center text-xs text-muted-foreground">
-							<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
-							{#if list.id !== 'inbox'}
-								<Button
-									size="sm"
-									variant="ghost"
-									class="h-auto p-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
-									onclick={() => (showQuickAdd = true)}
-								>
-									<Plus class="mr-1 h-3 w-3" />
-									{$t('todo.add_task')}
-								</Button>
-							{/if}
-						</div>
-					{/if}
+				{:else if !showQuickAdd}
+					<div class="py-8 text-center text-xs text-muted-foreground">
+						<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
+						{#if list.id !== 'inbox'}
+							<Button
+								size="sm"
+								variant="ghost"
+								class="h-auto p-1 text-xs opacity-0 transition-opacity group-hover:opacity-100"
+								onclick={() => (showQuickAdd = true)}
+							>
+								<Plus class="mr-1 h-3 w-3" />
+								{$t('todo.add_task')}
+							</Button>
+						{/if}
+					</div>
 				{/if}
 
-				<!-- Show drop indicator at the end of the list -->
-				{#if dropTarget?.listId === list.id}
+				{#if dropTarget?.listId === list.id && todos.length > 0}
 					{@const sourceListId = draggedTodo?.list?.id || 'inbox'}
 					{@const isSameList = sourceListId === list.id}
 					{@const filteredLength =
