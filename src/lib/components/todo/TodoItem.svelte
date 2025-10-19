@@ -143,7 +143,7 @@
 		if (isEditing) return;
 		isDraggingLocal = true;
 		dragStartTime = Date.now();
-		onDragStart(todo, cardEl);
+		onDragStart(todo);
 	}
 
 	function handleNeodragEnd(data: DragEventData) {
@@ -415,6 +415,9 @@
 				ignoreMultitouch: true
 			}}
 			class="mt-2 {isDragging || isDraggingLocal ? 'opacity-50' : ''}"
+			style={isDragging || isDraggingLocal
+				? 'pointer-events: none !important; touch-action: none;'
+				: ''}
 		>
 			{#if !isEditing}
 				<a
