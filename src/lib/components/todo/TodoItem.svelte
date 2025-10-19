@@ -159,23 +159,6 @@
 		}, 100);
 	}
 
-	function handleTouchEnd(e: TouchEvent) {
-		// if touch ends but neodrag didn't fire its end event
-		if (isDraggingLocal && dragStartTime > 0) {
-			const dragDuration = Date.now() - dragStartTime;
-
-			if (dragDuration > 100) {
-				setTimeout(() => {
-					if (isDraggingLocal) {
-						isDraggingLocal = false;
-						dragStartTime = 0;
-						dragKey++;
-					}
-				}, 200);
-			}
-		}
-	}
-
 	function startEdit() {
 		if (editingTodo.id && editingTodo.id !== todo.id && editingTodo.hasUnsavedChanges) {
 			pendingAction = () => {
@@ -431,7 +414,6 @@
 				defaultPosition: { x: 0, y: 0 },
 				ignoreMultitouch: true
 			}}
-			ontouchend={handleTouchEnd}
 			class="mt-2 {isDragging || isDraggingLocal ? 'opacity-50' : ''}"
 			style={isDragging || isDraggingLocal
 				? 'pointer-events: none !important; touch-action: none;'

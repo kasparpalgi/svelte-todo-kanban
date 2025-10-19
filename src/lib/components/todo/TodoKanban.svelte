@@ -28,7 +28,7 @@
 	let completedItemsToShow = $state(10);
 	const completedItemsInitially = 10;
 	let scrollContainer: HTMLElement;
-	let scrollInterval: number | null = null;
+	let scrollInterval: ReturnType<typeof setInterval> | null = null;
 
 	$effect(() => {
 		if (!listsStore.initialized) {
@@ -349,22 +349,24 @@
 		updateDropTarget(touch.clientX, touch.clientY);
 	}
 
+	function resetDragState() {
+		stopAutoScroll();
+		if (draggedTodo) {
+			draggedTodo = null;
+			dropTarget = null;
+			dragStartTime = 0;
+		}
+	}
+
 	function handleGlobalTouchEnd(e: TouchEvent) {
 		stopAutoScroll();
-		// Safety net: if touch ends with active drag state but neodrag didn't fire dragEnd
-		if (draggedTodo && dragStartTime > 0) {
-			const dragDuration = Date.now() - dragStartTime;
+		setTimeout(() => {
+			resetDragState();
+		}, 50);
+	}
 
-			if (dragDuration > 100) {
-				setTimeout(() => {
-					if (draggedTodo) {
-						draggedTodo = null;
-						dropTarget = null;
-						dragStartTime = 0;
-					}
-				}, 300);
-			}
-		}
+	function handleGlobalTouchCancel(e: TouchEvent) {
+		resetDragState();
 	}
 
 	async function handleDelete(todoId: string) {
@@ -414,6 +416,7 @@
 	onmousemove={handleGlobalMouseMove}
 	ontouchmove={handleGlobalTouchMove}
 	ontouchend={handleGlobalTouchEnd}
+	ontouchcancel={handleGlobalTouchCancel}
 />
 
 <div class="w-full" in:scale>
