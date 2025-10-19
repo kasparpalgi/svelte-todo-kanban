@@ -150,8 +150,6 @@
 
 	function handleNeodragStart() {
 		if (isEditing) return;
-		console.log('🎯 Drag START for todo:', todo.id);
-		console.log('  Card element position:', cardEl?.style.transform);
 		onDragStart(todo);
 	}
 
@@ -443,7 +441,7 @@
 							<span class="sr-only">{$t('common.delete')}</span>
 						</Button>
 
-						<CardContent class="pl-2">
+						<CardContent class="pt-2 pb-6 pl-2">
 							<div class="flex items-start gap-2">
 								<button
 									class="drag-handle mt-0.5 cursor-grab text-muted-foreground opacity-0 transition-opacity hover:text-foreground active:cursor-grabbing max-md:flex max-md:h-5 max-md:w-5 max-md:items-center max-md:justify-center max-md:rounded max-md:bg-muted/30 max-md:!opacity-100 md:opacity-0 md:group-hover:opacity-100 {isHovered
@@ -497,20 +495,6 @@
 											</Badge>
 										</div>
 									{/if}
-
-									{#if todo.github_issue_number}
-										<a
-											href={todo.github_url}
-											target="_blank"
-											rel="noopener noreferrer"
-											class="mt-1 flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-											onclick={(e) => e.stopPropagation()}
-											title="View on GitHub"
-										>
-											<img src={githubLogo} alt="GitHub" class="mt-0.5 h-2.5 w-2.5" />
-											<span>#{todo.github_issue_number}</span>
-										</a>
-									{/if}
 								</div>
 
 								<div
@@ -529,31 +513,62 @@
 									</Button>
 								</div>
 							</div>
-							<div class="absolute right-3 bottom-2 flex items-center gap-1 text-xs text-gray-400">
-								{#if todo.priority === 'high'}
-									<div class="h-2 w-2 rounded-full bg-red-500"></div>
+
+							<!-- Bottom left - GitHub -->
+							<div class="absolute bottom-2 left-3">
+								{#if todo.github_issue_number}
+									<a
+										href={todo.github_url}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+										onclick={(e) => e.stopPropagation()}
+										title="View on GitHub"
+									>
+										<img src={githubLogo} alt="GitHub" class="h-3 w-3 opacity-25 filter" />
+										<span>#{todo.github_issue_number}</span>
+									</a>
+								{/if}
+							</div>
+
+							<!-- Bottom right - Labels and Icons -->
+							<div class="absolute right-3 bottom-2 flex items-center gap-2 text-xs text-gray-400">
+								{#if todo.labels && todo.labels.length > 0}
+									<div class="flex items-center gap-0.5">
+										{#each todo.labels as label (label.label.id)}
+											<span class="font-mono text-xs" style:color={`${label.label.color}`}>
+												{label.label.name.charAt(0).toUpperCase()}
+											</span>
+										{/each}
+									</div>
 								{/if}
 
-								{#if todo.comments.length > 0}
-									<MessageSquareText class="h-3 w-3 text-muted-foreground" />
-								{/if}
+								<div class="flex items-center gap-1">
+									{#if todo.priority === 'high'}
+										<div class="h-2 w-2 rounded-full bg-red-500" title="High Priority"></div>
+									{/if}
 
-								{#if todo.uploads && todo.uploads.length > 0}
-									<ImageIcon class="h-3 w-3 text-muted-foreground" />
-								{/if}
+									{#if todo.comments.length > 0}
+										<MessageSquareText class="h-3 w-3 text-muted-foreground" />
+									{/if}
 
-								{#if todo.min_hours || todo.max_hours}
-									<Clock class="h-3 w-3 text-muted-foreground" />
-									<span>
-										{#if todo.min_hours && todo.max_hours}
-											~{((todo.min_hours + todo.max_hours) / 2).toFixed(1)}h
-										{:else if todo.min_hours}
-											{todo.min_hours}+h
-										{:else if todo.max_hours}
-											&lt;{todo.max_hours}h
-										{/if}
-									</span>
-								{/if}
+									{#if todo.uploads && todo.uploads.length > 0}
+										<ImageIcon class="h-3 w-3 text-muted-foreground" />
+									{/if}
+
+									{#if todo.min_hours || todo.max_hours}
+										<Clock class="h-3 w-3 text-muted-foreground" />
+										<span>
+											{#if todo.min_hours && todo.max_hours}
+												~{((todo.min_hours + todo.max_hours) / 2).toFixed(1)}h
+											{:else if todo.min_hours}
+												{todo.min_hours}+h
+											{:else if todo.max_hours}
+												&lt;{todo.max_hours}h
+											{/if}
+										</span>
+									{/if}
+								</div>
 							</div>
 						</CardContent>
 					</Card>
