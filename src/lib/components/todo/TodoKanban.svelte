@@ -1,11 +1,12 @@
-<!-- @file src/lib/components/TodoKanban.svelte -->
+<!-- @file src/lib/components/todo/TodoKanban.svelte -->
 <script lang="ts">
 	import { scale } from 'svelte/transition';
+	import { t } from '$lib/i18n';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { todoFilteringStore } from '$lib/stores/todoFiltering.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { actionState } from '$lib/stores/states.svelte';
-	import { t } from '$lib/i18n';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import {
 		Card,
 		CardContent,
@@ -14,46 +15,18 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
-	import {
-		DndContext,
-		DragOverlay,
-		closestCorners,
-		KeyboardSensor,
-		PointerSensor,
-		useSensor,
-		type DragEndEvent,
-		type DragStartEvent,
-		type DragMoveEvent
-	} from '@dnd-kit-svelte/core';
-	import { sortableKeyboardCoordinates } from '@dnd-kit-svelte/sortable';
 	import { Plus, RefreshCw, ChevronDown } from 'lucide-svelte';
 	import KanbanColumn from './KanbanColumn.svelte';
-	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
-	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 
-	let activeId = $state<string | null>(null);
-	let activeTodo = $state<TodoFieldsFragment | null>(null);
-	let hoveredListId = $state<string | null>(null);
-	let dropPosition = $state<{
+	let draggedTodo = $state<TodoFieldsFragment | null>(null);
+	let dropTarget = $state<{
 		listId: string;
-		todoId: string;
+		index: number;
 		position: 'above' | 'below';
-		targetIndex: number;
 	} | null>(null);
-
 	let completedItemsToShow = $state(10);
 	const completedItemsInitially = 10;
-
-	let pointerSensor = useSensor(PointerSensor, {
-		activationConstraint: {
-			distance: 8
-		}
-	});
-	let keyboardSensor = useSensor(KeyboardSensor, {
-		coordinateGetter: sortableKeyboardCoordinates
-	});
-	let sensors = [pointerSensor, keyboardSensor];
 
 	$effect(() => {
 		if (!listsStore.initialized) {
@@ -144,141 +117,65 @@
 		completedItemsToShow += completedItemsInitially;
 	}
 
-	function cleanup() {
-		activeId = null;
-		activeTodo = null;
-		dropPosition = null;
-		hoveredListId = null;
+	function handleDragStart(todo: TodoFieldsFragment) {
+		draggedTodo = todo;
 	}
 
-	function handleDragStart(event: DragStartEvent) {
-		const { active } = event;
-		activeId = active.id as string;
-		activeTodo = todosStore.todos.find((todo: TodoFieldsFragment) => todo.id === activeId) || null;
+	function handleDragOver(listId: string, index: number, position: 'above' | 'below') {
+		if (!draggedTodo) return;
+		dropTarget = { listId, index, position };
 	}
 
-	function handleDragMove(event: DragMoveEvent) {
-		const { active, over } = event;
-		if (!over || !active.id) return;
-
-		const overId = over.id as string;
-		const isOverAColumn = overId.startsWith('column-');
-		const overTodo = !isOverAColumn ? todosStore.todos.find((t) => t.id === overId) : undefined;
-
-		if (overTodo) {
-			const targetListId = overTodo.list?.id || 'inbox';
-			hoveredListId = targetListId;
-			const listGroup = kanbanLists().find((g) => g.list.id === targetListId);
-			if (!listGroup) return;
-
-			const todoIndex = listGroup.todos.findIndex((t) => t.id === overId);
-			if (todoIndex === -1) return;
-
-			const draggingRect = active.rect.translated;
-			const overRect = over.rect;
-			if (!draggingRect || !overRect) return;
-
-			const overMiddleY = overRect.top + overRect.height / 2;
-			const cursorY = draggingRect.top + draggingRect.height / 2;
-			const position = cursorY < overMiddleY ? 'above' : 'below';
-			dropPosition = { listId: targetListId, todoId: overId, position, targetIndex: todoIndex };
-		} else if (isOverAColumn) {
-			const targetListId = overId.replace('column-', '');
-			const listGroup = kanbanLists().find((g) => g.list.id === targetListId);
-			if (!listGroup) return;
-
-			hoveredListId = targetListId;
-			if (listGroup.todos.length === 0) {
-				dropPosition = {
-					listId: targetListId,
-					todoId: 'column',
-					position: 'above',
-					targetIndex: 0
-				};
-			} else {
-				const draggingRect = active.rect.translated;
-				const columnRect = over.rect;
-				if (!draggingRect || !columnRect) return;
-
-				const cursorY = draggingRect.top + draggingRect.height / 2;
-				const columnTop = columnRect.top;
-				const columnBottom = columnRect.top + columnRect.height;
-
-				if (Math.abs(cursorY - columnTop) < Math.abs(cursorY - columnBottom)) {
-					const firstTodo = listGroup.todos[0];
-					dropPosition = {
-						listId: targetListId,
-						todoId: firstTodo.id,
-						position: 'above',
-						targetIndex: 0
-					};
-				} else {
-					const lastTodo = listGroup.todos[listGroup.todos.length - 1];
-					dropPosition = {
-						listId: targetListId,
-						todoId: lastTodo.id,
-						position: 'below',
-						targetIndex: listGroup.todos.length - 1
-					};
-				}
-			}
-		}
-	}
-
-	function handleDragCancel() {
-		cleanup();
-	}
-
-	function handleDragEnd(event: DragEndEvent) {
-		const { active, over } = event;
-		const finalDropPosition = dropPosition;
-
-		if (over && finalDropPosition) {
-			const draggedId = active.id as string;
-			const draggedTodo = todosStore.todos.find((t) => t.id === draggedId);
-			if (!draggedTodo) {
-				setTimeout(cleanup, 0);
-				return;
-			}
-
+	async function handleDragEnd() {
+		if (draggedTodo && dropTarget) {
 			const sourceListId = draggedTodo.list?.id || 'inbox';
-			const { listId: targetListId, position, targetIndex } = finalDropPosition;
-			const sourceListGroup = kanbanLists().find((g) => g.list.id === sourceListId);
-			const targetListGroup = kanbanLists().find((g) => g.list.id === targetListId);
+			const { listId: targetListId, index: targetIndex, position } = dropTarget;
 
-			if (sourceListGroup && targetListGroup) {
-				let updatePromise: Promise<any> | null = null;
-				if (sourceListId === targetListId) {
-					// Reordering within same list
-					const reorderedList = [...sourceListGroup.todos];
-					const activeIndex = reorderedList.findIndex((t) => t.id === draggedId);
-					let insertIndex = position === 'above' ? targetIndex : targetIndex + 1;
-					if (activeIndex !== insertIndex) {
-						const [movedItem] = reorderedList.splice(activeIndex, 1);
-						if (activeIndex < insertIndex) insertIndex--;
-						reorderedList.splice(insertIndex, 0, movedItem);
-						updatePromise = Promise.all(
-							reorderedList.map((todo, index) =>
-								todosStore.updateTodo(todo.id, { sort_order: index + 1 })
-							)
-						);
+			if (sourceListId === targetListId) {
+				// reorder in same list
+				const listGroup = kanbanLists().find((g) => g.list.id === sourceListId);
+				if (listGroup) {
+					const currentList = [...listGroup.todos];
+					const draggedIndex = currentList.findIndex((t) => t.id === draggedTodo!.id);
+
+					let insertionIndex = targetIndex;
+					if (position === 'below') {
+						insertionIndex++;
 					}
-				} else {
-					// Moving between lists
+
+					if (insertionIndex === draggedIndex) {
+						draggedTodo = null;
+						dropTarget = null;
+						return;
+					}
+
+					const [movedItem] = currentList.splice(draggedIndex, 1);
+					currentList.splice(insertionIndex, 0, movedItem);
+
+					await Promise.all(
+						currentList.map((todo, index) =>
+							todosStore.updateTodo(todo.id, { sort_order: index + 1 })
+						)
+					).catch((err) => console.error('Failed to update order:', err));
+				}
+			} else {
+				// move between lists
+				const sourceListGroup = kanbanLists().find((g) => g.list.id === sourceListId);
+				const targetListGroup = kanbanLists().find((g) => g.list.id === targetListId);
+
+				if (sourceListGroup && targetListGroup) {
 					const sourceList = [...sourceListGroup.todos];
 					const targetList = [...targetListGroup.todos];
 					const listIdToUpdate = targetListId === 'inbox' ? null : targetListId;
-					const activeIndex = sourceList.findIndex((t) => t.id === draggedId);
-					const [movedItem] = sourceList.splice(activeIndex, 1);
+					const activeIndex = sourceList.findIndex((t) => t.id === draggedTodo!.id);
 
-					// Handle empty target list
-					let insertIndex = 0;
-					if (targetList.length > 0) {
-						insertIndex = position === 'above' ? targetIndex : targetIndex + 1;
-						if (finalDropPosition.todoId === 'column') insertIndex = 0;
+					let finalIndex = targetIndex;
+					if (position === 'below') {
+						finalIndex++;
 					}
 
-					targetList.splice(insertIndex, 0, movedItem);
+					const [movedItem] = sourceList.splice(activeIndex, 1);
+					targetList.splice(finalIndex, 0, movedItem);
 
 					const sourceUpdates = sourceList.map((todo, index) =>
 						todosStore.updateTodo(todo.id, { sort_order: index + 1 })
@@ -287,19 +184,96 @@
 						const updates: { sort_order: number; list_id?: string | null } = {
 							sort_order: index + 1
 						};
-						if (todo.id === draggedId) updates.list_id = listIdToUpdate;
+						if (todo.id === draggedTodo!.id) updates.list_id = listIdToUpdate;
 						return todosStore.updateTodo(todo.id, updates);
 					});
-					updatePromise = Promise.all([...sourceUpdates, ...targetUpdates]);
-				}
-
-				if (updatePromise) {
-					updatePromise.catch((err) => console.error('Failed to update store:', err));
+					await Promise.all([...sourceUpdates, ...targetUpdates]).catch((err) =>
+						console.error('Failed to update:', err)
+					);
 				}
 			}
 		}
 
-		setTimeout(cleanup, 0);
+		draggedTodo = null;
+		dropTarget = null;
+	}
+
+	function handleGlobalMouseMove(e: MouseEvent) {
+		if (!draggedTodo) return;
+
+		const elements = document.elementsFromPoint(e.clientX, e.clientY);
+		let foundValidTarget = false;
+
+		for (const el of elements) {
+			const cardEl = el.closest('[data-todo-id]');
+			if (!cardEl) continue;
+
+			const todoId = cardEl.getAttribute('data-todo-id');
+			if (todoId === draggedTodo!.id) continue;
+
+			const listEl = cardEl.closest('[data-list-id]');
+			if (listEl) {
+				const listId = listEl.getAttribute('data-list-id')!;
+				const rect = cardEl.getBoundingClientRect();
+				const mouseY = e.clientY;
+
+				const position = mouseY < rect.top + rect.height / 2 ? 'above' : 'below';
+
+				const sourceListId = draggedTodo!.list?.id || 'inbox';
+				const allCards = Array.from(listEl.querySelectorAll('[data-todo-id]'));
+
+				let index: number;
+				if (listId === sourceListId) {
+					const filteredCards = allCards.filter(
+						(c) => c.getAttribute('data-todo-id') !== draggedTodo!.id
+					);
+					index = filteredCards.findIndex((c) => c.getAttribute('data-todo-id') === todoId);
+				} else {
+					index = allCards.findIndex((c) => c.getAttribute('data-todo-id') === todoId);
+				}
+
+				if (index >= 0) {
+					handleDragOver(listId, index, position);
+					foundValidTarget = true;
+				}
+				break;
+			}
+		}
+
+		// check for empty list area
+		if (!foundValidTarget) {
+			for (const el of elements) {
+				const listEl = el.closest('[data-list-id]');
+				if (listEl && !el.closest('[data-todo-id]')) {
+					const listId = listEl.getAttribute('data-list-id')!;
+					const sourceListId = draggedTodo!.list?.id || 'inbox';
+					const allCards = Array.from(listEl.querySelectorAll('[data-todo-id]'));
+
+					let finalIndex: number;
+					if (listId === sourceListId) {
+						const filteredCards = allCards.filter(
+							(c) => c.getAttribute('data-todo-id') !== draggedTodo!.id
+						);
+						finalIndex = filteredCards.length;
+					} else {
+						finalIndex = allCards.length;
+					}
+
+					handleDragOver(listId, finalIndex, 'above');
+					foundValidTarget = true;
+					break;
+				}
+			}
+		}
+	}
+
+	async function handleDelete(todoId: string) {
+		const result = await todosStore.deleteTodo(todoId);
+		if (result.success) {
+			displayMessage($t('todo.task_deleted'), 1500, true);
+		} else {
+			displayMessage(result.message || $t('todo.delete_failed'));
+		}
 	}
 
 	function openListManagement() {
@@ -336,6 +310,8 @@
 	}
 </script>
 
+<svelte:window onmousemove={handleGlobalMouseMove} />
+
 <div class="w-full" in:scale>
 	<div class="px-6 pt-6 pb-2">
 		{#if getFilterSummary()}
@@ -350,117 +326,118 @@
 
 	<div class="w-full overflow-x-auto">
 		<div class="flex min-w-max gap-6 p-6 pt-0">
-			<DndContext
-				{sensors}
-				collisionDetection={closestCorners}
-				onDragStart={handleDragStart}
-				onDragMove={handleDragMove}
-				onDragEnd={handleDragEnd}
-				onDragCancel={handleDragCancel}
-			>
-				{#each kanbanLists() as { list, todos } (list.id)}
-					{@const stats = todos.reduce(
-						(acc, todo) => {
-							const min = todo.min_hours || 0;
-							const max = todo.max_hours || 0;
-							if (min > 0 || max > 0) {
-								const effectiveMin = min || max;
-								const effectiveMax = max || min;
-								acc.min += min;
-								acc.max += max;
-								acc.avg += (effectiveMin + effectiveMax) / 2;
-								acc.count++;
-							}
-							return acc;
-						},
-						{ min: 0, max: 0, avg: 0, count: 0 }
-					)}
-					<div class="w-80 flex-shrink-0">
-						<KanbanColumn {list} {todos} isHighlighted={hoveredListId === list.id} {dropPosition} />
-						{#if stats.count > 0}
-							<div class="-mt-2 text-center text-xs text-gray-400">
-								<span title="Total Minimum Hours">Min: {stats.min.toFixed(1)}h</span> |
-								<span title="Total Average Hours">Avg: {stats.avg.toFixed(1)}h</span> |
-								<span title="Total Maximum Hours">Max: {stats.max.toFixed(1)}h</span>
-							</div>
-						{/if}
-					</div>
-				{/each}
+			{#each kanbanLists() as { list, todos } (list.id)}
+				{@const stats = todos.reduce(
+					(acc, todo) => {
+						const min = todo.min_hours || 0;
+						const max = todo.max_hours || 0;
+						if (min > 0 || max > 0) {
+							const effectiveMin = min || max;
+							const effectiveMax = max || min;
+							acc.min += min;
+							acc.max += max;
+							acc.avg += (effectiveMin + effectiveMax) / 2;
+							acc.count++;
+						}
+						return acc;
+					},
+					{ min: 0, max: 0, avg: 0, count: 0 }
+				)}
+				<div class="w-80 flex-shrink-0">
+					<KanbanColumn
+						list={{
+							id: list.id,
+							name: list.name,
+							board:
+								'board' in list && list.board && list.board.github
+									? { github: list.board.github }
+									: undefined
+						}}
+						{todos}
+						{draggedTodo}
+						{dropTarget}
+						onDragStart={handleDragStart}
+						onDragEnd={handleDragEnd}
+						onDelete={handleDelete}
+					/>
+					{#if stats.count > 0}
+						<div class="-mt-2 text-center text-xs text-gray-400">
+							<span title="Total Minimum Hours">Min: {stats.min.toFixed(1)}h</span> |
+							<span title="Total Average Hours">Avg: {stats.avg.toFixed(1)}h</span> |
+							<span title="Total Maximum Hours">Max: {stats.max.toFixed(1)}h</span>
+						</div>
+					{/if}
+				</div>
+			{/each}
 
-				{#if filteredCompletedTodos().length > 0}
-					<div class="w-80 flex-shrink-0">
-						<Card class="opacity-75">
-							<CardHeader>
-								<CardTitle class="flex items-center justify-between text-sm text-green-600">
-									<span>✓ {$t('todo.completed')}</span>
-								</CardTitle>
-								<CardDescription class="text-xs">
-									{filteredCompletedTodos().length}
-									{filteredCompletedTodos().length === 1 ? $t('todo.task') : $t('todo.tasks')}
-								</CardDescription>
-							</CardHeader>
-							<CardContent class="space-y-2">
-								{#each visibleCompletedTodos() as todo (todo.id)}
-									<div
-										class="group rounded border p-2 text-sm line-through opacity-60 transition-opacity hover:opacity-100"
-									>
-										<div class="flex items-center justify-between">
-											<span>{todo.title}</span>
-											<Button
-												variant="ghost"
-												size="sm"
-												class="h-4 w-4 p-0 opacity-0 group-hover:opacity-100"
-												onclick={() => toggleTodoCompletion(todo.id)}
-											>
-												<RefreshCw class="h-3 w-3" />
-											</Button>
-										</div>
-									</div>
-								{/each}
-								{#if hasMoreCompletedTodos()}
-									<div class="pt-2">
+			{#if filteredCompletedTodos().length > 0}
+				<div class="w-80 flex-shrink-0">
+					<Card class="opacity-75">
+						<CardHeader>
+							<CardTitle class="flex items-center justify-between text-sm text-green-600">
+								<span>✓ {$t('todo.completed')}</span>
+							</CardTitle>
+							<CardDescription class="text-xs">
+								{filteredCompletedTodos().length}
+								{filteredCompletedTodos().length === 1 ? $t('todo.task') : $t('todo.tasks')}
+							</CardDescription>
+						</CardHeader>
+						<CardContent class="space-y-2">
+							{#each visibleCompletedTodos() as todo (todo.id)}
+								<div
+									class="group rounded border p-2 text-sm line-through opacity-60 transition-opacity hover:opacity-100"
+								>
+									<div class="flex items-center justify-between">
+										<span>{todo.title}</span>
 										<Button
 											variant="ghost"
 											size="sm"
-											class="h-8 w-full text-xs text-muted-foreground hover:text-foreground"
-											onclick={loadMoreCompletedTodos}
+											class="h-4 w-4 p-0 opacity-0 group-hover:opacity-100"
+											onclick={() => toggleTodoCompletion(todo.id)}
 										>
-											<ChevronDown class="mr-1 h-3 w-3" />
-											{$t('todo.load_more')} ({Math.min(
-												completedItemsInitially,
-												filteredCompletedTodos().length - completedItemsToShow
-											)})
+											<RefreshCw class="h-3 w-3" />
 										</Button>
 									</div>
-								{/if}
-							</CardContent>
-						</Card>
-					</div>
-				{/if}
-
-				<div class="w-80 flex-shrink-0">
-					<Card class="border-2 border-dashed border-muted-foreground/25 bg-muted/10">
-						<CardHeader>
-							<CardTitle class="text-sm text-muted-foreground">{$t('todo.add_new_list')}</CardTitle>
-						</CardHeader>
-						<CardContent class="flex flex-col gap-2">
-							<Button
-								variant="ghost"
-								class="h-auto flex-col gap-1 p-4 text-muted-foreground hover:text-foreground"
-								onclick={openListManagement}
-							>
-								<Plus class="h-8 w-8" />
-								<span class="text-xs">{$t('todo.create_list')}</span>
-							</Button>
+								</div>
+							{/each}
+							{#if hasMoreCompletedTodos()}
+								<div class="pt-2">
+									<Button
+										variant="ghost"
+										size="sm"
+										class="h-8 w-full text-xs text-muted-foreground hover:text-foreground"
+										onclick={loadMoreCompletedTodos}
+									>
+										<ChevronDown class="mr-1 h-3 w-3" />
+										{$t('todo.load_more')} ({Math.min(
+											completedItemsInitially,
+											filteredCompletedTodos().length - completedItemsToShow
+										)})
+									</Button>
+								</div>
+							{/if}
 						</CardContent>
 					</Card>
 				</div>
-				<DragOverlay>
-					{#if activeTodo}
-						<TodoItem todo={activeTodo} isDragging={true} />
-					{/if}
-				</DragOverlay>
-			</DndContext>
+			{/if}
+
+			<div class="w-80 flex-shrink-0">
+				<Card class="border-2 border-dashed border-muted-foreground/25 bg-muted/10">
+					<CardHeader>
+						<CardTitle class="text-sm text-muted-foreground">{$t('todo.add_new_list')}</CardTitle>
+					</CardHeader>
+					<CardContent class="flex flex-col gap-2">
+						<Button
+							variant="ghost"
+							class="h-auto flex-col gap-1 p-4 text-muted-foreground hover:text-foreground"
+							onclick={openListManagement}
+						>
+							<Plus class="h-8 w-8" />
+							<span class="text-xs">{$t('todo.create_list')}</span>
+						</Button>
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	</div>
 </div>

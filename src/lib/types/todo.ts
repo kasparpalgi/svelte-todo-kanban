@@ -27,7 +27,13 @@ export interface CanbanColumnProps {
 
 export interface TodoItemProps {
 	todo: TodoFieldsFragment;
+	draggedTodo: TodoFieldsFragment | null;
 	isDragging?: boolean;
+	showDropAbove?: boolean;
+	listId: string;
+	onDragStart: (todo: TodoFieldsFragment) => void;
+	onDragEnd: () => void;
+	onDelete: (todoId: string) => void;
 }
 
 export interface TodoEditProps {
@@ -52,6 +58,20 @@ export type DragHandleProps = {
 	attributes: Record<string, any>;
 	listeners: Record<string, any>;
 	isVisible?: boolean;
+};
+
+export type KanbanColumnProps = {
+	list: { id: string; name: string; board?: { github?: string } };
+	todos: TodoFieldsFragment[];
+	draggedTodo: TodoFieldsFragment | null;
+	dropTarget: {
+		listId: string;
+		index: number;
+		position: 'above' | 'below';
+	} | null;
+	onDragStart: (todo: TodoFieldsFragment) => void;
+	onDragEnd: () => void;
+	onDelete: (todoId: string) => void;
 };
 
 // Store results
