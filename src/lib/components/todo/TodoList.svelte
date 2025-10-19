@@ -1,10 +1,10 @@
 <!-- @file src/lib/components/todo/TodoList.svelte -->
 <script lang="ts">
+	import { t } from '$lib/i18n';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { actionState } from '$lib/stores/states.svelte';
-	import { t } from '$lib/i18n';
-	import { onMount } from 'svelte';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import {
 		Card,
 		CardContent,
@@ -14,48 +14,14 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Check, Trash2 } from 'lucide-svelte';
-	import {
-		DndContext,
-		DragOverlay,
-		closestCenter,
-		KeyboardSensor,
-		PointerSensor,
-		useSensor,
-		type DragEndEvent,
-		type DragStartEvent,
-		type DragMoveEvent
-	} from '@dnd-kit-svelte/core';
-	import {
-		SortableContext,
-		sortableKeyboardCoordinates,
-		verticalListSortingStrategy
-	} from '@dnd-kit-svelte/sortable';
 	import TodoItem from './TodoItem.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
-	let mounted = $state(false);
-	let activeId = $state<string | null>(null);
-
-	onMount(() => {
-		mounted = true;
-	});
-	let activeTodo = $state<TodoFieldsFragment | null>(null);
-	let isDragging = $state(false);
-	let dropPosition = $state<{
-		todoId: string;
+	let draggedTodo = $state<TodoFieldsFragment | null>(null);
+	let dropTarget = $state<{
+		index: number;
 		position: 'above' | 'below';
-		targetIndex: number;
 	} | null>(null);
-
-	let pointerSensor = useSensor(PointerSensor, {
-		activationConstraint: {
-			distance: 8
-		}
-	});
-	let keyboardSensor = useSensor(KeyboardSensor, {
-		coordinateGetter: sortableKeyboardCoordinates
-	});
-	let sensors = [pointerSensor, keyboardSensor];
 
 	let activeTodosArray = $derived(() => {
 		const selectedBoardId = listsStore.selectedBoard?.id;
@@ -66,7 +32,6 @@
 				if (selectedBoardId && t.list?.board?.id !== selectedBoardId) {
 					return false;
 				}
-
 				return true;
 			})
 			.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
@@ -83,75 +48,44 @@
 		});
 	});
 
-	function handleDragStart(event: DragStartEvent) {
-		const { active } = event;
-		activeId = active.id as string;
-		activeTodo =
-			activeTodosArray().find((todo: TodoFieldsFragment) => todo.id === activeId) || null;
-		isDragging = true;
+	function handleDragStart(todo: TodoFieldsFragment) {
+		draggedTodo = todo;
 	}
 
-	function handleDragMove(event: DragMoveEvent) {
-		const { active, over } = event;
-		if (!over || !active.id) {
-			dropPosition = null;
-			return;
-		}
-
-		const overId = over.id as string;
-		const overTodo = activeTodosArray().find((t) => t.id === overId);
-
-		if (overTodo) {
-			const todoIndex = activeTodosArray().findIndex((t) => t.id === overId);
-			if (todoIndex === -1) return;
-
-			const draggingRect = active.rect.translated;
-			const overRect = over.rect;
-			if (!draggingRect || !overRect) return;
-
-			const overMiddleY = overRect.top + overRect.height / 2;
-			const cursorY = draggingRect.top + draggingRect.height / 2;
-			const position = cursorY < overMiddleY ? 'above' : 'below';
-
-			dropPosition = { todoId: overId, position, targetIndex: todoIndex };
-		}
+	function handleDragOver(index: number, position: 'above' | 'below') {
+		if (!draggedTodo) return;
+		dropTarget = { index, position };
 	}
 
-	function handleDragCancel() {
-		cleanup();
-	}
-
-	async function handleDragEnd(event: DragEndEvent) {
-		const { active } = event;
-		const finalDropPosition = dropPosition;
-
-		if (!finalDropPosition || active.id === finalDropPosition.todoId) {
-			cleanup();
+	async function handleDragEnd() {
+		if (!draggedTodo || !dropTarget) {
+			draggedTodo = null;
+			dropTarget = null;
 			return;
 		}
 
 		const reorderedTodos = [...activeTodosArray()];
-		const activeIndex = reorderedTodos.findIndex((t) => t.id === active.id);
+		const draggedIndex = reorderedTodos.findIndex((t) => t.id === draggedTodo!.id);
 
-		if (activeIndex === -1) {
-			cleanup();
+		if (draggedIndex === -1) {
+			draggedTodo = null;
+			dropTarget = null;
 			return;
 		}
 
-		const { targetIndex, position } = finalDropPosition;
-		let insertIndex = position === 'above' ? targetIndex : targetIndex + 1;
-
-		if (activeIndex < insertIndex) {
-			insertIndex--;
+		let insertionIndex = dropTarget.index;
+		if (dropTarget.position === 'below') {
+			insertionIndex++;
 		}
 
-		if (activeIndex === insertIndex) {
-			cleanup();
+		if (insertionIndex === draggedIndex) {
+			draggedTodo = null;
+			dropTarget = null;
 			return;
 		}
 
-		const [movedItem] = reorderedTodos.splice(activeIndex, 1);
-		reorderedTodos.splice(insertIndex, 0, movedItem);
+		const [movedItem] = reorderedTodos.splice(draggedIndex, 1);
+		reorderedTodos.splice(insertionIndex, 0, movedItem);
 
 		try {
 			await Promise.all(
@@ -164,25 +98,64 @@
 			await todosStore.loadTodos();
 		}
 
-		cleanup();
+		draggedTodo = null;
+		dropTarget = null;
 	}
 
-	function cleanup() {
-		activeId = null;
-		activeTodo = null;
-		isDragging = false;
-		dropPosition = null;
+	function handleGlobalMouseMove(e: MouseEvent) {
+		if (!draggedTodo) return;
+
+		const elements = document.elementsFromPoint(e.clientX, e.clientY);
+
+		for (const el of elements) {
+			const cardEl = el.closest('[data-todo-id]');
+			if (!cardEl) continue;
+
+			const todoId = cardEl.getAttribute('data-todo-id');
+			if (todoId === draggedTodo!.id) continue;
+
+			const listEl = cardEl.closest('[data-list-container]');
+			if (listEl) {
+				const rect = cardEl.getBoundingClientRect();
+				const mouseY = e.clientY;
+				const position = mouseY < rect.top + rect.height / 2 ? 'above' : 'below';
+
+				const allCards = Array.from(listEl.querySelectorAll('[data-todo-id]'));
+				const filteredCards = allCards.filter(
+					(c) => c.getAttribute('data-todo-id') !== draggedTodo!.id
+				);
+				const index = filteredCards.findIndex((c) => c.getAttribute('data-todo-id') === todoId);
+
+				if (index >= 0) {
+					handleDragOver(index, position);
+				}
+				break;
+			}
+		}
 	}
 
 	async function handleDeleteTodo(todoId: string) {
 		if (confirm($t('todo.confirm_delete') || 'Are you sure?')) {
 			const result = await todosStore.deleteTodo(todoId);
-			if (!result.success) {
-				alert(result.message);
+			if (result.success) {
+				displayMessage($t('todo.task_deleted'), 1500, true);
+			} else {
+				displayMessage(result.message || $t('todo.delete_failed'));
 			}
 		}
 	}
+
+	async function handleDelete(todoId: string) {
+		const result = await todosStore.deleteTodo(todoId);
+		if (result.success) {
+			displayMessage($t('todo.task_deleted'), 1500, true);
+		} else {
+			displayMessage(result.message || $t('todo.delete_failed'));
+		}
+	}
 </script>
+
+<svelte:window onmousemove={handleGlobalMouseMove} />
 
 <div class="grid gap-3">
 	<Card class="border-0 shadow-sm">
@@ -203,47 +176,53 @@
 		</CardHeader>
 		<CardContent class="px-4 pt-0 pb-4">
 			{#if activeTodosArray().length > 0}
-				<DndContext
-					{sensors}
-					collisionDetection={closestCenter}
-					onDragStart={handleDragStart}
-					onDragMove={handleDragMove}
-					onDragEnd={handleDragEnd}
-					onDragCancel={handleDragCancel}
-				>
-					<SortableContext
-						items={activeTodosArray().map((todo: TodoFieldsFragment) => todo.id)}
-						strategy={verticalListSortingStrategy}
-					>
-						<div class="space-y-1">
-							{#each activeTodosArray() as todo, index (todo.id)}
-								{@const isDropTarget = dropPosition?.todoId === todo.id}
-								{@const showDropIndicatorAbove = isDropTarget && dropPosition?.position === 'above'}
-								{@const showDropIndicatorBelow = isDropTarget && dropPosition?.position === 'below'}
+				<div class="space-y-1" data-list-container>
+					{#each activeTodosArray() as todo, idx (todo.id)}
+						{@const isDraggedCard = draggedTodo?.id === todo.id}
+						{@const filteredIndex = draggedTodo
+							? activeTodosArray()
+									.filter((t) => t.id !== draggedTodo?.id)
+									.findIndex((t) => t.id === todo.id)
+							: idx}
 
-								{#if showDropIndicatorAbove}
-									<div
-										class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-									></div>
-								{/if}
+						{@const isTargetedDirectlyAbove =
+							dropTarget && dropTarget.index === filteredIndex && dropTarget.position === 'above'}
 
-								<TodoItem {todo} />
+						{@const isTargetedBelowPrevious =
+							dropTarget &&
+							dropTarget.index === filteredIndex - 1 &&
+							dropTarget.position === 'below'}
 
-								{#if showDropIndicatorBelow}
-									<div
-										class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
-									></div>
-								{/if}
-							{/each}
-						</div>
-					</SortableContext>
+						{@const showAbove = isTargetedDirectlyAbove || isTargetedBelowPrevious}
 
-					<DragOverlay>
-						{#if activeTodo}
-							<TodoItem todo={activeTodo} isDragging={true} />
+						<TodoItem
+							{todo}
+							{draggedTodo}
+							isDragging={isDraggedCard}
+							showDropAbove={showAbove || undefined}
+							listId="active-list"
+							onDragStart={handleDragStart}
+							onDragEnd={handleDragEnd}
+							onDelete={handleDelete}
+						/>
+					{/each}
+
+					{#if dropTarget}
+						{@const filteredLength = draggedTodo
+							? activeTodosArray().filter((t) => t.id !== draggedTodo?.id).length
+							: activeTodosArray().length}
+
+						{@const isTargetingBelowLastItem =
+							dropTarget.index === filteredLength - 1 && dropTarget.position === 'below'}
+						{@const isTargetingEmptyListSpace = dropTarget.index >= filteredLength}
+
+						{#if isTargetingBelowLastItem || isTargetingEmptyListSpace}
+							<div
+								class="h-1 w-full rounded-full bg-primary/80 opacity-80 shadow-md shadow-primary/20 transition-all duration-200"
+							></div>
 						{/if}
-					</DragOverlay>
-				</DndContext>
+					{/if}
+				</div>
 			{:else}
 				<div class="py-4 text-center text-muted-foreground">
 					<p class="text-sm">{$t('todo.no_active_tasks')}</p>
