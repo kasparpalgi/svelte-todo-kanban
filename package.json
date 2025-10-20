@@ -85,6 +85,7 @@
 		"@neodrag/svelte": "^2.3.3",
 		"@sveltekit-i18n/parser-default": "^1.1.1",
 		"@tiptap/core": "^3.6.3",
+		"@tiptap/extension-link": "^3.7.2",
 		"@tiptap/extension-task-item": "^3.6.3",
 		"@tiptap/extension-task-list": "^3.6.3",
 		"@tiptap/starter-kit": "^3.6.3",

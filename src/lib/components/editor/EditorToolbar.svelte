@@ -2,10 +2,37 @@
 <script lang="ts">
 	import type { Editor } from '@tiptap/core';
 	import type { Readable } from 'svelte/store';
-	import { Bold, Italic, Code, Heading1, Heading2, List, ListOrdered } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import {
+		Bold,
+		Italic,
+		Code,
+		Heading1,
+		Heading2,
+		List,
+		ListOrdered,
+		Link as LinkIcon
+	} from 'lucide-svelte';
 
 	let { editor }: { editor: Readable<Editor> } = $props();
+
+	function setLink() {
+		if (!$editor) return;
+
+		const previousUrl = $editor.getAttributes('link').href;
+		const url = window.prompt('Enter URL:', previousUrl);
+
+		if (url === null) {
+			return;
+		}
+
+		if (url === '') {
+			$editor.chain().focus().extendMarkRange('link').unsetLink().run();
+			return;
+		}
+
+		$editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+	}
 </script>
 
 {#if editor && $editor}
@@ -46,6 +73,17 @@
 			title="Code"
 		>
 			<Code class="h-4 w-4" />
+		</Button>
+
+		<Button
+			type="button"
+			variant="ghost"
+			size="sm"
+			class="h-8 w-8 p-0 {$editor.isActive('link') ? 'bg-muted' : ''}"
+			onclick={setLink}
+			title="Link (Ctrl+K)"
+		>
+			<LinkIcon class="h-4 w-4" />
 		</Button>
 
 		<div class="mx-1 h-6 w-px bg-border"></div>
