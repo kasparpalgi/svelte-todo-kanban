@@ -33,7 +33,7 @@
 					Link.configure({
 						openOnClick: false,
 						HTMLAttributes: {
-							class: 'text-blue-600 underline hover:text-blue-800'
+							class: 'text-blue-600 underline hover:text-blue-800 cursor-pointer'
 						}
 					}).extend({
 						addKeyboardShortcuts() {
