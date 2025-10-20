@@ -489,3 +489,5 @@ claude
 ### Performance Monitoring
 - Install and configure rollup-plugin-visualizer to analyze bundle composition
 - Review stats during development when adding new dependencies
+
+Do not run any commands that will change the formatting in all of the files, such as `prettier --write .`

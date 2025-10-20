@@ -41,7 +41,9 @@
 		{@html pwaInfo.webManifest.linkTag}
 	{/if}
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<link rel="icon" href={faviconUrl} />
+	<link rel="icon" href={faviconUrl} type="image/svg+xml" />
+	<link rel="icon" type="image/png" sizes="64x64" href="/pwa-64x64.png" />
+	<link rel="apple-touch-icon" sizes="192x192" href="/pwa-192x192.png" />
 </svelte:head>
 
 <ModeWatcher />
