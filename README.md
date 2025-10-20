@@ -139,8 +139,7 @@ Once configured, MCP servers are automatically available in all Claude Code sess
 **Frontend**: Svelte 5, SvelteKit, TypeScript, Tailwind CSS, shadcn-svelte  
 **Backend**: Hasura GraphQL, PostgreSQL  
 **Auth**: Auth.js with JWT tokens  
-**Drag & Drop**: @dnd-kit/svelte  
-**Rich Text**: svelte-tiptap (Markdown support)  
+**Rich Text**: svelte-tiptap (Markdown support planned)  
 **Testing**: Playwright (E2E), Vitest (unit/component)  
 **i18n**: sveltekit-i18n
 

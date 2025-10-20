@@ -24,7 +24,7 @@ If any are missing, see setup instructions in README.md.
 
 ## Tech Stack
 
-**Frontend**: Svelte 5, SvelteKit, TypeScript, Tailwind, shadcn-svelte, @dnd-kit/svelte  
+**Frontend**: Svelte 5, SvelteKit, TypeScript, Tailwind, shadcn-svelte, Neodrag  
 **Backend**: Hasura GraphQL, PostgreSQL, Auth.js  
 **Testing**: Playwright (E2E), Vitest (unit/component)
 
