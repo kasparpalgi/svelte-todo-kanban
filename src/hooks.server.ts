@@ -22,13 +22,39 @@ import Credentials from '@auth/sveltekit/providers/credentials';
 import type { Provider } from '@auth/sveltekit/providers';
 import type { Handle } from '@sveltejs/kit';
 
+// Extend the Session and JWT types to include custom properties
+declare module '@auth/core/types' {
+	interface Session {
+		hasuraRole?: string;
+		accessToken?: string;
+		error?: string;
+	}
+
+	interface JWT {
+		userId?: string;
+		hasuraRole?: string;
+		accessToken?: string;
+		refreshToken?: string;
+		expires_at?: number;
+		error?: string;
+	}
+}
+
 const maxAge = PUBLIC_APP_ENV ? 90 * 24 * 60 * 60 : 3 * 24 * 60 * 60; // 90 days vs 3 days
 const apiEndpoint = PUBLIC_API_ENV === 'production' ? API_ENDPOINT : API_ENDPOINT_DEV;
 
 const providers: Provider[] = [
 	Google({
 		clientId: AUTH_GOOGLE_ID,
-		clientSecret: AUTH_GOOGLE_SECRET
+		clientSecret: AUTH_GOOGLE_SECRET,
+		authorization: {
+			params: {
+				scope:
+					'openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar.events',
+				access_type: 'offline',
+				prompt: 'consent'
+			}
+		}
 	}),
 	Nodemailer({
 		server: {
@@ -71,36 +97,87 @@ export const { handle: authHandle, signOut } = SvelteKitAuth({
 		adminSecret: HASURA_ADMIN_SECRET
 	}),
 	providers,
+	secret: AUTH_SECRET,
+	trustHost: true,
 	session: {
 		strategy: 'jwt',
 		maxAge: maxAge
 	},
 	callbacks: {
 		jwt: async ({ token, user, account }) => {
+			// Initial sign in
 			if (account && user) {
+				console.log('Initial sign in - Account:', {
+					provider: account.provider,
+					hasAccessToken: !!account.access_token,
+					hasRefreshToken: !!account.refresh_token,
+					expiresAt: account.expires_at
+				});
+
 				token.userId = user.id;
 				token.hasuraRole = 'user';
+				token.accessToken = account.access_token;
+				token.refreshToken = account.refresh_token;
+				token.expires_at = account.expires_at;
+				return token;
 			}
-			return token;
+
+			// Token is still valid
+			if (Date.now() < (token.expires_at as number) * 1000) {
+				return token;
+			}
+
+			// Token has expired, try to refresh it
+			console.log('Refreshing token');
+			try {
+				const response = await fetch('https://oauth2.googleapis.com/token', {
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: new URLSearchParams({
+						client_id: AUTH_GOOGLE_ID,
+						client_secret: AUTH_GOOGLE_SECRET,
+						grant_type: 'refresh_token',
+						refresh_token: token.refreshToken as string
+					}),
+					method: 'POST'
+				});
+
+				const newTokens = await response.json();
+
+				if (!response.ok) {
+					console.error('Error refreshing token:', newTokens);
+					throw newTokens;
+				}
+
+				console.log('Token refreshed successfully');
+				return {
+					...token,
+					accessToken: newTokens.access_token,
+					expires_at: Math.floor(Date.now() / 1000 + newTokens.expires_in),
+					refreshToken: newTokens.refresh_token ?? token.refreshToken
+				};
+			} catch (error) {
+				console.error('Error refreshing access token', error);
+				return { ...token, error: 'RefreshAccessTokenError' };
+			}
 		},
 		session: async ({ session, token }) => {
 			if (token && token.userId) {
 				session.user.id = token.userId as string;
 				session.hasuraRole = token.hasuraRole as string;
+				session.accessToken = token.accessToken as string;
+				session.error = token.error as string | undefined;
+
+				console.log('Session callback - has access token:', !!session.accessToken);
 			}
 			return session;
 		}
-	},
-	secret: AUTH_SECRET,
-	trustHost: true
+	}
 });
 
 const securityHandle: Handle = async ({ event, resolve }) => {
 	const url = event.url;
 	const session = await event.locals.auth();
 	const isBoardRoute = url.pathname.match(/^\/[^/]+\/[^/]+\/[^/]+/);
-
-	console.log('Google OAuth redirect URL:', `${event.url.origin}/api/auth/callback/google`);
 
 	if (
 		!session &&
