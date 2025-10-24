@@ -390,7 +390,9 @@
         "actual_hours": "Actual hours",
         "comment_hours": "Comment on hours",
         "add_hours_comment": "Comment hours →",
-        "pick_date": "Set Due Date"
+        "pick_date": "Set Due Date",
+        "add_to_google_calendar": "Add to Google Calendar",
+        "calendar_event_failed": "Failed to add to Google Calendar"
     },
     "labels": {
         "labels": "Labels",

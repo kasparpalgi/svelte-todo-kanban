@@ -20,6 +20,7 @@
 	import { aiModels } from '$lib/settings/aiModels';
 	import { User, Moon, Sun, Layers, List, Save, Brain } from 'lucide-svelte';
 	import GithubIntegration from '$lib/components/settings/GithubIntegration.svelte';
+	import GoogleCalendarIntegration from '$lib/components/settings/GoogleCalendarIntegration.svelte';
 	import DevMode from '$lib/components/DevMode.svelte';
 
 	let user = $derived(userStore.user);
@@ -307,6 +308,8 @@
 			</Card>
 
 			<GithubIntegration />
+
+			<GoogleCalendarIntegration />
 
 			<div class="flex justify-start">
 				<Button

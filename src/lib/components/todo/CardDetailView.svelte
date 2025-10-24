@@ -27,9 +27,16 @@
 	import type { DateValue } from '@internationalized/date';
 
 	type Priority = 'low' | 'medium' | 'high';
+	import { Checkbox } from '$lib/components/ui/checkbox';
+	import { page } from '$app/stores';
+	import { userStore } from '$lib/stores/user.svelte';
 
 	let { todo, lang, onClose }: { todo: TodoFieldsFragment; lang: string; onClose: () => void } =
 		$props();
+
+	let addToGoogleCalendar = $state(false);
+	const user = $derived(userStore.user);
+	const hasCalendarConnected = $derived(!!user?.settings?.tokens?.google_calendar?.encrypted);
 
 	let editData = $state({
 		title: todo.title,
@@ -103,6 +110,37 @@
 				displayMessage(result.message || $t('card.update_failed'));
 				console.error('CardDetailView: Store update failed.', result.message);
 				return;
+			}
+
+			// Add to Google Calendar if checkbox is checked and we have calendar connected
+			if (result.success && addToGoogleCalendar && hasCalendarConnected && user?.id) {
+				console.log('Creating Google Calendar event...');
+				try {
+					const response = await fetch('/api/calendar-event', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							title: validatedData.title,
+							description: validatedData.content,
+							dueDate: validatedData.due_on,
+							userId: user.id
+						})
+					});
+
+					const calendarResult = await response.json();
+
+					if (calendarResult.success) {
+						console.log('Calendar event created successfully');
+					} else {
+						console.error('Failed to create calendar event:', calendarResult.error);
+						displayMessage($t('card.calendar_event_failed') || 'Failed to add to Google Calendar');
+					}
+				} catch (error) {
+					console.error('Failed to create calendar event:', error);
+					displayMessage($t('card.calendar_event_failed') || 'Failed to add to Google Calendar');
+				}
 			}
 
 			const newImages = imageManager?.getNewImages() || [];
@@ -252,6 +290,14 @@
 						/>
 					</PopoverContent>
 				</Popover>
+				{#if selectedDate && hasCalendarConnected}
+					<div class="mt-2 flex items-center space-x-2">
+						<Checkbox id="google-calendar" bind:checked={addToGoogleCalendar} />
+						<label for="google-calendar" class="text-sm leading-none font-medium">
+							{$t('card.add_to_google_calendar')}
+						</label>
+					</div>
+				{/if}
 			</div>
 
 			<div>
