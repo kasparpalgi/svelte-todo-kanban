@@ -390,7 +390,9 @@
         "actual_hours": "Skutečné hodiny",
         "comment_hours": "Komentář k hodinám",
         "add_hours_comment": "Přidat komentář k hodinám →",
-        "pick_date": "Nastavit termín dokončení"
+        "pick_date": "Nastavit termín dokončení",
+        "add_to_google_calendar": "Přidat do Google Calendar",
+        "calendar_event_failed": "Nepodařilo se přidat do Google Calendar"
     },
     "labels": {
         "labels": "Štítky",

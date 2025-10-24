@@ -29,11 +29,14 @@
 	type Priority = 'low' | 'medium' | 'high';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { page } from '$app/stores';
+	import { userStore } from '$lib/stores/user.svelte';
 
 	let { todo, lang, onClose }: { todo: TodoFieldsFragment; lang: string; onClose: () => void } =
 		$props();
 
 	let addToGoogleCalendar = $state(false);
+	const user = $derived(userStore.user);
+	const hasCalendarConnected = $derived(!!user?.settings?.tokens?.google_calendar?.encrypted);
 
 	let editData = $state({
 		title: todo.title,
@@ -52,12 +55,6 @@
 	let isSubmitting = $state(false);
 	let editor: Readable<Editor> | null = $state(null);
 	let imageManager = $state<CardImageManager>();
-
-	// Debug session on mount
-	$effect(() => {
-		console.log('Session data:', $page.data.session);
-		console.log('Has access token:', !!$page.data.session?.accessToken);
-	});
 
 	$effect(() => {
 		if (selectedDate) {
@@ -115,8 +112,8 @@
 				return;
 			}
 
-			// Add to Google Calendar if checkbox is checked and we have an access token
-			if (result.success && addToGoogleCalendar && $page.data.session?.accessToken) {
+			// Add to Google Calendar if checkbox is checked and we have calendar connected
+			if (result.success && addToGoogleCalendar && hasCalendarConnected && user?.id) {
 				console.log('Creating Google Calendar event...');
 				try {
 					const response = await fetch('/api/calendar-event', {
@@ -128,7 +125,7 @@
 							title: validatedData.title,
 							description: validatedData.content,
 							dueDate: validatedData.due_on,
-							accessToken: $page.data.session.accessToken
+							userId: user.id
 						})
 					});
 
@@ -293,7 +290,7 @@
 						/>
 					</PopoverContent>
 				</Popover>
-				{#if selectedDate && $page.data.session?.accessToken}
+				{#if selectedDate && hasCalendarConnected}
 					<div class="mt-2 flex items-center space-x-2">
 						<Checkbox id="google-calendar" bind:checked={addToGoogleCalendar} />
 						<label for="google-calendar" class="text-sm leading-none font-medium">

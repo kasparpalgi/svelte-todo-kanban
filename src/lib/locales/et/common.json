@@ -390,7 +390,9 @@
         "actual_hours": "Kulus tunde",
         "comment_hours": "Kommentaar töömahu kohta",
         "add_hours_comment": "Kommenteeri töötunde →",
-        "pick_date": "Lisa tähtaeg"
+        "pick_date": "Lisa tähtaeg",
+        "add_to_google_calendar": "Lisa Google kalendrisse",
+        "calendar_event_failed": "Google kalendrisse lisamine ebaõnnestus"
     },
     "labels": {
         "labels": "Sildid",
