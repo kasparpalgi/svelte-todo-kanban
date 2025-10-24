@@ -31,17 +31,13 @@ export const load: LayoutServerLoad = async (event) => {
 
 	const session = await locals.auth();
 
-	if (url.pathname === '/') {
-		if (!session) {
-			throw redirect(302, '/signin');
+	if (url.pathname === '/' && session) {
+		const topBoardPath = await getTopBoardPath(session, fetch);
+		if (topBoardPath) {
+			throw redirect(302, topBoardPath);
 		} else {
-			const topBoardPath = await getTopBoardPath(session, fetch);
-			if (topBoardPath) {
-				throw redirect(302, topBoardPath);
-			} else {
-				const locale = session.user?.locale || 'et';
-				throw redirect(302, `/${locale}`);
-			}
+			const locale = session.user?.locale || 'et';
+			throw redirect(302, `/${locale}`);
 		}
 	}
 

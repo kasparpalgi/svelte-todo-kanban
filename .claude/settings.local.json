@@ -1,32 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx playwright test:*)",
-      "Bash(git commit:*)",
-      "Bash(docker-compose:*)",
-      "Bash(npm run generate:*)",
-      "Bash(npm run check:*)",
-      "Bash(git add:*)",
-      "Bash(npm run build:*)",
-      "Bash(npm run dev:*)",
-      "Bash(cat:*)",
-      "Bash(git reset:*)",
-      "WebSearch",
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:www.npmjs.com)",
-      "Bash(npm install:*)",
-      "Bash(npm test:*)",
-      "Bash(npm run test:unit:all:*)",
-      "Bash(timeout:*)",
-      "mcp__playwright__browser_navigate",
-      "mcp__playwright__browser_console_messages",
-      "mcp__playwright__browser_snapshot",
-      "mcp__playwright__browser_type",
-      "mcp__playwright__browser_click",
-      "mcp__playwright__browser_close",
-      "WebFetch(domain:authjs.dev)",
-      "Bash(ping:*)",
-      "Bash(npx vite dev:*)"
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(npx svelte-check --tsconfig ./tsconfig.json)"
     ],
     "deny": [],
     "ask": []
