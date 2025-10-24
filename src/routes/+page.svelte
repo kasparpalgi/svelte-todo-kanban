@@ -51,7 +51,12 @@
 			title: 'Free SaaS',
 			price: 'Free Forever',
 			description: 'For early adopters',
-			features: ['Unlimited boards', 'GitHub integration', 'Multi-user collaboration', 'All features included']
+			features: [
+				'Unlimited boards',
+				'GitHub integration',
+				'Multi-user collaboration',
+				'All features included'
+			]
 		},
 		{
 			title: 'Self-Hosted',
@@ -63,7 +68,12 @@
 			title: 'Setup Service',
 			price: '€100',
 			description: 'One-time setup fee',
-			features: ['Installed in your server', 'Complete configuration', 'Free hosting (~€3.50/month)', 'Ready to use']
+			features: [
+				'Installed in your server',
+				'Complete configuration',
+				'Free hosting (~€3.50/month)',
+				'Ready to use'
+			]
 		},
 		{
 			title: 'White Label',
@@ -95,15 +105,17 @@
 				Open-Source Free Kanban Todo Lists
 			</p>
 			<p class="mb-12 text-lg text-muted-foreground md:text-xl">
-				Because developers love GitHub, but clients don't. Trello's pricey. Jira's bonkers. <br
-				/>
+				Because developers love GitHub, but clients don't. Trello's pricey. Jira's bonkers. <br />
 				Here's something that actually makes sense.
 			</p>
 			<div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
-				<Button href="/signin" size="lg" class="text-lg">
-					Get Started Free
-				</Button>
-				<Button href="https://github.com/yourusername/todzz" variant="outline" size="lg" class="text-lg">
+				<Button href="/signin" size="lg" class="text-lg">Get Started Free</Button>
+				<Button
+					href="https://github.com/kasparpalgi/svelte-todo-kanban"
+					variant="outline"
+					size="lg"
+					class="text-lg"
+				>
 					<Github class="mr-2 h-5 w-5" />
 					View on GitHub
 				</Button>
@@ -145,7 +157,7 @@
 			<div class="space-y-8">
 				<div class="flex gap-4">
 					<div
-						class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
+						class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground"
 					>
 						1
 					</div>
@@ -159,7 +171,7 @@
 				</div>
 				<div class="flex gap-4">
 					<div
-						class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
+						class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground"
 					>
 						2
 					</div>
@@ -173,7 +185,7 @@
 				</div>
 				<div class="flex gap-4">
 					<div
-						class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
+						class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground"
 					>
 						3
 					</div>
@@ -187,7 +199,7 @@
 				</div>
 				<div class="flex gap-4">
 					<div
-						class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold"
+						class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground"
 					>
 						4
 					</div>
@@ -209,26 +221,7 @@
 			<h2 class="mb-12 text-center text-3xl font-bold md:text-4xl">All Features</h2>
 			<div class="mx-auto max-w-4xl">
 				<div class="grid gap-4 md:grid-cols-2">
-					{#each [
-						'Kanban and list view',
-						'Multilingual support',
-						'Drag & drop tasks',
-						'Fully integrated with GitHub',
-						'PWA mobile app',
-						'Time tracking & estimates',
-						'Voice + AI note taking',
-						'Google Calendar integration',
-						'Multi-user collaboration',
-						'Comments (synced with GitHub)',
-						'File uploads',
-						'Rich text editing',
-						'Priorities & due dates',
-						'Keyboard shortcuts',
-						'Label management',
-						'Private/public boards',
-						'Vote for new features',
-						'Data export'
-					] as feature}
+					{#each ['Kanban and list view', 'Multilingual support', 'Drag & drop tasks', 'Fully integrated with GitHub', 'PWA mobile app', 'Time tracking & estimates', 'Voice + AI note taking', 'Google Calendar integration', 'Multi-user collaboration', 'Comments (synced with GitHub)', 'File uploads', 'Rich text editing', 'Priorities & due dates', 'Keyboard shortcuts', 'Label management', 'Private/public boards', 'Vote for new features', 'Data export'] as feature}
 						<div class="flex items-start gap-3">
 							<CheckCircle2 class="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
 							<span class="text-muted-foreground">{feature}</span>
@@ -273,12 +266,16 @@
 								</li>
 							{/each}
 						</ul>
-						<Button href="/signin" class="w-full">Get Started</Button>
+						{#if option.title === 'Free SaaS'}
+							<Button href="/signup" class="w-full">Get Started</Button>
+						{:else}
+							<Button href="mailto:hey@todzz.eu" class="w-full">Contact</Button>
+						{/if}
 					</div>
 				{/each}
 			</div>
 			<p class="mt-8 text-center text-sm text-muted-foreground">
-				Need a custom feature? <a href="mailto:contact@todzz.com" class="text-primary hover:underline"
+				Need a custom feature? <a href="mailto:hey@todzz.eu" class="text-primary hover:underline"
 					>Contact us</a
 				> for an estimate.
 			</p>
@@ -295,11 +292,9 @@
 				Join teams who've found the perfect balance between simplicity and power.
 			</p>
 			<div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
-				<Button href="/signin" size="lg" class="text-lg">
-					Start Free Today
-				</Button>
+				<Button href="/signin" size="lg" class="text-lg">Start Free Today</Button>
 				<Button
-					href="https://github.com/yourusername/todzz"
+					href="https://github.com/kasparpalgi/svelte-todo-kanban"
 					variant="outline"
 					size="lg"
 					class="text-lg"
@@ -313,10 +308,18 @@
 
 	<!-- Footer -->
 	<footer class="border-t bg-muted/30 py-8">
-		<div class="container mx-auto px-4 text-center text-sm text-muted-foreground">
+		<div
+			class="container mx-auto flex flex-col items-center gap-4 px-4 text-center text-sm text-muted-foreground"
+		>
 			<p>
-				Open source and built with Svelte 5, Hasura, and PostgreSQL. Licensed under MIT.
+				Open source and licensed under MIT. For commercial use, please contact to obtain a
+				commercial license.
 			</p>
+			<div class="flex flex-wrap justify-center gap-x-4 gap-y-2">
+				<a href="/terms?privacy" class="hover:text-primary hover:underline">Privacy Conditions</a>
+				<a href="/terms?terms" class="hover:text-primary hover:underline">Terms & Conditions</a>
+				<a href="mailto:hey@todzz.eu" class="hover:text-primary hover:underline">Contact</a>
+			</div>
 		</div>
 	</footer>
 </div>
