@@ -26,7 +26,7 @@ export async function getTopBoardPath(
 
 				if (board.user?.username && board.alias) {
 					const locale = session.user?.locale || 'et';
-					const path = `/${locale}/${board.user.username}/${board.alias}`;
+					return `/${locale}/${board.user.username}/${board.alias}`;
 				}
 			}
 		}
@@ -46,7 +46,7 @@ export async function getTopBoardPath(
 
 			if (board.user?.username && board.alias) {
 				const locale = session.user?.locale || 'et';
-				const path = `/${locale}/${board.user.username}/${board.alias}`;
+				return `/${locale}/${board.user.username}/${board.alias}`;
 			}
 		}
 
