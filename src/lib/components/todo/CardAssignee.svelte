@@ -20,14 +20,15 @@
 	import { onMount } from 'svelte';
 
 	let { todo }: { todo: TodoFieldsFragment } = $props();
+	let isOpen = $state(false);
 
 	const user = $derived(userStore.user);
 	const members = $derived(boardMembersStore.members);
 	const assignee = $derived(todo.assignee);
 
 	onMount(async () => {
-		// Load board members if we don't have them yet
-		if (todo.list?.board?.id && members.length === 0) {
+		// Load board members when this component mounts
+		if (todo.list?.board?.id) {
 			await boardMembersStore.loadMembers(todo.list.board.id);
 		}
 	});
@@ -41,6 +42,7 @@
 
 		if (result.success) {
 			displayMessage(`User ${memberId ? 'assigned' : 'unassigned'} successfully!`, 1500, true);
+			isOpen = false;
 
 			// Create a notification for the assigned user
 			if (memberId && user?.id) {
@@ -64,15 +66,21 @@
 </script>
 
 <div class="flex items-center gap-2">
-	<DropdownMenu>
-		<Button variant="outline" size="sm" class="gap-2" slot="trigger">
-			<User class="h-4 w-4" />
-			{#if assignee}
-				<span class="text-xs">{assignee.name || assignee.username}</span>
-			{:else}
-				<span class="text-xs text-muted-foreground">Unassigned</span>
-			{/if}
-		</Button>
+	<DropdownMenu bind:open={isOpen}>
+		<DropdownMenuTrigger>
+			<Button
+				variant="outline"
+				size="sm"
+				class="gap-2"
+			>
+				<User class="h-4 w-4" />
+				{#if assignee}
+					<span class="text-xs">{assignee.name || assignee.username}</span>
+				{:else}
+					<span class="text-xs text-muted-foreground">Unassigned</span>
+				{/if}
+			</Button>
+		</DropdownMenuTrigger>
 
 		<DropdownMenuContent align="start" class="w-48">
 			<DropdownMenuLabel>Assign to:</DropdownMenuLabel>

@@ -25,18 +25,20 @@
 </script>
 
 <DropdownMenu bind:open={isOpen}>
-	<Button
-		variant="ghost"
-		size="icon"
-		class="relative"
-	>
-		<Bell class="h-5 w-5" />
-		{#if unreadCount > 0}
-			<span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
-				{unreadCount > 99 ? '99+' : unreadCount}
-			</span>
-		{/if}
-	</Button>
+	<DropdownMenuTrigger>
+		<Button
+			variant="ghost"
+			size="icon"
+			class="relative"
+		>
+			<Bell class="h-5 w-5" />
+			{#if unreadCount > 0}
+				<span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+					{unreadCount > 99 ? '99+' : unreadCount}
+				</span>
+			{/if}
+		</Button>
+	</DropdownMenuTrigger>
 
 	<DropdownMenuContent class="w-80 p-0" align="end">
 		<NotificationPanel {isOpen} />
