@@ -1,0 +1,3 @@
+table:
+  name: tracker_daily_stats
+  schema: public
