@@ -150,6 +150,9 @@ function createTodosStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!title.trim()) return { success: false, message: 'Title is required' };
 
+		// Import user store to get current user ID
+		const { userStore: us } = await import('./user.svelte');
+
 		try {
 			let sortOrder: number;
 
@@ -184,7 +187,9 @@ function createTodosStore() {
 						title: title.trim(),
 						content: content?.trim() || null,
 						sort_order: sortOrder,
-						...(listId && { list_id: listId })
+						...(listId && { list_id: listId }),
+						// Auto-assign to current user
+						assigned_to: us.user?.id || null
 					}
 				]
 			});

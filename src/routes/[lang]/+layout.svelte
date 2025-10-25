@@ -7,8 +7,7 @@
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import UserMenu from '$lib/components/auth/UserMenu.svelte';
 	import Logo from '$lib/components/ui/Logo.svelte';
-	import InvitationNotifications from '$lib/components/listBoard/InvitationNotifications.svelte';
-	import NotificationBell from '$lib/components/notifications/NotificationBell.svelte';
+	import UnifiedNotifications from '$lib/components/notifications/UnifiedNotifications.svelte';
 
 	let { data, children } = $props();
 
@@ -64,8 +63,7 @@
 
 			<div class="flex items-center gap-2">
 				{#if data?.session}
-					<NotificationBell />
-					<InvitationNotifications />
+					<UnifiedNotifications />
 					<UserMenu />
 				{/if}
 			</div>

@@ -5,7 +5,7 @@
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
-		DropdownMenuItem,
+		DropdownMenuTrigger,
 		DropdownMenuLabel,
 		DropdownMenuSeparator,
 		DropdownMenuCheckboxItem
@@ -17,12 +17,20 @@
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import { onMount } from 'svelte';
 
 	let { todo }: { todo: TodoFieldsFragment } = $props();
 
 	const user = $derived(userStore.user);
 	const members = $derived(boardMembersStore.members);
 	const assignee = $derived(todo.assignee);
+
+	onMount(async () => {
+		// Load board members if we don't have them yet
+		if (todo.list?.board?.id && members.length === 0) {
+			await boardMembersStore.loadMembers(todo.list.board.id);
+		}
+	});
 
 	async function assignUser(memberId: string | null) {
 		if (!todo.id) return;
@@ -57,7 +65,7 @@
 
 <div class="flex items-center gap-2">
 	<DropdownMenu>
-		<Button variant="outline" size="sm" class="gap-2">
+		<Button variant="outline" size="sm" class="gap-2" slot="trigger">
 			<User class="h-4 w-4" />
 			{#if assignee}
 				<span class="text-xs">{assignee.name || assignee.username}</span>
