@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "mcp__playwright__browser_take_screenshot",
-      "Bash(npx svelte-check --tsconfig ./tsconfig.json)"
+      "Bash(npx svelte-check --tsconfig ./tsconfig.json)",
+      "Bash(cat:*)",
+      "Bash(npm run generate:*)",
+      "Bash(hasura metadata apply:*)",
+      "Bash(hasura migrate apply:*)",
+      "Bash(hasura metadata reload:*)",
+      "Bash(npm run check:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Add multi-user notification system infrastructure\n\nImplement the foundation for a comprehensive notification and activity logging\nsystem supporting task assignments, notifications, and full audit trails.\n\nThis commit adds:\n\n**Database Layer**\n- Add assigned_to column to todos table for user assignments\n- Create notifications table for user notifications with types:\n  - assigned, commented, edited, image_added, image_removed,\n  - comment_edited, comment_removed, priority_changed\n- Create activity_logs table for complete audit trail\n\n**Hasura Configuration**\n- Update todos table metadata with assignee relationship\n- Add assigned_to to all permission columns\n- Create notifications table with full CRUD permissions\n- Create activity_logs table with read permissions\n- Apply and reload Hasura metadata successfully\n\n**GraphQL Layer**\n- Update TODO_FRAGMENT with assigned_to and assignee object\n- Add NOTIFICATION_FRAGMENT for notification fields\n- Add GET_NOTIFICATIONS query with filtering\n- Add CREATE_NOTIFICATION, UPDATE_NOTIFICATION mutations\n- Add MARK_NOTIFICATIONS_AS_READ batch operation\n- Add DELETE_NOTIFICATION mutation\n- Add ACTIVITY_LOG_FRAGMENT for audit trail\n- Add GET_ACTIVITY_LOGS query\n- Add CREATE_ACTIVITY_LOG mutation\n- Successfully generate all GraphQL types\n\n**Store Layer**\n- Create notifications.svelte.ts store with:\n  - loadNotifications, createNotification, markAsRead,\n  - markMultipleAsRead, deleteNotification methods\n  - Unread count tracking with optimistic updates\n  - Error handling and logging\n  \n- Create activityLog.svelte.ts store with:\n  - loadActivityLogs, createActivityLog methods\n  - Error handling and logging\n\n**Documentation**\n- Document complete implementation status\n- Outline next steps for frontend integration\n- Document database schema and GraphQL operations\n\nNext phase will integrate notifications into todo mutations,\ncreate UI components for notifications and activity logs,\nand add comprehensive tests.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

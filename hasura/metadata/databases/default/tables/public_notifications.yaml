@@ -1,0 +1,85 @@
+table:
+  name: notifications
+  schema: public
+object_relationships:
+  - name: comment
+    using:
+      foreign_key_constraint_on: related_comment_id
+  - name: todo
+    using:
+      foreign_key_constraint_on: todo_id
+  - name: triggered_by_user
+    using:
+      foreign_key_constraint_on: triggered_by_user_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      set:
+        user_id: x-hasura-User-Id
+      columns:
+        - content
+        - created_at
+        - id
+        - is_read
+        - related_comment_id
+        - todo_id
+        - triggered_by_user_id
+        - type
+        - updated_at
+        - user_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - content
+        - created_at
+        - id
+        - is_read
+        - related_comment_id
+        - todo_id
+        - triggered_by_user_id
+        - type
+        - updated_at
+        - user_id
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      allow_aggregations: true
+      query_root_fields:
+        - select
+        - select_aggregate
+        - select_by_pk
+      subscription_root_fields:
+        - select
+        - select_aggregate
+        - select_by_pk
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - content
+        - is_read
+        - related_comment_id
+        - triggered_by_user_id
+        - type
+        - updated_at
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""

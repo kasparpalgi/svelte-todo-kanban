@@ -13,6 +13,7 @@ export const TODO_FRAGMENT = graphql(`
 		completed_at
 		created_at
 		updated_at
+		assigned_to
 		github_issue_number
 		github_issue_id
 		github_synced_at
@@ -21,6 +22,13 @@ export const TODO_FRAGMENT = graphql(`
 		max_hours
 		actual_hours
 		comment_hours
+		assignee {
+			id
+			name
+			username
+			image
+			email
+		}
 		labels {
 			label {
 				...LabelFields
@@ -657,6 +665,137 @@ export const GET_LOGS = graphql(`
 			aggregate {
 				count
 			}
+		}
+	}
+`);
+// ========== Notifications ==========
+
+export const NOTIFICATION_FRAGMENT = graphql(`
+	fragment NotificationFields on notifications {
+		id
+		user_id
+		todo_id
+		type
+		triggered_by_user_id
+		related_comment_id
+		content
+		is_read
+		created_at
+		updated_at
+		triggered_by_user {
+			id
+			name
+			username
+			image
+		}
+		todo {
+			id
+			title
+			list {
+				id
+				board {
+					id
+					name
+				}
+			}
+		}
+	}
+`);
+
+export const GET_NOTIFICATIONS = graphql(`
+	query GetNotifications(
+		$where: notifications_bool_exp
+		$order_by: [notifications_order_by!]
+		$limit: Int
+		$offset: Int
+	) {
+		notifications(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...NotificationFields
+		}
+		notifications_aggregate(where: $where) {
+			aggregate {
+				count
+			}
+		}
+	}
+`);
+
+export const CREATE_NOTIFICATION = graphql(`
+	mutation CreateNotification($notification: notifications_insert_input!) {
+		insert_notifications_one(object: $notification) {
+			...NotificationFields
+		}
+	}
+`);
+
+export const UPDATE_NOTIFICATION = graphql(`
+	mutation UpdateNotification($id: uuid!, $updates: notifications_set_input!) {
+		update_notifications_by_pk(pk_columns: { id: $id }, _set: $updates) {
+			...NotificationFields
+		}
+	}
+`);
+
+export const MARK_NOTIFICATIONS_AS_READ = graphql(`
+	mutation MarkNotificationsAsRead($notification_ids: [uuid!]!) {
+		update_notifications(where: { id: { _in: $notification_ids } }, _set: { is_read: true }) {
+			affected_rows
+		}
+	}
+`);
+
+export const DELETE_NOTIFICATION = graphql(`
+	mutation DeleteNotification($id: uuid!) {
+		delete_notifications_by_pk(id: $id) {
+			id
+		}
+	}
+`);
+
+// ========== Activity Logs ==========
+
+export const ACTIVITY_LOG_FRAGMENT = graphql(`
+	fragment ActivityLogFields on activity_logs {
+		id
+		user_id
+		todo_id
+		action_type
+		field_name
+		old_value
+		new_value
+		changes
+		created_at
+		user {
+			id
+			name
+			username
+			image
+		}
+	}
+`);
+
+export const GET_ACTIVITY_LOGS = graphql(`
+	query GetActivityLogs(
+		$where: activity_logs_bool_exp
+		$order_by: [activity_logs_order_by!]
+		$limit: Int
+		$offset: Int
+	) {
+		activity_logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...ActivityLogFields
+		}
+		activity_logs_aggregate(where: $where) {
+			aggregate {
+				count
+			}
+		}
+	}
+`);
+
+export const CREATE_ACTIVITY_LOG = graphql(`
+	mutation CreateActivityLog($log: activity_logs_insert_input!) {
+		insert_activity_logs_one(object: $log) {
+			...ActivityLogFields
 		}
 	}
 `);

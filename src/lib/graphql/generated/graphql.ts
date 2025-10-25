@@ -537,6 +537,288 @@ export type Accounts_Variance_Order_By = {
   expires_at?: InputMaybe<Order_By>;
 };
 
+/** Complete audit trail of all user actions on todos */
+export type Activity_Logs = {
+  __typename?: 'activity_logs';
+  /** Type of action performed: created, updated, deleted, completed, uncompleted, assigned, unassigned, commented, etc. */
+  action_type: Scalars['String']['output'];
+  /** JSON object with all field changes for complex actions */
+  changes?: Maybe<Scalars['jsonb']['output']>;
+  created_at: Scalars['timestamptz']['output'];
+  field_name?: Maybe<Scalars['String']['output']>;
+  id: Scalars['uuid']['output'];
+  new_value?: Maybe<Scalars['String']['output']>;
+  old_value?: Maybe<Scalars['String']['output']>;
+  /** An object relationship */
+  todo: Todos;
+  todo_id: Scalars['uuid']['output'];
+  /** An object relationship */
+  user: Users;
+  user_id: Scalars['uuid']['output'];
+};
+
+
+/** Complete audit trail of all user actions on todos */
+export type Activity_LogsChangesArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregated selection of "activity_logs" */
+export type Activity_Logs_Aggregate = {
+  __typename?: 'activity_logs_aggregate';
+  aggregate?: Maybe<Activity_Logs_Aggregate_Fields>;
+  nodes: Array<Activity_Logs>;
+};
+
+/** aggregate fields of "activity_logs" */
+export type Activity_Logs_Aggregate_Fields = {
+  __typename?: 'activity_logs_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Activity_Logs_Max_Fields>;
+  min?: Maybe<Activity_Logs_Min_Fields>;
+};
+
+
+/** aggregate fields of "activity_logs" */
+export type Activity_Logs_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Activity_Logs_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type Activity_Logs_Append_Input = {
+  /** JSON object with all field changes for complex actions */
+  changes?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** Boolean expression to filter rows from the table "activity_logs". All fields are combined with a logical 'AND'. */
+export type Activity_Logs_Bool_Exp = {
+  _and?: InputMaybe<Array<Activity_Logs_Bool_Exp>>;
+  _not?: InputMaybe<Activity_Logs_Bool_Exp>;
+  _or?: InputMaybe<Array<Activity_Logs_Bool_Exp>>;
+  action_type?: InputMaybe<String_Comparison_Exp>;
+  changes?: InputMaybe<Jsonb_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  field_name?: InputMaybe<String_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  new_value?: InputMaybe<String_Comparison_Exp>;
+  old_value?: InputMaybe<String_Comparison_Exp>;
+  todo?: InputMaybe<Todos_Bool_Exp>;
+  todo_id?: InputMaybe<Uuid_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "activity_logs" */
+export enum Activity_Logs_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  ActivityLogsPkey = 'activity_logs_pkey'
+}
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type Activity_Logs_Delete_At_Path_Input = {
+  /** JSON object with all field changes for complex actions */
+  changes?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type Activity_Logs_Delete_Elem_Input = {
+  /** JSON object with all field changes for complex actions */
+  changes?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type Activity_Logs_Delete_Key_Input = {
+  /** JSON object with all field changes for complex actions */
+  changes?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** input type for inserting data into table "activity_logs" */
+export type Activity_Logs_Insert_Input = {
+  /** Type of action performed: created, updated, deleted, completed, uncompleted, assigned, unassigned, commented, etc. */
+  action_type?: InputMaybe<Scalars['String']['input']>;
+  /** JSON object with all field changes for complex actions */
+  changes?: InputMaybe<Scalars['jsonb']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  field_name?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  new_value?: InputMaybe<Scalars['String']['input']>;
+  old_value?: InputMaybe<Scalars['String']['input']>;
+  todo?: InputMaybe<Todos_Obj_Rel_Insert_Input>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Activity_Logs_Max_Fields = {
+  __typename?: 'activity_logs_max_fields';
+  /** Type of action performed: created, updated, deleted, completed, uncompleted, assigned, unassigned, commented, etc. */
+  action_type?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  field_name?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  new_value?: Maybe<Scalars['String']['output']>;
+  old_value?: Maybe<Scalars['String']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** aggregate min on columns */
+export type Activity_Logs_Min_Fields = {
+  __typename?: 'activity_logs_min_fields';
+  /** Type of action performed: created, updated, deleted, completed, uncompleted, assigned, unassigned, commented, etc. */
+  action_type?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  field_name?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  new_value?: Maybe<Scalars['String']['output']>;
+  old_value?: Maybe<Scalars['String']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** response of any mutation on the table "activity_logs" */
+export type Activity_Logs_Mutation_Response = {
+  __typename?: 'activity_logs_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Activity_Logs>;
+};
+
+/** on_conflict condition type for table "activity_logs" */
+export type Activity_Logs_On_Conflict = {
+  constraint: Activity_Logs_Constraint;
+  update_columns?: Array<Activity_Logs_Update_Column>;
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "activity_logs". */
+export type Activity_Logs_Order_By = {
+  action_type?: InputMaybe<Order_By>;
+  changes?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  field_name?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  new_value?: InputMaybe<Order_By>;
+  old_value?: InputMaybe<Order_By>;
+  todo?: InputMaybe<Todos_Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: activity_logs */
+export type Activity_Logs_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type Activity_Logs_Prepend_Input = {
+  /** JSON object with all field changes for complex actions */
+  changes?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** select columns of table "activity_logs" */
+export enum Activity_Logs_Select_Column {
+  /** column name */
+  ActionType = 'action_type',
+  /** column name */
+  Changes = 'changes',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  FieldName = 'field_name',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  NewValue = 'new_value',
+  /** column name */
+  OldValue = 'old_value',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "activity_logs" */
+export type Activity_Logs_Set_Input = {
+  /** Type of action performed: created, updated, deleted, completed, uncompleted, assigned, unassigned, commented, etc. */
+  action_type?: InputMaybe<Scalars['String']['input']>;
+  /** JSON object with all field changes for complex actions */
+  changes?: InputMaybe<Scalars['jsonb']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  field_name?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  new_value?: InputMaybe<Scalars['String']['input']>;
+  old_value?: InputMaybe<Scalars['String']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** Streaming cursor of the table "activity_logs" */
+export type Activity_Logs_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Activity_Logs_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Activity_Logs_Stream_Cursor_Value_Input = {
+  /** Type of action performed: created, updated, deleted, completed, uncompleted, assigned, unassigned, commented, etc. */
+  action_type?: InputMaybe<Scalars['String']['input']>;
+  /** JSON object with all field changes for complex actions */
+  changes?: InputMaybe<Scalars['jsonb']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  field_name?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  new_value?: InputMaybe<Scalars['String']['input']>;
+  old_value?: InputMaybe<Scalars['String']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** update columns of table "activity_logs" */
+export enum Activity_Logs_Update_Column {
+  /** column name */
+  ActionType = 'action_type',
+  /** column name */
+  Changes = 'changes',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  FieldName = 'field_name',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  NewValue = 'new_value',
+  /** column name */
+  OldValue = 'old_value',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Activity_Logs_Updates = {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: InputMaybe<Activity_Logs_Append_Input>;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _delete_at_path?: InputMaybe<Activity_Logs_Delete_At_Path_Input>;
+  /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+  _delete_elem?: InputMaybe<Activity_Logs_Delete_Elem_Input>;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _delete_key?: InputMaybe<Activity_Logs_Delete_Key_Input>;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: InputMaybe<Activity_Logs_Prepend_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Activity_Logs_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Activity_Logs_Bool_Exp;
+};
+
 /** Boolean expression to compare columns of type "bigint". All fields are combined with logical 'AND'. */
 export type Bigint_Comparison_Exp = {
   _eq?: InputMaybe<Scalars['bigint']['input']>;
@@ -2018,6 +2300,13 @@ export type Comments_Mutation_Response = {
   returning: Array<Comments>;
 };
 
+/** input type for inserting object relation for remote table "comments" */
+export type Comments_Obj_Rel_Insert_Input = {
+  data: Comments_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Comments_On_Conflict>;
+};
+
 /** on_conflict condition type for table "comments" */
 export type Comments_On_Conflict = {
   constraint: Comments_Constraint;
@@ -3372,6 +3661,10 @@ export type Mutation_Root = {
   delete_accounts?: Maybe<Accounts_Mutation_Response>;
   /** delete single row from the table: "accounts" */
   delete_accounts_by_pk?: Maybe<Accounts>;
+  /** delete data from the table: "activity_logs" */
+  delete_activity_logs?: Maybe<Activity_Logs_Mutation_Response>;
+  /** delete single row from the table: "activity_logs" */
+  delete_activity_logs_by_pk?: Maybe<Activity_Logs>;
   /** delete data from the table: "board_invitations" */
   delete_board_invitations?: Maybe<Board_Invitations_Mutation_Response>;
   /** delete single row from the table: "board_invitations" */
@@ -3400,6 +3693,10 @@ export type Mutation_Root = {
   delete_logs?: Maybe<Logs_Mutation_Response>;
   /** delete single row from the table: "logs" */
   delete_logs_by_pk?: Maybe<Logs>;
+  /** delete data from the table: "notifications" */
+  delete_notifications?: Maybe<Notifications_Mutation_Response>;
+  /** delete single row from the table: "notifications" */
+  delete_notifications_by_pk?: Maybe<Notifications>;
   /** delete data from the table: "sessions" */
   delete_sessions?: Maybe<Sessions_Mutation_Response>;
   /** delete single row from the table: "sessions" */
@@ -3428,6 +3725,10 @@ export type Mutation_Root = {
   insert_accounts?: Maybe<Accounts_Mutation_Response>;
   /** insert a single row into the table: "accounts" */
   insert_accounts_one?: Maybe<Accounts>;
+  /** insert data into the table: "activity_logs" */
+  insert_activity_logs?: Maybe<Activity_Logs_Mutation_Response>;
+  /** insert a single row into the table: "activity_logs" */
+  insert_activity_logs_one?: Maybe<Activity_Logs>;
   /** insert data into the table: "board_invitations" */
   insert_board_invitations?: Maybe<Board_Invitations_Mutation_Response>;
   /** insert a single row into the table: "board_invitations" */
@@ -3456,6 +3757,10 @@ export type Mutation_Root = {
   insert_logs?: Maybe<Logs_Mutation_Response>;
   /** insert a single row into the table: "logs" */
   insert_logs_one?: Maybe<Logs>;
+  /** insert data into the table: "notifications" */
+  insert_notifications?: Maybe<Notifications_Mutation_Response>;
+  /** insert a single row into the table: "notifications" */
+  insert_notifications_one?: Maybe<Notifications>;
   /** insert data into the table: "sessions" */
   insert_sessions?: Maybe<Sessions_Mutation_Response>;
   /** insert a single row into the table: "sessions" */
@@ -3486,6 +3791,12 @@ export type Mutation_Root = {
   update_accounts_by_pk?: Maybe<Accounts>;
   /** update multiples rows of table: "accounts" */
   update_accounts_many?: Maybe<Array<Maybe<Accounts_Mutation_Response>>>;
+  /** update data of the table: "activity_logs" */
+  update_activity_logs?: Maybe<Activity_Logs_Mutation_Response>;
+  /** update single row of the table: "activity_logs" */
+  update_activity_logs_by_pk?: Maybe<Activity_Logs>;
+  /** update multiples rows of table: "activity_logs" */
+  update_activity_logs_many?: Maybe<Array<Maybe<Activity_Logs_Mutation_Response>>>;
   /** update data of the table: "board_invitations" */
   update_board_invitations?: Maybe<Board_Invitations_Mutation_Response>;
   /** update single row of the table: "board_invitations" */
@@ -3528,6 +3839,12 @@ export type Mutation_Root = {
   update_logs_by_pk?: Maybe<Logs>;
   /** update multiples rows of table: "logs" */
   update_logs_many?: Maybe<Array<Maybe<Logs_Mutation_Response>>>;
+  /** update data of the table: "notifications" */
+  update_notifications?: Maybe<Notifications_Mutation_Response>;
+  /** update single row of the table: "notifications" */
+  update_notifications_by_pk?: Maybe<Notifications>;
+  /** update multiples rows of table: "notifications" */
+  update_notifications_many?: Maybe<Array<Maybe<Notifications_Mutation_Response>>>;
   /** update data of the table: "sessions" */
   update_sessions?: Maybe<Sessions_Mutation_Response>;
   /** update single row of the table: "sessions" */
@@ -3575,6 +3892,18 @@ export type Mutation_RootDelete_AccountsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Accounts_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Activity_LogsArgs = {
+  where: Activity_Logs_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Activity_Logs_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -3664,6 +3993,18 @@ export type Mutation_RootDelete_Logs_By_PkArgs = {
 
 
 /** mutation root */
+export type Mutation_RootDelete_NotificationsArgs = {
+  where: Notifications_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Notifications_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
 export type Mutation_RootDelete_SessionsArgs = {
   where: Sessions_Bool_Exp;
 };
@@ -3748,6 +4089,20 @@ export type Mutation_RootInsert_AccountsArgs = {
 export type Mutation_RootInsert_Accounts_OneArgs = {
   object: Accounts_Insert_Input;
   on_conflict?: InputMaybe<Accounts_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Activity_LogsArgs = {
+  objects: Array<Activity_Logs_Insert_Input>;
+  on_conflict?: InputMaybe<Activity_Logs_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Activity_Logs_OneArgs = {
+  object: Activity_Logs_Insert_Input;
+  on_conflict?: InputMaybe<Activity_Logs_On_Conflict>;
 };
 
 
@@ -3846,6 +4201,20 @@ export type Mutation_RootInsert_LogsArgs = {
 export type Mutation_RootInsert_Logs_OneArgs = {
   object: Logs_Insert_Input;
   on_conflict?: InputMaybe<Logs_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_NotificationsArgs = {
+  objects: Array<Notifications_Insert_Input>;
+  on_conflict?: InputMaybe<Notifications_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Notifications_OneArgs = {
+  object: Notifications_Insert_Input;
+  on_conflict?: InputMaybe<Notifications_On_Conflict>;
 };
 
 
@@ -3952,6 +4321,36 @@ export type Mutation_RootUpdate_Accounts_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Accounts_ManyArgs = {
   updates: Array<Accounts_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Activity_LogsArgs = {
+  _append?: InputMaybe<Activity_Logs_Append_Input>;
+  _delete_at_path?: InputMaybe<Activity_Logs_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Activity_Logs_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Activity_Logs_Delete_Key_Input>;
+  _prepend?: InputMaybe<Activity_Logs_Prepend_Input>;
+  _set?: InputMaybe<Activity_Logs_Set_Input>;
+  where: Activity_Logs_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Activity_Logs_By_PkArgs = {
+  _append?: InputMaybe<Activity_Logs_Append_Input>;
+  _delete_at_path?: InputMaybe<Activity_Logs_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Activity_Logs_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Activity_Logs_Delete_Key_Input>;
+  _prepend?: InputMaybe<Activity_Logs_Prepend_Input>;
+  _set?: InputMaybe<Activity_Logs_Set_Input>;
+  pk_columns: Activity_Logs_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Activity_Logs_ManyArgs = {
+  updates: Array<Activity_Logs_Updates>;
 };
 
 
@@ -4124,6 +4523,26 @@ export type Mutation_RootUpdate_Logs_ManyArgs = {
 
 
 /** mutation root */
+export type Mutation_RootUpdate_NotificationsArgs = {
+  _set?: InputMaybe<Notifications_Set_Input>;
+  where: Notifications_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Notifications_By_PkArgs = {
+  _set?: InputMaybe<Notifications_Set_Input>;
+  pk_columns: Notifications_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Notifications_ManyArgs = {
+  updates: Array<Notifications_Updates>;
+};
+
+
+/** mutation root */
 export type Mutation_RootUpdate_SessionsArgs = {
   _set?: InputMaybe<Sessions_Set_Input>;
   where: Sessions_Bool_Exp;
@@ -4254,6 +4673,264 @@ export type Mutation_RootUpdate_Verification_Tokens_ManyArgs = {
   updates: Array<Verification_Tokens_Updates>;
 };
 
+/** Notifications for user actions on todos (assignments, comments, edits, etc.) */
+export type Notifications = {
+  __typename?: 'notifications';
+  /** An object relationship */
+  comment?: Maybe<Comments>;
+  content?: Maybe<Scalars['String']['output']>;
+  created_at: Scalars['timestamptz']['output'];
+  id: Scalars['uuid']['output'];
+  /** Whether user has read this notification */
+  is_read: Scalars['Boolean']['output'];
+  related_comment_id?: Maybe<Scalars['uuid']['output']>;
+  /** An object relationship */
+  todo: Todos;
+  todo_id: Scalars['uuid']['output'];
+  /** An object relationship */
+  triggered_by_user?: Maybe<Users>;
+  triggered_by_user_id?: Maybe<Scalars['uuid']['output']>;
+  /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
+  type: Scalars['String']['output'];
+  updated_at: Scalars['timestamptz']['output'];
+  /** An object relationship */
+  user: Users;
+  user_id: Scalars['uuid']['output'];
+};
+
+/** aggregated selection of "notifications" */
+export type Notifications_Aggregate = {
+  __typename?: 'notifications_aggregate';
+  aggregate?: Maybe<Notifications_Aggregate_Fields>;
+  nodes: Array<Notifications>;
+};
+
+/** aggregate fields of "notifications" */
+export type Notifications_Aggregate_Fields = {
+  __typename?: 'notifications_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Notifications_Max_Fields>;
+  min?: Maybe<Notifications_Min_Fields>;
+};
+
+
+/** aggregate fields of "notifications" */
+export type Notifications_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Notifications_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Boolean expression to filter rows from the table "notifications". All fields are combined with a logical 'AND'. */
+export type Notifications_Bool_Exp = {
+  _and?: InputMaybe<Array<Notifications_Bool_Exp>>;
+  _not?: InputMaybe<Notifications_Bool_Exp>;
+  _or?: InputMaybe<Array<Notifications_Bool_Exp>>;
+  comment?: InputMaybe<Comments_Bool_Exp>;
+  content?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  is_read?: InputMaybe<Boolean_Comparison_Exp>;
+  related_comment_id?: InputMaybe<Uuid_Comparison_Exp>;
+  todo?: InputMaybe<Todos_Bool_Exp>;
+  todo_id?: InputMaybe<Uuid_Comparison_Exp>;
+  triggered_by_user?: InputMaybe<Users_Bool_Exp>;
+  triggered_by_user_id?: InputMaybe<Uuid_Comparison_Exp>;
+  type?: InputMaybe<String_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "notifications" */
+export enum Notifications_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  NotificationsPkey = 'notifications_pkey'
+}
+
+/** input type for inserting data into table "notifications" */
+export type Notifications_Insert_Input = {
+  comment?: InputMaybe<Comments_Obj_Rel_Insert_Input>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Whether user has read this notification */
+  is_read?: InputMaybe<Scalars['Boolean']['input']>;
+  related_comment_id?: InputMaybe<Scalars['uuid']['input']>;
+  todo?: InputMaybe<Todos_Obj_Rel_Insert_Input>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  triggered_by_user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  triggered_by_user_id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
+  type?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Notifications_Max_Fields = {
+  __typename?: 'notifications_max_fields';
+  content?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  related_comment_id?: Maybe<Scalars['uuid']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  triggered_by_user_id?: Maybe<Scalars['uuid']['output']>;
+  /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
+  type?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** aggregate min on columns */
+export type Notifications_Min_Fields = {
+  __typename?: 'notifications_min_fields';
+  content?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  related_comment_id?: Maybe<Scalars['uuid']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  triggered_by_user_id?: Maybe<Scalars['uuid']['output']>;
+  /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
+  type?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** response of any mutation on the table "notifications" */
+export type Notifications_Mutation_Response = {
+  __typename?: 'notifications_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Notifications>;
+};
+
+/** on_conflict condition type for table "notifications" */
+export type Notifications_On_Conflict = {
+  constraint: Notifications_Constraint;
+  update_columns?: Array<Notifications_Update_Column>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "notifications". */
+export type Notifications_Order_By = {
+  comment?: InputMaybe<Comments_Order_By>;
+  content?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  is_read?: InputMaybe<Order_By>;
+  related_comment_id?: InputMaybe<Order_By>;
+  todo?: InputMaybe<Todos_Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  triggered_by_user?: InputMaybe<Users_Order_By>;
+  triggered_by_user_id?: InputMaybe<Order_By>;
+  type?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: notifications */
+export type Notifications_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "notifications" */
+export enum Notifications_Select_Column {
+  /** column name */
+  Content = 'content',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  IsRead = 'is_read',
+  /** column name */
+  RelatedCommentId = 'related_comment_id',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  TriggeredByUserId = 'triggered_by_user_id',
+  /** column name */
+  Type = 'type',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "notifications" */
+export type Notifications_Set_Input = {
+  content?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Whether user has read this notification */
+  is_read?: InputMaybe<Scalars['Boolean']['input']>;
+  related_comment_id?: InputMaybe<Scalars['uuid']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  triggered_by_user_id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
+  type?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** Streaming cursor of the table "notifications" */
+export type Notifications_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Notifications_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Notifications_Stream_Cursor_Value_Input = {
+  content?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Whether user has read this notification */
+  is_read?: InputMaybe<Scalars['Boolean']['input']>;
+  related_comment_id?: InputMaybe<Scalars['uuid']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  triggered_by_user_id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
+  type?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** update columns of table "notifications" */
+export enum Notifications_Update_Column {
+  /** column name */
+  Content = 'content',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  IsRead = 'is_read',
+  /** column name */
+  RelatedCommentId = 'related_comment_id',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  TriggeredByUserId = 'triggered_by_user_id',
+  /** column name */
+  Type = 'type',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Notifications_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Notifications_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Notifications_Bool_Exp;
+};
+
 /** Boolean expression to compare columns of type "numeric". All fields are combined with logical 'AND'. */
 export type Numeric_Comparison_Exp = {
   _eq?: InputMaybe<Scalars['numeric']['input']>;
@@ -4291,6 +4968,12 @@ export type Query_Root = {
   accounts_aggregate: Accounts_Aggregate;
   /** fetch data from the table: "accounts" using primary key columns */
   accounts_by_pk?: Maybe<Accounts>;
+  /** fetch data from the table: "activity_logs" */
+  activity_logs: Array<Activity_Logs>;
+  /** fetch aggregated fields from the table: "activity_logs" */
+  activity_logs_aggregate: Activity_Logs_Aggregate;
+  /** fetch data from the table: "activity_logs" using primary key columns */
+  activity_logs_by_pk?: Maybe<Activity_Logs>;
   /** An array relationship */
   board_invitations: Array<Board_Invitations>;
   /** An aggregate relationship */
@@ -4333,6 +5016,12 @@ export type Query_Root = {
   logs_aggregate: Logs_Aggregate;
   /** fetch data from the table: "logs" using primary key columns */
   logs_by_pk?: Maybe<Logs>;
+  /** fetch data from the table: "notifications" */
+  notifications: Array<Notifications>;
+  /** fetch aggregated fields from the table: "notifications" */
+  notifications_aggregate: Notifications_Aggregate;
+  /** fetch data from the table: "notifications" using primary key columns */
+  notifications_by_pk?: Maybe<Notifications>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -4391,6 +5080,29 @@ export type Query_RootAccounts_AggregateArgs = {
 
 
 export type Query_RootAccounts_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootActivity_LogsArgs = {
+  distinct_on?: InputMaybe<Array<Activity_Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Activity_Logs_Order_By>>;
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
+};
+
+
+export type Query_RootActivity_Logs_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Activity_Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Activity_Logs_Order_By>>;
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
+};
+
+
+export type Query_RootActivity_Logs_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -4552,6 +5264,29 @@ export type Query_RootLogs_AggregateArgs = {
 
 
 export type Query_RootLogs_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootNotificationsArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+export type Query_RootNotifications_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+export type Query_RootNotifications_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -4939,6 +5674,14 @@ export type Subscription_Root = {
   accounts_by_pk?: Maybe<Accounts>;
   /** fetch data from the table in a streaming manner: "accounts" */
   accounts_stream: Array<Accounts>;
+  /** fetch data from the table: "activity_logs" */
+  activity_logs: Array<Activity_Logs>;
+  /** fetch aggregated fields from the table: "activity_logs" */
+  activity_logs_aggregate: Activity_Logs_Aggregate;
+  /** fetch data from the table: "activity_logs" using primary key columns */
+  activity_logs_by_pk?: Maybe<Activity_Logs>;
+  /** fetch data from the table in a streaming manner: "activity_logs" */
+  activity_logs_stream: Array<Activity_Logs>;
   /** An array relationship */
   board_invitations: Array<Board_Invitations>;
   /** An aggregate relationship */
@@ -4995,6 +5738,14 @@ export type Subscription_Root = {
   logs_by_pk?: Maybe<Logs>;
   /** fetch data from the table in a streaming manner: "logs" */
   logs_stream: Array<Logs>;
+  /** fetch data from the table: "notifications" */
+  notifications: Array<Notifications>;
+  /** fetch aggregated fields from the table: "notifications" */
+  notifications_aggregate: Notifications_Aggregate;
+  /** fetch data from the table: "notifications" using primary key columns */
+  notifications_by_pk?: Maybe<Notifications>;
+  /** fetch data from the table in a streaming manner: "notifications" */
+  notifications_stream: Array<Notifications>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -5073,6 +5824,36 @@ export type Subscription_RootAccounts_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Accounts_Stream_Cursor_Input>>;
   where?: InputMaybe<Accounts_Bool_Exp>;
+};
+
+
+export type Subscription_RootActivity_LogsArgs = {
+  distinct_on?: InputMaybe<Array<Activity_Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Activity_Logs_Order_By>>;
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
+};
+
+
+export type Subscription_RootActivity_Logs_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Activity_Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Activity_Logs_Order_By>>;
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
+};
+
+
+export type Subscription_RootActivity_Logs_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootActivity_Logs_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Activity_Logs_Stream_Cursor_Input>>;
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
 };
 
 
@@ -5283,6 +6064,36 @@ export type Subscription_RootLogs_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Logs_Stream_Cursor_Input>>;
   where?: InputMaybe<Logs_Bool_Exp>;
+};
+
+
+export type Subscription_RootNotificationsArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+export type Subscription_RootNotifications_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+export type Subscription_RootNotifications_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootNotifications_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Notifications_Stream_Cursor_Input>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
 };
 
 
@@ -5681,6 +6492,10 @@ export type Todos = {
   __typename?: 'todos';
   actual_hours?: Maybe<Scalars['numeric']['output']>;
   alias: Scalars['String']['output'];
+  /** User this todo is assigned to (null if unassigned) */
+  assigned_to?: Maybe<Scalars['uuid']['output']>;
+  /** An object relationship */
+  assignee?: Maybe<Users>;
   comment_hours?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
   comments: Array<Comments>;
@@ -5876,6 +6691,8 @@ export type Todos_Bool_Exp = {
   _or?: InputMaybe<Array<Todos_Bool_Exp>>;
   actual_hours?: InputMaybe<Numeric_Comparison_Exp>;
   alias?: InputMaybe<String_Comparison_Exp>;
+  assigned_to?: InputMaybe<Uuid_Comparison_Exp>;
+  assignee?: InputMaybe<Users_Bool_Exp>;
   comment_hours?: InputMaybe<String_Comparison_Exp>;
   comments?: InputMaybe<Comments_Bool_Exp>;
   comments_aggregate?: InputMaybe<Comments_Aggregate_Bool_Exp>;
@@ -5928,6 +6745,9 @@ export type Todos_Inc_Input = {
 export type Todos_Insert_Input = {
   actual_hours?: InputMaybe<Scalars['numeric']['input']>;
   alias?: InputMaybe<Scalars['String']['input']>;
+  /** User this todo is assigned to (null if unassigned) */
+  assigned_to?: InputMaybe<Scalars['uuid']['input']>;
+  assignee?: InputMaybe<Users_Obj_Rel_Insert_Input>;
   comment_hours?: InputMaybe<Scalars['String']['input']>;
   comments?: InputMaybe<Comments_Arr_Rel_Insert_Input>;
   completed_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -5962,6 +6782,8 @@ export type Todos_Max_Fields = {
   __typename?: 'todos_max_fields';
   actual_hours?: Maybe<Scalars['numeric']['output']>;
   alias?: Maybe<Scalars['String']['output']>;
+  /** User this todo is assigned to (null if unassigned) */
+  assigned_to?: Maybe<Scalars['uuid']['output']>;
   comment_hours?: Maybe<Scalars['String']['output']>;
   completed_at?: Maybe<Scalars['timestamptz']['output']>;
   content?: Maybe<Scalars['String']['output']>;
@@ -5990,6 +6812,8 @@ export type Todos_Max_Fields = {
 export type Todos_Max_Order_By = {
   actual_hours?: InputMaybe<Order_By>;
   alias?: InputMaybe<Order_By>;
+  /** User this todo is assigned to (null if unassigned) */
+  assigned_to?: InputMaybe<Order_By>;
   comment_hours?: InputMaybe<Order_By>;
   completed_at?: InputMaybe<Order_By>;
   content?: InputMaybe<Order_By>;
@@ -6019,6 +6843,8 @@ export type Todos_Min_Fields = {
   __typename?: 'todos_min_fields';
   actual_hours?: Maybe<Scalars['numeric']['output']>;
   alias?: Maybe<Scalars['String']['output']>;
+  /** User this todo is assigned to (null if unassigned) */
+  assigned_to?: Maybe<Scalars['uuid']['output']>;
   comment_hours?: Maybe<Scalars['String']['output']>;
   completed_at?: Maybe<Scalars['timestamptz']['output']>;
   content?: Maybe<Scalars['String']['output']>;
@@ -6047,6 +6873,8 @@ export type Todos_Min_Fields = {
 export type Todos_Min_Order_By = {
   actual_hours?: InputMaybe<Order_By>;
   alias?: InputMaybe<Order_By>;
+  /** User this todo is assigned to (null if unassigned) */
+  assigned_to?: InputMaybe<Order_By>;
   comment_hours?: InputMaybe<Order_By>;
   completed_at?: InputMaybe<Order_By>;
   content?: InputMaybe<Order_By>;
@@ -6098,6 +6926,8 @@ export type Todos_On_Conflict = {
 export type Todos_Order_By = {
   actual_hours?: InputMaybe<Order_By>;
   alias?: InputMaybe<Order_By>;
+  assigned_to?: InputMaybe<Order_By>;
+  assignee?: InputMaybe<Users_Order_By>;
   comment_hours?: InputMaybe<Order_By>;
   comments_aggregate?: InputMaybe<Comments_Aggregate_Order_By>;
   completed_at?: InputMaybe<Order_By>;
@@ -6134,6 +6964,8 @@ export enum Todos_Select_Column {
   ActualHours = 'actual_hours',
   /** column name */
   Alias = 'alias',
+  /** column name */
+  AssignedTo = 'assigned_to',
   /** column name */
   CommentHours = 'comment_hours',
   /** column name */
@@ -6176,6 +7008,8 @@ export enum Todos_Select_Column {
 export type Todos_Set_Input = {
   actual_hours?: InputMaybe<Scalars['numeric']['input']>;
   alias?: InputMaybe<Scalars['String']['input']>;
+  /** User this todo is assigned to (null if unassigned) */
+  assigned_to?: InputMaybe<Scalars['uuid']['input']>;
   comment_hours?: InputMaybe<Scalars['String']['input']>;
   completed_at?: InputMaybe<Scalars['timestamptz']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
@@ -6287,6 +7121,8 @@ export type Todos_Stream_Cursor_Input = {
 export type Todos_Stream_Cursor_Value_Input = {
   actual_hours?: InputMaybe<Scalars['numeric']['input']>;
   alias?: InputMaybe<Scalars['String']['input']>;
+  /** User this todo is assigned to (null if unassigned) */
+  assigned_to?: InputMaybe<Scalars['uuid']['input']>;
   comment_hours?: InputMaybe<Scalars['String']['input']>;
   completed_at?: InputMaybe<Scalars['timestamptz']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
@@ -6342,6 +7178,8 @@ export enum Todos_Update_Column {
   ActualHours = 'actual_hours',
   /** column name */
   Alias = 'alias',
+  /** column name */
+  AssignedTo = 'assigned_to',
   /** column name */
   CommentHours = 'comment_hours',
   /** column name */
@@ -7375,7 +8213,7 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null };
 
@@ -7399,7 +8237,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -7426,7 +8264,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -7434,7 +8272,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, due_on?: string | null, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -7697,6 +8535,66 @@ export type GetLogsQueryVariables = Exact<{
 
 export type GetLogsQuery = { __typename?: 'query_root', logs: Array<{ __typename?: 'logs', id: string, timestamp: string, level: string, component: string, message: string, data?: any | null, user_id?: string | null, session_id?: string | null, url?: string | null, created_at: string }>, logs_aggregate: { __typename?: 'logs_aggregate', aggregate?: { __typename?: 'logs_aggregate_fields', count: number } | null } };
 
+export type NotificationFieldsFragment = { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string } | null } | null } };
+
+export type GetNotificationsQueryVariables = Exact<{
+  where?: InputMaybe<Notifications_Bool_Exp>;
+  order_by?: InputMaybe<Array<Notifications_Order_By> | Notifications_Order_By>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetNotificationsQuery = { __typename?: 'query_root', notifications: Array<{ __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string } | null } | null } }>, notifications_aggregate: { __typename?: 'notifications_aggregate', aggregate?: { __typename?: 'notifications_aggregate_fields', count: number } | null } };
+
+export type CreateNotificationMutationVariables = Exact<{
+  notification: Notifications_Insert_Input;
+}>;
+
+
+export type CreateNotificationMutation = { __typename?: 'mutation_root', insert_notifications_one?: { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string } | null } | null } } | null };
+
+export type UpdateNotificationMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  updates: Notifications_Set_Input;
+}>;
+
+
+export type UpdateNotificationMutation = { __typename?: 'mutation_root', update_notifications_by_pk?: { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string } | null } | null } } | null };
+
+export type MarkNotificationsAsReadMutationVariables = Exact<{
+  notification_ids: Array<Scalars['uuid']['input']> | Scalars['uuid']['input'];
+}>;
+
+
+export type MarkNotificationsAsReadMutation = { __typename?: 'mutation_root', update_notifications?: { __typename?: 'notifications_mutation_response', affected_rows: number } | null };
+
+export type DeleteNotificationMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type DeleteNotificationMutation = { __typename?: 'mutation_root', delete_notifications_by_pk?: { __typename?: 'notifications', id: string } | null };
+
+export type ActivityLogFieldsFragment = { __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } };
+
+export type GetActivityLogsQueryVariables = Exact<{
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
+  order_by?: InputMaybe<Array<Activity_Logs_Order_By> | Activity_Logs_Order_By>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetActivityLogsQuery = { __typename?: 'query_root', activity_logs: Array<{ __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } }>, activity_logs_aggregate: { __typename?: 'activity_logs_aggregate', aggregate?: { __typename?: 'activity_logs_aggregate_fields', count: number } | null } };
+
+export type CreateActivityLogMutationVariables = Exact<{
+  log: Activity_Logs_Insert_Input;
+}>;
+
+
+export type CreateActivityLogMutation = { __typename?: 'mutation_root', insert_activity_logs_one?: { __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } } | null };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -7757,6 +8655,7 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  assigned_to
   github_issue_number
   github_issue_id
   github_synced_at
@@ -7765,6 +8664,13 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  assignee {
+    id
+    name
+    username
+    image
+    email
+  }
   labels {
     label {
       ...LabelFields
@@ -7943,6 +8849,56 @@ export const UserFieldsFragmentDoc = new TypedDocumentString(`
   updated_at
 }
     `, {"fragmentName":"UserFields"}) as unknown as TypedDocumentString<UserFieldsFragment, unknown>;
+export const NotificationFieldsFragmentDoc = new TypedDocumentString(`
+    fragment NotificationFields on notifications {
+  id
+  user_id
+  todo_id
+  type
+  triggered_by_user_id
+  related_comment_id
+  content
+  is_read
+  created_at
+  updated_at
+  triggered_by_user {
+    id
+    name
+    username
+    image
+  }
+  todo {
+    id
+    title
+    list {
+      id
+      board {
+        id
+        name
+      }
+    }
+  }
+}
+    `, {"fragmentName":"NotificationFields"}) as unknown as TypedDocumentString<NotificationFieldsFragment, unknown>;
+export const ActivityLogFieldsFragmentDoc = new TypedDocumentString(`
+    fragment ActivityLogFields on activity_logs {
+  id
+  user_id
+  todo_id
+  action_type
+  field_name
+  old_value
+  new_value
+  changes
+  created_at
+  user {
+    id
+    name
+    username
+    image
+  }
+}
+    `, {"fragmentName":"ActivityLogFields"}) as unknown as TypedDocumentString<ActivityLogFieldsFragment, unknown>;
 export const GetTodosDocument = new TypedDocumentString(`
     query GetTodos($where: todos_bool_exp = {}, $order_by: [todos_order_by!] = {sort_order: asc, due_on: desc, updated_at: desc}, $limit: Int = 100, $offset: Int = 0) {
   todos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
@@ -7960,6 +8916,7 @@ export const GetTodosDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  assigned_to
   github_issue_number
   github_issue_id
   github_synced_at
@@ -7968,6 +8925,13 @@ export const GetTodosDocument = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  assignee {
+    id
+    name
+    username
+    image
+    email
+  }
   labels {
     label {
       ...LabelFields
@@ -8114,6 +9078,7 @@ export const CreateTodoDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  assigned_to
   github_issue_number
   github_issue_id
   github_synced_at
@@ -8122,6 +9087,13 @@ export const CreateTodoDocument = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  assignee {
+    id
+    name
+    username
+    image
+    email
+  }
   labels {
     label {
       ...LabelFields
@@ -8195,6 +9167,7 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   completed_at
   created_at
   updated_at
+  assigned_to
   github_issue_number
   github_issue_id
   github_synced_at
@@ -8203,6 +9176,13 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  assignee {
+    id
+    name
+    username
+    image
+    email
+  }
   labels {
     label {
       ...LabelFields
@@ -8938,3 +9918,191 @@ export const GetLogsDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetLogsQuery, GetLogsQueryVariables>;
+export const GetNotificationsDocument = new TypedDocumentString(`
+    query GetNotifications($where: notifications_bool_exp, $order_by: [notifications_order_by!], $limit: Int, $offset: Int) {
+  notifications(
+    where: $where
+    order_by: $order_by
+    limit: $limit
+    offset: $offset
+  ) {
+    ...NotificationFields
+  }
+  notifications_aggregate(where: $where) {
+    aggregate {
+      count
+    }
+  }
+}
+    fragment NotificationFields on notifications {
+  id
+  user_id
+  todo_id
+  type
+  triggered_by_user_id
+  related_comment_id
+  content
+  is_read
+  created_at
+  updated_at
+  triggered_by_user {
+    id
+    name
+    username
+    image
+  }
+  todo {
+    id
+    title
+    list {
+      id
+      board {
+        id
+        name
+      }
+    }
+  }
+}`) as unknown as TypedDocumentString<GetNotificationsQuery, GetNotificationsQueryVariables>;
+export const CreateNotificationDocument = new TypedDocumentString(`
+    mutation CreateNotification($notification: notifications_insert_input!) {
+  insert_notifications_one(object: $notification) {
+    ...NotificationFields
+  }
+}
+    fragment NotificationFields on notifications {
+  id
+  user_id
+  todo_id
+  type
+  triggered_by_user_id
+  related_comment_id
+  content
+  is_read
+  created_at
+  updated_at
+  triggered_by_user {
+    id
+    name
+    username
+    image
+  }
+  todo {
+    id
+    title
+    list {
+      id
+      board {
+        id
+        name
+      }
+    }
+  }
+}`) as unknown as TypedDocumentString<CreateNotificationMutation, CreateNotificationMutationVariables>;
+export const UpdateNotificationDocument = new TypedDocumentString(`
+    mutation UpdateNotification($id: uuid!, $updates: notifications_set_input!) {
+  update_notifications_by_pk(pk_columns: {id: $id}, _set: $updates) {
+    ...NotificationFields
+  }
+}
+    fragment NotificationFields on notifications {
+  id
+  user_id
+  todo_id
+  type
+  triggered_by_user_id
+  related_comment_id
+  content
+  is_read
+  created_at
+  updated_at
+  triggered_by_user {
+    id
+    name
+    username
+    image
+  }
+  todo {
+    id
+    title
+    list {
+      id
+      board {
+        id
+        name
+      }
+    }
+  }
+}`) as unknown as TypedDocumentString<UpdateNotificationMutation, UpdateNotificationMutationVariables>;
+export const MarkNotificationsAsReadDocument = new TypedDocumentString(`
+    mutation MarkNotificationsAsRead($notification_ids: [uuid!]!) {
+  update_notifications(
+    where: {id: {_in: $notification_ids}}
+    _set: {is_read: true}
+  ) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<MarkNotificationsAsReadMutation, MarkNotificationsAsReadMutationVariables>;
+export const DeleteNotificationDocument = new TypedDocumentString(`
+    mutation DeleteNotification($id: uuid!) {
+  delete_notifications_by_pk(id: $id) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteNotificationMutation, DeleteNotificationMutationVariables>;
+export const GetActivityLogsDocument = new TypedDocumentString(`
+    query GetActivityLogs($where: activity_logs_bool_exp, $order_by: [activity_logs_order_by!], $limit: Int, $offset: Int) {
+  activity_logs(
+    where: $where
+    order_by: $order_by
+    limit: $limit
+    offset: $offset
+  ) {
+    ...ActivityLogFields
+  }
+  activity_logs_aggregate(where: $where) {
+    aggregate {
+      count
+    }
+  }
+}
+    fragment ActivityLogFields on activity_logs {
+  id
+  user_id
+  todo_id
+  action_type
+  field_name
+  old_value
+  new_value
+  changes
+  created_at
+  user {
+    id
+    name
+    username
+    image
+  }
+}`) as unknown as TypedDocumentString<GetActivityLogsQuery, GetActivityLogsQueryVariables>;
+export const CreateActivityLogDocument = new TypedDocumentString(`
+    mutation CreateActivityLog($log: activity_logs_insert_input!) {
+  insert_activity_logs_one(object: $log) {
+    ...ActivityLogFields
+  }
+}
+    fragment ActivityLogFields on activity_logs {
+  id
+  user_id
+  todo_id
+  action_type
+  field_name
+  old_value
+  new_value
+  changes
+  created_at
+  user {
+    id
+    name
+    username
+    image
+  }
+}`) as unknown as TypedDocumentString<CreateActivityLogMutation, CreateActivityLogMutationVariables>;

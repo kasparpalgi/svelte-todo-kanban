@@ -1,0 +1,62 @@
+table:
+  name: activity_logs
+  schema: public
+object_relationships:
+  - name: todo
+    using:
+      foreign_key_constraint_on: todo_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      set:
+        user_id: x-hasura-User-Id
+      columns:
+        - action_type
+        - changes
+        - created_at
+        - field_name
+        - id
+        - new_value
+        - old_value
+        - todo_id
+        - user_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - action_type
+        - changes
+        - created_at
+        - field_name
+        - id
+        - new_value
+        - old_value
+        - todo_id
+        - user_id
+      filter:
+        todo:
+          list:
+            board:
+              _or:
+                - user_id:
+                    _eq: X-Hasura-User-Id
+                - board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
+      allow_aggregations: true
+      query_root_fields:
+        - select
+        - select_aggregate
+        - select_by_pk
+      subscription_root_fields:
+        - select
+        - select_aggregate
+        - select_by_pk
+    comment: ""

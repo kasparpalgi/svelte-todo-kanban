@@ -2,6 +2,9 @@ table:
   name: todos
   schema: public
 object_relationships:
+  - name: assignee
+    using:
+      foreign_key_constraint_on: assigned_to
   - name: list
     using:
       foreign_key_constraint_on: list_id
@@ -50,6 +53,7 @@ insert_permissions:
       columns:
         - actual_hours
         - alias
+        - assigned_to
         - comment_hours
         - completed_at
         - content
@@ -75,6 +79,7 @@ select_permissions:
       columns:
         - actual_hours
         - alias
+        - assigned_to
         - comment_hours
         - completed_at
         - content
@@ -126,6 +131,7 @@ update_permissions:
       columns:
         - actual_hours
         - alias
+        - assigned_to
         - comment_hours
         - completed_at
         - content

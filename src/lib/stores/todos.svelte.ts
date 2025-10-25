@@ -5,7 +5,9 @@ import {
 	UPDATE_TODOS,
 	DELETE_TODOS,
 	CREATE_UPLOAD,
-	DELETE_UPLOAD
+	DELETE_UPLOAD,
+	CREATE_NOTIFICATION,
+	CREATE_ACTIVITY_LOG
 } from '$lib/graphql/documents';
 import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
