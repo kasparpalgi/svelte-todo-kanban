@@ -18,6 +18,7 @@ insert_permissions:
   - role: user
     permission:
       check: {}
+      set: {}
       columns:
         - content
         - created_at
