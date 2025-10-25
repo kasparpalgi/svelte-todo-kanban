@@ -36,9 +36,25 @@
 		}
 	});
 
+	// Load notifications when bell is opened
+	$effect(() => {
+		if (isOpen && user?.id) {
+			notificationStore.loadNotifications(user.id);
+		}
+	});
+
 	onMount(async () => {
 		if (user?.id) {
 			await notificationStore.loadNotifications(user.id);
+
+			// Poll for new notifications every 30 seconds
+			const pollInterval = setInterval(() => {
+				if (user?.id) {
+					notificationStore.loadNotifications(user.id);
+				}
+			}, 30000);
+
+			return () => clearInterval(pollInterval);
 		}
 	});
 
