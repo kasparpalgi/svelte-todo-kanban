@@ -20,7 +20,8 @@
       "mcp__playwright__browser_wait_for",
       "Bash(git rm:*)",
       "Bash(git reset:*)",
-      "Bash(hasura:*)"
+      "Bash(hasura:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [],
     "ask": []

@@ -474,6 +474,17 @@
             "auto_correct_description": "Apply AI corrections to voice input automatically without manual confirmation"
         }
     },
+    "notifications": {
+        "assigned": "{{user}} assigned you to",
+        "commented": "{{user}} commented",
+        "edited": "{{user}} edited",
+        "image_added": "{{user}} added an image",
+        "image_removed": "{{user}} removed an image",
+        "comment_edited": "{{user}} edited a comment",
+        "comment_removed": "{{user}} removed a comment",
+        "priority_changed": "{{user}} changed priority",
+        "on_card": "on"
+    },
     "email": {
         "invitation_subject": "You've been invited to collaborate in tasks' management in the project",
         "greeting": "Hi there!",

@@ -474,6 +474,17 @@
             "auto_correct_description": "Automaticky aplikovat AI korekce na hlasový vstup bez manuálního potvrzení"
         }
     },
+    "notifications": {
+        "assigned": "{{user}} vás přiřadil(a) na",
+        "commented": "{{user}} komentoval(a)",
+        "edited": "{{user}} upravil(a)",
+        "image_added": "{{user}} přidal(a) obrázek",
+        "image_removed": "{{user}} odebral(a) obrázek",
+        "comment_edited": "{{user}} upravil(a) komentář",
+        "comment_removed": "{{user}} odebral(a) komentář",
+        "priority_changed": "{{user}} změnil(a) prioritu",
+        "on_card": "na"
+    },
     "email": {
         "invitation_subject": "Byli jste pozváni ke spolupráci na správě úkolů v projektu",
         "greeting": "Ahoj!",

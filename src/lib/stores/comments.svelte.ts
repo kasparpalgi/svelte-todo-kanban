@@ -89,7 +89,7 @@ function createCommentsStore() {
 								type: 'commented',
 								triggered_by_user_id: currentUser.id,
 								related_comment_id: newComment.id,
-								content: `${currentUser.name || 'Someone'} commented: "${content.trim().substring(0, 50)}..."`
+								content: `"${content.trim().substring(0, 50)}${content.trim().length > 50 ? '...' : ''}"`
 							}
 						}) as CreateNotificationMutation;
 						console.log('[CommentsStore.addComment] Notification created for assigned user');

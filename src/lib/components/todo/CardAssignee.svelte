@@ -52,7 +52,7 @@
 						todo_id: todo.id,
 						type: 'assigned',
 						triggered_by_user_id: user.id,
-						content: `${user.name || 'Someone'} assigned you a card: ${todo.title}`
+						content: ''
 					});
 					console.log('[CardAssignee.assignUser] Notification created');
 				} catch (error) {

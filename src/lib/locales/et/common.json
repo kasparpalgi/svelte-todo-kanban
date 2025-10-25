@@ -474,6 +474,17 @@
             "auto_correct_description": "Rakenda AI parandused häälsisestusele automaatselt ilma käsitsi kinnitamata"
         }
     },
+    "notifications": {
+        "assigned": "{{user}} määras Sind ülesandele",
+        "commented": "{{user}} kommenteeris",
+        "edited": "{{user}} muutis",
+        "image_added": "{{user}} lisas pildi",
+        "image_removed": "{{user}} eemalda pildi",
+        "comment_edited": "{{user}} muutis kommentaari",
+        "comment_removed": "{{user}} kustuta kommentaari",
+        "priority_changed": "{{user}} muutis prioriteeti",
+        "on_card": "kaardil"
+    },
     "email": {
         "invitation_subject": "Sind on kutsutud kaasa lööma ülesannete haldamisega projektis",
         "greeting": "Hei!",

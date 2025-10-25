@@ -130,6 +130,47 @@
 
 		return notifDate.toLocaleDateString();
 	}
+
+	function getFirstName(fullName: string | null | undefined): string {
+		if (!fullName) return 'Someone';
+		return fullName.split(' ')[0];
+	}
+
+	function formatNotificationMessage(notification: any): string {
+		const userName = getFirstName(notification.triggered_by_user?.name);
+		const cardTitle = notification.todo?.title || 'card';
+
+		// Extract the text content from notification content if it exists
+		let textContent = '';
+		if (notification.content) {
+			// Extract quoted content if exists (e.g., from comments)
+			const quoteMatch = notification.content.match(/"([^"]+)"/);
+			if (quoteMatch) {
+				textContent = quoteMatch[1].substring(0, 30) + (quoteMatch[1].length > 30 ? '...' : '');
+			}
+		}
+
+		switch (notification.type) {
+			case 'commented':
+				return `${userName} commented ${textContent ? `"${textContent}"` : ''} ${$t('notifications.on_card')} "${cardTitle}"`;
+			case 'assigned':
+				return `${userName} ${$t('notifications.assigned')} "${cardTitle}"`;
+			case 'edited':
+				return `${userName} ${$t('notifications.edited')} "${cardTitle}"`;
+			case 'image_added':
+				return `${userName} ${$t('notifications.image_added')} ${$t('notifications.on_card')} "${cardTitle}"`;
+			case 'image_removed':
+				return `${userName} ${$t('notifications.image_removed')} ${$t('notifications.on_card')} "${cardTitle}"`;
+			case 'comment_edited':
+				return `${userName} ${$t('notifications.comment_edited')} ${$t('notifications.on_card')} "${cardTitle}"`;
+			case 'comment_removed':
+				return `${userName} ${$t('notifications.comment_removed')} ${$t('notifications.on_card')} "${cardTitle}"`;
+			case 'priority_changed':
+				return `${userName} ${$t('notifications.priority_changed')} ${$t('notifications.on_card')} "${cardTitle}"`;
+			default:
+				return notification.content || `${notification.type} notification`;
+		}
+	}
 </script>
 
 <DropdownMenu bind:open={isOpen}>
@@ -219,11 +260,8 @@
 							<span class="text-base flex-shrink-0">{getNotificationIcon(notification.type)}</span>
 
 							<div class="flex-1 min-w-0">
-								{#if notification.todo}
-									<p class="font-medium line-clamp-1">{notification.todo.title}</p>
-								{/if}
 								<p class="text-muted-foreground line-clamp-2">
-									{notification.content || `${notification.type} notification`}
+									{formatNotificationMessage(notification)}
 								</p>
 								<p class="text-muted-foreground text-xs flex items-center gap-1 mt-1">
 									<Clock class="h-3 w-3" />
