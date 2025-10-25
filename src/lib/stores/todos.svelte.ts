@@ -273,6 +273,7 @@ function createTodosStore() {
 				| 'comment_hours'
 			> & {
 				list_id?: string | null;
+				assigned_to?: string | null;
 			}
 		>
 	): Promise<StoreResult> {

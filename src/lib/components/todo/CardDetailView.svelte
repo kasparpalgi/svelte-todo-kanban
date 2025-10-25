@@ -18,6 +18,7 @@
 	import { X, Calendar as CalendarIcon, Tag } from 'lucide-svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
+	import CardAssignee from '$lib/components/todo/CardAssignee.svelte';
 	import CardImageManager from '$lib/components/card/CardImageManager.svelte';
 	import CardComments from '$lib/components/card/CardComments.svelte';
 	import CardHourTracking from '$lib/components/todo/CardHourTracking.svelte';
@@ -232,6 +233,10 @@
 			<Button onclick={saveTodo} disabled={isSubmitting} size="sm" class="shrink-0">
 				{isSubmitting ? $t('common.saving') : $t('common.save')}
 			</Button>
+		</div>
+
+		<div class="mb-3 flex flex-wrap items-center gap-2">
+			<CardAssignee {todo} />
 		</div>
 
 		<div class="space-y-4">

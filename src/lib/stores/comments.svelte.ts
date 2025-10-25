@@ -3,7 +3,8 @@ import {
 	GET_COMMENTS,
 	CREATE_COMMENT,
 	UPDATE_COMMENT,
-	DELETE_COMMENT
+	DELETE_COMMENT,
+	CREATE_NOTIFICATION
 } from '$lib/graphql/documents';
 import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
@@ -12,9 +13,11 @@ import type {
 	CreateCommentMutation,
 	UpdateCommentMutation,
 	DeleteCommentMutation,
+	CreateNotificationMutation,
 	CommentFieldsFragment
 } from '$lib/graphql/generated/graphql';
 import type { StoreResult } from '$lib/types/todo';
+import { userStore } from './user.svelte';
 
 interface CommentsState {
 	comments: CommentFieldsFragment[];
@@ -74,6 +77,27 @@ function createCommentsStore() {
 			const newComment = data.insert_comments?.returning?.[0];
 			if (newComment) {
 				state.comments = [...state.comments, newComment];
+
+				// Create notification for assigned user and log activity
+				const currentUser = userStore.user;
+				if (currentUser && todo?.assigned_to && todo.assigned_to !== currentUser.id) {
+					try {
+						await request(CREATE_NOTIFICATION, {
+							notification: {
+								user_id: todo.assigned_to,
+								todo_id: todoId,
+								type: 'commented',
+								triggered_by_user_id: currentUser.id,
+								related_comment_id: newComment.id,
+								content: `${currentUser.name || 'Someone'} commented: "${content.trim().substring(0, 50)}..."`
+							}
+						}) as CreateNotificationMutation;
+						console.log('[CommentsStore.addComment] Notification created for assigned user');
+					} catch (notificationError) {
+						// Non-blocking: log error but don't fail comment creation
+						console.error('Failed to create notification:', notificationError);
+					}
+				}
 
 				// Sync to GitHub if todo has a GitHub issue
 				const githubIssueNumber = todo?.github_issue_number;
