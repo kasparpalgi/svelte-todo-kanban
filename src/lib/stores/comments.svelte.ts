@@ -64,6 +64,14 @@ function createCommentsStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!content.trim()) return { success: false, message: 'Comment content is required' };
 
+		console.log('[CommentsStore.addComment] Called with todo:', {
+			id: todo?.id,
+			title: todo?.title,
+			assigned_to: todo?.assigned_to,
+			assignee: todo?.assignee,
+			keys: Object.keys(todo || {})
+		});
+
 		try {
 			const data: CreateCommentMutation = await request(CREATE_COMMENT, {
 				objects: [
@@ -107,7 +115,7 @@ function createCommentsStore() {
 								content: `${currentUser.name || 'Someone'} commented: "${content.trim().substring(0, 50)}..."`
 							}
 						}) as CreateNotificationMutation;
-						console.log('[CommentsStore.addComment] Notification created for assigned user');
+						console.log('[CommentsStore.addComment] Notification created successfully for assigned user');
 					} catch (notificationError) {
 						// Non-blocking: log error but don't fail comment creation
 						console.error('[CommentsStore.addComment] Failed to create notification:', notificationError);
