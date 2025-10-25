@@ -64,14 +64,6 @@ function createCommentsStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!content.trim()) return { success: false, message: 'Comment content is required' };
 
-		console.log('[CommentsStore.addComment] Called with todo:', {
-			id: todo?.id,
-			title: todo?.title,
-			assigned_to: todo?.assigned_to,
-			assignee: todo?.assignee,
-			keys: Object.keys(todo || {})
-		});
-
 		try {
 			const data: CreateCommentMutation = await request(CREATE_COMMENT, {
 				objects: [
@@ -86,25 +78,10 @@ function createCommentsStore() {
 			if (newComment) {
 				state.comments = [...state.comments, newComment];
 
-				// Create notification for assigned user and log activity
+				// Create notification for assigned user
 				const currentUser = userStore.user;
-				console.log('[CommentsStore.addComment] Current user:', { id: currentUser?.id, name: currentUser?.name });
-				console.log('[CommentsStore.addComment] Todo assigned_to:', todo?.assigned_to);
-				console.log('[CommentsStore.addComment] Condition check:', {
-					hasCurrentUser: !!currentUser,
-					hasAssignedTo: !!todo?.assigned_to,
-					isDifferentUser: todo?.assigned_to !== currentUser?.id
-				});
-
 				if (currentUser && todo?.assigned_to && todo.assigned_to !== currentUser.id) {
 					try {
-						console.log('[CommentsStore.addComment] Creating notification with:', {
-							user_id: todo.assigned_to,
-							todo_id: todoId,
-							triggered_by_user_id: currentUser.id,
-							related_comment_id: newComment.id
-						});
-
 						await request(CREATE_NOTIFICATION, {
 							notification: {
 								user_id: todo.assigned_to,
@@ -115,13 +92,11 @@ function createCommentsStore() {
 								content: `${currentUser.name || 'Someone'} commented: "${content.trim().substring(0, 50)}..."`
 							}
 						}) as CreateNotificationMutation;
-						console.log('[CommentsStore.addComment] Notification created successfully for assigned user');
+						console.log('[CommentsStore.addComment] Notification created for assigned user');
 					} catch (notificationError) {
 						// Non-blocking: log error but don't fail comment creation
 						console.error('[CommentsStore.addComment] Failed to create notification:', notificationError);
 					}
-				} else {
-					console.log('[CommentsStore.addComment] Notification skipped - condition not met');
 				}
 
 				// Sync to GitHub if todo has a GitHub issue
