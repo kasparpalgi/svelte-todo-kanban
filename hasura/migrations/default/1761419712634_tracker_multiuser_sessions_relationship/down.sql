@@ -1,0 +1,5 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- ALTER TABLE tracker_sessions
+-- ADD CONSTRAINT tracker_sessions_user_id_fkey
+-- FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

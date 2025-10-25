@@ -1,0 +1,2 @@
+ALTER TABLE tracker_sessions 
+ADD COLUMN IF NOT EXISTS user_id UUID NOT NULL;

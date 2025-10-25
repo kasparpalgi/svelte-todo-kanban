@@ -1,0 +1,4 @@
+-- Could not auto-generate a down migration.
+-- Please write an appropriate down migration for the SQL below:
+-- ALTER TABLE tracker_apps
+-- ADD COLUMN IF NOT EXISTS user_id UUID NOT NULL;

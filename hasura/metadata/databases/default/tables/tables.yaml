@@ -12,8 +12,6 @@
 - "!include public_todo_labels.yaml"
 - "!include public_todos.yaml"
 - "!include public_tracker_apps.yaml"
-- "!include public_tracker_category_stats.yaml"
-- "!include public_tracker_daily_stats.yaml"
 - "!include public_tracker_sessions.yaml"
 - "!include public_uploads.yaml"
 - "!include public_users.yaml"
