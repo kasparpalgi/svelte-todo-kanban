@@ -1,6 +1,12 @@
 <!-- @file src/lib/components/todo/CardAssignee.svelte -->
 <script lang="ts">
-	import { User } from 'lucide-svelte';
+	import { onMount } from 'svelte';
+	import { t } from '$lib/i18n';
+	import { notificationStore } from '$lib/stores/notifications.svelte';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
+	import { boardMembersStore } from '$lib/stores/boardMembers.svelte';
+	import { todosStore } from '$lib/stores/todos.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		DropdownMenu,
@@ -10,14 +16,8 @@
 		DropdownMenuSeparator,
 		DropdownMenuCheckboxItem
 	} from '$lib/components/ui/dropdown-menu';
-	import { Badge } from '$lib/components/ui/badge';
-	import { boardMembersStore } from '$lib/stores/boardMembers.svelte';
-	import { todosStore } from '$lib/stores/todos.svelte';
-	import { notificationStore } from '$lib/stores/notifications.svelte';
-	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
-	import { userStore } from '$lib/stores/user.svelte';
+	import { User } from 'lucide-svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
-	import { onMount } from 'svelte';
 
 	let { todo }: { todo: TodoFieldsFragment } = $props();
 	let isOpen = $state(false);
@@ -27,7 +27,6 @@
 	const assignee = $derived(todo.assignee);
 
 	onMount(async () => {
-		// Load board members when this component mounts
 		if (todo.list?.board?.id) {
 			await boardMembersStore.loadMembers(todo.list.board.id);
 		}
@@ -41,10 +40,9 @@
 		});
 
 		if (result.success) {
-			displayMessage(`User ${memberId ? 'assigned' : 'unassigned'} successfully!`, 1500, true);
+			displayMessage(`User ${memberId ? 'assigned' : $t('unassigned')}`, 1500, true);
 			isOpen = false;
 
-			// Create a notification for the assigned user
 			if (memberId && user?.id) {
 				try {
 					await notificationStore.createNotification({
@@ -77,20 +75,20 @@
 				{#if assignee}
 					<span class="text-xs">{assignee.name || assignee.username}</span>
 				{:else}
-					<span class="text-xs text-muted-foreground">Unassigned</span>
+					<span class="text-xs text-muted-foreground">{$t('unassigned')}</span>
 				{/if}
 			</Button>
 		</DropdownMenuTrigger>
 
 		<DropdownMenuContent align="start" class="w-48">
-			<DropdownMenuLabel>Assign to:</DropdownMenuLabel>
+			<DropdownMenuLabel>{$t('todo.assign_to')}:</DropdownMenuLabel>
 			<DropdownMenuSeparator />
 
 			<DropdownMenuCheckboxItem
 				checked={!assignee}
 				onCheckedChange={() => assignUser(null)}
 			>
-				<span class="text-sm">Unassigned</span>
+				<span class="text-sm">{$t('unassigned')}</span>
 			</DropdownMenuCheckboxItem>
 
 			{#each members as member (member.id)}
@@ -120,17 +118,4 @@
 			{/each}
 		</DropdownMenuContent>
 	</DropdownMenu>
-
-	{#if assignee}
-		<Badge variant="secondary" class="gap-1">
-			{#if assignee.image}
-				<img src={assignee.image} alt={assignee.name} class="h-4 w-4 rounded-full" />
-			{:else}
-				<div class="h-4 w-4 rounded-full bg-muted flex items-center justify-center text-xs">
-					{assignee.name?.[0]?.toUpperCase() || assignee.username?.[0]?.toUpperCase()}
-				</div>
-			{/if}
-			<span class="text-xs">{assignee.name || assignee.username}</span>
-		</Badge>
-	{/if}
 </div>

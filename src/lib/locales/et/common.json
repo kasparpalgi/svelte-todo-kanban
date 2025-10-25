@@ -332,7 +332,9 @@
         "task_title_placeholder": "Ülesande pealkiri",
         "keyboard_hint_esc": "Tühistamiseks vajuta <kbd>Esc</kbd>,",
         "keyboard_hint_save": "salvestamiseks <kbd>Ctrl+Enter</kbd>",
-        "remove_image_description": "Kas oled kindel, et soovid selle pildi eemaldada? Seda tegevust ei saa tagasi võtta."
+        "remove_image_description": "Kas oled kindel, et soovid selle pildi eemaldada? Seda tegevust ei saa tagasi võtta.",
+        "assign_to": "Muuda omanikku",
+        "unassigned": "omanikuta"
     },
     "card": {
         "loading_card": "Laen kaarti...",

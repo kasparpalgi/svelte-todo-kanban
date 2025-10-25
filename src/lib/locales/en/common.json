@@ -332,7 +332,9 @@
         "task_title_placeholder": "Task title",
         "keyboard_hint_esc": "Press <kbd>Esc</kbd> to cancel,",
         "keyboard_hint_save": "<kbd>Ctrl+Enter</kbd> to save",
-        "remove_image_description": "Are you sure you want to remove this image? This action cannot be undone."
+        "remove_image_description": "Are you sure you want to remove this image? This action cannot be undone.",
+        "assign_to": "Assign to",
+        "unassigned": "unassigned"
     },
     "card": {
         "loading_card": "Loading card...",

@@ -188,7 +188,6 @@ function createTodosStore() {
 						content: content?.trim() || null,
 						sort_order: sortOrder,
 						...(listId && { list_id: listId }),
-						// Auto-assign to current user
 						assigned_to: us.user?.id || null
 					}
 				]
@@ -196,7 +195,6 @@ function createTodosStore() {
 
 			const newTodo = data.insert_todos?.returning?.[0];
 			if (newTodo) {
-				// Optimistically add to local state in the correct position
 				const todoIndex = state.todos.findIndex((t) => (t.sort_order || 1000) > sortOrder);
 
 				if (todoIndex === -1) {

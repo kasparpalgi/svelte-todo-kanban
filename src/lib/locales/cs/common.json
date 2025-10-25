@@ -332,7 +332,9 @@
         "task_title_placeholder": "Název úkolu",
         "keyboard_hint_esc": "Stiskněte <kbd>Esc</kbd> pro zrušení,",
         "keyboard_hint_save": "<kbd>Ctrl+Enter</kbd> pro uložení",
-        "remove_image_description": "Opravdu chcete odebrat tento obrázek? Tuto akci nelze vrátit zpět."
+        "remove_image_description": "Opravdu chcete odebrat tento obrázek? Tuto akci nelze vrátit zpět.",
+        "assign_to": "Přiřadit",
+        "unassigned": "nepřiřazeno"
     },
     "card": {
         "loading_card": "Načítání karty...",
