@@ -43,9 +43,9 @@
 		}
 	});
 
-	onMount(async () => {
+	onMount(() => {
 		if (user?.id) {
-			await notificationStore.loadNotifications(user.id);
+			notificationStore.loadNotifications(user.id);
 
 			// Poll for new notifications every 30 seconds
 			const pollInterval = setInterval(() => {
