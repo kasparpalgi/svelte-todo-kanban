@@ -1,0 +1,11 @@
+table:
+  name: tracker_apps
+  schema: public
+array_relationships:
+  - name: tracker_sessions
+    using:
+      foreign_key_constraint_on:
+        column: app_id
+        table:
+          name: tracker_sessions
+          schema: public

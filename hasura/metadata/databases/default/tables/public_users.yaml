@@ -9,6 +9,13 @@ array_relationships:
         table:
           name: accounts
           schema: public
+  - name: activity_logs
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: activity_logs
+          schema: public
   - name: board_invitations
     using:
       foreign_key_constraint_on:
@@ -55,6 +62,13 @@ array_relationships:
     using:
       foreign_key_constraint_on:
         column: user_id
+        table:
+          name: todos
+          schema: public
+  - name: todosByAssignedTo
+    using:
+      foreign_key_constraint_on:
+        column: assigned_to
         table:
           name: todos
           schema: public

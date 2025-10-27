@@ -1,0 +1,3 @@
+table:
+  name: tracker_category_stats
+  schema: public
