@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-
-// Simple sync script: Local PostgreSQL → Hasura
-// Maps: app_names → tracker_apps, sessions → tracker_sessions
-
 const { Pool } = require('pg');
 const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
+
+const LAST_SYNC_FILE = path.join(__dirname, '.last-sync');
 
 const CONFIG = {
     local: {
@@ -53,6 +53,26 @@ if (!CONFIG.userId) {
 
 const pool = new Pool(CONFIG.local);
 
+function getLastSyncTime() {
+    try {
+        if (fs.existsSync(LAST_SYNC_FILE)) {
+            const timestamp = fs.readFileSync(LAST_SYNC_FILE, 'utf8').trim();
+            return timestamp ? new Date(timestamp) : null;
+        }
+    } catch (error) {
+        console.warn('⚠️  Could not read last sync time:', error.message);
+    }
+    return null;
+}
+
+function saveLastSyncTime(timestamp) {
+    try {
+        fs.writeFileSync(LAST_SYNC_FILE, timestamp.toISOString());
+    } catch (error) {
+        console.warn('⚠️  Could not save last sync time:', error.message);
+    }
+}
+
 async function hasuraQuery(query, variables = {}) {
     const response = await fetch(CONFIG.hasura.url, {
         method: 'POST',
@@ -78,11 +98,9 @@ function sanitizeText(text) {
         .trim();
 }
 
-// Extract unique apps from sessions and sync to tracker_apps
 async function syncApps() {
     console.log('📱 Syncing apps...');
 
-    // Get unique app names & categories from sessions
     const { rows } = await pool.query(`
         SELECT DISTINCT 
             app_name as name,
@@ -92,7 +110,7 @@ async function syncApps() {
         ORDER BY app_name
     `);
 
-    console.log(`   Found ${rows.length} unique apps in sessions`);
+    console.log(`   Found ${rows.length} unique apps`);
 
     const apps = rows.map(row => ({
         name: sanitizeText(row.name) || 'Unknown',
@@ -100,7 +118,7 @@ async function syncApps() {
         user_id: CONFIG.userId
     })).filter(app => app.name && app.name !== 'Unknown');
 
-    // Deduplicate by name (keep first occurrence)
+    // Deduplicate
     const uniqueApps = [];
     const seen = new Set();
     for (const app of apps) {
@@ -130,7 +148,6 @@ async function syncApps() {
     const result = await hasuraQuery(mutation, { apps: uniqueApps });
     console.log(`✓ Synced ${result.insert_tracker_apps.affected_rows} apps`);
 
-    // Build app name → Hasura ID map
     const appMap = {};
     result.insert_tracker_apps.returning.forEach(app => {
         appMap[app.name] = app.id;
@@ -139,11 +156,21 @@ async function syncApps() {
     return appMap;
 }
 
-// Sync sessions from local
-async function syncSessions(appMap) {
+async function syncSessions(appMap, lastSyncTime) {
     console.log('⏱️  Syncing sessions...');
 
-    const { rows } = await pool.query(`
+    let whereClause = 'WHERE app_name IS NOT NULL';
+    const params = [];
+
+    if (lastSyncTime) {
+        whereClause += ' AND start_time > $1';
+        params.push(lastSyncTime.toISOString());
+        console.log(`   Only syncing sessions after ${lastSyncTime.toLocaleString()}`);
+    } else {
+        console.log(`   First sync - getting last 10000 sessions`);
+    }
+
+    const query = `
         SELECT 
             id,
             app_name,
@@ -159,19 +186,24 @@ async function syncSessions(appMap) {
             terminal_directory,
             is_afk
         FROM sessions
-        WHERE app_name IS NOT NULL
+        ${whereClause}
         ORDER BY start_time DESC
-        LIMIT 10000
-    `);
+        ${lastSyncTime ? '' : 'LIMIT 10000'}
+    `;
 
-    console.log(`   Found ${rows.length} sessions in local database`);
+    const { rows } = await pool.query(query, params);
+    console.log(`   Found ${rows.length} sessions to sync`);
 
-    // Map to schema
+    if (rows.length === 0) {
+        console.log('   No new sessions to sync');
+        return;
+    }
+
+    // Map to Hasura schema
     const sessions = rows.map(row => {
         const app_id = appMap[sanitizeText(row.app_name)];
         if (!app_id) return null;
 
-        // Calculate end_time (start_time + duration)
         const startTime = new Date(row.start_time);
         const endTime = new Date(startTime.getTime() + (row.duration_seconds * 1000));
 
@@ -187,7 +219,6 @@ async function syncSessions(appMap) {
 
     console.log(`   Mapped ${sessions.length} sessions (${rows.length - sessions.length} skipped)`);
 
-    // Insert in batches
     const mutation = `
         mutation ($sessions: [tracker_sessions_insert_input!]!) {
             insert_tracker_sessions(
@@ -221,24 +252,35 @@ async function syncSessions(appMap) {
 
 async function sync() {
     const startTime = Date.now();
+    const syncStartTime = new Date();
 
     try {
         console.log('\n🚀 Starting sync...\n');
+
+        const lastSyncTime = getLastSyncTime();
+        if (lastSyncTime) {
+            console.log(`📅 Last sync: ${lastSyncTime.toLocaleString()}`);
+            console.log(`   (${Math.round((syncStartTime - lastSyncTime) / 1000 / 60)} minutes ago)\n`);
+        } else {
+            console.log('📅 First sync - will sync last 10000 sessions\n');
+        }
+
         console.log('Configuration:');
         console.log(`  Local DB: ${CONFIG.local.user}@${CONFIG.local.host}:${CONFIG.local.port}/${CONFIG.local.database}`);
         console.log(`  Hasura: ${CONFIG.hasura.url}`);
         console.log(`  User ID: ${CONFIG.userId}\n`);
 
-        // Test connections
         await pool.query('SELECT 1');
         console.log('✓ Local database connected');
 
         await hasuraQuery('{ __typename }');
         console.log('✓ Hasura connected\n');
 
-        // Sync data
         const appMap = await syncApps();
-        await syncSessions(appMap);
+        await syncSessions(appMap, lastSyncTime);
+
+        saveLastSyncTime(syncStartTime);
+        console.log(`\n💾 Saved sync timestamp: ${syncStartTime.toISOString()}`);
 
         const duration = ((Date.now() - startTime) / 1000).toFixed(2);
         console.log(`\n✅ Sync completed in ${duration}s`);
@@ -247,9 +289,9 @@ async function sync() {
         console.error('\n❌ Sync failed:', error.message);
 
         if (error.message.includes('ECONNREFUSED')) {
-            console.error('\n💡 Check: Is Docker running? (docker ps)');
+            console.error('\n💡 Check: Is Docker running?');
         } else if (error.message.includes('password authentication')) {
-            console.error('\n💡 Check: DATABASE_URL credentials in .env');
+            console.error('\n💡 Check: DATABASE_URL credentials');
         } else if (error.message.includes('fetch')) {
             console.error('\n💡 Check: API_ENDPOINT and HASURA_ADMIN_SECRET');
         }
