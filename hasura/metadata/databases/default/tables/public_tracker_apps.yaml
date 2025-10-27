@@ -1,6 +1,10 @@
 table:
   name: tracker_apps
   schema: public
+object_relationships:
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
 array_relationships:
   - name: tracker_sessions
     using:
@@ -9,3 +13,25 @@ array_relationships:
         table:
           name: tracker_sessions
           schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check: {}
+      columns:
+        - category
+        - name
+        - id
+        - created_at
+        - user_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - category
+        - name
+        - id
+        - created_at
+        - user_id
+      filter: {}
+    comment: ""

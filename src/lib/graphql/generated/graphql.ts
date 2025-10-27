@@ -570,6 +570,17 @@ export type Activity_Logs_Aggregate = {
   nodes: Array<Activity_Logs>;
 };
 
+export type Activity_Logs_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Activity_Logs_Aggregate_Bool_Exp_Count>;
+};
+
+export type Activity_Logs_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Activity_Logs_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Activity_Logs_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
 /** aggregate fields of "activity_logs" */
 export type Activity_Logs_Aggregate_Fields = {
   __typename?: 'activity_logs_aggregate_fields';
@@ -585,10 +596,24 @@ export type Activity_Logs_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** order by aggregate values of table "activity_logs" */
+export type Activity_Logs_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Activity_Logs_Max_Order_By>;
+  min?: InputMaybe<Activity_Logs_Min_Order_By>;
+};
+
 /** append existing jsonb value of filtered columns with new jsonb value */
 export type Activity_Logs_Append_Input = {
   /** JSON object with all field changes for complex actions */
   changes?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** input type for inserting array relation for remote table "activity_logs" */
+export type Activity_Logs_Arr_Rel_Insert_Input = {
+  data: Array<Activity_Logs_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Activity_Logs_On_Conflict>;
 };
 
 /** Boolean expression to filter rows from the table "activity_logs". All fields are combined with a logical 'AND'. */
@@ -664,6 +689,19 @@ export type Activity_Logs_Max_Fields = {
   user_id?: Maybe<Scalars['uuid']['output']>;
 };
 
+/** order by max() on columns of table "activity_logs" */
+export type Activity_Logs_Max_Order_By = {
+  /** Type of action performed: created, updated, deleted, completed, uncompleted, assigned, unassigned, commented, etc. */
+  action_type?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  field_name?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  new_value?: InputMaybe<Order_By>;
+  old_value?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
 /** aggregate min on columns */
 export type Activity_Logs_Min_Fields = {
   __typename?: 'activity_logs_min_fields';
@@ -676,6 +714,19 @@ export type Activity_Logs_Min_Fields = {
   old_value?: Maybe<Scalars['String']['output']>;
   todo_id?: Maybe<Scalars['uuid']['output']>;
   user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "activity_logs" */
+export type Activity_Logs_Min_Order_By = {
+  /** Type of action performed: created, updated, deleted, completed, uncompleted, assigned, unassigned, commented, etc. */
+  action_type?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  field_name?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  new_value?: InputMaybe<Order_By>;
+  old_value?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "activity_logs" */
@@ -2103,6 +2154,10 @@ export type Comments = {
   /** Last sync timestamp with GitHub */
   github_synced_at?: Maybe<Scalars['timestamptz']['output']>;
   id: Scalars['uuid']['output'];
+  /** An array relationship */
+  notifications: Array<Notifications>;
+  /** An aggregate relationship */
+  notifications_aggregate: Notifications_Aggregate;
   /** An object relationship */
   todo: Todos;
   todo_id: Scalars['uuid']['output'];
@@ -2110,6 +2165,26 @@ export type Comments = {
   /** An object relationship */
   user: Users;
   user_id: Scalars['uuid']['output'];
+};
+
+
+/** columns and relationships of "comments" */
+export type CommentsNotificationsArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+/** columns and relationships of "comments" */
+export type CommentsNotifications_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
 };
 
 /** aggregated selection of "comments" */
@@ -2198,6 +2273,8 @@ export type Comments_Bool_Exp = {
   github_comment_id?: InputMaybe<Bigint_Comparison_Exp>;
   github_synced_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
+  notifications?: InputMaybe<Notifications_Bool_Exp>;
+  notifications_aggregate?: InputMaybe<Notifications_Aggregate_Bool_Exp>;
   todo?: InputMaybe<Todos_Bool_Exp>;
   todo_id?: InputMaybe<Uuid_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -2226,6 +2303,7 @@ export type Comments_Insert_Input = {
   /** Last sync timestamp with GitHub */
   github_synced_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  notifications?: InputMaybe<Notifications_Arr_Rel_Insert_Input>;
   todo?: InputMaybe<Todos_Obj_Rel_Insert_Input>;
   todo_id?: InputMaybe<Scalars['uuid']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -2321,6 +2399,7 @@ export type Comments_Order_By = {
   github_comment_id?: InputMaybe<Order_By>;
   github_synced_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  notifications_aggregate?: InputMaybe<Notifications_Aggregate_Order_By>;
   todo?: InputMaybe<Todos_Order_By>;
   todo_id?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
@@ -3709,6 +3788,14 @@ export type Mutation_Root = {
   delete_todos?: Maybe<Todos_Mutation_Response>;
   /** delete single row from the table: "todos" */
   delete_todos_by_pk?: Maybe<Todos>;
+  /** delete data from the table: "tracker_apps" */
+  delete_tracker_apps?: Maybe<Tracker_Apps_Mutation_Response>;
+  /** delete single row from the table: "tracker_apps" */
+  delete_tracker_apps_by_pk?: Maybe<Tracker_Apps>;
+  /** delete data from the table: "tracker_sessions" */
+  delete_tracker_sessions?: Maybe<Tracker_Sessions_Mutation_Response>;
+  /** delete single row from the table: "tracker_sessions" */
+  delete_tracker_sessions_by_pk?: Maybe<Tracker_Sessions>;
   /** delete data from the table: "uploads" */
   delete_uploads?: Maybe<Uploads_Mutation_Response>;
   /** delete single row from the table: "uploads" */
@@ -3773,6 +3860,14 @@ export type Mutation_Root = {
   insert_todos?: Maybe<Todos_Mutation_Response>;
   /** insert a single row into the table: "todos" */
   insert_todos_one?: Maybe<Todos>;
+  /** insert data into the table: "tracker_apps" */
+  insert_tracker_apps?: Maybe<Tracker_Apps_Mutation_Response>;
+  /** insert a single row into the table: "tracker_apps" */
+  insert_tracker_apps_one?: Maybe<Tracker_Apps>;
+  /** insert data into the table: "tracker_sessions" */
+  insert_tracker_sessions?: Maybe<Tracker_Sessions_Mutation_Response>;
+  /** insert a single row into the table: "tracker_sessions" */
+  insert_tracker_sessions_one?: Maybe<Tracker_Sessions>;
   /** insert data into the table: "uploads" */
   insert_uploads?: Maybe<Uploads_Mutation_Response>;
   /** insert a single row into the table: "uploads" */
@@ -3863,6 +3958,18 @@ export type Mutation_Root = {
   update_todos_by_pk?: Maybe<Todos>;
   /** update multiples rows of table: "todos" */
   update_todos_many?: Maybe<Array<Maybe<Todos_Mutation_Response>>>;
+  /** update data of the table: "tracker_apps" */
+  update_tracker_apps?: Maybe<Tracker_Apps_Mutation_Response>;
+  /** update single row of the table: "tracker_apps" */
+  update_tracker_apps_by_pk?: Maybe<Tracker_Apps>;
+  /** update multiples rows of table: "tracker_apps" */
+  update_tracker_apps_many?: Maybe<Array<Maybe<Tracker_Apps_Mutation_Response>>>;
+  /** update data of the table: "tracker_sessions" */
+  update_tracker_sessions?: Maybe<Tracker_Sessions_Mutation_Response>;
+  /** update single row of the table: "tracker_sessions" */
+  update_tracker_sessions_by_pk?: Maybe<Tracker_Sessions>;
+  /** update multiples rows of table: "tracker_sessions" */
+  update_tracker_sessions_many?: Maybe<Array<Maybe<Tracker_Sessions_Mutation_Response>>>;
   /** update data of the table: "uploads" */
   update_uploads?: Maybe<Uploads_Mutation_Response>;
   /** update single row of the table: "uploads" */
@@ -4038,6 +4145,30 @@ export type Mutation_RootDelete_TodosArgs = {
 /** mutation root */
 export type Mutation_RootDelete_Todos_By_PkArgs = {
   id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Tracker_AppsArgs = {
+  where: Tracker_Apps_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Tracker_Apps_By_PkArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Tracker_SessionsArgs = {
+  where: Tracker_Sessions_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Tracker_Sessions_By_PkArgs = {
+  id: Scalars['Int']['input'];
 };
 
 
@@ -4257,6 +4388,34 @@ export type Mutation_RootInsert_TodosArgs = {
 export type Mutation_RootInsert_Todos_OneArgs = {
   object: Todos_Insert_Input;
   on_conflict?: InputMaybe<Todos_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Tracker_AppsArgs = {
+  objects: Array<Tracker_Apps_Insert_Input>;
+  on_conflict?: InputMaybe<Tracker_Apps_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Tracker_Apps_OneArgs = {
+  object: Tracker_Apps_Insert_Input;
+  on_conflict?: InputMaybe<Tracker_Apps_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Tracker_SessionsArgs = {
+  objects: Array<Tracker_Sessions_Insert_Input>;
+  on_conflict?: InputMaybe<Tracker_Sessions_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Tracker_Sessions_OneArgs = {
+  object: Tracker_Sessions_Insert_Input;
+  on_conflict?: InputMaybe<Tracker_Sessions_On_Conflict>;
 };
 
 
@@ -4605,6 +4764,50 @@ export type Mutation_RootUpdate_Todos_ManyArgs = {
 
 
 /** mutation root */
+export type Mutation_RootUpdate_Tracker_AppsArgs = {
+  _inc?: InputMaybe<Tracker_Apps_Inc_Input>;
+  _set?: InputMaybe<Tracker_Apps_Set_Input>;
+  where: Tracker_Apps_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Tracker_Apps_By_PkArgs = {
+  _inc?: InputMaybe<Tracker_Apps_Inc_Input>;
+  _set?: InputMaybe<Tracker_Apps_Set_Input>;
+  pk_columns: Tracker_Apps_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Tracker_Apps_ManyArgs = {
+  updates: Array<Tracker_Apps_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Tracker_SessionsArgs = {
+  _inc?: InputMaybe<Tracker_Sessions_Inc_Input>;
+  _set?: InputMaybe<Tracker_Sessions_Set_Input>;
+  where: Tracker_Sessions_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Tracker_Sessions_By_PkArgs = {
+  _inc?: InputMaybe<Tracker_Sessions_Inc_Input>;
+  _set?: InputMaybe<Tracker_Sessions_Set_Input>;
+  pk_columns: Tracker_Sessions_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Tracker_Sessions_ManyArgs = {
+  updates: Array<Tracker_Sessions_Updates>;
+};
+
+
+/** mutation root */
 export type Mutation_RootUpdate_UploadsArgs = {
   _set?: InputMaybe<Uploads_Set_Input>;
   where: Uploads_Bool_Exp;
@@ -4705,6 +4908,33 @@ export type Notifications_Aggregate = {
   nodes: Array<Notifications>;
 };
 
+export type Notifications_Aggregate_Bool_Exp = {
+  bool_and?: InputMaybe<Notifications_Aggregate_Bool_Exp_Bool_And>;
+  bool_or?: InputMaybe<Notifications_Aggregate_Bool_Exp_Bool_Or>;
+  count?: InputMaybe<Notifications_Aggregate_Bool_Exp_Count>;
+};
+
+export type Notifications_Aggregate_Bool_Exp_Bool_And = {
+  arguments: Notifications_Select_Column_Notifications_Aggregate_Bool_Exp_Bool_And_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Notifications_Bool_Exp>;
+  predicate: Boolean_Comparison_Exp;
+};
+
+export type Notifications_Aggregate_Bool_Exp_Bool_Or = {
+  arguments: Notifications_Select_Column_Notifications_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Notifications_Bool_Exp>;
+  predicate: Boolean_Comparison_Exp;
+};
+
+export type Notifications_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Notifications_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Notifications_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
 /** aggregate fields of "notifications" */
 export type Notifications_Aggregate_Fields = {
   __typename?: 'notifications_aggregate_fields';
@@ -4718,6 +4948,20 @@ export type Notifications_Aggregate_Fields = {
 export type Notifications_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<Notifications_Select_Column>>;
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "notifications" */
+export type Notifications_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Notifications_Max_Order_By>;
+  min?: InputMaybe<Notifications_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "notifications" */
+export type Notifications_Arr_Rel_Insert_Input = {
+  data: Array<Notifications_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Notifications_On_Conflict>;
 };
 
 /** Boolean expression to filter rows from the table "notifications". All fields are combined with a logical 'AND'. */
@@ -4782,6 +5026,20 @@ export type Notifications_Max_Fields = {
   user_id?: Maybe<Scalars['uuid']['output']>;
 };
 
+/** order by max() on columns of table "notifications" */
+export type Notifications_Max_Order_By = {
+  content?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  related_comment_id?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  triggered_by_user_id?: InputMaybe<Order_By>;
+  /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
+  type?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
 /** aggregate min on columns */
 export type Notifications_Min_Fields = {
   __typename?: 'notifications_min_fields';
@@ -4795,6 +5053,20 @@ export type Notifications_Min_Fields = {
   type?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
   user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "notifications" */
+export type Notifications_Min_Order_By = {
+  content?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  related_comment_id?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  triggered_by_user_id?: InputMaybe<Order_By>;
+  /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
+  type?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "notifications" */
@@ -4858,6 +5130,18 @@ export enum Notifications_Select_Column {
   UpdatedAt = 'updated_at',
   /** column name */
   UserId = 'user_id'
+}
+
+/** select "notifications_aggregate_bool_exp_bool_and_arguments_columns" columns of table "notifications" */
+export enum Notifications_Select_Column_Notifications_Aggregate_Bool_Exp_Bool_And_Arguments_Columns {
+  /** column name */
+  IsRead = 'is_read'
+}
+
+/** select "notifications_aggregate_bool_exp_bool_or_arguments_columns" columns of table "notifications" */
+export enum Notifications_Select_Column_Notifications_Aggregate_Bool_Exp_Bool_Or_Arguments_Columns {
+  /** column name */
+  IsRead = 'is_read'
 }
 
 /** input type for updating data in table "notifications" */
@@ -4968,9 +5252,9 @@ export type Query_Root = {
   accounts_aggregate: Accounts_Aggregate;
   /** fetch data from the table: "accounts" using primary key columns */
   accounts_by_pk?: Maybe<Accounts>;
-  /** fetch data from the table: "activity_logs" */
+  /** An array relationship */
   activity_logs: Array<Activity_Logs>;
-  /** fetch aggregated fields from the table: "activity_logs" */
+  /** An aggregate relationship */
   activity_logs_aggregate: Activity_Logs_Aggregate;
   /** fetch data from the table: "activity_logs" using primary key columns */
   activity_logs_by_pk?: Maybe<Activity_Logs>;
@@ -5016,9 +5300,9 @@ export type Query_Root = {
   logs_aggregate: Logs_Aggregate;
   /** fetch data from the table: "logs" using primary key columns */
   logs_by_pk?: Maybe<Logs>;
-  /** fetch data from the table: "notifications" */
+  /** An array relationship */
   notifications: Array<Notifications>;
-  /** fetch aggregated fields from the table: "notifications" */
+  /** An aggregate relationship */
   notifications_aggregate: Notifications_Aggregate;
   /** fetch data from the table: "notifications" using primary key columns */
   notifications_by_pk?: Maybe<Notifications>;
@@ -5040,6 +5324,18 @@ export type Query_Root = {
   todos_aggregate: Todos_Aggregate;
   /** fetch data from the table: "todos" using primary key columns */
   todos_by_pk?: Maybe<Todos>;
+  /** fetch data from the table: "tracker_apps" */
+  tracker_apps: Array<Tracker_Apps>;
+  /** fetch aggregated fields from the table: "tracker_apps" */
+  tracker_apps_aggregate: Tracker_Apps_Aggregate;
+  /** fetch data from the table: "tracker_apps" using primary key columns */
+  tracker_apps_by_pk?: Maybe<Tracker_Apps>;
+  /** An array relationship */
+  tracker_sessions: Array<Tracker_Sessions>;
+  /** An aggregate relationship */
+  tracker_sessions_aggregate: Tracker_Sessions_Aggregate;
+  /** fetch data from the table: "tracker_sessions" using primary key columns */
+  tracker_sessions_by_pk?: Maybe<Tracker_Sessions>;
   /** An array relationship */
   uploads: Array<Uploads>;
   /** An aggregate relationship */
@@ -5361,6 +5657,52 @@ export type Query_RootTodos_By_PkArgs = {
 };
 
 
+export type Query_RootTracker_AppsArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Apps_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Apps_Order_By>>;
+  where?: InputMaybe<Tracker_Apps_Bool_Exp>;
+};
+
+
+export type Query_RootTracker_Apps_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Apps_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Apps_Order_By>>;
+  where?: InputMaybe<Tracker_Apps_Bool_Exp>;
+};
+
+
+export type Query_RootTracker_Apps_By_PkArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type Query_RootTracker_SessionsArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Sessions_Order_By>>;
+  where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
+
+export type Query_RootTracker_Sessions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Sessions_Order_By>>;
+  where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
+
+export type Query_RootTracker_Sessions_By_PkArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
 export type Query_RootUploadsArgs = {
   distinct_on?: InputMaybe<Array<Uploads_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -5674,9 +6016,9 @@ export type Subscription_Root = {
   accounts_by_pk?: Maybe<Accounts>;
   /** fetch data from the table in a streaming manner: "accounts" */
   accounts_stream: Array<Accounts>;
-  /** fetch data from the table: "activity_logs" */
+  /** An array relationship */
   activity_logs: Array<Activity_Logs>;
-  /** fetch aggregated fields from the table: "activity_logs" */
+  /** An aggregate relationship */
   activity_logs_aggregate: Activity_Logs_Aggregate;
   /** fetch data from the table: "activity_logs" using primary key columns */
   activity_logs_by_pk?: Maybe<Activity_Logs>;
@@ -5738,9 +6080,9 @@ export type Subscription_Root = {
   logs_by_pk?: Maybe<Logs>;
   /** fetch data from the table in a streaming manner: "logs" */
   logs_stream: Array<Logs>;
-  /** fetch data from the table: "notifications" */
+  /** An array relationship */
   notifications: Array<Notifications>;
-  /** fetch aggregated fields from the table: "notifications" */
+  /** An aggregate relationship */
   notifications_aggregate: Notifications_Aggregate;
   /** fetch data from the table: "notifications" using primary key columns */
   notifications_by_pk?: Maybe<Notifications>;
@@ -5770,6 +6112,22 @@ export type Subscription_Root = {
   todos_by_pk?: Maybe<Todos>;
   /** fetch data from the table in a streaming manner: "todos" */
   todos_stream: Array<Todos>;
+  /** fetch data from the table: "tracker_apps" */
+  tracker_apps: Array<Tracker_Apps>;
+  /** fetch aggregated fields from the table: "tracker_apps" */
+  tracker_apps_aggregate: Tracker_Apps_Aggregate;
+  /** fetch data from the table: "tracker_apps" using primary key columns */
+  tracker_apps_by_pk?: Maybe<Tracker_Apps>;
+  /** fetch data from the table in a streaming manner: "tracker_apps" */
+  tracker_apps_stream: Array<Tracker_Apps>;
+  /** An array relationship */
+  tracker_sessions: Array<Tracker_Sessions>;
+  /** An aggregate relationship */
+  tracker_sessions_aggregate: Tracker_Sessions_Aggregate;
+  /** fetch data from the table: "tracker_sessions" using primary key columns */
+  tracker_sessions_by_pk?: Maybe<Tracker_Sessions>;
+  /** fetch data from the table in a streaming manner: "tracker_sessions" */
+  tracker_sessions_stream: Array<Tracker_Sessions>;
   /** An array relationship */
   uploads: Array<Uploads>;
   /** An aggregate relationship */
@@ -6188,6 +6546,66 @@ export type Subscription_RootTodos_StreamArgs = {
 };
 
 
+export type Subscription_RootTracker_AppsArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Apps_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Apps_Order_By>>;
+  where?: InputMaybe<Tracker_Apps_Bool_Exp>;
+};
+
+
+export type Subscription_RootTracker_Apps_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Apps_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Apps_Order_By>>;
+  where?: InputMaybe<Tracker_Apps_Bool_Exp>;
+};
+
+
+export type Subscription_RootTracker_Apps_By_PkArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type Subscription_RootTracker_Apps_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Tracker_Apps_Stream_Cursor_Input>>;
+  where?: InputMaybe<Tracker_Apps_Bool_Exp>;
+};
+
+
+export type Subscription_RootTracker_SessionsArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Sessions_Order_By>>;
+  where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
+
+export type Subscription_RootTracker_Sessions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Sessions_Order_By>>;
+  where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
+
+export type Subscription_RootTracker_Sessions_By_PkArgs = {
+  id: Scalars['Int']['input'];
+};
+
+
+export type Subscription_RootTracker_Sessions_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Tracker_Sessions_Stream_Cursor_Input>>;
+  where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
+
 export type Subscription_RootUploadsArgs = {
   distinct_on?: InputMaybe<Array<Uploads_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -6490,6 +6908,10 @@ export type Todo_Labels_Updates = {
 /** columns and relationships of "todos" */
 export type Todos = {
   __typename?: 'todos';
+  /** An array relationship */
+  activity_logs: Array<Activity_Logs>;
+  /** An aggregate relationship */
+  activity_logs_aggregate: Activity_Logs_Aggregate;
   actual_hours?: Maybe<Scalars['numeric']['output']>;
   alias: Scalars['String']['output'];
   /** User this todo is assigned to (null if unassigned) */
@@ -6523,6 +6945,10 @@ export type Todos = {
   list_id?: Maybe<Scalars['uuid']['output']>;
   max_hours?: Maybe<Scalars['numeric']['output']>;
   min_hours?: Maybe<Scalars['numeric']['output']>;
+  /** An array relationship */
+  notifications: Array<Notifications>;
+  /** An aggregate relationship */
+  notifications_aggregate: Notifications_Aggregate;
   priority?: Maybe<Scalars['String']['output']>;
   sort_order: Scalars['Int']['output'];
   title: Scalars['String']['output'];
@@ -6534,6 +6960,26 @@ export type Todos = {
   /** An object relationship */
   user: Users;
   user_id: Scalars['uuid']['output'];
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosActivity_LogsArgs = {
+  distinct_on?: InputMaybe<Array<Activity_Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Activity_Logs_Order_By>>;
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosActivity_Logs_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Activity_Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Activity_Logs_Order_By>>;
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
 };
 
 
@@ -6574,6 +7020,26 @@ export type TodosLabels_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Todo_Labels_Order_By>>;
   where?: InputMaybe<Todo_Labels_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosNotificationsArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosNotifications_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
 };
 
 
@@ -6689,6 +7155,8 @@ export type Todos_Bool_Exp = {
   _and?: InputMaybe<Array<Todos_Bool_Exp>>;
   _not?: InputMaybe<Todos_Bool_Exp>;
   _or?: InputMaybe<Array<Todos_Bool_Exp>>;
+  activity_logs?: InputMaybe<Activity_Logs_Bool_Exp>;
+  activity_logs_aggregate?: InputMaybe<Activity_Logs_Aggregate_Bool_Exp>;
   actual_hours?: InputMaybe<Numeric_Comparison_Exp>;
   alias?: InputMaybe<String_Comparison_Exp>;
   assigned_to?: InputMaybe<Uuid_Comparison_Exp>;
@@ -6711,6 +7179,8 @@ export type Todos_Bool_Exp = {
   list_id?: InputMaybe<Uuid_Comparison_Exp>;
   max_hours?: InputMaybe<Numeric_Comparison_Exp>;
   min_hours?: InputMaybe<Numeric_Comparison_Exp>;
+  notifications?: InputMaybe<Notifications_Bool_Exp>;
+  notifications_aggregate?: InputMaybe<Notifications_Aggregate_Bool_Exp>;
   priority?: InputMaybe<String_Comparison_Exp>;
   sort_order?: InputMaybe<Int_Comparison_Exp>;
   title?: InputMaybe<String_Comparison_Exp>;
@@ -6743,6 +7213,7 @@ export type Todos_Inc_Input = {
 
 /** input type for inserting data into table "todos" */
 export type Todos_Insert_Input = {
+  activity_logs?: InputMaybe<Activity_Logs_Arr_Rel_Insert_Input>;
   actual_hours?: InputMaybe<Scalars['numeric']['input']>;
   alias?: InputMaybe<Scalars['String']['input']>;
   /** User this todo is assigned to (null if unassigned) */
@@ -6768,6 +7239,7 @@ export type Todos_Insert_Input = {
   list_id?: InputMaybe<Scalars['uuid']['input']>;
   max_hours?: InputMaybe<Scalars['numeric']['input']>;
   min_hours?: InputMaybe<Scalars['numeric']['input']>;
+  notifications?: InputMaybe<Notifications_Arr_Rel_Insert_Input>;
   priority?: InputMaybe<Scalars['String']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -6924,6 +7396,7 @@ export type Todos_On_Conflict = {
 
 /** Ordering options when selecting data from "todos". */
 export type Todos_Order_By = {
+  activity_logs_aggregate?: InputMaybe<Activity_Logs_Aggregate_Order_By>;
   actual_hours?: InputMaybe<Order_By>;
   alias?: InputMaybe<Order_By>;
   assigned_to?: InputMaybe<Order_By>;
@@ -6944,6 +7417,7 @@ export type Todos_Order_By = {
   list_id?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
+  notifications_aggregate?: InputMaybe<Notifications_Aggregate_Order_By>;
   priority?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
   title?: InputMaybe<Order_By>;
@@ -7302,6 +7776,695 @@ export type Todos_Variance_Order_By = {
   sort_order?: InputMaybe<Order_By>;
 };
 
+/** columns and relationships of "tracker_apps" */
+export type Tracker_Apps = {
+  __typename?: 'tracker_apps';
+  category?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  /** An array relationship */
+  tracker_sessions: Array<Tracker_Sessions>;
+  /** An aggregate relationship */
+  tracker_sessions_aggregate: Tracker_Sessions_Aggregate;
+  user_id: Scalars['uuid']['output'];
+};
+
+
+/** columns and relationships of "tracker_apps" */
+export type Tracker_AppsTracker_SessionsArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Sessions_Order_By>>;
+  where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
+
+/** columns and relationships of "tracker_apps" */
+export type Tracker_AppsTracker_Sessions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Sessions_Order_By>>;
+  where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
+/** aggregated selection of "tracker_apps" */
+export type Tracker_Apps_Aggregate = {
+  __typename?: 'tracker_apps_aggregate';
+  aggregate?: Maybe<Tracker_Apps_Aggregate_Fields>;
+  nodes: Array<Tracker_Apps>;
+};
+
+/** aggregate fields of "tracker_apps" */
+export type Tracker_Apps_Aggregate_Fields = {
+  __typename?: 'tracker_apps_aggregate_fields';
+  avg?: Maybe<Tracker_Apps_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Tracker_Apps_Max_Fields>;
+  min?: Maybe<Tracker_Apps_Min_Fields>;
+  stddev?: Maybe<Tracker_Apps_Stddev_Fields>;
+  stddev_pop?: Maybe<Tracker_Apps_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Tracker_Apps_Stddev_Samp_Fields>;
+  sum?: Maybe<Tracker_Apps_Sum_Fields>;
+  var_pop?: Maybe<Tracker_Apps_Var_Pop_Fields>;
+  var_samp?: Maybe<Tracker_Apps_Var_Samp_Fields>;
+  variance?: Maybe<Tracker_Apps_Variance_Fields>;
+};
+
+
+/** aggregate fields of "tracker_apps" */
+export type Tracker_Apps_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Tracker_Apps_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Tracker_Apps_Avg_Fields = {
+  __typename?: 'tracker_apps_avg_fields';
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "tracker_apps". All fields are combined with a logical 'AND'. */
+export type Tracker_Apps_Bool_Exp = {
+  _and?: InputMaybe<Array<Tracker_Apps_Bool_Exp>>;
+  _not?: InputMaybe<Tracker_Apps_Bool_Exp>;
+  _or?: InputMaybe<Array<Tracker_Apps_Bool_Exp>>;
+  category?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Int_Comparison_Exp>;
+  name?: InputMaybe<String_Comparison_Exp>;
+  tracker_sessions?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+  tracker_sessions_aggregate?: InputMaybe<Tracker_Sessions_Aggregate_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "tracker_apps" */
+export enum Tracker_Apps_Constraint {
+  /** unique or primary key constraint on columns "name" */
+  TrackerAppsNameKey = 'tracker_apps_name_key',
+  /** unique or primary key constraint on columns "id" */
+  TrackerAppsPkey = 'tracker_apps_pkey'
+}
+
+/** input type for incrementing numeric columns in table "tracker_apps" */
+export type Tracker_Apps_Inc_Input = {
+  id?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "tracker_apps" */
+export type Tracker_Apps_Insert_Input = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  tracker_sessions?: InputMaybe<Tracker_Sessions_Arr_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Tracker_Apps_Max_Fields = {
+  __typename?: 'tracker_apps_max_fields';
+  category?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** aggregate min on columns */
+export type Tracker_Apps_Min_Fields = {
+  __typename?: 'tracker_apps_min_fields';
+  category?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** response of any mutation on the table "tracker_apps" */
+export type Tracker_Apps_Mutation_Response = {
+  __typename?: 'tracker_apps_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Tracker_Apps>;
+};
+
+/** input type for inserting object relation for remote table "tracker_apps" */
+export type Tracker_Apps_Obj_Rel_Insert_Input = {
+  data: Tracker_Apps_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Tracker_Apps_On_Conflict>;
+};
+
+/** on_conflict condition type for table "tracker_apps" */
+export type Tracker_Apps_On_Conflict = {
+  constraint: Tracker_Apps_Constraint;
+  update_columns?: Array<Tracker_Apps_Update_Column>;
+  where?: InputMaybe<Tracker_Apps_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "tracker_apps". */
+export type Tracker_Apps_Order_By = {
+  category?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  name?: InputMaybe<Order_By>;
+  tracker_sessions_aggregate?: InputMaybe<Tracker_Sessions_Aggregate_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: tracker_apps */
+export type Tracker_Apps_Pk_Columns_Input = {
+  id: Scalars['Int']['input'];
+};
+
+/** select columns of table "tracker_apps" */
+export enum Tracker_Apps_Select_Column {
+  /** column name */
+  Category = 'category',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Name = 'name',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "tracker_apps" */
+export type Tracker_Apps_Set_Input = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Tracker_Apps_Stddev_Fields = {
+  __typename?: 'tracker_apps_stddev_fields';
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Tracker_Apps_Stddev_Pop_Fields = {
+  __typename?: 'tracker_apps_stddev_pop_fields';
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Tracker_Apps_Stddev_Samp_Fields = {
+  __typename?: 'tracker_apps_stddev_samp_fields';
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "tracker_apps" */
+export type Tracker_Apps_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Tracker_Apps_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Tracker_Apps_Stream_Cursor_Value_Input = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Tracker_Apps_Sum_Fields = {
+  __typename?: 'tracker_apps_sum_fields';
+  id?: Maybe<Scalars['Int']['output']>;
+};
+
+/** update columns of table "tracker_apps" */
+export enum Tracker_Apps_Update_Column {
+  /** column name */
+  Category = 'category',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Name = 'name',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Tracker_Apps_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Tracker_Apps_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Tracker_Apps_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Tracker_Apps_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Tracker_Apps_Var_Pop_Fields = {
+  __typename?: 'tracker_apps_var_pop_fields';
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Tracker_Apps_Var_Samp_Fields = {
+  __typename?: 'tracker_apps_var_samp_fields';
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Tracker_Apps_Variance_Fields = {
+  __typename?: 'tracker_apps_variance_fields';
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** columns and relationships of "tracker_sessions" */
+export type Tracker_Sessions = {
+  __typename?: 'tracker_sessions';
+  app_id: Scalars['Int']['output'];
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  duration_seconds: Scalars['Int']['output'];
+  end_time: Scalars['timestamptz']['output'];
+  id: Scalars['Int']['output'];
+  start_time: Scalars['timestamptz']['output'];
+  /** An object relationship */
+  tracker_app: Tracker_Apps;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id: Scalars['uuid']['output'];
+  window_title?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregated selection of "tracker_sessions" */
+export type Tracker_Sessions_Aggregate = {
+  __typename?: 'tracker_sessions_aggregate';
+  aggregate?: Maybe<Tracker_Sessions_Aggregate_Fields>;
+  nodes: Array<Tracker_Sessions>;
+};
+
+export type Tracker_Sessions_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Tracker_Sessions_Aggregate_Bool_Exp_Count>;
+};
+
+export type Tracker_Sessions_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "tracker_sessions" */
+export type Tracker_Sessions_Aggregate_Fields = {
+  __typename?: 'tracker_sessions_aggregate_fields';
+  avg?: Maybe<Tracker_Sessions_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Tracker_Sessions_Max_Fields>;
+  min?: Maybe<Tracker_Sessions_Min_Fields>;
+  stddev?: Maybe<Tracker_Sessions_Stddev_Fields>;
+  stddev_pop?: Maybe<Tracker_Sessions_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Tracker_Sessions_Stddev_Samp_Fields>;
+  sum?: Maybe<Tracker_Sessions_Sum_Fields>;
+  var_pop?: Maybe<Tracker_Sessions_Var_Pop_Fields>;
+  var_samp?: Maybe<Tracker_Sessions_Var_Samp_Fields>;
+  variance?: Maybe<Tracker_Sessions_Variance_Fields>;
+};
+
+
+/** aggregate fields of "tracker_sessions" */
+export type Tracker_Sessions_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "tracker_sessions" */
+export type Tracker_Sessions_Aggregate_Order_By = {
+  avg?: InputMaybe<Tracker_Sessions_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Tracker_Sessions_Max_Order_By>;
+  min?: InputMaybe<Tracker_Sessions_Min_Order_By>;
+  stddev?: InputMaybe<Tracker_Sessions_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Tracker_Sessions_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Tracker_Sessions_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Tracker_Sessions_Sum_Order_By>;
+  var_pop?: InputMaybe<Tracker_Sessions_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Tracker_Sessions_Var_Samp_Order_By>;
+  variance?: InputMaybe<Tracker_Sessions_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "tracker_sessions" */
+export type Tracker_Sessions_Arr_Rel_Insert_Input = {
+  data: Array<Tracker_Sessions_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Tracker_Sessions_On_Conflict>;
+};
+
+/** aggregate avg on columns */
+export type Tracker_Sessions_Avg_Fields = {
+  __typename?: 'tracker_sessions_avg_fields';
+  app_id?: Maybe<Scalars['Float']['output']>;
+  duration_seconds?: Maybe<Scalars['Float']['output']>;
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "tracker_sessions" */
+export type Tracker_Sessions_Avg_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "tracker_sessions". All fields are combined with a logical 'AND'. */
+export type Tracker_Sessions_Bool_Exp = {
+  _and?: InputMaybe<Array<Tracker_Sessions_Bool_Exp>>;
+  _not?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+  _or?: InputMaybe<Array<Tracker_Sessions_Bool_Exp>>;
+  app_id?: InputMaybe<Int_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  duration_seconds?: InputMaybe<Int_Comparison_Exp>;
+  end_time?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Int_Comparison_Exp>;
+  start_time?: InputMaybe<Timestamptz_Comparison_Exp>;
+  tracker_app?: InputMaybe<Tracker_Apps_Bool_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+  window_title?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "tracker_sessions" */
+export enum Tracker_Sessions_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  TrackerSessionsPkey = 'tracker_sessions_pkey'
+}
+
+/** input type for incrementing numeric columns in table "tracker_sessions" */
+export type Tracker_Sessions_Inc_Input = {
+  app_id?: InputMaybe<Scalars['Int']['input']>;
+  duration_seconds?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "tracker_sessions" */
+export type Tracker_Sessions_Insert_Input = {
+  app_id?: InputMaybe<Scalars['Int']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  duration_seconds?: InputMaybe<Scalars['Int']['input']>;
+  end_time?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  start_time?: InputMaybe<Scalars['timestamptz']['input']>;
+  tracker_app?: InputMaybe<Tracker_Apps_Obj_Rel_Insert_Input>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+  window_title?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate max on columns */
+export type Tracker_Sessions_Max_Fields = {
+  __typename?: 'tracker_sessions_max_fields';
+  app_id?: Maybe<Scalars['Int']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  duration_seconds?: Maybe<Scalars['Int']['output']>;
+  end_time?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
+  start_time?: Maybe<Scalars['timestamptz']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+  window_title?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by max() on columns of table "tracker_sessions" */
+export type Tracker_Sessions_Max_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  end_time?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  start_time?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  window_title?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Tracker_Sessions_Min_Fields = {
+  __typename?: 'tracker_sessions_min_fields';
+  app_id?: Maybe<Scalars['Int']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  duration_seconds?: Maybe<Scalars['Int']['output']>;
+  end_time?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
+  start_time?: Maybe<Scalars['timestamptz']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+  window_title?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by min() on columns of table "tracker_sessions" */
+export type Tracker_Sessions_Min_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  end_time?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  start_time?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  window_title?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "tracker_sessions" */
+export type Tracker_Sessions_Mutation_Response = {
+  __typename?: 'tracker_sessions_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Tracker_Sessions>;
+};
+
+/** on_conflict condition type for table "tracker_sessions" */
+export type Tracker_Sessions_On_Conflict = {
+  constraint: Tracker_Sessions_Constraint;
+  update_columns?: Array<Tracker_Sessions_Update_Column>;
+  where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "tracker_sessions". */
+export type Tracker_Sessions_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  end_time?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  start_time?: InputMaybe<Order_By>;
+  tracker_app?: InputMaybe<Tracker_Apps_Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  window_title?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: tracker_sessions */
+export type Tracker_Sessions_Pk_Columns_Input = {
+  id: Scalars['Int']['input'];
+};
+
+/** select columns of table "tracker_sessions" */
+export enum Tracker_Sessions_Select_Column {
+  /** column name */
+  AppId = 'app_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  DurationSeconds = 'duration_seconds',
+  /** column name */
+  EndTime = 'end_time',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  StartTime = 'start_time',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id',
+  /** column name */
+  WindowTitle = 'window_title'
+}
+
+/** input type for updating data in table "tracker_sessions" */
+export type Tracker_Sessions_Set_Input = {
+  app_id?: InputMaybe<Scalars['Int']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  duration_seconds?: InputMaybe<Scalars['Int']['input']>;
+  end_time?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  start_time?: InputMaybe<Scalars['timestamptz']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+  window_title?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Tracker_Sessions_Stddev_Fields = {
+  __typename?: 'tracker_sessions_stddev_fields';
+  app_id?: Maybe<Scalars['Float']['output']>;
+  duration_seconds?: Maybe<Scalars['Float']['output']>;
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev() on columns of table "tracker_sessions" */
+export type Tracker_Sessions_Stddev_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Tracker_Sessions_Stddev_Pop_Fields = {
+  __typename?: 'tracker_sessions_stddev_pop_fields';
+  app_id?: Maybe<Scalars['Float']['output']>;
+  duration_seconds?: Maybe<Scalars['Float']['output']>;
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_pop() on columns of table "tracker_sessions" */
+export type Tracker_Sessions_Stddev_Pop_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Tracker_Sessions_Stddev_Samp_Fields = {
+  __typename?: 'tracker_sessions_stddev_samp_fields';
+  app_id?: Maybe<Scalars['Float']['output']>;
+  duration_seconds?: Maybe<Scalars['Float']['output']>;
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "tracker_sessions" */
+export type Tracker_Sessions_Stddev_Samp_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "tracker_sessions" */
+export type Tracker_Sessions_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Tracker_Sessions_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Tracker_Sessions_Stream_Cursor_Value_Input = {
+  app_id?: InputMaybe<Scalars['Int']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  duration_seconds?: InputMaybe<Scalars['Int']['input']>;
+  end_time?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['Int']['input']>;
+  start_time?: InputMaybe<Scalars['timestamptz']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+  window_title?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Tracker_Sessions_Sum_Fields = {
+  __typename?: 'tracker_sessions_sum_fields';
+  app_id?: Maybe<Scalars['Int']['output']>;
+  duration_seconds?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['Int']['output']>;
+};
+
+/** order by sum() on columns of table "tracker_sessions" */
+export type Tracker_Sessions_Sum_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+};
+
+/** update columns of table "tracker_sessions" */
+export enum Tracker_Sessions_Update_Column {
+  /** column name */
+  AppId = 'app_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  DurationSeconds = 'duration_seconds',
+  /** column name */
+  EndTime = 'end_time',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  StartTime = 'start_time',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id',
+  /** column name */
+  WindowTitle = 'window_title'
+}
+
+export type Tracker_Sessions_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Tracker_Sessions_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Tracker_Sessions_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Tracker_Sessions_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Tracker_Sessions_Var_Pop_Fields = {
+  __typename?: 'tracker_sessions_var_pop_fields';
+  app_id?: Maybe<Scalars['Float']['output']>;
+  duration_seconds?: Maybe<Scalars['Float']['output']>;
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_pop() on columns of table "tracker_sessions" */
+export type Tracker_Sessions_Var_Pop_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Tracker_Sessions_Var_Samp_Fields = {
+  __typename?: 'tracker_sessions_var_samp_fields';
+  app_id?: Maybe<Scalars['Float']['output']>;
+  duration_seconds?: Maybe<Scalars['Float']['output']>;
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_samp() on columns of table "tracker_sessions" */
+export type Tracker_Sessions_Var_Samp_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Tracker_Sessions_Variance_Fields = {
+  __typename?: 'tracker_sessions_variance_fields';
+  app_id?: Maybe<Scalars['Float']['output']>;
+  duration_seconds?: Maybe<Scalars['Float']['output']>;
+  id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "tracker_sessions" */
+export type Tracker_Sessions_Variance_Order_By = {
+  app_id?: InputMaybe<Order_By>;
+  duration_seconds?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+};
+
 /** columns and relationships of "uploads" */
 export type Uploads = {
   __typename?: 'uploads';
@@ -7514,6 +8677,10 @@ export type Users = {
   /** An aggregate relationship */
   accounts_aggregate: Accounts_Aggregate;
   /** An array relationship */
+  activity_logs: Array<Activity_Logs>;
+  /** An aggregate relationship */
+  activity_logs_aggregate: Activity_Logs_Aggregate;
+  /** An array relationship */
   board_invitations: Array<Board_Invitations>;
   /** An aggregate relationship */
   board_invitations_aggregate: Board_Invitations_Aggregate;
@@ -7549,6 +8716,10 @@ export type Users = {
   settings: Scalars['jsonb']['output'];
   /** An array relationship */
   todos: Array<Todos>;
+  /** An array relationship */
+  todosByAssignedTo: Array<Todos>;
+  /** An aggregate relationship */
+  todosByAssignedTo_aggregate: Todos_Aggregate;
   /** An aggregate relationship */
   todos_aggregate: Todos_Aggregate;
   updated_at: Scalars['timestamptz']['output'];
@@ -7573,6 +8744,26 @@ export type UsersAccounts_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Accounts_Order_By>>;
   where?: InputMaybe<Accounts_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersActivity_LogsArgs = {
+  distinct_on?: InputMaybe<Array<Activity_Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Activity_Logs_Order_By>>;
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersActivity_Logs_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Activity_Logs_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Activity_Logs_Order_By>>;
+  where?: InputMaybe<Activity_Logs_Bool_Exp>;
 };
 
 
@@ -7719,6 +8910,26 @@ export type UsersTodosArgs = {
 
 
 /** columns and relationships of "users" */
+export type UsersTodosByAssignedToArgs = {
+  distinct_on?: InputMaybe<Array<Todos_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todos_Order_By>>;
+  where?: InputMaybe<Todos_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersTodosByAssignedTo_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Todos_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todos_Order_By>>;
+  where?: InputMaybe<Todos_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
 export type UsersTodos_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Todos_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -7762,6 +8973,8 @@ export type Users_Bool_Exp = {
   _or?: InputMaybe<Array<Users_Bool_Exp>>;
   accounts?: InputMaybe<Accounts_Bool_Exp>;
   accounts_aggregate?: InputMaybe<Accounts_Aggregate_Bool_Exp>;
+  activity_logs?: InputMaybe<Activity_Logs_Bool_Exp>;
+  activity_logs_aggregate?: InputMaybe<Activity_Logs_Aggregate_Bool_Exp>;
   board_invitations?: InputMaybe<Board_Invitations_Bool_Exp>;
   board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Bool_Exp>;
   board_members?: InputMaybe<Board_Members_Bool_Exp>;
@@ -7785,6 +8998,8 @@ export type Users_Bool_Exp = {
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Bool_Exp>;
   settings?: InputMaybe<Jsonb_Comparison_Exp>;
   todos?: InputMaybe<Todos_Bool_Exp>;
+  todosByAssignedTo?: InputMaybe<Todos_Bool_Exp>;
+  todosByAssignedTo_aggregate?: InputMaybe<Todos_Aggregate_Bool_Exp>;
   todos_aggregate?: InputMaybe<Todos_Aggregate_Bool_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   username?: InputMaybe<String_Comparison_Exp>;
@@ -7821,6 +9036,7 @@ export type Users_Delete_Key_Input = {
 /** input type for inserting data into table "users" */
 export type Users_Insert_Input = {
   accounts?: InputMaybe<Accounts_Arr_Rel_Insert_Input>;
+  activity_logs?: InputMaybe<Activity_Logs_Arr_Rel_Insert_Input>;
   board_invitations?: InputMaybe<Board_Invitations_Arr_Rel_Insert_Input>;
   board_members?: InputMaybe<Board_Members_Arr_Rel_Insert_Input>;
   boards?: InputMaybe<Boards_Arr_Rel_Insert_Input>;
@@ -7838,6 +9054,7 @@ export type Users_Insert_Input = {
   sessions?: InputMaybe<Sessions_Arr_Rel_Insert_Input>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
   todos?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
+  todosByAssignedTo?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
 };
@@ -7896,6 +9113,7 @@ export type Users_On_Conflict = {
 /** Ordering options when selecting data from "users". */
 export type Users_Order_By = {
   accounts_aggregate?: InputMaybe<Accounts_Aggregate_Order_By>;
+  activity_logs_aggregate?: InputMaybe<Activity_Logs_Aggregate_Order_By>;
   board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Order_By>;
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Order_By>;
   boards_aggregate?: InputMaybe<Boards_Aggregate_Order_By>;
@@ -7912,6 +9130,7 @@ export type Users_Order_By = {
   name?: InputMaybe<Order_By>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Order_By>;
   settings?: InputMaybe<Order_By>;
+  todosByAssignedTo_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
   todos_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
   updated_at?: InputMaybe<Order_By>;
   username?: InputMaybe<Order_By>;

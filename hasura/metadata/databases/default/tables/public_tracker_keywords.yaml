@@ -1,0 +1,69 @@
+table:
+  name: tracker_keywords
+  schema: public
+object_relationships:
+  - name: board
+    using:
+      foreign_key_constraint_on: board_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        _or:
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+      columns:
+        - case_sensitive
+        - keyword
+        - created_at
+        - updated_at
+        - board_id
+        - id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - case_sensitive
+        - keyword
+        - created_at
+        - updated_at
+        - board_id
+        - id
+      filter:
+        _or:
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - board_id
+        - case_sensitive
+        - keyword
+        - updated_at
+      filter:
+        board:
+          user_id:
+            _eq: X-Hasura-User-Id
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        board:
+          user_id:
+            _eq: X-Hasura-User-Id
+    comment: ""

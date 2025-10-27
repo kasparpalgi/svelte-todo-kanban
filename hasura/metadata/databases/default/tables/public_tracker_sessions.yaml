@@ -5,3 +5,49 @@ object_relationships:
   - name: tracker_app
     using:
       foreign_key_constraint_on: app_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      set:
+        user_id: ""
+      columns:
+        - app_id
+        - duration_seconds
+        - id
+        - window_title
+        - created_at
+        - end_time
+        - start_time
+        - updated_at
+        - user_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - app_id
+        - duration_seconds
+        - id
+        - window_title
+        - created_at
+        - end_time
+        - start_time
+        - updated_at
+        - user_id
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""

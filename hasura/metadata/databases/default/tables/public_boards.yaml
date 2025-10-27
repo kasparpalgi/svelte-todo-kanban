@@ -34,6 +34,13 @@ array_relationships:
         table:
           name: lists
           schema: public
+  - name: tracker_keywords
+    using:
+      foreign_key_constraint_on:
+        column: board_id
+        table:
+          name: tracker_keywords
+          schema: public
 insert_permissions:
   - role: user
     permission:
