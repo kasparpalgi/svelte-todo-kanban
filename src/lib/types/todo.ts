@@ -1,6 +1,8 @@
 import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 import type { TodoImage } from './imageUpload';
 
+export type Priority = 'low' | 'medium' | 'high';
+
 export interface TodosState {
 	todos: TodoFieldsFragment[];
 	loading: boolean;
@@ -19,7 +21,13 @@ export interface CanbanColumnProps {
 		id: string;
 		name: string;
 		sort_order: number;
-		board?: { id: string; name: string; alias: string; sort_order: number; github?: string | null } | null;
+		board?: {
+			id: string;
+			name: string;
+			alias: string;
+			sort_order: number;
+			github?: string | null;
+		} | null;
 	};
 	todos: TodoFieldsFragment[];
 	isHighlighted?: boolean;
@@ -53,6 +61,12 @@ export interface TodoEditProps {
 	onRemoveImage: (id: string) => void;
 	fileInput: HTMLInputElement | undefined;
 }
+
+export type CardDetailViewProps = {
+	todo: TodoFieldsFragment;
+	lang: string;
+	onClose: () => void;
+};
 
 export type DragHandleProps = {
 	attributes: Record<string, any>;

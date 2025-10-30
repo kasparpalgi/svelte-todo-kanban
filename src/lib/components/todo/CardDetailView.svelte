@@ -4,6 +4,7 @@
 	import { t } from '$lib/i18n';
 	import { z } from 'zod';
 	import { todosStore } from '$lib/stores/todos.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { todoEditSchema, getPriorityColor, getPriorityLabel } from '$lib/utils/cardHelpers';
 	import { parseDate } from '@internationalized/date';
@@ -15,6 +16,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Calendar as CalendarPrimitive } from '$lib/components/ui/calendar';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
+	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { X, Calendar as CalendarIcon, Tag } from 'lucide-svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
@@ -24,16 +26,10 @@
 	import CardHourTracking from '$lib/components/todo/CardHourTracking.svelte';
 	import type { Readable } from 'svelte/store';
 	import type { Editor } from 'svelte-tiptap';
-	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { DateValue } from '@internationalized/date';
+	import type { CardDetailViewProps, Priority } from '$lib/types/todo';
 
-	type Priority = 'low' | 'medium' | 'high';
-	import { Checkbox } from '$lib/components/ui/checkbox';
-	import { page } from '$app/stores';
-	import { userStore } from '$lib/stores/user.svelte';
-
-	let { todo, lang, onClose }: { todo: TodoFieldsFragment; lang: string; onClose: () => void } =
-		$props();
+	let { todo, lang, onClose }: CardDetailViewProps = $props();
 
 	let addToGoogleCalendar = $state(false);
 	const user = $derived(userStore.user);
@@ -113,9 +109,8 @@
 				return;
 			}
 
-			// Add to Google Calendar if checkbox is checked and we have calendar connected
+			// Add to GCalendar if checkbox & cal. connected
 			if (result.success && addToGoogleCalendar && hasCalendarConnected && user?.id) {
-				console.log('Creating Google Calendar event...');
 				try {
 					const response = await fetch('/api/calendar-event', {
 						method: 'POST',
@@ -132,15 +127,13 @@
 
 					const calendarResult = await response.json();
 
-					if (calendarResult.success) {
-						console.log('Calendar event created successfully');
-					} else {
+					if (!calendarResult.success) {
 						console.error('Failed to create calendar event:', calendarResult.error);
-						displayMessage($t('card.calendar_event_failed') || 'Failed to add to Google Calendar');
+						displayMessage($t('card.calendar_event_failed'));
 					}
 				} catch (error) {
 					console.error('Failed to create calendar event:', error);
-					displayMessage($t('card.calendar_event_failed') || 'Failed to add to Google Calendar');
+					displayMessage($t('card.calendar_event_failed'));
 				}
 			}
 
