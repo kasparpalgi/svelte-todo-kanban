@@ -7,6 +7,7 @@
 	import { userStore } from '$lib/stores/user.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { todoEditSchema, getPriorityColor, getPriorityLabel } from '$lib/utils/cardHelpers';
+	import { formatLocaleDate } from '$lib/utils/dateTime.svelte';
 	import { parseDate } from '@internationalized/date';
 	import { cn } from '$lib/utils';
 	import { Card, CardContent, CardHeader } from '$lib/components/ui/card';
@@ -63,17 +64,6 @@
 			editData.due_on = '';
 		}
 	});
-
-	function formatDate(date: DateValue | undefined, locale: string): string {
-		if (!date) return '';
-
-		const jsDate = new Date(date.year, date.month - 1, date.day);
-		return new Intl.DateTimeFormat(locale, {
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric'
-		}).format(jsDate);
-	}
 
 	async function saveTodo() {
 		if (isSubmitting || !todo || !editor) {
@@ -273,7 +263,12 @@
 							)}
 						>
 							<CalendarIcon class="mr-2 h-4 w-4" />
-							{selectedDate ? formatDate(selectedDate, lang) : $t('card.pick_date')}
+							{selectedDate
+								? formatLocaleDate(
+										new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day),
+										lang
+									)
+								: $t('card.pick_date')}
 						</Button>
 					</PopoverTrigger>
 					<PopoverContent class="w-auto p-0" align="start">

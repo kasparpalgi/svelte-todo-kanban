@@ -1,7 +1,8 @@
 /** @file src/lib/utils/dateTime.svelte.ts */
 import { t } from '$lib/i18n';
 
-export function formatDate(dateString: string) {
+// eg. "today", "yesterday", "5 days ago"
+export function formatDate(dateString: string): string {
 	const date = new Date(dateString);
 	const now = new Date();
 	const diff = now.getTime() - date.getTime();
@@ -13,6 +14,7 @@ export function formatDate(dateString: string) {
 	return date.toLocaleDateString();
 }
 
+// eg. "tomorrow", "in 5 days", "5 days ago"
 export function formatDateWithFuture(dateString: string): string {
 	const date = new Date(dateString);
 	const now = new Date();
@@ -23,4 +25,19 @@ export function formatDateWithFuture(dateString: string): string {
 	if (diffDays === -1) return t.get('date.yesterday');
 	if (diffDays > 0) return `${diffDays} ${t.get('date.in_days')}`;
 	return `${Math.abs(diffDays)} ${t.get('date.days_ago')}`;
+}
+
+// eg. "3. sugust 2025"
+export function formatLocaleDate(
+	date: Date | string | number,
+	locale: string,
+	options: Intl.DateTimeFormatOptions = {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric'
+	}
+): string {
+	if (!date) return '';
+	const jsDate = new Date(date);
+	return new Intl.DateTimeFormat(locale, options).format(jsDate);
 }
