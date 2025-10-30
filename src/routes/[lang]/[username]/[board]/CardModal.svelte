@@ -16,7 +16,6 @@
 	let todo = $state<TodoFieldsFragment | null>(null);
 	let loading = $state(true);
 	let isClosing = $state(false);
-	// svelte-ignore non_reactive_update
 	let cardDetailView: { save: () => Promise<void> };
 
 	$effect(() => {

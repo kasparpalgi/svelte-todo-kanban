@@ -17,7 +17,3 @@ proj1
 proje1
 
 --- all proj1
-
----------------------
-
-ALWAYS START TASK AND END TASK FROM CARD. SEE WHERE I AM, COMMIT TO IT, COMMENT IT, EDIT IT, SEE IT.

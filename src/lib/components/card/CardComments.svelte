@@ -1,22 +1,18 @@
 <!-- @file src/lib/components/card/CardComments.svelte -->
 <script lang="ts">
+	import { t } from '$lib/i18n';
+	import { commentsStore } from '$lib/stores/comments.svelte';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { formatDate } from '$lib/utils/cardHelpers';
+	import { linkifyText } from '$lib/utils/linkifyText';
 	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Label } from '$lib/components/ui/label';
 	import { MessageSquare, Send, Trash2 } from 'lucide-svelte';
-	import { commentsStore } from '$lib/stores/comments.svelte';
-	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
-	import { t } from '$lib/i18n';
-	import { formatDate } from '$lib/utils/cardHelpers';
-	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { CardCommentsProps } from '$lib/types/comments';
 
-	interface Props {
-		todo: TodoFieldsFragment;
-		lang: string;
-	}
-
-	let { todo, lang }: Props = $props();
+	let { todo, lang }: CardCommentsProps = $props();
 
 	let newComment = $state('');
 
@@ -56,19 +52,14 @@
 	</Label>
 
 	<div class="space-y-3">
-		<!-- Loading State -->
 		{#if commentsStore.loading}
 			<div class="py-4 text-center text-sm text-muted-foreground">
 				{$t('card.loading_comments')}
 			</div>
-
-			<!-- Empty State -->
 		{:else if commentsStore.comments.length === 0}
 			<p class="py-4 text-center text-sm text-muted-foreground">
 				{$t('card.no_comments')}
 			</p>
-
-			<!-- Comments List -->
 		{:else}
 			{#each commentsStore.comments as comment}
 				<Card class="p-3">
@@ -97,12 +88,13 @@
 							<Trash2 class="h-3 w-3" />
 						</Button>
 					</div>
-					<p class="text-sm whitespace-pre-wrap">{comment.content}</p>
+					<p class="text-sm whitespace-pre-wrap">
+						{@html linkifyText(comment.content)}
+					</p>
 				</Card>
 			{/each}
 		{/if}
 
-		<!-- Add Comment Form -->
 		<div class="flex gap-2">
 			<Textarea
 				bind:value={newComment}
