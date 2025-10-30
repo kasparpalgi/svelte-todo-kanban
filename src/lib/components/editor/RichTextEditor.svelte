@@ -68,7 +68,7 @@
 				editorProps: {
 					attributes: {
 						class:
-							'prose prose-sm max-w-none focus:outline-none min-h-[120px] p-4 rounded-md border'
+							'prose prose-sm max-w-none focus:outline-none min-h-[120px] p-4 rounded-md border editor-content'
 					}
 				}
 			});
@@ -88,3 +88,36 @@
 	{/if}
 	<div bind:this={element}></div>
 </div>
+
+<style>
+	:global(.editor-content ul) {
+		list-style-type: disc;
+		padding-left: 1.5rem;
+	}
+
+	:global(.editor-content ol) {
+		list-style-type: decimal;
+		padding-left: 1.5rem;
+	}
+
+	:global(.editor-content ul li),
+	:global(.editor-content ol li) {
+		display: list-item;
+		margin-top: 0.25rem;
+		margin-bottom: 0.25rem;
+	}
+
+	:global(.editor-content ul li::marker),
+	:global(.editor-content ol li::marker) {
+		color: hsl(var(--foreground));
+	}
+
+	:global(.editor-content ul ul) {
+		list-style-type: circle;
+		margin-top: 0.25rem;
+	}
+
+	:global(.editor-content ul ul ul) {
+		list-style-type: square;
+	}
+</style>
