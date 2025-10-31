@@ -1,0 +1,75 @@
+table:
+  name: tracker_categories
+  schema: public
+object_relationships:
+  - name: parent_category
+    using:
+      foreign_key_constraint_on: parent_id
+array_relationships:
+  - name: sub_categories
+    using:
+      foreign_key_constraint_on:
+        column: parent_id
+        table:
+          name: tracker_categories
+          schema: public
+  - name: tracker_keywords
+    using:
+      foreign_key_constraint_on:
+        column: category_id
+        table:
+          name: tracker_keywords
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      set:
+        user_id: x-hasura-User-Id
+      columns:
+        - name
+        - created_at
+        - updated_at
+        - id
+        - parent_id
+        - user_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - name
+        - created_at
+        - updated_at
+        - id
+        - parent_id
+        - user_id
+      filter:
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - user_id:
+              _is_null: true
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - name
+        - parent_id
+        - updated_at
+        - user_id
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      check: null
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""

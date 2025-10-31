@@ -51,6 +51,13 @@ array_relationships:
         table:
           name: logs
           schema: public
+  - name: notifications
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: notifications
+          schema: public
   - name: sessions
     using:
       foreign_key_constraint_on:
@@ -71,6 +78,27 @@ array_relationships:
         column: assigned_to
         table:
           name: todos
+          schema: public
+  - name: tracker_apps
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: tracker_apps
+          schema: public
+  - name: tracker_categories
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: tracker_categories
+          schema: public
+  - name: tracker_sessions
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: tracker_sessions
           schema: public
 insert_permissions:
   - role: user

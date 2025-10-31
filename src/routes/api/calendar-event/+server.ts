@@ -1,18 +1,12 @@
 // @file src/routes/api/calendar-event/+server.ts
+import { AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET } from '$env/static/private';
+import { UPDATE_USER } from '$lib/graphql/documents';
 import { json } from '@sveltejs/kit';
 import { google } from 'googleapis';
-import { AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET } from '$env/static/private';
 import { serverRequest } from '$lib/graphql/server-client';
-import { UPDATE_USER } from '$lib/graphql/documents';
 import { decryptToken, encryptToken } from '$lib/utils/crypto';
 import type { RequestHandler } from './$types';
-
-interface GetUserResult {
-	users_by_pk?: {
-		id: string;
-		settings?: any;
-	};
-}
+import type { GetUserResult } from '$lib/types/github';
 
 async function refreshGoogleToken(refreshToken: string) {
 	const response = await fetch('https://oauth2.googleapis.com/token', {
@@ -50,7 +44,6 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ success: false, error: 'Unauthorized - no user ID' }, { status: 401 });
 		}
 
-		// Get user settings with calendar token
 		const userData = await serverRequest<GetUserResult, { userId: string }>(
 			`
 			query GetUser($userId: uuid!) {
@@ -72,7 +65,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		let accessToken = decryptToken(calendarSettings.encrypted);
 
-		// Check if token is expired and refresh if needed
+		// Check if token  expired (refresh if needed)
 		if (calendarSettings.expires_at && Date.now() >= calendarSettings.expires_at) {
 			console.log('Token expired, refreshing...');
 
@@ -108,19 +101,13 @@ export const POST: RequestHandler = async ({ request }) => {
 					}
 				}
 			});
-
-			console.log('Token refreshed successfully');
 		}
 
 		const oauth2Client = new google.auth.OAuth2();
 		oauth2Client.setCredentials({ access_token: accessToken });
 
 		const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-
-		// Parse the ISO timestamp (dueDate is now an ISO string with timezone info)
 		const dueDateTime = new Date(dueDate);
-
-		// Use the hasTime flag to determine if event should be all-day or timed
 		const isDateOnly = !hasTime;
 
 		let event: any = {
@@ -129,7 +116,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		};
 
 		if (isDateOnly) {
-			// All-day event - use date format (YYYY-MM-DD)
+			// All-day -> YYYY-MM-DD
 			const dateStr = dueDateTime.toISOString().split('T')[0];
 			event.start = {
 				date: dateStr,
@@ -141,12 +128,12 @@ export const POST: RequestHandler = async ({ request }) => {
 			};
 			console.log('Creating all-day calendar event:', event);
 		} else {
-			// Timed event - use dateTime format
+			// With time -> dateTime format
 			event.start = {
 				dateTime: dueDateTime.toISOString(),
 				timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
 			};
-			// End time is 1 hour after start
+			// End time defaults to +1h after start
 			const endTime = new Date(dueDateTime.getTime() + 60 * 60 * 1000);
 			event.end = {
 				dateTime: endTime.toISOString(),
@@ -160,7 +147,6 @@ export const POST: RequestHandler = async ({ request }) => {
 			requestBody: event
 		});
 
-		console.log('Calendar event created:', response.data.id);
 		return json({
 			success: true,
 			eventId: response.data.id,
