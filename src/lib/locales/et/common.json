@@ -394,7 +394,8 @@
         "add_hours_comment": "Kommenteeri töötunde →",
         "pick_date": "Lisa tähtaeg",
         "add_to_google_calendar": "Lisa Google kalendrisse",
-        "calendar_event_failed": "Google kalendrisse lisamine ebaõnnestus"
+        "calendar_event_failed": "Google kalendrisse lisamine ebaõnnestus",
+        "include_time": "Lisa kellaaeg"
     },
     "labels": {
         "labels": "Sildid",

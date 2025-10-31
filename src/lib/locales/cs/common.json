@@ -394,7 +394,8 @@
         "add_hours_comment": "Přidat komentář k hodinám →",
         "pick_date": "Nastavit termín dokončení",
         "add_to_google_calendar": "Přidat do Google Calendar",
-        "calendar_event_failed": "Nepodařilo se přidat do Google Calendar"
+        "calendar_event_failed": "Nepodařilo se přidat do Google Calendar",
+        "include_time": "Zahrnout čas"
     },
     "labels": {
         "labels": "Štítky",

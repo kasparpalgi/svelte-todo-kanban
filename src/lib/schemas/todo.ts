@@ -23,7 +23,13 @@ export const todoEditSchema = z.object({
 				return !isNaN(date.getTime());
 			},
 			{ message: 'Invalid date format' }
-		)
+		),
+	has_time: z.boolean().optional(),
+	priority: z.string().nullable().optional(),
+	min_hours: z.number().nullable().optional(),
+	max_hours: z.number().nullable().optional(),
+	actual_hours: z.number().nullable().optional(),
+	comment_hours: z.string().optional()
 });
 
 export const imageUploadSchema = z.object({

@@ -15,16 +15,25 @@ export function formatDate(dateString: string): string {
 }
 
 // eg. "tomorrow", "in 5 days", "5 days ago"
-export function formatDateWithFuture(dateString: string): string {
+export function formatDateWithFuture(dateString: string, includeTime: boolean = false): string {
 	const date = new Date(dateString);
 	const now = new Date();
 	const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-	if (diffDays === 0) return t.get('date.today');
-	if (diffDays === 1) return t.get('date.tomorrow');
-	if (diffDays === -1) return t.get('date.yesterday');
-	if (diffDays > 0) return `${diffDays} ${t.get('date.in_days')}`;
-	return `${Math.abs(diffDays)} ${t.get('date.days_ago')}`;
+	let dateText = '';
+	if (diffDays === 0) dateText = t.get('date.today');
+	else if (diffDays === 1) dateText = t.get('date.tomorrow');
+	else if (diffDays === -1) dateText = t.get('date.yesterday');
+	else if (diffDays > 0) dateText = `${diffDays} ${t.get('date.in_days')}`;
+	else dateText = `${Math.abs(diffDays)} ${t.get('date.days_ago')}`;
+
+	if (includeTime) {
+		const hours = date.getHours().toString().padStart(2, '0');
+		const minutes = date.getMinutes().toString().padStart(2, '0');
+		return `${dateText} ${hours}:${minutes}`;
+	}
+
+	return dateText;
 }
 
 // eg. "3. sugust 2025"

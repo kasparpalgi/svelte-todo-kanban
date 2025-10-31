@@ -268,6 +268,7 @@ function createTodosStore() {
 				| 'content'
 				| 'completed_at'
 				| 'due_on'
+				| 'has_time'
 				| 'sort_order'
 				| 'priority'
 				| 'min_hours'

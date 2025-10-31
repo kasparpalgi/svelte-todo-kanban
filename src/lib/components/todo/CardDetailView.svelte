@@ -18,7 +18,7 @@
 	import { Calendar as CalendarPrimitive } from '$lib/components/ui/calendar';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
 	import { Checkbox } from '$lib/components/ui/checkbox';
-	import { X, Calendar as CalendarIcon, Tag } from 'lucide-svelte';
+	import { X, Calendar as CalendarIcon, Tag, Clock } from 'lucide-svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
 	import CardAssignee from '$lib/components/todo/CardAssignee.svelte';
@@ -35,33 +35,69 @@
 	let addToGoogleCalendar = $state(false);
 	const user = $derived(userStore.user);
 	const hasCalendarConnected = $derived(!!user?.settings?.tokens?.google_calendar?.encrypted);
+	let dueDateTime = $state<Date | null>(todo.due_on ? new Date(todo.due_on) : null);
 
 	let editData = $state({
 		title: todo.title,
-		due_on: todo.due_on ? new Date(todo.due_on).toISOString().split('T')[0] : '',
+		due_on: todo.due_on || null,
+		has_time: todo.has_time ?? false,
 		priority: (todo.priority as Priority | null) ?? null,
 		min_hours: todo.min_hours ?? null,
 		max_hours: todo.max_hours ?? null,
 		actual_hours: todo.actual_hours ?? null,
 		comment_hours: todo.comment_hours || ''
 	});
+
 	let selectedDate = $state<DateValue | undefined>(
-		editData.due_on ? parseDate(editData.due_on) : undefined
+		dueDateTime ? parseDate(dueDateTime.toISOString().split('T')[0]) : undefined
 	);
+
+	let dueTime = $state<string>(
+		dueDateTime
+			? `${String(dueDateTime.getHours()).padStart(2, '0')}:${String(dueDateTime.getMinutes()).padStart(2, '0')}`
+			: '09:00'
+	);
+
+	let includeTime = $state(todo.has_time ?? false);
 	let datePickerOpen = $state(false);
 	let validationErrors = $state<Record<string, string>>({});
 	let isSubmitting = $state(false);
 	let editor: Readable<Editor> | null = $state(null);
 	let imageManager = $state<CardImageManager>();
 
+	// Update editData.due_on and has_time when date or time changes
 	$effect(() => {
 		if (selectedDate) {
-			editData.due_on = `${selectedDate.year}-${String(selectedDate.month).padStart(
-				2,
-				'0'
-			)}-${String(selectedDate.day).padStart(2, '0')}`;
-		} else if (selectedDate === undefined && editData.due_on) {
-			editData.due_on = '';
+			let dateStr = `${selectedDate.year}-${String(selectedDate.month).padStart(2, '0')}-${String(selectedDate.day).padStart(2, '0')}`;
+
+			if (includeTime && dueTime) {
+				// Create date in local timezone and convert to ISO string
+				const [hours, minutes] = dueTime.split(':').map(Number);
+				const localDate = new Date(
+					selectedDate.year,
+					selectedDate.month - 1,
+					selectedDate.day,
+					hours,
+					minutes
+				);
+				editData.due_on = localDate.toISOString();
+				editData.has_time = true;
+			} else {
+				// Just date, set to start of day in local timezone
+				const localDate = new Date(
+					selectedDate.year,
+					selectedDate.month - 1,
+					selectedDate.day,
+					0,
+					0,
+					0
+				);
+				editData.due_on = localDate.toISOString();
+				editData.has_time = false;
+			}
+		} else {
+			editData.due_on = null;
+			editData.has_time = false;
 		}
 	});
 
@@ -86,6 +122,7 @@
 				title: validatedData.title,
 				content: validatedData.content || null,
 				due_on: validatedData.due_on || null,
+				has_time: validatedData.has_time ?? false,
 				priority: validatedData.priority || null,
 				min_hours: validatedData.min_hours,
 				max_hours: validatedData.max_hours,
@@ -100,7 +137,13 @@
 			}
 
 			// Add to GCalendar if checkbox & cal. connected
-			if (result.success && addToGoogleCalendar && hasCalendarConnected && user?.id) {
+			if (
+				result.success &&
+				addToGoogleCalendar &&
+				hasCalendarConnected &&
+				user?.id &&
+				validatedData.due_on
+			) {
 				try {
 					const response = await fetch('/api/calendar-event', {
 						method: 'POST',
@@ -111,6 +154,7 @@
 							title: validatedData.title,
 							description: validatedData.content,
 							dueDate: validatedData.due_on,
+							hasTime: validatedData.has_time ?? false,
 							userId: user.id
 						})
 					});
@@ -248,7 +292,7 @@
 		</div>
 
 		<div class="grid gap-4 sm:grid-cols-2">
-			<div>
+			<div class="space-y-3">
 				<Label for="due_on" class="mb-2 flex items-center gap-2">
 					<CalendarIcon class="h-4 w-4" />
 					{$t('card.due_date_label')}
@@ -283,13 +327,34 @@
 						/>
 					</PopoverContent>
 				</Popover>
-				{#if selectedDate && hasCalendarConnected}
-					<div class="mt-2 flex items-center space-x-2">
-						<Checkbox id="google-calendar" bind:checked={addToGoogleCalendar} />
-						<label for="google-calendar" class="text-sm leading-none font-medium">
-							{$t('card.add_to_google_calendar')}
+
+				{#if selectedDate}
+					<div class="flex items-center gap-2">
+						<Checkbox id="include-time" bind:checked={includeTime} />
+						<label
+							for="include-time"
+							class="flex items-center gap-1 text-sm leading-none font-medium"
+						>
+							<Clock class="h-3.5 w-3.5" />
+							{$t('card.include_time') || 'Include time'}
 						</label>
 					</div>
+
+					{#if includeTime}
+						<div class="flex items-center gap-2">
+							<Clock class="h-4 w-4 text-muted-foreground" />
+							<Input type="time" bind:value={dueTime} class="w-32" />
+						</div>
+					{/if}
+
+					{#if hasCalendarConnected}
+						<div class="flex items-center space-x-2">
+							<Checkbox id="google-calendar" bind:checked={addToGoogleCalendar} />
+							<label for="google-calendar" class="text-sm leading-none font-medium">
+								{$t('card.add_to_google_calendar')}
+							</label>
+						</div>
+					{/if}
 				{/if}
 			</div>
 

@@ -220,10 +220,24 @@
 			validationErrors = {};
 			isSubmitting = true;
 
+			// If has_time true & changing date -> preserve time component
+			let finalDueOn = validatedData.due_on || null;
+			if (finalDueOn && todo.has_time && todo.due_on) {
+				// Time from original 'due_on' timestampz
+				const originalDate = new Date(todo.due_on);
+				const hours = originalDate.getHours();
+				const minutes = originalDate.getMinutes();
+
+				// Parse new date (YYYY-MM-DD)
+				const [year, month, day] = finalDueOn.split('-').map(Number);
+				const newDate = new Date(year, month - 1, day, hours, minutes);
+				finalDueOn = newDate.toISOString();
+			}
+
 			const updateData: Partial<Pick<TodoFieldsFragment, 'title' | 'content' | 'due_on'>> = {
 				title: validatedData.title,
 				content: validatedData.content || null,
-				due_on: validatedData.due_on || null
+				due_on: finalDueOn
 			};
 
 			const result = await todosStore.updateTodo(todo.id, updateData);
@@ -486,7 +500,7 @@
 												variant={isOverdue(todo.due_on) ? 'destructive' : 'secondary'}
 												class="h-auto px-1 py-0 text-xs"
 											>
-												{formatDateWithFuture(todo.due_on)}
+												{formatDateWithFuture(todo.due_on, todo.has_time)}
 											</Badge>
 										</div>
 									{/if}

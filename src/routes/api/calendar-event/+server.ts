@@ -1,3 +1,4 @@
+// @file src/routes/api/calendar-event/+server.ts
 import { json } from '@sveltejs/kit';
 import { google } from 'googleapis';
 import { AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET } from '$env/static/private';
@@ -40,9 +41,9 @@ async function refreshGoogleToken(refreshToken: string) {
 
 export const POST: RequestHandler = async ({ request }) => {
 	try {
-		const { title, description, dueDate, userId } = await request.json();
+		const { title, description, dueDate, hasTime, userId } = await request.json();
 
-		console.log('Calendar event request:', { title, dueDate, hasUserId: !!userId });
+		console.log('Calendar event request:', { title, dueDate, hasTime, hasUserId: !!userId });
 
 		if (!userId) {
 			console.error('No user ID provided');
@@ -66,10 +67,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		if (!calendarSettings?.encrypted) {
 			console.error('No calendar token found for user');
-			return json(
-				{ success: false, error: 'Google Calendar not connected' },
-				{ status: 401 }
-			);
+			return json({ success: false, error: 'Google Calendar not connected' }, { status: 401 });
 		}
 
 		let accessToken = decryptToken(calendarSettings.encrypted);
@@ -80,7 +78,10 @@ export const POST: RequestHandler = async ({ request }) => {
 
 			if (!calendarSettings.refresh_token) {
 				return json(
-					{ success: false, error: 'Calendar token expired and no refresh token available. Please reconnect.' },
+					{
+						success: false,
+						error: 'Calendar token expired and no refresh token available. Please reconnect.'
+					},
 					{ status: 401 }
 				);
 			}
@@ -116,20 +117,43 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 
-		const event = {
+		// Parse the ISO timestamp (dueDate is now an ISO string with timezone info)
+		const dueDateTime = new Date(dueDate);
+
+		// Use the hasTime flag to determine if event should be all-day or timed
+		const isDateOnly = !hasTime;
+
+		let event: any = {
 			summary: title,
-			description: description || '',
-			start: {
-				date: dueDate,
-				timeZone: 'UTC'
-			},
-			end: {
-				date: dueDate,
-				timeZone: 'UTC'
-			}
+			description: description || ''
 		};
 
-		console.log('Creating calendar event:', event);
+		if (isDateOnly) {
+			// All-day event - use date format (YYYY-MM-DD)
+			const dateStr = dueDateTime.toISOString().split('T')[0];
+			event.start = {
+				date: dateStr,
+				timeZone: 'UTC'
+			};
+			event.end = {
+				date: dateStr,
+				timeZone: 'UTC'
+			};
+			console.log('Creating all-day calendar event:', event);
+		} else {
+			// Timed event - use dateTime format
+			event.start = {
+				dateTime: dueDateTime.toISOString(),
+				timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+			};
+			// End time is 1 hour after start
+			const endTime = new Date(dueDateTime.getTime() + 60 * 60 * 1000);
+			event.end = {
+				dateTime: endTime.toISOString(),
+				timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+			};
+			console.log('Creating timed calendar event:', event);
+		}
 
 		const response = await calendar.events.insert({
 			calendarId: 'primary',
@@ -137,7 +161,11 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 
 		console.log('Calendar event created:', response.data.id);
-		return json({ success: true, eventId: response.data.id });
+		return json({
+			success: true,
+			eventId: response.data.id,
+			eventLink: response.data.htmlLink
+		});
 	} catch (error: any) {
 		console.error('Failed to create calendar event:', error);
 		console.error('Error details:', error.response?.data || error.message);
