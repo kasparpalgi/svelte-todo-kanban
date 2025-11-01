@@ -3834,6 +3834,10 @@ export type Mutation_Root = {
   delete_tracker_apps?: Maybe<Tracker_Apps_Mutation_Response>;
   /** delete single row from the table: "tracker_apps" */
   delete_tracker_apps_by_pk?: Maybe<Tracker_Apps>;
+  /** delete data from the table: "tracker_categories" */
+  delete_tracker_categories?: Maybe<Tracker_Categories_Mutation_Response>;
+  /** delete single row from the table: "tracker_categories" */
+  delete_tracker_categories_by_pk?: Maybe<Tracker_Categories>;
   /** delete data from the table: "tracker_keywords" */
   delete_tracker_keywords?: Maybe<Tracker_Keywords_Mutation_Response>;
   /** delete single row from the table: "tracker_keywords" */
@@ -3910,6 +3914,10 @@ export type Mutation_Root = {
   insert_tracker_apps?: Maybe<Tracker_Apps_Mutation_Response>;
   /** insert a single row into the table: "tracker_apps" */
   insert_tracker_apps_one?: Maybe<Tracker_Apps>;
+  /** insert data into the table: "tracker_categories" */
+  insert_tracker_categories?: Maybe<Tracker_Categories_Mutation_Response>;
+  /** insert a single row into the table: "tracker_categories" */
+  insert_tracker_categories_one?: Maybe<Tracker_Categories>;
   /** insert data into the table: "tracker_keywords" */
   insert_tracker_keywords?: Maybe<Tracker_Keywords_Mutation_Response>;
   /** insert a single row into the table: "tracker_keywords" */
@@ -4014,6 +4022,12 @@ export type Mutation_Root = {
   update_tracker_apps_by_pk?: Maybe<Tracker_Apps>;
   /** update multiples rows of table: "tracker_apps" */
   update_tracker_apps_many?: Maybe<Array<Maybe<Tracker_Apps_Mutation_Response>>>;
+  /** update data of the table: "tracker_categories" */
+  update_tracker_categories?: Maybe<Tracker_Categories_Mutation_Response>;
+  /** update single row of the table: "tracker_categories" */
+  update_tracker_categories_by_pk?: Maybe<Tracker_Categories>;
+  /** update multiples rows of table: "tracker_categories" */
+  update_tracker_categories_many?: Maybe<Array<Maybe<Tracker_Categories_Mutation_Response>>>;
   /** update data of the table: "tracker_keywords" */
   update_tracker_keywords?: Maybe<Tracker_Keywords_Mutation_Response>;
   /** update single row of the table: "tracker_keywords" */
@@ -4213,6 +4227,18 @@ export type Mutation_RootDelete_Tracker_AppsArgs = {
 /** mutation root */
 export type Mutation_RootDelete_Tracker_Apps_By_PkArgs = {
   id: Scalars['Int']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Tracker_CategoriesArgs = {
+  where: Tracker_Categories_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Tracker_Categories_By_PkArgs = {
+  id: Scalars['uuid']['input'];
 };
 
 
@@ -4470,6 +4496,20 @@ export type Mutation_RootInsert_Tracker_AppsArgs = {
 export type Mutation_RootInsert_Tracker_Apps_OneArgs = {
   object: Tracker_Apps_Insert_Input;
   on_conflict?: InputMaybe<Tracker_Apps_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Tracker_CategoriesArgs = {
+  objects: Array<Tracker_Categories_Insert_Input>;
+  on_conflict?: InputMaybe<Tracker_Categories_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Tracker_Categories_OneArgs = {
+  object: Tracker_Categories_Insert_Input;
+  on_conflict?: InputMaybe<Tracker_Categories_On_Conflict>;
 };
 
 
@@ -4864,6 +4904,26 @@ export type Mutation_RootUpdate_Tracker_Apps_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Tracker_Apps_ManyArgs = {
   updates: Array<Tracker_Apps_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Tracker_CategoriesArgs = {
+  _set?: InputMaybe<Tracker_Categories_Set_Input>;
+  where: Tracker_Categories_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Tracker_Categories_By_PkArgs = {
+  _set?: InputMaybe<Tracker_Categories_Set_Input>;
+  pk_columns: Tracker_Categories_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Tracker_Categories_ManyArgs = {
+  updates: Array<Tracker_Categories_Updates>;
 };
 
 
@@ -5426,12 +5486,18 @@ export type Query_Root = {
   todos_aggregate: Todos_Aggregate;
   /** fetch data from the table: "todos" using primary key columns */
   todos_by_pk?: Maybe<Todos>;
-  /** fetch data from the table: "tracker_apps" */
+  /** An array relationship */
   tracker_apps: Array<Tracker_Apps>;
-  /** fetch aggregated fields from the table: "tracker_apps" */
+  /** An aggregate relationship */
   tracker_apps_aggregate: Tracker_Apps_Aggregate;
   /** fetch data from the table: "tracker_apps" using primary key columns */
   tracker_apps_by_pk?: Maybe<Tracker_Apps>;
+  /** An array relationship */
+  tracker_categories: Array<Tracker_Categories>;
+  /** An aggregate relationship */
+  tracker_categories_aggregate: Tracker_Categories_Aggregate;
+  /** fetch data from the table: "tracker_categories" using primary key columns */
+  tracker_categories_by_pk?: Maybe<Tracker_Categories>;
   /** fetch data from the table: "tracker_category_stats" */
   tracker_category_stats: Array<Tracker_Category_Stats>;
   /** fetch aggregated fields from the table: "tracker_category_stats" */
@@ -5793,6 +5859,29 @@ export type Query_RootTracker_Apps_AggregateArgs = {
 
 export type Query_RootTracker_Apps_By_PkArgs = {
   id: Scalars['Int']['input'];
+};
+
+
+export type Query_RootTracker_CategoriesArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Categories_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Categories_Order_By>>;
+  where?: InputMaybe<Tracker_Categories_Bool_Exp>;
+};
+
+
+export type Query_RootTracker_Categories_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Categories_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Categories_Order_By>>;
+  where?: InputMaybe<Tracker_Categories_Bool_Exp>;
+};
+
+
+export type Query_RootTracker_Categories_By_PkArgs = {
+  id: Scalars['uuid']['input'];
 };
 
 
@@ -6287,14 +6376,22 @@ export type Subscription_Root = {
   todos_by_pk?: Maybe<Todos>;
   /** fetch data from the table in a streaming manner: "todos" */
   todos_stream: Array<Todos>;
-  /** fetch data from the table: "tracker_apps" */
+  /** An array relationship */
   tracker_apps: Array<Tracker_Apps>;
-  /** fetch aggregated fields from the table: "tracker_apps" */
+  /** An aggregate relationship */
   tracker_apps_aggregate: Tracker_Apps_Aggregate;
   /** fetch data from the table: "tracker_apps" using primary key columns */
   tracker_apps_by_pk?: Maybe<Tracker_Apps>;
   /** fetch data from the table in a streaming manner: "tracker_apps" */
   tracker_apps_stream: Array<Tracker_Apps>;
+  /** An array relationship */
+  tracker_categories: Array<Tracker_Categories>;
+  /** An aggregate relationship */
+  tracker_categories_aggregate: Tracker_Categories_Aggregate;
+  /** fetch data from the table: "tracker_categories" using primary key columns */
+  tracker_categories_by_pk?: Maybe<Tracker_Categories>;
+  /** fetch data from the table in a streaming manner: "tracker_categories" */
+  tracker_categories_stream: Array<Tracker_Categories>;
   /** fetch data from the table: "tracker_category_stats" */
   tracker_category_stats: Array<Tracker_Category_Stats>;
   /** fetch aggregated fields from the table: "tracker_category_stats" */
@@ -6768,6 +6865,36 @@ export type Subscription_RootTracker_Apps_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Tracker_Apps_Stream_Cursor_Input>>;
   where?: InputMaybe<Tracker_Apps_Bool_Exp>;
+};
+
+
+export type Subscription_RootTracker_CategoriesArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Categories_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Categories_Order_By>>;
+  where?: InputMaybe<Tracker_Categories_Bool_Exp>;
+};
+
+
+export type Subscription_RootTracker_Categories_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Categories_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Categories_Order_By>>;
+  where?: InputMaybe<Tracker_Categories_Bool_Exp>;
+};
+
+
+export type Subscription_RootTracker_Categories_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootTracker_Categories_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Tracker_Categories_Stream_Cursor_Input>>;
+  where?: InputMaybe<Tracker_Categories_Bool_Exp>;
 };
 
 
@@ -8132,6 +8259,17 @@ export type Tracker_Apps_Aggregate = {
   nodes: Array<Tracker_Apps>;
 };
 
+export type Tracker_Apps_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Tracker_Apps_Aggregate_Bool_Exp_Count>;
+};
+
+export type Tracker_Apps_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Tracker_Apps_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Tracker_Apps_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
 /** aggregate fields of "tracker_apps" */
 export type Tracker_Apps_Aggregate_Fields = {
   __typename?: 'tracker_apps_aggregate_fields';
@@ -8155,10 +8293,37 @@ export type Tracker_Apps_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** order by aggregate values of table "tracker_apps" */
+export type Tracker_Apps_Aggregate_Order_By = {
+  avg?: InputMaybe<Tracker_Apps_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Tracker_Apps_Max_Order_By>;
+  min?: InputMaybe<Tracker_Apps_Min_Order_By>;
+  stddev?: InputMaybe<Tracker_Apps_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Tracker_Apps_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Tracker_Apps_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Tracker_Apps_Sum_Order_By>;
+  var_pop?: InputMaybe<Tracker_Apps_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Tracker_Apps_Var_Samp_Order_By>;
+  variance?: InputMaybe<Tracker_Apps_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "tracker_apps" */
+export type Tracker_Apps_Arr_Rel_Insert_Input = {
+  data: Array<Tracker_Apps_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Tracker_Apps_On_Conflict>;
+};
+
 /** aggregate avg on columns */
 export type Tracker_Apps_Avg_Fields = {
   __typename?: 'tracker_apps_avg_fields';
   id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "tracker_apps" */
+export type Tracker_Apps_Avg_Order_By = {
+  id?: InputMaybe<Order_By>;
 };
 
 /** Boolean expression to filter rows from the table "tracker_apps". All fields are combined with a logical 'AND'. */
@@ -8210,6 +8375,15 @@ export type Tracker_Apps_Max_Fields = {
   user_id?: Maybe<Scalars['uuid']['output']>;
 };
 
+/** order by max() on columns of table "tracker_apps" */
+export type Tracker_Apps_Max_Order_By = {
+  category?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  name?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
 /** aggregate min on columns */
 export type Tracker_Apps_Min_Fields = {
   __typename?: 'tracker_apps_min_fields';
@@ -8218,6 +8392,15 @@ export type Tracker_Apps_Min_Fields = {
   id?: Maybe<Scalars['Int']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "tracker_apps" */
+export type Tracker_Apps_Min_Order_By = {
+  category?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  name?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "tracker_apps" */
@@ -8288,16 +8471,31 @@ export type Tracker_Apps_Stddev_Fields = {
   id?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev() on columns of table "tracker_apps" */
+export type Tracker_Apps_Stddev_Order_By = {
+  id?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_pop on columns */
 export type Tracker_Apps_Stddev_Pop_Fields = {
   __typename?: 'tracker_apps_stddev_pop_fields';
   id?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev_pop() on columns of table "tracker_apps" */
+export type Tracker_Apps_Stddev_Pop_Order_By = {
+  id?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_samp on columns */
 export type Tracker_Apps_Stddev_Samp_Fields = {
   __typename?: 'tracker_apps_stddev_samp_fields';
   id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "tracker_apps" */
+export type Tracker_Apps_Stddev_Samp_Order_By = {
+  id?: InputMaybe<Order_By>;
 };
 
 /** Streaming cursor of the table "tracker_apps" */
@@ -8321,6 +8519,11 @@ export type Tracker_Apps_Stream_Cursor_Value_Input = {
 export type Tracker_Apps_Sum_Fields = {
   __typename?: 'tracker_apps_sum_fields';
   id?: Maybe<Scalars['Int']['output']>;
+};
+
+/** order by sum() on columns of table "tracker_apps" */
+export type Tracker_Apps_Sum_Order_By = {
+  id?: InputMaybe<Order_By>;
 };
 
 /** update columns of table "tracker_apps" */
@@ -8352,16 +8555,326 @@ export type Tracker_Apps_Var_Pop_Fields = {
   id?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_pop() on columns of table "tracker_apps" */
+export type Tracker_Apps_Var_Pop_Order_By = {
+  id?: InputMaybe<Order_By>;
+};
+
 /** aggregate var_samp on columns */
 export type Tracker_Apps_Var_Samp_Fields = {
   __typename?: 'tracker_apps_var_samp_fields';
   id?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_samp() on columns of table "tracker_apps" */
+export type Tracker_Apps_Var_Samp_Order_By = {
+  id?: InputMaybe<Order_By>;
+};
+
 /** aggregate variance on columns */
 export type Tracker_Apps_Variance_Fields = {
   __typename?: 'tracker_apps_variance_fields';
   id?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "tracker_apps" */
+export type Tracker_Apps_Variance_Order_By = {
+  id?: InputMaybe<Order_By>;
+};
+
+/** columns and relationships of "tracker_categories" */
+export type Tracker_Categories = {
+  __typename?: 'tracker_categories';
+  created_at: Scalars['timestamptz']['output'];
+  id: Scalars['uuid']['output'];
+  name: Scalars['String']['output'];
+  /** An object relationship */
+  parent_category?: Maybe<Tracker_Categories>;
+  parent_id?: Maybe<Scalars['uuid']['output']>;
+  /** An array relationship */
+  sub_categories: Array<Tracker_Categories>;
+  /** An aggregate relationship */
+  sub_categories_aggregate: Tracker_Categories_Aggregate;
+  /** An array relationship */
+  tracker_keywords: Array<Tracker_Keywords>;
+  /** An aggregate relationship */
+  tracker_keywords_aggregate: Tracker_Keywords_Aggregate;
+  updated_at: Scalars['timestamptz']['output'];
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+
+/** columns and relationships of "tracker_categories" */
+export type Tracker_CategoriesSub_CategoriesArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Categories_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Categories_Order_By>>;
+  where?: InputMaybe<Tracker_Categories_Bool_Exp>;
+};
+
+
+/** columns and relationships of "tracker_categories" */
+export type Tracker_CategoriesSub_Categories_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Categories_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Categories_Order_By>>;
+  where?: InputMaybe<Tracker_Categories_Bool_Exp>;
+};
+
+
+/** columns and relationships of "tracker_categories" */
+export type Tracker_CategoriesTracker_KeywordsArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Keywords_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Keywords_Order_By>>;
+  where?: InputMaybe<Tracker_Keywords_Bool_Exp>;
+};
+
+
+/** columns and relationships of "tracker_categories" */
+export type Tracker_CategoriesTracker_Keywords_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Keywords_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Keywords_Order_By>>;
+  where?: InputMaybe<Tracker_Keywords_Bool_Exp>;
+};
+
+/** aggregated selection of "tracker_categories" */
+export type Tracker_Categories_Aggregate = {
+  __typename?: 'tracker_categories_aggregate';
+  aggregate?: Maybe<Tracker_Categories_Aggregate_Fields>;
+  nodes: Array<Tracker_Categories>;
+};
+
+export type Tracker_Categories_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Tracker_Categories_Aggregate_Bool_Exp_Count>;
+};
+
+export type Tracker_Categories_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Tracker_Categories_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Tracker_Categories_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "tracker_categories" */
+export type Tracker_Categories_Aggregate_Fields = {
+  __typename?: 'tracker_categories_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Tracker_Categories_Max_Fields>;
+  min?: Maybe<Tracker_Categories_Min_Fields>;
+};
+
+
+/** aggregate fields of "tracker_categories" */
+export type Tracker_Categories_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Tracker_Categories_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "tracker_categories" */
+export type Tracker_Categories_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Tracker_Categories_Max_Order_By>;
+  min?: InputMaybe<Tracker_Categories_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "tracker_categories" */
+export type Tracker_Categories_Arr_Rel_Insert_Input = {
+  data: Array<Tracker_Categories_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Tracker_Categories_On_Conflict>;
+};
+
+/** Boolean expression to filter rows from the table "tracker_categories". All fields are combined with a logical 'AND'. */
+export type Tracker_Categories_Bool_Exp = {
+  _and?: InputMaybe<Array<Tracker_Categories_Bool_Exp>>;
+  _not?: InputMaybe<Tracker_Categories_Bool_Exp>;
+  _or?: InputMaybe<Array<Tracker_Categories_Bool_Exp>>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  name?: InputMaybe<String_Comparison_Exp>;
+  parent_category?: InputMaybe<Tracker_Categories_Bool_Exp>;
+  parent_id?: InputMaybe<Uuid_Comparison_Exp>;
+  sub_categories?: InputMaybe<Tracker_Categories_Bool_Exp>;
+  sub_categories_aggregate?: InputMaybe<Tracker_Categories_Aggregate_Bool_Exp>;
+  tracker_keywords?: InputMaybe<Tracker_Keywords_Bool_Exp>;
+  tracker_keywords_aggregate?: InputMaybe<Tracker_Keywords_Aggregate_Bool_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "tracker_categories" */
+export enum Tracker_Categories_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  TrackerCategoriesPkey = 'tracker_categories_pkey'
+}
+
+/** input type for inserting data into table "tracker_categories" */
+export type Tracker_Categories_Insert_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  parent_category?: InputMaybe<Tracker_Categories_Obj_Rel_Insert_Input>;
+  parent_id?: InputMaybe<Scalars['uuid']['input']>;
+  sub_categories?: InputMaybe<Tracker_Categories_Arr_Rel_Insert_Input>;
+  tracker_keywords?: InputMaybe<Tracker_Keywords_Arr_Rel_Insert_Input>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Tracker_Categories_Max_Fields = {
+  __typename?: 'tracker_categories_max_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  parent_id?: Maybe<Scalars['uuid']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by max() on columns of table "tracker_categories" */
+export type Tracker_Categories_Max_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  name?: InputMaybe<Order_By>;
+  parent_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Tracker_Categories_Min_Fields = {
+  __typename?: 'tracker_categories_min_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  parent_id?: Maybe<Scalars['uuid']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "tracker_categories" */
+export type Tracker_Categories_Min_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  name?: InputMaybe<Order_By>;
+  parent_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "tracker_categories" */
+export type Tracker_Categories_Mutation_Response = {
+  __typename?: 'tracker_categories_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Tracker_Categories>;
+};
+
+/** input type for inserting object relation for remote table "tracker_categories" */
+export type Tracker_Categories_Obj_Rel_Insert_Input = {
+  data: Tracker_Categories_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Tracker_Categories_On_Conflict>;
+};
+
+/** on_conflict condition type for table "tracker_categories" */
+export type Tracker_Categories_On_Conflict = {
+  constraint: Tracker_Categories_Constraint;
+  update_columns?: Array<Tracker_Categories_Update_Column>;
+  where?: InputMaybe<Tracker_Categories_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "tracker_categories". */
+export type Tracker_Categories_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  name?: InputMaybe<Order_By>;
+  parent_category?: InputMaybe<Tracker_Categories_Order_By>;
+  parent_id?: InputMaybe<Order_By>;
+  sub_categories_aggregate?: InputMaybe<Tracker_Categories_Aggregate_Order_By>;
+  tracker_keywords_aggregate?: InputMaybe<Tracker_Keywords_Aggregate_Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: tracker_categories */
+export type Tracker_Categories_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "tracker_categories" */
+export enum Tracker_Categories_Select_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Name = 'name',
+  /** column name */
+  ParentId = 'parent_id',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "tracker_categories" */
+export type Tracker_Categories_Set_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  parent_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** Streaming cursor of the table "tracker_categories" */
+export type Tracker_Categories_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Tracker_Categories_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Tracker_Categories_Stream_Cursor_Value_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  parent_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** update columns of table "tracker_categories" */
+export enum Tracker_Categories_Update_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Name = 'name',
+  /** column name */
+  ParentId = 'parent_id',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Tracker_Categories_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Tracker_Categories_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Tracker_Categories_Bool_Exp;
 };
 
 /** columns and relationships of "tracker_category_stats" */
@@ -8744,12 +9257,15 @@ export type Tracker_Daily_Stats_Variance_Fields = {
 export type Tracker_Keywords = {
   __typename?: 'tracker_keywords';
   /** An object relationship */
-  board: Boards;
-  board_id: Scalars['uuid']['output'];
+  board?: Maybe<Boards>;
+  board_id?: Maybe<Scalars['uuid']['output']>;
   case_sensitive: Scalars['Boolean']['output'];
+  category_id?: Maybe<Scalars['uuid']['output']>;
   created_at: Scalars['timestamptz']['output'];
   id: Scalars['uuid']['output'];
   keyword: Scalars['String']['output'];
+  /** An object relationship */
+  tracker_category?: Maybe<Tracker_Categories>;
   updated_at: Scalars['timestamptz']['output'];
 };
 
@@ -8824,9 +9340,11 @@ export type Tracker_Keywords_Bool_Exp = {
   board?: InputMaybe<Boards_Bool_Exp>;
   board_id?: InputMaybe<Uuid_Comparison_Exp>;
   case_sensitive?: InputMaybe<Boolean_Comparison_Exp>;
+  category_id?: InputMaybe<Uuid_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   keyword?: InputMaybe<String_Comparison_Exp>;
+  tracker_category?: InputMaybe<Tracker_Categories_Bool_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
 };
 
@@ -8841,9 +9359,11 @@ export type Tracker_Keywords_Insert_Input = {
   board?: InputMaybe<Boards_Obj_Rel_Insert_Input>;
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   case_sensitive?: InputMaybe<Scalars['Boolean']['input']>;
+  category_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   keyword?: InputMaybe<Scalars['String']['input']>;
+  tracker_category?: InputMaybe<Tracker_Categories_Obj_Rel_Insert_Input>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
 };
 
@@ -8851,6 +9371,7 @@ export type Tracker_Keywords_Insert_Input = {
 export type Tracker_Keywords_Max_Fields = {
   __typename?: 'tracker_keywords_max_fields';
   board_id?: Maybe<Scalars['uuid']['output']>;
+  category_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   keyword?: Maybe<Scalars['String']['output']>;
@@ -8860,6 +9381,7 @@ export type Tracker_Keywords_Max_Fields = {
 /** order by max() on columns of table "tracker_keywords" */
 export type Tracker_Keywords_Max_Order_By = {
   board_id?: InputMaybe<Order_By>;
+  category_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   keyword?: InputMaybe<Order_By>;
@@ -8870,6 +9392,7 @@ export type Tracker_Keywords_Max_Order_By = {
 export type Tracker_Keywords_Min_Fields = {
   __typename?: 'tracker_keywords_min_fields';
   board_id?: Maybe<Scalars['uuid']['output']>;
+  category_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   keyword?: Maybe<Scalars['String']['output']>;
@@ -8879,6 +9402,7 @@ export type Tracker_Keywords_Min_Fields = {
 /** order by min() on columns of table "tracker_keywords" */
 export type Tracker_Keywords_Min_Order_By = {
   board_id?: InputMaybe<Order_By>;
+  category_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   keyword?: InputMaybe<Order_By>;
@@ -8906,9 +9430,11 @@ export type Tracker_Keywords_Order_By = {
   board?: InputMaybe<Boards_Order_By>;
   board_id?: InputMaybe<Order_By>;
   case_sensitive?: InputMaybe<Order_By>;
+  category_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   keyword?: InputMaybe<Order_By>;
+  tracker_category?: InputMaybe<Tracker_Categories_Order_By>;
   updated_at?: InputMaybe<Order_By>;
 };
 
@@ -8923,6 +9449,8 @@ export enum Tracker_Keywords_Select_Column {
   BoardId = 'board_id',
   /** column name */
   CaseSensitive = 'case_sensitive',
+  /** column name */
+  CategoryId = 'category_id',
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
@@ -8949,6 +9477,7 @@ export enum Tracker_Keywords_Select_Column_Tracker_Keywords_Aggregate_Bool_Exp_B
 export type Tracker_Keywords_Set_Input = {
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   case_sensitive?: InputMaybe<Scalars['Boolean']['input']>;
+  category_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   keyword?: InputMaybe<Scalars['String']['input']>;
@@ -8967,6 +9496,7 @@ export type Tracker_Keywords_Stream_Cursor_Input = {
 export type Tracker_Keywords_Stream_Cursor_Value_Input = {
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   case_sensitive?: InputMaybe<Scalars['Boolean']['input']>;
+  category_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   keyword?: InputMaybe<Scalars['String']['input']>;
@@ -8979,6 +9509,8 @@ export enum Tracker_Keywords_Update_Column {
   BoardId = 'board_id',
   /** column name */
   CaseSensitive = 'case_sensitive',
+  /** column name */
+  CategoryId = 'category_id',
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
@@ -9665,6 +10197,10 @@ export type Users = {
   logs_aggregate: Logs_Aggregate;
   name?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
+  notifications: Array<Notifications>;
+  /** An aggregate relationship */
+  notifications_aggregate: Notifications_Aggregate;
+  /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
   sessions_aggregate: Sessions_Aggregate;
@@ -9677,6 +10213,18 @@ export type Users = {
   todosByAssignedTo_aggregate: Todos_Aggregate;
   /** An aggregate relationship */
   todos_aggregate: Todos_Aggregate;
+  /** An array relationship */
+  tracker_apps: Array<Tracker_Apps>;
+  /** An aggregate relationship */
+  tracker_apps_aggregate: Tracker_Apps_Aggregate;
+  /** An array relationship */
+  tracker_categories: Array<Tracker_Categories>;
+  /** An aggregate relationship */
+  tracker_categories_aggregate: Tracker_Categories_Aggregate;
+  /** An array relationship */
+  tracker_sessions: Array<Tracker_Sessions>;
+  /** An aggregate relationship */
+  tracker_sessions_aggregate: Tracker_Sessions_Aggregate;
   updated_at: Scalars['timestamptz']['output'];
   username: Scalars['String']['output'];
 };
@@ -9829,6 +10377,26 @@ export type UsersLogs_AggregateArgs = {
 
 
 /** columns and relationships of "users" */
+export type UsersNotificationsArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersNotifications_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
 export type UsersSessionsArgs = {
   distinct_on?: InputMaybe<Array<Sessions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -9893,6 +10461,66 @@ export type UsersTodos_AggregateArgs = {
   where?: InputMaybe<Todos_Bool_Exp>;
 };
 
+
+/** columns and relationships of "users" */
+export type UsersTracker_AppsArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Apps_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Apps_Order_By>>;
+  where?: InputMaybe<Tracker_Apps_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersTracker_Apps_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Apps_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Apps_Order_By>>;
+  where?: InputMaybe<Tracker_Apps_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersTracker_CategoriesArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Categories_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Categories_Order_By>>;
+  where?: InputMaybe<Tracker_Categories_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersTracker_Categories_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Categories_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Categories_Order_By>>;
+  where?: InputMaybe<Tracker_Categories_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersTracker_SessionsArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Sessions_Order_By>>;
+  where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersTracker_Sessions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Sessions_Order_By>>;
+  where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
 /** aggregated selection of "users" */
 export type Users_Aggregate = {
   __typename?: 'users_aggregate';
@@ -9949,6 +10577,8 @@ export type Users_Bool_Exp = {
   logs?: InputMaybe<Logs_Bool_Exp>;
   logs_aggregate?: InputMaybe<Logs_Aggregate_Bool_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
+  notifications?: InputMaybe<Notifications_Bool_Exp>;
+  notifications_aggregate?: InputMaybe<Notifications_Aggregate_Bool_Exp>;
   sessions?: InputMaybe<Sessions_Bool_Exp>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Bool_Exp>;
   settings?: InputMaybe<Jsonb_Comparison_Exp>;
@@ -9956,6 +10586,12 @@ export type Users_Bool_Exp = {
   todosByAssignedTo?: InputMaybe<Todos_Bool_Exp>;
   todosByAssignedTo_aggregate?: InputMaybe<Todos_Aggregate_Bool_Exp>;
   todos_aggregate?: InputMaybe<Todos_Aggregate_Bool_Exp>;
+  tracker_apps?: InputMaybe<Tracker_Apps_Bool_Exp>;
+  tracker_apps_aggregate?: InputMaybe<Tracker_Apps_Aggregate_Bool_Exp>;
+  tracker_categories?: InputMaybe<Tracker_Categories_Bool_Exp>;
+  tracker_categories_aggregate?: InputMaybe<Tracker_Categories_Aggregate_Bool_Exp>;
+  tracker_sessions?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+  tracker_sessions_aggregate?: InputMaybe<Tracker_Sessions_Aggregate_Bool_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   username?: InputMaybe<String_Comparison_Exp>;
 };
@@ -10006,10 +10642,14 @@ export type Users_Insert_Input = {
   locale?: InputMaybe<Scalars['String']['input']>;
   logs?: InputMaybe<Logs_Arr_Rel_Insert_Input>;
   name?: InputMaybe<Scalars['String']['input']>;
+  notifications?: InputMaybe<Notifications_Arr_Rel_Insert_Input>;
   sessions?: InputMaybe<Sessions_Arr_Rel_Insert_Input>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
   todos?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
   todosByAssignedTo?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
+  tracker_apps?: InputMaybe<Tracker_Apps_Arr_Rel_Insert_Input>;
+  tracker_categories?: InputMaybe<Tracker_Categories_Arr_Rel_Insert_Input>;
+  tracker_sessions?: InputMaybe<Tracker_Sessions_Arr_Rel_Insert_Input>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
 };
@@ -10083,10 +10723,14 @@ export type Users_Order_By = {
   locale?: InputMaybe<Order_By>;
   logs_aggregate?: InputMaybe<Logs_Aggregate_Order_By>;
   name?: InputMaybe<Order_By>;
+  notifications_aggregate?: InputMaybe<Notifications_Aggregate_Order_By>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Order_By>;
   settings?: InputMaybe<Order_By>;
   todosByAssignedTo_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
   todos_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
+  tracker_apps_aggregate?: InputMaybe<Tracker_Apps_Aggregate_Order_By>;
+  tracker_categories_aggregate?: InputMaybe<Tracker_Categories_Aggregate_Order_By>;
+  tracker_sessions_aggregate?: InputMaybe<Tracker_Sessions_Aggregate_Order_By>;
   updated_at?: InputMaybe<Order_By>;
   username?: InputMaybe<Order_By>;
 };

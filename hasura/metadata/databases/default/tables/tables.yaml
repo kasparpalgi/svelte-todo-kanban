@@ -13,6 +13,7 @@
 - "!include public_todos.yaml"
 - "!include public_tracker_apps.yaml"
 - "!include public_tracker_categories.yaml"
+- "!include public_tracker_category_apps.yaml"
 - "!include public_tracker_category_stats.yaml"
 - "!include public_tracker_daily_stats.yaml"
 - "!include public_tracker_keywords.yaml"

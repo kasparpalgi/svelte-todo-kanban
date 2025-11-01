@@ -6,6 +6,13 @@ object_relationships:
     using:
       foreign_key_constraint_on: user_id
 array_relationships:
+  - name: category_apps
+    using:
+      foreign_key_constraint_on:
+        column: app_id
+        table:
+          name: tracker_category_apps
+          schema: public
   - name: tracker_sessions
     using:
       foreign_key_constraint_on:
