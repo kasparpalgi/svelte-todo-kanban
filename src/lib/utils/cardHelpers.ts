@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const todoEditSchema = z.object({
 	title: z.string().min(1, 'Title is required').max(200).trim(),
 	content: z.string().max(10000).optional(),
-	due_on: z.string().optional(),
+	due_on: z.string().nullable().optional(),
 	has_time: z.boolean().optional(),
 	priority: z.enum(['low', 'medium', 'high']).nullable(),
 	min_hours: z.number().positive().nullable().optional(),
