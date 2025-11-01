@@ -496,5 +496,26 @@
         "button_text": "Loo omale konto ning sisse logituna saad kutse vastu võtta",
         "expiry_notice": "See kutse aegub 7 päeva jooksul. Kui sa ei soovi kutset vastu võtta, võid selle e-kirja lihtsalt ära kustutada.",
         "footer_text": "See kiri saadeti rakendusest ToDzz.eu ning küsimuste korral võta ühendust aadressil"
+    },
+    "stats": {
+        "title": "Ajaline statistika",
+        "description": "Jälgi aega, mida veedid projektide ja kategooriate peal",
+        "totalTime": "Kokku aega",
+        "trackedTime": "Jälgitud aeg",
+        "tracked": "jälgitud",
+        "matched": "kogu ajast",
+        "period": "Periood",
+        "sessions": "seansid",
+        "session": "seanse",
+        "byProject": "Aeg projektide kaupa",
+        "projectsTracked": "Projektid, millel sa töötasid",
+        "byCategory": "Aeg kategooriate kaupa",
+        "categoriesTracked": "Kategooriad, millel sa töötasid",
+        "unmatchedTime": "Jälgimata aeg",
+        "noData": "Selle perioodi kohta andmed puuduvad",
+        "today": "Täna",
+        "week": "Viimased 7 päeva",
+        "month": "Viimased 30 päeva",
+        "loading": "Statistika laadimine..."
     }
 }

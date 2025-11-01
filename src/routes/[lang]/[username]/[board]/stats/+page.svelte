@@ -1,0 +1,270 @@
+<!-- @file src/routes/[lang]/[username]/[board]/stats/+page.svelte -->
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { page } from '$app/state';
+	import { t } from '$lib/i18n';
+	import { trackerStatsStore } from '$lib/stores/trackerStats.svelte';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
+	import { Button } from '$lib/components/ui/button';
+	import {
+		BarChart3,
+		Calendar,
+		Clock,
+		TrendingUp,
+		AlertCircle,
+		Loader2
+	} from 'lucide-svelte';
+	import StatsPeriodTabs from './StatsPeriodTabs.svelte';
+	import TimeBreakdownChart from './TimeBreakdownChart.svelte';
+	import TimeBreakdownTable from './TimeBreakdownTable.svelte';
+	import ThresholdControl from './ThresholdControl.svelte';
+
+	let { data } = $props();
+
+	let selectedPeriod: 'today' | 'week' | 'month' = $state('today');
+	let stats = $derived(trackerStatsStore.stats);
+	let loading = $derived(trackerStatsStore.loading);
+	let error = $derived(trackerStatsStore.error);
+
+	const username: string = $derived(page.params.username || '');
+	const boardAlias: string = $derived(page.params.board || '');
+	const lang: string = $derived(page.params.lang || 'et');
+
+	onMount(async () => {
+		console.log('[StatsPage.onMount]', { username, boardAlias, lang });
+		await trackerStatsStore.loadStatsPeriod(selectedPeriod);
+	});
+
+	async function handlePeriodChange(event: CustomEvent<'today' | 'week' | 'month'>) {
+		selectedPeriod = event.detail;
+		console.log('[StatsPage.handlePeriodChange]', { period: selectedPeriod });
+		await trackerStatsStore.loadStatsPeriod(selectedPeriod);
+	}
+
+	function handleThresholdChange(event: CustomEvent<number>) {
+		const newThreshold = event.detail;
+		console.log('[StatsPage.handleThresholdChange]', {
+			threshold: newThreshold,
+			thresholdMinutes: Math.round(newThreshold / 60)
+		});
+		trackerStatsStore.setUnmatchedThreshold(newThreshold);
+		// Recalculate stats with new threshold for current period
+		if (trackerStatsStore.sessions.length > 0 && trackerStatsStore.keywords.length > 0) {
+			const now = new Date();
+			const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+			let startDate: Date;
+
+			switch (selectedPeriod) {
+				case 'today':
+					startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+					break;
+				case 'week':
+					startDate = new Date(now);
+					startDate.setDate(startDate.getDate() - 7);
+					startDate.setHours(0, 0, 0, 0);
+					break;
+				case 'month':
+					startDate = new Date(now);
+					startDate.setDate(startDate.getDate() - 30);
+					startDate.setHours(0, 0, 0, 0);
+					break;
+			}
+
+			trackerStatsStore.getStats(startDate, endDate);
+		}
+	}
+
+	function formatSeconds(seconds: number): string {
+		const hours = Math.floor(seconds / 3600);
+		const minutes = Math.floor((seconds % 3600) / 60);
+
+		if (hours > 0) {
+			return `${hours}h ${minutes}m`;
+		}
+		return `${minutes}m`;
+	}
+
+	function formatDate(date: Date): string {
+		return date.toLocaleDateString(lang === 'et' ? 'et-EE' : 'en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric'
+		});
+	}
+</script>
+
+<div class="space-y-6 p-6">
+	<!-- Header -->
+	<div class="flex items-center justify-between">
+		<div>
+			<h1 class="text-3xl font-bold flex items-center gap-2">
+				<BarChart3 class="w-8 h-8" />
+				{$t('stats.title', 'Time Statistics')}
+			</h1>
+			<p class="text-muted-foreground mt-1">
+				{$t('stats.description', 'Track your time spent on projects and categories')}
+			</p>
+		</div>
+	</div>
+
+	<!-- Period Selection -->
+	<StatsPeriodTabs {selectedPeriod} on:periodChange={handlePeriodChange} />
+
+	<!-- Threshold Control -->
+	<ThresholdControl threshold={trackerStatsStore.unmatchedThreshold} on:thresholdChange={handleThresholdChange} />
+
+	<!-- Loading State -->
+	{#if loading}
+		<Card class="border-dashed">
+			<CardContent class="flex flex-col items-center justify-center py-12">
+				<Loader2 class="w-8 h-8 animate-spin text-muted-foreground mb-2" />
+				<p class="text-muted-foreground">{$t('common.loading', 'Loading...')}</p>
+			</CardContent>
+		</Card>
+	{:else if error}
+		<Card class="border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-800">
+			<CardContent class="flex items-start gap-3 py-4">
+				<AlertCircle class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+				<div>
+					<h3 class="font-semibold text-red-900 dark:text-red-100">
+						{$t('common.error', 'Error')}
+					</h3>
+					<p class="text-sm text-red-800 dark:text-red-200">{error}</p>
+				</div>
+			</CardContent>
+		</Card>
+	{:else if stats}
+		<!-- Overall Stats -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+			<Card>
+				<CardHeader class="pb-2">
+					<CardTitle class="text-sm font-medium text-muted-foreground flex items-center gap-1">
+						<Clock class="w-4 h-4" />
+						{$t('stats.totalTime', 'Total Time')}
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div class="text-2xl font-bold">
+						{formatSeconds(stats.totalSeconds)}
+					</div>
+					<p class="text-xs text-muted-foreground mt-1">
+						{stats.byProject.size + stats.byCategory.size} {$t(
+							'stats.tracked',
+							'tracked'
+						)}
+					</p>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader class="pb-2">
+					<CardTitle class="text-sm font-medium text-muted-foreground flex items-center gap-1">
+						<TrendingUp class="w-4 h-4" />
+						{$t('stats.trackedTime', 'Tracked Time')}
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div class="text-2xl font-bold">
+						{Math.round(
+							((stats.totalSeconds - stats.unmatchedSeconds) / stats.totalSeconds) * 100
+						)}%
+					</div>
+					<p class="text-xs text-muted-foreground mt-1">
+						{$t('stats.matched', 'of total')}
+					</p>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader class="pb-2">
+					<CardTitle class="text-sm font-medium text-muted-foreground flex items-center gap-1">
+						<Calendar class="w-4 h-4" />
+						{$t('stats.period', 'Period')}
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div class="text-sm font-medium">
+						{formatDate(stats.startDate)} - {formatDate(stats.endDate)}
+					</div>
+					<p class="text-xs text-muted-foreground mt-1">
+						{stats.byProject.size + stats.byCategory.size + stats.unmatchedSessionCount}
+						{$t('stats.sessions', 'sessions')}
+					</p>
+				</CardContent>
+			</Card>
+		</div>
+
+		<!-- Time by Projects -->
+		{#if stats.byProject.size > 0}
+			<Card>
+				<CardHeader>
+					<CardTitle>{$t('stats.byProject', 'Time by Project')}</CardTitle>
+					<CardDescription>
+						{$t('stats.projectsTracked', 'Projects you worked on')}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<TimeBreakdownTable data={Array.from(stats.byProject.values())} type="project" />
+				</CardContent>
+			</Card>
+		{/if}
+
+		<!-- Time by Categories -->
+		{#if stats.byCategory.size > 0}
+			<Card>
+				<CardHeader>
+					<CardTitle>{$t('stats.byCategory', 'Time by Category')}</CardTitle>
+					<CardDescription>
+						{$t('stats.categoriesTracked', 'Categories you worked on')}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<TimeBreakdownTable data={Array.from(stats.byCategory.values())} type="category" />
+				</CardContent>
+			</Card>
+		{/if}
+
+		<!-- Unmatched Sessions -->
+		{#if stats.unmatchedSeconds > 0}
+			<Card class="border-yellow-200 bg-yellow-50 dark:bg-yellow-950 dark:border-yellow-800">
+				<CardHeader class="pb-2">
+					<CardTitle class="text-yellow-900 dark:text-yellow-100">
+						{$t('stats.unmatchedTime', 'Unmatched Time')}
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div class="flex items-center justify-between">
+						<div>
+							<p class="text-sm text-yellow-800 dark:text-yellow-200">
+								{formatSeconds(stats.unmatchedSeconds)}
+								({Math.round((stats.unmatchedSeconds / stats.totalSeconds) * 100)}%)
+							</p>
+							<p class="text-xs text-yellow-600 dark:text-yellow-300 mt-1">
+								{stats.unmatchedSessionCount} sessions without project or category match
+							</p>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		{/if}
+	{:else}
+		<Card class="border-dashed">
+			<CardContent class="flex flex-col items-center justify-center py-12">
+				<BarChart3 class="w-8 h-8 text-muted-foreground mb-2" />
+				<p class="text-muted-foreground">{$t('stats.noData', 'No data available for this period')}</p>
+			</CardContent>
+		</Card>
+	{/if}
+</div>
+
+<style>
+	:global(body) {
+		background-color: hsl(var(--background));
+	}
+</style>

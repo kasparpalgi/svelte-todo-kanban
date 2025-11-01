@@ -1,3 +1,10 @@
+Important instructions: 
+1. First break the task into smaller subtasks
+2. Plan in detail the best approach to achieve. Analyse in depth my sample data to come up with the best approach.
+3. Start implementing one step at once. Once step complete, let me test it. Do not commit - I will do once approved. Then you can move on to next step.
+
+---
+
 Goal: SIMPLE SOLUTION! In a most simple way we want to achieve the goal to know how many hours user has worked on each project and when possible even more precisely on what task.
 
 From 'tracker_keywords' table we see what keywords are related to what board (project) or to what category (eg. entertainment, work, etc.). That's an idea. We can change that if there's better SQL structure to achieve that.
@@ -1173,5 +1180,191 @@ Sample data:
 
 -----------
 
-Keywords and categories to use (feel free if you see patterns add keywords/categories to make stat better):
+Keywords and categories to use (feel free if you see patterns add keywords/categories to make stat better). This query demonstrates how tracker keywords are connected to boards (projects) and categories. And how categories have parents and children and categrories have M2M relationship to apps.
 
+query TrackerKeywords($limit: Int = 5000, $offset: Int = 0, $order_by: [tracker_keywords_order_by!] = {}, $where: tracker_keywords_bool_exp = {}) {
+  tracker_keywords(limit: $limit, offset: $offset, order_by: $order_by, where: $where) {
+    id
+    board_id
+    keyword
+    case_sensitive
+    tracker_category {
+      id
+      name
+      category_apps {
+        app {
+          id
+          name
+        }
+      }
+      parent_category {
+        id
+        name
+        category_apps {
+          app {
+            id
+            name
+          }
+        }
+      }
+      sub_categories {
+        id
+        name
+        category_apps {
+          app {
+            id
+            name
+          }
+        }
+      }
+    }
+    case_sensitive
+  }
+}
+
+Result:
+
+{
+  "data": {
+    "tracker_keywords": [
+      {
+        "id": "8334460c-8a78-4353-aa6b-43e78c419c4f",
+        "board_id": "f937e2af-6c8e-459d-bebc-eabbc727a19d",
+        "keyword": "renlog",
+        "case_sensitive": false,
+        "tracker_category": null
+      },
+      {
+        "id": "095b25e9-c275-492e-8f0e-4f6aa5d6104a",
+        "board_id": "f937e2af-6c8e-459d-bebc-eabbc727a19d",
+        "keyword": "kersti rebase",
+        "case_sensitive": false,
+        "tracker_category": null
+      },
+      {
+        "id": "fd2dddd0-e1a2-41d8-b652-cbe09512aa26",
+        "board_id": "f937e2af-6c8e-459d-bebc-eabbc727a19d",
+        "keyword": "kersti, hevelin",
+        "case_sensitive": false,
+        "tracker_category": null
+      },
+      {
+        "id": "49ec9378-6075-43bc-b7e6-927147d31076",
+        "board_id": "79ac3460-08de-49a8-9b01-fca1de10b53d",
+        "keyword": "svelte-todo-kanban",
+        "case_sensitive": false,
+        "tracker_category": null
+      },
+      {
+        "id": "cfad19d0-b4bc-4c5a-b5be-4e39c2576b6e",
+        "board_id": "79ac3460-08de-49a8-9b01-fca1de10b53d",
+        "keyword": "todzz",
+        "case_sensitive": false,
+        "tracker_category": null
+      },
+      {
+        "id": "2889c0d1-b8fb-4880-8657-406baa9e55b7",
+        "board_id": null,
+        "keyword": "Docker",
+        "case_sensitive": false,
+        "tracker_category": {
+          "id": "b32fe144-fbb8-4b82-ab8d-765a582ffd55",
+          "name": "Work",
+          "category_apps": [],
+          "parent_category": null,
+          "sub_categories": [
+            {
+              "id": "08b63721-3d66-44a5-b7b4-57b33b07dc49",
+              "name": "Code",
+              "category_apps": [
+                {
+                  "app": {
+                    "id": 37,
+                    "name": "GitHubDesktop"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "b08ac4b7-362e-48ae-908b-306e74629451",
+              "name": "Database",
+              "category_apps": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "2553acf6-8efb-4b70-9de5-92c778f85179",
+        "board_id": null,
+        "keyword": "GitHub",
+        "case_sensitive": false,
+        "tracker_category": {
+          "id": "b32fe144-fbb8-4b82-ab8d-765a582ffd55",
+          "name": "Work",
+          "category_apps": [],
+          "parent_category": null,
+          "sub_categories": [
+            {
+              "id": "08b63721-3d66-44a5-b7b4-57b33b07dc49",
+              "name": "Code",
+              "category_apps": [
+                {
+                  "app": {
+                    "id": 37,
+                    "name": "GitHubDesktop"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "b08ac4b7-362e-48ae-908b-306e74629451",
+              "name": "Database",
+              "category_apps": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "4c5fefd3-977f-4b5b-9237-b367b3288cd7",
+        "board_id": null,
+        "keyword": "Hasura",
+        "case_sensitive": false,
+        "tracker_category": {
+          "id": "b08ac4b7-362e-48ae-908b-306e74629451",
+          "name": "Database",
+          "category_apps": [],
+          "parent_category": {
+            "id": "b32fe144-fbb8-4b82-ab8d-765a582ffd55",
+            "name": "Work",
+            "category_apps": []
+          },
+          "sub_categories": []
+        }
+      }
+    ]
+  }
+}
+
+------
+
+1. Window Titles contain project/task info:
+    - "svelte-todo-kanban" appears in many VSCode window titles → keyword match to board
+    - Categories like "Work", "Code", "Database" are matched to window titles and app names
+    - Task titles (like "Start with Klarity: track working hours | ToDzz - Google Chrome") indicate which specific task was worked on
+2. Time Calculation Strategy:
+    - Use session duration from tracker_sessions
+    - Match window title against tracker_keywords to determine project/category
+    - Multiple keywords can match (prioritize: task-specific > board > category)
+    - Skip unknown/unclear sessions (>60 min duration without clear match - make this variable editable from UI)
+3. Data Structure:
+    - tracker_sessions: window_title, start_time, end_time, duration_seconds
+    - tracker_keywords: keyword, board_id, tracker_category (with hierarchy)
+    - Categories have parent/child relationships
+
+  Proposed Simple Solution
+
+  Step 1: Create GraphQL queries for sessions & keywordsStep 2: Build stats store with matching logic (keyword-based time allocation)Step 3: Create
+  /[lang]/[username]/[board]/stats/+page.svelte with:
+  - Time filters (Today, 7 days, 30 days)
+  - Breakdown by project/category/task
+  - Visual representation (charts/tables)Step 4: Test and verify

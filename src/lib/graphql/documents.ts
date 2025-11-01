@@ -800,3 +800,116 @@ export const CREATE_ACTIVITY_LOG = graphql(`
 		}
 	}
 `);
+
+// ========== Tracker Sessions & Keywords ==========
+
+export const TRACKER_SESSION_FRAGMENT = graphql(`
+	fragment TrackerSessionFields on tracker_sessions {
+		id
+		window_title
+		start_time
+		end_time
+		duration_seconds
+		tracker_app {
+			id
+			name
+		}
+	}
+`);
+
+export const TRACKER_KEYWORD_FRAGMENT = graphql(`
+	fragment TrackerKeywordFields on tracker_keywords {
+		id
+		board_id
+		keyword
+		case_sensitive
+		board {
+			id
+			name
+			alias
+		}
+		tracker_category {
+			id
+			name
+			parent_category {
+				id
+				name
+			}
+			sub_categories {
+				id
+				name
+			}
+		}
+	}
+`);
+
+export const GET_TRACKER_SESSIONS = graphql(`
+	query GetTrackerSessions(
+		$limit: Int = 5000
+		$offset: Int = 0
+		$order_by: [tracker_sessions_order_by!]
+		$where: tracker_sessions_bool_exp
+	) {
+		tracker_sessions(
+			limit: $limit
+			offset: $offset
+			order_by: $order_by
+			where: $where
+		) {
+			...TrackerSessionFields
+		}
+		tracker_sessions_aggregate(where: $where) {
+			aggregate {
+				count
+				sum {
+					duration_seconds
+				}
+			}
+		}
+	}
+`);
+
+export const GET_TRACKER_KEYWORDS = graphql(`
+	query GetTrackerKeywords(
+		$limit: Int = 5000
+		$offset: Int = 0
+		$order_by: [tracker_keywords_order_by!]
+		$where: tracker_keywords_bool_exp
+	) {
+		tracker_keywords(
+			limit: $limit
+			offset: $offset
+			order_by: $order_by
+			where: $where
+		) {
+			...TrackerKeywordFields
+		}
+	}
+`);
+
+export const GET_TRACKER_CATEGORIES = graphql(`
+	query GetTrackerCategories(
+		$limit: Int = 5000
+		$offset: Int = 0
+		$order_by: [tracker_categories_order_by!]
+		$where: tracker_categories_bool_exp
+	) {
+		tracker_categories(
+			limit: $limit
+			offset: $offset
+			order_by: $order_by
+			where: $where
+		) {
+			id
+			name
+			parent_category {
+				id
+				name
+			}
+			sub_categories {
+				id
+				name
+			}
+		}
+	}
+`);

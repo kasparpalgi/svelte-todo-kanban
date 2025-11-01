@@ -496,5 +496,26 @@
         "button_text": "Sign up and as you login, you can accept the invitation",
         "expiry_notice": "This invitation will expire in 7 days. If you don't want to accept this invitation, you can safely just delete this email.",
         "footer_text": "This email was sent from ToDzz.eu and if you have any questions, please contact"
+    },
+    "stats": {
+        "title": "Time Statistics",
+        "description": "Track your time spent on projects and categories",
+        "totalTime": "Total Time",
+        "trackedTime": "Tracked Time",
+        "tracked": "tracked",
+        "matched": "of total",
+        "period": "Period",
+        "sessions": "sessions",
+        "session": "session",
+        "byProject": "Time by Project",
+        "projectsTracked": "Projects you worked on",
+        "byCategory": "Time by Category",
+        "categoriesTracked": "Categories you worked on",
+        "unmatchedTime": "Unmatched Time",
+        "noData": "No data available for this period",
+        "today": "Today",
+        "week": "Last 7 Days",
+        "month": "Last 30 Days",
+        "loading": "Loading statistics..."
     }
 }
