@@ -105,7 +105,313 @@ function createTrackerStatsStore() {
 					type: 'unknown',
 					keyword: kw.keyword,
 					caseSensitive: kw.case_sensitive
-				};			return { success: true, message: 'Keywords loaded' };
+				};
+
+				if (kw.board_id && kw.board) {
+					result.type = 'project';
+					result.projectId = kw.board_id;
+					result.projectName = kw.board.name || kw.keyword;
+				} else if (kw.tracker_category) {
+					result.type = 'category';
+					result.categoryId = kw.tracker_category.id;
+					result.categoryName = kw.tracker_category.name;
+
+					if (kw.tracker_category.parent_category) {
+						result.parentCategoryId = kw.tracker_category.parent_category.id;
+						result.parentCategoryName = kw.tracker_category.parent_category.name;
+					}
+				}
+
+				return result;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Calculate time breakdown for a date range
+	 * IMPORTANT: Implements smart context-aware allocation:
+	 * 1. Direct matches are allocated to their project/category
+	 * 2. Unmatched sessions between two matches of the SAME project are allocated to that project
+	 * 3. Unmatched sessions exceeding threshold are completely excluded (breaks)
+	 * 4. Other unmatched sessions are shown separately
+	 */
+	function calculateStats(sessions: any[], keywords: any[], startDate: Date, endDate: Date, thresholdSeconds: number = 3600): StatsPeriod {
+		const stats: StatsPeriod = {
+			startDate,
+			endDate,
+			totalSeconds: 0,
+			byProject: new Map(),
+			byCategory: new Map(),
+			byTask: new Map(),
+			unmatchedSeconds: 0,
+			unmatchedSessionCount: 0,
+			sessions: [],
+			matchedPercentage: 0
+		};
+
+		// First pass: filter by date range and create initial session records with matches
+		const filteredSessions: Array<{
+			session: any;
+			durationSeconds: number;
+			match: MatchResult | null;
+			matchKey: string | null;
+		}> = [];
+
+		for (const session of sessions) {
+			const sessionTime = new Date(session.start_time);
+
+			// Filter by date range
+			if (sessionTime < startDate || sessionTime > endDate) {
+				continue;
+			}
+
+			const durationSeconds = session.duration_seconds || 0;
+			stats.totalSeconds += durationSeconds;
+
+			// Try to match the window title
+			const match = matchWindowTitle(session.window_title, keywords);
+
+			let matchKey: string | null = null;
+			if (match) {
+				if (match.type === 'project' && match.projectId) {
+					matchKey = `project:${match.projectId}`;
+				} else if (match.type === 'category' && match.categoryId) {
+					matchKey = `category:${match.categoryId}`;
+				}
+			}
+
+			filteredSessions.push({
+				session,
+				durationSeconds,
+				match,
+				matchKey
+			});
+		}
+
+		// Second pass: allocate unmatched sessions to surrounding matches of the same project/category
+		const sessionsByMatch = new Map<string, { seconds: number; count: number; match: MatchResult }>();
+		let totalMatchedSeconds = 0;
+
+		for (let i = 0; i < filteredSessions.length; i++) {
+			const current = filteredSessions[i];
+			const durationSeconds = current.durationSeconds;
+
+			// If this session has a valid match, process it
+			if (current.match && current.matchKey) {
+				const existing = sessionsByMatch.get(current.matchKey) || {
+					seconds: 0,
+					count: 0,
+					match: current.match
+				};
+				existing.seconds += durationSeconds;
+				existing.count += 1;
+				sessionsByMatch.set(current.matchKey, existing);
+				totalMatchedSeconds += durationSeconds;
+
+				// Determine the correct matchType
+				let matchType: 'project' | 'category' | 'unmatched' = 'unmatched';
+				if (current.match.type === 'project') {
+					matchType = 'project';
+				} else if (current.match.type === 'category') {
+					matchType = 'category';
+				}
+
+				const sessionRecord: SessionBreakdown = {
+					sessionId: current.session.id,
+					windowTitle: current.session.window_title,
+					durationSeconds,
+					startTime: current.session.start_time,
+					matchType,
+					projectId: current.match.projectId,
+					projectName: current.match.projectName,
+					categoryId: current.match.categoryId,
+					categoryName: current.match.categoryName,
+					allocatedToProject: matchType === 'project' ? current.match.projectName : undefined,
+					allocatedToCategory: matchType === 'category' ? current.match.categoryName : undefined,
+					reason: `Matched to ${matchType} via keyword: "${current.match.keyword}"`
+				};
+				stats.sessions.push(sessionRecord);
+				continue;
+			}
+
+			// This is an unmatched session
+			// Check if it exceeds threshold (should be completely excluded)
+			if (durationSeconds > thresholdSeconds) {
+				const sessionRecord: SessionBreakdown = {
+					sessionId: current.session.id,
+					windowTitle: current.session.window_title,
+					durationSeconds,
+					startTime: current.session.start_time,
+					matchType: 'unmatched',
+					reason: `Unmatched and exceeds threshold (${thresholdSeconds}s), likely break - excluded from tracking`
+				};
+				stats.sessions.push(sessionRecord);
+				continue;
+			}
+
+			// Find surrounding matches of the same project/category for context-aware allocation
+			let allocatedMatchKey: string | null = null;
+			let allocatedMatch: MatchResult | null = null;
+
+			// Look backward for the most recent match
+			let lastMatchKey: string | null = null;
+			let lastMatch: MatchResult | null = null;
+			for (let j = i - 1; j >= 0; j--) {
+				if (filteredSessions[j].matchKey) {
+					lastMatchKey = filteredSessions[j].matchKey;
+					lastMatch = filteredSessions[j].match;
+					break;
+				}
+			}
+
+			// Look forward for the next match
+			let nextMatchKey: string | null = null;
+			let nextMatch: MatchResult | null = null;
+			for (let j = i + 1; j < filteredSessions.length; j++) {
+				if (filteredSessions[j].matchKey) {
+					nextMatchKey = filteredSessions[j].matchKey;
+					nextMatch = filteredSessions[j].match;
+					break;
+				}
+			}
+
+			// IMPORTANT: Only allocate unmatched sessions to PROJECTS, not categories
+			// If surrounded by the same PROJECT, allocate to it (context switch)
+			if (lastMatchKey && nextMatchKey && lastMatchKey === nextMatchKey && lastMatch?.type === 'project') {
+				allocatedMatchKey = lastMatchKey;
+				allocatedMatch = lastMatch;
+			}
+
+			// If no surrounding match found, check if we have a previous PROJECT match (assume continuing work)
+			if (!allocatedMatchKey && lastMatchKey && lastMatch?.type === 'project') {
+				allocatedMatchKey = lastMatchKey;
+				allocatedMatch = lastMatch;
+			}
+
+			// Record the session
+			const sessionRecord: SessionBreakdown = {
+				sessionId: current.session.id,
+				windowTitle: current.session.window_title,
+				durationSeconds,
+				startTime: current.session.start_time,
+				matchType: allocatedMatchKey ? 'unmatched' : 'unmatched', // Still marked as unmatched for visibility
+				reason: allocatedMatchKey
+					? `Context switch between ${allocatedMatch?.type === 'project' ? 'Project ' + allocatedMatch.projectName : 'Category ' + allocatedMatch?.categoryName} sessions`
+					: `Unmatched session (below threshold ${thresholdSeconds}s)`
+			};
+
+			// If we found an allocated match, add to that project/category
+			if (allocatedMatchKey && allocatedMatch) {
+				const existing = sessionsByMatch.get(allocatedMatchKey) || {
+					seconds: 0,
+					count: 0,
+					match: allocatedMatch
+				};
+				existing.seconds += durationSeconds;
+				existing.count += 1;
+				sessionsByMatch.set(allocatedMatchKey, existing);
+				totalMatchedSeconds += durationSeconds;
+
+				if (allocatedMatch.type === 'project') {
+					sessionRecord.allocatedToProject = allocatedMatch.projectName;
+					sessionRecord.projectId = allocatedMatch.projectId;
+				} else {
+					sessionRecord.allocatedToCategory = allocatedMatch.categoryName;
+					sessionRecord.categoryId = allocatedMatch.categoryId;
+				}
+			} else {
+				// True unmatched session
+				stats.unmatchedSeconds += durationSeconds;
+				stats.unmatchedSessionCount += 1;
+			}
+
+			stats.sessions.push(sessionRecord);
+		}
+
+		// Convert map to breakdown structure
+		sessionsByMatch.forEach((value, matchKeyStr) => {
+			const match: MatchResult = value.match;
+			const percentage =
+				stats.totalSeconds > 0 ? (value.seconds / stats.totalSeconds) * 100 : 0;
+
+			const breakdown: TimeBreakdown = {
+				totalSeconds: value.seconds,
+				percentage,
+				sessionCount: value.count
+			};
+
+			if (match.type === 'project' && match.projectId && match.projectName) {
+				breakdown.projectId = match.projectId;
+				breakdown.projectName = match.projectName;
+				stats.byProject.set(match.projectId, breakdown);
+			} else if (match.type === 'category' && match.categoryId && match.categoryName) {
+				breakdown.categoryId = match.categoryId;
+				breakdown.categoryName = match.categoryName;
+				breakdown.parentCategoryId = match.parentCategoryId;
+				breakdown.parentCategoryName = match.parentCategoryName;
+				stats.byCategory.set(match.categoryId, breakdown);
+			}
+		});
+
+		// Calculate matched percentage (sessions with keyword matches + allocated context switches)
+		stats.matchedPercentage = stats.totalSeconds > 0 ? (totalMatchedSeconds / stats.totalSeconds) * 100 : 0;
+
+		return stats;
+	}
+
+	/**
+	 * Load tracker sessions for a date range
+	 */
+	async function loadSessions(startDate: Date, endDate: Date) {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		state.loading = true;
+		state.error = null;
+
+		try {
+			const data = (await request(GET_TRACKER_SESSIONS, {
+				where: {
+					start_time: {
+						_gte: startDate.toISOString(),
+						_lte: endDate.toISOString()
+					}
+				},
+				order_by: [{ start_time: 'desc' }],
+				limit: 15000,
+				offset: 0
+			})) as GetTrackerSessionsQuery;
+
+			state.sessions = data.tracker_sessions || [];
+
+			return { success: true, message: 'Sessions loaded' };
+		} catch (error) {
+			state.error = error instanceof Error ? error.message : String(error);
+			return { success: false, message: state.error };
+		} finally {
+			state.loading = false;
+		}
+	}
+
+	/**
+	 * Load all tracker keywords
+	 */
+	async function loadKeywords() {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		try {
+			const data = (await request(GET_TRACKER_KEYWORDS, {
+				limit: 5000,
+				offset: 0
+			})) as GetTrackerKeywordsQuery;
+
+			state.keywords = data.tracker_keywords || [];
+
+			// Find the 'hasura' keyword specifically
+			const hasuraKeyword = state.keywords.find(kw => kw.keyword.toLowerCase() === 'hasura');
+
+			return { success: true, message: 'Keywords loaded' };
 		} catch (error) {
 			state.error = error instanceof Error ? error.message : String(error);
 			return { success: false, message: state.error };
@@ -124,7 +430,14 @@ function createTrackerStatsStore() {
 				offset: 0
 			})) as GetTrackerCategoriesQuery;
 
-			state.categories = data.tracker_categories || [];			return { success: true, message: 'Categories loaded' };
+			state.categories = data.tracker_categories || [];
+
+			// Find categories that have 'hasura' keyword
+			const categoriesWithHasura = state.categories.filter(cat =>
+				cat.tracker_keywords?.some((k: any) => k.keyword.toLowerCase() === 'hasura')
+			);
+
+			return { success: true, message: 'Categories loaded' };
 		} catch (error) {
 			state.error = error instanceof Error ? error.message : String(error);
 			return { success: false, message: state.error };
