@@ -355,6 +355,67 @@ describe('Tracker Stats Calculation Logic', () => {
 			expect(unmatched_total).toBe(0); // All time allocated (7s was context switch)
 		});
 
+		it('should NOT allocate unmatched sessions between same categories (only projects)', () => {
+			/**
+			 * IMPORTANT RULE: Unmatched sessions should ONLY be allocated to surrounding PROJECTS,
+			 * NOT to categories. Even if surrounded by the same category.
+			 *
+			 * Example:
+			 * 1. Category Work match (30 seconds)
+			 * 2. Unmatched: Brave window (7 seconds)
+			 * 3. Category Work match (30 seconds)
+			 *
+			 * Result: Unmatched stays unmatched (NOT allocated to Work category)
+			 */
+
+			const keywords = [
+				{
+					keyword: 'work',
+					case_sensitive: false,
+					category_id: 'work',
+					category_name: 'Work'
+				}
+			];
+
+			const sessions = [
+				{ id: 1, title: 'working on work task', seconds: 30 },
+				{ id: 2, title: 'Browse - Brave', seconds: 7 }, // Unmatched
+				{ id: 3, title: 'more work tasks', seconds: 30 }
+			];
+
+			let work_total = 0;
+			let unmatched_total = 0;
+
+			// Session 1: matches work category
+			let match1 = matchWindowTitle(sessions[0].title, keywords);
+			if (match1) work_total += sessions[0].seconds;
+
+			// Session 2: no match, even though surrounded by same category
+			let match2 = matchWindowTitle(sessions[1].title, keywords);
+			if (!match2 && sessions[1].seconds <= 3600) {
+				let match3 = matchWindowTitle(sessions[2].title, keywords);
+				// Should NOT allocate because it's a category, not a project
+				// Only unmatched at this point (would be allocated in real code only if surrounded by same project)
+				if (!match1?.category_id || match1?.category_id !== match3?.category_id) {
+					unmatched_total += sessions[1].seconds;
+				}
+			}
+
+			// Session 3: matches work category
+			let match3 = matchWindowTitle(sessions[2].title, keywords);
+			if (match3) work_total += sessions[2].seconds;
+
+			// Verify: unmatched stays unmatched, NOT allocated to category
+			expect(match1).not.toBeNull();
+			expect(match1?.category_name).toBe('Work');
+			expect(match2).toBeNull();
+			expect(match3).not.toBeNull();
+			expect(match3?.category_name).toBe('Work');
+
+			expect(work_total).toBe(60); // Only direct matches: 30 + 30
+			expect(unmatched_total).toBe(7); // Stays unmatched, not allocated to category
+		});
+
 		it('should NOT allocate unmatched sessions if surrounded by different projects', () => {
 			/**
 			 * Example where context-aware allocation should NOT happen:

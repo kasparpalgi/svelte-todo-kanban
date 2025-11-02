@@ -297,14 +297,15 @@ function createTrackerStatsStore() {
 				}
 			}
 
-			// If surrounded by the same project/category, allocate to it (context switch)
-			if (lastMatchKey && nextMatchKey && lastMatchKey === nextMatchKey) {
+			// IMPORTANT: Only allocate unmatched sessions to PROJECTS, not categories
+			// If surrounded by the same PROJECT, allocate to it (context switch)
+			if (lastMatchKey && nextMatchKey && lastMatchKey === nextMatchKey && lastMatch?.type === 'project') {
 				allocatedMatchKey = lastMatchKey;
 				allocatedMatch = lastMatch;
 			}
 
-			// If no surrounding match found, check if we have a previous match (assume continuing work)
-			if (!allocatedMatchKey && lastMatchKey) {
+			// If no surrounding match found, check if we have a previous PROJECT match (assume continuing work)
+			if (!allocatedMatchKey && lastMatchKey && lastMatch?.type === 'project') {
 				allocatedMatchKey = lastMatchKey;
 				allocatedMatch = lastMatch;
 			}
