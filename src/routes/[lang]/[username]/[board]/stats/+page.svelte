@@ -18,7 +18,9 @@
 		Clock,
 		TrendingUp,
 		AlertCircle,
-		Loader2
+		Loader2,
+		ChevronDown,
+		ChevronUp
 	} from 'lucide-svelte';
 	import StatsPeriodTabs from './StatsPeriodTabs.svelte';
 	import TimeBreakdownChart from './TimeBreakdownChart.svelte';
@@ -33,6 +35,8 @@
 	let customStartDate = $state(new Date());
 	let customEndDate = $state(new Date());
 	let showSessionBreakdown = $state(false);
+	let showCharts = $state(false);
+	let showThresholdControl = $state(false);
 	let stats = $derived(trackerStatsStore.stats);
 	let loading = $derived(trackerStatsStore.loading);
 	let error = $derived(trackerStatsStore.error);
@@ -159,8 +163,25 @@
 		on:dateRangeChange={handleDateRangeChange}
 	/>
 
-	<!-- Threshold Control -->
-	<ThresholdControl threshold={trackerStatsStore.unmatchedThreshold} on:thresholdChange={handleThresholdChange} />
+	<!-- Threshold Control (Hidden by default) -->
+	<div class="space-y-2">
+		<button
+			onclick={() => (showThresholdControl = !showThresholdControl)}
+			class="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+		>
+			{#if showThresholdControl}
+				<ChevronUp class="w-4 h-4" />
+				Hide
+			{:else}
+				<ChevronDown class="w-4 h-4" />
+				Show
+			{/if}
+			Advanced Options
+		</button>
+		{#if showThresholdControl}
+			<ThresholdControl threshold={trackerStatsStore.unmatchedThreshold} on:thresholdChange={handleThresholdChange} />
+		{/if}
+	</div>
 
 	<!-- Loading State -->
 	{#if loading}
@@ -240,6 +261,54 @@
 				</CardContent>
 			</Card>
 		</div>
+
+		<!-- Charts Toggle -->
+		{#if stats.byProject.size > 0 || stats.byCategory.size > 0}
+			<div class="space-y-3">
+				<button
+					onclick={() => (showCharts = !showCharts)}
+					class="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors"
+				>
+					<BarChart3 class="w-4 h-4" />
+					{#if showCharts}
+						<ChevronUp class="w-4 h-4" />
+						Hide
+					{:else}
+						<ChevronDown class="w-4 h-4" />
+						Show
+					{/if}
+					Charts (Top 5)
+				</button>
+
+				{#if showCharts}
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						{#if stats.byProject.size > 0}
+							<Card>
+								<CardHeader>
+									<CardTitle class="text-base">Top Projects</CardTitle>
+									<CardDescription>Top 5 projects by time spent</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<TimeBreakdownChart data={Array.from(stats.byProject.values())} title="" />
+								</CardContent>
+							</Card>
+						{/if}
+
+						{#if stats.byCategory.size > 0}
+							<Card>
+								<CardHeader>
+									<CardTitle class="text-base">Top Categories</CardTitle>
+									<CardDescription>Top 5 categories by time spent</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<TimeBreakdownChart data={Array.from(stats.byCategory.values())} title="" />
+								</CardContent>
+							</Card>
+						{/if}
+					</div>
+				{/if}
+			</div>
+		{/if}
 
 		<!-- Time by Projects -->
 		{#if stats.byProject.size > 0}
