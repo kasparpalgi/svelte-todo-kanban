@@ -443,6 +443,8 @@
         "description": "Spravujte nastavení svého účtu a předvolby",
         "saving": "Ukládání...",
         "save_changes": "Uložit změny",
+        "view_statistics": "Zobrazit statistiky",
+        "technical_logs": "Technické záznamy",
         "profile": {
             "title": "Informace o profilu",
             "description": "Aktualizujte své osobní údaje a profilový obrázek",
