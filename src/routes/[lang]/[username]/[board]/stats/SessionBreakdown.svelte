@@ -15,6 +15,8 @@
 
 	let expandedSessions = $state(new Set<number>());
 	let searchQuery = $state('');
+	let currentPage = $state(1);
+	const itemsPerPage = 25;
 
 	let filteredSessions = $derived(
 		sessions.filter(
@@ -23,6 +25,19 @@
 				s.reason.toLowerCase().includes(searchQuery.toLowerCase())
 		)
 	);
+
+	let totalPages = $derived(Math.ceil(filteredSessions.length / itemsPerPage));
+
+	let paginatedSessions = $derived.by(() => {
+		const startIndex = (currentPage - 1) * itemsPerPage;
+		const endIndex = startIndex + itemsPerPage;
+		return filteredSessions.slice(startIndex, endIndex);
+	});
+
+	function handleSearch() {
+		// Reset to first page when searching
+		currentPage = 1;
+	}
 
 	function toggleSession(sessionId: number) {
 		if (expandedSessions.has(sessionId)) {
@@ -102,6 +117,8 @@
 				type="text"
 				placeholder={$t('stats.searchPlaceholder', 'Search by window title or reason...')}
 				bind:value={searchQuery}
+				onchange={handleSearch}
+				oninput={handleSearch}
 				class="w-full"
 			/>
 		</div>
@@ -126,15 +143,25 @@
 			</div>
 		</div>
 
+		<!-- Pagination info -->
+		{#if filteredSessions.length > 0}
+			<div class="flex items-center justify-between text-sm text-muted-foreground">
+				<p>
+					Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredSessions.length)} of {filteredSessions.length} sessions
+				</p>
+				<p class="font-medium">Page {currentPage} of {totalPages}</p>
+			</div>
+		{/if}
+
 		<!-- Sessions list -->
-		<div class="space-y-2 max-h-96 overflow-y-auto">
+		<div class="space-y-2">
 			{#if filteredSessions.length === 0}
 				<div class="flex items-center justify-center gap-2 py-8 text-muted-foreground">
 					<AlertCircle class="w-4 h-4" />
 					<p>{$t('stats.noSessionsFound', 'No sessions found matching your search.')}</p>
 				</div>
 			{:else}
-				{#each filteredSessions as session (session.sessionId)}
+				{#each paginatedSessions as session (session.sessionId)}
 					<div class="border rounded-lg border-slate-200 dark:border-slate-700 overflow-hidden">
 						<!-- Header (always visible) -->
 						<button
@@ -234,6 +261,40 @@
 				{/each}
 			{/if}
 		</div>
+
+		<!-- Pagination controls -->
+		{#if filteredSessions.length > itemsPerPage}
+			<div class="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
+				<button
+					disabled={currentPage === 1}
+					onclick={() => (currentPage = currentPage - 1)}
+					class="px-3 py-2 text-sm font-medium rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-slate-100 dark:hover:enabled:bg-slate-800 transition-colors"
+				>
+					← Previous
+				</button>
+
+				<div class="flex items-center gap-2">
+					{#each Array.from({ length: totalPages }, (_, i) => i + 1) as page}
+						<button
+							onclick={() => (currentPage = page)}
+							class="px-3 py-2 text-sm font-medium rounded-lg {currentPage === page
+								? 'bg-primary text-primary-foreground'
+								: 'border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'} transition-colors"
+						>
+							{page}
+						</button>
+					{/each}
+				</div>
+
+				<button
+					disabled={currentPage === totalPages}
+					onclick={() => (currentPage = currentPage + 1)}
+					class="px-3 py-2 text-sm font-medium rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-slate-100 dark:hover:enabled:bg-slate-800 transition-colors"
+				>
+					Next →
+				</button>
+			</div>
+		{/if}
 
 		<!-- Legend -->
 		<div class="rounded-lg bg-slate-100 dark:bg-slate-900 p-3 space-y-2">
