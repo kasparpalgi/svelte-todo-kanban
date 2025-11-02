@@ -13,7 +13,7 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import {
-		BarChart3,
+		ChartColumn,
 		Calendar,
 		Clock,
 		TrendingUp,
@@ -65,7 +65,7 @@
 		if (trackerStatsStore.sessions.length > 0 && trackerStatsStore.keywords.length > 0) {
 			trackerStatsStore.getStats(startDate, endDate);
 		} else {
-			// Load sessions if not already loaded
+			// Load sessions (if not already loaded)
 			trackerStatsStore.loadSessions(startDate, endDate).then(() => {
 				trackerStatsStore.loadKeywords().then(() => {
 					trackerStatsStore.getStats(startDate, endDate);
@@ -136,11 +136,10 @@
 </script>
 
 <div class="space-y-6 p-6">
-	<!-- Header -->
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="text-3xl font-bold flex items-center gap-2">
-				<BarChart3 class="w-8 h-8" />
+				<ChartColumn class="w-8 h-8" />
 				{$t('stats.title', 'Time Statistics')}
 			</h1>
 			<p class="text-muted-foreground mt-1">
@@ -149,20 +148,16 @@
 		</div>
 	</div>
 
-	<!-- Period Selection -->
 	<StatsPeriodTabs {selectedPeriod} on:periodChange={handlePeriodChange} />
 
-	<!-- Custom Date Range Picker -->
 	<DateRangePicker
 		startDate={selectedPeriod === 'custom' ? customStartDate : new Date()}
 		endDate={selectedPeriod === 'custom' ? customEndDate : new Date()}
 		on:dateRangeChange={handleDateRangeChange}
 	/>
 
-	<!-- Threshold Control -->
 	<ThresholdControl threshold={trackerStatsStore.unmatchedThreshold} on:thresholdChange={handleThresholdChange} />
 
-	<!-- Loading State -->
 	{#if loading}
 		<Card class="border-dashed">
 			<CardContent class="flex flex-col items-center justify-center py-12">
@@ -183,7 +178,6 @@
 			</CardContent>
 		</Card>
 	{:else if stats}
-		<!-- Overall Stats -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 			<Card>
 				<CardHeader class="pb-2">
@@ -241,7 +235,6 @@
 			</Card>
 		</div>
 
-		<!-- Time by Projects -->
 		{#if stats.byProject.size > 0}
 			<Card>
 				<CardHeader>
@@ -256,7 +249,6 @@
 			</Card>
 		{/if}
 
-		<!-- Time by Categories -->
 		{#if stats.byCategory.size > 0}
 			<Card>
 				<CardHeader>
@@ -271,7 +263,6 @@
 			</Card>
 		{/if}
 
-		<!-- Unmatched Sessions -->
 		{#if stats.unmatchedSeconds > 0}
 			<Card class="border-yellow-200 bg-yellow-50 dark:bg-yellow-950 dark:border-yellow-800">
 				<CardHeader class="pb-2">
@@ -295,7 +286,6 @@
 			</Card>
 		{/if}
 
-		<!-- Session Breakdown -->
 		{#if stats.sessions.length > 0}
 			<div class="space-y-3">
 				<div class="flex items-center justify-between">
@@ -319,7 +309,7 @@
 	{:else}
 		<Card class="border-dashed">
 			<CardContent class="flex flex-col items-center justify-center py-12">
-				<BarChart3 class="w-8 h-8 text-muted-foreground mb-2" />
+				<ChartColumn class="w-8 h-8 text-muted-foreground mb-2" />
 				<p class="text-muted-foreground">No data available for this period</p>
 			</CardContent>
 		</Card>
