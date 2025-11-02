@@ -108,17 +108,6 @@ function createTrackerStatsStore() {
 				};
 
 				// DEBUG: Log the matched keyword and its properties
-				console.log('[matchWindowTitle] Matched keyword:', {
-					keyword: kw.keyword,
-					windowTitle: windowTitle.substring(0, 70),
-					hasBoard: !!kw.board,
-					hasBoardId: !!kw.board_id,
-					hasTrackerCategory: !!kw.tracker_category,
-					trackerCategoryId: kw.tracker_category?.id,
-					trackerCategoryName: kw.tracker_category?.name,
-					caseInsensitiveMatch: !kw.case_sensitive,
-					finalResultType: result.type
-				});
 
 				if (kw.board_id && kw.board) {
 					result.type = 'project';
@@ -152,11 +141,6 @@ function createTrackerStatsStore() {
 	 */
 	function calculateStats(sessions: any[], keywords: any[], startDate: Date, endDate: Date, thresholdSeconds: number = 3600): StatsPeriod {
 		// DEBUG: Log keyword information
-		console.log('[calculateStats] Keywords loaded:', keywords.map(k => ({
-			keyword: k.keyword,
-			hasBoard: !!k.board,
-			hasCategory: !!k.tracker_category,
-			categoryName: k.tracker_category?.name
 		})));
 		const stats: StatsPeriod = {
 			startDate,
@@ -378,25 +362,6 @@ function createTrackerStatsStore() {
 		// Calculate matched percentage (sessions with keyword matches + allocated context switches)
 		stats.matchedPercentage = stats.totalSeconds > 0 ? (totalMatchedSeconds / stats.totalSeconds) * 100 : 0;
 
-		console.log('[TrackerStatsStore.calculateStats]', {
-			periodStart: startDate.toISOString(),
-			periodEnd: endDate.toISOString(),
-			totalSessions: filteredSessions.length,
-			totalSeconds: stats.totalSeconds,
-			totalSeconds_hours: (stats.totalSeconds / 3600).toFixed(2),
-			matchedSeconds: totalMatchedSeconds,
-			matchedSeconds_hours: (totalMatchedSeconds / 3600).toFixed(2),
-			matchedPercentage: stats.matchedPercentage.toFixed(1) + '%',
-			unmatchedSeconds: stats.unmatchedSeconds,
-			unmatchedSeconds_hours: (stats.unmatchedSeconds / 3600).toFixed(2),
-			unmatchedSessionCount: stats.unmatchedSessionCount,
-			projectCount: stats.byProject.size,
-			categoryCount: stats.byCategory.size,
-			keywordCount: keywords.length,
-			threshold_seconds: thresholdSeconds,
-			threshold_minutes: Math.round(thresholdSeconds / 60),
-			note: 'Unmatched sessions between same project matches are allocated to that project (context-aware)'
-		});
 
 		return stats;
 	}
@@ -424,17 +389,10 @@ function createTrackerStatsStore() {
 			})) as GetTrackerSessionsQuery;
 
 			state.sessions = data.tracker_sessions || [];
-			console.log('[TrackerStatsStore.loadSessions]', {
-				startDate: startDate.toISOString(),
-				endDate: endDate.toISOString(),
-				sessionCount: state.sessions.length,
-				totalDuration: data.tracker_sessions_aggregate?.aggregate?.sum?.duration_seconds || 0
-			});
 
 			return { success: true, message: 'Sessions loaded' };
 		} catch (error) {
 			state.error = error instanceof Error ? error.message : String(error);
-			console.log('[TrackerStatsStore.loadSessions] Error:', state.error);
 			return { success: false, message: state.error };
 		} finally {
 			state.loading = false;
@@ -456,44 +414,18 @@ function createTrackerStatsStore() {
 			state.keywords = data.tracker_keywords || [];
 
 			// DEBUG: Log all keywords with their category information
-			console.log('[TrackerStatsStore.loadKeywords] Full GraphQL Result:', data);
-			console.log('[TrackerStatsStore.loadKeywords] Keywords with categories:',
-				state.keywords.map(kw => ({
-					keyword: kw.keyword,
-					hasBoard: !!kw.board,
-					boardName: kw.board?.name,
-					hasTrackerCategory: !!kw.tracker_category,
-					categoryId: kw.tracker_category?.id,
-					categoryName: kw.tracker_category?.name,
-					parentCategory: kw.tracker_category?.parent_category?.name
-				}))
 			);
 
 			// Find and log the 'hasura' keyword specifically
 			const hasuraKeyword = state.keywords.find(kw => kw.keyword.toLowerCase() === 'hasura');
 			if (hasuraKeyword) {
-				console.log('[TrackerStatsStore.loadKeywords] Found "hasura" keyword:', {
-					keyword: hasuraKeyword.keyword,
-					case_sensitive: hasuraKeyword.case_sensitive,
-					board_id: hasuraKeyword.board_id,
-					board: hasuraKeyword.board,
-					tracker_category_id: hasuraKeyword.tracker_category_id,
-					tracker_category: hasuraKeyword.tracker_category,
-					fullKeywordObject: hasuraKeyword
-				});
 			} else {
-				console.log('[TrackerStatsStore.loadKeywords] "hasura" keyword NOT FOUND in loaded keywords');
 			}
 
-			console.log('[TrackerStatsStore.loadKeywords]', {
-				keywordCount: state.keywords.length,
-				hasuraFound: !!hasuraKeyword
-			});
 
 			return { success: true, message: 'Keywords loaded' };
 		} catch (error) {
 			state.error = error instanceof Error ? error.message : String(error);
-			console.log('[TrackerStatsStore.loadKeywords] Error:', state.error);
 			return { success: false, message: state.error };
 		}
 	}
@@ -513,15 +445,6 @@ function createTrackerStatsStore() {
 			state.categories = data.tracker_categories || [];
 
 			// DEBUG: Log categories with their keywords
-			console.log('[TrackerStatsStore.loadCategories] Full GraphQL Result:', data);
-			console.log('[TrackerStatsStore.loadCategories] Categories with keywords:',
-				state.categories.map(cat => ({
-					categoryId: cat.id,
-					categoryName: cat.name,
-					parentCategory: cat.parent_category?.name,
-					keywordCount: cat.tracker_keywords?.length || 0,
-					keywords: cat.tracker_keywords?.map(k => k.keyword) || []
-				}))
 			);
 
 			// Find and log categories that have 'hasura' keyword
@@ -529,20 +452,13 @@ function createTrackerStatsStore() {
 				cat.tracker_keywords?.some(k => k.keyword.toLowerCase() === 'hasura')
 			);
 			if (categoriesWithHasura.length > 0) {
-				console.log('[TrackerStatsStore.loadCategories] Categories with "hasura" keyword:', categoriesWithHasura);
 			} else {
-				console.log('[TrackerStatsStore.loadCategories] No categories found with "hasura" keyword');
 			}
 
-			console.log('[TrackerStatsStore.loadCategories]', {
-				categoryCount: state.categories.length,
-				categoriesWithHasura: categoriesWithHasura.length
-			});
 
 			return { success: true, message: 'Categories loaded' };
 		} catch (error) {
 			state.error = error instanceof Error ? error.message : String(error);
-			console.log('[TrackerStatsStore.loadCategories] Error:', state.error);
 			return { success: false, message: state.error };
 		}
 	}
@@ -566,10 +482,6 @@ function createTrackerStatsStore() {
 	 */
 	function setUnmatchedThreshold(thresholdSeconds: number) {
 		state.unmatchedThreshold = thresholdSeconds;
-		console.log('[TrackerStatsStore.setUnmatchedThreshold]', {
-			thresholdSeconds,
-			thresholdMinutes: (thresholdSeconds / 60).toFixed(0)
-		});
 	}
 
 	/**
