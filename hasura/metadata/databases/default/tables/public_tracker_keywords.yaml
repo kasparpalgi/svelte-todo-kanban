@@ -47,6 +47,12 @@ select_permissions:
               board_members:
                 user_id:
                   _eq: X-Hasura-User-Id
+          - tracker_category:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - tracker_category:
+              user_id:
+                _is_null: true
     comment: ""
 update_permissions:
   - role: user

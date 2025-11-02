@@ -107,6 +107,19 @@ function createTrackerStatsStore() {
 					caseSensitive: kw.case_sensitive
 				};
 
+				// DEBUG: Log the matched keyword and its properties
+				console.log('[matchWindowTitle] Matched keyword:', {
+					keyword: kw.keyword,
+					windowTitle: windowTitle.substring(0, 70),
+					hasBoard: !!kw.board,
+					hasBoardId: !!kw.board_id,
+					hasTrackerCategory: !!kw.tracker_category,
+					trackerCategoryId: kw.tracker_category?.id,
+					trackerCategoryName: kw.tracker_category?.name,
+					caseInsensitiveMatch: !kw.case_sensitive,
+					finalResultType: result.type
+				});
+
 				if (kw.board_id && kw.board) {
 					result.type = 'project';
 					result.projectId = kw.board_id;
@@ -138,6 +151,13 @@ function createTrackerStatsStore() {
 	 * 4. Other unmatched sessions are shown separately
 	 */
 	function calculateStats(sessions: any[], keywords: any[], startDate: Date, endDate: Date, thresholdSeconds: number = 3600): StatsPeriod {
+		// DEBUG: Log keyword information
+		console.log('[calculateStats] Keywords loaded:', keywords.map(k => ({
+			keyword: k.keyword,
+			hasBoard: !!k.board,
+			hasCategory: !!k.tracker_category,
+			categoryName: k.tracker_category?.name
+		})));
 		const stats: StatsPeriod = {
 			startDate,
 			endDate,
@@ -433,8 +453,40 @@ function createTrackerStatsStore() {
 			})) as GetTrackerKeywordsQuery;
 
 			state.keywords = data.tracker_keywords || [];
+
+			// DEBUG: Log all keywords with their category information
+			console.log('[TrackerStatsStore.loadKeywords] Full GraphQL Result:', data);
+			console.log('[TrackerStatsStore.loadKeywords] Keywords with categories:',
+				state.keywords.map(kw => ({
+					keyword: kw.keyword,
+					hasBoard: !!kw.board,
+					boardName: kw.board?.name,
+					hasTrackerCategory: !!kw.tracker_category,
+					categoryId: kw.tracker_category?.id,
+					categoryName: kw.tracker_category?.name,
+					parentCategory: kw.tracker_category?.parent_category?.name
+				}))
+			);
+
+			// Find and log the 'hasura' keyword specifically
+			const hasuraKeyword = state.keywords.find(kw => kw.keyword.toLowerCase() === 'hasura');
+			if (hasuraKeyword) {
+				console.log('[TrackerStatsStore.loadKeywords] Found "hasura" keyword:', {
+					keyword: hasuraKeyword.keyword,
+					case_sensitive: hasuraKeyword.case_sensitive,
+					board_id: hasuraKeyword.board_id,
+					board: hasuraKeyword.board,
+					tracker_category_id: hasuraKeyword.tracker_category_id,
+					tracker_category: hasuraKeyword.tracker_category,
+					fullKeywordObject: hasuraKeyword
+				});
+			} else {
+				console.log('[TrackerStatsStore.loadKeywords] "hasura" keyword NOT FOUND in loaded keywords');
+			}
+
 			console.log('[TrackerStatsStore.loadKeywords]', {
-				keywordCount: state.keywords.length
+				keywordCount: state.keywords.length,
+				hasuraFound: !!hasuraKeyword
 			});
 
 			return { success: true, message: 'Keywords loaded' };
@@ -458,8 +510,32 @@ function createTrackerStatsStore() {
 			})) as GetTrackerCategoriesQuery;
 
 			state.categories = data.tracker_categories || [];
+
+			// DEBUG: Log categories with their keywords
+			console.log('[TrackerStatsStore.loadCategories] Full GraphQL Result:', data);
+			console.log('[TrackerStatsStore.loadCategories] Categories with keywords:',
+				state.categories.map(cat => ({
+					categoryId: cat.id,
+					categoryName: cat.name,
+					parentCategory: cat.parent_category?.name,
+					keywordCount: cat.tracker_keywords?.length || 0,
+					keywords: cat.tracker_keywords?.map(k => k.keyword) || []
+				}))
+			);
+
+			// Find and log categories that have 'hasura' keyword
+			const categoriesWithHasura = state.categories.filter(cat =>
+				cat.tracker_keywords?.some(k => k.keyword.toLowerCase() === 'hasura')
+			);
+			if (categoriesWithHasura.length > 0) {
+				console.log('[TrackerStatsStore.loadCategories] Categories with "hasura" keyword:', categoriesWithHasura);
+			} else {
+				console.log('[TrackerStatsStore.loadCategories] No categories found with "hasura" keyword');
+			}
+
 			console.log('[TrackerStatsStore.loadCategories]', {
-				categoryCount: state.categories.length
+				categoryCount: state.categories.length,
+				categoriesWithHasura: categoriesWithHasura.length
 			});
 
 			return { success: true, message: 'Categories loaded' };
@@ -519,8 +595,12 @@ function createTrackerStatsStore() {
 				break;
 		}
 
-		// Load sessions and keywords in parallel
-		await Promise.all([loadSessions(startDate, endDate), loadKeywords()]);
+		// Load sessions, keywords, and categories in parallel
+		await Promise.all([
+			loadSessions(startDate, endDate),
+			loadKeywords(),
+			loadCategories()
+		]);
 
 		// Calculate stats
 		return getStats(startDate, endDate);

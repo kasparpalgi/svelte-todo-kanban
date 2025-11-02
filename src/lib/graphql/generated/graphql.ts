@@ -11964,7 +11964,7 @@ export type GetTrackerCategoriesQueryVariables = Exact<{
 }>;
 
 
-export type GetTrackerCategoriesQuery = { __typename?: 'query_root', tracker_categories: Array<{ __typename?: 'tracker_categories', id: string, name: string, parent_category?: { __typename?: 'tracker_categories', id: string, name: string } | null, sub_categories: Array<{ __typename?: 'tracker_categories', id: string, name: string }> }> };
+export type GetTrackerCategoriesQuery = { __typename?: 'query_root', tracker_categories: Array<{ __typename?: 'tracker_categories', id: string, name: string, parent_category?: { __typename?: 'tracker_categories', id: string, name: string } | null, sub_categories: Array<{ __typename?: 'tracker_categories', id: string, name: string }>, tracker_keywords: Array<{ __typename?: 'tracker_keywords', id: string, keyword: string, case_sensitive: boolean, board_id?: string | null }> }> };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -13520,7 +13520,7 @@ export const CreateActivityLogDocument = new TypedDocumentString(`
   }
 }`) as unknown as TypedDocumentString<CreateActivityLogMutation, CreateActivityLogMutationVariables>;
 export const GetTrackerSessionsDocument = new TypedDocumentString(`
-    query GetTrackerSessions($limit: Int = 5000, $offset: Int = 0, $order_by: [tracker_sessions_order_by!], $where: tracker_sessions_bool_exp) {
+    query GetTrackerSessions($limit: Int = 15000, $offset: Int = 0, $order_by: [tracker_sessions_order_by!], $where: tracker_sessions_bool_exp) {
   tracker_sessions(
     limit: $limit
     offset: $offset
@@ -13600,6 +13600,12 @@ export const GetTrackerCategoriesDocument = new TypedDocumentString(`
     sub_categories {
       id
       name
+    }
+    tracker_keywords {
+      id
+      keyword
+      case_sensitive
+      board_id
     }
   }
 }

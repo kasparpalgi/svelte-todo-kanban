@@ -21,7 +21,8 @@
       "Bash(git rm:*)",
       "Bash(git reset:*)",
       "Bash(hasura:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npm test:*)"
     ],
     "deny": [],
     "ask": []

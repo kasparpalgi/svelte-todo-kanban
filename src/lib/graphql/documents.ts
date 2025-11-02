@@ -845,7 +845,7 @@ export const TRACKER_KEYWORD_FRAGMENT = graphql(`
 
 export const GET_TRACKER_SESSIONS = graphql(`
 	query GetTrackerSessions(
-		$limit: Int = 5000
+		$limit: Int = 15000
 		$offset: Int = 0
 		$order_by: [tracker_sessions_order_by!]
 		$where: tracker_sessions_bool_exp
@@ -909,6 +909,12 @@ export const GET_TRACKER_CATEGORIES = graphql(`
 			sub_categories {
 				id
 				name
+			}
+			tracker_keywords {
+				id
+				keyword
+				case_sensitive
+				board_id
 			}
 		}
 	}

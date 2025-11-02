@@ -24,10 +24,15 @@
 	import TimeBreakdownChart from './TimeBreakdownChart.svelte';
 	import TimeBreakdownTable from './TimeBreakdownTable.svelte';
 	import ThresholdControl from './ThresholdControl.svelte';
+	import DateRangePicker from './DateRangePicker.svelte';
+	import SessionBreakdown from './SessionBreakdown.svelte';
 
 	let { data } = $props();
 
-	let selectedPeriod: 'today' | 'week' | 'month' = $state('today');
+	let selectedPeriod: 'today' | 'week' | 'month' | 'custom' = $state('today');
+	let customStartDate = $state(new Date());
+	let customEndDate = $state(new Date());
+	let showSessionBreakdown = $state(false);
 	let stats = $derived(trackerStatsStore.stats);
 	let loading = $derived(trackerStatsStore.loading);
 	let error = $derived(trackerStatsStore.error);
@@ -47,6 +52,28 @@
 		await trackerStatsStore.loadStatsPeriod(selectedPeriod);
 	}
 
+	function handleDateRangeChange(event: CustomEvent<{ startDate: Date; endDate: Date }>) {
+		const { startDate, endDate } = event.detail;
+		customStartDate = startDate;
+		customEndDate = endDate;
+		selectedPeriod = 'custom';
+		console.log('[StatsPage.handleDateRangeChange]', {
+			startDate: startDate.toISOString(),
+			endDate: endDate.toISOString()
+		});
+
+		if (trackerStatsStore.sessions.length > 0 && trackerStatsStore.keywords.length > 0) {
+			trackerStatsStore.getStats(startDate, endDate);
+		} else {
+			// Load sessions if not already loaded
+			trackerStatsStore.loadSessions(startDate, endDate).then(() => {
+				trackerStatsStore.loadKeywords().then(() => {
+					trackerStatsStore.getStats(startDate, endDate);
+				});
+			});
+		}
+	}
+
 	function handleThresholdChange(event: CustomEvent<number>) {
 		const newThreshold = event.detail;
 		console.log('[StatsPage.handleThresholdChange]', {
@@ -56,24 +83,33 @@
 		trackerStatsStore.setUnmatchedThreshold(newThreshold);
 		// Recalculate stats with new threshold for current period
 		if (trackerStatsStore.sessions.length > 0 && trackerStatsStore.keywords.length > 0) {
-			const now = new Date();
-			const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 			let startDate: Date;
+			let endDate: Date;
 
-			switch (selectedPeriod) {
-				case 'today':
-					startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-					break;
-				case 'week':
-					startDate = new Date(now);
-					startDate.setDate(startDate.getDate() - 7);
-					startDate.setHours(0, 0, 0, 0);
-					break;
-				case 'month':
-					startDate = new Date(now);
-					startDate.setDate(startDate.getDate() - 30);
-					startDate.setHours(0, 0, 0, 0);
-					break;
+			if (selectedPeriod === 'custom') {
+				startDate = customStartDate;
+				endDate = customEndDate;
+			} else {
+				const now = new Date();
+				endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+				switch (selectedPeriod) {
+					case 'today':
+						startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+						break;
+					case 'week':
+						startDate = new Date(now);
+						startDate.setDate(startDate.getDate() - 7);
+						startDate.setHours(0, 0, 0, 0);
+						break;
+					case 'month':
+						startDate = new Date(now);
+						startDate.setDate(startDate.getDate() - 30);
+						startDate.setHours(0, 0, 0, 0);
+						break;
+					default:
+						startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+				}
 			}
 
 			trackerStatsStore.getStats(startDate, endDate);
@@ -115,6 +151,13 @@
 
 	<!-- Period Selection -->
 	<StatsPeriodTabs {selectedPeriod} on:periodChange={handlePeriodChange} />
+
+	<!-- Custom Date Range Picker -->
+	<DateRangePicker
+		startDate={selectedPeriod === 'custom' ? customStartDate : new Date()}
+		endDate={selectedPeriod === 'custom' ? customEndDate : new Date()}
+		on:dateRangeChange={handleDateRangeChange}
+	/>
 
 	<!-- Threshold Control -->
 	<ThresholdControl threshold={trackerStatsStore.unmatchedThreshold} on:thresholdChange={handleThresholdChange} />
@@ -166,17 +209,15 @@
 				<CardHeader class="pb-2">
 					<CardTitle class="text-sm font-medium text-muted-foreground flex items-center gap-1">
 						<TrendingUp class="w-4 h-4" />
-						{$t('stats.trackedTime', 'Tracked Time')}
+						Matched Time
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<div class="text-2xl font-bold">
-						{Math.round(
-							((stats.totalSeconds - stats.unmatchedSeconds) / stats.totalSeconds) * 100
-						)}%
+						{stats.matchedPercentage.toFixed(1)}%
 					</div>
 					<p class="text-xs text-muted-foreground mt-1">
-						{$t('stats.matched', 'of total')}
+						Sessions with keyword matches
 					</p>
 				</CardContent>
 			</Card>
@@ -185,7 +226,7 @@
 				<CardHeader class="pb-2">
 					<CardTitle class="text-sm font-medium text-muted-foreground flex items-center gap-1">
 						<Calendar class="w-4 h-4" />
-						{$t('stats.period', 'Period')}
+						Period
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -194,7 +235,7 @@
 					</div>
 					<p class="text-xs text-muted-foreground mt-1">
 						{stats.byProject.size + stats.byCategory.size + stats.unmatchedSessionCount}
-						{$t('stats.sessions', 'sessions')}
+						sessions
 					</p>
 				</CardContent>
 			</Card>
@@ -204,9 +245,9 @@
 		{#if stats.byProject.size > 0}
 			<Card>
 				<CardHeader>
-					<CardTitle>{$t('stats.byProject', 'Time by Project')}</CardTitle>
+					<CardTitle>Time by Project</CardTitle>
 					<CardDescription>
-						{$t('stats.projectsTracked', 'Projects you worked on')}
+						Projects you worked on
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -219,9 +260,9 @@
 		{#if stats.byCategory.size > 0}
 			<Card>
 				<CardHeader>
-					<CardTitle>{$t('stats.byCategory', 'Time by Category')}</CardTitle>
+					<CardTitle>Time by Category</CardTitle>
 					<CardDescription>
-						{$t('stats.categoriesTracked', 'Categories you worked on')}
+						Categories you worked on
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -235,7 +276,7 @@
 			<Card class="border-yellow-200 bg-yellow-50 dark:bg-yellow-950 dark:border-yellow-800">
 				<CardHeader class="pb-2">
 					<CardTitle class="text-yellow-900 dark:text-yellow-100">
-						{$t('stats.unmatchedTime', 'Unmatched Time')}
+						Unmatched Time
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -253,11 +294,33 @@
 				</CardContent>
 			</Card>
 		{/if}
+
+		<!-- Session Breakdown -->
+		{#if stats.sessions.length > 0}
+			<div class="space-y-3">
+				<div class="flex items-center justify-between">
+					<h2 class="text-lg font-semibold">
+						Session Breakdown
+					</h2>
+					<Button
+						variant={showSessionBreakdown ? 'default' : 'outline'}
+						size="sm"
+						onclick={() => (showSessionBreakdown = !showSessionBreakdown)}
+					>
+						{showSessionBreakdown ? 'Hide' : 'Show'}
+					</Button>
+				</div>
+
+				{#if showSessionBreakdown}
+					<SessionBreakdown sessions={stats.sessions} title="All Sessions" />
+				{/if}
+			</div>
+		{/if}
 	{:else}
 		<Card class="border-dashed">
 			<CardContent class="flex flex-col items-center justify-center py-12">
 				<BarChart3 class="w-8 h-8 text-muted-foreground mb-2" />
-				<p class="text-muted-foreground">{$t('stats.noData', 'No data available for this period')}</p>
+				<p class="text-muted-foreground">No data available for this period</p>
 			</CardContent>
 		</Card>
 	{/if}
