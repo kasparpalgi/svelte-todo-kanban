@@ -5,6 +5,8 @@
 	import { t } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
+	import { languages } from '$lib/i18n/languages';
+	import { aiModels } from '$lib/settings/aiModels';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -16,15 +18,14 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
-	import { languages } from '$lib/i18n/languages';
-	import { aiModels } from '$lib/settings/aiModels';
-	import { User, Moon, Sun, Layers, List, Save, Brain } from 'lucide-svelte';
+	import { User, Moon, Sun, Layers, List, Save, Brain, ChartColumn } from 'lucide-svelte';
 	import GithubIntegration from '$lib/components/settings/GithubIntegration.svelte';
 	import GoogleCalendarIntegration from '$lib/components/settings/GoogleCalendarIntegration.svelte';
 	import DevMode from '$lib/components/DevMode.svelte';
 
 	let user = $derived(userStore.user);
 	let initialized = $state(false);
+	let currentLang = $derived(page.params.lang || 'et');
 
 	let formData = $state({
 		name: '',
@@ -139,8 +140,21 @@
 
 <div class="container mx-auto max-w-2xl py-8">
 	<div class="mb-8">
-		<h1 class="text-3xl font-bold tracking-tight">{$t('settings.title')}</h1>
-		<p class="text-muted-foreground">{$t('settings.description')}</p>
+		<div class="flex items-center justify-between">
+			<div>
+				<h1 class="text-3xl font-bold tracking-tight">{$t('settings.title')}</h1>
+				<p class="text-muted-foreground">{$t('settings.description')}</p>
+			</div>
+			{#if user?.username}
+				<a
+					href="/{currentLang}/{user.username}/stats"
+					class="flex items-center gap-2 text-sm text-primary hover:underline"
+				>
+					<ChartColumn class="h-4 w-4" />
+					{$t('settings.view_statistics')}
+				</a>
+			{/if}
+		</div>
 	</div>
 
 	{#if !user}
@@ -328,5 +342,14 @@
 			</div>
 		</form>
 		<DevMode />
+
+		<div class="mt-8 text-center">
+			<a
+				href="/{currentLang}/logs"
+				class="text-xs text-muted-foreground hover:text-foreground hover:underline"
+			>
+				{$t('settings.technical_logs')}
+			</a>
+		</div>
 	{/if}
 </div>

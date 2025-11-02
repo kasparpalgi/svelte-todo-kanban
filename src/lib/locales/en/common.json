@@ -443,6 +443,8 @@
         "description": "Manage your account settings and preferences",
         "saving": "Saving...",
         "save_changes": "Save Changes",
+        "view_statistics": "View Time Tracker Statistics",
+        "technical_logs": "Technical Logs",
         "profile": {
             "title": "Profile Information",
             "description": "Update your personal information and profile picture",

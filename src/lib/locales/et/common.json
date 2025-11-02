@@ -443,6 +443,8 @@
         "description": "Halda oma konto seadeid ja eelistusi",
         "saving": "Salvestan...",
         "save_changes": "Salvesta muudatused",
+        "view_statistics": "Vaata aja kulu statistikat",
+        "technical_logs": "Tehnilised logid",
         "profile": {
             "title": "Profiili teave",
             "description": "Uuenda oma isiklikku teavet ja profiilipilti",
