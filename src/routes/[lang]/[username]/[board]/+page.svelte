@@ -170,7 +170,13 @@
 </script>
 
 <svelte:head>
-	<title>{openCardId ? (todosStore.todos.find(t => t.id === openCardId)?.title || 'Card') : listsStore.selectedBoard?.name} | ToDzz</title>
+	<title
+		>{openCardId
+			? todosStore.todos.find((t) => t.id === openCardId)?.title +
+				' @ ' +
+				listsStore.selectedBoard?.name
+			: listsStore.selectedBoard?.name} | ToDzz</title
+	>
 </svelte:head>
 
 {#if loading}
