@@ -15,14 +15,16 @@
 
 	let expandedSessions = $state(new Set<number>());
 	let searchQuery = $state('');
+	let minDurationSeconds = $state(0);
 	let currentPage = $state(1);
 	const itemsPerPage = 25;
 
 	let filteredSessions = $derived(
 		sessions.filter(
 			(s) =>
-				s.windowTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				s.reason.toLowerCase().includes(searchQuery.toLowerCase())
+				(s.windowTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+					s.reason.toLowerCase().includes(searchQuery.toLowerCase())) &&
+				s.durationSeconds >= minDurationSeconds
 		)
 	);
 
@@ -37,6 +39,47 @@
 	function handleSearch() {
 		// Reset to first page when searching
 		currentPage = 1;
+	}
+
+	function handleDurationFilter() {
+		// Reset to first page when filtering
+		currentPage = 1;
+	}
+
+	// Helper function to generate page numbers with ellipsis
+	function getPaginationPages(current: number, total: number): (number | string)[] {
+		const delta = 2;
+		const range: (number | string)[] = [];
+		const rangeWithDots: (number | string)[] = [];
+
+		// Always include first page
+		for (let i = 1; i <= Math.min(delta, total); i++) {
+			range.push(i);
+		}
+
+		// Add middle range around current page
+		for (let i = Math.max(delta + 1, current - delta); i <= Math.min(total - delta, current + delta); i++) {
+			range.push(i);
+		}
+
+		// Always include last pages
+		for (let i = Math.max(total - delta + 1, delta + 1); i <= total; i++) {
+			range.push(i);
+		}
+
+		// Remove duplicates and add ellipsis
+		let prev = 0;
+		for (const i of range) {
+			if (i - prev === 2) {
+				rangeWithDots.push(prev + 1);
+			} else if (i - prev !== 1) {
+				rangeWithDots.push('...');
+			}
+			rangeWithDots.push(i);
+			prev = i as number;
+		}
+
+		return rangeWithDots;
 	}
 
 	function toggleSession(sessionId: number) {
@@ -107,20 +150,43 @@
 		</CardDescription>
 	</CardHeader>
 	<CardContent class="space-y-4">
-		<!-- Search box -->
-		<div class="space-y-2">
-			<label for="session-search" class="text-sm font-medium">
-				{$t('stats.searchSessions', 'Search Sessions')}
-			</label>
-			<Input
-				id="session-search"
-				type="text"
-				placeholder={$t('stats.searchPlaceholder', 'Search by window title or reason...')}
-				bind:value={searchQuery}
-				onchange={handleSearch}
-				oninput={handleSearch}
-				class="w-full"
-			/>
+		<!-- Search and Filter box -->
+		<div class="space-y-3">
+			<!-- Search box -->
+			<div class="space-y-2">
+				<label for="session-search" class="text-sm font-medium">
+					{$t('stats.searchSessions', 'Search Sessions')}
+				</label>
+				<Input
+					id="session-search"
+					type="text"
+					placeholder={$t('stats.searchPlaceholder', 'Search by window title or reason...')}
+					bind:value={searchQuery}
+					onchange={handleSearch}
+					oninput={handleSearch}
+					class="w-full"
+				/>
+			</div>
+
+			<!-- Duration filter -->
+			<div class="space-y-2">
+				<label for="duration-filter" class="text-sm font-medium">
+					Minimum Duration
+				</label>
+				<div class="flex items-center gap-2">
+					<Input
+						id="duration-filter"
+						type="number"
+						min="0"
+						step="1"
+						placeholder="Minimum duration in seconds (0 = all)"
+						bind:value={minDurationSeconds}
+						onchange={handleDurationFilter}
+						class="flex-1"
+					/>
+					<span class="text-sm text-muted-foreground">seconds</span>
+				</div>
+			</div>
 		</div>
 
 		<!-- Summary stats -->
@@ -264,35 +330,41 @@
 
 		<!-- Pagination controls -->
 		{#if filteredSessions.length > itemsPerPage}
-			<div class="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
-				<button
-					disabled={currentPage === 1}
-					onclick={() => (currentPage = currentPage - 1)}
-					class="px-3 py-2 text-sm font-medium rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-slate-100 dark:hover:enabled:bg-slate-800 transition-colors"
-				>
-					← Previous
-				</button>
-
+			<div class="flex flex-col items-center gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
 				<div class="flex items-center gap-2">
-					{#each Array.from({ length: totalPages }, (_, i) => i + 1) as page}
-						<button
-							onclick={() => (currentPage = page)}
-							class="px-3 py-2 text-sm font-medium rounded-lg {currentPage === page
-								? 'bg-primary text-primary-foreground'
-								: 'border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'} transition-colors"
-						>
-							{page}
-						</button>
-					{/each}
-				</div>
+					<button
+						disabled={currentPage === 1}
+						onclick={() => (currentPage = currentPage - 1)}
+						class="px-3 py-2 text-sm font-medium rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-slate-100 dark:hover:enabled:bg-slate-800 transition-colors"
+					>
+						← Previous
+					</button>
 
-				<button
-					disabled={currentPage === totalPages}
-					onclick={() => (currentPage = currentPage + 1)}
-					class="px-3 py-2 text-sm font-medium rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-slate-100 dark:hover:enabled:bg-slate-800 transition-colors"
-				>
-					Next →
-				</button>
+					<div class="flex items-center gap-1 flex-wrap justify-center max-w-2xl">
+						{#each getPaginationPages(currentPage, totalPages) as item}
+							{#if item === '...'}
+								<span class="px-2 py-2 text-sm text-muted-foreground">…</span>
+							{:else}
+								<button
+									onclick={() => (currentPage = item as number)}
+									class="px-3 py-2 text-sm font-medium rounded-lg {currentPage === item
+										? 'bg-primary text-primary-foreground'
+										: 'border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'} transition-colors"
+								>
+									{item}
+								</button>
+							{/if}
+						{/each}
+					</div>
+
+					<button
+						disabled={currentPage === totalPages}
+						onclick={() => (currentPage = currentPage + 1)}
+						class="px-3 py-2 text-sm font-medium rounded-lg border border-slate-300 dark:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-slate-100 dark:hover:enabled:bg-slate-800 transition-colors"
+					>
+						Next →
+					</button>
+				</div>
 			</div>
 		{/if}
 
