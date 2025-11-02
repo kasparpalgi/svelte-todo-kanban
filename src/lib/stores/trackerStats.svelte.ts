@@ -24,6 +24,21 @@ export interface TimeBreakdown {
 	sessionCount: number;
 }
 
+export interface SessionBreakdown {
+	sessionId: number;
+	windowTitle: string;
+	durationSeconds: number;
+	startTime: string;
+	matchType: 'project' | 'category' | 'unmatched';
+	projectId?: string;
+	projectName?: string;
+	categoryId?: string;
+	categoryName?: string;
+	allocatedToProject?: string;
+	allocatedToCategory?: string;
+	reason: string; // why it was matched/allocated
+}
+
 export interface StatsPeriod {
 	startDate: Date;
 	endDate: Date;
@@ -33,6 +48,8 @@ export interface StatsPeriod {
 	byTask: Map<string, TimeBreakdown>;
 	unmatchedSeconds: number;
 	unmatchedSessionCount: number;
+	sessions: SessionBreakdown[]; // for transparency
+	matchedPercentage: number; // (matchedSeconds / totalSeconds) * 100
 }
 
 export interface TrackerStatsState {
@@ -71,6 +88,7 @@ function createTrackerStatsStore() {
 
 	/**
 	 * Match a window title against keywords to determine project/category/task
+	 * Returns the FIRST match (sorted by keyword length, longest first)
 	 */
 	function matchWindowTitle(windowTitle: string, keywords: any[]): MatchResult | null {
 		if (!windowTitle) return null;
@@ -92,7 +110,6 @@ function createTrackerStatsStore() {
 				if (kw.board_id && kw.board) {
 					result.type = 'project';
 					result.projectId = kw.board_id;
-					// Use board name if available, otherwise fall back to keyword
 					result.projectName = kw.board.name || kw.keyword;
 				} else if (kw.tracker_category) {
 					result.type = 'category';
@@ -114,8 +131,11 @@ function createTrackerStatsStore() {
 
 	/**
 	 * Calculate time breakdown for a date range
-	 * Filters sessions within date range and matches them to projects/categories
-	 * Unmatched sessions longer than threshold are excluded from stats
+	 * IMPORTANT: Implements smart context-aware allocation:
+	 * 1. Direct matches are allocated to their project/category
+	 * 2. Unmatched sessions between two matches of the SAME project are allocated to that project
+	 * 3. Unmatched sessions exceeding threshold are completely excluded (breaks)
+	 * 4. Other unmatched sessions are shown separately
 	 */
 	function calculateStats(sessions: any[], keywords: any[], startDate: Date, endDate: Date, thresholdSeconds: number = 3600): StatsPeriod {
 		const stats: StatsPeriod = {
@@ -126,11 +146,18 @@ function createTrackerStatsStore() {
 			byCategory: new Map(),
 			byTask: new Map(),
 			unmatchedSeconds: 0,
-			unmatchedSessionCount: 0
+			unmatchedSessionCount: 0,
+			sessions: [],
+			matchedPercentage: 0
 		};
 
-		const sessionsByMatch = new Map<string, { seconds: number; count: number }>();
-		let totalMatchedSeconds = 0;
+		// First pass: filter by date range and create initial session records with matches
+		const filteredSessions: Array<{
+			session: any;
+			durationSeconds: number;
+			match: MatchResult | null;
+			matchKey: string | null;
+		}> = [];
 
 		for (const session of sessions) {
 			const sessionTime = new Date(session.start_time);
@@ -146,42 +173,165 @@ function createTrackerStatsStore() {
 			// Try to match the window title
 			const match = matchWindowTitle(session.window_title, keywords);
 
-			if (!match) {
-				// No match - only add if below threshold
-				// Sessions > threshold are likely breaks, context switches, etc
-				if (durationSeconds <= thresholdSeconds) {
-					stats.unmatchedSeconds += durationSeconds;
-					stats.unmatchedSessionCount += 1;
+			let matchKey: string | null = null;
+			if (match) {
+				if (match.type === 'project' && match.projectId) {
+					matchKey = `project:${match.projectId}`;
+				} else if (match.type === 'category' && match.categoryId) {
+					matchKey = `category:${match.categoryId}`;
 				}
+			}
+
+			filteredSessions.push({
+				session,
+				durationSeconds,
+				match,
+				matchKey
+			});
+		}
+
+		// Second pass: allocate unmatched sessions to surrounding matches of the same project/category
+		const sessionsByMatch = new Map<string, { seconds: number; count: number; match: MatchResult }>();
+		let totalMatchedSeconds = 0;
+
+		for (let i = 0; i < filteredSessions.length; i++) {
+			const current = filteredSessions[i];
+			const durationSeconds = current.durationSeconds;
+
+			// If this session has a valid match, process it
+			if (current.match && current.matchKey) {
+				const existing = sessionsByMatch.get(current.matchKey) || {
+					seconds: 0,
+					count: 0,
+					match: current.match
+				};
+				existing.seconds += durationSeconds;
+				existing.count += 1;
+				sessionsByMatch.set(current.matchKey, existing);
+				totalMatchedSeconds += durationSeconds;
+
+				// Determine the correct matchType
+				let matchType: 'project' | 'category' | 'unmatched' = 'unmatched';
+				if (current.match.type === 'project') {
+					matchType = 'project';
+				} else if (current.match.type === 'category') {
+					matchType = 'category';
+				}
+
+				const sessionRecord: SessionBreakdown = {
+					sessionId: current.session.id,
+					windowTitle: current.session.window_title,
+					durationSeconds,
+					startTime: current.session.start_time,
+					matchType,
+					projectId: current.match.projectId,
+					projectName: current.match.projectName,
+					categoryId: current.match.categoryId,
+					categoryName: current.match.categoryName,
+					allocatedToProject: matchType === 'project' ? current.match.projectName : undefined,
+					allocatedToCategory: matchType === 'category' ? current.match.categoryName : undefined,
+					reason: `Matched to ${matchType} via keyword: "${current.match.keyword}"`
+				};
+				stats.sessions.push(sessionRecord);
 				continue;
 			}
 
-			// Create unique key for this match (use projectId or categoryId as primary identifier)
-			let matchKey: string;
-			if (match.type === 'project' && match.projectId) {
-				matchKey = `project:${match.projectId}`;
-			} else if (match.type === 'category' && match.categoryId) {
-				matchKey = `category:${match.categoryId}`;
-			} else {
-				// Fallback to full JSON for unknown types
-				matchKey = JSON.stringify(match);
+			// This is an unmatched session
+			// Check if it exceeds threshold (should be completely excluded)
+			if (durationSeconds > thresholdSeconds) {
+				const sessionRecord: SessionBreakdown = {
+					sessionId: current.session.id,
+					windowTitle: current.session.window_title,
+					durationSeconds,
+					startTime: current.session.start_time,
+					matchType: 'unmatched',
+					reason: `Unmatched and exceeds threshold (${thresholdSeconds}s), likely break - excluded from tracking`
+				};
+				stats.sessions.push(sessionRecord);
+				continue;
 			}
 
-			const existing = sessionsByMatch.get(matchKey) || {
-				seconds: 0,
-				count: 0,
-				match: match
-			} as any;
-			existing.seconds += durationSeconds;
-			existing.count += 1;
-			if (!existing.match) existing.match = match;
-			sessionsByMatch.set(matchKey, existing);
-			totalMatchedSeconds += durationSeconds;
+			// Find surrounding matches of the same project/category for context-aware allocation
+			let allocatedMatchKey: string | null = null;
+			let allocatedMatch: MatchResult | null = null;
+
+			// Look backward for the most recent match
+			let lastMatchKey: string | null = null;
+			let lastMatch: MatchResult | null = null;
+			for (let j = i - 1; j >= 0; j--) {
+				if (filteredSessions[j].matchKey) {
+					lastMatchKey = filteredSessions[j].matchKey;
+					lastMatch = filteredSessions[j].match;
+					break;
+				}
+			}
+
+			// Look forward for the next match
+			let nextMatchKey: string | null = null;
+			let nextMatch: MatchResult | null = null;
+			for (let j = i + 1; j < filteredSessions.length; j++) {
+				if (filteredSessions[j].matchKey) {
+					nextMatchKey = filteredSessions[j].matchKey;
+					nextMatch = filteredSessions[j].match;
+					break;
+				}
+			}
+
+			// If surrounded by the same project/category, allocate to it (context switch)
+			if (lastMatchKey && nextMatchKey && lastMatchKey === nextMatchKey) {
+				allocatedMatchKey = lastMatchKey;
+				allocatedMatch = lastMatch;
+			}
+
+			// If no surrounding match found, check if we have a previous match (assume continuing work)
+			if (!allocatedMatchKey && lastMatchKey) {
+				allocatedMatchKey = lastMatchKey;
+				allocatedMatch = lastMatch;
+			}
+
+			// Record the session
+			const sessionRecord: SessionBreakdown = {
+				sessionId: current.session.id,
+				windowTitle: current.session.window_title,
+				durationSeconds,
+				startTime: current.session.start_time,
+				matchType: allocatedMatchKey ? 'unmatched' : 'unmatched', // Still marked as unmatched for visibility
+				reason: allocatedMatchKey
+					? `Context switch between ${allocatedMatch?.type === 'project' ? 'Project ' + allocatedMatch.projectName : 'Category ' + allocatedMatch?.categoryName} sessions`
+					: `Unmatched session (below threshold ${thresholdSeconds}s)`
+			};
+
+			// If we found an allocated match, add to that project/category
+			if (allocatedMatchKey && allocatedMatch) {
+				const existing = sessionsByMatch.get(allocatedMatchKey) || {
+					seconds: 0,
+					count: 0,
+					match: allocatedMatch
+				};
+				existing.seconds += durationSeconds;
+				existing.count += 1;
+				sessionsByMatch.set(allocatedMatchKey, existing);
+				totalMatchedSeconds += durationSeconds;
+
+				if (allocatedMatch.type === 'project') {
+					sessionRecord.allocatedToProject = allocatedMatch.projectName;
+					sessionRecord.projectId = allocatedMatch.projectId;
+				} else {
+					sessionRecord.allocatedToCategory = allocatedMatch.categoryName;
+					sessionRecord.categoryId = allocatedMatch.categoryId;
+				}
+			} else {
+				// True unmatched session
+				stats.unmatchedSeconds += durationSeconds;
+				stats.unmatchedSessionCount += 1;
+			}
+
+			stats.sessions.push(sessionRecord);
 		}
 
 		// Convert map to breakdown structure
 		sessionsByMatch.forEach((value, matchKeyStr) => {
-			const match: MatchResult = (value as any).match || JSON.parse(matchKeyStr);
+			const match: MatchResult = value.match;
 			const percentage =
 				stats.totalSeconds > 0 ? (value.seconds / stats.totalSeconds) * 100 : 0;
 
@@ -204,21 +354,27 @@ function createTrackerStatsStore() {
 			}
 		});
 
+		// Calculate matched percentage (sessions with keyword matches + allocated context switches)
+		stats.matchedPercentage = stats.totalSeconds > 0 ? (totalMatchedSeconds / stats.totalSeconds) * 100 : 0;
+
 		console.log('[TrackerStatsStore.calculateStats]', {
 			periodStart: startDate.toISOString(),
 			periodEnd: endDate.toISOString(),
-			totalSessions: sessions.length,
+			totalSessions: filteredSessions.length,
 			totalSeconds: stats.totalSeconds,
 			totalSeconds_hours: (stats.totalSeconds / 3600).toFixed(2),
 			matchedSeconds: totalMatchedSeconds,
 			matchedSeconds_hours: (totalMatchedSeconds / 3600).toFixed(2),
-			matchedPercentage: totalMatchedSeconds > 0 ? ((totalMatchedSeconds / stats.totalSeconds) * 100).toFixed(1) + '%' : '0%',
+			matchedPercentage: stats.matchedPercentage.toFixed(1) + '%',
 			unmatchedSeconds: stats.unmatchedSeconds,
 			unmatchedSeconds_hours: (stats.unmatchedSeconds / 3600).toFixed(2),
 			unmatchedSessionCount: stats.unmatchedSessionCount,
 			projectCount: stats.byProject.size,
 			categoryCount: stats.byCategory.size,
-			keywordCount: keywords.length
+			keywordCount: keywords.length,
+			threshold_seconds: thresholdSeconds,
+			threshold_minutes: Math.round(thresholdSeconds / 60),
+			note: 'Unmatched sessions between same project matches are allocated to that project (context-aware)'
 		});
 
 		return stats;
@@ -242,7 +398,7 @@ function createTrackerStatsStore() {
 					}
 				},
 				order_by: [{ start_time: 'desc' }],
-				limit: 5000,
+				limit: 15000,
 				offset: 0
 			})) as GetTrackerSessionsQuery;
 
@@ -329,7 +485,7 @@ function createTrackerStatsStore() {
 
 	/**
 	 * Set the threshold for unmatched sessions (in seconds)
-	 * Sessions longer than this that don't match keywords are excluded
+	 * Sessions longer than this that don't match keywords are excluded entirely
 	 */
 	function setUnmatchedThreshold(thresholdSeconds: number) {
 		state.unmatchedThreshold = thresholdSeconds;
