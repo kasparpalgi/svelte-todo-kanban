@@ -12,9 +12,18 @@ insert_permissions:
   - role: user
     permission:
       check:
-        todo:
-          user_id:
-            _eq: X-Hasura-User-Id
+        _or:
+          - todo:
+              list:
+                board:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - todo:
+              list:
+                board:
+                  board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
       columns:
         - created_at
         - label_id
@@ -28,9 +37,18 @@ select_permissions:
         - label_id
         - todo_id
       filter:
-        todo:
-          user_id:
-            _eq: X-Hasura-User-Id
+        _or:
+          - todo:
+              list:
+                board:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - todo:
+              list:
+                board:
+                  board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
     comment: ""
 update_permissions:
   - role: user
@@ -38,7 +56,19 @@ update_permissions:
       columns:
         - label_id
         - todo_id
-      filter: {}
+      filter:
+        _or:
+          - todo:
+              list:
+                board:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - todo:
+              list:
+                board:
+                  board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
       check:
         todo:
           user_id:
@@ -48,7 +78,16 @@ delete_permissions:
   - role: user
     permission:
       filter:
-        todo:
-          user_id:
-            _eq: X-Hasura-User-Id
+        _or:
+          - todo:
+              list:
+                board:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - todo:
+              list:
+                board:
+                  board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
     comment: ""
