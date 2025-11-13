@@ -6,7 +6,8 @@ Make the activity eg. 'Bob commented "Some card name"...' clickable and then ope
 ## Analysis
 - **Affected files**:
   - `src/lib/graphql/documents.ts` - Updated NOTIFICATION_FRAGMENT
-  - `src/lib/components/notifications/NotificationPanel.svelte` - Made notifications clickable
+  - `src/lib/components/notifications/NotificationPanel.svelte` - Made notifications clickable (not actively used)
+  - `src/lib/components/notifications/UnifiedNotificationBell.svelte` - Made notifications clickable (MAIN component)
 - **MCP needed**: None for basic implementation (Playwright would be useful for testing in browser)
 
 ## Implementation Plan
@@ -37,6 +38,26 @@ Make the activity eg. 'Bob commented "Some card name"...' clickable and then ope
   - Navigates to the card using `goto()`
 - Updated notification div:
   - Added `cursor-pointer` class for visual feedback
+  - Added `onclick={() => handleNotificationClick(notification)}` handler
+- Updated action buttons (Mark as read, Delete):
+  - Added `e.stopPropagation()` to prevent triggering notification click
+  - Prevents conflicting navigation when users click action buttons
+
+### `src/lib/components/notifications/UnifiedNotificationBell.svelte` ⭐ (MAIN COMPONENT IN USE)
+- Added imports:
+  - `goto` from `$app/navigation` for programmatic navigation
+  - `page` from `$app/stores` to access current language param
+- Added `handleNotificationClick(notification)` function:
+  - Validates notification has required data (todo, board, alias, username)
+  - Extracts board alias, username, and card ID
+  - Gets current language from URL params (defaults to 'en')
+  - Constructs URL: `/${lang}/${username}/${boardAlias}?card=${cardId}`
+  - Marks notification as read when clicked (if unread)
+  - Closes the dropdown menu after clicking (`isOpen = false`)
+  - Navigates to the card using `goto()`
+- Updated notification div (line 298-301):
+  - Added `cursor-pointer` class for visual feedback
+  - Added `hover:bg-muted/50 transition-colors` for better UX
   - Added `onclick={() => handleNotificationClick(notification)}` handler
 - Updated action buttons (Mark as read, Delete):
   - Added `e.stopPropagation()` to prevent triggering notification click
