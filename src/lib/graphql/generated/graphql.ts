@@ -11872,7 +11872,7 @@ export type GetLogsQueryVariables = Exact<{
 
 export type GetLogsQuery = { __typename?: 'query_root', logs: Array<{ __typename?: 'logs', id: string, timestamp: string, level: string, component: string, message: string, data?: any | null, user_id?: string | null, session_id?: string | null, url?: string | null, created_at: string }>, logs_aggregate: { __typename?: 'logs_aggregate', aggregate?: { __typename?: 'logs_aggregate_fields', count: number } | null } };
 
-export type NotificationFieldsFragment = { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string } | null } | null } };
+export type NotificationFieldsFragment = { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } };
 
 export type GetNotificationsQueryVariables = Exact<{
   where?: InputMaybe<Notifications_Bool_Exp>;
@@ -11882,14 +11882,14 @@ export type GetNotificationsQueryVariables = Exact<{
 }>;
 
 
-export type GetNotificationsQuery = { __typename?: 'query_root', notifications: Array<{ __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string } | null } | null } }>, notifications_aggregate: { __typename?: 'notifications_aggregate', aggregate?: { __typename?: 'notifications_aggregate_fields', count: number } | null } };
+export type GetNotificationsQuery = { __typename?: 'query_root', notifications: Array<{ __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } }>, notifications_aggregate: { __typename?: 'notifications_aggregate', aggregate?: { __typename?: 'notifications_aggregate_fields', count: number } | null } };
 
 export type CreateNotificationMutationVariables = Exact<{
   notification: Notifications_Insert_Input;
 }>;
 
 
-export type CreateNotificationMutation = { __typename?: 'mutation_root', insert_notifications_one?: { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string } | null } | null } } | null };
+export type CreateNotificationMutation = { __typename?: 'mutation_root', insert_notifications_one?: { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } } | null };
 
 export type UpdateNotificationMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
@@ -11897,7 +11897,7 @@ export type UpdateNotificationMutationVariables = Exact<{
 }>;
 
 
-export type UpdateNotificationMutation = { __typename?: 'mutation_root', update_notifications_by_pk?: { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string } | null } | null } } | null };
+export type UpdateNotificationMutation = { __typename?: 'mutation_root', update_notifications_by_pk?: { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } } | null };
 
 export type MarkNotificationsAsReadMutationVariables = Exact<{
   notification_ids: Array<Scalars['uuid']['input']> | Scalars['uuid']['input'];
@@ -12247,6 +12247,11 @@ export const NotificationFieldsFragmentDoc = new TypedDocumentString(`
       board {
         id
         name
+        alias
+        user {
+          id
+          username
+        }
       }
     }
   }
@@ -13372,6 +13377,11 @@ export const GetNotificationsDocument = new TypedDocumentString(`
       board {
         id
         name
+        alias
+        user {
+          id
+          username
+        }
       }
     }
   }
@@ -13407,6 +13417,11 @@ export const CreateNotificationDocument = new TypedDocumentString(`
       board {
         id
         name
+        alias
+        user {
+          id
+          username
+        }
       }
     }
   }
@@ -13442,6 +13457,11 @@ export const UpdateNotificationDocument = new TypedDocumentString(`
       board {
         id
         name
+        alias
+        user {
+          id
+          username
+        }
       }
     }
   }

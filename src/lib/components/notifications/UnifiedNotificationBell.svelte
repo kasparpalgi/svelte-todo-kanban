@@ -6,9 +6,7 @@
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
-		DropdownMenuTrigger,
-		DropdownMenuLabel,
-		DropdownMenuSeparator
+		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
 	import { notificationStore } from '$lib/stores/notifications.svelte';
 	import { invitationsStore } from '$lib/stores/invitations.svelte';
@@ -19,6 +17,8 @@
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import { Check, X, Trash2, Clock } from 'lucide-svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	let isOpen = $state(false);
 
@@ -171,6 +171,45 @@
 				return notification.content || `${notification.type} notification`;
 		}
 	}
+
+	async function handleNotificationClick(notification: any) {
+		// Check if notification has a related todo with board info
+		if (!notification.todo || !notification.todo.list?.board) {
+			console.log('[UnifiedNotificationBell.handleNotificationClick] No board info available');
+			return;
+		}
+
+		const board = notification.todo.list.board;
+		const boardAlias = board.alias;
+		const username = board.user?.username;
+		const cardId = notification.todo_id;
+
+		if (!boardAlias || !username || !cardId) {
+			console.log('[UnifiedNotificationBell.handleNotificationClick] Missing required data', {
+				boardAlias,
+				username,
+				cardId
+			});
+			return;
+		}
+
+		// Get current language from URL params
+		const lang = $page.params.lang || 'en';
+
+		// Navigate to the card
+		const url = `/${lang}/${username}/${boardAlias}?card=${cardId}`;
+		console.log('[UnifiedNotificationBell.handleNotificationClick] Navigating to:', url);
+
+		// Mark as read when clicking
+		if (!notification.is_read) {
+			await handleMarkAsRead(notification.id);
+		}
+
+		// Close the dropdown
+		isOpen = false;
+
+		await goto(url);
+	}
 </script>
 
 <DropdownMenu bind:open={isOpen}>
@@ -255,7 +294,8 @@
 				<div class="space-y-2">
 					{#each notifications as notification (notification.id)}
 						<div
-							class="flex items-start gap-2 p-2 rounded-md border text-xs {!notification.is_read ? 'bg-blue-50 dark:bg-blue-950/20' : ''}"
+							class="flex items-start gap-2 p-2 rounded-md border text-xs cursor-pointer hover:bg-muted/50 transition-colors {!notification.is_read ? 'bg-blue-50 dark:bg-blue-950/20' : ''}"
+							onclick={() => handleNotificationClick(notification)}
 						>
 							<span class="text-base flex-shrink-0">{getNotificationIcon(notification.type)}</span>
 
@@ -275,7 +315,10 @@
 										variant="ghost"
 										size="icon"
 										class="h-6 w-6"
-										onclick={() => handleMarkAsRead(notification.id)}
+										onclick={(e) => {
+											e.stopPropagation();
+											handleMarkAsRead(notification.id);
+										}}
 									>
 										<Check class="h-3 w-3" />
 									</Button>
@@ -284,7 +327,10 @@
 									variant="ghost"
 									size="icon"
 									class="h-6 w-6 text-destructive hover:text-destructive"
-									onclick={() => handleDelete(notification.id)}
+									onclick={(e) => {
+										e.stopPropagation();
+										handleDelete(notification.id);
+									}}
 								>
 									<Trash2 class="h-3 w-3" />
 								</Button>
