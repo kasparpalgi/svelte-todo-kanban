@@ -6,9 +6,7 @@
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
-		DropdownMenuTrigger,
-		DropdownMenuLabel,
-		DropdownMenuSeparator
+		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
 	import { notificationStore } from '$lib/stores/notifications.svelte';
 	import { invitationsStore } from '$lib/stores/invitations.svelte';
