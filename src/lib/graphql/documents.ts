@@ -697,6 +697,11 @@ export const NOTIFICATION_FRAGMENT = graphql(`
 				board {
 					id
 					name
+					alias
+					user {
+						id
+						username
+					}
 				}
 			}
 		}
