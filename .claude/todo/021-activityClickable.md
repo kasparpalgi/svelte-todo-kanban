@@ -1,0 +1,1 @@
+Make the activity eg. 'Bob commented "Some card name"...' clickable and then open the related card - goto() /[lang]/[username]/[board]?card=UUID
