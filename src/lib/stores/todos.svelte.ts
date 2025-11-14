@@ -207,6 +207,19 @@ function createTodosStore() {
 					];
 				}
 
+				// Log activity: todo created
+				try {
+					await request(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: newTodo.id,
+							action_type: 'created'
+						}
+					});
+				} catch (error) {
+					// Non-blocking: log error but don't fail todo creation
+					console.error('[TodosStore.addTodo] Failed to log activity:', error);
+				}
+
 				// Create GitHub issue if requested
 				if (createGithubIssue && newTodo.id) {
 					try {
@@ -340,6 +353,57 @@ function createTodosStore() {
 					state.todos[todoIndex] = updatedTodo;
 				}
 
+				// Log activity based on what changed
+				try {
+					let actionType: string | null = null;
+					let fieldName: string | undefined;
+					let oldValue: string | undefined;
+					let newValue: string | undefined;
+
+					// Determine action type based on what actually changed
+					if (updates.completed_at !== undefined) {
+						// Completion status changed
+						actionType = updates.completed_at ? 'completed' : 'uncompleted';
+					} else if (updates.priority !== undefined && originalTodo.priority !== updates.priority) {
+						// Priority changed (and values are different)
+						actionType = 'priority_changed';
+						fieldName = 'priority';
+						oldValue = originalTodo.priority?.toString() || '';
+						newValue = updates.priority?.toString() || '';
+					} else if (updates.due_on !== undefined && originalTodo.due_on !== updates.due_on) {
+						// Due date changed (and values are different)
+						actionType = 'due_date_changed';
+						fieldName = 'due_on';
+						oldValue = originalTodo.due_on || '';
+						newValue = updates.due_on || '';
+					} else if (updates.assigned_to !== undefined && originalTodo.assigned_to !== updates.assigned_to) {
+						// Assignee changed (and values are different)
+						actionType = updates.assigned_to ? 'assigned' : 'unassigned';
+					} else if (updates.list_id !== undefined && originalTodo.list?.id !== updates.list_id) {
+						// List changed (card moved)
+						actionType = 'updated';
+					} else if (updates.title !== undefined || updates.content !== undefined) {
+						// Title or content changed
+						actionType = 'updated';
+					}
+
+					// Only log if there's an actual change
+					if (actionType) {
+						await request(CREATE_ACTIVITY_LOG, {
+							log: {
+								todo_id: id,
+								action_type: actionType,
+								field_name: fieldName,
+								old_value: oldValue,
+								new_value: newValue
+							}
+						});
+					}
+				} catch (error) {
+					// Non-blocking: log error but don't fail todo update
+					console.error('[TodosStore.updateTodo] Failed to log activity:', error);
+				}
+
 				// Sync to GitHub if todo is linked to a GitHub issue
 				if ((updatedTodo as any).github_issue_number && (updatedTodo as any).github_issue_id) {
 					syncTodoToGithub(updatedTodo, updates, originalTodo).catch((err) => {
@@ -383,6 +447,19 @@ function createTodosStore() {
 			});
 
 			if (data.insert_uploads?.returning?.[0]) {
+				// Log activity: image added
+				try {
+					await request(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: todoId,
+							action_type: 'image_added'
+						}
+					});
+				} catch (error) {
+					// Non-blocking: log error but don't fail upload
+					console.error('[TodosStore.createUpload] Failed to log activity:', error);
+				}
+
 				// Refresh the todo to get updated uploads
 				await refreshTodo(todoId);
 				return { success: true, message: 'Upload created successfully' };
@@ -407,6 +484,19 @@ function createTodosStore() {
 			});
 
 			if (data.delete_uploads?.affected_rows && data.delete_uploads.affected_rows > 0) {
+				// Log activity: image removed
+				try {
+					await request(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: todoId,
+							action_type: 'image_removed'
+						}
+					});
+				} catch (error) {
+					// Non-blocking: log error but don't fail deletion
+					console.error('[TodosStore.deleteUpload] Failed to log activity:', error);
+				}
+
 				// Refresh the todo to get updated uploads
 				await refreshTodo(todoId);
 				return { success: true, message: 'Upload deleted successfully' };
@@ -459,6 +549,21 @@ function createTodosStore() {
 		const githubIssueNumber = (todo as any)?.github_issue_number;
 		const githubIssueId = (todo as any)?.github_issue_id;
 		const boardGithub = todo?.list?.board?.github;
+
+		// Log activity BEFORE deletion (since todo will be removed)
+		if (todo) {
+			try {
+				await request(CREATE_ACTIVITY_LOG, {
+					log: {
+						todo_id: id,
+						action_type: 'deleted'
+					}
+				});
+			} catch (error) {
+				// Non-blocking: log error but don't fail deletion
+				console.error('[TodosStore.deleteTodo] Failed to log activity:', error);
+			}
+		}
 
 		try {
 			const data: DeleteTodosMutation = await request(DELETE_TODOS, {

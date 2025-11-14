@@ -44,6 +44,39 @@ function createActivityLogStore() {
 		}
 	}
 
+	async function loadBoardActivityLogs(boardId: string, limit = 100, offset = 0) {
+		if (!browser) return { success: false, message: 'Not in browser' };
+		state.loading = true;
+		state.error = null;
+		try {
+			const data = (await request(GET_ACTIVITY_LOGS, {
+				where: {
+					todo: {
+						list: {
+							board_id: { _eq: boardId }
+						}
+					}
+				},
+				order_by: [{ created_at: 'desc' }],
+				limit,
+				offset
+			})) as GetActivityLogsQuery;
+
+			state.logs = data.activity_logs || [];
+			console.log('[ActivityLogStore.loadBoardActivityLogs]', {
+				boardId,
+				count: state.logs.length
+			});
+			return { success: true, message: 'Board activity logs loaded' };
+		} catch (error) {
+			state.error = error instanceof Error ? error.message : String(error);
+			console.log('[ActivityLogStore.loadBoardActivityLogs] Error:', state.error);
+			return { success: false, message: state.error };
+		} finally {
+			state.loading = false;
+		}
+	}
+
 	async function createActivityLog(log: Activity_Logs_Insert_Input) {
 		if (!browser) return { success: false, message: 'Not in browser', data: null };
 
@@ -80,6 +113,7 @@ function createActivityLogStore() {
 			return state.error;
 		},
 		loadActivityLogs,
+		loadBoardActivityLogs,
 		createActivityLog
 	};
 }
