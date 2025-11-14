@@ -12369,7 +12369,7 @@ export type DeleteNotificationMutationVariables = Exact<{
 
 export type DeleteNotificationMutation = { __typename?: 'mutation_root', delete_notifications_by_pk?: { __typename?: 'notifications', id: string } | null };
 
-export type ActivityLogFieldsFragment = { __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } };
+export type ActivityLogFieldsFragment = { __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } };
 
 export type GetActivityLogsQueryVariables = Exact<{
   where?: InputMaybe<Activity_Logs_Bool_Exp>;
@@ -12379,14 +12379,14 @@ export type GetActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type GetActivityLogsQuery = { __typename?: 'query_root', activity_logs: Array<{ __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } }>, activity_logs_aggregate: { __typename?: 'activity_logs_aggregate', aggregate?: { __typename?: 'activity_logs_aggregate_fields', count: number } | null } };
+export type GetActivityLogsQuery = { __typename?: 'query_root', activity_logs: Array<{ __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } }>, activity_logs_aggregate: { __typename?: 'activity_logs_aggregate', aggregate?: { __typename?: 'activity_logs_aggregate_fields', count: number } | null } };
 
 export type CreateActivityLogMutationVariables = Exact<{
   log: Activity_Logs_Insert_Input;
 }>;
 
 
-export type CreateActivityLogMutation = { __typename?: 'mutation_root', insert_activity_logs_one?: { __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } } | null };
+export type CreateActivityLogMutation = { __typename?: 'mutation_root', insert_activity_logs_one?: { __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } } | null };
 
 export type TrackerSessionFieldsFragment = { __typename?: 'tracker_sessions', id: number, window_title?: string | null, start_time: string, end_time: string, duration_seconds: number, tracker_app: { __typename?: 'tracker_apps', id: number, name: string } };
 
@@ -12753,6 +12753,19 @@ export const ActivityLogFieldsFragmentDoc = new TypedDocumentString(`
     name
     username
     image
+  }
+  todo {
+    id
+    title
+    list {
+      id
+      name
+      board {
+        id
+        name
+        alias
+      }
+    }
   }
 }
     `, {"fragmentName":"ActivityLogFields"}) as unknown as TypedDocumentString<ActivityLogFieldsFragment, unknown>;
@@ -14150,6 +14163,19 @@ export const GetActivityLogsDocument = new TypedDocumentString(`
     username
     image
   }
+  todo {
+    id
+    title
+    list {
+      id
+      name
+      board {
+        id
+        name
+        alias
+      }
+    }
+  }
 }`) as unknown as TypedDocumentString<GetActivityLogsQuery, GetActivityLogsQueryVariables>;
 export const CreateActivityLogDocument = new TypedDocumentString(`
     mutation CreateActivityLog($log: activity_logs_insert_input!) {
@@ -14172,6 +14198,19 @@ export const CreateActivityLogDocument = new TypedDocumentString(`
     name
     username
     image
+  }
+  todo {
+    id
+    title
+    list {
+      id
+      name
+      board {
+        id
+        name
+        alias
+      }
+    }
   }
 }`) as unknown as TypedDocumentString<CreateActivityLogMutation, CreateActivityLogMutationVariables>;
 export const GetTrackerSessionsDocument = new TypedDocumentString(`
