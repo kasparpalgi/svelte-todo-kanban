@@ -336,6 +336,23 @@
         "assign_to": "Assign to",
         "unassigned": "unassigned"
     },
+    "notes": {
+        "title": "Notes",
+        "newNote": "New Note",
+        "untitled": "Untitled Note",
+        "deleteConfirm": "Are you sure you want to delete this note? This action cannot be undone.",
+        "noNotes": "No notes yet",
+        "searchPlaceholder": "Search notes...",
+        "selectNote": "Select a note to view",
+        "created": "Note created successfully",
+        "updated": "Note updated successfully",
+        "deleted": "Note deleted successfully",
+        "savingChanges": "Saving changes...",
+        "unsavedChanges": "Unsaved changes",
+        "saved": "All changes saved",
+        "titlePlaceholder": "Note title",
+        "contentPlaceholder": "Start writing..."
+    },
     "card": {
         "loading_card": "Loading card...",
         "card_not_found": "Card not found",
