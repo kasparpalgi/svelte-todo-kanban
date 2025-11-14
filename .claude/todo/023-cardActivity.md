@@ -1,0 +1,1 @@
+Create all board activity icon somewhere where we can see all the past activity on the board by all users like in Trello. Plan what activity there shall be and implement. 
