@@ -355,37 +355,50 @@ function createTodosStore() {
 
 				// Log activity based on what changed
 				try {
-					let actionType: string = 'updated';
+					let actionType: string | null = null;
 					let fieldName: string | undefined;
 					let oldValue: string | undefined;
 					let newValue: string | undefined;
 
-					// Determine action type based on what changed
+					// Determine action type based on what actually changed
 					if (updates.completed_at !== undefined) {
+						// Completion status changed
 						actionType = updates.completed_at ? 'completed' : 'uncompleted';
-					} else if (updates.priority !== undefined) {
+					} else if (updates.priority !== undefined && originalTodo.priority !== updates.priority) {
+						// Priority changed (and values are different)
 						actionType = 'priority_changed';
 						fieldName = 'priority';
 						oldValue = originalTodo.priority?.toString() || '';
 						newValue = updates.priority?.toString() || '';
-					} else if (updates.due_on !== undefined) {
+					} else if (updates.due_on !== undefined && originalTodo.due_on !== updates.due_on) {
+						// Due date changed (and values are different)
 						actionType = 'due_date_changed';
 						fieldName = 'due_on';
 						oldValue = originalTodo.due_on || '';
 						newValue = updates.due_on || '';
-					} else if (updates.assigned_to !== undefined) {
+					} else if (updates.assigned_to !== undefined && originalTodo.assigned_to !== updates.assigned_to) {
+						// Assignee changed (and values are different)
 						actionType = updates.assigned_to ? 'assigned' : 'unassigned';
+					} else if (updates.list_id !== undefined && originalTodo.list?.id !== updates.list_id) {
+						// List changed (card moved)
+						actionType = 'updated';
+					} else if (updates.title !== undefined || updates.content !== undefined) {
+						// Title or content changed
+						actionType = 'updated';
 					}
 
-					await request(CREATE_ACTIVITY_LOG, {
-						log: {
-							todo_id: id,
-							action_type: actionType,
-							field_name: fieldName,
-							old_value: oldValue,
-							new_value: newValue
-						}
-					});
+					// Only log if there's an actual change
+					if (actionType) {
+						await request(CREATE_ACTIVITY_LOG, {
+							log: {
+								todo_id: id,
+								action_type: actionType,
+								field_name: fieldName,
+								old_value: oldValue,
+								new_value: newValue
+							}
+						});
+					}
 				} catch (error) {
 					// Non-blocking: log error but don't fail todo update
 					console.error('[TodosStore.updateTodo] Failed to log activity:', error);
