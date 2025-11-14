@@ -15,6 +15,13 @@
 	function navigateToSettings() {
 		const currentLang = getEffectiveLocale(page.params.lang, userStore.user?.locale);
 		const settingsPath = `/${currentLang}/settings`;
+		console.log('[UserMenu.navigateToSettings]', {
+			'page.params.lang': page.params.lang,
+			'userStore.user?.locale': userStore.user?.locale,
+			currentLang,
+			settingsPath,
+			'current URL': page.url.pathname
+		});
 		goto(settingsPath);
 	}
 
