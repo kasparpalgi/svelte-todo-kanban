@@ -66,7 +66,8 @@
 			editorUnsubscribe = null;
 		}
 
-		// Subscribe to editor store
+		// Subscribe to editor store ONLY to set up event listeners
+		// Do NOT set content here - that's handled by the note change effect
 		editorUnsubscribe = editorStore.subscribe((editor) => {
 			if (!editor) {
 				return;
@@ -75,18 +76,13 @@
 			// Remove any existing listeners first
 			editor.off('update');
 
-			// Add update listener
+			// Add update listener for user edits
 			editor.on('update', () => {
 				if (isSettingContent) {
 					return;
 				}
 				handleContentChange();
 			});
-
-			// Set initial content if we have a note
-			if (note && currentNoteId === note.id) {
-				updateEditorContent(note.content || '');
-			}
 		});
 
 		return () => {
