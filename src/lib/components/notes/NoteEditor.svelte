@@ -33,85 +33,110 @@
 	let editorStore: Readable<Editor> | null = $state(null);
 	let hasUnsavedChanges: boolean = $state(false);
 	let autoSaveTimeout: NodeJS.Timeout | null = null;
-	let isSettingContent: boolean = false; // Prevent loops
+	let isSettingContent: boolean = false;
+	let currentNoteId: string | null = null;
+	let editorUnsubscribe: (() => void) | null = null;
 
-	console.log('[NoteEditor] Component mounted');
+	console.log('[NoteEditor] Component created');
 
-	// Update local state when note changes
+	// Update when note changes
 	$effect(() => {
-		console.log('[NoteEditor] $effect triggered, note:', note?.id);
+		console.log('[NoteEditor] Note changed:', note?.id);
 
-		if (note) {
-			title = note.title;
-			hasUnsavedChanges = false;
-			isSettingContent = true;
-
-			console.log('[NoteEditor] Setting content for note:', note.id, 'content length:', note.content?.length);
-
-			// Update editor content if editor is ready
-			if (editorStore) {
-				let editorUpdateUnsubscribe: (() => void) | undefined;
-
-				editorUpdateUnsubscribe = editorStore.subscribe((editor) => {
-					if (editor && note.content !== undefined) {
-						console.log('[NoteEditor] Setting editor content');
-						// Only set content if it's different to avoid loops
-						const currentContent = editor.getHTML();
-						if (currentContent !== note.content) {
-							editor.commands.setContent(note.content || '');
-						}
-					}
-					if (editorUpdateUnsubscribe) {
-						editorUpdateUnsubscribe();
-					}
-				});
-
-				setTimeout(() => {
-					isSettingContent = false;
-				}, 100);
-			} else {
-				isSettingContent = false;
-			}
+		if (!note) {
+			console.log('[NoteEditor] No note');
+			currentNoteId = null;
+			title = '';
+			return;
 		}
 
-		// Cleanup function
-		return () => {
-			console.log('[NoteEditor] $effect cleanup');
-		};
+		// Only update if it's actually a different note
+		if (currentNoteId !== note.id) {
+			console.log('[NoteEditor] New note selected:', note.id);
+			currentNoteId = note.id;
+			title = note.title;
+			hasUnsavedChanges = false;
+
+			// Update editor content
+			updateEditorContent(note.content || '');
+		}
 	});
 
-	// Listen to editor updates
+	// Watch for editor store changes
 	$effect(() => {
-		console.log('[NoteEditor] Editor store effect, editorStore:', !!editorStore);
+		console.log('[NoteEditor] EditorStore changed:', !!editorStore);
 
 		if (!editorStore) return;
 
-		let unsubscribe: (() => void) | undefined;
+		// Clean up previous subscription if any
+		if (editorUnsubscribe) {
+			editorUnsubscribe();
+			editorUnsubscribe = null;
+		}
 
-		unsubscribe = editorStore.subscribe((editor) => {
-			if (!editor) return;
+		// Subscribe to editor store
+		editorUnsubscribe = editorStore.subscribe((editor) => {
+			if (!editor) {
+				console.log('[NoteEditor] Editor not ready yet');
+				return;
+			}
 
 			console.log('[NoteEditor] Editor ready, setting up update listener');
 
-			// Listen to editor updates
-			editor.on('update', ({ editor: updatedEditor }) => {
-				// Don't trigger change during programmatic content setting
+			// Remove any existing listeners first
+			editor.off('update');
+
+			// Add update listener
+			editor.on('update', () => {
 				if (isSettingContent) {
-					console.log('[NoteEditor] Ignoring update during content setting');
+					console.log('[NoteEditor] Ignoring update - programmatic change');
 					return;
 				}
-
-				console.log('[NoteEditor] Editor content changed');
+				console.log('[NoteEditor] User edited content');
 				handleContentChange();
 			});
+
+			// Set initial content if we have a note
+			if (note && currentNoteId === note.id) {
+				updateEditorContent(note.content || '');
+			}
 		});
 
-		// Cleanup
 		return () => {
-			console.log('[NoteEditor] Editor effect cleanup');
-			if (unsubscribe) unsubscribe();
+			console.log('[NoteEditor] Cleaning up editor subscription');
+			if (editorUnsubscribe) {
+				editorUnsubscribe();
+				editorUnsubscribe = null;
+			}
 		};
 	});
+
+	function updateEditorContent(content: string) {
+		console.log('[NoteEditor] updateEditorContent called, length:', content.length);
+
+		if (!editorStore) {
+			console.log('[NoteEditor] No editor store');
+			return;
+		}
+
+		const unsub = editorStore.subscribe((editor) => {
+			if (!editor) return;
+
+			const currentContent = editor.getHTML();
+			console.log('[NoteEditor] Current:', currentContent.length, 'New:', content.length);
+
+			if (currentContent !== content) {
+				console.log('[NoteEditor] Setting editor content');
+				isSettingContent = true;
+				editor.commands.setContent(content);
+				setTimeout(() => {
+					isSettingContent = false;
+					console.log('[NoteEditor] Content setting complete');
+				}, 50);
+			}
+		});
+		unsub();
+	}
 
 	function handleTitleChange() {
 		console.log('[NoteEditor] Title changed');
@@ -139,40 +164,38 @@
 	}
 
 	async function saveChanges() {
-		console.log('[NoteEditor] saveChanges called, hasUnsavedChanges:', hasUnsavedChanges, 'editorStore:', !!editorStore, 'note:', !!note);
+		console.log('[NoteEditor] saveChanges, hasChanges:', hasUnsavedChanges, 'note:', !!note);
 
 		if (!hasUnsavedChanges || !editorStore || !note) {
-			console.log('[NoteEditor] Skipping save - conditions not met');
+			console.log('[NoteEditor] Skipping save');
 			return;
 		}
 
 		let content = '';
-		const unsubscribe = editorStore.subscribe((editor) => {
+		const unsub = editorStore.subscribe((editor) => {
 			if (editor) {
 				content = editor.getHTML();
 			}
 		});
-		unsubscribe();
+		unsub();
 
 		const updates: { title?: string; content?: string } = {};
 
 		if (title !== note.title) {
 			updates.title = title;
-			console.log('[NoteEditor] Title changed:', note.title, '->', title);
+			console.log('[NoteEditor] Title updated');
 		}
 
 		if (content !== note.content) {
 			updates.content = content;
-			console.log('[NoteEditor] Content changed, new length:', content.length);
+			console.log('[NoteEditor] Content updated, length:', content.length);
 		}
 
 		if (Object.keys(updates).length > 0) {
-			console.log('[NoteEditor] Calling onUpdate with:', updates);
+			console.log('[NoteEditor] Saving updates');
 			await onUpdate(updates);
 			hasUnsavedChanges = false;
 			console.log('[NoteEditor] Save complete');
-		} else {
-			console.log('[NoteEditor] No changes to save');
 		}
 	}
 
@@ -189,17 +212,16 @@
 
 	onMount(() => {
 		console.log('[NoteEditor] onMount');
-
-		return () => {
-			console.log('[NoteEditor] onMount cleanup');
-			if (autoSaveTimeout) {
-				clearTimeout(autoSaveTimeout);
-			}
-		};
 	});
 
 	onDestroy(() => {
 		console.log('[NoteEditor] onDestroy');
+		if (autoSaveTimeout) {
+			clearTimeout(autoSaveTimeout);
+		}
+		if (editorUnsubscribe) {
+			editorUnsubscribe();
+		}
 	});
 </script>
 
