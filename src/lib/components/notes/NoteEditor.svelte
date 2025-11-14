@@ -36,56 +36,80 @@
 	let isSettingContent: boolean = false;
 	let currentNoteId: string | null = null;
 	let editorUnsubscribe: (() => void) | null = null;
+	let editorContent: string = $state('');
+
+	console.log('[NoteEditor] Component initialized');
 
 	// Update when note changes
 	$effect(() => {
+		console.log('[NoteEditor] Note effect running, note:', note?.id, 'currentNoteId:', currentNoteId);
+
 		if (!note) {
+			console.log('[NoteEditor] No note, resetting');
 			currentNoteId = null;
 			title = '';
+			editorContent = '';
 			return;
 		}
 
 		// Only update if it's actually a different note
 		if (currentNoteId !== note.id) {
+			console.log('[NoteEditor] New note selected, id:', note.id);
 			currentNoteId = note.id;
 			title = note.title;
 			hasUnsavedChanges = false;
 
-			// Update editor content
-			updateEditorContent(note.content || '');
+			// Update content via reactive variable - RichTextEditor will handle it
+			editorContent = note.content || '';
+			console.log('[NoteEditor] Set editorContent, length:', editorContent.length);
 		}
 	});
 
 	// Watch for editor store changes
 	$effect(() => {
-		if (!editorStore) return;
+		console.log('[NoteEditor] EditorStore effect running, editorStore:', !!editorStore);
+
+		if (!editorStore) {
+			console.log('[NoteEditor] No editorStore yet');
+			return;
+		}
 
 		// Clean up previous subscription if any
 		if (editorUnsubscribe) {
+			console.log('[NoteEditor] Cleaning up previous subscription');
 			editorUnsubscribe();
 			editorUnsubscribe = null;
 		}
 
 		// Subscribe to editor store ONLY to set up event listeners
-		// Do NOT set content here - that's handled by the note change effect
+		console.log('[NoteEditor] Creating new editor subscription');
 		editorUnsubscribe = editorStore.subscribe((editor) => {
+			console.log('[NoteEditor] Subscription callback fired, editor:', !!editor);
+
 			if (!editor) {
+				console.log('[NoteEditor] Editor not ready');
 				return;
 			}
+
+			console.log('[NoteEditor] Editor ready, setting up listeners');
 
 			// Remove any existing listeners first
 			editor.off('update');
 
 			// Add update listener for user edits
 			editor.on('update', () => {
+				console.log('[NoteEditor] Editor update event, isSettingContent:', isSettingContent);
 				if (isSettingContent) {
+					console.log('[NoteEditor] Ignoring update - programmatic');
 					return;
 				}
+				console.log('[NoteEditor] User edit detected');
 				handleContentChange();
 			});
 		});
 
 		return () => {
+			console.log('[NoteEditor] Effect cleanup function called');
 			if (editorUnsubscribe) {
 				editorUnsubscribe();
 				editorUnsubscribe = null;
@@ -93,49 +117,34 @@
 		};
 	});
 
-	function updateEditorContent(content: string) {
-		if (!editorStore) {
-			return;
-		}
-
-		const unsub = editorStore.subscribe((editor) => {
-			if (!editor) return;
-
-			const currentContent = editor.getHTML();
-
-			if (currentContent !== content) {
-				isSettingContent = true;
-				editor.commands.setContent(content);
-				setTimeout(() => {
-					isSettingContent = false;
-				}, 50);
-			}
-		});
-		unsub();
-	}
-
 	function handleTitleChange() {
+		console.log('[NoteEditor] Title changed');
 		hasUnsavedChanges = true;
 		scheduleAutoSave();
 	}
 
 	function handleContentChange() {
+		console.log('[NoteEditor] Content changed');
 		hasUnsavedChanges = true;
 		scheduleAutoSave();
 	}
 
 	function scheduleAutoSave() {
+		console.log('[NoteEditor] Scheduling auto-save');
 		if (autoSaveTimeout) {
 			clearTimeout(autoSaveTimeout);
 		}
 
 		autoSaveTimeout = setTimeout(() => {
+			console.log('[NoteEditor] Auto-save timeout fired');
 			saveChanges();
 		}, 1000);
 	}
 
 	async function saveChanges() {
+		console.log('[NoteEditor] saveChanges called, hasChanges:', hasUnsavedChanges, 'note:', !!note, 'editorStore:', !!editorStore);
 		if (!hasUnsavedChanges || !editorStore || !note) {
+			console.log('[NoteEditor] Skipping save');
 			return;
 		}
 
@@ -221,7 +230,7 @@
 		<!-- Editor -->
 		<div class="flex-1 overflow-y-auto p-4">
 			<RichTextEditor
-				content={note.content || ''}
+				content={editorContent}
 				bind:editor={editorStore}
 				showToolbar={true}
 			/>

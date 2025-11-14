@@ -211,7 +211,9 @@ function createNotesStore() {
 	);
 
 	async function loadNotes(boardId: string): Promise<NoteFieldsFragment[]> {
+		console.log('[NotesStore.loadNotes] Called, boardId:', boardId);
 		if (!browser) {
+			console.log('[NotesStore.loadNotes] Not in browser');
 			return [];
 		}
 
@@ -220,6 +222,7 @@ function createNotesStore() {
 		state.currentBoardId = boardId;
 
 		try {
+			console.log('[NotesStore.loadNotes] Fetching from API...');
 			const data = await request(GET_NOTES, {
 				where: { board_id: { _eq: boardId } },
 				order_by: [{ sort_order: 'asc' }, { created_at: 'desc' }],
@@ -227,6 +230,7 @@ function createNotesStore() {
 				offset: 0
 			}) as GetNotesQuery;
 
+			console.log('[NotesStore.loadNotes] Received notes:', data.notes?.length || 0);
 			state.notes = data.notes || [];
 			return state.notes;
 		} catch (error) {
