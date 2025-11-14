@@ -22,10 +22,13 @@ type Documents = {
     "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tgithub\n\t\tis_public\n\t\tallow_public_comments\n\t\tsettings\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t\tboard_members {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n": typeof types.BoardFieldsFragmentDoc,
     "\n\tfragment CommentFields on comments {\n\t\tid\n\t\tcontent\n\t\ttodo_id\n\t\tuser_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tgithub_comment_id\n\t\tgithub_synced_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n": typeof types.CommentFieldsFragmentDoc,
     "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.LabelFieldsFragmentDoc,
+    "\n\tfragment NoteFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\ttitle\n\t\tcontent\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n": typeof types.NoteFieldsFragmentDoc,
     "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.UserFieldsFragmentDoc,
     "\n\tquery GetTodos(\n\t\t$where: todos_bool_exp = {}\n\t\t$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\ttodos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...TodoFields\n\t\t}\n\t}\n": typeof types.GetTodosDocument,
     "\n\tquery GetLists(\n\t\t$where: lists_bool_exp = {}\n\t\t$order_by: [lists_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tlists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ListFields\n\t\t}\n\t}\n": typeof types.GetListsDocument,
     "\n\tquery GetBoards(\n\t\t$where: boards_bool_exp = {}\n\t\t$order_by: [boards_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboards(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardFields\n\t\t}\n\t}\n": typeof types.GetBoardsDocument,
+    "\n\tquery GetNotes(\n\t\t$where: notes_bool_exp = {}\n\t\t$order_by: [notes_order_by!] = { sort_order: asc, created_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tnotes(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n": typeof types.GetNotesDocument,
+    "\n\tquery GetNote($id: uuid!) {\n\t\tnotes_by_pk(id: $id) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n": typeof types.GetNoteDocument,
     "\n\tmutation CreateTodo($objects: [todos_insert_input!]!) {\n\t\tinsert_todos(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...TodoFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateTodoDocument,
     "\n\tmutation UpdateTodos($where: todos_bool_exp!, $_set: todos_set_input!) {\n\t\tupdate_todos(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...TodoFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateTodosDocument,
     "\n\tmutation DeleteTodos($where: todos_bool_exp!) {\n\t\tdelete_todos(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteTodosDocument,
@@ -35,6 +38,10 @@ type Documents = {
     "\n\tmutation CreateBoard($objects: [boards_insert_input!]!) {\n\t\tinsert_boards(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateBoardDocument,
     "\n\tmutation UpdateBoard($where: boards_bool_exp!, $_set: boards_set_input!) {\n\t\tupdate_boards(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateBoardDocument,
     "\n\tmutation DeleteBoard($where: boards_bool_exp!) {\n\t\tdelete_boards(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteBoardDocument,
+    "\n\tmutation CreateNote($objects: [notes_insert_input!]!) {\n\t\tinsert_notes(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateNoteDocument,
+    "\n\tmutation UpdateNote($where: notes_bool_exp!, $_set: notes_set_input!) {\n\t\tupdate_notes(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateNoteDocument,
+    "\n\tmutation UpdateNotes($updates: [notes_updates!]!) {\n\t\tupdate_notes_many(updates: $updates) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateNotesDocument,
+    "\n\tmutation DeleteNote($where: notes_bool_exp!) {\n\t\tdelete_notes(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteNoteDocument,
     "\n\tmutation CreateUpload($objects: [uploads_insert_input!]!) {\n\t\tinsert_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\ttodo_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateUploadDocument,
     "\n\tmutation DeleteUpload($where: uploads_bool_exp!) {\n\t\tdelete_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteUploadDocument,
     "\n\tquery GetUsers(\n\t\t$where: users_bool_exp = {}\n\t\t$order_by: [users_order_by!] = {}\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tusers(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...UserFields\n\t\t}\n\t}\n": typeof types.GetUsersDocument,
@@ -85,10 +92,13 @@ const documents: Documents = {
     "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tgithub\n\t\tis_public\n\t\tallow_public_comments\n\t\tsettings\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t}\n\t\tboard_members {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n": types.BoardFieldsFragmentDoc,
     "\n\tfragment CommentFields on comments {\n\t\tid\n\t\tcontent\n\t\ttodo_id\n\t\tuser_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tgithub_comment_id\n\t\tgithub_synced_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n": types.CommentFieldsFragmentDoc,
     "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.LabelFieldsFragmentDoc,
+    "\n\tfragment NoteFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\ttitle\n\t\tcontent\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n": types.NoteFieldsFragmentDoc,
     "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.UserFieldsFragmentDoc,
     "\n\tquery GetTodos(\n\t\t$where: todos_bool_exp = {}\n\t\t$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\ttodos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...TodoFields\n\t\t}\n\t}\n": types.GetTodosDocument,
     "\n\tquery GetLists(\n\t\t$where: lists_bool_exp = {}\n\t\t$order_by: [lists_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tlists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ListFields\n\t\t}\n\t}\n": types.GetListsDocument,
     "\n\tquery GetBoards(\n\t\t$where: boards_bool_exp = {}\n\t\t$order_by: [boards_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboards(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardFields\n\t\t}\n\t}\n": types.GetBoardsDocument,
+    "\n\tquery GetNotes(\n\t\t$where: notes_bool_exp = {}\n\t\t$order_by: [notes_order_by!] = { sort_order: asc, created_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tnotes(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n": types.GetNotesDocument,
+    "\n\tquery GetNote($id: uuid!) {\n\t\tnotes_by_pk(id: $id) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n": types.GetNoteDocument,
     "\n\tmutation CreateTodo($objects: [todos_insert_input!]!) {\n\t\tinsert_todos(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...TodoFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateTodoDocument,
     "\n\tmutation UpdateTodos($where: todos_bool_exp!, $_set: todos_set_input!) {\n\t\tupdate_todos(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...TodoFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateTodosDocument,
     "\n\tmutation DeleteTodos($where: todos_bool_exp!) {\n\t\tdelete_todos(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteTodosDocument,
@@ -98,6 +108,10 @@ const documents: Documents = {
     "\n\tmutation CreateBoard($objects: [boards_insert_input!]!) {\n\t\tinsert_boards(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateBoardDocument,
     "\n\tmutation UpdateBoard($where: boards_bool_exp!, $_set: boards_set_input!) {\n\t\tupdate_boards(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateBoardDocument,
     "\n\tmutation DeleteBoard($where: boards_bool_exp!) {\n\t\tdelete_boards(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteBoardDocument,
+    "\n\tmutation CreateNote($objects: [notes_insert_input!]!) {\n\t\tinsert_notes(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateNoteDocument,
+    "\n\tmutation UpdateNote($where: notes_bool_exp!, $_set: notes_set_input!) {\n\t\tupdate_notes(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateNoteDocument,
+    "\n\tmutation UpdateNotes($updates: [notes_updates!]!) {\n\t\tupdate_notes_many(updates: $updates) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateNotesDocument,
+    "\n\tmutation DeleteNote($where: notes_bool_exp!) {\n\t\tdelete_notes(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteNoteDocument,
     "\n\tmutation CreateUpload($objects: [uploads_insert_input!]!) {\n\t\tinsert_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\ttodo_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n": types.CreateUploadDocument,
     "\n\tmutation DeleteUpload($where: uploads_bool_exp!) {\n\t\tdelete_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteUploadDocument,
     "\n\tquery GetUsers(\n\t\t$where: users_bool_exp = {}\n\t\t$order_by: [users_order_by!] = {}\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tusers(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...UserFields\n\t\t}\n\t}\n": types.GetUsersDocument,
@@ -172,6 +186,10 @@ export function graphql(source: "\n\tfragment LabelFields on labels {\n\t\tid\n\
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n\tfragment NoteFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\ttitle\n\t\tcontent\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n"): typeof import('./graphql').NoteFieldsFragmentDoc;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n"): typeof import('./graphql').UserFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -185,6 +203,14 @@ export function graphql(source: "\n\tquery GetLists(\n\t\t$where: lists_bool_exp
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tquery GetBoards(\n\t\t$where: boards_bool_exp = {}\n\t\t$order_by: [boards_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboards(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetBoardsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetNotes(\n\t\t$where: notes_bool_exp = {}\n\t\t$order_by: [notes_order_by!] = { sort_order: asc, created_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tnotes(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetNotesDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetNote($id: uuid!) {\n\t\tnotes_by_pk(id: $id) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetNoteDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -221,6 +247,22 @@ export function graphql(source: "\n\tmutation UpdateBoard($where: boards_bool_ex
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tmutation DeleteBoard($where: boards_bool_exp!) {\n\t\tdelete_boards(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteBoardDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation CreateNote($objects: [notes_insert_input!]!) {\n\t\tinsert_notes(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').CreateNoteDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation UpdateNote($where: notes_bool_exp!, $_set: notes_set_input!) {\n\t\tupdate_notes(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateNoteDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation UpdateNotes($updates: [notes_updates!]!) {\n\t\tupdate_notes_many(updates: $updates) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateNotesDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation DeleteNote($where: notes_bool_exp!) {\n\t\tdelete_notes(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteNoteDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

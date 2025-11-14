@@ -181,6 +181,31 @@ export const LABEL_FRAGMENT = graphql(`
 	}
 `);
 
+export const NOTE_FRAGMENT = graphql(`
+	fragment NoteFields on notes {
+		id
+		board_id
+		user_id
+		title
+		content
+		sort_order
+		created_at
+		updated_at
+		user {
+			id
+			name
+			username
+			image
+			email
+		}
+		board {
+			id
+			name
+			alias
+		}
+	}
+`);
+
 export const USER_FRAGMENT = graphql(`
 	fragment UserFields on users {
 		id
@@ -233,6 +258,27 @@ export const GET_BOARDS = graphql(`
 	) {
 		boards(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
 			...BoardFields
+		}
+	}
+`);
+
+export const GET_NOTES = graphql(`
+	query GetNotes(
+		$where: notes_bool_exp = {}
+		$order_by: [notes_order_by!] = { sort_order: asc, created_at: desc }
+		$limit: Int = 100
+		$offset: Int = 0
+	) {
+		notes(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...NoteFields
+		}
+	}
+`);
+
+export const GET_NOTE = graphql(`
+	query GetNote($id: uuid!) {
+		notes_by_pk(id: $id) {
+			...NoteFields
 		}
 	}
 `);
@@ -319,6 +365,46 @@ export const UPDATE_BOARD = graphql(`
 export const DELETE_BOARD = graphql(`
 	mutation DeleteBoard($where: boards_bool_exp!) {
 		delete_boards(where: $where) {
+			affected_rows
+		}
+	}
+`);
+
+export const CREATE_NOTE = graphql(`
+	mutation CreateNote($objects: [notes_insert_input!]!) {
+		insert_notes(objects: $objects) {
+			returning {
+				...NoteFields
+			}
+		}
+	}
+`);
+
+export const UPDATE_NOTE = graphql(`
+	mutation UpdateNote($where: notes_bool_exp!, $_set: notes_set_input!) {
+		update_notes(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				...NoteFields
+			}
+		}
+	}
+`);
+
+export const UPDATE_NOTES = graphql(`
+	mutation UpdateNotes($updates: [notes_updates!]!) {
+		update_notes_many(updates: $updates) {
+			affected_rows
+			returning {
+				...NoteFields
+			}
+		}
+	}
+`);
+
+export const DELETE_NOTE = graphql(`
+	mutation DeleteNote($where: notes_bool_exp!) {
+		delete_notes(where: $where) {
 			affected_rows
 		}
 	}

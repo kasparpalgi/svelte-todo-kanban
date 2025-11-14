@@ -336,6 +336,23 @@
         "assign_to": "Muuda omanikku",
         "unassigned": "omanikuta"
     },
+    "notes": {
+        "title": "Märkmed",
+        "newNote": "Uus märge",
+        "untitled": "Pealkirjata märge",
+        "deleteConfirm": "Kas oled kindel, et soovid selle märkme kustutada? Seda tegevust ei saa tagasi võtta.",
+        "noNotes": "Märkmeid veel pole",
+        "searchPlaceholder": "Otsi märkmeid...",
+        "selectNote": "Vali märge vaatamiseks",
+        "created": "Märge on edukalt loodud",
+        "updated": "Märge on edukalt uuendatud",
+        "deleted": "Märge on edukalt kustutatud",
+        "savingChanges": "Salvestan muudatusi...",
+        "unsavedChanges": "Salvestamata muudatused",
+        "saved": "Kõik muudatused salvestatud",
+        "titlePlaceholder": "Märkme pealkiri",
+        "contentPlaceholder": "Alusta kirjutamist..."
+    },
     "card": {
         "loading_card": "Laen kaarti...",
         "card_not_found": "Kaarti ei leitud",

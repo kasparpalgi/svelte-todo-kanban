@@ -37,6 +37,8 @@
 	import TodoFiltersSidebar from '$lib/components/todo/TodoFiltersSidebar.svelte';
 	import ImportIssuesDialog from '$lib/components/github/ImportIssuesDialog.svelte';
 	import CardModal from './CardModal.svelte';
+	import NotesButton from '$lib/components/notes/NotesButton.svelte';
+	import NotesView from '$lib/components/notes/NotesView.svelte';
 
 	let { data } = $props();
 
@@ -47,6 +49,7 @@
 	let loading: boolean = $state(false);
 	let showImportDialog: boolean = $state(false);
 	let skipGithubIssue: boolean = $state(false);
+	let showNotesDialog: boolean = $state(false);
 
 	const username: string = $derived(page.params.username || '');
 	const boardAlias: string = $derived(page.params.board || '');
@@ -268,6 +271,7 @@
 						<Funnel class="mr-2 h-4 w-4" />
 						<span class="hidden md:block">Filter</span>
 					</Button>
+					<NotesButton onclick={() => (showNotesDialog = true)} />
 				</div>
 			</div>
 
@@ -395,5 +399,9 @@
 			{lang}
 			onClose={() => goto(`/${lang}/${username}/${boardAlias}`)}
 		/>
+	{/if}
+
+	{#if showNotesDialog && listsStore.selectedBoard}
+		<NotesView bind:open={showNotesDialog} boardId={listsStore.selectedBoard.id} />
 	{/if}
 {/if}

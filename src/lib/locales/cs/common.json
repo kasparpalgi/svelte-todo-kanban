@@ -336,6 +336,23 @@
         "assign_to": "Přiřadit",
         "unassigned": "nepřiřazeno"
     },
+    "notes": {
+        "title": "Poznámky",
+        "newNote": "Nová poznámka",
+        "untitled": "Poznámka bez názvu",
+        "deleteConfirm": "Opravdu chcete tuto poznámku smazat? Tuto akci nelze vrátit zpět.",
+        "noNotes": "Zatím žádné poznámky",
+        "searchPlaceholder": "Hledat poznámky...",
+        "selectNote": "Vyberte poznámku k zobrazení",
+        "created": "Poznámka byla úspěšně vytvořena",
+        "updated": "Poznámka byla úspěšně aktualizována",
+        "deleted": "Poznámka byla úspěšně smazána",
+        "savingChanges": "Ukládám změny...",
+        "unsavedChanges": "Neuložené změny",
+        "saved": "Všechny změny uloženy",
+        "titlePlaceholder": "Název poznámky",
+        "contentPlaceholder": "Začněte psát..."
+    },
     "card": {
         "loading_card": "Načítání karty...",
         "card_not_found": "Karta nenalezena",
