@@ -28,7 +28,7 @@
 
 	const logoUrl = $derived(() => {
 		const params = page.params;
-		const lang = params.lang || 'et';
+		const lang = params.lang || userStore.user?.locale || 'et';
 
 		if (params.username && params.board) {
 			return `/${lang}/${params.username}/${params.board}`;

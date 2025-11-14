@@ -8,6 +8,7 @@
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
 	import { formatDateWithFuture } from '$lib/utils/dateTime.svelte';
 	import { shortenText } from '$lib/utils/shortenText';
 	import { stripHtml } from '$lib/utils/stripHtml';
@@ -39,7 +40,7 @@
 		onDelete
 	}: TodoItemProps = $props();
 
-	const lang = $derived(page.params.lang || 'et');
+	const lang = $derived(page.params.lang || userStore.user?.locale || 'et');
 	const username = $derived(page.params.username);
 	const boardAlias = $derived(page.params.board);
 

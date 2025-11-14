@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { notificationStore } from '$lib/stores/notifications.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
@@ -94,7 +95,7 @@
 		}
 
 		// Get current language from URL params
-		const lang = $page.params.lang || 'en';
+		const lang = $page.params.lang || userStore.user?.locale || 'et';
 
 		// Navigate to the card
 		const url = `/${lang}/${username}/${boardAlias}?card=${cardId}`;

@@ -25,7 +25,7 @@
 
 	let user = $derived(userStore.user);
 	let initialized = $state(false);
-	let currentLang = $derived(page.params.lang || 'et');
+	let currentLang = $derived(page.params.lang || user?.locale || 'et');
 
 	let formData = $state({
 		name: '',
@@ -71,12 +71,12 @@
 		if (result.success) {
 			const currentPath = page.url.pathname;
 			const params = page.params;
-			const currentLang = params.lang || 'et';
+			const currentLang = params.lang || user?.locale || 'et';
 			const newPath = currentPath.replace(`/${currentLang}/`, `/${newLanguage}/`);
 
 			await goto(newPath, { replaceState: true });
 		} else {
-			formData.locale = user.locale || 'et';
+			formData.locale = user?.locale || 'et';
 		}
 	}
 

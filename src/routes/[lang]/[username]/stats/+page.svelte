@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import { t } from '$lib/i18n';
 	import { trackerStatsStore } from '$lib/stores/trackerStats.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
 	import {
 		Card,
 		CardContent,
@@ -44,7 +45,7 @@
 
 	const username: string = $derived(page.params.username || '');
 	const boardAlias: string = $derived(page.params.board || '');
-	const lang: string = $derived(page.params.lang || 'et');
+	const lang: string = $derived(page.params.lang || userStore.user?.locale || 'et');
 
 	onMount(async () => {
 		await trackerStatsStore.loadStatsPeriod(selectedPeriod);

@@ -49,7 +49,7 @@
 
 	const username: string = $derived(page.params.username || '');
 	const boardAlias: string = $derived(page.params.board || '');
-	const lang: string = $derived(page.params.lang || 'et');
+	const lang: string = $derived(page.params.lang || userStore.user?.locale || 'et');
 	const isNotMember: boolean = $derived.by(() => {
 		const board = listsStore.selectedBoard;
 		const currentUser = userStore.user;
