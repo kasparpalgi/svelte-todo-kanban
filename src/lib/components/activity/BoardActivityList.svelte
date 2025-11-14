@@ -17,7 +17,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	let { logs }: { logs: any[] } = $props();
+	let { logs, onClose }: { logs: any[]; onClose?: () => void } = $props();
 
 	function getActionIcon(actionType: string) {
 		switch (actionType) {
@@ -126,6 +126,9 @@
 
 		// Navigate to the card modal
 		if (log.todo_id) {
+			// Close the activity modal first
+			onClose?.();
+
 			const currentUrl = $page.url;
 			const newUrl = new URL(currentUrl);
 			newUrl.searchParams.set('card', log.todo_id);
