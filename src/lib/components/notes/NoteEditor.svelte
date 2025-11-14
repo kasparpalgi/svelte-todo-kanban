@@ -49,6 +49,18 @@
 			currentNoteId = null;
 			title = '';
 			editorContent = '';
+			// Clear editor content if we have an editor
+			if (editorStore) {
+				const unsub = editorStore.subscribe((editor) => {
+					if (editor) {
+						console.log('[NoteEditor] Clearing editor content');
+						isSettingContent = true;
+						editor.commands.setContent('');
+						setTimeout(() => { isSettingContent = false; }, 50);
+					}
+				});
+				unsub();
+			}
 			return;
 		}
 
@@ -59,9 +71,37 @@
 			title = note.title;
 			hasUnsavedChanges = false;
 
-			// Update content via reactive variable - RichTextEditor will handle it
+			// Update content via reactive variable AND set it in the editor
 			editorContent = note.content || '';
 			console.log('[NoteEditor] Set editorContent, length:', editorContent.length);
+
+			// Set content in editor if editor is ready
+			if (editorStore) {
+				console.log('[NoteEditor] Setting content in editor');
+				const unsub = editorStore.subscribe((editor) => {
+					if (editor) {
+						const currentContent = editor.getHTML();
+						console.log('[NoteEditor] Current editor content length:', currentContent.length, 'New length:', editorContent.length);
+
+						if (currentContent !== editorContent) {
+							console.log('[NoteEditor] Updating editor content');
+							isSettingContent = true;
+							editor.commands.setContent(editorContent);
+							setTimeout(() => {
+								isSettingContent = false;
+								console.log('[NoteEditor] Content update complete');
+							}, 50);
+						} else {
+							console.log('[NoteEditor] Content unchanged, skipping update');
+						}
+					} else {
+						console.log('[NoteEditor] Editor not ready yet');
+					}
+				});
+				unsub();
+			} else {
+				console.log('[NoteEditor] No editorStore yet, content will be set when editor initializes');
+			}
 		}
 	});
 
@@ -91,7 +131,7 @@
 				return;
 			}
 
-			console.log('[NoteEditor] Editor ready, setting up listeners');
+			console.log('[NoteEditor] Editor ready, setting up listeners and initial content');
 
 			// Remove any existing listeners first
 			editor.off('update');
@@ -106,6 +146,22 @@
 				console.log('[NoteEditor] User edit detected');
 				handleContentChange();
 			});
+
+			// Set initial content if we have a note and editorContent
+			if (note && editorContent && currentNoteId === note.id) {
+				const currentContent = editor.getHTML();
+				console.log('[NoteEditor] Initial content check - current:', currentContent.length, 'expected:', editorContent.length);
+
+				if (currentContent !== editorContent) {
+					console.log('[NoteEditor] Setting initial content in newly ready editor');
+					isSettingContent = true;
+					editor.commands.setContent(editorContent);
+					setTimeout(() => {
+						isSettingContent = false;
+						console.log('[NoteEditor] Initial content set');
+					}, 50);
+				}
+			}
 		});
 
 		return () => {
