@@ -1,8 +1,133 @@
 /** @file src/lib/stores/notes.svelte.ts */
-import { GET_NOTES, CREATE_NOTE, UPDATE_NOTE, UPDATE_NOTES, DELETE_NOTE } from '$lib/graphql/documents';
 import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
 import type { StoreResult } from '$lib/types/todo';
+
+// Temporary raw GraphQL queries until npm run generate is executed
+// TODO: Replace with imports from $lib/graphql/documents after running npm run generate
+const GET_NOTES = `
+	query GetNotes($where: notes_bool_exp = {}, $order_by: [notes_order_by!] = { sort_order: asc, created_at: desc }, $limit: Int = 100, $offset: Int = 0) {
+		notes(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			id
+			board_id
+			user_id
+			title
+			content
+			sort_order
+			created_at
+			updated_at
+			user {
+				id
+				name
+				username
+				image
+				email
+			}
+			board {
+				id
+				name
+				alias
+			}
+		}
+	}
+`;
+
+const CREATE_NOTE = `
+	mutation CreateNote($objects: [notes_insert_input!]!) {
+		insert_notes(objects: $objects) {
+			returning {
+				id
+				board_id
+				user_id
+				title
+				content
+				sort_order
+				created_at
+				updated_at
+				user {
+					id
+					name
+					username
+					image
+					email
+				}
+				board {
+					id
+					name
+					alias
+				}
+			}
+		}
+	}
+`;
+
+const UPDATE_NOTE = `
+	mutation UpdateNote($where: notes_bool_exp!, $_set: notes_set_input!) {
+		update_notes(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				id
+				board_id
+				user_id
+				title
+				content
+				sort_order
+				created_at
+				updated_at
+				user {
+					id
+					name
+					username
+					image
+					email
+				}
+				board {
+					id
+					name
+					alias
+				}
+			}
+		}
+	}
+`;
+
+const UPDATE_NOTES = `
+	mutation UpdateNotes($updates: [notes_updates!]!) {
+		update_notes_many(updates: $updates) {
+			affected_rows
+			returning {
+				id
+				board_id
+				user_id
+				title
+				content
+				sort_order
+				created_at
+				updated_at
+				user {
+					id
+					name
+					username
+					image
+					email
+				}
+				board {
+					id
+					name
+					alias
+				}
+			}
+		}
+	}
+`;
+
+const DELETE_NOTE = `
+	mutation DeleteNote($where: notes_bool_exp!) {
+		delete_notes(where: $where) {
+			affected_rows
+		}
+	}
+`;
 
 // Temporary types until GraphQL codegen runs
 // These will be replaced by generated types from $lib/graphql/generated/graphql
@@ -93,11 +218,9 @@ function createNotesStore() {
 		state.currentBoardId = boardId;
 
 		try {
-			const { Order_By } = await import('$lib/graphql/generated/graphql');
-
 			const data = await request(GET_NOTES, {
 				where: { board_id: { _eq: boardId } },
-				order_by: [{ sort_order: Order_By.Asc }, { created_at: Order_By.Desc }],
+				order_by: [{ sort_order: 'asc' }, { created_at: 'desc' }],
 				limit: 1000,
 				offset: 0
 			}) as GetNotesQuery;
