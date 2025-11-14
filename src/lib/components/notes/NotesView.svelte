@@ -1,14 +1,12 @@
 <!-- @file src/lib/components/notes/NotesView.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { X } from 'lucide-svelte';
 	import {
 		Dialog,
 		DialogContent,
 		DialogHeader,
 		DialogTitle
 	} from '$lib/components/ui/dialog';
-	import { Button } from '$lib/components/ui/button';
 	import { t } from '$lib/i18n';
 	import { notesStore } from '$lib/stores/notes.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
@@ -102,14 +100,9 @@
 </script>
 
 <Dialog {open} onOpenChange={handleOpenChange}>
-	<DialogContent class="flex h-[85vh] max-w-6xl flex-col p-0">
+	<DialogContent class="flex h-[85vh] w-[98%] max-w-[98%] flex-col p-0">
 		<DialogHeader class="border-b px-6 py-4">
-			<div class="flex items-center justify-between">
-				<DialogTitle>{$t('notes.title')}</DialogTitle>
-				<Button variant="ghost" size="sm" onclick={() => (open = false)}>
-					<X class="h-4 w-4" />
-				</Button>
-			</div>
+			<DialogTitle>{$t('notes.title')}</DialogTitle>
 		</DialogHeader>
 
 		<div class="flex flex-1 overflow-hidden">

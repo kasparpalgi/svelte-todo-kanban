@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { get } from 'svelte/store';
-	import { Trash2, Save } from 'lucide-svelte';
+	import { Trash2 } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
@@ -276,12 +276,6 @@
 					{/if}
 				</div>
 				<div class="flex items-center gap-2">
-					{#if hasUnsavedChanges}
-						<Button size="sm" variant="ghost" onclick={saveChanges} disabled={saving}>
-							<Save class="mr-2 h-4 w-4" />
-							Save
-						</Button>
-					{/if}
 					<Button size="sm" variant="ghost" onclick={onDelete}>
 						<Trash2 class="h-4 w-4 text-destructive" />
 					</Button>
