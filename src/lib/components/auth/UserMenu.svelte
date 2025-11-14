@@ -7,13 +7,14 @@
 	import { getUserInitials } from '$lib/utils/getUserInitials';
 	import { clearAllStorage } from '$lib/utils/localStorage';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
-	import { getEffectiveLocale } from '$lib/constants/locale';
+	import { DEFAULT_LOCALE } from '$lib/constants/locale';
 	import { Button } from '$lib/components/ui/button';
 	import { LogOut, Settings } from 'lucide-svelte';
 	import BoardSwitcher from '$lib/components/listBoard/BoardSwitcher.svelte';
 
 	function navigateToSettings() {
-		const currentLang = getEffectiveLocale(page.params.lang, userStore.user?.locale);
+		// Use user's stored locale preference for navigation, NOT the current page URL
+		const currentLang = userStore.user?.locale || DEFAULT_LOCALE;
 		const settingsPath = `/${currentLang}/settings`;
 		console.log('[UserMenu.navigateToSettings]', {
 			'page.params.lang': page.params.lang,
