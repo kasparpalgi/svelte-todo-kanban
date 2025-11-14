@@ -863,6 +863,19 @@ export const ACTIVITY_LOG_FRAGMENT = graphql(`
 			username
 			image
 		}
+		todo {
+			id
+			title
+			list {
+				id
+				name
+				board {
+					id
+					name
+					alias
+				}
+			}
+		}
 	}
 `);
 

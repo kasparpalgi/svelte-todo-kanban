@@ -39,6 +39,8 @@
 	import CardModal from './CardModal.svelte';
 	import NotesButton from '$lib/components/notes/NotesButton.svelte';
 	import NotesView from '$lib/components/notes/NotesView.svelte';
+	import BoardActivityButton from '$lib/components/activity/BoardActivityButton.svelte';
+	import BoardActivityView from '$lib/components/activity/BoardActivityView.svelte';
 
 	let { data } = $props();
 
@@ -50,6 +52,7 @@
 	let showImportDialog: boolean = $state(false);
 	let skipGithubIssue: boolean = $state(false);
 	let showNotesDialog: boolean = $state(false);
+	let showActivityDialog: boolean = $state(false);
 
 	const username: string = $derived(page.params.username || '');
 	const boardAlias: string = $derived(page.params.board || '');
@@ -272,6 +275,7 @@
 						<span class="hidden md:block">Filter</span>
 					</Button>
 					<NotesButton onclick={() => (showNotesDialog = true)} />
+					<BoardActivityButton onclick={() => (showActivityDialog = true)} />
 				</div>
 			</div>
 
@@ -403,5 +407,13 @@
 
 	{#if showNotesDialog && listsStore.selectedBoard}
 		<NotesView bind:open={showNotesDialog} boardId={listsStore.selectedBoard.id} />
+	{/if}
+
+	{#if showActivityDialog && listsStore.selectedBoard}
+		<BoardActivityView
+			bind:open={showActivityDialog}
+			boardId={listsStore.selectedBoard.id}
+			boardName={listsStore.selectedBoard.name}
+		/>
 	{/if}
 {/if}

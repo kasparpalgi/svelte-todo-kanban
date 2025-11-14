@@ -566,5 +566,30 @@
         "hide": "Hide",
         "show": "Show",
         "allSessions": "All Sessions"
+    },
+    "activity": {
+        "title": "Activity",
+        "board_activity": "Board Activity",
+        "board_activity_description": "Recent activity on {{boardName}}",
+        "showing_activities": "Showing {{count}} activities",
+        "loading": "Loading activity...",
+        "no_activity": "No activity yet",
+        "actions": {
+            "created": "created",
+            "updated": "updated",
+            "updated_field": "updated {{field}}",
+            "deleted": "deleted",
+            "completed": "completed",
+            "uncompleted": "uncompleted",
+            "assigned": "assigned",
+            "unassigned": "unassigned",
+            "commented": "commented",
+            "comment_edited": "edited a comment",
+            "comment_deleted": "deleted a comment",
+            "image_added": "added an image",
+            "image_removed": "removed an image",
+            "priority_changed": "changed priority",
+            "due_date_changed": "changed due date"
+        }
     }
 }
