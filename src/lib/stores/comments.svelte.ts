@@ -4,7 +4,8 @@ import {
 	CREATE_COMMENT,
 	UPDATE_COMMENT,
 	DELETE_COMMENT,
-	CREATE_NOTIFICATION
+	CREATE_NOTIFICATION,
+	CREATE_ACTIVITY_LOG
 } from '$lib/graphql/documents';
 import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
@@ -78,8 +79,24 @@ function createCommentsStore() {
 			if (newComment) {
 				state.comments = [...state.comments, newComment];
 
-				// Create notification for assigned user
+				// Log activity: comment created
 				const currentUser = userStore.user;
+				if (currentUser) {
+					try {
+						await request(CREATE_ACTIVITY_LOG, {
+							log: {
+								user_id: currentUser.id,
+								todo_id: todoId,
+								action_type: 'commented'
+							}
+						});
+					} catch (error) {
+						// Non-blocking: log error but don't fail comment creation
+						console.error('[CommentsStore.addComment] Failed to log activity:', error);
+					}
+				}
+
+				// Create notification for assigned user
 				if (currentUser && todo?.assigned_to && todo.assigned_to !== currentUser.id) {
 					try {
 						await request(CREATE_NOTIFICATION, {
@@ -169,6 +186,24 @@ function createCommentsStore() {
 			const updatedComment = data.update_comments?.returning?.[0];
 			if (updatedComment) {
 				state.comments[commentIndex] = updatedComment;
+
+				// Log activity: comment edited
+				const currentUser = userStore.user;
+				if (currentUser) {
+					try {
+						await request(CREATE_ACTIVITY_LOG, {
+							log: {
+								user_id: currentUser.id,
+								todo_id: updatedComment.todo_id,
+								action_type: 'comment_edited'
+							}
+						});
+					} catch (error) {
+						// Non-blocking: log error but don't fail comment update
+						console.error('[CommentsStore.updateComment] Failed to log activity:', error);
+					}
+				}
+
 				return {
 					success: true,
 					message: 'Comment updated successfully',
@@ -193,6 +228,24 @@ function createCommentsStore() {
 		if (commentIndex === -1) return { success: false, message: 'Comment not found' };
 
 		const originalComments = [...state.comments];
+		const todoId = state.comments[commentIndex].todo_id;
+
+		// Log activity BEFORE deletion
+		const currentUser = userStore.user;
+		if (currentUser) {
+			try {
+				await request(CREATE_ACTIVITY_LOG, {
+					log: {
+						user_id: currentUser.id,
+						todo_id: todoId,
+						action_type: 'comment_deleted'
+					}
+				});
+			} catch (error) {
+				// Non-blocking: log error but don't fail deletion
+				console.error('[CommentsStore.deleteComment] Failed to log activity:', error);
+			}
+		}
 
 		// Optimistic delete
 		state.comments = state.comments.filter((c) => c.id !== id);
