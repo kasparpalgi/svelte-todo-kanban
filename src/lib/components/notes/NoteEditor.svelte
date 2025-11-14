@@ -270,9 +270,9 @@
 				<div class="text-xs text-muted-foreground">
 					<span>Updated {formatDate(note.updated_at)}</span>
 					{#if hasUnsavedChanges}
-						<span class="ml-2 text-amber-600">• Unsaved changes</span>
+						<span class="ml-2 text-amber-600">•</span>
 					{:else if saving}
-						<span class="ml-2 text-blue-600">• Saving...</span>
+						<span class="ml-2 text-blue-600">•</span>
 					{/if}
 				</div>
 				<div class="flex items-center gap-2">
