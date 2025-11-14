@@ -50,6 +50,7 @@
 			currentNoteId = null;
 			title = '';
 			editorContent = '';
+			editorInitialized = false; // Reset when no note
 			// Clear editor content if we have an editor
 			if (editorStore) {
 				const unsub = editorStore.subscribe((editor) => {
@@ -71,6 +72,7 @@
 			currentNoteId = note.id;
 			title = note.title;
 			hasUnsavedChanges = false;
+			editorInitialized = false; // Reset when switching notes
 
 			// Update content via reactive variable AND set it in the editor
 			editorContent = note.content || '';
@@ -103,6 +105,8 @@
 			} else {
 				console.log('[NoteEditor] No editorStore yet, content will be set when editor initializes');
 			}
+		} else {
+			console.log('[NoteEditor] Same note (just updated from store) - NOT resetting editor');
 		}
 	});
 
@@ -173,12 +177,12 @@
 		});
 
 		return () => {
-			console.log('[NoteEditor] Effect cleanup function called');
+			console.log('[NoteEditor] EditorStore effect cleanup');
 			if (editorUnsubscribe) {
 				editorUnsubscribe();
 				editorUnsubscribe = null;
 			}
-			editorInitialized = false;
+			// DON'T reset editorInitialized here - it's managed by note changes
 		};
 	});
 
