@@ -1,0 +1,1 @@
+When I switch from settings to another language from default Estonian language then it sometimes switches back and displays still Estonian. Fix that. Search all places where 'et' is included in files to understand.
