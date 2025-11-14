@@ -23,6 +23,12 @@
 	$effect(() => {
 		// Use URL lang param as source of truth, fallback to user locale
 		const lang = page.params.lang || userStore.user?.locale || 'et';
+		console.log('[Layout] Initializing translations with:', {
+			lang,
+			'page.params.lang': page.params.lang,
+			'userStore.user?.locale': userStore.user?.locale,
+			'URL': page.url.pathname
+		});
 		initTranslations(lang);
 	});
 
