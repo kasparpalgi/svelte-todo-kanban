@@ -72,15 +72,26 @@
 			return;
 		}
 
-		const result = await notesStore.deleteNote(selectedNoteId);
+		const deletedId = selectedNoteId;
+
+		// Clear selection first to allow editor cleanup
+		selectedNoteId = null;
+
+		const result = await notesStore.deleteNote(deletedId);
 
 		if (result.success) {
-			// Select another note or clear selection
-			const remainingNotes = notesStore.sortedNotes.filter((n) => n.id !== selectedNoteId);
-			selectedNoteId = remainingNotes.length > 0 ? remainingNotes[0].id : null;
+			// Wait a tick for editor cleanup, then select another note
+			await new Promise(resolve => setTimeout(resolve, 50));
+
+			const remainingNotes = notesStore.sortedNotes;
+			if (remainingNotes.length > 0) {
+				selectedNoteId = remainingNotes[0].id;
+			}
 
 			displayMessage($t('notes.deleted'), 1500, true);
 		} else {
+			// Restore selection if delete failed
+			selectedNoteId = deletedId;
 			displayMessage(result.message, 3000, false);
 		}
 	}
@@ -118,12 +129,14 @@
 
 			<!-- Right Panel: Note Editor -->
 			<div class="flex-1 overflow-hidden">
-				<NoteEditor
-					note={selectedNote}
-					onUpdate={handleUpdateNote}
-					onDelete={handleDeleteNote}
-					{saving}
-				/>
+				{#key selectedNoteId}
+					<NoteEditor
+						note={selectedNote}
+						onUpdate={handleUpdateNote}
+						onDelete={handleDeleteNote}
+						{saving}
+					/>
+				{/key}
 			</div>
 		</div>
 	</DialogContent>
