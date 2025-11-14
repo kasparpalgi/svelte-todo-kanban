@@ -124,11 +124,11 @@
 		</div>
 	{:else}
 		{#each logs as log (log.id)}
+			{@const Icon = getActionIcon(log.action_type)}
 			<div
 				class="group flex items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50"
 			>
 				<div class="mt-0.5 flex-shrink-0">
-					{@const Icon = getActionIcon(log.action_type)}
 					<Icon class="h-4 w-4 {getActionColor(log.action_type)}" />
 				</div>
 				<div class="min-w-0 flex-1">
