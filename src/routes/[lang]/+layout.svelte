@@ -5,6 +5,7 @@
 	import { initTranslations } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
+	import { getEffectiveLocale } from '$lib/constants/locale';
 	import UserMenu from '$lib/components/auth/UserMenu.svelte';
 	import Logo from '$lib/components/ui/Logo.svelte';
 	import UnifiedNotificationBell from '$lib/components/notifications/UnifiedNotificationBell.svelte';
@@ -21,14 +22,20 @@
 	});
 
 	$effect(() => {
-		if (userStore.user) {
-			initTranslations(userStore.user.locale);
-		}
+		// Use URL lang param as source of truth, fallback to user locale
+		const lang = getEffectiveLocale(page.params.lang, userStore.user?.locale);
+		console.log('[Layout] Initializing translations with:', {
+			lang,
+			'page.params.lang': page.params.lang,
+			'userStore.user?.locale': userStore.user?.locale,
+			'URL': page.url.pathname
+		});
+		initTranslations(lang);
 	});
 
 	const logoUrl = $derived(() => {
 		const params = page.params;
-		const lang = params.lang || 'et';
+		const lang = getEffectiveLocale(params.lang, userStore.user?.locale);
 
 		if (params.username && params.board) {
 			return `/${lang}/${params.username}/${params.board}`;
