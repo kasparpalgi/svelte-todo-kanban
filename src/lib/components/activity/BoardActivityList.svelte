@@ -14,6 +14,8 @@
 		Calendar
 	} from 'lucide-svelte';
 	import { formatDistanceToNow } from 'date-fns';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	let { logs }: { logs: any[] } = $props();
 
@@ -115,6 +117,26 @@
 			return timestamp;
 		}
 	}
+
+	function handleActivityClick(log: any) {
+		// Don't navigate if the todo was deleted
+		if (log.action_type === 'deleted') {
+			return;
+		}
+
+		// Navigate to the card modal
+		if (log.todo_id) {
+			const currentUrl = $page.url;
+			const newUrl = new URL(currentUrl);
+			newUrl.searchParams.set('card', log.todo_id);
+			goto(newUrl.toString());
+		}
+	}
+
+	function isClickable(log: any): boolean {
+		// Only make clickable if the todo still exists (not deleted)
+		return log.action_type !== 'deleted' && log.todo_id;
+	}
 </script>
 
 <div class="space-y-1">
@@ -125,8 +147,20 @@
 	{:else}
 		{#each logs as log (log.id)}
 			{@const Icon = getActionIcon(log.action_type)}
+			{@const clickable = isClickable(log)}
 			<div
-				class="group flex items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50"
+				class="group flex items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50 {clickable
+					? 'cursor-pointer'
+					: ''}"
+				onclick={() => clickable && handleActivityClick(log)}
+				role={clickable ? 'button' : undefined}
+				tabindex={clickable ? 0 : undefined}
+				onkeydown={(e) => {
+					if (clickable && (e.key === 'Enter' || e.key === ' ')) {
+						e.preventDefault();
+						handleActivityClick(log);
+					}
+				}}
 			>
 				<div class="mt-0.5 flex-shrink-0">
 					<Icon class="h-4 w-4 {getActionColor(log.action_type)}" />
