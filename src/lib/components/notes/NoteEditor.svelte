@@ -37,6 +37,7 @@
 	let currentNoteId: string | null = null;
 	let editorUnsubscribe: (() => void) | null = null;
 	let editorContent: string = $state('');
+	let editorInitialized: boolean = false;
 
 	console.log('[NoteEditor] Component initialized');
 
@@ -107,10 +108,11 @@
 
 	// Watch for editor store changes
 	$effect(() => {
-		console.log('[NoteEditor] EditorStore effect running, editorStore:', !!editorStore);
+		console.log('[NoteEditor] EditorStore effect running, editorStore:', !!editorStore, 'initialized:', editorInitialized);
 
 		if (!editorStore) {
 			console.log('[NoteEditor] No editorStore yet');
+			editorInitialized = false;
 			return;
 		}
 
@@ -124,43 +126,49 @@
 		// Subscribe to editor store ONLY to set up event listeners
 		console.log('[NoteEditor] Creating new editor subscription');
 		editorUnsubscribe = editorStore.subscribe((editor) => {
-			console.log('[NoteEditor] Subscription callback fired, editor:', !!editor);
+			console.log('[NoteEditor] Subscription callback fired, editor:', !!editor, 'initialized:', editorInitialized);
 
 			if (!editor) {
 				console.log('[NoteEditor] Editor not ready');
 				return;
 			}
 
-			console.log('[NoteEditor] Editor ready, setting up listeners and initial content');
+			// ONLY set up listeners and initial content on FIRST initialization
+			if (!editorInitialized) {
+				console.log('[NoteEditor] First initialization - setting up listeners and initial content');
+				editorInitialized = true;
 
-			// Remove any existing listeners first
-			editor.off('update');
+				// Remove any existing listeners first
+				editor.off('update');
 
-			// Add update listener for user edits
-			editor.on('update', () => {
-				console.log('[NoteEditor] Editor update event, isSettingContent:', isSettingContent);
-				if (isSettingContent) {
-					console.log('[NoteEditor] Ignoring update - programmatic');
-					return;
+				// Add update listener for user edits
+				editor.on('update', () => {
+					console.log('[NoteEditor] Editor update event, isSettingContent:', isSettingContent);
+					if (isSettingContent) {
+						console.log('[NoteEditor] Ignoring update - programmatic');
+						return;
+					}
+					console.log('[NoteEditor] User edit detected');
+					handleContentChange();
+				});
+
+				// Set initial content if we have a note and editorContent
+				if (note && editorContent && currentNoteId === note.id) {
+					const currentContent = editor.getHTML();
+					console.log('[NoteEditor] Initial content check - current:', currentContent.length, 'expected:', editorContent.length);
+
+					if (currentContent !== editorContent) {
+						console.log('[NoteEditor] Setting initial content in newly ready editor');
+						isSettingContent = true;
+						editor.commands.setContent(editorContent);
+						setTimeout(() => {
+							isSettingContent = false;
+							console.log('[NoteEditor] Initial content set');
+						}, 50);
+					}
 				}
-				console.log('[NoteEditor] User edit detected');
-				handleContentChange();
-			});
-
-			// Set initial content if we have a note and editorContent
-			if (note && editorContent && currentNoteId === note.id) {
-				const currentContent = editor.getHTML();
-				console.log('[NoteEditor] Initial content check - current:', currentContent.length, 'expected:', editorContent.length);
-
-				if (currentContent !== editorContent) {
-					console.log('[NoteEditor] Setting initial content in newly ready editor');
-					isSettingContent = true;
-					editor.commands.setContent(editorContent);
-					setTimeout(() => {
-						isSettingContent = false;
-						console.log('[NoteEditor] Initial content set');
-					}, 50);
-				}
+			} else {
+				console.log('[NoteEditor] Already initialized, skipping setup');
 			}
 		});
 
@@ -170,6 +178,7 @@
 				editorUnsubscribe();
 				editorUnsubscribe = null;
 			}
+			editorInitialized = false;
 		};
 	});
 
