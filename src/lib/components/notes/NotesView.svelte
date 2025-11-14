@@ -6,8 +6,7 @@
 		Dialog,
 		DialogContent,
 		DialogHeader,
-		DialogTitle,
-		DialogPortal
+		DialogTitle
 	} from '$lib/components/ui/dialog';
 	import { Button } from '$lib/components/ui/button';
 	import { t } from '$lib/i18n';
@@ -93,38 +92,36 @@
 </script>
 
 <Dialog {open} onOpenChange={handleOpenChange}>
-	<DialogPortal>
-		<DialogContent class="flex h-[85vh] max-w-6xl flex-col p-0">
-			<DialogHeader class="border-b px-6 py-4">
-				<div class="flex items-center justify-between">
-					<DialogTitle>{$t('notes.title')}</DialogTitle>
-					<Button variant="ghost" size="sm" onclick={() => (open = false)}>
-						<X class="h-4 w-4" />
-					</Button>
-				</div>
-			</DialogHeader>
-
-			<div class="flex flex-1 overflow-hidden">
-				<!-- Left Sidebar: Notes List -->
-				<div class="w-80 flex-shrink-0">
-					<NotesList
-						notes={notesStore.sortedNotes}
-						{selectedNoteId}
-						onNoteSelect={handleNoteSelect}
-						onCreateNote={handleCreateNote}
-					/>
-				</div>
-
-				<!-- Right Panel: Note Editor -->
-				<div class="flex-1 overflow-hidden">
-					<NoteEditor
-						note={selectedNote}
-						onUpdate={handleUpdateNote}
-						onDelete={handleDeleteNote}
-						{saving}
-					/>
-				</div>
+	<DialogContent class="flex h-[85vh] max-w-6xl flex-col p-0">
+		<DialogHeader class="border-b px-6 py-4">
+			<div class="flex items-center justify-between">
+				<DialogTitle>{$t('notes.title')}</DialogTitle>
+				<Button variant="ghost" size="sm" onclick={() => (open = false)}>
+					<X class="h-4 w-4" />
+				</Button>
 			</div>
-		</DialogContent>
-	</DialogPortal>
+		</DialogHeader>
+
+		<div class="flex flex-1 overflow-hidden">
+			<!-- Left Sidebar: Notes List -->
+			<div class="w-80 flex-shrink-0">
+				<NotesList
+					notes={notesStore.sortedNotes}
+					{selectedNoteId}
+					onNoteSelect={handleNoteSelect}
+					onCreateNote={handleCreateNote}
+				/>
+			</div>
+
+			<!-- Right Panel: Note Editor -->
+			<div class="flex-1 overflow-hidden">
+				<NoteEditor
+					note={selectedNote}
+					onUpdate={handleUpdateNote}
+					onDelete={handleDeleteNote}
+					{saving}
+				/>
+			</div>
+		</div>
+	</DialogContent>
 </Dialog>
