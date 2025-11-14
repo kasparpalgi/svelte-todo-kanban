@@ -1,0 +1,91 @@
+table:
+  name: notes
+  schema: public
+object_relationships:
+  - name: board
+    using:
+      foreign_key_constraint_on: board_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        _or:
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+      set:
+        user_id: x-hasura-User-Id
+      columns:
+        - board_id
+        - content
+        - created_at
+        - id
+        - sort_order
+        - title
+        - updated_at
+        - user_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - board_id
+        - content
+        - created_at
+        - id
+        - sort_order
+        - title
+        - updated_at
+        - user_id
+      filter:
+        _or:
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+          - board:
+              is_public:
+                _eq: true
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - content
+        - sort_order
+        - title
+        - updated_at
+      filter:
+        _or:
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        _or:
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+    comment: ""
