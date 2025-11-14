@@ -42,12 +42,12 @@
 
 			// Update editor content
 			if (editorStore) {
-				const editor = editorStore;
-				const unsubscribe = editor.subscribe((e) => {
+				let unsubscribe: (() => void) | undefined;
+				unsubscribe = editorStore.subscribe((e) => {
 					if (e && note.content !== undefined) {
 						e.commands.setContent(note.content || '');
 					}
-					unsubscribe();
+					if (unsubscribe) unsubscribe();
 				});
 			}
 		}
