@@ -4,18 +4,25 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
+	import { page } from '$app/state';
 	import { pwaInfo } from 'virtual:pwa-info';
 	import { initTranslations } from '$lib/i18n';
 	import { ModeWatcher } from 'mode-watcher';
 	import ErrorSuccess from '$lib/components/ui/ErrorSuccess.svelte';
 	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
 	import faviconUrl from '$lib/assets/favicon.svg?url';
+	import { DEFAULT_LOCALE } from '$lib/constants/locale';
 
 	let { children, data } = $props();
 
 	$effect(() => {
-		const locale = data?.session?.user?.locale || 'et';
-		initTranslations(locale);
+		// Only initialize translations for routes WITHOUT [lang] param (like /signin)
+		// Routes with [lang] are handled by [lang]/+layout.svelte
+		if (!page.params.lang) {
+			const locale = data?.session?.user?.locale || DEFAULT_LOCALE;
+			console.log('[Root Layout] Initializing translations for non-lang route:', locale);
+			initTranslations(locale);
+		}
 	});
 
 	onMount(async () => {
