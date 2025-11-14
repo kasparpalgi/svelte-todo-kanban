@@ -69,7 +69,7 @@
 					<p>{activityLogStore.error}</p>
 				</div>
 			{:else}
-				<BoardActivityList logs={activityLogStore.logs} />
+				<BoardActivityList logs={activityLogStore.logs} onClose={() => (open = false)} />
 			{/if}
 		</div>
 	</DialogContent>
