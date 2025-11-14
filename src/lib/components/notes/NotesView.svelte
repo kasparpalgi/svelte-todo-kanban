@@ -100,7 +100,7 @@
 </script>
 
 <Dialog {open} onOpenChange={handleOpenChange}>
-	<DialogContent class="flex h-[85vh] w-[96vw] max-w-[96vw] flex-col p-0">
+	<DialogContent class="!max-w-[96vw] flex h-[85vh] w-[96vw] flex-col p-0">
 		<DialogHeader class="border-b px-6 py-4">
 			<DialogTitle>{$t('notes.title')}</DialogTitle>
 		</DialogHeader>
