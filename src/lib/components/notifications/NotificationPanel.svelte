@@ -5,6 +5,7 @@
 	import { notificationStore } from '$lib/stores/notifications.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
+	import { getEffectiveLocale } from '$lib/constants/locale';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 

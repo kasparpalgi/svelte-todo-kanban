@@ -13,6 +13,7 @@
 	import { userStore } from '$lib/stores/user.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
+	import { getEffectiveLocale } from '$lib/constants/locale';
 	import { t } from '$lib/i18n';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';

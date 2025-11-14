@@ -9,6 +9,7 @@
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
+	import { getEffectiveLocale } from '$lib/constants/locale';
 	import { formatDateWithFuture } from '$lib/utils/dateTime.svelte';
 	import { shortenText } from '$lib/utils/shortenText';
 	import { stripHtml } from '$lib/utils/stripHtml';
