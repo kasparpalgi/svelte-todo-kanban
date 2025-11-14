@@ -3,6 +3,8 @@ import { PUBLIC_APP_ENV, PUBLIC_API_ENV } from '$env/static/public';
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { getTopBoardPath } from '$lib/utils/getTopBoardPath';
+import { request } from '$lib/graphql/client';
+import { GET_USERS } from '$lib/graphql/documents';
 
 const allowedAppEnvs = ['production', 'testing', 'development'] as const;
 const allowedApiEnvs = ['production', 'development'] as const;
@@ -36,7 +38,21 @@ export const load: LayoutServerLoad = async (event) => {
 		if (topBoardPath) {
 			throw redirect(302, topBoardPath);
 		} else {
-			const locale = session.user?.locale || 'et';
+			// Fetch user's current locale from database to avoid using stale session data
+			let locale = 'et';
+			if (session.user?.id) {
+				const userData = (await request(
+					GET_USERS,
+					{
+						where: { id: { _eq: session.user.id } },
+						limit: 1
+					},
+					undefined,
+					fetch
+				)) as any;
+
+				locale = userData.users?.[0]?.locale || 'et';
+			}
 			throw redirect(302, `/${locale}`);
 		}
 	}

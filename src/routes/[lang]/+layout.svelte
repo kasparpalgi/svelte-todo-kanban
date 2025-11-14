@@ -21,9 +21,9 @@
 	});
 
 	$effect(() => {
-		if (userStore.user) {
-			initTranslations(userStore.user.locale);
-		}
+		// Use URL lang param as source of truth, fallback to user locale
+		const lang = page.params.lang || userStore.user?.locale || 'et';
+		initTranslations(lang);
 	});
 
 	const logoUrl = $derived(() => {

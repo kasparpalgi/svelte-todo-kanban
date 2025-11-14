@@ -11,13 +11,6 @@ export const load: LayoutServerLoad = async (event) => {
 		throw redirect(302, `/signin`);
 	}
 
-	// Validate that URL language matches user's stored locale preference
-	if (session?.user?.locale && params.lang !== session.user.locale) {
-		// Replace the lang parameter in the URL with the user's preferred locale
-		const newPath = url.pathname.replace(`/${params.lang}/`, `/${session.user.locale}/`);
-		throw redirect(302, newPath + url.search);
-	}
-
 	const pathSegments = url.pathname.split('/').filter(Boolean);
 	const isLanguageRootOnly = pathSegments.length === 1 && pathSegments[0] === params.lang;
 

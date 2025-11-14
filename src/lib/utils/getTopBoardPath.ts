@@ -1,6 +1,6 @@
 /** @file src/lib/utils/getTopBoardPath.ts */
 import { request } from '$lib/graphql/client';
-import { GET_BOARDS } from '$lib/graphql/documents';
+import { GET_BOARDS, GET_USERS } from '$lib/graphql/documents';
 import type { GetBoardsQuery } from '$lib/graphql/generated/graphql';
 
 export async function getTopBoardPath(
@@ -8,6 +8,22 @@ export async function getTopBoardPath(
 	fetch: typeof globalThis.fetch
 ): Promise<string | null> {
 	try {
+		// Fetch the user's current locale from database to avoid using stale session data
+		let userLocale = 'et';
+		if (session?.user?.id) {
+			const userData = (await request(
+				GET_USERS,
+				{
+					where: { id: { _eq: session.user.id } },
+					limit: 1
+				},
+				undefined,
+				fetch
+			)) as any;
+
+			userLocale = userData.users?.[0]?.locale || 'et';
+		}
+
 		const lastBoardAlias = session?.user?.settings?.lastBoardAlias;
 
 		if (lastBoardAlias) {
@@ -25,8 +41,7 @@ export async function getTopBoardPath(
 				const board = dataByAlias.boards[0];
 
 				if (board.user?.username && board.alias) {
-					const locale = session.user?.locale || 'et';
-					return `/${locale}/${board.user.username}/${board.alias}`;
+					return `/${userLocale}/${board.user.username}/${board.alias}`;
 				}
 			}
 		}
@@ -45,8 +60,7 @@ export async function getTopBoardPath(
 			const board = data.boards[0];
 
 			if (board.user?.username && board.alias) {
-				const locale = session.user?.locale || 'et';
-				return `/${locale}/${board.user.username}/${board.alias}`;
+				return `/${userLocale}/${board.user.username}/${board.alias}`;
 			}
 		}
 
