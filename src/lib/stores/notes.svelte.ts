@@ -211,10 +211,7 @@ function createNotesStore() {
 	);
 
 	async function loadNotes(boardId: string): Promise<NoteFieldsFragment[]> {
-		console.log('[NotesStore.loadNotes] Called with boardId:', boardId);
-
 		if (!browser) {
-			console.log('[NotesStore.loadNotes] Not in browser, skipping');
 			return [];
 		}
 
@@ -223,7 +220,6 @@ function createNotesStore() {
 		state.currentBoardId = boardId;
 
 		try {
-			console.log('[NotesStore.loadNotes] Fetching notes from API');
 			const data = await request(GET_NOTES, {
 				where: { board_id: { _eq: boardId } },
 				order_by: [{ sort_order: 'asc' }, { created_at: 'desc' }],
@@ -231,7 +227,6 @@ function createNotesStore() {
 				offset: 0
 			}) as GetNotesQuery;
 
-			console.log('[NotesStore.loadNotes] Received notes:', data.notes?.length || 0);
 			state.notes = data.notes || [];
 			return state.notes;
 		} catch (error) {
@@ -249,17 +244,13 @@ function createNotesStore() {
 		title: string = 'Untitled Note',
 		content: string = ''
 	): Promise<StoreResult> {
-		console.log('[NotesStore.createNote] Called with boardId:', boardId, 'title:', title);
-
 		if (!browser) {
-			console.log('[NotesStore.createNote] Not in browser, skipping');
 			return { success: false, message: 'Not in browser' };
 		}
 
 		try {
 			// Calculate next sort_order
 			const maxSortOrder = state.notes.reduce((max, note) => Math.max(max, note.sort_order), 0);
-			console.log('[NotesStore.createNote] Max sort_order:', maxSortOrder, 'new will be:', maxSortOrder + 1);
 
 			const data = await request(CREATE_NOTE, {
 				objects: [
@@ -273,11 +264,9 @@ function createNotesStore() {
 			}) as CreateNoteMutation;
 
 			const newNote = data.insert_notes?.returning?.[0];
-			console.log('[NotesStore.createNote] API response, newNote:', newNote?.id);
 
 			if (newNote) {
 				state.notes = [...state.notes, newNote];
-				console.log('[NotesStore.createNote] Note added to store, total notes:', state.notes.length);
 				return {
 					success: true,
 					message: 'Note created successfully',
@@ -285,7 +274,6 @@ function createNotesStore() {
 				};
 			}
 
-			console.log('[NotesStore.createNote] Failed - no note in response');
 			return { success: false, message: 'Failed to create note' };
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error creating note';

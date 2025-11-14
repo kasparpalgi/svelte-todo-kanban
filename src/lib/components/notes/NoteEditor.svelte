@@ -37,14 +37,9 @@
 	let currentNoteId: string | null = null;
 	let editorUnsubscribe: (() => void) | null = null;
 
-	console.log('[NoteEditor] Component created');
-
 	// Update when note changes
 	$effect(() => {
-		console.log('[NoteEditor] Note changed:', note?.id);
-
 		if (!note) {
-			console.log('[NoteEditor] No note');
 			currentNoteId = null;
 			title = '';
 			return;
@@ -52,7 +47,6 @@
 
 		// Only update if it's actually a different note
 		if (currentNoteId !== note.id) {
-			console.log('[NoteEditor] New note selected:', note.id);
 			currentNoteId = note.id;
 			title = note.title;
 			hasUnsavedChanges = false;
@@ -64,8 +58,6 @@
 
 	// Watch for editor store changes
 	$effect(() => {
-		console.log('[NoteEditor] EditorStore changed:', !!editorStore);
-
 		if (!editorStore) return;
 
 		// Clean up previous subscription if any
@@ -77,11 +69,8 @@
 		// Subscribe to editor store
 		editorUnsubscribe = editorStore.subscribe((editor) => {
 			if (!editor) {
-				console.log('[NoteEditor] Editor not ready yet');
 				return;
 			}
-
-			console.log('[NoteEditor] Editor ready, setting up update listener');
 
 			// Remove any existing listeners first
 			editor.off('update');
@@ -89,10 +78,8 @@
 			// Add update listener
 			editor.on('update', () => {
 				if (isSettingContent) {
-					console.log('[NoteEditor] Ignoring update - programmatic change');
 					return;
 				}
-				console.log('[NoteEditor] User edited content');
 				handleContentChange();
 			});
 
@@ -103,7 +90,6 @@
 		});
 
 		return () => {
-			console.log('[NoteEditor] Cleaning up editor subscription');
 			if (editorUnsubscribe) {
 				editorUnsubscribe();
 				editorUnsubscribe = null;
@@ -112,10 +98,7 @@
 	});
 
 	function updateEditorContent(content: string) {
-		console.log('[NoteEditor] updateEditorContent called, length:', content.length);
-
 		if (!editorStore) {
-			console.log('[NoteEditor] No editor store');
 			return;
 		}
 
@@ -123,15 +106,12 @@
 			if (!editor) return;
 
 			const currentContent = editor.getHTML();
-			console.log('[NoteEditor] Current:', currentContent.length, 'New:', content.length);
 
 			if (currentContent !== content) {
-				console.log('[NoteEditor] Setting editor content');
 				isSettingContent = true;
 				editor.commands.setContent(content);
 				setTimeout(() => {
 					isSettingContent = false;
-					console.log('[NoteEditor] Content setting complete');
 				}, 50);
 			}
 		});
@@ -139,35 +119,27 @@
 	}
 
 	function handleTitleChange() {
-		console.log('[NoteEditor] Title changed');
 		hasUnsavedChanges = true;
 		scheduleAutoSave();
 	}
 
 	function handleContentChange() {
-		console.log('[NoteEditor] Content changed');
 		hasUnsavedChanges = true;
 		scheduleAutoSave();
 	}
 
 	function scheduleAutoSave() {
-		console.log('[NoteEditor] Scheduling auto-save');
-
 		if (autoSaveTimeout) {
 			clearTimeout(autoSaveTimeout);
 		}
 
 		autoSaveTimeout = setTimeout(() => {
-			console.log('[NoteEditor] Auto-save triggered');
 			saveChanges();
 		}, 1000);
 	}
 
 	async function saveChanges() {
-		console.log('[NoteEditor] saveChanges, hasChanges:', hasUnsavedChanges, 'note:', !!note);
-
 		if (!hasUnsavedChanges || !editorStore || !note) {
-			console.log('[NoteEditor] Skipping save');
 			return;
 		}
 
@@ -183,19 +155,15 @@
 
 		if (title !== note.title) {
 			updates.title = title;
-			console.log('[NoteEditor] Title updated');
 		}
 
 		if (content !== note.content) {
 			updates.content = content;
-			console.log('[NoteEditor] Content updated, length:', content.length);
 		}
 
 		if (Object.keys(updates).length > 0) {
-			console.log('[NoteEditor] Saving updates');
 			await onUpdate(updates);
 			hasUnsavedChanges = false;
-			console.log('[NoteEditor] Save complete');
 		}
 	}
 
@@ -210,12 +178,7 @@
 		});
 	}
 
-	onMount(() => {
-		console.log('[NoteEditor] onMount');
-	});
-
 	onDestroy(() => {
-		console.log('[NoteEditor] onDestroy');
 		if (autoSaveTimeout) {
 			clearTimeout(autoSaveTimeout);
 		}
