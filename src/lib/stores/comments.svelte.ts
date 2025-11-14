@@ -80,21 +80,19 @@ function createCommentsStore() {
 				state.comments = [...state.comments, newComment];
 
 				// Log activity: comment created
-				const currentUser = userStore.user;
-				if (currentUser) {
-					try {
-						await request(CREATE_ACTIVITY_LOG, {
-							log: {
-								user_id: currentUser.id,
-								todo_id: todoId,
-								action_type: 'commented'
-							}
-						});
-					} catch (error) {
-						// Non-blocking: log error but don't fail comment creation
-						console.error('[CommentsStore.addComment] Failed to log activity:', error);
-					}
+				try {
+					await request(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: todoId,
+							action_type: 'commented'
+						}
+					});
+				} catch (error) {
+					// Non-blocking: log error but don't fail comment creation
+					console.error('[CommentsStore.addComment] Failed to log activity:', error);
 				}
+
+				const currentUser = userStore.user;
 
 				// Create notification for assigned user
 				if (currentUser && todo?.assigned_to && todo.assigned_to !== currentUser.id) {
@@ -188,20 +186,16 @@ function createCommentsStore() {
 				state.comments[commentIndex] = updatedComment;
 
 				// Log activity: comment edited
-				const currentUser = userStore.user;
-				if (currentUser) {
-					try {
-						await request(CREATE_ACTIVITY_LOG, {
-							log: {
-								user_id: currentUser.id,
-								todo_id: updatedComment.todo_id,
-								action_type: 'comment_edited'
-							}
-						});
-					} catch (error) {
-						// Non-blocking: log error but don't fail comment update
-						console.error('[CommentsStore.updateComment] Failed to log activity:', error);
-					}
+				try {
+					await request(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: updatedComment.todo_id,
+							action_type: 'comment_edited'
+						}
+					});
+				} catch (error) {
+					// Non-blocking: log error but don't fail comment update
+					console.error('[CommentsStore.updateComment] Failed to log activity:', error);
 				}
 
 				return {
@@ -231,20 +225,16 @@ function createCommentsStore() {
 		const todoId = state.comments[commentIndex].todo_id;
 
 		// Log activity BEFORE deletion
-		const currentUser = userStore.user;
-		if (currentUser) {
-			try {
-				await request(CREATE_ACTIVITY_LOG, {
-					log: {
-						user_id: currentUser.id,
-						todo_id: todoId,
-						action_type: 'comment_deleted'
-					}
-				});
-			} catch (error) {
-				// Non-blocking: log error but don't fail deletion
-				console.error('[CommentsStore.deleteComment] Failed to log activity:', error);
-			}
+		try {
+			await request(CREATE_ACTIVITY_LOG, {
+				log: {
+					todo_id: todoId,
+					action_type: 'comment_deleted'
+				}
+			});
+		} catch (error) {
+			// Non-blocking: log error but don't fail deletion
+			console.error('[CommentsStore.deleteComment] Failed to log activity:', error);
 		}
 
 		// Optimistic delete

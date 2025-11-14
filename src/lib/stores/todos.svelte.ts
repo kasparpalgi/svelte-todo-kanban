@@ -208,19 +208,16 @@ function createTodosStore() {
 				}
 
 				// Log activity: todo created
-				if (us.user?.id) {
-					try {
-						await request(CREATE_ACTIVITY_LOG, {
-							log: {
-								user_id: us.user.id,
-								todo_id: newTodo.id,
-								action_type: 'created'
-							}
-						});
-					} catch (error) {
-						// Non-blocking: log error but don't fail todo creation
-						console.error('[TodosStore.addTodo] Failed to log activity:', error);
-					}
+				try {
+					await request(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: newTodo.id,
+							action_type: 'created'
+						}
+					});
+				} catch (error) {
+					// Non-blocking: log error but don't fail todo creation
+					console.error('[TodosStore.addTodo] Failed to log activity:', error);
 				}
 
 				// Create GitHub issue if requested
@@ -357,45 +354,41 @@ function createTodosStore() {
 				}
 
 				// Log activity based on what changed
-				const { userStore: us } = await import('./user.svelte');
-				if (us.user?.id) {
-					try {
-						let actionType: string = 'updated';
-						let fieldName: string | undefined;
-						let oldValue: string | undefined;
-						let newValue: string | undefined;
+				try {
+					let actionType: string = 'updated';
+					let fieldName: string | undefined;
+					let oldValue: string | undefined;
+					let newValue: string | undefined;
 
-						// Determine action type based on what changed
-						if (updates.completed_at !== undefined) {
-							actionType = updates.completed_at ? 'completed' : 'uncompleted';
-						} else if (updates.priority !== undefined) {
-							actionType = 'priority_changed';
-							fieldName = 'priority';
-							oldValue = originalTodo.priority?.toString() || '';
-							newValue = updates.priority?.toString() || '';
-						} else if (updates.due_on !== undefined) {
-							actionType = 'due_date_changed';
-							fieldName = 'due_on';
-							oldValue = originalTodo.due_on || '';
-							newValue = updates.due_on || '';
-						} else if (updates.assigned_to !== undefined) {
-							actionType = updates.assigned_to ? 'assigned' : 'unassigned';
-						}
-
-						await request(CREATE_ACTIVITY_LOG, {
-							log: {
-								user_id: us.user.id,
-								todo_id: id,
-								action_type: actionType,
-								field_name: fieldName,
-								old_value: oldValue,
-								new_value: newValue
-							}
-						});
-					} catch (error) {
-						// Non-blocking: log error but don't fail todo update
-						console.error('[TodosStore.updateTodo] Failed to log activity:', error);
+					// Determine action type based on what changed
+					if (updates.completed_at !== undefined) {
+						actionType = updates.completed_at ? 'completed' : 'uncompleted';
+					} else if (updates.priority !== undefined) {
+						actionType = 'priority_changed';
+						fieldName = 'priority';
+						oldValue = originalTodo.priority?.toString() || '';
+						newValue = updates.priority?.toString() || '';
+					} else if (updates.due_on !== undefined) {
+						actionType = 'due_date_changed';
+						fieldName = 'due_on';
+						oldValue = originalTodo.due_on || '';
+						newValue = updates.due_on || '';
+					} else if (updates.assigned_to !== undefined) {
+						actionType = updates.assigned_to ? 'assigned' : 'unassigned';
 					}
+
+					await request(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: id,
+							action_type: actionType,
+							field_name: fieldName,
+							old_value: oldValue,
+							new_value: newValue
+						}
+					});
+				} catch (error) {
+					// Non-blocking: log error but don't fail todo update
+					console.error('[TodosStore.updateTodo] Failed to log activity:', error);
 				}
 
 				// Sync to GitHub if todo is linked to a GitHub issue
@@ -442,20 +435,16 @@ function createTodosStore() {
 
 			if (data.insert_uploads?.returning?.[0]) {
 				// Log activity: image added
-				const { userStore: us } = await import('./user.svelte');
-				if (us.user?.id) {
-					try {
-						await request(CREATE_ACTIVITY_LOG, {
-							log: {
-								user_id: us.user.id,
-								todo_id: todoId,
-								action_type: 'image_added'
-							}
-						});
-					} catch (error) {
-						// Non-blocking: log error but don't fail upload
-						console.error('[TodosStore.createUpload] Failed to log activity:', error);
-					}
+				try {
+					await request(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: todoId,
+							action_type: 'image_added'
+						}
+					});
+				} catch (error) {
+					// Non-blocking: log error but don't fail upload
+					console.error('[TodosStore.createUpload] Failed to log activity:', error);
 				}
 
 				// Refresh the todo to get updated uploads
@@ -483,20 +472,16 @@ function createTodosStore() {
 
 			if (data.delete_uploads?.affected_rows && data.delete_uploads.affected_rows > 0) {
 				// Log activity: image removed
-				const { userStore: us } = await import('./user.svelte');
-				if (us.user?.id) {
-					try {
-						await request(CREATE_ACTIVITY_LOG, {
-							log: {
-								user_id: us.user.id,
-								todo_id: todoId,
-								action_type: 'image_removed'
-							}
-						});
-					} catch (error) {
-						// Non-blocking: log error but don't fail deletion
-						console.error('[TodosStore.deleteUpload] Failed to log activity:', error);
-					}
+				try {
+					await request(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: todoId,
+							action_type: 'image_removed'
+						}
+					});
+				} catch (error) {
+					// Non-blocking: log error but don't fail deletion
+					console.error('[TodosStore.deleteUpload] Failed to log activity:', error);
 				}
 
 				// Refresh the todo to get updated uploads
@@ -553,12 +538,10 @@ function createTodosStore() {
 		const boardGithub = todo?.list?.board?.github;
 
 		// Log activity BEFORE deletion (since todo will be removed)
-		const { userStore: us } = await import('./user.svelte');
-		if (us.user?.id && todo) {
+		if (todo) {
 			try {
 				await request(CREATE_ACTIVITY_LOG, {
 					log: {
-						user_id: us.user.id,
 						todo_id: id,
 						action_type: 'deleted'
 					}
