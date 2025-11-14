@@ -464,6 +464,17 @@ Testing has been deferred as it requires:
 
 ### Task 8: Documentation & Cleanup ✓ COMPLETED
 
+**Cleanup Actions Performed:**
+- ✅ Removed all debug `console.log()` statements from notes components
+- ✅ Kept `console.error()` for production error logging
+- ✅ Committed cleanup changes (commit: b971b64)
+- ✅ Pushed to remote branch
+
+**Files Cleaned:**
+- `src/lib/components/notes/NoteEditor.svelte` - Removed 14 console.log statements
+- `src/lib/components/notes/NotesView.svelte` - Removed 12 console.log statements
+- `src/lib/stores/notes.svelte.ts` - Removed 10 console.log statements
+
 **Summary of Implementation:**
 
 The Evernote-like notes feature has been successfully implemented with all core functionality:
@@ -528,6 +539,41 @@ The Evernote-like notes feature has been successfully implemented with all core 
 - ✅ Consistent error handling
 - ✅ shadcn-svelte UI components
 - ✅ Follows existing codebase conventions
+
+**Critical Bug Fixes:**
+
+During implementation, several critical bugs were identified and fixed:
+
+1. **GraphQL Codegen Issue** (commit: 7fb8b00)
+   - Problem: `graphql()` function returned `[object Object]` instead of query strings
+   - Root cause: `npm run generate` needs Hasura running before codegen can work
+   - Solution: Used raw GraphQL string queries in `notes.svelte.ts` until codegen runs
+
+2. **Temporal Dead Zone Error** (commit: 7629f48)
+   - Problem: `Cannot access 'unsubscribe' before initialization` in NoteEditor
+   - Root cause: Declaring `const` and using it in same callback scope
+   - Solution: Declare as `let` before assignment to avoid TDZ error
+
+3. **Transparent Modal Issue** (commit: 8640106)
+   - Problem: Dialog was barely visible and buttons unclickable
+   - Root cause: Using `DialogPortal` wrapper incorrectly
+   - Solution: Removed `DialogPortal`, use standard `Dialog -> DialogContent` pattern
+
+4. **Critical Browser Freeze** (commit: 9a47457)
+   - Problem: Infinite loop causing browser crash when opening notes modal
+   - Root cause: Subscribing to `editorStore` inside `$effect` without proper cleanup
+   - Solution: Complete restructure with two separate effects, proper subscription lifecycle management
+   - Details:
+     - Separated note watching and editor watching into distinct `$effect` blocks
+     - Store subscription in `editorUnsubscribe` variable with cleanup
+     - Use short-lived subscriptions in utility functions
+     - Remove duplicate event listeners with `editor.off('update')`
+     - Track `currentNoteId` to avoid re-processing same note
+
+5. **Console Cleanup** (commit: b971b64)
+   - Removed 36+ debug console.log statements
+   - Kept console.error for production error logging
+   - Improved performance by reducing console noise
 
 **Manual Steps Still Required:**
 1. Apply Hasura migration: `cd hasura && hasura migrate apply --database-name default`
