@@ -1,6 +1,7 @@
 <!-- @file src/lib/components/notes/NoteEditor.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { get } from 'svelte/store';
 	import { Trash2, Save } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -53,15 +54,13 @@
 			editorInitialized = false; // Reset when no note
 			// Clear editor content if we have an editor
 			if (editorStore) {
-				const unsub = editorStore.subscribe((editor) => {
-					if (editor) {
-						console.log('[NoteEditor] Clearing editor content');
-						isSettingContent = true;
-						editor.commands.setContent('');
-						setTimeout(() => { isSettingContent = false; }, 50);
-					}
-				});
-				unsub();
+				const editor = get(editorStore);
+				if (editor) {
+					console.log('[NoteEditor] Clearing editor content');
+					isSettingContent = true;
+					editor.commands.setContent('');
+					setTimeout(() => { isSettingContent = false; }, 50);
+				}
 			}
 			return;
 		}
@@ -78,30 +77,27 @@
 			editorContent = note.content || '';
 			console.log('[NoteEditor] Set editorContent, length:', editorContent.length);
 
-			// Set content in editor if editor is ready
+			// Set content in editor if editor is ready - use get() to avoid subscription loop
 			if (editorStore) {
-				console.log('[NoteEditor] Setting content in editor');
-				const unsub = editorStore.subscribe((editor) => {
-					if (editor) {
-						const currentContent = editor.getHTML();
-						console.log('[NoteEditor] Current editor content length:', currentContent.length, 'New length:', editorContent.length);
+				const editor = get(editorStore);
+				if (editor) {
+					const currentContent = editor.getHTML();
+					console.log('[NoteEditor] Current editor content length:', currentContent.length, 'New length:', editorContent.length);
 
-						if (currentContent !== editorContent) {
-							console.log('[NoteEditor] Updating editor content');
-							isSettingContent = true;
-							editor.commands.setContent(editorContent);
-							setTimeout(() => {
-								isSettingContent = false;
-								console.log('[NoteEditor] Content update complete');
-							}, 50);
-						} else {
-							console.log('[NoteEditor] Content unchanged, skipping update');
-						}
+					if (currentContent !== editorContent) {
+						console.log('[NoteEditor] Updating editor content');
+						isSettingContent = true;
+						editor.commands.setContent(editorContent);
+						setTimeout(() => {
+							isSettingContent = false;
+							console.log('[NoteEditor] Content update complete');
+						}, 50);
 					} else {
-						console.log('[NoteEditor] Editor not ready yet');
+						console.log('[NoteEditor] Content unchanged, skipping update');
 					}
-				});
-				unsub();
+				} else {
+					console.log('[NoteEditor] Editor not ready yet, content will be set when editor initializes');
+				}
 			} else {
 				console.log('[NoteEditor] No editorStore yet, content will be set when editor initializes');
 			}
@@ -217,13 +213,9 @@
 			return;
 		}
 
-		let content = '';
-		const unsub = editorStore.subscribe((editor) => {
-			if (editor) {
-				content = editor.getHTML();
-			}
-		});
-		unsub();
+		// Get current editor content without subscribing
+		const editor = get(editorStore);
+		const content = editor ? editor.getHTML() : '';
 
 		const updates: { title?: string; content?: string } = {};
 
@@ -236,6 +228,7 @@
 		}
 
 		if (Object.keys(updates).length > 0) {
+			console.log('[NoteEditor] Saving updates:', updates);
 			await onUpdate(updates);
 			hasUnsavedChanges = false;
 		}
