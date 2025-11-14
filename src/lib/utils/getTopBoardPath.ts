@@ -2,6 +2,7 @@
 import { request } from '$lib/graphql/client';
 import { GET_BOARDS, GET_USERS } from '$lib/graphql/documents';
 import type { GetBoardsQuery } from '$lib/graphql/generated/graphql';
+import { DEFAULT_LOCALE } from '$lib/constants/locale';
 
 export async function getTopBoardPath(
 	session: any,
@@ -9,7 +10,7 @@ export async function getTopBoardPath(
 ): Promise<string | null> {
 	try {
 		// Fetch the user's current locale from database to avoid using stale session data
-		let userLocale = 'et';
+		let userLocale = DEFAULT_LOCALE;
 		if (session?.user?.id) {
 			const userData = (await request(
 				GET_USERS,
@@ -21,7 +22,7 @@ export async function getTopBoardPath(
 				fetch
 			)) as any;
 
-			userLocale = userData.users?.[0]?.locale || 'et';
+			userLocale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
 			console.log('[getTopBoardPath] Fetched user locale from DB:', {
 				userLocale,
 				sessionLocale: session.user?.locale,

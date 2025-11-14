@@ -22,7 +22,7 @@
 	});
 
 	function selectBoard(board: (typeof listsStore.boards)[0]) {
-		const lang = page.params.lang || userStore.user?.locale || 'et';
+		const lang = getEffectiveLocale(page.params.lang, userStore.user?.locale);
 
 		if (board && board.user?.username && board.alias) {
 			goto(`/${lang}/${board.user.username}/${board.alias}`);

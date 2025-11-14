@@ -40,7 +40,7 @@
 		onDelete
 	}: TodoItemProps = $props();
 
-	const lang = $derived(page.params.lang || userStore.user?.locale || 'et');
+	const lang = $derived(getEffectiveLocale(page.params.lang, userStore.user?.locale));
 	const username = $derived(page.params.username);
 	const boardAlias = $derived(page.params.board);
 

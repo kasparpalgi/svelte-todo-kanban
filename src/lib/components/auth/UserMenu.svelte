@@ -12,7 +12,7 @@
 	import BoardSwitcher from '$lib/components/listBoard/BoardSwitcher.svelte';
 
 	function navigateToSettings() {
-		const currentLang = page.params.lang || userStore.user?.locale || 'et';
+		const currentLang = getEffectiveLocale(page.params.lang, userStore.user?.locale);
 		const settingsPath = `/${currentLang}/settings`;
 		goto(settingsPath);
 	}

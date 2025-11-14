@@ -5,6 +5,7 @@ import type { LayoutServerLoad } from './$types';
 import { getTopBoardPath } from '$lib/utils/getTopBoardPath';
 import { request } from '$lib/graphql/client';
 import { GET_USERS } from '$lib/graphql/documents';
+import { DEFAULT_LOCALE } from '$lib/constants/locale';
 
 const allowedAppEnvs = ['production', 'testing', 'development'] as const;
 const allowedApiEnvs = ['production', 'development'] as const;
@@ -39,7 +40,7 @@ export const load: LayoutServerLoad = async (event) => {
 			throw redirect(302, topBoardPath);
 		} else {
 			// Fetch user's current locale from database to avoid using stale session data
-			let locale = 'et';
+			let locale = DEFAULT_LOCALE;
 			if (session.user?.id) {
 				const userData = (await request(
 					GET_USERS,
@@ -51,7 +52,7 @@ export const load: LayoutServerLoad = async (event) => {
 					fetch
 				)) as any;
 
-				locale = userData.users?.[0]?.locale || 'et';
+				locale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
 			}
 			throw redirect(302, `/${locale}`);
 		}

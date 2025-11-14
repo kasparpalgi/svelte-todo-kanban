@@ -3,6 +3,7 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { request } from '$lib/graphql/client';
 import { GET_USERS } from '$lib/graphql/documents';
+import { DEFAULT_LOCALE } from '$lib/constants/locale';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.auth();
@@ -14,7 +15,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			throw redirect(302, topBoardPath);
 		} else {
 			// Fetch user's current locale from database to avoid using stale session data
-			let locale = 'et';
+			let locale = DEFAULT_LOCALE;
 			if (session.user?.id) {
 				const userData = (await request(
 					GET_USERS,
@@ -26,7 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 					fetch
 				)) as any;
 
-				locale = userData.users?.[0]?.locale || 'et';
+				locale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
 			}
 			throw redirect(302, `/${locale}`);
 		}

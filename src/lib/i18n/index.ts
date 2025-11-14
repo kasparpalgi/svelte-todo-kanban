@@ -1,9 +1,10 @@
 /** @file src/lib/i18n.ts */
 import i18n from 'sveltekit-i18n';
+import { DEFAULT_LOCALE } from '$lib/constants/locale';
 
 const config = {
-	fallbackLocale: 'en',
-	initialLocale: 'en',
+	fallbackLocale: DEFAULT_LOCALE,
+	initialLocale: DEFAULT_LOCALE,
 	loaders: [
 		{
 			locale: 'en',

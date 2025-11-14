@@ -194,7 +194,7 @@
 		}
 
 		// Get current language from URL params
-		const lang = $page.params.lang || userStore.user?.locale || 'et';
+		const lang = getEffectiveLocale($page.params.lang, userStore.user?.locale);
 
 		// Navigate to the card
 		const url = `/${lang}/${username}/${boardAlias}?card=${cardId}`;

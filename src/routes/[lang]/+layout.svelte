@@ -5,6 +5,7 @@
 	import { initTranslations } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
+	import { getEffectiveLocale } from '$lib/constants/locale';
 	import UserMenu from '$lib/components/auth/UserMenu.svelte';
 	import Logo from '$lib/components/ui/Logo.svelte';
 	import UnifiedNotificationBell from '$lib/components/notifications/UnifiedNotificationBell.svelte';
@@ -22,7 +23,7 @@
 
 	$effect(() => {
 		// Use URL lang param as source of truth, fallback to user locale
-		const lang = page.params.lang || userStore.user?.locale || 'et';
+		const lang = getEffectiveLocale(page.params.lang, userStore.user?.locale);
 		console.log('[Layout] Initializing translations with:', {
 			lang,
 			'page.params.lang': page.params.lang,
@@ -34,7 +35,7 @@
 
 	const logoUrl = $derived(() => {
 		const params = page.params;
-		const lang = params.lang || userStore.user?.locale || 'et';
+		const lang = getEffectiveLocale(params.lang, userStore.user?.locale);
 
 		if (params.username && params.board) {
 			return `/${lang}/${params.username}/${params.board}`;

@@ -7,6 +7,7 @@
 	import { loggingStore } from '$lib/stores/logging.svelte';
 	import { languages } from '$lib/i18n/languages';
 	import { aiModels } from '$lib/settings/aiModels';
+	import { getEffectiveLocale, DEFAULT_LOCALE } from '$lib/constants/locale';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -25,13 +26,13 @@
 
 	let user = $derived(userStore.user);
 	let initialized = $state(false);
-	let currentLang = $derived(page.params.lang || user?.locale || 'et');
+	let currentLang = $derived(getEffectiveLocale(page.params.lang, user?.locale));
 
 	let formData = $state({
 		name: '',
 		email: '',
 		image: '',
-		locale: 'et',
+		locale: DEFAULT_LOCALE,
 		darkMode: false,
 		viewMode: 'kanban' as 'kanban' | 'list',
 		aiModel: 'gpt-5-mini',
@@ -71,12 +72,12 @@
 		if (result.success) {
 			const currentPath = page.url.pathname;
 			const params = page.params;
-			const currentLang = params.lang || user?.locale || 'et';
+			const currentLang = getEffectiveLocale(params.lang, user?.locale);
 			const newPath = currentPath.replace(`/${currentLang}/`, `/${newLanguage}/`);
 
 			await goto(newPath, { replaceState: true });
 		} else {
-			formData.locale = user?.locale || 'et';
+			formData.locale = user?.locale || DEFAULT_LOCALE;
 		}
 	}
 
@@ -124,7 +125,7 @@
 			formData.name = user.name || '';
 			formData.email = user.email || '';
 			formData.image = user.image || '';
-			formData.locale = user.locale || 'et';
+			formData.locale = user.locale || DEFAULT_LOCALE;
 			formData.darkMode = user.dark_mode || false;
 			formData.viewMode = user.settings?.viewMode || 'kanban';
 			formData.aiModel = user.settings?.ai_model || 'gpt-5-mini';
