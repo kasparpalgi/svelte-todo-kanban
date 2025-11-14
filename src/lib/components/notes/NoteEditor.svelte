@@ -1,6 +1,6 @@
 <!-- @file src/lib/components/notes/NoteEditor.svelte -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { Trash2, Save } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -33,48 +33,118 @@
 	let editorStore: Readable<Editor> | null = $state(null);
 	let hasUnsavedChanges: boolean = $state(false);
 	let autoSaveTimeout: NodeJS.Timeout | null = null;
+	let isSettingContent: boolean = false; // Prevent loops
+
+	console.log('[NoteEditor] Component mounted');
 
 	// Update local state when note changes
 	$effect(() => {
+		console.log('[NoteEditor] $effect triggered, note:', note?.id);
+
 		if (note) {
 			title = note.title;
 			hasUnsavedChanges = false;
+			isSettingContent = true;
 
-			// Update editor content
+			console.log('[NoteEditor] Setting content for note:', note.id, 'content length:', note.content?.length);
+
+			// Update editor content if editor is ready
 			if (editorStore) {
-				let unsubscribe: (() => void) | undefined;
-				unsubscribe = editorStore.subscribe((e) => {
-					if (e && note.content !== undefined) {
-						e.commands.setContent(note.content || '');
+				let editorUpdateUnsubscribe: (() => void) | undefined;
+
+				editorUpdateUnsubscribe = editorStore.subscribe((editor) => {
+					if (editor && note.content !== undefined) {
+						console.log('[NoteEditor] Setting editor content');
+						// Only set content if it's different to avoid loops
+						const currentContent = editor.getHTML();
+						if (currentContent !== note.content) {
+							editor.commands.setContent(note.content || '');
+						}
 					}
-					if (unsubscribe) unsubscribe();
+					if (editorUpdateUnsubscribe) {
+						editorUpdateUnsubscribe();
+					}
 				});
+
+				setTimeout(() => {
+					isSettingContent = false;
+				}, 100);
+			} else {
+				isSettingContent = false;
 			}
 		}
+
+		// Cleanup function
+		return () => {
+			console.log('[NoteEditor] $effect cleanup');
+		};
+	});
+
+	// Listen to editor updates
+	$effect(() => {
+		console.log('[NoteEditor] Editor store effect, editorStore:', !!editorStore);
+
+		if (!editorStore) return;
+
+		let unsubscribe: (() => void) | undefined;
+
+		unsubscribe = editorStore.subscribe((editor) => {
+			if (!editor) return;
+
+			console.log('[NoteEditor] Editor ready, setting up update listener');
+
+			// Listen to editor updates
+			editor.on('update', ({ editor: updatedEditor }) => {
+				// Don't trigger change during programmatic content setting
+				if (isSettingContent) {
+					console.log('[NoteEditor] Ignoring update during content setting');
+					return;
+				}
+
+				console.log('[NoteEditor] Editor content changed');
+				handleContentChange();
+			});
+		});
+
+		// Cleanup
+		return () => {
+			console.log('[NoteEditor] Editor effect cleanup');
+			if (unsubscribe) unsubscribe();
+		};
 	});
 
 	function handleTitleChange() {
+		console.log('[NoteEditor] Title changed');
 		hasUnsavedChanges = true;
 		scheduleAutoSave();
 	}
 
 	function handleContentChange() {
+		console.log('[NoteEditor] Content changed');
 		hasUnsavedChanges = true;
 		scheduleAutoSave();
 	}
 
 	function scheduleAutoSave() {
+		console.log('[NoteEditor] Scheduling auto-save');
+
 		if (autoSaveTimeout) {
 			clearTimeout(autoSaveTimeout);
 		}
 
 		autoSaveTimeout = setTimeout(() => {
+			console.log('[NoteEditor] Auto-save triggered');
 			saveChanges();
 		}, 1000);
 	}
 
 	async function saveChanges() {
-		if (!hasUnsavedChanges || !editorStore || !note) return;
+		console.log('[NoteEditor] saveChanges called, hasUnsavedChanges:', hasUnsavedChanges, 'editorStore:', !!editorStore, 'note:', !!note);
+
+		if (!hasUnsavedChanges || !editorStore || !note) {
+			console.log('[NoteEditor] Skipping save - conditions not met');
+			return;
+		}
 
 		let content = '';
 		const unsubscribe = editorStore.subscribe((editor) => {
@@ -88,15 +158,21 @@
 
 		if (title !== note.title) {
 			updates.title = title;
+			console.log('[NoteEditor] Title changed:', note.title, '->', title);
 		}
 
 		if (content !== note.content) {
 			updates.content = content;
+			console.log('[NoteEditor] Content changed, new length:', content.length);
 		}
 
 		if (Object.keys(updates).length > 0) {
+			console.log('[NoteEditor] Calling onUpdate with:', updates);
 			await onUpdate(updates);
 			hasUnsavedChanges = false;
+			console.log('[NoteEditor] Save complete');
+		} else {
+			console.log('[NoteEditor] No changes to save');
 		}
 	}
 
@@ -112,11 +188,18 @@
 	}
 
 	onMount(() => {
+		console.log('[NoteEditor] onMount');
+
 		return () => {
+			console.log('[NoteEditor] onMount cleanup');
 			if (autoSaveTimeout) {
 				clearTimeout(autoSaveTimeout);
 			}
 		};
+	});
+
+	onDestroy(() => {
+		console.log('[NoteEditor] onDestroy');
 	});
 </script>
 
@@ -161,7 +244,6 @@
 				bind:editor={editorStore}
 				showToolbar={true}
 			/>
-			<div class="prose-editor" onkeyup={handleContentChange}></div>
 		</div>
 	</div>
 {:else}
