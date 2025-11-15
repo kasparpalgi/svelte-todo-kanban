@@ -340,18 +340,26 @@ function handleAiSummarizeChange() {
  * Handle Generate AI Summary button click
  */
 async function handleGenerateAi() {
+  console.log('=== handleGenerateAi CALLED ===');
+  console.log('pageData:', pageData);
+
   // Check if we have page content for AI processing
   if (!pageData || !pageData.content || pageData.content.trim().length === 0) {
+    console.log('No page content available');
     aiSummaryInput.value = 'No page content available for AI summary.';
     showError('No page content available for AI summary');
     return;
   }
 
+  console.log('pageData.content length:', pageData.content.length);
+
   if (aiProcessing) {
+    console.log('Already processing, returning');
     return; // Already generating
   }
 
   try {
+    console.log('Starting AI generation...');
     // Show loading state
     aiProcessing = true;
     generateAiText.classList.add('hidden');
@@ -360,8 +368,10 @@ async function handleGenerateAi() {
     aiSummaryInput.value = 'Generating AI summary...';
     aiSummaryInput.disabled = true;
 
+    console.log('Calling getAiSummary...');
     // Generate summary
     const summary = await getAiSummary(pageData.content);
+    console.log('getAiSummary returned:', summary);
 
     // Update UI with summary
     aiSummary = summary;
