@@ -30,52 +30,19 @@
 	});
 
 	onMount(async () => {
-		// Check if todo already exists in store
-		let foundTodo = todosStore.todos.find((t) => t.id === cardId);
-
-		if (foundTodo) {
-			// Todo exists, but check if it has full details (comments and uploads)
-			const hasFullDetails = foundTodo.comments && foundTodo.comments.length >= 0 && foundTodo.uploads;
-
-			if (!hasFullDetails) {
-				// Load full details for this todo
-				const fullTodo = await todosStore.loadTodoDetails(cardId);
-				if (fullTodo) {
-					todo = fullTodo;
-					await commentsStore.loadComments(cardId);
-				} else {
-					// Fallback: todo not found
-					todo = foundTodo;
-				}
-			} else {
-				// Already has full details
-				todo = foundTodo;
-				await commentsStore.loadComments(cardId);
-			}
-		} else {
-			// Todo not in store yet, load it with full details
-			if (!todosStore.initialized && !todosStore.loading) {
-				await todosStore.loadTodosInitial();
-			}
-
-			while (todosStore.loading) {
-				await new Promise((resolve) => setTimeout(resolve, 50));
-			}
-
-			// Try again after loading
-			foundTodo = todosStore.todos.find((t) => t.id === cardId);
-			if (foundTodo) {
-				// Load full details
-				const fullTodo = await todosStore.loadTodoDetails(cardId);
-				if (fullTodo) {
-					todo = fullTodo;
-					await commentsStore.loadComments(cardId);
-				} else {
-					todo = foundTodo;
-				}
-			}
+		if (!todosStore.initialized && !todosStore.loading) {
+			await todosStore.loadTodosInitial();
 		}
 
+		while (todosStore.loading) {
+			await new Promise((resolve) => setTimeout(resolve, 50));
+		}
+
+		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
+		if (foundTodo) {
+			todo = foundTodo;
+			await commentsStore.loadComments(cardId);
+		}
 		loading = false;
 	});
 

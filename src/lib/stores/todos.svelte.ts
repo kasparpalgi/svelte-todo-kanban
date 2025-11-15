@@ -1,8 +1,6 @@
 /** @file src/lib/stores/todos.svelte.ts */
 import {
 	GET_TODOS,
-	GET_TODOS_MINIMAL,
-	GET_TODO_DETAILS,
 	CREATE_TODO,
 	UPDATE_TODOS,
 	DELETE_TODOS,
@@ -81,7 +79,7 @@ function createTodosStore() {
 	}
 
 	/**
-	 * Load initial batch of todos (top 15 per list) with minimal data (no comments/uploads)
+	 * Load initial batch of todos (top 50) with limit on comments/uploads
 	 * This provides fast initial render for the board view
 	 */
 	async function loadTodosInitial(boardId?: string): Promise<TodoFieldsFragment[]> {
@@ -98,22 +96,19 @@ function createTodosStore() {
 				where.list = { board_id: { _eq: boardId } };
 			}
 
-			const data: any = await request(GET_TODOS_MINIMAL, {
+			// Use regular GET_TODOS but limit to 50 for fast initial load
+			const data: GetTodosQuery = await request(GET_TODOS, {
 				where,
 				order_by: [
 					{ sort_order: Order_By.Asc },
 					{ due_on: Order_By.Desc },
 					{ updated_at: Order_By.Desc }
 				],
-				limit: 50, // Load top 50 active todos initially
+				limit: 50,
 				offset: 0
 			});
 
-			// Merge with existing todos (in case some were already loaded)
-			const existingIds = new Set(state.todos.map(t => t.id));
-			const newTodos = (data.todos || []).filter((t: any) => !existingIds.has(t.id));
-
-			state.todos = [...state.todos, ...newTodos];
+			state.todos = data.todos || [];
 			state.initialized = true;
 
 			return state.todos;
@@ -155,12 +150,12 @@ function createTodosStore() {
 				where.list = { board_id: { _eq: boardId } };
 			}
 
-			// Load remaining todos in chunks of 100
-			let offset = 50; // Skip the first 50 we already loaded
+			// Load remaining active todos in chunks
+			let offset = 50;
 			let hasMore = true;
 
 			while (hasMore) {
-				const data: any = await request(GET_TODOS_MINIMAL, {
+				const data: GetTodosQuery = await request(GET_TODOS, {
 					where,
 					order_by: [
 						{ sort_order: Order_By.Asc },
@@ -188,7 +183,6 @@ function createTodosStore() {
 
 				offset += 100;
 
-				// If we got less than 100, we've reached the end
 				if (todos.length < 100) {
 					hasMore = false;
 				}
@@ -203,7 +197,7 @@ function createTodosStore() {
 				completedWhere.list = { board_id: { _eq: boardId } };
 			}
 
-			const completedData: any = await request(GET_TODOS_MINIMAL, {
+			const completedData: GetTodosQuery = await request(GET_TODOS, {
 				where: completedWhere,
 				order_by: [{ completed_at: Order_By.Desc }],
 				limit: 100,
@@ -225,18 +219,19 @@ function createTodosStore() {
 	}
 
 	/**
-	 * Load full details for a specific todo (including comments and uploads)
+	 * Load full details for a specific todo (including ensuring all data is loaded)
 	 * Used when opening the card modal
 	 */
 	async function loadTodoDetails(todoId: string): Promise<TodoFieldsFragment | null> {
 		if (!browser) return null;
 
 		try {
-			const data: any = await request(GET_TODO_DETAILS, {
-				id: todoId
+			// Just refresh the todo from the database to ensure we have latest data
+			const data: GetTodosQuery = await request(GET_TODOS, {
+				where: { id: { _eq: todoId } }
 			});
 
-			const fullTodo = data.todos_by_pk;
+			const fullTodo = data.todos?.[0];
 
 			if (fullTodo) {
 				// Update the todo in state with full details
