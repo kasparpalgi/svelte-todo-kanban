@@ -48,7 +48,7 @@
 <div>
 	<Label class="mb-2 flex items-center gap-2">
 		<MessageSquare class="h-4 w-4" />
-		{$t('card.comments')} ({commentsStore.comments.length}{commentsStore.hasMore ? '+' : ''})
+		{$t('card.comments')} ({commentsStore.totalCount})
 	</Label>
 
 	<div class="space-y-3">
