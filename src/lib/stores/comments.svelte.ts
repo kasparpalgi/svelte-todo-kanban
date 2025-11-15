@@ -1,6 +1,7 @@
 /** @file src/lib/stores/comments.svelte.ts */
 import {
 	GET_COMMENTS,
+	GET_COMMENTS_AGGREGATE,
 	CREATE_COMMENT,
 	UPDATE_COMMENT,
 	DELETE_COMMENT,
@@ -11,6 +12,7 @@ import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
 import type {
 	GetCommentsQuery,
+	GetCommentsAggregateQuery,
 	CreateCommentMutation,
 	UpdateCommentMutation,
 	DeleteCommentMutation,
@@ -24,38 +26,93 @@ interface CommentsState {
 	comments: CommentFieldsFragment[];
 	loading: boolean;
 	error: string | null;
+	totalCount: number;
+	hasMore: boolean;
+	currentTodoId: string | null;
 }
 
 function createCommentsStore() {
+	const COMMENTS_PER_PAGE = 10;
+
 	const state = $state<CommentsState>({
 		comments: [],
 		loading: false,
-		error: null
+		error: null,
+		totalCount: 0,
+		hasMore: false,
+		currentTodoId: null
 	});
 
 	async function loadComments(todoId: string): Promise<CommentFieldsFragment[]> {
 		if (!browser) return [];
+
+		// Reset if loading a different todo
+		if (state.currentTodoId !== todoId) {
+			state.comments = [];
+			state.totalCount = 0;
+			state.hasMore = false;
+			state.currentTodoId = todoId;
+		}
 
 		state.loading = true;
 		state.error = null;
 
 		try {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
+			const where = { todo_id: { _eq: todoId } };
 
+			// Fetch total count
+			const aggregateData: GetCommentsAggregateQuery = await request(GET_COMMENTS_AGGREGATE, {
+				where
+			});
+			state.totalCount = aggregateData.comments_aggregate?.aggregate?.count || 0;
+
+			// Fetch first page of comments
 			const data: GetCommentsQuery = await request(GET_COMMENTS, {
-				where: { todo_id: { _eq: todoId } },
-				order_by: [{ created_at: Order_By.Asc }],
-				limit: 1000,
+				where,
+				order_by: [{ created_at: Order_By.Desc }],
+				limit: COMMENTS_PER_PAGE,
 				offset: 0
 			});
 
 			state.comments = data.comments || [];
+			state.hasMore = state.comments.length < state.totalCount;
 			return state.comments;
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error loading comments';
 			state.error = message;
 			console.error('Load comments error:', error);
 			return [];
+		} finally {
+			state.loading = false;
+		}
+	}
+
+	async function loadMore(todoId: string): Promise<void> {
+		if (!browser || state.loading || !state.hasMore) return;
+
+		state.loading = true;
+		state.error = null;
+
+		try {
+			const { Order_By } = await import('$lib/graphql/generated/graphql');
+			const where = { todo_id: { _eq: todoId } };
+
+			// Fetch next page of comments
+			const data: GetCommentsQuery = await request(GET_COMMENTS, {
+				where,
+				order_by: [{ created_at: Order_By.Desc }],
+				limit: COMMENTS_PER_PAGE,
+				offset: state.comments.length
+			});
+
+			const newComments = data.comments || [];
+			state.comments = [...state.comments, ...newComments];
+			state.hasMore = state.comments.length < state.totalCount;
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Error loading more comments';
+			state.error = message;
+			console.error('Load more comments error:', error);
 		} finally {
 			state.loading = false;
 		}
@@ -77,7 +134,8 @@ function createCommentsStore() {
 
 			const newComment = data.insert_comments?.returning?.[0];
 			if (newComment) {
-				state.comments = [...state.comments, newComment];
+				state.comments = [newComment, ...state.comments];
+			state.totalCount += 1;
 
 				// Log activity: comment created
 				try {
@@ -239,6 +297,7 @@ function createCommentsStore() {
 
 		// Optimistic delete
 		state.comments = state.comments.filter((c) => c.id !== id);
+		state.totalCount -= 1;
 
 		try {
 			const data: DeleteCommentMutation = await request(DELETE_COMMENT, {
@@ -250,9 +309,11 @@ function createCommentsStore() {
 			}
 
 			state.comments = originalComments;
+			state.totalCount += 1;
 			return { success: false, message: 'Failed to delete comment' };
 		} catch (error) {
 			state.comments = originalComments;
+			state.totalCount += 1;
 			const message = error instanceof Error ? error.message : 'Error deleting comment';
 			console.error('Delete comment error:', error);
 			return { success: false, message };
@@ -269,8 +330,15 @@ function createCommentsStore() {
 		get error() {
 			return state.error;
 		},
+		get totalCount() {
+			return state.totalCount;
+		},
+		get hasMore() {
+			return state.hasMore;
+		},
 
 		loadComments,
+		loadMore,
 		addComment,
 		updateComment,
 		deleteComment,
@@ -281,6 +349,9 @@ function createCommentsStore() {
 			state.comments = [];
 			state.loading = false;
 			state.error = null;
+			state.totalCount = 0;
+			state.hasMore = false;
+			state.currentTodoId = null;
 		}
 	};
 }

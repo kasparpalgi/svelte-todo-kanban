@@ -63,6 +63,15 @@ select_permissions:
                 - board_members:
                     user_id:
                       _eq: X-Hasura-User-Id
+      allow_aggregations: true
+      query_root_fields:
+        - select
+        - select_aggregate
+        - select_by_pk
+      subscription_root_fields:
+        - select
+        - select_aggregate
+        - select_by_pk
     comment: ""
 update_permissions:
   - role: user
