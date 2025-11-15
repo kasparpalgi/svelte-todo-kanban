@@ -28,6 +28,9 @@ const aiModelGroup = document.getElementById('ai-model-group');
 const aiModelSelect = document.getElementById('ai-model-select');
 const aiSummaryGroup = document.getElementById('ai-summary-group');
 const aiSummaryInput = document.getElementById('ai-summary-input');
+const generateAiBtn = document.getElementById('generate-ai-btn');
+const generateAiText = document.getElementById('generate-ai-text');
+const generateAiLoading = document.getElementById('generate-ai-loading');
 const imagePickerGroup = document.getElementById('image-picker-group');
 const imagePicker = document.getElementById('image-picker');
 const saveBtn = document.getElementById('save-btn');
@@ -309,49 +312,75 @@ function handleBoardChange() {
 /**
  * Handle AI summarize checkbox change
  */
-async function handleAiSummarizeChange() {
+function handleAiSummarizeChange() {
   if (aiSummarizeCheckbox.checked) {
+    // Show AI sections
     aiModelGroup.classList.remove('hidden');
+    aiSummaryGroup.classList.remove('hidden');
+    generateAiBtn.classList.remove('hidden');
 
-    // Check if we have page content for AI processing
-    if (!pageData || !pageData.content || pageData.content.trim().length === 0) {
-      // No content available, show message
-      aiSummaryGroup.classList.remove('hidden');
-      aiSummaryInput.value = 'No page content available for AI summary. Description will be used instead.';
-      aiSummaryInput.disabled = true;
-      aiSummary = null;
-      return;
-    }
-
-    // Start generating AI summary in the background
-    if (!aiSummary && !aiProcessing) {
-      aiProcessing = true;
-      aiSummaryGroup.classList.remove('hidden');
-      aiSummaryInput.value = 'Generating AI summary...';
-      aiSummaryInput.disabled = true;
-
-      try {
-        const summary = await getAiSummary(pageData.content);
-        aiSummary = summary;
-        aiSummaryInput.value = summary;
-        aiSummaryInput.disabled = false;
-      } catch (error) {
-        console.error('AI summary error:', error);
-        aiSummaryInput.value = 'Failed to generate summary. Description will be used instead.';
-        aiSummary = null;
-        aiSummaryInput.disabled = true;
-      } finally {
-        aiProcessing = false;
-      }
-    } else if (aiSummary) {
-      // Already have summary, just show it
-      aiSummaryGroup.classList.remove('hidden');
+    // If we already have a summary, show it
+    if (aiSummary) {
       aiSummaryInput.value = aiSummary;
+      aiSummaryInput.disabled = false;
+    } else {
+      aiSummaryInput.value = '';
+      aiSummaryInput.placeholder = 'Click \'Generate Summary\' to create AI summary...';
       aiSummaryInput.disabled = false;
     }
   } else {
+    // Hide AI sections
     aiModelGroup.classList.add('hidden');
     aiSummaryGroup.classList.add('hidden');
+    generateAiBtn.classList.add('hidden');
+  }
+}
+
+/**
+ * Handle Generate AI Summary button click
+ */
+async function handleGenerateAi() {
+  // Check if we have page content for AI processing
+  if (!pageData || !pageData.content || pageData.content.trim().length === 0) {
+    aiSummaryInput.value = 'No page content available for AI summary.';
+    showError('No page content available for AI summary');
+    return;
+  }
+
+  if (aiProcessing) {
+    return; // Already generating
+  }
+
+  try {
+    // Show loading state
+    aiProcessing = true;
+    generateAiText.classList.add('hidden');
+    generateAiLoading.classList.remove('hidden');
+    generateAiBtn.disabled = true;
+    aiSummaryInput.value = 'Generating AI summary...';
+    aiSummaryInput.disabled = true;
+
+    // Generate summary
+    const summary = await getAiSummary(pageData.content);
+
+    // Update UI with summary
+    aiSummary = summary;
+    aiSummaryInput.value = summary;
+    aiSummaryInput.disabled = false;
+
+    showSuccess('AI summary generated successfully!');
+  } catch (error) {
+    console.error('AI summary error:', error);
+    aiSummaryInput.value = '';
+    aiSummaryInput.placeholder = 'Failed to generate summary. Try again.';
+    aiSummary = null;
+    aiSummaryInput.disabled = false;
+    showError('Failed to generate AI summary: ' + error.message);
+  } finally {
+    aiProcessing = false;
+    generateAiText.classList.remove('hidden');
+    generateAiLoading.classList.add('hidden');
+    generateAiBtn.disabled = false;
   }
 }
 
@@ -567,6 +596,7 @@ function hideStatusMessage() {
  */
 boardSelect.addEventListener('change', handleBoardChange);
 aiSummarizeCheckbox.addEventListener('change', handleAiSummarizeChange);
+generateAiBtn.addEventListener('click', handleGenerateAi);
 saveBtn.addEventListener('click', handleSave);
 cancelBtn.addEventListener('click', handleCancel);
 signInBtn.addEventListener('click', handleSignIn);

@@ -82,28 +82,31 @@
         ></textarea>
       </div>
 
-      <!-- AI Summarize Option -->
+      <!-- AI Summarize Section -->
       <div class="form-group">
-        <label class="checkbox-label">
-          <input type="checkbox" id="ai-summarize" class="checkbox">
-          <span class="checkbox-text">
-            AI Summarize page content
-            <span class="ai-info">Uses GPT-5 Mini</span>
-          </span>
-        </label>
+        <div class="ai-header">
+          <label class="checkbox-label">
+            <input type="checkbox" id="ai-summarize" class="checkbox">
+            <span class="checkbox-text">AI Summarize</span>
+          </label>
+          <button id="generate-ai-btn" class="btn btn-ai hidden" type="button">
+            <span id="generate-ai-text">Generate Summary</span>
+            <span id="generate-ai-loading" class="loading hidden">Generating...</span>
+          </button>
+        </div>
       </div>
 
       <!-- AI Model Selector (shown when AI summarize is checked) -->
       <div id="ai-model-group" class="form-group hidden">
         <label for="ai-model-select" class="label">AI Model</label>
-        <select id="ai-model-select" class="select">
+        <select id="ai-model-select" class="select-sm">
           <option value="gpt-5-nano">GPT-5 Nano (Fastest, cheapest)</option>
           <option value="gpt-5-mini" selected>GPT-5 Mini (Balanced)</option>
           <option value="gpt-5">GPT-5 (Most capable)</option>
         </select>
       </div>
 
-      <!-- AI Summary Preview/Edit (shown after AI generates summary) -->
+      <!-- AI Summary Preview/Edit (shown when checkbox is enabled) -->
       <div id="ai-summary-group" class="form-group hidden">
         <label for="ai-summary-input" class="label">
           AI Summary
@@ -112,7 +115,7 @@
         <textarea
           id="ai-summary-input"
           class="textarea"
-          placeholder="AI summary will appear here..."
+          placeholder="Click 'Generate Summary' to create AI summary..."
           rows="4"
         ></textarea>
       </div>
