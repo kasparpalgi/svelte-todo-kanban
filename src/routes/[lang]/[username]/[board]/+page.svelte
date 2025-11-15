@@ -102,12 +102,14 @@
 				const needsToLoadTodos = !notMember && (!todosStore.initialized || todosStore.currentBoardId !== board.id);
 
 				if (needsToLoadTodos) {
-					// Load ALL todos with minimal data in ONE request
-					// This avoids N+1 query problem from chunked loading
+					// Load first 50 active todos for fast initial render
 					await todosStore.loadTodosInitial(board.id);
 
-					// No background loading - everything loaded upfront with minimal payload
-					// The minimal fragment keeps payload small while loading all data
+					// Load remaining in background (non-blocking)
+					// Uses 2 requests total to avoid N+1 problem
+					setTimeout(() => {
+						todosStore.loadTodosRemaining(board.id);
+					}, 100);
 				}
 
 				boardNotFound = false;
