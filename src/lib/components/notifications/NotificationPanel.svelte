@@ -8,6 +8,7 @@
 	import { getEffectiveLocale } from '$lib/constants/locale';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { t } from '$lib/i18n';
 
 	let { isOpen }: { isOpen: boolean } = $props();
 
@@ -66,10 +67,10 @@
 		const diffHours = Math.floor(diffMs / 3600000);
 		const diffDays = Math.floor(diffMs / 86400000);
 
-		if (diffMins < 1) return 'Just now';
-		if (diffMins < 60) return `${diffMins}m ago`;
-		if (diffHours < 24) return `${diffHours}h ago`;
-		if (diffDays < 7) return `${diffDays}d ago`;
+		if (diffMins < 1) return $t('notifications.just_now');
+		if (diffMins < 60) return $t('notifications.minutes_ago', { count: diffMins });
+		if (diffHours < 24) return $t('notifications.hours_ago', { count: diffHours });
+		if (diffDays < 7) return $t('notifications.days_ago', { count: diffDays });
 
 		return notifDate.toLocaleDateString();
 	}
@@ -113,7 +114,7 @@
 
 <div class="w-full">
 	<div class="flex items-center justify-between border-b px-4 py-3">
-		<h3 class="font-semibold text-sm">Notifications</h3>
+		<h3 class="font-semibold text-sm">{$t('notifications.title')}</h3>
 		{#if unreadNotifications.length > 0}
 			<Button
 				variant="ghost"
@@ -122,18 +123,18 @@
 				class="text-xs h-auto py-1 px-2"
 			>
 				<Check class="h-3 w-3 mr-1" />
-				Mark all as read
+				{$t('notifications.mark_all_as_read')}
 			</Button>
 		{/if}
 	</div>
 
 	{#if loading}
 		<div class="flex items-center justify-center py-8">
-			<p class="text-sm text-muted-foreground">Loading notifications...</p>
+			<p class="text-sm text-muted-foreground">{$t('notifications.loading')}</p>
 		</div>
 	{:else if notifications.length === 0}
 		<div class="flex items-center justify-center py-8">
-			<p class="text-sm text-muted-foreground">No notifications yet</p>
+			<p class="text-sm text-muted-foreground">{$t('notifications.no_notifications')}</p>
 		</div>
 	{:else}
 		<div class="max-h-96 overflow-y-auto w-full">

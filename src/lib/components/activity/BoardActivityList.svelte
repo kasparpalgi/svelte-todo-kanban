@@ -1,6 +1,6 @@
 <!-- @file src/lib/components/activity/BoardActivityList.svelte -->
 <script lang="ts">
-	import { t } from '$lib/i18n';
+	import { t, locale } from '$lib/i18n';
 	import {
 		CheckCircle,
 		Circle,
@@ -14,6 +14,7 @@
 		Calendar
 	} from 'lucide-svelte';
 	import { formatDistanceToNow } from 'date-fns';
+	import { enUS, et, cs } from 'date-fns/locale';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
@@ -110,9 +111,24 @@
 		}
 	}
 
+	function getDateFnsLocale() {
+		const currentLocale = $locale;
+		switch (currentLocale) {
+			case 'et':
+				return et;
+			case 'cs':
+				return cs;
+			default:
+				return enUS;
+		}
+	}
+
 	function getRelativeTime(timestamp: string): string {
 		try {
-			return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
+			return formatDistanceToNow(new Date(timestamp), {
+				addSuffix: true,
+				locale: getDateFnsLocale()
+			});
 		} catch {
 			return timestamp;
 		}
@@ -188,7 +204,7 @@
 							</p>
 							{#if log.todo?.list?.name}
 								<p class="mt-0.5 text-xs text-muted-foreground">
-									in {log.todo.list.name}
+									{$t('todo.in')} {log.todo.list.name}
 								</p>
 							{/if}
 						</div>
