@@ -2,6 +2,8 @@
 
 Save web pages to your ToDzz boards as notes with AI summarization.
 
+> **For Developers**: See [DEVELOPMENT.md](DEVELOPMENT.md) for testing instructions and troubleshooting.
+
 ## Features
 
 ### Core Features
@@ -205,8 +207,17 @@ Same as the main ToDzz application.
 
 ---
 
-**Version**: 1.1.0
+**Version**: 1.2.0
 **Last Updated**: 2025-11-15
+
+## What's New in v1.2.0
+
+- Fixed critical content script connection issues
+- Modernized UI with gradient design and improved spacing
+- Added actual logo icon instead of emoji
+- Improved error handling for pages without content scripts
+- Better height (no scrolling needed)
+- Enhanced visual design throughout
 
 ## What's New in v1.1.0
 
