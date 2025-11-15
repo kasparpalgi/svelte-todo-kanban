@@ -102,14 +102,12 @@
 				const needsToLoadTodos = !notMember && (!todosStore.initialized || todosStore.currentBoardId !== board.id);
 
 				if (needsToLoadTodos) {
-					// Load initial todos (top 50 with minimal data)
+					// Load ALL todos with minimal data in ONE request
+					// This avoids N+1 query problem from chunked loading
 					await todosStore.loadTodosInitial(board.id);
 
-					// Load remaining todos AFTER LCP (delayed to avoid blocking paint)
-					// Increased from 100ms to 2000ms to ensure it doesn't interfere with LCP
-					setTimeout(() => {
-						todosStore.loadTodosRemaining(board.id);
-					}, 2000);
+					// No background loading - everything loaded upfront with minimal payload
+					// The minimal fragment keeps payload small while loading all data
 				}
 
 				boardNotFound = false;

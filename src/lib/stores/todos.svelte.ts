@@ -86,9 +86,9 @@ function createTodosStore() {
 	}
 
 	/**
-	 * Load initial batch of todos (top 50) with minimal data
-	 * Uses GET_TODOS_MINIMAL for 60-80% smaller payload
-	 * This provides fast initial render for the board view
+	 * Load ALL todos with minimal data in ONE request
+	 * Uses GET_TODOS_MINIMAL for 40-60% smaller payload
+	 * Avoids N+1 query problem from chunked loading
 	 */
 	async function loadTodosInitial(boardId?: string): Promise<TodoFieldsFragment[]> {
 		if (!browser) return [];
@@ -99,20 +99,23 @@ function createTodosStore() {
 		try {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
 
-			const where: any = { completed_at: { _is_null: true } };
+			const where: any = {};
 			if (boardId) {
 				where.list = { board_id: { _eq: boardId } };
 			}
 
-			// Use GET_TODOS_MINIMAL for much faster initial load (60-80% less data)
+			// Load ALL todos (active + completed) in ONE request with minimal fragment
+			// This is faster than multiple chunked requests (avoids network overhead)
+			// The minimal fragment keeps payload small even with many todos
 			const data: GetTodosMinimalQuery = await request(GET_TODOS_MINIMAL, {
 				where,
 				order_by: [
+					{ completed_at: Order_By.AscNullsFirst }, // Active todos first
 					{ sort_order: Order_By.Asc },
 					{ due_on: Order_By.Desc },
 					{ updated_at: Order_By.Desc }
 				],
-				limit: 50,
+				limit: 1000, // Reasonable limit for most boards
 				offset: 0
 			});
 
