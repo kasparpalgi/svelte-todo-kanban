@@ -11,7 +11,7 @@ chrome.runtime.onInstalled.addListener((details) => {
     console.log('ToDzz extension installed');
     // Open welcome page or sign-in on first install
     chrome.tabs.create({
-      url: 'https://todzz.eu/en/signin'
+      url: 'https://todzz.eu/signin'
     });
   } else if (details.reason === 'update') {
     console.log('ToDzz extension updated to version', chrome.runtime.getManifest().version);
