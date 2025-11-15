@@ -557,7 +557,7 @@
 										<div class="h-2 w-2 rounded-full bg-red-500" title="High Priority"></div>
 									{/if}
 
-									{#if todo.comments.length > 0}
+									{#if todo.comments && todo.comments.length > 0}
 										<MessageSquareText class="h-3 w-3 text-muted-foreground" />
 									{/if}
 
