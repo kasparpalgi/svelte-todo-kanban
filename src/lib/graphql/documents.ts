@@ -1,6 +1,152 @@
 /** @file src/lib/graphql/documents.ts */
 import { graphql } from './generated';
 
+// ========== TODO Fragments ==========
+
+/**
+ * Minimal TODO fragment for board view - only essential display data
+ * This significantly reduces payload size by excluding comments, uploads, and detailed nested objects
+ */
+export const TODO_MINIMAL_FRAGMENT = graphql(`
+	fragment TodoMinimalFields on todos {
+		id
+		title
+		priority
+		due_on
+		has_time
+		completed_at
+		sort_order
+		assigned_to
+		list_id
+		github_issue_number
+		github_url
+		min_hours
+		max_hours
+		actual_hours
+
+		# Aggregate counts instead of full arrays (much lighter)
+		comments_aggregate {
+			aggregate {
+				count
+			}
+		}
+		uploads_aggregate {
+			aggregate {
+				count
+			}
+		}
+		labels_aggregate {
+			aggregate {
+				count
+			}
+		}
+
+		# Minimal assignee info for avatar display
+		assignee {
+			id
+			name
+			username
+			image
+		}
+
+		# Minimal list/board info for routing
+		list {
+			id
+			name
+			board {
+				id
+				name
+				alias
+			}
+		}
+
+		# Label IDs only (full objects loaded separately for the board)
+		labels {
+			label {
+				id
+				name
+				color
+			}
+		}
+	}
+`);
+
+/**
+ * Full TODO fragment with all data - for card detail view
+ * Includes comments, uploads, and complete nested objects
+ */
+export const TODO_FULL_FRAGMENT = graphql(`
+	fragment TodoFullFields on todos {
+		id
+		title
+		content
+		due_on
+		has_time
+		sort_order
+		priority
+		list_id
+		completed_at
+		created_at
+		updated_at
+		assigned_to
+		github_issue_number
+		github_issue_id
+		github_synced_at
+		github_url
+		min_hours
+		max_hours
+		actual_hours
+		comment_hours
+
+		# Full assignee object
+		assignee {
+			id
+			name
+			username
+			image
+			email
+		}
+
+		# Full labels array
+		labels {
+			label {
+				...LabelFields
+			}
+		}
+
+		# All comments (loaded only when opening card)
+		comments(order_by: { created_at: asc }) {
+			...CommentFields
+		}
+
+		# All uploads (loaded only when opening card)
+		uploads {
+			id
+			url
+			created_at
+		}
+
+		# Full list and board objects
+		list {
+			id
+			name
+			sort_order
+			board {
+				id
+				name
+				alias
+				sort_order
+				github
+				settings
+			}
+		}
+	}
+`);
+
+/**
+ * Original TODO fragment - kept for backwards compatibility with mutations
+ * @deprecated Use TODO_MINIMAL_FRAGMENT for queries or TODO_FULL_FRAGMENT for detail views
+ */
 export const TODO_FRAGMENT = graphql(`
 	fragment TodoFields on todos {
 		id
@@ -229,6 +375,41 @@ export const USER_FRAGMENT = graphql(`
 	}
 `);
 
+// ========== TODO Queries ==========
+
+/**
+ * Get todos with minimal data for board view (optimized for performance)
+ * Excludes comments and uploads, uses aggregate counts instead
+ */
+export const GET_TODOS_MINIMAL = graphql(`
+	query GetTodosMinimal(
+		$where: todos_bool_exp = {}
+		$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }
+		$limit: Int = 100
+		$offset: Int = 0
+	) {
+		todos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...TodoMinimalFields
+		}
+	}
+`);
+
+/**
+ * Get single todo with full data for card detail view
+ * Includes all comments, uploads, and nested objects
+ */
+export const GET_TODO_FULL = graphql(`
+	query GetTodoFull($id: uuid!) {
+		todos(where: { id: { _eq: $id } }) {
+			...TodoFullFields
+		}
+	}
+`);
+
+/**
+ * Original GET_TODOS query using full fragment
+ * @deprecated Use GET_TODOS_MINIMAL for list views or GET_TODO_FULL for detail views
+ */
 export const GET_TODOS = graphql(`
 	query GetTodos(
 		$where: todos_bool_exp = {}
