@@ -10,6 +10,7 @@
 		id: string;
 		title: string;
 		content: string | null;
+		cover_image_url: string | null;
 		updated_at: string;
 	};
 

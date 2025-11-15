@@ -20,9 +20,10 @@
 		noteId: string;
 		coverImageUrl?: string | null;
 		initialImages?: NoteImage[];
+		onFilesAdded?: () => void;
 	}
 
-	let { noteId, coverImageUrl = null, initialImages = [] }: NoteImageManagerProps = $props();
+	let { noteId, coverImageUrl = null, initialImages = [], onFilesAdded }: NoteImageManagerProps = $props();
 
 	let images = $state<NoteImage[]>(initialImages);
 	let currentCoverUrl = $state<string | null>(coverImageUrl);
@@ -162,6 +163,10 @@
 
 		if (imageFiles.length > 0) {
 			showUploadArea = true;
+			// Trigger upload callback if files were added
+			if (onFilesAdded) {
+				onFilesAdded();
+			}
 		}
 	}
 
@@ -189,9 +194,9 @@
 		const result = await notesStore.setCoverImage(noteId, imageUrl);
 		if (result.success) {
 			currentCoverUrl = imageUrl;
-			displayMessage($t('notes.cover_image_set') || 'Cover image set');
+			displayMessage($t('notes.cover_image_set') || 'Cover image set', undefined, true);
 		} else {
-			displayMessage(result.message, 'error');
+			displayMessage(result.message);
 		}
 	}
 
@@ -199,9 +204,9 @@
 		const result = await notesStore.setCoverImage(noteId, null);
 		if (result.success) {
 			currentCoverUrl = null;
-			displayMessage($t('notes.cover_image_removed') || 'Cover image removed');
+			displayMessage($t('notes.cover_image_removed') || 'Cover image removed', undefined, true);
 		} else {
-			displayMessage(result.message, 'error');
+			displayMessage(result.message);
 		}
 	}
 

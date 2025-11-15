@@ -268,11 +268,20 @@
 			});
 
 			await Promise.all(uploadPromises);
-			displayMessage($t('notes.images_uploaded') || 'Images uploaded successfully');
+			displayMessage($t('notes.images_uploaded') || 'Images uploaded successfully', undefined, true);
 		} catch (error) {
 			console.error('[NoteEditor] Error uploading images:', error);
-			displayMessage($t('notes.upload_error') || 'Error uploading images', 'error');
+			displayMessage($t('notes.upload_error') || 'Error uploading images');
 		}
+	}
+
+	// Upload images immediately when files are added
+	function handleFilesAdded() {
+		console.log('[NoteEditor] Files added, uploading immediately...');
+		// Use setTimeout to ensure the files are added to state first
+		setTimeout(() => {
+			handleImageUploads();
+		}, 100);
 	}
 
 	function formatDate(dateStr: string): string {
@@ -355,6 +364,7 @@
 						preview: upload.url,
 						isExisting: true
 					})) || []}
+					onFilesAdded={handleFilesAdded}
 				/>
 			</div>
 		</div>
