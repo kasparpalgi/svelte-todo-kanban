@@ -4,7 +4,8 @@ import { graphql } from './generated';
 /**
  * Minimal fragment for fast board loading
  * Only includes essential fields needed for card display in board/list view
- * Reduces payload by 60-80% compared to full fragment
+ * Excludes comments and uploads (loaded on-demand when opening card)
+ * Reduces payload by 40-60% compared to full fragment
  */
 export const TODO_MINIMAL_FRAGMENT = graphql(`
 	fragment TodoMinimalFields on todos {
@@ -23,23 +24,6 @@ export const TODO_MINIMAL_FRAGMENT = graphql(`
 		max_hours
 		actual_hours
 
-		# Aggregates for counts (much lighter than full arrays)
-		comments_aggregate {
-			aggregate {
-				count
-			}
-		}
-		uploads_aggregate {
-			aggregate {
-				count
-			}
-		}
-		labels_aggregate {
-			aggregate {
-				count
-			}
-		}
-
 		# Minimal assignee info for avatar display
 		assignee {
 			id
@@ -57,7 +41,7 @@ export const TODO_MINIMAL_FRAGMENT = graphql(`
 			}
 		}
 
-		# Minimal list info
+		# Minimal list info (no full board data)
 		list {
 			id
 			name
@@ -123,23 +107,6 @@ export const TODO_FULL_FRAGMENT = graphql(`
 			id
 			url
 			created_at
-		}
-
-		# Counts for consistency
-		comments_aggregate {
-			aggregate {
-				count
-			}
-		}
-		uploads_aggregate {
-			aggregate {
-				count
-			}
-		}
-		labels_aggregate {
-			aggregate {
-				count
-			}
 		}
 
 		# Full list and board info
