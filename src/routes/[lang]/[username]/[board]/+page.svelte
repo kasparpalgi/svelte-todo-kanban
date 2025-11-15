@@ -102,11 +102,10 @@
 				const needsToLoadTodos = !notMember && (!todosStore.initialized || todosStore.currentBoardId !== board.id);
 
 				if (needsToLoadTodos) {
-					// Load first 50 active todos for fast initial render
+					// Load initial todos (top 50 with minimal data)
 					await todosStore.loadTodosInitial(board.id);
 
-					// Load remaining in background (non-blocking)
-					// Uses 2 requests total to avoid N+1 problem
+					// Load remaining todos in the background (non-blocking)
 					setTimeout(() => {
 						todosStore.loadTodosRemaining(board.id);
 					}, 100);
