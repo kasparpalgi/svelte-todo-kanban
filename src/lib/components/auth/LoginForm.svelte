@@ -283,13 +283,13 @@
 		{#if mode !== 'magic-link'}
 			<div class="text-center text-sm">
 				<Button variant="link" class="text-xs" onclick={() => switchMode('magic-link')}>
-					Or use magic link instead
+					{$t('auth.use_magic_link_instead')}
 				</Button>
 			</div>
 		{:else}
 			<div class="text-center text-sm">
 				<Button variant="link" class="text-xs" onclick={() => switchMode('login')}>
-					Or use password instead
+					{$t('auth.use_password_instead')}
 				</Button>
 			</div>
 		{/if}

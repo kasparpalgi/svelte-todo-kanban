@@ -243,7 +243,9 @@
         "dont_have_account": "Don't have an account?",
         "switch_to_login": "Sign in",
         "switch_to_signup": "Sign up",
-        "password_requirements": "Password must be at least 8 characters and include uppercase, lowercase, and a number"
+        "password_requirements": "Password must be at least 8 characters and include uppercase, lowercase, and a number",
+        "use_magic_link_instead": "Or use magic link instead",
+        "use_password_instead": "Or use password instead"
     },
     "todo": {
         "noLists": "No lists yet",
