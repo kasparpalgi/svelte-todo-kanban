@@ -17,7 +17,7 @@ declare module 'sveltekit-i18n' {
     locale: Readable<string> & { set: (locale: string) => void; subscribe: any };
     locales: Readable<string[]>;
     loading: Readable<boolean>;
-    loadTranslations: (locale: string) => Promise<void>;
+    loadTranslations: (locale: string, route?: string) => Promise<void>;
   }
 
   export interface I18nConfig {
@@ -36,6 +36,6 @@ declare module 'sveltekit-i18n' {
     locale: Readable<string> & { set: (locale: string) => void; subscribe: any };
     locales: Readable<string[]>;
     loading: Readable<boolean>;
-    loadTranslations: (locale: string) => Promise<void>;
+    loadTranslations: (locale: string, route?: string) => Promise<void>;
   }
 }
