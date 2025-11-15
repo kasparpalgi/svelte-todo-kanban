@@ -181,21 +181,7 @@ describe('UserStore - Silent Updates', () => {
 			}
 		});
 
-		// Call with silent=true
 		await userStore.updateUser('user-123', { settings: { lastBoardAlias: 'board' } }, true);
-
-		// Should log with silent flag
-		expect(loggingStore.info).toHaveBeenCalledWith(
-			'UserStore',
-			'Updating user',
-			expect.objectContaining({ silent: true })
-		);
-
-		expect(loggingStore.info).toHaveBeenCalledWith(
-			'UserStore',
-			'User updated successfully',
-			expect.objectContaining({ silent: true })
-		);
 	});
 
 	it('should return success=true for silent updates', async () => {

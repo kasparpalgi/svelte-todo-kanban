@@ -110,9 +110,6 @@ export async function GET({ url }: RequestEvent) {
 		const currentSettings = userData.users_by_pk.settings || {};
 		const userEmail = userData.users_by_pk.email || 'Unknown';
 
-		console.log('Updating user settings with calendar token');
-
-		// Update user with calendar tokens
 		const updateResult = await serverRequest(UPDATE_USER, {
 			where: { id: { _eq: state } },
 			_set: {

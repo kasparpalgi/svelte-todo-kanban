@@ -50,12 +50,6 @@ function createUserStore() {
 				state.cachedUser = sessionUser;
 				console.warn('[UserStore] DB user not found, using session data');
 			}
-
-			loggingStore.setUserId(sessionUser.id);
-
-			loggingStore.info('UserStore', 'User initialized and hydrated from DB', {
-				userId: sessionUser.id
-			});
 		} catch (error: any) {
 			state.error = error.message || 'Failed to load user profile.';
 			displayMessage(error);
@@ -104,8 +98,6 @@ function createUserStore() {
 		state.error = null;
 
 		try {
-			loggingStore.info('UserStore', 'Updating user', { userId, updates, silent });
-
 			const data = (await request(UPDATE_USER, {
 				where: { id: { _eq: userId } },
 				_set: updates
@@ -137,13 +129,6 @@ function createUserStore() {
 			if (!silent) {
 				displayMessage('Settings updated successfully', 3000, true);
 			}
-
-			loggingStore.info('UserStore', 'User updated successfully', {
-				userId,
-				updatedFields: Object.keys(updates),
-				silent,
-				newUser: updatedUser
-			});
 
 			return { success: true, data: updatedUser };
 		} catch (error: any) {
