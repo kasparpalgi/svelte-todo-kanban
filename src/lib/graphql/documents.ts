@@ -468,16 +468,6 @@ export const GET_COMMENTS = graphql(`
 	}
 `);
 
-export const GET_COMMENTS_AGGREGATE = graphql(`
-	query GetCommentsAggregate($where: comments_bool_exp = {}) {
-		comments_aggregate(where: $where) {
-			aggregate {
-				count
-			}
-		}
-	}
-`);
-
 export const CREATE_COMMENT = graphql(`
 	mutation CreateComment($objects: [comments_insert_input!]!) {
 		insert_comments(objects: $objects) {

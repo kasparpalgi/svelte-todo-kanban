@@ -1,7 +1,6 @@
 /** @file src/lib/stores/comments.svelte.ts */
 import {
 	GET_COMMENTS,
-	GET_COMMENTS_AGGREGATE,
 	CREATE_COMMENT,
 	UPDATE_COMMENT,
 	DELETE_COMMENT,
@@ -12,7 +11,6 @@ import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
 import type {
 	GetCommentsQuery,
-	GetCommentsAggregateQuery,
 	CreateCommentMutation,
 	UpdateCommentMutation,
 	DeleteCommentMutation,
@@ -61,22 +59,26 @@ function createCommentsStore() {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
 			const where = { todo_id: { _eq: todoId } };
 
-			// Fetch total count
-			const aggregateData: GetCommentsAggregateQuery = await request(GET_COMMENTS_AGGREGATE, {
-				where
-			});
-			state.totalCount = aggregateData.comments_aggregate?.aggregate?.count || 0;
-
-			// Fetch first page of comments
+			// Fetch one extra comment to determine if there are more
 			const data: GetCommentsQuery = await request(GET_COMMENTS, {
 				where,
 				order_by: [{ created_at: Order_By.Desc }],
-				limit: COMMENTS_PER_PAGE,
+				limit: COMMENTS_PER_PAGE + 1,
 				offset: 0
 			});
 
-			state.comments = data.comments || [];
-			state.hasMore = state.comments.length < state.totalCount;
+			const fetchedComments = data.comments || [];
+
+			// If we got more than requested, there are more comments
+			if (fetchedComments.length > COMMENTS_PER_PAGE) {
+				state.hasMore = true;
+				state.comments = fetchedComments.slice(0, COMMENTS_PER_PAGE);
+			} else {
+				state.hasMore = false;
+				state.comments = fetchedComments;
+			}
+
+			state.totalCount = state.comments.length;
 			return state.comments;
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error loading comments';
@@ -98,17 +100,26 @@ function createCommentsStore() {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
 			const where = { todo_id: { _eq: todoId } };
 
-			// Fetch next page of comments
+			// Fetch next page with one extra comment to check for more
 			const data: GetCommentsQuery = await request(GET_COMMENTS, {
 				where,
 				order_by: [{ created_at: Order_By.Desc }],
-				limit: COMMENTS_PER_PAGE,
+				limit: COMMENTS_PER_PAGE + 1,
 				offset: state.comments.length
 			});
 
-			const newComments = data.comments || [];
-			state.comments = [...state.comments, ...newComments];
-			state.hasMore = state.comments.length < state.totalCount;
+			const fetchedComments = data.comments || [];
+
+			// If we got more than requested, there are more comments
+			if (fetchedComments.length > COMMENTS_PER_PAGE) {
+				state.hasMore = true;
+				state.comments = [...state.comments, ...fetchedComments.slice(0, COMMENTS_PER_PAGE)];
+			} else {
+				state.hasMore = false;
+				state.comments = [...state.comments, ...fetchedComments];
+			}
+
+			state.totalCount = state.comments.length;
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error loading more comments';
 			state.error = message;
