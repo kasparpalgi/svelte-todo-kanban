@@ -53,7 +53,7 @@ export default defineConfig({
 			},
 			devOptions: {
 				enabled: true,
-				suppressWarnings: process.env.SUPPRESS_WARNING === 'true',
+				suppressWarnings: true,
 				type: 'module'
 			},
 			kit: {}
