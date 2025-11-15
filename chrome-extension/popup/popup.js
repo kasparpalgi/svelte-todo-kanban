@@ -40,6 +40,10 @@ const saveBtnLoading = document.getElementById('save-btn-loading');
 const statusMessage = document.getElementById('status-message');
 const pageUrlLink = document.getElementById('page-url-link');
 
+console.log('DOM Elements loaded:');
+console.log('generateAiBtn:', generateAiBtn);
+console.log('aiSummarizeCheckbox:', aiSummarizeCheckbox);
+
 /**
  * Initialize the popup
  */
@@ -616,12 +620,19 @@ function hideStatusMessage() {
 /**
  * Event listeners
  */
+console.log('Attaching event listeners...');
 boardSelect.addEventListener('change', handleBoardChange);
 aiSummarizeCheckbox.addEventListener('change', handleAiSummarizeChange);
-generateAiBtn.addEventListener('click', handleGenerateAi);
+console.log('Attaching click listener to generateAiBtn:', generateAiBtn);
+generateAiBtn.addEventListener('click', () => {
+  console.log('!!! BUTTON CLICKED !!!');
+  handleGenerateAi();
+});
+console.log('Event listener attached to generateAiBtn');
 saveBtn.addEventListener('click', handleSave);
 cancelBtn.addEventListener('click', handleCancel);
 signInBtn.addEventListener('click', handleSignIn);
+console.log('All event listeners attached');
 
 // Listen for auth complete message from background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
