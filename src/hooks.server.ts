@@ -250,13 +250,6 @@ export const { handle: authHandle, signOut } = SvelteKitAuth({
 		jwt: async ({ token, user, account }) => {
 			// Initial sign in
 			if (account && user) {
-				console.log('Initial sign in - Account:', {
-					provider: account.provider,
-					hasAccessToken: !!account.access_token,
-					hasRefreshToken: !!account.refresh_token,
-					expiresAt: account.expires_at
-				});
-
 				token.userId = user.id;
 				token.hasuraRole = 'user';
 				token.accessToken = account.access_token;
@@ -271,7 +264,6 @@ export const { handle: authHandle, signOut } = SvelteKitAuth({
 			}
 
 			// Token has expired, try to refresh it
-			console.log('Refreshing token');
 			try {
 				const response = await fetch('https://oauth2.googleapis.com/token', {
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -291,7 +283,6 @@ export const { handle: authHandle, signOut } = SvelteKitAuth({
 					throw newTokens;
 				}
 
-				console.log('Token refreshed successfully');
 				return {
 					...token,
 					accessToken: newTokens.access_token,
@@ -309,8 +300,6 @@ export const { handle: authHandle, signOut } = SvelteKitAuth({
 				session.hasuraRole = token.hasuraRole as string;
 				session.accessToken = token.accessToken as string;
 				session.error = token.error as string | undefined;
-
-				console.log('Session callback - has access token:', !!session.accessToken);
 			}
 			return session;
 		}

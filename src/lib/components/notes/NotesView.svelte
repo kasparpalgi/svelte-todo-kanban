@@ -18,25 +18,18 @@
 	let selectedNoteId: string | null = $state(null);
 	let saving: boolean = $state(false);
 
-	console.log('[NotesView] Component initialized, boardId:', boardId);
-
 	const selectedNote = $derived.by(() => {
 		const found = notesStore.sortedNotes.find((n) => n.id === selectedNoteId) || null;
-		console.log('[NotesView] selectedNote derived, id:', found?.id);
 		return found;
 	});
 
 	onMount(async () => {
-		console.log('[NotesView] onMount, boardId:', boardId);
 		if (boardId) {
-			console.log('[NotesView] Loading notes...');
 			await notesStore.loadNotes(boardId);
-			console.log('[NotesView] Notes loaded, count:', notesStore.sortedNotes.length);
 
 			// Select first note if available
 			if (notesStore.sortedNotes.length > 0 && !selectedNoteId) {
 				selectedNoteId = notesStore.sortedNotes[0].id;
-				console.log('[NotesView] Auto-selected first note:', selectedNoteId);
 			}
 		}
 	});

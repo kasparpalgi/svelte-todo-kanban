@@ -20,7 +20,6 @@
 		// Routes with [lang] are handled by [lang]/+layout.svelte
 		if (!page.params.lang) {
 			const locale = data?.session?.user?.locale || DEFAULT_LOCALE;
-			console.log('[Root Layout] Initializing translations for non-lang route:', locale);
 			initTranslations(locale);
 		}
 	});
@@ -31,9 +30,7 @@
 			registerSW({
 				immediate: true,
 				onRegistered(r) {
-					if (r) {
-						console.log(`[Root Layout] SW Registered: ${r}`);
-					}
+					// SW registered successfully
 				},
 				onRegisterError(error) {
 					console.log('[Root Layout] SW registration error', error);

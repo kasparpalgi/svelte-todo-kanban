@@ -176,7 +176,6 @@
 	async function handleNotificationClick(notification: any) {
 		// Check if notification has a related todo with board info
 		if (!notification.todo || !notification.todo.list?.board) {
-			console.log('[UnifiedNotificationBell.handleNotificationClick] No board info available');
 			return;
 		}
 
@@ -186,11 +185,6 @@
 		const cardId = notification.todo_id;
 
 		if (!boardAlias || !username || !cardId) {
-			console.log('[UnifiedNotificationBell.handleNotificationClick] Missing required data', {
-				boardAlias,
-				username,
-				cardId
-			});
 			return;
 		}
 
@@ -199,7 +193,6 @@
 
 		// Navigate to the card
 		const url = `/${lang}/${username}/${boardAlias}?card=${cardId}`;
-		console.log('[UnifiedNotificationBell.handleNotificationClick] Navigating to:', url);
 
 		// Mark as read when clicking
 		if (!notification.is_read) {

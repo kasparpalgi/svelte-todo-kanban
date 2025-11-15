@@ -68,13 +68,11 @@ function createNotificationStore() {
 				if (!newNotification.is_read) {
 					state.unreadCount++;
 				}
-				console.log('[NotificationStore.createNotification]', { id: newNotification.id });
 				return { success: true, message: 'Notification created', data: newNotification };
 			}
 			return { success: false, message: 'Failed to create notification' };
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
-			console.log('[NotificationStore.createNotification] Error:', message);
 			return { success: false, message };
 		}
 	}
@@ -101,7 +99,6 @@ function createNotificationStore() {
 			const updated = data.update_notifications_by_pk;
 			if (updated) {
 				state.notifications[index] = updated;
-				console.log('[NotificationStore.markAsRead]', { id: notificationId });
 				return { success: true, message: 'Marked as read' };
 			}
 			return { success: false, message: 'Update failed' };
@@ -111,7 +108,6 @@ function createNotificationStore() {
 			if (wasUnread) state.unreadCount++;
 
 			const message = error instanceof Error ? error.message : String(error);
-			console.log('[NotificationStore.markAsRead] Error:', message);
 			return { success: false, message };
 		}
 	}
@@ -137,7 +133,6 @@ function createNotificationStore() {
 				notification_ids: notificationIds
 			})) as MarkNotificationsAsReadMutation;
 
-			console.log('[NotificationStore.markMultipleAsRead]', { count: data.update_notifications?.affected_rows });
 			return { success: true, message: `Marked ${notificationIds.length} as read` };
 		} catch (error) {
 			// Rollback
@@ -151,7 +146,6 @@ function createNotificationStore() {
 			state.unreadCount += decremented;
 
 			const message = error instanceof Error ? error.message : String(error);
-			console.log('[NotificationStore.markMultipleAsRead] Error:', message);
 			return { success: false, message };
 		}
 	}
@@ -171,7 +165,6 @@ function createNotificationStore() {
 
 		try {
 			await request(DELETE_NOTIFICATION, { id: notificationId }) as DeleteNotificationMutation;
-			console.log('[NotificationStore.deleteNotification]', { id: notificationId });
 			return { success: true, message: 'Notification deleted' };
 		} catch (error) {
 			// Rollback
@@ -179,7 +172,6 @@ function createNotificationStore() {
 			if (wasUnread) state.unreadCount++;
 
 			const message = error instanceof Error ? error.message : String(error);
-			console.log('[NotificationStore.deleteNotification] Error:', message);
 			return { success: false, message };
 		}
 	}

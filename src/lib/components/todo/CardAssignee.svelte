@@ -52,7 +52,6 @@
 						triggered_by_user_id: user.id,
 						content: ''
 					});
-					console.log('[CardAssignee.assignUser] Notification created');
 				} catch (error) {
 					console.error('Failed to create notification:', error);
 				}

@@ -33,11 +33,9 @@ function createActivityLogStore() {
 			})) as GetActivityLogsQuery;
 
 			state.logs = data.activity_logs || [];
-			console.log('[ActivityLogStore.loadActivityLogs]', { todoId, count: state.logs.length });
 			return { success: true, message: 'Activity logs loaded' };
 		} catch (error) {
 			state.error = error instanceof Error ? error.message : String(error);
-			console.log('[ActivityLogStore.loadActivityLogs] Error:', state.error);
 			return { success: false, message: state.error };
 		} finally {
 			state.loading = false;
@@ -63,14 +61,9 @@ function createActivityLogStore() {
 			})) as GetActivityLogsQuery;
 
 			state.logs = data.activity_logs || [];
-			console.log('[ActivityLogStore.loadBoardActivityLogs]', {
-				boardId,
-				count: state.logs.length
-			});
 			return { success: true, message: 'Board activity logs loaded' };
 		} catch (error) {
 			state.error = error instanceof Error ? error.message : String(error);
-			console.log('[ActivityLogStore.loadBoardActivityLogs] Error:', state.error);
 			return { success: false, message: state.error };
 		} finally {
 			state.loading = false;
@@ -88,16 +81,11 @@ function createActivityLogStore() {
 			const newLog = data.insert_activity_logs_one;
 			if (newLog) {
 				state.logs.unshift(newLog);
-				console.log('[ActivityLogStore.createActivityLog]', {
-					id: newLog.id,
-					action: newLog.action_type
-				});
 				return { success: true, message: 'Activity logged', data: newLog };
 			}
 			return { success: false, message: 'Failed to create activity log' };
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
-			console.log('[ActivityLogStore.createActivityLog] Error:', message);
 			return { success: false, message };
 		}
 	}

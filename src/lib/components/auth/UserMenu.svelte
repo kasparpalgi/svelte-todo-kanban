@@ -16,13 +16,6 @@
 		// Use user's stored locale preference for navigation, NOT the current page URL
 		const currentLang = userStore.user?.locale || DEFAULT_LOCALE;
 		const settingsPath = `/${currentLang}/settings`;
-		console.log('[UserMenu.navigateToSettings]', {
-			'page.params.lang': page.params.lang,
-			'userStore.user?.locale': userStore.user?.locale,
-			currentLang,
-			settingsPath,
-			'current URL': page.url.pathname
-		});
 		goto(settingsPath);
 	}
 

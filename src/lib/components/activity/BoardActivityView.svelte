@@ -20,14 +20,9 @@
 		boardName
 	}: { open: boolean; boardId: string; boardName: string } = $props();
 
-	console.log('[BoardActivityView] Component initialized, boardId:', boardId);
-
 	onMount(async () => {
-		console.log('[BoardActivityView] onMount, boardId:', boardId);
 		if (boardId) {
-			console.log('[BoardActivityView] Loading board activity logs...');
 			await activityLogStore.loadBoardActivityLogs(boardId);
-			console.log('[BoardActivityView] Activity logs loaded, count:', activityLogStore.logs.length);
 		}
 	});
 
