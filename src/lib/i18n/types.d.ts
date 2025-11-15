@@ -12,7 +12,7 @@ declare module 'sveltekit-i18n' {
     (key: string, params?: TranslationParams): string;
   }
 
-  export interface I18n {
+  export interface I18nInstance {
     t: Readable<TranslationFunction> & { get: TranslationFunction };
     locale: Readable<string> & { set: (locale: string) => void; subscribe: any };
     locales: Readable<string[]>;
@@ -20,7 +20,7 @@ declare module 'sveltekit-i18n' {
     loadTranslations: (locale: string) => Promise<void>;
   }
 
-  export function i18n(config: {
+  export interface I18nConfig {
     fallbackLocale?: string;
     initialLocale?: string;
     loaders?: Array<{
@@ -28,7 +28,14 @@ declare module 'sveltekit-i18n' {
       key: string;
       loader: () => Promise<any>;
     }>;
-  }): I18n;
+  }
 
-  export default i18n;
+  export default class i18n {
+    constructor(config: I18nConfig);
+    t: Readable<TranslationFunction> & { get: TranslationFunction };
+    locale: Readable<string> & { set: (locale: string) => void; subscribe: any };
+    locales: Readable<string[]>;
+    loading: Readable<boolean>;
+    loadTranslations: (locale: string) => Promise<void>;
+  }
 }
