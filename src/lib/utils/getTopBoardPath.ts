@@ -23,11 +23,6 @@ export async function getTopBoardPath(
 			)) as any;
 
 			userLocale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
-			console.log('[getTopBoardPath] Fetched user locale from DB:', {
-				userLocale,
-				sessionLocale: session.user?.locale,
-				userId: session.user.id
-			});
 		}
 
 		const lastBoardAlias = session?.user?.settings?.lastBoardAlias;
