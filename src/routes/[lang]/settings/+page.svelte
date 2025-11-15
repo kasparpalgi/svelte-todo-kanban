@@ -122,11 +122,6 @@
 
 	$effect(() => {
 		if (user && !initialized) {
-			console.log('[SettingsPage] Initializing form data', {
-				'user.locale': user.locale,
-				'page.params.lang': page.params.lang,
-				currentLang
-			});
 			formData.name = user.name || '';
 			formData.email = user.email || '';
 			formData.image = user.image || '';

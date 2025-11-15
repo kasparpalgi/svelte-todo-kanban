@@ -49,8 +49,6 @@
 				window.location.origin
 			);
 
-			console.log('Posted auth success message to content script');
-
 			// Auto-close after 3 seconds
 			setTimeout(() => {
 				window.close();

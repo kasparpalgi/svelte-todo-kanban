@@ -29,7 +29,8 @@ function createTodosStore() {
 		todos: [],
 		loading: false,
 		error: null,
-		initialized: false
+		initialized: false,
+		currentBoardId: null
 	});
 
 	async function loadTodos(): Promise<TodoFieldsFragment[]> {
@@ -110,6 +111,7 @@ function createTodosStore() {
 
 			state.todos = data.todos || [];
 			state.initialized = true;
+			state.currentBoardId = boardId || null;
 
 			return state.todos;
 		} catch (error) {
@@ -895,6 +897,9 @@ function createTodosStore() {
 		get initialized() {
 			return state.initialized;
 		},
+		get currentBoardId() {
+			return state.currentBoardId;
+		},
 		get activeTodos() {
 			return activeTodos;
 		},
@@ -925,6 +930,7 @@ function createTodosStore() {
 			state.loading = false;
 			state.error = null;
 			state.initialized = false;
+			state.currentBoardId = null;
 		},
 
 		...(import.meta.env?.MODE === 'test' || process.env.NODE_ENV === 'test'

@@ -75,28 +75,20 @@
 		return invitationsStore.myInvitations.some((inv: any) => inv.board_id === board.id);
 	});
 
-	onMount(async () => {
-		const alreadyInitialized =
-			listsStore.boards.length > 0 &&
-			listsStore.selectedBoard?.alias === boardAlias &&
-			todosStore.initialized;
-
-		if (alreadyInitialized) {
-			loading = false;
-			boardNotFound = false;
-			return;
-		}
-
+	// Function to load board and its todos
+	async function loadBoardData(alias: string) {
 		loading = true;
 
 		if (data?.session) {
+			// Ensure boards are loaded
 			if (listsStore.boards.length === 0) {
 				await listsStore.loadBoards();
 			}
 
-			const board = listsStore.boards.find((b: any) => b.alias === boardAlias);
+			const board = listsStore.boards.find((b: any) => b.alias === alias);
 
 			if (board) {
+				// Set selected board if different
 				if (listsStore.selectedBoard?.id !== board.id) {
 					listsStore.setSelectedBoard(board);
 				}
@@ -104,8 +96,12 @@
 				const currentUser = userStore.user;
 				const isMember = board.board_members?.some((m: any) => m.user_id === currentUser?.id);
 				const isOwner = board.user?.id === currentUser?.id;
+				const notMember = !isMember && !isOwner;
 
-				if (!isNotMember && !todosStore.initialized) {
+				// Check if we need to load todos (first load or board changed)
+				const needsToLoadTodos = !notMember && (!todosStore.initialized || todosStore.currentBoardId !== board.id);
+
+				if (needsToLoadTodos) {
 					// Load initial todos (top 50 with minimal data)
 					await todosStore.loadTodosInitial(board.id);
 
@@ -122,10 +118,24 @@
 
 			loading = false;
 		}
+	}
 
+	onMount(async () => {
+		// Load view mode preference
 		const saved = localStorage.getItem('todo-view-mode');
 		if (saved === 'list' || saved === 'kanban') {
 			viewMode = saved;
+		}
+
+		// Load initial board
+		await loadBoardData(boardAlias);
+	});
+
+	// React to board alias changes (when switching boards)
+	$effect(() => {
+		// Only load if we have a session and boards are already loaded (not first mount)
+		if (data?.session && listsStore.boards.length > 0) {
+			loadBoardData(boardAlias);
 		}
 	});
 

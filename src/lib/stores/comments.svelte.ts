@@ -165,7 +165,6 @@ function createCommentsStore() {
 								content: `"${content.trim().substring(0, 50)}${content.trim().length > 50 ? '...' : ''}"`
 							}
 						}) as CreateNotificationMutation;
-						console.log('[CommentsStore.addComment] Notification created for assigned user');
 					} catch (notificationError) {
 						// Non-blocking: log error but don't fail comment creation
 						console.error('[CommentsStore.addComment] Failed to create notification:', notificationError);
