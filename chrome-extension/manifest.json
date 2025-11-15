@@ -12,6 +12,7 @@
   "host_permissions": [
     "https://todzz.eu/*",
     "https://www.todzz.eu/*",
+    "https://todzz.admin.servicehost.io/*",
     "http://localhost:5173/*"
   ],
   "action": {
@@ -38,6 +39,6 @@
     "128": "icons/icon128.png"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://todzz.eu https://www.todzz.eu http://localhost:5173 http://localhost:3001;"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://todzz.eu https://www.todzz.eu https://todzz.admin.servicehost.io http://localhost:5173 http://localhost:3001;"
   }
 }
