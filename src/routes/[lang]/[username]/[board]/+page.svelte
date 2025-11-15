@@ -75,62 +75,88 @@
 		return invitationsStore.myInvitations.some((inv: any) => inv.board_id === board.id);
 	});
 
-	onMount(async () => {
-		const currentBoard = listsStore.boards.find((b: any) => b.alias === boardAlias);
-		const alreadyInitialized =
-			listsStore.boards.length > 0 &&
-			listsStore.selectedBoard?.alias === boardAlias &&
-			todosStore.initialized &&
-			todosStore.currentBoardId === currentBoard?.id;
-
-		if (alreadyInitialized) {
-			loading = false;
-			boardNotFound = false;
-			return;
-		}
+	// Function to load board and its todos
+	async function loadBoardData(alias: string) {
+		console.log('[Board Page] loadBoardData called for alias:', alias);
+		console.log('[Board Page] Current state - boards loaded:', listsStore.boards.length > 0);
+		console.log('[Board Page] Current state - todos initialized:', todosStore.initialized);
+		console.log('[Board Page] Current state - current board ID:', todosStore.currentBoardId);
 
 		loading = true;
 
 		if (data?.session) {
+			// Ensure boards are loaded
 			if (listsStore.boards.length === 0) {
+				console.log('[Board Page] Loading boards...');
 				await listsStore.loadBoards();
 			}
 
-			const board = listsStore.boards.find((b: any) => b.alias === boardAlias);
+			const board = listsStore.boards.find((b: any) => b.alias === alias);
+			console.log('[Board Page] Found board:', board?.id, board?.name);
 
 			if (board) {
+				// Set selected board if different
 				if (listsStore.selectedBoard?.id !== board.id) {
+					console.log('[Board Page] Setting selected board to:', board.id);
 					listsStore.setSelectedBoard(board);
 				}
 
 				const currentUser = userStore.user;
 				const isMember = board.board_members?.some((m: any) => m.user_id === currentUser?.id);
 				const isOwner = board.user?.id === currentUser?.id;
+				const notMember = !isMember && !isOwner;
 
 				// Check if we need to load todos (first load or board changed)
-				const needsToLoadTodos = !isNotMember && (!todosStore.initialized || todosStore.currentBoardId !== board.id);
+				const needsToLoadTodos = !notMember && (!todosStore.initialized || todosStore.currentBoardId !== board.id);
+				console.log('[Board Page] Need to load todos?', needsToLoadTodos, '(notMember:', notMember, ', initialized:', todosStore.initialized, ', currentBoardId:', todosStore.currentBoardId, ', board.id:', board.id, ')');
 
 				if (needsToLoadTodos) {
+					console.log('[Board Page] Loading initial todos for board:', board.id);
 					// Load initial todos (top 50 with minimal data)
 					await todosStore.loadTodosInitial(board.id);
+					console.log('[Board Page] Loaded', todosStore.todos.length, 'todos');
 
 					// Load remaining todos in the background (non-blocking)
 					setTimeout(() => {
+						console.log('[Board Page] Loading remaining todos in background...');
 						todosStore.loadTodosRemaining(board.id);
 					}, 100);
+				} else {
+					console.log('[Board Page] Skipping todo load - already loaded or not a member');
 				}
 
 				boardNotFound = false;
 			} else {
+				console.log('[Board Page] Board not found for alias:', alias);
 				boardNotFound = true;
 			}
 
 			loading = false;
 		}
+	}
 
+	onMount(async () => {
+		console.log('[Board Page] onMount - initial boardAlias:', boardAlias);
+
+		// Load view mode preference
 		const saved = localStorage.getItem('todo-view-mode');
 		if (saved === 'list' || saved === 'kanban') {
 			viewMode = saved;
+		}
+
+		// Load initial board
+		await loadBoardData(boardAlias);
+	});
+
+	// React to board alias changes (when switching boards)
+	$effect(() => {
+		// This will run whenever boardAlias changes
+		console.log('[Board Page] $effect triggered - boardAlias changed to:', boardAlias);
+
+		// Only load if we have a session and boards are already loaded (not first mount)
+		if (data?.session && listsStore.boards.length > 0) {
+			console.log('[Board Page] Boards already loaded, switching to new board');
+			loadBoardData(boardAlias);
 		}
 	});
 

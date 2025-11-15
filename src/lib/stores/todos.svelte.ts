@@ -86,6 +86,9 @@ function createTodosStore() {
 	async function loadTodosInitial(boardId?: string): Promise<TodoFieldsFragment[]> {
 		if (!browser) return [];
 
+		console.log('[Todos Store] loadTodosInitial called for boardId:', boardId);
+		console.log('[Todos Store] Current state before load - initialized:', state.initialized, ', currentBoardId:', state.currentBoardId, ', todos count:', state.todos.length);
+
 		state.loading = true;
 		state.error = null;
 
@@ -96,6 +99,8 @@ function createTodosStore() {
 			if (boardId) {
 				where.list = { board_id: { _eq: boardId } };
 			}
+
+			console.log('[Todos Store] Fetching todos with where clause:', JSON.stringify(where));
 
 			// Use regular GET_TODOS but limit to 50 for fast initial load
 			const data: GetTodosQuery = await request(GET_TODOS, {
@@ -109,9 +114,13 @@ function createTodosStore() {
 				offset: 0
 			});
 
+			console.log('[Todos Store] Fetched', data.todos?.length || 0, 'todos');
+
 			state.todos = data.todos || [];
 			state.initialized = true;
 			state.currentBoardId = boardId || null;
+
+			console.log('[Todos Store] State after load - initialized:', state.initialized, ', currentBoardId:', state.currentBoardId, ', todos count:', state.todos.length);
 
 			return state.todos;
 		} catch (error) {
@@ -143,6 +152,8 @@ function createTodosStore() {
 	 */
 	async function loadTodosRemaining(boardId?: string): Promise<void> {
 		if (!browser) return;
+
+		console.log('[Todos Store] loadTodosRemaining called for boardId:', boardId);
 
 		try {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
