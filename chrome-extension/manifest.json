@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ToDzz - Save to Notes",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Save web pages to your ToDzz boards as notes with AI summarization",
   "permissions": [
     "activeTab",
