@@ -64,7 +64,7 @@ async function init() {
       pageData = await loadPageData();
       displayPageData();
     } catch (error) {
-      console.warn('Could not load page data:', error.message);
+      // Silent fail - this is expected on chrome://, about:, and other restricted pages
       // Set default page data (await the async operation)
       await new Promise((resolve) => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -453,7 +453,6 @@ async function handleSave() {
 
     // If AI summarize is checked but AI is still processing, continue in background
     if (aiSummarizeCheckbox.checked && aiProcessing) {
-      console.log('AI summary still processing in background');
       // Note: We could update the note later when AI finishes, but for now
       // we just save what we have. The user can see the AI summary in the textarea
       // and edit the note later if needed.
@@ -604,7 +603,6 @@ signInBtn.addEventListener('click', handleSignIn);
 // Listen for auth complete message from background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'AUTH_COMPLETE') {
-    console.log('Auth complete, reinitializing popup');
     // Reinitialize the popup now that we have auth
     init();
   }

@@ -192,15 +192,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // Listen for messages from the web page
 window.addEventListener('message', (event) => {
-  // Only accept messages from todzz.eu or localhost
-  const allowedOrigins = ['https://todzz.eu', 'https://www.todzz.eu', 'https://todzz.admin.servicehost.io', 'http://localhost:5173'];
+  // Only accept messages from todzz.eu
+  const allowedOrigins = ['https://todzz.eu', 'https://www.todzz.eu', 'https://todzz.admin.servicehost.io'];
   if (!allowedOrigins.includes(event.origin)) {
     return;
   }
 
   // Handle authentication success message
   if (event.data.type === 'TODZZ_AUTH_SUCCESS') {
-    console.log('Content script received auth success, forwarding to background');
     chrome.runtime.sendMessage({
       type: 'TODZZ_AUTH_SUCCESS',
       token: event.data.token

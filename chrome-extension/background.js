@@ -8,13 +8,10 @@
 // Extension installation
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
-    console.log('ToDzz extension installed');
     // Open extension auth page on first install
     chrome.tabs.create({
       url: 'https://www.todzz.eu/extension-auth'
     });
-  } else if (details.reason === 'update') {
-    console.log('ToDzz extension updated to version', chrome.runtime.getManifest().version);
   }
 });
 
@@ -47,7 +44,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       jwtToken: request.token,
       tokenExpiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
     }, () => {
-      console.log('JWT token saved successfully');
       sendResponse({ success: true });
 
       // Notify all extension pages that auth is complete
@@ -64,7 +60,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       jwtToken: request.token,
       tokenExpiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
     }, () => {
-      console.log('JWT token received from web page and saved');
       sendResponse({ success: true });
 
       // Notify all extension pages that auth is complete
@@ -85,7 +80,6 @@ chrome.alarms.onAlarm.addListener((alarm) => {
       if (result.tokenExpiry && Date.now() > result.tokenExpiry) {
         // Token expired, clear it
         chrome.storage.local.remove(['jwtToken', 'tokenExpiry']);
-        console.log('JWT token expired and cleared');
       }
     });
   }
