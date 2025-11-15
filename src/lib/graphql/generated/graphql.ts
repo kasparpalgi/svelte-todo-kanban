@@ -12160,6 +12160,13 @@ export type GetCommentsQueryVariables = Exact<{
 
 export type GetCommentsQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> };
 
+export type GetCommentsAggregateQueryVariables = Exact<{
+  where?: InputMaybe<Comments_Bool_Exp>;
+}>;
+
+
+export type GetCommentsAggregateQuery = { __typename?: 'query_root', comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number } | null } };
+
 export type CreateCommentMutationVariables = Exact<{
   objects: Array<Comments_Insert_Input> | Comments_Insert_Input;
 }>;
@@ -13566,6 +13573,15 @@ export const GetCommentsDocument = new TypedDocumentString(`
     email
   }
 }`) as unknown as TypedDocumentString<GetCommentsQuery, GetCommentsQueryVariables>;
+export const GetCommentsAggregateDocument = new TypedDocumentString(`
+    query GetCommentsAggregate($where: comments_bool_exp = {}) {
+  comments_aggregate(where: $where) {
+    aggregate {
+      count
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetCommentsAggregateQuery, GetCommentsAggregateQueryVariables>;
 export const CreateCommentDocument = new TypedDocumentString(`
     mutation CreateComment($objects: [comments_insert_input!]!) {
   insert_comments(objects: $objects) {

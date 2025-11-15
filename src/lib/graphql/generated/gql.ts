@@ -47,6 +47,7 @@ type Documents = {
     "\n\tquery GetUsers(\n\t\t$where: users_bool_exp = {}\n\t\t$order_by: [users_order_by!] = {}\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tusers(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...UserFields\n\t\t}\n\t}\n": typeof types.GetUsersDocument,
     "\n\tmutation UpdateUser($where: users_bool_exp!, $_set: users_set_input!) {\n\t\tupdate_users(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...UserFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateUserDocument,
     "\n\tquery GetComments(\n\t\t$where: comments_bool_exp = {}\n\t\t$order_by: [comments_order_by!] = { created_at: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tcomments(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...CommentFields\n\t\t}\n\t}\n": typeof types.GetCommentsDocument,
+    "\n\tquery GetCommentsAggregate($where: comments_bool_exp = {}) {\n\t\tcomments_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetCommentsAggregateDocument,
     "\n\tmutation CreateComment($objects: [comments_insert_input!]!) {\n\t\tinsert_comments(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...CommentFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateCommentDocument,
     "\n\tmutation UpdateComment($where: comments_bool_exp!, $_set: comments_set_input!) {\n\t\tupdate_comments(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...CommentFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateCommentDocument,
     "\n\tmutation DeleteComment($where: comments_bool_exp!) {\n\t\tdelete_comments(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteCommentDocument,
@@ -117,6 +118,7 @@ const documents: Documents = {
     "\n\tquery GetUsers(\n\t\t$where: users_bool_exp = {}\n\t\t$order_by: [users_order_by!] = {}\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tusers(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...UserFields\n\t\t}\n\t}\n": types.GetUsersDocument,
     "\n\tmutation UpdateUser($where: users_bool_exp!, $_set: users_set_input!) {\n\t\tupdate_users(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...UserFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateUserDocument,
     "\n\tquery GetComments(\n\t\t$where: comments_bool_exp = {}\n\t\t$order_by: [comments_order_by!] = { created_at: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tcomments(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...CommentFields\n\t\t}\n\t}\n": types.GetCommentsDocument,
+    "\n\tquery GetCommentsAggregate($where: comments_bool_exp = {}) {\n\t\tcomments_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": types.GetCommentsAggregateDocument,
     "\n\tmutation CreateComment($objects: [comments_insert_input!]!) {\n\t\tinsert_comments(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...CommentFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateCommentDocument,
     "\n\tmutation UpdateComment($where: comments_bool_exp!, $_set: comments_set_input!) {\n\t\tupdate_comments(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...CommentFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateCommentDocument,
     "\n\tmutation DeleteComment($where: comments_bool_exp!) {\n\t\tdelete_comments(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteCommentDocument,
@@ -283,6 +285,10 @@ export function graphql(source: "\n\tmutation UpdateUser($where: users_bool_exp!
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tquery GetComments(\n\t\t$where: comments_bool_exp = {}\n\t\t$order_by: [comments_order_by!] = { created_at: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tcomments(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...CommentFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetCommentsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetCommentsAggregate($where: comments_bool_exp = {}) {\n\t\tcomments_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetCommentsAggregateDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
