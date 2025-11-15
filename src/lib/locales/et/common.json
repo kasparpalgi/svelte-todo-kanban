@@ -376,6 +376,8 @@
         "no_comments": "Kommentaare veel pole. Ole esimene kommenteerija!",
         "add_comment_placeholder": "Lisa kommentaar...",
         "press_ctrl_enter_submit": "Esitamiseks vajuta Ctrl+Enter",
+        "load_more": "Laadi rohkem kommentaare",
+        "loading_more": "Laen rohkem kommentaare...",
         "delete_card": "Kustuta kaart",
         "delete_card_confirm": "Kas oled kindel, et soovid selle kaardi kustutada?",
         "card_deleted": "Kaart kustutatud",

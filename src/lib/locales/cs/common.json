@@ -376,6 +376,8 @@
         "no_comments": "Zatím žádné komentáře. Buďte první, kdo okomentuje!",
         "add_comment_placeholder": "Přidat komentář...",
         "press_ctrl_enter_submit": "Stiskněte Ctrl+Enter pro odeslání",
+        "load_more": "Načíst další komentáře",
+        "loading_more": "Načítání dalších komentářů...",
         "delete_card": "Smazat kartu",
         "delete_card_confirm": "Opravdu chcete smazat tuto kartu?",
         "card_deleted": "Karta smazána",

@@ -376,6 +376,8 @@
         "no_comments": "No comments yet. Be the first to comment!",
         "add_comment_placeholder": "Add a comment...",
         "press_ctrl_enter_submit": "Press Ctrl+Enter to submit",
+        "load_more": "Load more comments",
+        "loading_more": "Loading more comments...",
         "delete_card": "Delete Card",
         "delete_card_confirm": "Are you sure you want to delete this card?",
         "card_deleted": "Card deleted",

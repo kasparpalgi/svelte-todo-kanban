@@ -48,11 +48,31 @@
 <div>
 	<Label class="mb-2 flex items-center gap-2">
 		<MessageSquare class="h-4 w-4" />
-		{$t('card.comments')} ({commentsStore.comments.length})
+		{$t('card.comments')} ({commentsStore.totalCount})
 	</Label>
 
 	<div class="space-y-3">
-		{#if commentsStore.loading}
+		<div class="flex gap-2">
+			<Textarea
+				bind:value={newComment}
+				placeholder={$t('card.add_comment_placeholder')}
+				rows={2}
+				class="flex-1"
+				onkeydown={handleCommentKeydown}
+			/>
+			<Button
+				onclick={addComment}
+				disabled={!newComment.trim() || commentsStore.loading}
+				class="h-auto"
+			>
+				<Send class="h-4 w-4" />
+			</Button>
+		</div>
+		<p class="text-xs text-muted-foreground">
+			{$t('card.press_ctrl_enter_submit')}
+		</p>
+
+		{#if commentsStore.loading && commentsStore.comments.length === 0}
 			<div class="py-4 text-center text-sm text-muted-foreground">
 				{$t('card.loading_comments')}
 			</div>
@@ -93,26 +113,16 @@
 					</p>
 				</Card>
 			{/each}
+			{#if commentsStore.hasMore}
+				<Button
+					variant="outline"
+					class="w-full"
+					onclick={() => commentsStore.loadMore(todo.id)}
+					disabled={commentsStore.loading}
+				>
+					{commentsStore.loading ? $t('card.loading_more') : $t('card.load_more')}
+				</Button>
+			{/if}
 		{/if}
-
-		<div class="flex gap-2">
-			<Textarea
-				bind:value={newComment}
-				placeholder={$t('card.add_comment_placeholder')}
-				rows={2}
-				class="flex-1"
-				onkeydown={handleCommentKeydown}
-			/>
-			<Button
-				onclick={addComment}
-				disabled={!newComment.trim() || commentsStore.loading}
-				class="h-auto"
-			>
-				<Send class="h-4 w-4" />
-			</Button>
-		</div>
-		<p class="text-xs text-muted-foreground">
-			{$t('card.press_ctrl_enter_submit')}
-		</p>
 	</div>
 </div>
