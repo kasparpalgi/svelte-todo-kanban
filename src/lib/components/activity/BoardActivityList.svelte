@@ -167,20 +167,24 @@
 		{#each logs as log (log.id)}
 			{@const Icon = getActionIcon(log.action_type)}
 			{@const clickable = isClickable(log)}
-			<div
-				class="group flex items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50 {clickable
-					? 'cursor-pointer'
-					: ''}"
-				onclick={() => clickable && handleActivityClick(log)}
-				role={clickable ? 'button' : undefined}
-				tabindex={clickable ? 0 : undefined}
-				onkeydown={(e) => {
-					if (clickable && (e.key === 'Enter' || e.key === ' ')) {
-						e.preventDefault();
-						handleActivityClick(log);
-					}
-				}}
-			>
+			{#if clickable}
+				<div
+					class="group flex items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50 cursor-pointer"
+					onclick={() => handleActivityClick(log)}
+					role="button"
+					tabindex="0"
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							handleActivityClick(log);
+						}
+					}}
+				>
+			{:else}
+				<div
+					class="group flex items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50"
+				>
+			{/if}
 				<div class="mt-0.5 flex-shrink-0">
 					<Icon class="h-4 w-4 {getActionColor(log.action_type)}" />
 				</div>
@@ -214,6 +218,7 @@
 					</div>
 				</div>
 			</div>
+			{/if}
 		{/each}
 	{/if}
 </div>

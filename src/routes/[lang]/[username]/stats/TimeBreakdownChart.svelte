@@ -47,14 +47,14 @@
 						<div
 							class="bg-primary h-full transition-all duration-300"
 							style="width: {(item.totalSeconds / maxDuration) * 100}%"
-						/>
+						></div>
 					</div>
 				</div>
 			{/each}
 		</div>
 	{:else}
 		<p class="text-sm text-muted-foreground text-center py-4">
-			{t('stats.noData', 'No data available')}
+			{$t('stats.noData', { default: 'No data available' })}
 		</p>
 	{/if}
 </div>

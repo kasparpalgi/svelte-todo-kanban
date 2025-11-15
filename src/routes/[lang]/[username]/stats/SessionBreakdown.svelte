@@ -49,7 +49,7 @@
 	// Helper function to generate page numbers with ellipsis
 	function getPaginationPages(current: number, total: number): (number | string)[] {
 		const delta = 2;
-		const range: (number | string)[] = [];
+		const range: number[] = [];
 		const rangeWithDots: (number | string)[] = [];
 
 		// Always include first page
@@ -76,7 +76,7 @@
 				rangeWithDots.push('...');
 			}
 			rangeWithDots.push(i);
-			prev = i as number;
+			prev = i;
 		}
 
 		return rangeWithDots;
@@ -146,7 +146,7 @@
 	<CardHeader>
 		<CardTitle>{title}</CardTitle>
 		<CardDescription>
-			{$t('stats.sessionBreakdownDesc', 'Detailed view of all tracked sessions and their allocations')}
+			{$t('stats.sessionBreakdownDesc', { default: 'Detailed view of all tracked sessions and their allocations' })}
 		</CardDescription>
 	</CardHeader>
 	<CardContent class="space-y-4">
@@ -155,12 +155,12 @@
 			<!-- Search box -->
 			<div class="space-y-2">
 				<label for="session-search" class="text-sm font-medium">
-					{$t('stats.searchSessions', 'Search Sessions')}
+					{$t('stats.searchSessions', { default: 'Search Sessions' })}
 				</label>
 				<Input
 					id="session-search"
 					type="text"
-					placeholder={$t('stats.searchPlaceholder', 'Search by window title or reason...')}
+					placeholder={$t('stats.searchPlaceholder', { default: 'Search by window title or reason...' })}
 					bind:value={searchQuery}
 					onchange={handleSearch}
 					oninput={handleSearch}
@@ -192,17 +192,17 @@
 		<!-- Summary stats -->
 		<div class="grid grid-cols-3 gap-4 rounded-lg bg-slate-100 dark:bg-slate-900 p-4">
 			<div class="text-center">
-				<p class="text-xs text-muted-foreground">{$t('stats.totalSessions', 'Total Sessions')}</p>
+				<p class="text-xs text-muted-foreground">{$t('stats.totalSessions', { default: 'Total Sessions' })}</p>
 				<p class="text-lg font-bold">{sessions.length}</p>
 			</div>
 			<div class="text-center">
-				<p class="text-xs text-muted-foreground">{$t('stats.matched', 'Matched')}</p>
+				<p class="text-xs text-muted-foreground">{$t('stats.matched', { default: 'Matched' })}</p>
 				<p class="text-lg font-bold text-blue-600 dark:text-blue-400">
 					{sessions.filter((s) => s.matchType !== 'unmatched').length}
 				</p>
 			</div>
 			<div class="text-center">
-				<p class="text-xs text-muted-foreground">{$t('stats.unmatched', 'Unmatched')}</p>
+				<p class="text-xs text-muted-foreground">{$t('stats.unmatched', { default: 'Unmatched' })}</p>
 				<p class="text-lg font-bold text-yellow-600 dark:text-yellow-400">
 					{sessions.filter((s) => s.matchType === 'unmatched').length}
 				</p>
@@ -224,7 +224,7 @@
 			{#if filteredSessions.length === 0}
 				<div class="flex items-center justify-center gap-2 py-8 text-muted-foreground">
 					<AlertCircle class="w-4 h-4" />
-					<p>{$t('stats.noSessionsFound', 'No sessions found matching your search.')}</p>
+					<p>{$t('stats.noSessionsFound', { default: 'No sessions found matching your search.' })}</p>
 				</div>
 			{:else}
 				{#each paginatedSessions as session (session.sessionId)}

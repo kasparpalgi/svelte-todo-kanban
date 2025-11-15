@@ -5,7 +5,7 @@
 	import { t } from '$lib/i18n';
 	import { Calendar } from 'lucide-svelte';
 
-	let { selectedPeriod }: { selectedPeriod: 'today' | 'week' | 'month' } = $props();
+	let { selectedPeriod }: { selectedPeriod: 'today' | 'week' | 'month' | 'custom' } = $props();
 
 	const dispatch = createEventDispatcher<{ periodChange: 'today' | 'week' | 'month' }>();
 
@@ -23,7 +23,7 @@
 			onclick={() => handleChange('today')}
 			class="transition-all"
 		>
-			{$t('stats.today', 'Today')}
+			{$t('stats.today', { default: 'Today' })}
 		</Button>
 		<Button
 			variant={selectedPeriod === 'week' ? 'default' : 'outline'}
@@ -31,7 +31,7 @@
 			onclick={() => handleChange('week')}
 			class="transition-all"
 		>
-			{$t('stats.week', 'Last 7 Days')}
+			{$t('stats.week', { default: 'Last 7 Days' })}
 		</Button>
 		<Button
 			variant={selectedPeriod === 'month' ? 'default' : 'outline'}
@@ -39,7 +39,7 @@
 			onclick={() => handleChange('month')}
 			class="transition-all"
 		>
-			{$t('stats.month', 'Last 30 Days')}
+			{$t('stats.month', { default: 'Last 30 Days' })}
 		</Button>
 	</div>
 </div>

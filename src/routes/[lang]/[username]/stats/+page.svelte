@@ -49,7 +49,9 @@
 	const lang: string = $derived(getEffectiveLocale(page.params.lang, userStore.user?.locale));
 
 	onMount(async () => {
-		await trackerStatsStore.loadStatsPeriod(selectedPeriod);
+		if (selectedPeriod !== 'custom') {
+			await trackerStatsStore.loadStatsPeriod(selectedPeriod);
+		}
 	});
 
 	async function handlePeriodChange(event: CustomEvent<'today' | 'week' | 'month'>) {
@@ -137,10 +139,10 @@
 		<div>
 			<h1 class="text-3xl font-bold flex items-center gap-2">
 				<ChartColumn class="w-8 h-8" />
-				{$t('stats.title', 'Time Statistics')}
+				{$t('stats.title', { default: 'Time Statistics' })}
 			</h1>
 			<p class="text-muted-foreground mt-1">
-				{$t('stats.description', 'Track your time spent on projects and categories')}
+				{$t('stats.description', { default: 'Track your time spent on projects and categories' })}
 			</p>
 		</div>
 	</div>
@@ -177,7 +179,7 @@
 		<Card class="border-dashed">
 			<CardContent class="flex flex-col items-center justify-center py-12">
 				<Loader2 class="w-8 h-8 animate-spin text-muted-foreground mb-2" />
-				<p class="text-muted-foreground">{$t('common.loading', 'Loading...')}</p>
+				<p class="text-muted-foreground">{$t('common.loading', { default: 'Loading...' })}</p>
 			</CardContent>
 		</Card>
 	{:else if error}
@@ -186,7 +188,7 @@
 				<AlertCircle class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
 				<div>
 					<h3 class="font-semibold text-red-900 dark:text-red-100">
-						{$t('common.error', 'Error')}
+						{$t('common.error', { default: 'Error' })}
 					</h3>
 					<p class="text-sm text-red-800 dark:text-red-200">{error}</p>
 				</div>
@@ -198,7 +200,7 @@
 				<CardHeader class="pb-2">
 					<CardTitle class="text-sm font-medium text-muted-foreground flex items-center gap-1">
 						<Clock class="w-4 h-4" />
-						{$t('stats.totalTime', 'Total Time')}
+						{$t('stats.totalTime', { default: 'Total Time' })}
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -208,7 +210,7 @@
 					<p class="text-xs text-muted-foreground mt-1">
 						{stats.byProject.size + stats.byCategory.size} {$t(
 							'stats.tracked',
-							'tracked'
+							{ default: 'tracked' }
 						)}
 					</p>
 				</CardContent>
