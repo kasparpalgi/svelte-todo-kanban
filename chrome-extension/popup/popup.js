@@ -484,9 +484,8 @@ async function getAiSummary(content) {
     },
     body: JSON.stringify({
       text: content,
-      type: 'correct',
-      model: model,
-      context: 'Summarize this web page content in 2-3 sentences'
+      type: 'summarize',
+      model: model
     })
   });
 
