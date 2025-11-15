@@ -31,7 +31,7 @@
 
 	onMount(async () => {
 		if (!todosStore.initialized && !todosStore.loading) {
-			await todosStore.loadTodos();
+			await todosStore.loadTodosInitial();
 		}
 
 		while (todosStore.loading) {
@@ -41,7 +41,7 @@
 		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
 		if (foundTodo) {
 			todo = foundTodo;
-			await commentsStore.loadComments(cardId || '');
+			await commentsStore.loadComments(cardId);
 		}
 		loading = false;
 	});
