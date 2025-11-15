@@ -1,8 +1,6 @@
 /** @file src/lib/stores/todos.svelte.ts */
 import {
 	GET_TODOS,
-	GET_TODOS_MINIMAL,
-	GET_TODO_FULL,
 	CREATE_TODO,
 	UPDATE_TODOS,
 	DELETE_TODOS,
@@ -15,16 +13,12 @@ import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
 import type {
 	GetTodosQuery,
-	GetTodosMinimalQuery,
-	GetTodoFullQuery,
 	CreateTodoMutation,
 	UpdateTodosMutation,
 	DeleteTodosMutation,
 	CreateUploadMutation,
 	DeleteUploadMutation,
-	TodoFieldsFragment,
-	TodoMinimalFieldsFragment,
-	TodoFullFieldsFragment
+	TodoFieldsFragment
 } from '$lib/graphql/generated/graphql';
 import type { StoreResult, TodosState } from '$lib/types/todo';
 import { todoFilteringStore } from './todoFiltering.svelte';
@@ -86,8 +80,8 @@ function createTodosStore() {
 	}
 
 	/**
-	 * Load initial batch of active todos for fast render
-	 * Uses GET_TODOS_MINIMAL for smaller payload
+	 * Load initial batch of todos (top 50) with limit on comments/uploads
+	 * This provides fast initial render for the board view
 	 */
 	async function loadTodosInitial(boardId?: string): Promise<TodoFieldsFragment[]> {
 		if (!browser) return [];
@@ -103,8 +97,8 @@ function createTodosStore() {
 				where.list = { board_id: { _eq: boardId } };
 			}
 
-			// Load first 50 active todos with minimal fragment for fast initial render
-			const data: GetTodosMinimalQuery = await request(GET_TODOS_MINIMAL, {
+			// Use regular GET_TODOS but limit to 50 for fast initial load
+			const data: GetTodosQuery = await request(GET_TODOS, {
 				where,
 				order_by: [
 					{ sort_order: Order_By.Asc },
@@ -115,7 +109,7 @@ function createTodosStore() {
 				offset: 0
 			});
 
-			state.todos = data.todos as any || [];
+			state.todos = data.todos || [];
 			state.initialized = true;
 			state.currentBoardId = boardId || null;
 
@@ -144,8 +138,8 @@ function createTodosStore() {
 	}
 
 	/**
-	 * Load remaining todos in background with minimal fragment
-	 * Makes 2 requests total (remaining active + completed) to avoid N+1 problem
+	 * Load remaining todos in the background after initial render
+	 * Loads in chunks to avoid blocking the UI
 	 */
 	async function loadTodosRemaining(boardId?: string): Promise<void> {
 		if (!browser) return;
@@ -153,84 +147,104 @@ function createTodosStore() {
 		try {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
 
-			//Request 1: Remaining active todos (beyond first 50)
-			const activeWhere: any = { completed_at: { _is_null: true } };
+			const where: any = { completed_at: { _is_null: true } };
 			if (boardId) {
-				activeWhere.list = { board_id: { _eq: boardId } };
+				where.list = { board_id: { _eq: boardId } };
 			}
 
-			const activeData: GetTodosMinimalQuery = await request(GET_TODOS_MINIMAL, {
-				where: activeWhere,
-				order_by: [
-					{ sort_order: Order_By.Asc },
-					{ due_on: Order_By.Desc },
-					{ updated_at: Order_By.Desc }
-				],
-				limit: 950, // Up to 950 more (50 already loaded)
-				offset: 50
-			});
+			// Load remaining active todos in chunks
+			let offset = 50;
+			let hasMore = true;
 
-			// Merge remaining active todos
-			const existingIds = new Set(state.todos.map(t => t.id));
-			const newActiveTodos = (activeData.todos || []).filter((t: any) => !existingIds.has(t.id));
+			while (hasMore) {
+				const data: GetTodosQuery = await request(GET_TODOS, {
+					where,
+					order_by: [
+						{ sort_order: Order_By.Asc },
+						{ due_on: Order_By.Desc },
+						{ updated_at: Order_By.Desc }
+					],
+					limit: 100,
+					offset
+				});
 
-			if (newActiveTodos.length > 0) {
-				state.todos = [...state.todos, ...(newActiveTodos as any)];
+				const todos = data.todos || [];
+
+				if (todos.length === 0) {
+					hasMore = false;
+					break;
+				}
+
+				// Merge with existing todos
+				const existingIds = new Set(state.todos.map(t => t.id));
+				const newTodos = todos.filter((t: any) => !existingIds.has(t.id));
+
+				if (newTodos.length > 0) {
+					state.todos = [...state.todos, ...newTodos];
+				}
+
+				offset += 100;
+
+				if (todos.length < 100) {
+					hasMore = false;
+				}
+
+				// Small delay to avoid blocking the UI
+				await new Promise(resolve => setTimeout(resolve, 50));
 			}
 
-			// Request 2: Completed todos
+			// Now load completed todos
 			const completedWhere: any = { completed_at: { _is_null: false } };
 			if (boardId) {
 				completedWhere.list = { board_id: { _eq: boardId } };
 			}
 
-			const completedData: GetTodosMinimalQuery = await request(GET_TODOS_MINIMAL, {
+			const completedData: GetTodosQuery = await request(GET_TODOS, {
 				where: completedWhere,
 				order_by: [{ completed_at: Order_By.Desc }],
 				limit: 100,
 				offset: 0
 			});
 
-			// Merge completed todos
-			const currentIds = new Set(state.todos.map(t => t.id));
-			const newCompletedTodos = (completedData.todos || []).filter((t: any) => !currentIds.has(t.id));
+			const completedTodos = completedData.todos || [];
+			const existingIds = new Set(state.todos.map(t => t.id));
+			const newCompletedTodos = completedTodos.filter((t: any) => !existingIds.has(t.id));
 
 			if (newCompletedTodos.length > 0) {
-				state.todos = [...state.todos, ...(newCompletedTodos as any)];
+				state.todos = [...state.todos, ...newCompletedTodos];
 			}
 
 		} catch (error) {
+			// Non-blocking: log error but don't fail
 			console.error('Load remaining todos error:', error);
 		}
 	}
 
 	/**
-	 * Load full details for a specific todo (including comments, uploads, etc.)
-	 * Uses GET_TODO_FULL to fetch all data only when needed (e.g., opening card modal)
-	 * This replaces the minimal todo data with full details
+	 * Load full details for a specific todo (including ensuring all data is loaded)
+	 * Used when opening the card modal
 	 */
 	async function loadTodoDetails(todoId: string): Promise<TodoFieldsFragment | null> {
 		if (!browser) return null;
 
 		try {
-			// Fetch full todo data with comments, uploads, and all nested objects
-			const data: GetTodoFullQuery = await request(GET_TODO_FULL, {
-				id: todoId
+			// Just refresh the todo from the database to ensure we have latest data
+			const data: GetTodosQuery = await request(GET_TODOS, {
+				where: { id: { _eq: todoId } }
 			});
 
-			const fullTodo = data.todos_by_pk;
+			const fullTodo = data.todos?.[0];
 
 			if (fullTodo) {
 				// Update the todo in state with full details
 				const index = state.todos.findIndex(t => t.id === todoId);
 				if (index !== -1) {
-					// Replace minimal data with full data
-					state.todos[index] = fullTodo as any;
+					state.todos[index] = fullTodo;
 				} else {
 					// Todo not in state yet, add it
-					state.todos = [...state.todos, fullTodo as any];
+					state.todos = [...state.todos, fullTodo];
 				}
-				return fullTodo as any;
+				return fullTodo;
 			}
 
 			return null;
