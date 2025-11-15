@@ -44,7 +44,7 @@ function createCommentsStore() {
 
 			const data: GetCommentsQuery = await request(GET_COMMENTS, {
 				where: { todo_id: { _eq: todoId } },
-				order_by: [{ created_at: Order_By.Asc }],
+				order_by: [{ created_at: Order_By.Desc }],
 				limit: 1000,
 				offset: 0
 			});
@@ -77,7 +77,7 @@ function createCommentsStore() {
 
 			const newComment = data.insert_comments?.returning?.[0];
 			if (newComment) {
-				state.comments = [...state.comments, newComment];
+				state.comments = [newComment, ...state.comments];
 
 				// Log activity: comment created
 				try {
