@@ -9,9 +9,9 @@
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     console.log('ToDzz extension installed');
-    // Open welcome page or sign-in on first install
+    // Open extension auth page on first install
     chrome.tabs.create({
-      url: 'https://todzz.eu/signin'
+      url: 'https://todzz.eu/extension-auth'
     });
   } else if (details.reason === 'update') {
     console.log('ToDzz extension updated to version', chrome.runtime.getManifest().version);
@@ -47,7 +47,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       jwtToken: request.token,
       tokenExpiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
     }, () => {
+      console.log('JWT token saved successfully');
       sendResponse({ success: true });
+
+      // Notify all extension pages that auth is complete
+      chrome.runtime.sendMessage({ type: 'AUTH_COMPLETE' }).catch(() => {
+        // Ignore errors if no listeners
+      });
+    });
+    return true;
+  }
+
+  if (request.type === 'TODZZ_AUTH_SUCCESS') {
+    // Receive auth token from web page (via content script)
+    chrome.storage.local.set({
+      jwtToken: request.token,
+      tokenExpiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+    }, () => {
+      console.log('JWT token received from web page and saved');
+      sendResponse({ success: true });
+
+      // Notify all extension pages that auth is complete
+      chrome.runtime.sendMessage({ type: 'AUTH_COMPLETE' }).catch(() => {
+        // Ignore errors if no listeners
+      });
     });
     return true;
   }
