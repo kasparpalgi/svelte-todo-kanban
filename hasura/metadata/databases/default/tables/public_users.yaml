@@ -114,6 +114,7 @@ insert_permissions:
         - image
         - locale
         - name
+        - password
         - settings
         - updated_at
         - username
