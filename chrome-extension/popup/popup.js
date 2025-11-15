@@ -9,6 +9,10 @@
 let pageData = null;
 let boards = [];
 let selectedBoardId = null;
+let selectedImageUrl = null;
+let availableImages = [];
+let aiSummary = null;
+let aiProcessing = false;
 
 // DOM elements
 const authRequired = document.getElementById('auth-required');
@@ -16,18 +20,25 @@ const mainContent = document.getElementById('main-content');
 const loadingState = document.getElementById('loading');
 const signInBtn = document.getElementById('sign-in-btn');
 const boardSelect = document.getElementById('board-select');
+const titleInput = document.getElementById('title-input');
+const descriptionInput = document.getElementById('description-input');
 const commentInput = document.getElementById('comment-input');
 const aiSummarizeCheckbox = document.getElementById('ai-summarize');
 const aiModelGroup = document.getElementById('ai-model-group');
 const aiModelSelect = document.getElementById('ai-model-select');
+const aiSummaryGroup = document.getElementById('ai-summary-group');
+const aiSummaryInput = document.getElementById('ai-summary-input');
+const generateAiBtn = document.getElementById('generate-ai-btn');
+const generateAiText = document.getElementById('generate-ai-text');
+const generateAiLoading = document.getElementById('generate-ai-loading');
+const imagePickerGroup = document.getElementById('image-picker-group');
+const imagePicker = document.getElementById('image-picker');
 const saveBtn = document.getElementById('save-btn');
 const cancelBtn = document.getElementById('cancel-btn');
 const saveBtnText = document.getElementById('save-btn-text');
 const saveBtnLoading = document.getElementById('save-btn-loading');
 const statusMessage = document.getElementById('status-message');
-const pageTitle = document.getElementById('page-title');
-const pageUrl = document.getElementById('page-url');
-const pageImage = document.getElementById('page-image');
+const pageUrlLink = document.getElementById('page-url-link');
 
 /**
  * Initialize the popup
@@ -51,21 +62,25 @@ async function init() {
     // Try to load page data (optional - may fail on some pages)
     try {
       pageData = await loadPageData();
-      displayPagePreview();
+      displayPageData();
     } catch (error) {
-      console.warn('Could not load page data:', error.message);
-      // Set default page data
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0]) {
-          pageData = {
-            title: tabs[0].title || 'Untitled Page',
-            url: tabs[0].url || '',
-            description: '',
-            image: null,
-            content: ''
-          };
-          displayPagePreview();
-        }
+      // Silent fail - this is expected on chrome://, about:, and other restricted pages
+      // Set default page data (await the async operation)
+      await new Promise((resolve) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0]) {
+            pageData = {
+              title: tabs[0].title || 'Untitled Page',
+              url: tabs[0].url || '',
+              description: '',
+              image: null,
+              images: [],
+              content: ''
+            };
+            displayPageData();
+          }
+          resolve();
+        });
       });
     }
 
@@ -132,26 +147,96 @@ async function loadBoards() {
 }
 
 /**
- * Display page preview
+ * Display page data in the UI
  */
-function displayPagePreview() {
+function displayPageData() {
   if (!pageData) return;
 
-  // Set page title
-  pageTitle.textContent = pageData.title || 'Untitled Page';
+  // Set page URL link
+  pageUrlLink.href = pageData.url;
+  pageUrlLink.textContent = pageData.url;
 
-  // Set page URL
-  const urlObj = new URL(pageData.url);
-  pageUrl.textContent = urlObj.hostname;
-  pageUrl.title = pageData.url;
+  // Set editable title
+  titleInput.value = pageData.title || 'Untitled Page';
 
-  // Set page image
-  if (pageData.image) {
-    pageImage.style.backgroundImage = `url('${pageData.image}')`;
-    pageImage.classList.remove('hidden');
-  } else {
-    pageImage.classList.add('hidden');
+  // Set editable description
+  descriptionInput.value = pageData.description || '';
+
+  // Set up image picker if images are available
+  availableImages = pageData.images || [];
+  selectedImageUrl = pageData.image || null;
+
+  if (availableImages.length > 0 || selectedImageUrl) {
+    displayImagePicker();
   }
+}
+
+/**
+ * Display image picker with thumbnails
+ */
+function displayImagePicker() {
+  // Show image picker group
+  imagePickerGroup.classList.remove('hidden');
+
+  // Clear existing images
+  imagePicker.innerHTML = '';
+
+  // Combine OG image with extracted images
+  const allImages = [];
+  if (selectedImageUrl && !availableImages.includes(selectedImageUrl)) {
+    allImages.push(selectedImageUrl);
+  }
+  allImages.push(...availableImages);
+
+  // Remove duplicates
+  const uniqueImages = [...new Set(allImages)];
+
+  // Limit to 6 images (including "No image" option)
+  const imagesToShow = uniqueImages.slice(0, 5);
+
+  // Add "No image" option
+  const noneOption = document.createElement('div');
+  noneOption.className = 'image-option' + (!selectedImageUrl ? ' selected' : '');
+  noneOption.onclick = () => selectImage(null);
+  const noneInner = document.createElement('div');
+  noneInner.className = 'image-option-inner image-option-none';
+  noneInner.textContent = 'No Image';
+  noneOption.appendChild(noneInner);
+  imagePicker.appendChild(noneOption);
+
+  // Add image options
+  imagesToShow.forEach((imageUrl, index) => {
+    const option = document.createElement('div');
+    option.className = 'image-option' + (imageUrl === selectedImageUrl ? ' selected' : '');
+    option.onclick = () => selectImage(imageUrl);
+
+    const inner = document.createElement('div');
+    inner.className = 'image-option-inner';
+    inner.style.backgroundImage = `url('${imageUrl}')`;
+
+    option.appendChild(inner);
+    imagePicker.appendChild(option);
+  });
+}
+
+/**
+ * Select an image from the picker
+ */
+function selectImage(imageUrl) {
+  selectedImageUrl = imageUrl;
+
+  // Update UI
+  const options = imagePicker.querySelectorAll('.image-option');
+  options.forEach((option, index) => {
+    if (index === 0 && imageUrl === null) {
+      // "No image" option selected
+      option.classList.add('selected');
+    } else if (index > 0 && option.querySelector('.image-option-inner').style.backgroundImage.includes(imageUrl)) {
+      option.classList.add('selected');
+    } else {
+      option.classList.remove('selected');
+    }
+  });
 }
 
 /**
@@ -229,14 +314,79 @@ function handleBoardChange() {
  */
 function handleAiSummarizeChange() {
   if (aiSummarizeCheckbox.checked) {
+    // Show AI sections
     aiModelGroup.classList.remove('hidden');
+    aiSummaryGroup.classList.remove('hidden');
+    generateAiBtn.classList.remove('hidden');
+
+    // If we already have a summary, show it
+    if (aiSummary) {
+      aiSummaryInput.value = aiSummary;
+      aiSummaryInput.disabled = false;
+    } else {
+      aiSummaryInput.value = '';
+      aiSummaryInput.placeholder = 'Click \'Generate Summary\' to create AI summary...';
+      aiSummaryInput.disabled = false;
+    }
   } else {
+    // Hide AI sections
     aiModelGroup.classList.add('hidden');
+    aiSummaryGroup.classList.add('hidden');
+    generateAiBtn.classList.add('hidden');
+  }
+}
+
+/**
+ * Handle Generate AI Summary button click
+ */
+async function handleGenerateAi() {
+  // Check if we have page content for AI processing
+  if (!pageData || !pageData.content || pageData.content.trim().length === 0) {
+    aiSummaryInput.value = 'No page content available for AI summary.';
+    showError('No page content available for AI summary');
+    return;
+  }
+
+  if (aiProcessing) {
+    return; // Already generating
+  }
+
+  try {
+    // Show loading state
+    aiProcessing = true;
+    generateAiText.classList.add('hidden');
+    generateAiLoading.classList.remove('hidden');
+    generateAiBtn.disabled = true;
+    aiSummaryInput.value = 'Generating AI summary...';
+    aiSummaryInput.disabled = true;
+
+    // Generate summary
+    const summary = await getAiSummary(pageData.content);
+
+    // Update UI with summary
+    aiSummary = summary;
+    aiSummaryInput.value = summary;
+    aiSummaryInput.disabled = false;
+
+    showSuccess('AI summary generated successfully!');
+  } catch (error) {
+    console.error('AI summary error:', error);
+    aiSummaryInput.value = '';
+    aiSummaryInput.placeholder = 'Failed to generate summary. Try again.';
+    aiSummary = null;
+    aiSummaryInput.disabled = false;
+    showError('Failed to generate AI summary: ' + error.message);
+  } finally {
+    aiProcessing = false;
+    generateAiText.classList.remove('hidden');
+    generateAiLoading.classList.add('hidden');
+    generateAiBtn.disabled = false;
   }
 }
 
 /**
  * Handle save button click
+ * Implements optimistic save - creates note immediately, AI processing happens in background
  */
 async function handleSave() {
   try {
@@ -255,38 +405,58 @@ async function handleSave() {
     setLoading(true);
     hideStatusMessage();
 
-    // Prepare content
+    // Get user-edited values
+    const noteTitle = titleInput.value.trim() || 'Untitled Page';
+    const noteDescription = descriptionInput.value.trim();
+    const userComment = commentInput.value.trim();
+
+    // Build content
     let content = '';
 
-    // If AI summarize is checked, get summary
-    if (aiSummarizeCheckbox.checked && pageData.content) {
-      const summary = await getAiSummary(pageData.content);
-      content += `<h3>AI Summary</h3>\n<p>${summary}</p>\n\n`;
-    } else if (pageData.description) {
-      content += `<p>${pageData.description}</p>\n\n`;
+    // 1. URL at the very top (as requested)
+    content += `<p><a href="${pageData.url}" target="_blank">${pageData.url}</a></p>\n\n`;
+
+    // 2. AI Summary or Description (without "AI Summary" title as requested)
+    if (aiSummarizeCheckbox.checked && aiSummary) {
+      // Use the AI summary from the editable textarea (user may have edited it)
+      const editedSummary = aiSummaryInput.value.trim();
+      if (editedSummary &&
+          editedSummary !== 'Generating AI summary...' &&
+          editedSummary !== 'Failed to generate summary. Description will be used instead.' &&
+          editedSummary !== 'No page content available for AI summary. Description will be used instead.') {
+        content += `<p>${editedSummary}</p>\n\n`;
+      } else if (noteDescription) {
+        content += `<p>${noteDescription}</p>\n\n`;
+      }
+    } else if (noteDescription) {
+      content += `<p>${noteDescription}</p>\n\n`;
     }
 
-    // Add user comment if provided
-    const userComment = commentInput.value.trim();
+    // 3. User notes/comment (if provided)
     if (userComment) {
       content += `<p><strong>Notes:</strong></p>\n<p>${userComment}</p>\n\n`;
     }
 
-    // Add source link
-    content += `<p><a href="${pageData.url}" target="_blank">${pageData.title}</a></p>`;
-
-    // Create note
+    // Create note data
     const noteData = {
       board_id: selectedBoardId,
-      title: pageData.title || 'Untitled Page',
+      title: noteTitle,
       content: content,
-      cover_image_url: pageData.image || null
+      cover_image_url: selectedImageUrl || null
     };
 
+    // OPTIMISTIC SAVE: Create note immediately
     const createdNote = await createNote(noteData);
 
     // Success!
     showSuccess('Note saved successfully!');
+
+    // If AI summarize is checked but AI is still processing, continue in background
+    if (aiSummarizeCheckbox.checked && aiProcessing) {
+      // Note: We could update the note later when AI finishes, but for now
+      // we just save what we have. The user can see the AI summary in the textarea
+      // and edit the note later if needed.
+    }
 
     // Close popup after 1.5 seconds
     setTimeout(() => {
@@ -314,9 +484,8 @@ async function getAiSummary(content) {
     },
     body: JSON.stringify({
       text: content,
-      type: 'correct',
-      model: model,
-      context: 'Summarize this web page content in 2-3 sentences'
+      type: 'summarize',
+      model: model
     })
   });
 
@@ -425,6 +594,7 @@ function hideStatusMessage() {
  */
 boardSelect.addEventListener('change', handleBoardChange);
 aiSummarizeCheckbox.addEventListener('change', handleAiSummarizeChange);
+generateAiBtn.addEventListener('click', handleGenerateAi);
 saveBtn.addEventListener('click', handleSave);
 cancelBtn.addEventListener('click', handleCancel);
 signInBtn.addEventListener('click', handleSignIn);
@@ -432,7 +602,6 @@ signInBtn.addEventListener('click', handleSignIn);
 // Listen for auth complete message from background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'AUTH_COMPLETE') {
-    console.log('Auth complete, reinitializing popup');
     // Reinitialize the popup now that we have auth
     init();
   }

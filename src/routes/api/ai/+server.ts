@@ -29,6 +29,8 @@ export const POST: RequestHandler = async ({ request }) => {
 				prompt += `. ${context}`;
 			}
 			prompt += `:\n\n"${text}"`;
+		} else if (type === 'summarize') {
+			prompt = `You are a helpful assistant that creates concise summaries of web page content. Read the following web page content and provide a clear, informative summary in 2-3 sentences. Focus on the main topic and key points. Only return the summary, nothing else.\n\nWeb page content:\n\n"${text}"`;
 		} else {
 			prompt = `Improve this voice-to-text transcription by fixing grammar, adding proper punctuation, and making it more readable while keeping the original meaning`;
 			if (context) {

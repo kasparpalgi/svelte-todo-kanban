@@ -41,6 +41,9 @@ function extractPageData() {
   // Get cover image
   const coverImage = ogImage || extractFirstImage();
 
+  // Extract multiple images for picker (1-5 images)
+  const images = extractMultipleImages(5);
+
   // Extract main content (simplified version)
   const mainContent = extractMainContent();
 
@@ -48,6 +51,7 @@ function extractPageData() {
     title: pageTitle.trim(),
     description: pageDescription.trim(),
     image: coverImage,
+    images: images, // Multiple images for picker
     url: pageUrl,
     content: mainContent,
     keywords: metaKeywords || ''
@@ -76,6 +80,35 @@ function extractFirstImage() {
   const favicon = document.querySelector('link[rel="icon"]') ||
                  document.querySelector('link[rel="shortcut icon"]');
   return favicon ? favicon.href : null;
+}
+
+/**
+ * Extract multiple meaningful images from the page
+ * @param {number} limit - Maximum number of images to extract
+ * @returns {Array<string>} Array of image URLs
+ */
+function extractMultipleImages(limit = 5) {
+  const imageUrls = [];
+  const seenUrls = new Set();
+
+  // Look for meaningful images (skip icons, logos, etc.)
+  const images = document.querySelectorAll('img');
+  for (const img of images) {
+    if (imageUrls.length >= limit) break;
+
+    const src = img.src;
+    const width = img.naturalWidth || img.width;
+    const height = img.naturalHeight || img.height;
+
+    // Skip small images (likely icons or ads)
+    // Also skip duplicates
+    if (width >= 200 && height >= 200 && !seenUrls.has(src)) {
+      imageUrls.push(src);
+      seenUrls.add(src);
+    }
+  }
+
+  return imageUrls;
 }
 
 /**
@@ -159,15 +192,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // Listen for messages from the web page
 window.addEventListener('message', (event) => {
-  // Only accept messages from todzz.eu or localhost
-  const allowedOrigins = ['https://todzz.eu', 'https://www.todzz.eu', 'https://todzz.admin.servicehost.io', 'http://localhost:5173'];
+  // Only accept messages from todzz.eu
+  const allowedOrigins = ['https://todzz.eu', 'https://www.todzz.eu', 'https://todzz.admin.servicehost.io'];
   if (!allowedOrigins.includes(event.origin)) {
     return;
   }
 
   // Handle authentication success message
   if (event.data.type === 'TODZZ_AUTH_SUCCESS') {
-    console.log('Content script received auth success, forwarding to background');
     chrome.runtime.sendMessage({
       type: 'TODZZ_AUTH_SUCCESS',
       token: event.data.token
