@@ -38,10 +38,20 @@
 			await new Promise((resolve) => setTimeout(resolve, 50));
 		}
 
-		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
-		if (foundTodo) {
-			todo = foundTodo;
+		// Load full todo details with comments and uploads
+		// This replaces minimal data with complete data for the modal
+		const fullTodo = await todosStore.loadTodoDetails(cardId);
+		if (fullTodo) {
+			todo = fullTodo;
+			// Comments are now included in fullTodo, but load them for real-time updates
 			await commentsStore.loadComments(cardId);
+		} else {
+			// Fallback: try to find todo in store if loadTodoDetails fails
+			const foundTodo = todosStore.todos.find((t) => t.id === cardId);
+			if (foundTodo) {
+				todo = foundTodo;
+				await commentsStore.loadComments(cardId);
+			}
 		}
 		loading = false;
 	});
