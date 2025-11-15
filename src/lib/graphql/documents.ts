@@ -1,6 +1,49 @@
 /** @file src/lib/graphql/documents.ts */
 import { graphql } from './generated';
 
+export const TODO_FRAGMENT_MINIMAL = graphql(`
+	fragment TodoFieldsMinimal on todos {
+		id
+		title
+		content
+		due_on
+		has_time
+		sort_order
+		priority
+		list_id
+		completed_at
+		created_at
+		updated_at
+		assigned_to
+		github_issue_number
+		github_issue_id
+		github_synced_at
+		github_url
+		min_hours
+		max_hours
+		actual_hours
+		comment_hours
+		labels {
+			label {
+				...LabelFields
+			}
+		}
+		list {
+			id
+			name
+			sort_order
+			board {
+				id
+				name
+				alias
+				sort_order
+				github
+				settings
+			}
+		}
+	}
+`);
+
 export const TODO_FRAGMENT = graphql(`
 	fragment TodoFields on todos {
 		id
@@ -237,6 +280,27 @@ export const GET_TODOS = graphql(`
 		$offset: Int = 0
 	) {
 		todos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...TodoFields
+		}
+	}
+`);
+
+export const GET_TODOS_MINIMAL = graphql(`
+	query GetTodosMinimal(
+		$where: todos_bool_exp = {}
+		$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }
+		$limit: Int = 100
+		$offset: Int = 0
+	) {
+		todos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...TodoFieldsMinimal
+		}
+	}
+`);
+
+export const GET_TODO_DETAILS = graphql(`
+	query GetTodoDetails($id: String!) {
+		todos_by_pk(id: $id) {
 			...TodoFields
 		}
 	}

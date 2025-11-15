@@ -106,7 +106,13 @@
 				const isOwner = board.user?.id === currentUser?.id;
 
 				if (!isNotMember && !todosStore.initialized) {
-					todosStore.loadTodos();
+					// Load initial todos (top 50 with minimal data)
+					await todosStore.loadTodosInitial(board.id);
+
+					// Load remaining todos in the background (non-blocking)
+					setTimeout(() => {
+						todosStore.loadTodosRemaining(board.id);
+					}, 100);
 				}
 
 				boardNotFound = false;

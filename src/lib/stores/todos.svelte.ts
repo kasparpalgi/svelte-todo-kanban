@@ -1,6 +1,8 @@
 /** @file src/lib/stores/todos.svelte.ts */
 import {
 	GET_TODOS,
+	GET_TODOS_MINIMAL,
+	GET_TODO_DETAILS,
 	CREATE_TODO,
 	UPDATE_TODOS,
 	DELETE_TODOS,
@@ -75,6 +77,183 @@ function createTodosStore() {
 			return [];
 		} finally {
 			state.loading = false;
+		}
+	}
+
+	/**
+	 * Load initial batch of todos (top 15 per list) with minimal data (no comments/uploads)
+	 * This provides fast initial render for the board view
+	 */
+	async function loadTodosInitial(boardId?: string): Promise<TodoFieldsFragment[]> {
+		if (!browser) return [];
+
+		state.loading = true;
+		state.error = null;
+
+		try {
+			const { Order_By } = await import('$lib/graphql/generated/graphql');
+
+			const where: any = { completed_at: { _is_null: true } };
+			if (boardId) {
+				where.list = { board_id: { _eq: boardId } };
+			}
+
+			const data: any = await request(GET_TODOS_MINIMAL as any, {
+				where,
+				order_by: [
+					{ sort_order: Order_By.Asc },
+					{ due_on: Order_By.Desc },
+					{ updated_at: Order_By.Desc }
+				],
+				limit: 50, // Load top 50 active todos initially
+				offset: 0
+			});
+
+			// Merge with existing todos (in case some were already loaded)
+			const existingIds = new Set(state.todos.map(t => t.id));
+			const newTodos = (data.todos || []).filter((t: any) => !existingIds.has(t.id));
+
+			state.todos = [...state.todos, ...newTodos];
+			state.initialized = true;
+
+			return state.todos;
+		} catch (error) {
+			let message = 'Error loading todos';
+
+			if (error instanceof Error) {
+				if (error.message.includes('Not authenticated')) {
+					message = 'Please sign in to view your todos';
+				} else if (error.message.includes('access-denied')) {
+					message = 'Access denied - please check your permissions';
+				} else if (error.message.includes('Failed to get JWT token')) {
+					message = 'Authentication failed - please try refreshing the page';
+				} else {
+					message = error.message;
+				}
+			}
+
+			state.error = message;
+			console.error('Load initial todos error:', error);
+			return [];
+		} finally {
+			state.loading = false;
+		}
+	}
+
+	/**
+	 * Load remaining todos in the background after initial render
+	 * Loads in chunks to avoid blocking the UI
+	 */
+	async function loadTodosRemaining(boardId?: string): Promise<void> {
+		if (!browser) return;
+
+		try {
+			const { Order_By } = await import('$lib/graphql/generated/graphql');
+
+			const where: any = { completed_at: { _is_null: true } };
+			if (boardId) {
+				where.list = { board_id: { _eq: boardId } };
+			}
+
+			// Load remaining todos in chunks of 100
+			let offset = 50; // Skip the first 50 we already loaded
+			let hasMore = true;
+
+			while (hasMore) {
+				const data: any = await request(GET_TODOS_MINIMAL as any, {
+					where,
+					order_by: [
+						{ sort_order: Order_By.Asc },
+						{ due_on: Order_By.Desc },
+						{ updated_at: Order_By.Desc }
+					],
+					limit: 100,
+					offset
+				});
+
+				const todos = data.todos || [];
+
+				if (todos.length === 0) {
+					hasMore = false;
+					break;
+				}
+
+				// Merge with existing todos
+				const existingIds = new Set(state.todos.map(t => t.id));
+				const newTodos = todos.filter((t: any) => !existingIds.has(t.id));
+
+				if (newTodos.length > 0) {
+					state.todos = [...state.todos, ...newTodos];
+				}
+
+				offset += 100;
+
+				// If we got less than 100, we've reached the end
+				if (todos.length < 100) {
+					hasMore = false;
+				}
+
+				// Small delay to avoid blocking the UI
+				await new Promise(resolve => setTimeout(resolve, 50));
+			}
+
+			// Now load completed todos
+			const completedWhere: any = { completed_at: { _is_null: false } };
+			if (boardId) {
+				completedWhere.list = { board_id: { _eq: boardId } };
+			}
+
+			const completedData: any = await request(GET_TODOS_MINIMAL as any, {
+				where: completedWhere,
+				order_by: [{ completed_at: Order_By.Desc }],
+				limit: 100,
+				offset: 0
+			});
+
+			const completedTodos = completedData.todos || [];
+			const existingIds = new Set(state.todos.map(t => t.id));
+			const newCompletedTodos = completedTodos.filter((t: any) => !existingIds.has(t.id));
+
+			if (newCompletedTodos.length > 0) {
+				state.todos = [...state.todos, ...newCompletedTodos];
+			}
+
+		} catch (error) {
+			// Non-blocking: log error but don't fail
+			console.error('Load remaining todos error:', error);
+		}
+	}
+
+	/**
+	 * Load full details for a specific todo (including comments and uploads)
+	 * Used when opening the card modal
+	 */
+	async function loadTodoDetails(todoId: string): Promise<TodoFieldsFragment | null> {
+		if (!browser) return null;
+
+		try {
+			const data: any = await request(GET_TODO_DETAILS as any, {
+				id: todoId
+			});
+
+			const fullTodo = data.todos_by_pk;
+
+			if (fullTodo) {
+				// Update the todo in state with full details
+				const index = state.todos.findIndex(t => t.id === todoId);
+				if (index !== -1) {
+					state.todos[index] = fullTodo;
+				} else {
+					// Todo not in state yet, add it
+					state.todos = [...state.todos, fullTodo];
+				}
+				return fullTodo;
+			}
+
+			return null;
+		} catch (error) {
+			console.error('Load todo details error:', error);
+			return null;
 		}
 	}
 
@@ -732,6 +911,9 @@ function createTodosStore() {
 		},
 
 		loadTodos,
+		loadTodosInitial,
+		loadTodosRemaining,
+		loadTodoDetails,
 		addTodo,
 		updateTodo,
 		toggleTodo,
