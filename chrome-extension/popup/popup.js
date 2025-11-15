@@ -62,19 +62,22 @@ async function init() {
       displayPageData();
     } catch (error) {
       console.warn('Could not load page data:', error.message);
-      // Set default page data
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0]) {
-          pageData = {
-            title: tabs[0].title || 'Untitled Page',
-            url: tabs[0].url || '',
-            description: '',
-            image: null,
-            images: [],
-            content: ''
-          };
-          displayPageData();
-        }
+      // Set default page data (await the async operation)
+      await new Promise((resolve) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0]) {
+            pageData = {
+              title: tabs[0].title || 'Untitled Page',
+              url: tabs[0].url || '',
+              description: '',
+              image: null,
+              images: [],
+              content: ''
+            };
+            displayPageData();
+          }
+          resolve();
+        });
       });
     }
 
@@ -310,8 +313,18 @@ async function handleAiSummarizeChange() {
   if (aiSummarizeCheckbox.checked) {
     aiModelGroup.classList.remove('hidden');
 
+    // Check if we have page content for AI processing
+    if (!pageData || !pageData.content || pageData.content.trim().length === 0) {
+      // No content available, show message
+      aiSummaryGroup.classList.remove('hidden');
+      aiSummaryInput.value = 'No page content available for AI summary. Description will be used instead.';
+      aiSummaryInput.disabled = true;
+      aiSummary = null;
+      return;
+    }
+
     // Start generating AI summary in the background
-    if (pageData && pageData.content && !aiSummary && !aiProcessing) {
+    if (!aiSummary && !aiProcessing) {
       aiProcessing = true;
       aiSummaryGroup.classList.remove('hidden');
       aiSummaryInput.value = 'Generating AI summary...';
@@ -324,15 +337,17 @@ async function handleAiSummarizeChange() {
         aiSummaryInput.disabled = false;
       } catch (error) {
         console.error('AI summary error:', error);
-        aiSummaryInput.value = 'Failed to generate summary. Using description instead.';
+        aiSummaryInput.value = 'Failed to generate summary. Description will be used instead.';
         aiSummary = null;
-        aiSummaryInput.disabled = false;
+        aiSummaryInput.disabled = true;
       } finally {
         aiProcessing = false;
       }
     } else if (aiSummary) {
       // Already have summary, just show it
       aiSummaryGroup.classList.remove('hidden');
+      aiSummaryInput.value = aiSummary;
+      aiSummaryInput.disabled = false;
     }
   } else {
     aiModelGroup.classList.add('hidden');
@@ -376,7 +391,10 @@ async function handleSave() {
     if (aiSummarizeCheckbox.checked && aiSummary) {
       // Use the AI summary from the editable textarea (user may have edited it)
       const editedSummary = aiSummaryInput.value.trim();
-      if (editedSummary && editedSummary !== 'Generating AI summary...' && editedSummary !== 'Failed to generate summary. Using description instead.') {
+      if (editedSummary &&
+          editedSummary !== 'Generating AI summary...' &&
+          editedSummary !== 'Failed to generate summary. Description will be used instead.' &&
+          editedSummary !== 'No page content available for AI summary. Description will be used instead.') {
         content += `<p>${editedSummary}</p>\n\n`;
       } else if (noteDescription) {
         content += `<p>${noteDescription}</p>\n\n`;
