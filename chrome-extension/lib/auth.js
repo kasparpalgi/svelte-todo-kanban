@@ -5,7 +5,7 @@
  * Handles JWT token management and authentication flow
  */
 
-const API_URL = 'https://todzz.eu';
+const API_URL = 'https://www.todzz.eu';
 const API_URL_DEV = 'http://localhost:5173';
 
 /**

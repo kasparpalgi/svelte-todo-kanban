@@ -5,7 +5,7 @@
  * Handles GraphQL queries and mutations
  */
 
-const GRAPHQL_ENDPOINT = 'https://todzz.eu/v1/graphql';
+const GRAPHQL_ENDPOINT = 'https://www.todzz.eu/v1/graphql';
 const GRAPHQL_ENDPOINT_DEV = 'http://localhost:3001/v1/graphql';
 
 /**
