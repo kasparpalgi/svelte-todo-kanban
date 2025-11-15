@@ -188,6 +188,7 @@ export const NOTE_FRAGMENT = graphql(`
 		user_id
 		title
 		content
+		cover_image_url
 		sort_order
 		created_at
 		updated_at
@@ -202,6 +203,11 @@ export const NOTE_FRAGMENT = graphql(`
 			id
 			name
 			alias
+		}
+		note_uploads {
+			id
+			url
+			created_at
 		}
 	}
 `);
@@ -426,6 +432,27 @@ export const CREATE_UPLOAD = graphql(`
 export const DELETE_UPLOAD = graphql(`
 	mutation DeleteUpload($where: uploads_bool_exp!) {
 		delete_uploads(where: $where) {
+			affected_rows
+		}
+	}
+`);
+
+export const CREATE_NOTE_UPLOAD = graphql(`
+	mutation CreateNoteUpload($objects: [note_uploads_insert_input!]!) {
+		insert_note_uploads(objects: $objects) {
+			returning {
+				id
+				url
+				note_id
+				created_at
+			}
+		}
+	}
+`);
+
+export const DELETE_NOTE_UPLOAD = graphql(`
+	mutation DeleteNoteUpload($where: note_uploads_bool_exp!) {
+		delete_note_uploads(where: $where) {
 			affected_rows
 		}
 	}

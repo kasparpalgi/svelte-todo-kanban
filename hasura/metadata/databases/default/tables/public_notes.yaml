@@ -8,6 +8,14 @@ object_relationships:
   - name: user
     using:
       foreign_key_constraint_on: user_id
+array_relationships:
+  - name: note_uploads
+    using:
+      foreign_key_constraint_on:
+        column: note_id
+        table:
+          name: note_uploads
+          schema: public
 insert_permissions:
   - role: user
     permission:
@@ -25,6 +33,7 @@ insert_permissions:
       columns:
         - board_id
         - content
+        - cover_image_url
         - created_at
         - id
         - sort_order
@@ -38,6 +47,7 @@ select_permissions:
       columns:
         - board_id
         - content
+        - cover_image_url
         - created_at
         - id
         - sort_order
@@ -62,6 +72,7 @@ update_permissions:
     permission:
       columns:
         - content
+        - cover_image_url
         - sort_order
         - title
         - updated_at

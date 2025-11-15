@@ -1,0 +1,58 @@
+table:
+  name: note_uploads
+  schema: public
+object_relationships:
+  - name: note
+    using:
+      foreign_key_constraint_on: note_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        note:
+          board:
+            _or:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - board_members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+      columns:
+        - url
+        - created_at
+        - id
+        - note_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - url
+        - created_at
+        - id
+        - note_id
+      filter:
+        note:
+          board:
+            _or:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - board_members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+              - is_public:
+                  _eq: true
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        note:
+          board:
+            _or:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - board_members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+    comment: ""

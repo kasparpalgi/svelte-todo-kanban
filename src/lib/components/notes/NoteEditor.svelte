@@ -6,14 +6,25 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
+	import NoteImageManager from '$lib/components/notes/NoteImageManager.svelte';
+	import { notesStore } from '$lib/stores/notes.svelte';
+	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { t } from '$lib/i18n';
 	import type { Editor } from 'svelte-tiptap';
 	import type { Readable } from 'svelte/store';
+
+	type NoteUpload = {
+		id: string;
+		url: string;
+		created_at: string;
+	};
 
 	type Note = {
 		id: string;
 		title: string;
 		content: string | null;
+		cover_image_url: string | null;
+		note_uploads?: NoteUpload[];
 		updated_at: string;
 		created_at: string;
 	};
@@ -39,6 +50,8 @@
 	let editorUnsubscribe: (() => void) | null = null;
 	let editorContent: string = $state('');
 	let editorInitialized: boolean = false;
+	let imageManager: any = $state(null);
+	let showImageSection: boolean = $state(false);
 
 	console.log('[NoteEditor] Component initialized');
 
@@ -232,6 +245,34 @@
 			await onUpdate(updates);
 			hasUnsavedChanges = false;
 		}
+
+		// Handle new image uploads
+		await handleImageUploads();
+	}
+
+	async function handleImageUploads() {
+		if (!imageManager || !note) return;
+
+		const newImages = imageManager.getNewImages();
+		if (newImages.length === 0) return;
+
+		try {
+			const uploadPromises = newImages.map(async (img: any) => {
+				const formData = new FormData();
+				formData.append('file', img.file!);
+				const response = await fetch('/api/upload', { method: 'POST', body: formData });
+				const uploadResult = await response.json();
+				if (uploadResult.success) {
+					return await notesStore.createNoteUpload(note.id, uploadResult.url);
+				}
+			});
+
+			await Promise.all(uploadPromises);
+			displayMessage($t('notes.images_uploaded') || 'Images uploaded successfully');
+		} catch (error) {
+			console.error('[NoteEditor] Error uploading images:', error);
+			displayMessage($t('notes.upload_error') || 'Error uploading images', 'error');
+		}
 	}
 
 	function formatDate(dateStr: string): string {
@@ -257,28 +298,39 @@
 
 {#if note}
 	<div class="flex h-full flex-col">
-		<!-- Header -->
-		<div class="border-b p-4">
-			<Input
-				type="text"
-				bind:value={title}
-				oninput={handleTitleChange}
-				placeholder={$t('notes.untitled')}
-				class="mb-2 text-xl font-semibold"
-			/>
-			<div class="flex items-center justify-between">
-				<div class="text-xs text-muted-foreground">
-					<span>Updated {formatDate(note.updated_at)}</span>
-					{#if hasUnsavedChanges}
-						<span class="ml-2 text-amber-600">•</span>
-					{:else if saving}
-						<span class="ml-2 text-blue-600">•</span>
-					{/if}
+		<!-- Header with Cover Image -->
+		<div class="border-b">
+			{#if note.cover_image_url}
+				<div class="h-32 w-full overflow-hidden">
+					<img
+						src={note.cover_image_url}
+						alt={$t('notes.cover_image') || 'Cover Image'}
+						class="h-full w-full object-cover"
+					/>
 				</div>
-				<div class="flex items-center gap-2">
-					<Button size="sm" variant="ghost" onclick={onDelete}>
-						<Trash2 class="h-4 w-4 text-destructive" />
-					</Button>
+			{/if}
+			<div class="p-4">
+				<Input
+					type="text"
+					bind:value={title}
+					oninput={handleTitleChange}
+					placeholder={$t('notes.untitled')}
+					class="mb-2 text-xl font-semibold"
+				/>
+				<div class="flex items-center justify-between">
+					<div class="text-xs text-muted-foreground">
+						<span>Updated {formatDate(note.updated_at)}</span>
+						{#if hasUnsavedChanges}
+							<span class="ml-2 text-amber-600">•</span>
+						{:else if saving}
+							<span class="ml-2 text-blue-600">•</span>
+						{/if}
+					</div>
+					<div class="flex items-center gap-2">
+						<Button size="sm" variant="ghost" onclick={onDelete}>
+							<Trash2 class="h-4 w-4 text-destructive" />
+						</Button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -290,6 +342,21 @@
 				bind:editor={editorStore}
 				showToolbar={true}
 			/>
+
+			<!-- Image Manager -->
+			<div class="mt-6 border-t pt-6">
+				<NoteImageManager
+					bind:this={imageManager}
+					noteId={note.id}
+					coverImageUrl={note.cover_image_url}
+					initialImages={note.note_uploads?.map((upload) => ({
+						id: upload.id,
+						file: null,
+						preview: upload.url,
+						isExisting: true
+					})) || []}
+				/>
+			</div>
 		</div>
 	</div>
 {:else}

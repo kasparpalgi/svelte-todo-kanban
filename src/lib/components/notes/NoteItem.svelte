@@ -6,6 +6,7 @@
 		id: string;
 		title: string;
 		content: string | null;
+		cover_image_url: string | null;
 		updated_at: string;
 	};
 
@@ -43,20 +44,33 @@
 		? 'bg-muted'
 		: ''}"
 >
-	<div class="mb-1 flex items-start gap-2">
-		<StickyNote class="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+	<div class="flex gap-2">
 		<div class="min-w-0 flex-1">
-			<h3 class="truncate text-sm font-medium">
-				{note.title || 'Untitled Note'}
-			</h3>
+			<div class="mb-1 flex items-start gap-2">
+				<StickyNote class="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+				<div class="min-w-0 flex-1">
+					<h3 class="truncate text-sm font-medium">
+						{note.title || 'Untitled Note'}
+					</h3>
+				</div>
+			</div>
+			{#if note.content}
+				<p class="mb-1 text-xs text-muted-foreground line-clamp-2">
+					{truncateContent(note.content)}
+				</p>
+			{/if}
+			<p class="text-xs text-muted-foreground">
+				{formatDate(note.updated_at)}
+			</p>
 		</div>
+		{#if note.cover_image_url}
+			<div class="h-14 w-14 flex-shrink-0 overflow-hidden rounded border">
+				<img
+					src={note.cover_image_url}
+					alt="Cover"
+					class="h-full w-full object-cover"
+				/>
+			</div>
+		{/if}
 	</div>
-	{#if note.content}
-		<p class="mb-1 text-xs text-muted-foreground line-clamp-2">
-			{truncateContent(note.content)}
-		</p>
-	{/if}
-	<p class="text-xs text-muted-foreground">
-		{formatDate(note.updated_at)}
-	</p>
 </button>

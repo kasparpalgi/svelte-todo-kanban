@@ -8,6 +8,7 @@
 - "!include public_lists.yaml"
 - "!include public_logs.yaml"
 - "!include public_notes.yaml"
+- "!include public_note_uploads.yaml"
 - "!include public_notifications.yaml"
 - "!include public_sessions.yaml"
 - "!include public_todo_labels.yaml"
