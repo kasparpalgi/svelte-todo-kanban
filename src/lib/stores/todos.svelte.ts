@@ -98,7 +98,7 @@ function createTodosStore() {
 				where.list = { board_id: { _eq: boardId } };
 			}
 
-			const data: any = await request(GET_TODOS_MINIMAL as any, {
+			const data: any = await request(GET_TODOS_MINIMAL, {
 				where,
 				order_by: [
 					{ sort_order: Order_By.Asc },
@@ -160,7 +160,7 @@ function createTodosStore() {
 			let hasMore = true;
 
 			while (hasMore) {
-				const data: any = await request(GET_TODOS_MINIMAL as any, {
+				const data: any = await request(GET_TODOS_MINIMAL, {
 					where,
 					order_by: [
 						{ sort_order: Order_By.Asc },
@@ -203,7 +203,7 @@ function createTodosStore() {
 				completedWhere.list = { board_id: { _eq: boardId } };
 			}
 
-			const completedData: any = await request(GET_TODOS_MINIMAL as any, {
+			const completedData: any = await request(GET_TODOS_MINIMAL, {
 				where: completedWhere,
 				order_by: [{ completed_at: Order_By.Desc }],
 				limit: 100,
@@ -232,7 +232,7 @@ function createTodosStore() {
 		if (!browser) return null;
 
 		try {
-			const data: any = await request(GET_TODO_DETAILS as any, {
+			const data: any = await request(GET_TODO_DETAILS, {
 				id: todoId
 			});
 

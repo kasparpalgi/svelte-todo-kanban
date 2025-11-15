@@ -299,7 +299,7 @@ export const GET_TODOS_MINIMAL = graphql(`
 `);
 
 export const GET_TODO_DETAILS = graphql(`
-	query GetTodoDetails($id: String!) {
+	query GetTodoDetails($id: uuid!) {
 		todos_by_pk(id: $id) {
 			...TodoFields
 		}
