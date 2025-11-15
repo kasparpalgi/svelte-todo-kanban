@@ -1,15 +1,5 @@
 /** @file src/lib/graphql/documents.ts */
 import { graphql } from './generated';
-import {
-	GetTodosDocument,
-	CreateTodoDocument,
-	UpdateTodosDocument,
-	DeleteTodosDocument,
-	CreateUploadDocument,
-	DeleteUploadDocument,
-	CreateNotificationDocument,
-	CreateActivityLogDocument
-} from './generated/graphql';
 
 export const TODO_FRAGMENT = graphql(`
 	fragment TodoFields on todos {
@@ -239,8 +229,18 @@ export const USER_FRAGMENT = graphql(`
 	}
 `);
 
-// Use pre-generated document to avoid formatting mismatch issues
-export const GET_TODOS = GetTodosDocument;
+export const GET_TODOS = graphql(`
+	query GetTodos(
+		$where: todos_bool_exp = {}
+		$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }
+		$limit: Int = 100
+		$offset: Int = 0
+	) {
+		todos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			...TodoFields
+		}
+	}
+`);
 
 export const GET_LISTS = graphql(`
 	query GetLists(
@@ -289,14 +289,34 @@ export const GET_NOTE = graphql(`
 	}
 `);
 
-// Use pre-generated document
-export const CREATE_TODO = CreateTodoDocument;
+export const CREATE_TODO = graphql(`
+	mutation CreateTodo($objects: [todos_insert_input!]!) {
+		insert_todos(objects: $objects) {
+			returning {
+				...TodoFields
+			}
+		}
+	}
+`);
 
-// Use pre-generated document
-export const UPDATE_TODOS = UpdateTodosDocument;
+export const UPDATE_TODOS = graphql(`
+	mutation UpdateTodos($where: todos_bool_exp!, $_set: todos_set_input!) {
+		update_todos(where: $where, _set: $_set) {
+			affected_rows
+			returning {
+				...TodoFields
+			}
+		}
+	}
+`);
 
-// Use pre-generated document
-export const DELETE_TODOS = DeleteTodosDocument;
+export const DELETE_TODOS = graphql(`
+	mutation DeleteTodos($where: todos_bool_exp!) {
+		delete_todos(where: $where) {
+			affected_rows
+		}
+	}
+`);
 
 export const CREATE_LIST = graphql(`
 	mutation CreateList($objects: [lists_insert_input!]!) {
@@ -396,11 +416,26 @@ export const DELETE_NOTE = graphql(`
 	}
 `);
 
-// Use pre-generated document
-export const CREATE_UPLOAD = CreateUploadDocument;
+export const CREATE_UPLOAD = graphql(`
+	mutation CreateUpload($objects: [uploads_insert_input!]!) {
+		insert_uploads(objects: $objects) {
+			returning {
+				id
+				url
+				todo_id
+				created_at
+			}
+		}
+	}
+`);
 
-// Use pre-generated document
-export const DELETE_UPLOAD = DeleteUploadDocument;
+export const DELETE_UPLOAD = graphql(`
+	mutation DeleteUpload($where: uploads_bool_exp!) {
+		delete_uploads(where: $where) {
+			affected_rows
+		}
+	}
+`);
 
 export const CREATE_NOTE_UPLOAD = graphql(`
 	mutation CreateNoteUpload($objects: [note_uploads_insert_input!]!) {
@@ -814,8 +849,13 @@ export const GET_NOTIFICATIONS = graphql(`
 	}
 `);
 
-// Use pre-generated document
-export const CREATE_NOTIFICATION = CreateNotificationDocument;
+export const CREATE_NOTIFICATION = graphql(`
+	mutation CreateNotification($notification: notifications_insert_input!) {
+		insert_notifications_one(object: $notification) {
+			...NotificationFields
+		}
+	}
+`);
 
 export const UPDATE_NOTIFICATION = graphql(`
 	mutation UpdateNotification($id: uuid!, $updates: notifications_set_input!) {
@@ -894,8 +934,13 @@ export const GET_ACTIVITY_LOGS = graphql(`
 	}
 `);
 
-// Use pre-generated document
-export const CREATE_ACTIVITY_LOG = CreateActivityLogDocument;
+export const CREATE_ACTIVITY_LOG = graphql(`
+	mutation CreateActivityLog($log: activity_logs_insert_input!) {
+		insert_activity_logs_one(object: $log) {
+			...ActivityLogFields
+		}
+	}
+`);
 
 // ========== Tracker Sessions & Keywords ==========
 
