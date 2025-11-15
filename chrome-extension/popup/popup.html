@@ -23,13 +23,9 @@
 
     <!-- Main Content (shown when authenticated) -->
     <div id="main-content" class="main-content hidden">
-      <!-- Page Info Preview -->
-      <div class="page-preview">
-        <div id="page-image" class="page-image hidden"></div>
-        <div class="page-info">
-          <h3 id="page-title" class="page-title">Loading...</h3>
-          <p id="page-url" class="page-url">Loading...</p>
-        </div>
+      <!-- Page URL (prominently displayed at top) -->
+      <div class="page-url-display">
+        <a id="page-url-link" href="#" target="_blank" class="page-url-link">Loading...</a>
       </div>
 
       <!-- Board Selector -->
@@ -38,6 +34,36 @@
         <select id="board-select" class="select">
           <option value="">Loading boards...</option>
         </select>
+      </div>
+
+      <!-- Editable Title -->
+      <div class="form-group">
+        <label for="title-input" class="label">Title</label>
+        <input
+          type="text"
+          id="title-input"
+          class="input"
+          placeholder="Note title..."
+        />
+      </div>
+
+      <!-- Editable Description -->
+      <div class="form-group">
+        <label for="description-input" class="label">Description</label>
+        <textarea
+          id="description-input"
+          class="textarea"
+          placeholder="Page description or summary..."
+          rows="3"
+        ></textarea>
+      </div>
+
+      <!-- Image Picker -->
+      <div id="image-picker-group" class="form-group hidden">
+        <label class="label">Cover Image</label>
+        <div id="image-picker" class="image-picker">
+          <!-- Images will be dynamically added here -->
+        </div>
       </div>
 
       <!-- Optional Comment -->
@@ -72,6 +98,20 @@
           <option value="gpt-5-mini" selected>GPT-5 Mini (Balanced)</option>
           <option value="gpt-5">GPT-5 (Most capable)</option>
         </select>
+      </div>
+
+      <!-- AI Summary Preview/Edit (shown after AI generates summary) -->
+      <div id="ai-summary-group" class="form-group hidden">
+        <label for="ai-summary-input" class="label">
+          AI Summary
+          <span class="label-info">(Edit if needed)</span>
+        </label>
+        <textarea
+          id="ai-summary-input"
+          class="textarea"
+          placeholder="AI summary will appear here..."
+          rows="4"
+        ></textarea>
       </div>
 
       <!-- Action Buttons -->

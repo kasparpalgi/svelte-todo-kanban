@@ -9,6 +9,10 @@
 let pageData = null;
 let boards = [];
 let selectedBoardId = null;
+let selectedImageUrl = null;
+let availableImages = [];
+let aiSummary = null;
+let aiProcessing = false;
 
 // DOM elements
 const authRequired = document.getElementById('auth-required');
@@ -16,18 +20,22 @@ const mainContent = document.getElementById('main-content');
 const loadingState = document.getElementById('loading');
 const signInBtn = document.getElementById('sign-in-btn');
 const boardSelect = document.getElementById('board-select');
+const titleInput = document.getElementById('title-input');
+const descriptionInput = document.getElementById('description-input');
 const commentInput = document.getElementById('comment-input');
 const aiSummarizeCheckbox = document.getElementById('ai-summarize');
 const aiModelGroup = document.getElementById('ai-model-group');
 const aiModelSelect = document.getElementById('ai-model-select');
+const aiSummaryGroup = document.getElementById('ai-summary-group');
+const aiSummaryInput = document.getElementById('ai-summary-input');
+const imagePickerGroup = document.getElementById('image-picker-group');
+const imagePicker = document.getElementById('image-picker');
 const saveBtn = document.getElementById('save-btn');
 const cancelBtn = document.getElementById('cancel-btn');
 const saveBtnText = document.getElementById('save-btn-text');
 const saveBtnLoading = document.getElementById('save-btn-loading');
 const statusMessage = document.getElementById('status-message');
-const pageTitle = document.getElementById('page-title');
-const pageUrl = document.getElementById('page-url');
-const pageImage = document.getElementById('page-image');
+const pageUrlLink = document.getElementById('page-url-link');
 
 /**
  * Initialize the popup
@@ -51,7 +59,7 @@ async function init() {
     // Try to load page data (optional - may fail on some pages)
     try {
       pageData = await loadPageData();
-      displayPagePreview();
+      displayPageData();
     } catch (error) {
       console.warn('Could not load page data:', error.message);
       // Set default page data
@@ -62,9 +70,10 @@ async function init() {
             url: tabs[0].url || '',
             description: '',
             image: null,
+            images: [],
             content: ''
           };
-          displayPagePreview();
+          displayPageData();
         }
       });
     }
@@ -132,26 +141,96 @@ async function loadBoards() {
 }
 
 /**
- * Display page preview
+ * Display page data in the UI
  */
-function displayPagePreview() {
+function displayPageData() {
   if (!pageData) return;
 
-  // Set page title
-  pageTitle.textContent = pageData.title || 'Untitled Page';
+  // Set page URL link
+  pageUrlLink.href = pageData.url;
+  pageUrlLink.textContent = pageData.url;
 
-  // Set page URL
-  const urlObj = new URL(pageData.url);
-  pageUrl.textContent = urlObj.hostname;
-  pageUrl.title = pageData.url;
+  // Set editable title
+  titleInput.value = pageData.title || 'Untitled Page';
 
-  // Set page image
-  if (pageData.image) {
-    pageImage.style.backgroundImage = `url('${pageData.image}')`;
-    pageImage.classList.remove('hidden');
-  } else {
-    pageImage.classList.add('hidden');
+  // Set editable description
+  descriptionInput.value = pageData.description || '';
+
+  // Set up image picker if images are available
+  availableImages = pageData.images || [];
+  selectedImageUrl = pageData.image || null;
+
+  if (availableImages.length > 0 || selectedImageUrl) {
+    displayImagePicker();
   }
+}
+
+/**
+ * Display image picker with thumbnails
+ */
+function displayImagePicker() {
+  // Show image picker group
+  imagePickerGroup.classList.remove('hidden');
+
+  // Clear existing images
+  imagePicker.innerHTML = '';
+
+  // Combine OG image with extracted images
+  const allImages = [];
+  if (selectedImageUrl && !availableImages.includes(selectedImageUrl)) {
+    allImages.push(selectedImageUrl);
+  }
+  allImages.push(...availableImages);
+
+  // Remove duplicates
+  const uniqueImages = [...new Set(allImages)];
+
+  // Limit to 6 images (including "No image" option)
+  const imagesToShow = uniqueImages.slice(0, 5);
+
+  // Add "No image" option
+  const noneOption = document.createElement('div');
+  noneOption.className = 'image-option' + (!selectedImageUrl ? ' selected' : '');
+  noneOption.onclick = () => selectImage(null);
+  const noneInner = document.createElement('div');
+  noneInner.className = 'image-option-inner image-option-none';
+  noneInner.textContent = 'No Image';
+  noneOption.appendChild(noneInner);
+  imagePicker.appendChild(noneOption);
+
+  // Add image options
+  imagesToShow.forEach((imageUrl, index) => {
+    const option = document.createElement('div');
+    option.className = 'image-option' + (imageUrl === selectedImageUrl ? ' selected' : '');
+    option.onclick = () => selectImage(imageUrl);
+
+    const inner = document.createElement('div');
+    inner.className = 'image-option-inner';
+    inner.style.backgroundImage = `url('${imageUrl}')`;
+
+    option.appendChild(inner);
+    imagePicker.appendChild(option);
+  });
+}
+
+/**
+ * Select an image from the picker
+ */
+function selectImage(imageUrl) {
+  selectedImageUrl = imageUrl;
+
+  // Update UI
+  const options = imagePicker.querySelectorAll('.image-option');
+  options.forEach((option, index) => {
+    if (index === 0 && imageUrl === null) {
+      // "No image" option selected
+      option.classList.add('selected');
+    } else if (index > 0 && option.querySelector('.image-option-inner').style.backgroundImage.includes(imageUrl)) {
+      option.classList.add('selected');
+    } else {
+      option.classList.remove('selected');
+    }
+  });
 }
 
 /**
@@ -227,16 +306,43 @@ function handleBoardChange() {
 /**
  * Handle AI summarize checkbox change
  */
-function handleAiSummarizeChange() {
+async function handleAiSummarizeChange() {
   if (aiSummarizeCheckbox.checked) {
     aiModelGroup.classList.remove('hidden');
+
+    // Start generating AI summary in the background
+    if (pageData && pageData.content && !aiSummary && !aiProcessing) {
+      aiProcessing = true;
+      aiSummaryGroup.classList.remove('hidden');
+      aiSummaryInput.value = 'Generating AI summary...';
+      aiSummaryInput.disabled = true;
+
+      try {
+        const summary = await getAiSummary(pageData.content);
+        aiSummary = summary;
+        aiSummaryInput.value = summary;
+        aiSummaryInput.disabled = false;
+      } catch (error) {
+        console.error('AI summary error:', error);
+        aiSummaryInput.value = 'Failed to generate summary. Using description instead.';
+        aiSummary = null;
+        aiSummaryInput.disabled = false;
+      } finally {
+        aiProcessing = false;
+      }
+    } else if (aiSummary) {
+      // Already have summary, just show it
+      aiSummaryGroup.classList.remove('hidden');
+    }
   } else {
     aiModelGroup.classList.add('hidden');
+    aiSummaryGroup.classList.add('hidden');
   }
 }
 
 /**
  * Handle save button click
+ * Implements optimistic save - creates note immediately, AI processing happens in background
  */
 async function handleSave() {
   try {
@@ -255,38 +361,56 @@ async function handleSave() {
     setLoading(true);
     hideStatusMessage();
 
-    // Prepare content
+    // Get user-edited values
+    const noteTitle = titleInput.value.trim() || 'Untitled Page';
+    const noteDescription = descriptionInput.value.trim();
+    const userComment = commentInput.value.trim();
+
+    // Build content
     let content = '';
 
-    // If AI summarize is checked, get summary
-    if (aiSummarizeCheckbox.checked && pageData.content) {
-      const summary = await getAiSummary(pageData.content);
-      content += `<h3>AI Summary</h3>\n<p>${summary}</p>\n\n`;
-    } else if (pageData.description) {
-      content += `<p>${pageData.description}</p>\n\n`;
+    // 1. URL at the very top (as requested)
+    content += `<p><a href="${pageData.url}" target="_blank">${pageData.url}</a></p>\n\n`;
+
+    // 2. AI Summary or Description (without "AI Summary" title as requested)
+    if (aiSummarizeCheckbox.checked && aiSummary) {
+      // Use the AI summary from the editable textarea (user may have edited it)
+      const editedSummary = aiSummaryInput.value.trim();
+      if (editedSummary && editedSummary !== 'Generating AI summary...' && editedSummary !== 'Failed to generate summary. Using description instead.') {
+        content += `<p>${editedSummary}</p>\n\n`;
+      } else if (noteDescription) {
+        content += `<p>${noteDescription}</p>\n\n`;
+      }
+    } else if (noteDescription) {
+      content += `<p>${noteDescription}</p>\n\n`;
     }
 
-    // Add user comment if provided
-    const userComment = commentInput.value.trim();
+    // 3. User notes/comment (if provided)
     if (userComment) {
       content += `<p><strong>Notes:</strong></p>\n<p>${userComment}</p>\n\n`;
     }
 
-    // Add source link
-    content += `<p><a href="${pageData.url}" target="_blank">${pageData.title}</a></p>`;
-
-    // Create note
+    // Create note data
     const noteData = {
       board_id: selectedBoardId,
-      title: pageData.title || 'Untitled Page',
+      title: noteTitle,
       content: content,
-      cover_image_url: pageData.image || null
+      cover_image_url: selectedImageUrl || null
     };
 
+    // OPTIMISTIC SAVE: Create note immediately
     const createdNote = await createNote(noteData);
 
     // Success!
     showSuccess('Note saved successfully!');
+
+    // If AI summarize is checked but AI is still processing, continue in background
+    if (aiSummarizeCheckbox.checked && aiProcessing) {
+      console.log('AI summary still processing in background');
+      // Note: We could update the note later when AI finishes, but for now
+      // we just save what we have. The user can see the AI summary in the textarea
+      // and edit the note later if needed.
+    }
 
     // Close popup after 1.5 seconds
     setTimeout(() => {

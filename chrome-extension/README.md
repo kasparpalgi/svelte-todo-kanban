@@ -4,12 +4,19 @@ Save web pages to your ToDzz boards as notes with AI summarization.
 
 ## Features
 
+### Core Features
 - **One-Click Save**: Save web pages to your ToDzz boards as notes
-- **AI Summarization**: Optionally summarize page content using AI (GPT-5 models)
+- **Optimistic Save**: Instant save without waiting for AI processing
+- **AI Summarization**: Generate intelligent summaries using GPT-5 models (Nano, Mini, Full)
 - **Board Selection**: Choose which board to save to, with last selection remembered
-- **Cover Images**: Automatically extracts OG images from pages
-- **Personal Notes**: Add your own notes/comments to saved pages
-- **Source Links**: Automatically includes clickable link back to source page
+- **Source Links**: URL displayed prominently at top of note content
+
+### v1.1.0 New Features
+- **Editable Title & Description**: Customize page title and description before saving
+- **AI Summary Preview**: Edit AI-generated summary in real-time before saving
+- **Image Picker**: Choose from up to 5 page images or select "No Image"
+- **Background AI Processing**: AI summary generates in background, doesn't block save
+- **Enhanced Content Structure**: URL → Description → Notes (clean, organized format)
 
 ## Installation
 
@@ -57,22 +64,30 @@ Save web pages to your ToDzz boards as notes with AI summarization.
 ### Saving a Page
 
 1. **Navigate to any web page** you want to save
-2. **Click the extension icon**
-3. **Select a board** from the dropdown (last selected board will be pre-selected)
-4. **(Optional) Add personal notes** in the text area
-5. **(Optional) Enable "AI Summarize"** to get an AI-generated summary
+2. **Click the extension icon** - page data loads instantly
+3. **Review and edit** (all optional):
+   - **Title**: Edit the auto-populated page title
+   - **Description**: Edit the auto-populated page description
+   - **Cover Image**: Choose from 1-5 extracted images or select "No Image"
+   - **Board**: Select destination board (last selected is pre-selected)
+   - **Your Notes**: Add personal comments or thoughts
+4. **(Optional) Enable "AI Summarize"**:
+   - AI summary generates in background
+   - Edit the summary in the textarea when it appears
    - Choose AI model: Nano (fastest/cheapest), Mini (balanced), or Full (most capable)
-6. **Click "Save to Notes"**
-7. The page will be saved as a note in your selected board
+5. **Click "Save to Notes"** - saves instantly!
+6. The note appears in your selected board immediately
 
 ### What Gets Saved
 
-- **Title**: Page title (from meta tags or document title)
-- **Content**:
-  - AI summary (if enabled) OR page meta description
-  - Your personal notes (if added)
-  - Clickable link back to source page
-- **Cover Image**: OG image from page (if available)
+The note content is structured as:
+1. **URL** - Clickable link at the very top
+2. **Description/Summary** - AI summary (if enabled) OR edited description
+3. **Your Notes** - Personal comments (if added)
+
+Plus:
+- **Title**: Your edited title (or original page title)
+- **Cover Image**: Your selected image (or none)
 
 ## Authentication
 
@@ -190,5 +205,19 @@ Same as the main ToDzz application.
 
 ---
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Last Updated**: 2025-11-15
+
+## What's New in v1.1.0
+
+See [IMPROVEMENTS.md](IMPROVEMENTS.md) for detailed changelog.
+
+Key improvements:
+- Editable title and description fields
+- AI summary preview with editing capability
+- Image picker with 1-5 thumbnail options
+- Optimistic save (no more waiting for AI)
+- URL now at top of note content
+- Cleaner content structure without "AI Summary" heading
+
+For Chrome Web Store submission instructions, see [CHROME_WEB_STORE_SUBMISSION.md](CHROME_WEB_STORE_SUBMISSION.md).
