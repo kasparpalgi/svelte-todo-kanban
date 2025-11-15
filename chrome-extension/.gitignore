@@ -1,0 +1,16 @@
+# Packaged extension
+*.zip
+*.crx
+*.pem
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temp files
+*.tmp
+*.bak
