@@ -11,6 +11,7 @@
   ],
   "host_permissions": [
     "https://todzz.eu/*",
+    "https://www.todzz.eu/*",
     "http://localhost:5173/*"
   ],
   "action": {

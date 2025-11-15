@@ -45,17 +45,29 @@ async function init() {
       return;
     }
 
-    // Load page data and boards in parallel
-    const [pageDataResult, boardsResult] = await Promise.all([
-      loadPageData(),
-      loadBoards()
-    ]);
+    // Load boards first (critical)
+    boards = await loadBoards();
 
-    pageData = pageDataResult;
-    boards = boardsResult;
-
-    // Display page preview
-    displayPagePreview();
+    // Try to load page data (optional - may fail on some pages)
+    try {
+      pageData = await loadPageData();
+      displayPagePreview();
+    } catch (error) {
+      console.warn('Could not load page data:', error.message);
+      // Set default page data
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) {
+          pageData = {
+            title: tabs[0].title || 'Untitled Page',
+            url: tabs[0].url || '',
+            description: '',
+            image: null,
+            content: ''
+          };
+          displayPagePreview();
+        }
+      });
+    }
 
     // Populate board selector
     populateBoardSelector();
@@ -327,7 +339,7 @@ async function getAiSummary(content) {
 async function getApiUrl() {
   return new Promise((resolve) => {
     chrome.storage.local.get(['devMode'], (result) => {
-      resolve(result.devMode ? 'http://localhost:5173' : 'https://todzz.eu');
+      resolve(result.devMode ? 'http://localhost:5173' : 'https://www.todzz.eu');
     });
   });
 }
