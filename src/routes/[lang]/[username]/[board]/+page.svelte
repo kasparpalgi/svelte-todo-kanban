@@ -105,10 +105,11 @@
 					// Load initial todos (top 50 with minimal data)
 					await todosStore.loadTodosInitial(board.id);
 
-					// Load remaining todos in the background (non-blocking)
+					// Load remaining todos AFTER LCP (delayed to avoid blocking paint)
+					// Increased from 100ms to 2000ms to ensure it doesn't interfere with LCP
 					setTimeout(() => {
 						todosStore.loadTodosRemaining(board.id);
-					}, 100);
+					}, 2000);
 				}
 
 				boardNotFound = false;
