@@ -16,7 +16,7 @@
 	let todo = $state<TodoFieldsFragment | null>(null);
 	let loading = $state(true);
 	let isClosing = $state(false);
-	let cardDetailView: { save: () => Promise<void> };
+	let cardDetailView = $state<{ save: () => Promise<void> } | undefined>(undefined);
 
 	$effect(() => {
 		locale.set(lang);

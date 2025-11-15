@@ -42,8 +42,8 @@
 					<div class="text-xs text-muted-foreground">
 						{item.sessionCount}
 						{item.sessionCount === 1
-							? $t('stats.session', 'session')
-							: $t('stats.sessions', 'sessions')}
+							? $t('stats.session', { default: 'session' })
+							: $t('stats.sessions', { default: 'sessions' })}
 					</div>
 				</div>
 			</div>
@@ -54,7 +54,7 @@
 					<div
 						class="bg-primary h-full transition-all duration-300"
 						style="width: {item.percentage}%"
-					/>
+					></div>
 				</div>
 
 				<!-- Time and percentage -->
@@ -68,7 +68,7 @@
 
 	{#if sorted.length === 0}
 		<div class="text-center py-6 text-muted-foreground">
-			{$t('stats.noData', 'No data available')}
+			{$t('stats.noData', { default: 'No data available' })}
 		</div>
 	{/if}
 </div>

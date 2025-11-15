@@ -167,53 +167,90 @@
 		{#each logs as log (log.id)}
 			{@const Icon = getActionIcon(log.action_type)}
 			{@const clickable = isClickable(log)}
-			<div
-				class="group flex items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50 {clickable
-					? 'cursor-pointer'
-					: ''}"
-				onclick={() => clickable && handleActivityClick(log)}
-				role={clickable ? 'button' : undefined}
-				tabindex={clickable ? 0 : undefined}
-				onkeydown={(e) => {
-					if (clickable && (e.key === 'Enter' || e.key === ' ')) {
-						e.preventDefault();
-						handleActivityClick(log);
-					}
-				}}
-			>
-				<div class="mt-0.5 flex-shrink-0">
-					<Icon class="h-4 w-4 {getActionColor(log.action_type)}" />
-				</div>
-				<div class="min-w-0 flex-1">
-					<div class="flex items-start justify-between gap-2">
-						<div class="min-w-0 flex-1">
-							<div class="flex items-center gap-2">
-								{#if log.user?.image}
-									<img
-										src={log.user.image}
-										alt={log.user.name || log.user.username}
-										class="h-5 w-5 rounded-full"
-									/>
-								{/if}
-								<span class="font-medium text-sm">
-									{log.user?.name || log.user?.username || 'Unknown user'}
-								</span>
-							</div>
-							<p class="mt-1 text-sm text-foreground">
-								{formatActivityDescription(log)}
-							</p>
-							{#if log.todo?.list?.name}
-								<p class="mt-0.5 text-xs text-muted-foreground">
-									{$t('todo.in')} {log.todo.list.name}
+			{#if clickable}
+				<div
+					class="group flex items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50 cursor-pointer"
+					onclick={() => handleActivityClick(log)}
+					role="button"
+					tabindex="0"
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							handleActivityClick(log);
+						}
+					}}
+				>
+					<div class="mt-0.5 flex-shrink-0">
+						<Icon class="h-4 w-4 {getActionColor(log.action_type)}" />
+					</div>
+					<div class="min-w-0 flex-1">
+						<div class="flex items-start justify-between gap-2">
+							<div class="min-w-0 flex-1">
+								<div class="flex items-center gap-2">
+									{#if log.user?.image}
+										<img
+											src={log.user.image}
+											alt={log.user.name || log.user.username}
+											class="h-5 w-5 rounded-full"
+										/>
+									{/if}
+									<span class="font-medium text-sm">
+										{log.user?.name || log.user?.username || 'Unknown user'}
+									</span>
+								</div>
+								<p class="mt-1 text-sm text-foreground">
+									{formatActivityDescription(log)}
 								</p>
-							{/if}
+								{#if log.todo?.list?.name}
+									<p class="mt-0.5 text-xs text-muted-foreground">
+										{$t('todo.in')} {log.todo.list.name}
+									</p>
+								{/if}
+							</div>
+							<time class="flex-shrink-0 text-xs text-muted-foreground">
+								{getRelativeTime(log.created_at)}
+							</time>
 						</div>
-						<time class="flex-shrink-0 text-xs text-muted-foreground">
-							{getRelativeTime(log.created_at)}
-						</time>
 					</div>
 				</div>
-			</div>
+			{:else}
+				<div
+					class="group flex items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50"
+				>
+					<div class="mt-0.5 flex-shrink-0">
+						<Icon class="h-4 w-4 {getActionColor(log.action_type)}" />
+					</div>
+					<div class="min-w-0 flex-1">
+						<div class="flex items-start justify-between gap-2">
+							<div class="min-w-0 flex-1">
+								<div class="flex items-center gap-2">
+									{#if log.user?.image}
+										<img
+											src={log.user.image}
+											alt={log.user.name || log.user.username}
+											class="h-5 w-5 rounded-full"
+										/>
+									{/if}
+									<span class="font-medium text-sm">
+										{log.user?.name || log.user?.username || 'Unknown user'}
+									</span>
+								</div>
+								<p class="mt-1 text-sm text-foreground">
+									{formatActivityDescription(log)}
+								</p>
+								{#if log.todo?.list?.name}
+									<p class="mt-0.5 text-xs text-muted-foreground">
+										{$t('todo.in')} {log.todo.list.name}
+									</p>
+								{/if}
+							</div>
+							<time class="flex-shrink-0 text-xs text-muted-foreground">
+								{getRelativeTime(log.created_at)}
+							</time>
+						</div>
+					</div>
+				</div>
+			{/if}
 		{/each}
 	{/if}
 </div>

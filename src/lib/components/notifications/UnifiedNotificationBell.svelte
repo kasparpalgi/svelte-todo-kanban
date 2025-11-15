@@ -297,6 +297,14 @@
 						<div
 							class="flex items-start gap-2 p-2 rounded-md border text-xs cursor-pointer hover:bg-muted/50 transition-colors {!notification.is_read ? 'bg-blue-50 dark:bg-blue-950/20' : ''}"
 							onclick={() => handleNotificationClick(notification)}
+							role="button"
+							tabindex="0"
+							onkeydown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									handleNotificationClick(notification);
+								}
+							}}
 						>
 							<span class="text-base flex-shrink-0">{getNotificationIcon(notification.type)}</span>
 

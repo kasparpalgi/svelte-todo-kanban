@@ -1,6 +1,7 @@
 /** @file src/lib/stores/states.svelte.ts */
 import { t } from '$lib/i18n';
 import { get } from 'svelte/store';
+import type { TranslationFunction } from 'sveltekit-i18n';
 
 export let actionState = $state({
 	edit: '',
@@ -8,16 +9,20 @@ export let actionState = $state({
 	showFilters: false,
 
 	tBoard() {
-		return this.viewMode === 'list' ? get(t)('board.project') : get(t)('board.board');
+		const translate = get(t) as TranslationFunction;
+		return this.viewMode === 'list' ? translate('board.project') : translate('board.board');
 	},
 	tBoards() {
-		return this.viewMode === 'list' ? get(t)('board.projects') : get(t)('board.boards');
+		const translate = get(t) as TranslationFunction;
+		return this.viewMode === 'list' ? translate('board.projects') : translate('board.boards');
 	},
 	tList() {
-		return this.viewMode === 'list' ? get(t)('board.category') : get(t)('board.list');
+		const translate = get(t) as TranslationFunction;
+		return this.viewMode === 'list' ? translate('board.category') : translate('board.list');
 	},
 	tLists() {
-		return this.viewMode === 'list' ? get(t)('board.categories') : get(t)('board.lists');
+		const translate = get(t) as TranslationFunction;
+		return this.viewMode === 'list' ? translate('board.categories') : translate('board.lists');
 	}
 });
 
