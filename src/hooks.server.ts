@@ -21,6 +21,8 @@ import Nodemailer from '@auth/sveltekit/providers/nodemailer';
 import Credentials from '@auth/sveltekit/providers/credentials';
 import type { Provider } from '@auth/sveltekit/providers';
 import type { Handle } from '@sveltejs/kit';
+import { hashPassword, verifyPassword } from '$lib/server/password';
+import { GraphQLClient } from 'graphql-request';
 
 // Extend the Session and JWT types to include custom properties
 declare module '@auth/core/types' {
@@ -68,6 +70,147 @@ const providers: Provider[] = [
 		from: EMAIL_FROM
 	})
 ];
+
+// Email/Password Credentials provider
+providers.push(
+	Credentials({
+		id: 'credentials',
+		name: 'Email and Password',
+		credentials: {
+			email: { label: 'Email', type: 'email' },
+			password: { label: 'Password', type: 'password' },
+			mode: { label: 'Mode', type: 'text' }, // 'login' or 'signup'
+			name: { label: 'Name', type: 'text' } // Only for signup
+		},
+		async authorize(credentials) {
+			try {
+				const { email, password, mode, name } = credentials as {
+					email: string;
+					password: string;
+					mode?: string;
+					name?: string;
+				};
+
+				if (!email || !password) {
+					throw new Error('Email and password are required');
+				}
+
+				// Create GraphQL client with admin secret
+				const client = new GraphQLClient(apiEndpoint, {
+					headers: {
+						'x-hasura-admin-secret': HASURA_ADMIN_SECRET
+					}
+				});
+
+				if (mode === 'signup') {
+					// Sign up mode: Create new user
+					if (!name) {
+						throw new Error('Name is required for signup');
+					}
+
+					// Check if user already exists
+					const existingUserQuery = `
+						query GetUser($email: String!) {
+							users(where: { email: { _eq: $email } }, limit: 1) {
+								id
+							}
+						}
+					`;
+					const existingUserData = await client.request<any>(existingUserQuery, { email });
+
+					if (existingUserData.users && existingUserData.users.length > 0) {
+						throw new Error('User with this email already exists');
+					}
+
+					// Hash password
+					const hashedPassword = await hashPassword(password);
+
+					// Create user
+					const createUserMutation = `
+						mutation CreateUser($email: String!, $name: String!, $password: String!) {
+							insert_users_one(object: {
+								email: $email,
+								name: $name,
+								password: $password,
+								emailVerified: null
+							}) {
+								id
+								name
+								email
+								username
+								image
+							}
+						}
+					`;
+
+					const userData = await client.request<any>(createUserMutation, {
+						email,
+						name,
+						password: hashedPassword
+					});
+
+					if (!userData.insert_users_one) {
+						throw new Error('Failed to create user');
+					}
+
+					return {
+						id: userData.insert_users_one.id,
+						name: userData.insert_users_one.name,
+						email: userData.insert_users_one.email,
+						username: userData.insert_users_one.username,
+						image: userData.insert_users_one.image
+					};
+				} else {
+					// Login mode: Verify credentials
+					const userQuery = `
+						query GetUserWithPassword($email: String!) {
+							users(where: { email: { _eq: $email } }, limit: 1) {
+								id
+								name
+								email
+								username
+								image
+								password
+							}
+						}
+					`;
+
+					const userData = await client.request<any>(userQuery, { email });
+
+					if (!userData.users || userData.users.length === 0) {
+						throw new Error('Invalid email or password');
+					}
+
+					const user = userData.users[0];
+
+					if (!user.password) {
+						throw new Error(
+							'This account was created with a different login method. Please use the appropriate sign-in option.'
+						);
+					}
+
+					// Verify password
+					const isValid = await verifyPassword(password, user.password);
+
+					if (!isValid) {
+						throw new Error('Invalid email or password');
+					}
+
+					return {
+						id: user.id,
+						name: user.name,
+						email: user.email,
+						username: user.username,
+						image: user.image
+					};
+				}
+			} catch (error) {
+				console.error('Auth error:', error);
+				return null;
+			}
+		}
+	})
+);
 
 if (PUBLIC_APP_ENV !== 'production') {
 	providers.push(

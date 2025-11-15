@@ -11127,6 +11127,7 @@ export type Users = {
   notifications: Array<Notifications>;
   /** An aggregate relationship */
   notifications_aggregate: Notifications_Aggregate;
+  password?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -11506,6 +11507,7 @@ export type Users_Bool_Exp = {
   name?: InputMaybe<String_Comparison_Exp>;
   notifications?: InputMaybe<Notifications_Bool_Exp>;
   notifications_aggregate?: InputMaybe<Notifications_Aggregate_Bool_Exp>;
+  password?: InputMaybe<String_Comparison_Exp>;
   sessions?: InputMaybe<Sessions_Bool_Exp>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Bool_Exp>;
   settings?: InputMaybe<Jsonb_Comparison_Exp>;
@@ -11570,6 +11572,7 @@ export type Users_Insert_Input = {
   logs?: InputMaybe<Logs_Arr_Rel_Insert_Input>;
   name?: InputMaybe<Scalars['String']['input']>;
   notifications?: InputMaybe<Notifications_Arr_Rel_Insert_Input>;
+  password?: InputMaybe<Scalars['String']['input']>;
   sessions?: InputMaybe<Sessions_Arr_Rel_Insert_Input>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
   todos?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
@@ -11591,6 +11594,7 @@ export type Users_Max_Fields = {
   image?: Maybe<Scalars['String']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  password?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
   username?: Maybe<Scalars['String']['output']>;
 };
@@ -11605,6 +11609,7 @@ export type Users_Min_Fields = {
   image?: Maybe<Scalars['String']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  password?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
   username?: Maybe<Scalars['String']['output']>;
 };
@@ -11651,6 +11656,7 @@ export type Users_Order_By = {
   logs_aggregate?: InputMaybe<Logs_Aggregate_Order_By>;
   name?: InputMaybe<Order_By>;
   notifications_aggregate?: InputMaybe<Notifications_Aggregate_Order_By>;
+  password?: InputMaybe<Order_By>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Order_By>;
   settings?: InputMaybe<Order_By>;
   todosByAssignedTo_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
@@ -11694,6 +11700,8 @@ export enum Users_Select_Column {
   /** column name */
   Name = 'name',
   /** column name */
+  Password = 'password',
+  /** column name */
   Settings = 'settings',
   /** column name */
   UpdatedAt = 'updated_at',
@@ -11712,6 +11720,7 @@ export type Users_Set_Input = {
   image?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
@@ -11736,6 +11745,7 @@ export type Users_Stream_Cursor_Value_Input = {
   image?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
@@ -11761,6 +11771,8 @@ export enum Users_Update_Column {
   Locale = 'locale',
   /** column name */
   Name = 'name',
+  /** column name */
+  Password = 'password',
   /** column name */
   Settings = 'settings',
   /** column name */
