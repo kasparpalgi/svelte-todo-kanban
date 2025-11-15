@@ -76,27 +76,25 @@ On initial board page load (`src/routes/[lang]/[username]/[board]/+page.svelte:7
 - [ ] Measure load time improvements
 - [ ] Verify no regressions in functionality
 
-## Implementation Complete
+## Implementation Complete ✅
 
-All code changes have been implemented:
+**Simplified Approach (Final):**
 
-1. **GraphQL Layer** (`src/lib/graphql/documents.ts`):
-   - Added `TodoFieldsMinimal` fragment (excludes comments, uploads, assignee)
-   - Added `GET_TODOS_MINIMAL` query
-   - Added `GET_TODO_DETAILS` query
+The initial implementation with `TodoFieldsMinimal` fragment caused critical issues (heap overflow, undefined errors). The solution was simplified to use progressive loading with the existing query structure:
 
-2. **Store Layer** (`src/lib/stores/todos.svelte.ts`):
-   - Added `loadTodosInitial(boardId)` - loads first 50 active todos
-   - Added `loadTodosRemaining(boardId)` - loads rest in background
-   - Added `loadTodoDetails(todoId)` - loads full details on demand
+1. **Store Layer** (`src/lib/stores/todos.svelte.ts`):
+   - Added `loadTodosInitial(boardId)` - loads first 50 active todos using GET_TODOS
+   - Added `loadTodosRemaining(boardId)` - loads remaining in chunks of 100
+   - Added `loadTodoDetails(todoId)` - refreshes specific todo when modal opens
+   - All methods use the standard GET_TODOS query (maintains data structure compatibility)
 
-3. **Board Page** (`src/routes/[lang]/[username]/[board]/+page.svelte`):
-   - Changed from `loadTodos()` to `loadTodosInitial()`
-   - Added background loading with `loadTodosRemaining()`
+2. **Board Page** (`src/routes/[lang]/[username]/[board]/+page.svelte`):
+   - Changed from `loadTodos()` to `loadTodosInitial()` for fast first paint
+   - Added background loading with `loadTodosRemaining()` (100ms delay)
 
-4. **Card Modal** (`src/routes/[lang]/[username]/[board]/CardModal.svelte`):
-   - Added smart detection of minimal vs full data
-   - Loads full details only when needed
+3. **Card Modal** (`src/routes/[lang]/[username]/[board]/CardModal.svelte`):
+   - Simplified to use standard loading pattern
+   - Works with full data structure from the start
 
 ## Next Steps (Requires Docker)
 
@@ -123,12 +121,20 @@ npm test
 ## Expected Performance Improvements
 
 **Before:**
-- Single large GraphQL query fetching ALL todos with comments and uploads
-- Payload size: ~500KB for 100 todos with comments
+- Single large GraphQL query fetching up to 1000 todos all at once
+- Payload size: Large, especially with many comments/uploads
 - Initial render blocked until all data loaded
+- Slow time-to-interactive for boards with 100+ todos
 
 **After:**
-- Initial load: Only 50 todos with minimal data (~50KB)
-- Background load: Remaining todos in chunks
-- On-demand: Comments/uploads loaded only when card opens
-- Expected improvement: 5-10x faster initial page load
+- Initial load: Only 50 active todos (smallest payload)
+- Background load: Remaining todos in chunks of 100 (non-blocking)
+- Progressive enhancement: Board becomes interactive immediately
+- Expected improvement: 2-3x faster initial page load
+- Users see content faster, remaining data loads in background
+
+**Note:** The simplified approach using standard GET_TODOS maintains:
+- Full data structure compatibility (no undefined errors)
+- Simpler code (no complex fragment management)
+- Progressive loading benefits (initial 50 → background chunks)
+- Reduced complexity (no heap overflow during type checking)
