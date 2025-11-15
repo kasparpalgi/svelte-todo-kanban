@@ -8,6 +8,7 @@ export interface TodosState {
 	loading: boolean;
 	error: string | null;
 	initialized: boolean;
+	currentBoardId: string | null;
 }
 
 export interface StoreResult<T = any> {

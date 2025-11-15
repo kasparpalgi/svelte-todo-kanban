@@ -76,10 +76,12 @@
 	});
 
 	onMount(async () => {
+		const currentBoard = listsStore.boards.find((b: any) => b.alias === boardAlias);
 		const alreadyInitialized =
 			listsStore.boards.length > 0 &&
 			listsStore.selectedBoard?.alias === boardAlias &&
-			todosStore.initialized;
+			todosStore.initialized &&
+			todosStore.currentBoardId === currentBoard?.id;
 
 		if (alreadyInitialized) {
 			loading = false;
@@ -105,7 +107,10 @@
 				const isMember = board.board_members?.some((m: any) => m.user_id === currentUser?.id);
 				const isOwner = board.user?.id === currentUser?.id;
 
-				if (!isNotMember && !todosStore.initialized) {
+				// Check if we need to load todos (first load or board changed)
+				const needsToLoadTodos = !isNotMember && (!todosStore.initialized || todosStore.currentBoardId !== board.id);
+
+				if (needsToLoadTodos) {
 					// Load initial todos (top 50 with minimal data)
 					await todosStore.loadTodosInitial(board.id);
 
