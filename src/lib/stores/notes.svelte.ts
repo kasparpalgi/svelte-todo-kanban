@@ -13,6 +13,7 @@ const GET_NOTES = `
 			user_id
 			title
 			content
+			cover_image_url
 			sort_order
 			created_at
 			updated_at
@@ -28,6 +29,11 @@ const GET_NOTES = `
 				name
 				alias
 			}
+			note_uploads {
+				id
+				url
+				created_at
+			}
 		}
 	}
 `;
@@ -41,6 +47,7 @@ const CREATE_NOTE = `
 				user_id
 				title
 				content
+				cover_image_url
 				sort_order
 				created_at
 				updated_at
@@ -55,6 +62,11 @@ const CREATE_NOTE = `
 					id
 					name
 					alias
+				}
+				note_uploads {
+					id
+					url
+					created_at
 				}
 			}
 		}
@@ -71,6 +83,7 @@ const UPDATE_NOTE = `
 				user_id
 				title
 				content
+				cover_image_url
 				sort_order
 				created_at
 				updated_at
@@ -85,6 +98,11 @@ const UPDATE_NOTE = `
 					id
 					name
 					alias
+				}
+				note_uploads {
+					id
+					url
+					created_at
 				}
 			}
 		}
@@ -101,6 +119,7 @@ const UPDATE_NOTES = `
 				user_id
 				title
 				content
+				cover_image_url
 				sort_order
 				created_at
 				updated_at
@@ -116,6 +135,11 @@ const UPDATE_NOTES = `
 					name
 					alias
 				}
+				note_uploads {
+					id
+					url
+					created_at
+				}
 			}
 		}
 	}
@@ -129,14 +153,42 @@ const DELETE_NOTE = `
 	}
 `;
 
+const CREATE_NOTE_UPLOAD = `
+	mutation CreateNoteUpload($objects: [note_uploads_insert_input!]!) {
+		insert_note_uploads(objects: $objects) {
+			returning {
+				id
+				url
+				note_id
+				created_at
+			}
+		}
+	}
+`;
+
+const DELETE_NOTE_UPLOAD = `
+	mutation DeleteNoteUpload($where: note_uploads_bool_exp!) {
+		delete_note_uploads(where: $where) {
+			affected_rows
+		}
+	}
+`;
+
 // Temporary types until GraphQL codegen runs
 // These will be replaced by generated types from $lib/graphql/generated/graphql
+type NoteUpload = {
+	id: string;
+	url: string;
+	created_at: string;
+};
+
 type NoteFieldsFragment = {
 	id: string;
 	board_id: string;
 	user_id: string;
 	title: string;
 	content: string | null;
+	cover_image_url: string | null;
 	sort_order: number;
 	created_at: string;
 	updated_at: string;
@@ -152,6 +204,7 @@ type NoteFieldsFragment = {
 		name: string;
 		alias: string | null;
 	};
+	note_uploads?: NoteUpload[];
 };
 
 type GetNotesQuery = {
@@ -180,6 +233,23 @@ type UpdateNotesMutation = {
 
 type DeleteNoteMutation = {
 	delete_notes?: {
+		affected_rows: number;
+	};
+};
+
+type CreateNoteUploadMutation = {
+	insert_note_uploads?: {
+		returning: Array<{
+			id: string;
+			url: string;
+			note_id: string;
+			created_at: string;
+		}>;
+	};
+};
+
+type DeleteNoteUploadMutation = {
+	delete_note_uploads?: {
 		affected_rows: number;
 	};
 };
@@ -288,7 +358,7 @@ function createNotesStore() {
 
 	async function updateNote(
 		id: string,
-		updates: { title?: string; content?: string }
+		updates: { title?: string; content?: string; cover_image_url?: string | null }
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
@@ -301,13 +371,15 @@ function createNotesStore() {
 		state.notes[noteIndex] = {
 			...state.notes[noteIndex],
 			...(updates.title !== undefined && { title: updates.title }),
-			...(updates.content !== undefined && { content: updates.content })
+			...(updates.content !== undefined && { content: updates.content }),
+			...(updates.cover_image_url !== undefined && { cover_image_url: updates.cover_image_url })
 		};
 
 		try {
 			const _set: any = {};
 			if (updates.title !== undefined) _set.title = updates.title.trim() || 'Untitled Note';
 			if (updates.content !== undefined) _set.content = updates.content.trim() || null;
+			if (updates.cover_image_url !== undefined) _set.cover_image_url = updates.cover_image_url;
 
 			const data = await request(UPDATE_NOTE, {
 				where: { id: { _eq: id } },
@@ -423,6 +495,89 @@ function createNotesStore() {
 		}
 	}
 
+	async function createNoteUpload(noteId: string, url: string): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		try {
+			const data = await request(CREATE_NOTE_UPLOAD, {
+				objects: [{ note_id: noteId, url }]
+			}) as CreateNoteUploadMutation;
+
+			const newUpload = data.insert_note_uploads?.returning?.[0];
+
+			if (newUpload) {
+				// Update note's uploads in state
+				const noteIndex = state.notes.findIndex((n) => n.id === noteId);
+				if (noteIndex !== -1) {
+					state.notes[noteIndex] = {
+						...state.notes[noteIndex],
+						note_uploads: [
+							...(state.notes[noteIndex].note_uploads || []),
+							newUpload
+						]
+					};
+				}
+
+				return {
+					success: true,
+					message: 'Upload added successfully',
+					data: newUpload
+				};
+			}
+
+			return { success: false, message: 'Failed to create upload' };
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Error creating upload';
+			console.error('[NotesStore.createNoteUpload] Error:', error);
+			return { success: false, message };
+		}
+	}
+
+	async function deleteNoteUpload(uploadId: string, noteId: string): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		const noteIndex = state.notes.findIndex((n) => n.id === noteId);
+		if (noteIndex === -1) return { success: false, message: 'Note not found' };
+
+		const originalUploads = state.notes[noteIndex].note_uploads || [];
+
+		// Optimistic delete
+		state.notes[noteIndex] = {
+			...state.notes[noteIndex],
+			note_uploads: originalUploads.filter((u) => u.id !== uploadId)
+		};
+
+		try {
+			const data = await request(DELETE_NOTE_UPLOAD, {
+				where: { id: { _eq: uploadId } }
+			}) as DeleteNoteUploadMutation;
+
+			if (data.delete_note_uploads?.affected_rows && data.delete_note_uploads.affected_rows > 0) {
+				return { success: true, message: 'Upload deleted successfully' };
+			}
+
+			// Revert on failure
+			state.notes[noteIndex] = {
+				...state.notes[noteIndex],
+				note_uploads: originalUploads
+			};
+			return { success: false, message: 'Failed to delete upload' };
+		} catch (error) {
+			// Revert on error
+			state.notes[noteIndex] = {
+				...state.notes[noteIndex],
+				note_uploads: originalUploads
+			};
+			const message = error instanceof Error ? error.message : 'Error deleting upload';
+			console.error('[NotesStore.deleteNoteUpload] Error:', error);
+			return { success: false, message };
+		}
+	}
+
+	async function setCoverImage(noteId: string, url: string | null): Promise<StoreResult> {
+		return updateNote(noteId, { cover_image_url: url });
+	}
+
 	return {
 		get notes() {
 			return state.notes;
@@ -445,6 +600,9 @@ function createNotesStore() {
 		updateNote,
 		deleteNote,
 		reorderNotes,
+		createNoteUpload,
+		deleteNoteUpload,
+		setCoverImage,
 
 		clearError: () => {
 			state.error = null;

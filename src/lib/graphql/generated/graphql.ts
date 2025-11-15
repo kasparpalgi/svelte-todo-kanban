@@ -3814,6 +3814,10 @@ export type Mutation_Root = {
   delete_logs?: Maybe<Logs_Mutation_Response>;
   /** delete single row from the table: "logs" */
   delete_logs_by_pk?: Maybe<Logs>;
+  /** delete data from the table: "note_uploads" */
+  delete_note_uploads?: Maybe<Note_Uploads_Mutation_Response>;
+  /** delete single row from the table: "note_uploads" */
+  delete_note_uploads_by_pk?: Maybe<Note_Uploads>;
   /** delete data from the table: "notes" */
   delete_notes?: Maybe<Notes_Mutation_Response>;
   /** delete single row from the table: "notes" */
@@ -3902,6 +3906,10 @@ export type Mutation_Root = {
   insert_logs?: Maybe<Logs_Mutation_Response>;
   /** insert a single row into the table: "logs" */
   insert_logs_one?: Maybe<Logs>;
+  /** insert data into the table: "note_uploads" */
+  insert_note_uploads?: Maybe<Note_Uploads_Mutation_Response>;
+  /** insert a single row into the table: "note_uploads" */
+  insert_note_uploads_one?: Maybe<Note_Uploads>;
   /** insert data into the table: "notes" */
   insert_notes?: Maybe<Notes_Mutation_Response>;
   /** insert a single row into the table: "notes" */
@@ -4008,6 +4016,12 @@ export type Mutation_Root = {
   update_logs_by_pk?: Maybe<Logs>;
   /** update multiples rows of table: "logs" */
   update_logs_many?: Maybe<Array<Maybe<Logs_Mutation_Response>>>;
+  /** update data of the table: "note_uploads" */
+  update_note_uploads?: Maybe<Note_Uploads_Mutation_Response>;
+  /** update single row of the table: "note_uploads" */
+  update_note_uploads_by_pk?: Maybe<Note_Uploads>;
+  /** update multiples rows of table: "note_uploads" */
+  update_note_uploads_many?: Maybe<Array<Maybe<Note_Uploads_Mutation_Response>>>;
   /** update data of the table: "notes" */
   update_notes?: Maybe<Notes_Mutation_Response>;
   /** update single row of the table: "notes" */
@@ -4193,6 +4207,18 @@ export type Mutation_RootDelete_LogsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Logs_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Note_UploadsArgs = {
+  where: Note_Uploads_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Note_Uploads_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -4478,6 +4504,20 @@ export type Mutation_RootInsert_LogsArgs = {
 export type Mutation_RootInsert_Logs_OneArgs = {
   object: Logs_Insert_Input;
   on_conflict?: InputMaybe<Logs_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Note_UploadsArgs = {
+  objects: Array<Note_Uploads_Insert_Input>;
+  on_conflict?: InputMaybe<Note_Uploads_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Note_Uploads_OneArgs = {
+  object: Note_Uploads_Insert_Input;
+  on_conflict?: InputMaybe<Note_Uploads_On_Conflict>;
 };
 
 
@@ -4884,6 +4924,26 @@ export type Mutation_RootUpdate_Logs_ManyArgs = {
 
 
 /** mutation root */
+export type Mutation_RootUpdate_Note_UploadsArgs = {
+  _set?: InputMaybe<Note_Uploads_Set_Input>;
+  where: Note_Uploads_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Note_Uploads_By_PkArgs = {
+  _set?: InputMaybe<Note_Uploads_Set_Input>;
+  pk_columns: Note_Uploads_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Note_Uploads_ManyArgs = {
+  updates: Array<Note_Uploads_Updates>;
+};
+
+
+/** mutation root */
 export type Mutation_RootUpdate_NotesArgs = {
   _inc?: InputMaybe<Notes_Inc_Input>;
   _set?: InputMaybe<Notes_Set_Input>;
@@ -5162,6 +5222,210 @@ export type Mutation_RootUpdate_Verification_Tokens_ManyArgs = {
   updates: Array<Verification_Tokens_Updates>;
 };
 
+/** columns and relationships of "note_uploads" */
+export type Note_Uploads = {
+  __typename?: 'note_uploads';
+  created_at: Scalars['timestamptz']['output'];
+  id: Scalars['uuid']['output'];
+  /** An object relationship */
+  note: Notes;
+  note_id: Scalars['uuid']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** aggregated selection of "note_uploads" */
+export type Note_Uploads_Aggregate = {
+  __typename?: 'note_uploads_aggregate';
+  aggregate?: Maybe<Note_Uploads_Aggregate_Fields>;
+  nodes: Array<Note_Uploads>;
+};
+
+export type Note_Uploads_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Note_Uploads_Aggregate_Bool_Exp_Count>;
+};
+
+export type Note_Uploads_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Note_Uploads_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Note_Uploads_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "note_uploads" */
+export type Note_Uploads_Aggregate_Fields = {
+  __typename?: 'note_uploads_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Note_Uploads_Max_Fields>;
+  min?: Maybe<Note_Uploads_Min_Fields>;
+};
+
+
+/** aggregate fields of "note_uploads" */
+export type Note_Uploads_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Note_Uploads_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "note_uploads" */
+export type Note_Uploads_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Note_Uploads_Max_Order_By>;
+  min?: InputMaybe<Note_Uploads_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "note_uploads" */
+export type Note_Uploads_Arr_Rel_Insert_Input = {
+  data: Array<Note_Uploads_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Note_Uploads_On_Conflict>;
+};
+
+/** Boolean expression to filter rows from the table "note_uploads". All fields are combined with a logical 'AND'. */
+export type Note_Uploads_Bool_Exp = {
+  _and?: InputMaybe<Array<Note_Uploads_Bool_Exp>>;
+  _not?: InputMaybe<Note_Uploads_Bool_Exp>;
+  _or?: InputMaybe<Array<Note_Uploads_Bool_Exp>>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  note?: InputMaybe<Notes_Bool_Exp>;
+  note_id?: InputMaybe<Uuid_Comparison_Exp>;
+  url?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "note_uploads" */
+export enum Note_Uploads_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  NoteUploadsPkey = 'note_uploads_pkey'
+}
+
+/** input type for inserting data into table "note_uploads" */
+export type Note_Uploads_Insert_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  note?: InputMaybe<Notes_Obj_Rel_Insert_Input>;
+  note_id?: InputMaybe<Scalars['uuid']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate max on columns */
+export type Note_Uploads_Max_Fields = {
+  __typename?: 'note_uploads_max_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  note_id?: Maybe<Scalars['uuid']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by max() on columns of table "note_uploads" */
+export type Note_Uploads_Max_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  note_id?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Note_Uploads_Min_Fields = {
+  __typename?: 'note_uploads_min_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  note_id?: Maybe<Scalars['uuid']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+/** order by min() on columns of table "note_uploads" */
+export type Note_Uploads_Min_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  note_id?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "note_uploads" */
+export type Note_Uploads_Mutation_Response = {
+  __typename?: 'note_uploads_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Note_Uploads>;
+};
+
+/** on_conflict condition type for table "note_uploads" */
+export type Note_Uploads_On_Conflict = {
+  constraint: Note_Uploads_Constraint;
+  update_columns?: Array<Note_Uploads_Update_Column>;
+  where?: InputMaybe<Note_Uploads_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "note_uploads". */
+export type Note_Uploads_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  note?: InputMaybe<Notes_Order_By>;
+  note_id?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: note_uploads */
+export type Note_Uploads_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "note_uploads" */
+export enum Note_Uploads_Select_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  NoteId = 'note_id',
+  /** column name */
+  Url = 'url'
+}
+
+/** input type for updating data in table "note_uploads" */
+export type Note_Uploads_Set_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  note_id?: InputMaybe<Scalars['uuid']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Streaming cursor of the table "note_uploads" */
+export type Note_Uploads_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Note_Uploads_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Note_Uploads_Stream_Cursor_Value_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  note_id?: InputMaybe<Scalars['uuid']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** update columns of table "note_uploads" */
+export enum Note_Uploads_Update_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  NoteId = 'note_id',
+  /** column name */
+  Url = 'url'
+}
+
+export type Note_Uploads_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Note_Uploads_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Note_Uploads_Bool_Exp;
+};
+
 /** columns and relationships of "notes" */
 export type Notes = {
   __typename?: 'notes';
@@ -5169,14 +5433,39 @@ export type Notes = {
   board: Boards;
   board_id: Scalars['uuid']['output'];
   content?: Maybe<Scalars['String']['output']>;
+  cover_image_url?: Maybe<Scalars['String']['output']>;
   created_at: Scalars['timestamptz']['output'];
   id: Scalars['uuid']['output'];
+  /** An array relationship */
+  note_uploads: Array<Note_Uploads>;
+  /** An aggregate relationship */
+  note_uploads_aggregate: Note_Uploads_Aggregate;
   sort_order: Scalars['Int']['output'];
   title: Scalars['String']['output'];
   updated_at: Scalars['timestamptz']['output'];
   /** An object relationship */
   user: Users;
   user_id: Scalars['uuid']['output'];
+};
+
+
+/** columns and relationships of "notes" */
+export type NotesNote_UploadsArgs = {
+  distinct_on?: InputMaybe<Array<Note_Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Note_Uploads_Order_By>>;
+  where?: InputMaybe<Note_Uploads_Bool_Exp>;
+};
+
+
+/** columns and relationships of "notes" */
+export type NotesNote_Uploads_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Note_Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Note_Uploads_Order_By>>;
+  where?: InputMaybe<Note_Uploads_Bool_Exp>;
 };
 
 /** aggregated selection of "notes" */
@@ -5223,8 +5512,11 @@ export type Notes_Bool_Exp = {
   board?: InputMaybe<Boards_Bool_Exp>;
   board_id?: InputMaybe<Uuid_Comparison_Exp>;
   content?: InputMaybe<String_Comparison_Exp>;
+  cover_image_url?: InputMaybe<String_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
+  note_uploads?: InputMaybe<Note_Uploads_Bool_Exp>;
+  note_uploads_aggregate?: InputMaybe<Note_Uploads_Aggregate_Bool_Exp>;
   sort_order?: InputMaybe<Int_Comparison_Exp>;
   title?: InputMaybe<String_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -5248,8 +5540,10 @@ export type Notes_Insert_Input = {
   board?: InputMaybe<Boards_Obj_Rel_Insert_Input>;
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
+  cover_image_url?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  note_uploads?: InputMaybe<Note_Uploads_Arr_Rel_Insert_Input>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -5262,6 +5556,7 @@ export type Notes_Max_Fields = {
   __typename?: 'notes_max_fields';
   board_id?: Maybe<Scalars['uuid']['output']>;
   content?: Maybe<Scalars['String']['output']>;
+  cover_image_url?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
@@ -5275,6 +5570,7 @@ export type Notes_Min_Fields = {
   __typename?: 'notes_min_fields';
   board_id?: Maybe<Scalars['uuid']['output']>;
   content?: Maybe<Scalars['String']['output']>;
+  cover_image_url?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
@@ -5292,6 +5588,13 @@ export type Notes_Mutation_Response = {
   returning: Array<Notes>;
 };
 
+/** input type for inserting object relation for remote table "notes" */
+export type Notes_Obj_Rel_Insert_Input = {
+  data: Notes_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Notes_On_Conflict>;
+};
+
 /** on_conflict condition type for table "notes" */
 export type Notes_On_Conflict = {
   constraint: Notes_Constraint;
@@ -5304,8 +5607,10 @@ export type Notes_Order_By = {
   board?: InputMaybe<Boards_Order_By>;
   board_id?: InputMaybe<Order_By>;
   content?: InputMaybe<Order_By>;
+  cover_image_url?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  note_uploads_aggregate?: InputMaybe<Note_Uploads_Aggregate_Order_By>;
   sort_order?: InputMaybe<Order_By>;
   title?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
@@ -5325,6 +5630,8 @@ export enum Notes_Select_Column {
   /** column name */
   Content = 'content',
   /** column name */
+  CoverImageUrl = 'cover_image_url',
+  /** column name */
   CreatedAt = 'created_at',
   /** column name */
   Id = 'id',
@@ -5342,6 +5649,7 @@ export enum Notes_Select_Column {
 export type Notes_Set_Input = {
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
+  cover_image_url?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
@@ -5380,6 +5688,7 @@ export type Notes_Stream_Cursor_Input = {
 export type Notes_Stream_Cursor_Value_Input = {
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
+  cover_image_url?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
@@ -5400,6 +5709,8 @@ export enum Notes_Update_Column {
   BoardId = 'board_id',
   /** column name */
   Content = 'content',
+  /** column name */
+  CoverImageUrl = 'cover_image_url',
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
@@ -5865,6 +6176,12 @@ export type Query_Root = {
   logs_aggregate: Logs_Aggregate;
   /** fetch data from the table: "logs" using primary key columns */
   logs_by_pk?: Maybe<Logs>;
+  /** An array relationship */
+  note_uploads: Array<Note_Uploads>;
+  /** An aggregate relationship */
+  note_uploads_aggregate: Note_Uploads_Aggregate;
+  /** fetch data from the table: "note_uploads" using primary key columns */
+  note_uploads_by_pk?: Maybe<Note_Uploads>;
   /** fetch data from the table: "notes" */
   notes: Array<Notes>;
   /** fetch aggregated fields from the table: "notes" */
@@ -6157,6 +6474,29 @@ export type Query_RootLogs_AggregateArgs = {
 
 
 export type Query_RootLogs_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootNote_UploadsArgs = {
+  distinct_on?: InputMaybe<Array<Note_Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Note_Uploads_Order_By>>;
+  where?: InputMaybe<Note_Uploads_Bool_Exp>;
+};
+
+
+export type Query_RootNote_Uploads_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Note_Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Note_Uploads_Order_By>>;
+  where?: InputMaybe<Note_Uploads_Bool_Exp>;
+};
+
+
+export type Query_RootNote_Uploads_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -6805,6 +7145,14 @@ export type Subscription_Root = {
   logs_by_pk?: Maybe<Logs>;
   /** fetch data from the table in a streaming manner: "logs" */
   logs_stream: Array<Logs>;
+  /** An array relationship */
+  note_uploads: Array<Note_Uploads>;
+  /** An aggregate relationship */
+  note_uploads_aggregate: Note_Uploads_Aggregate;
+  /** fetch data from the table: "note_uploads" using primary key columns */
+  note_uploads_by_pk?: Maybe<Note_Uploads>;
+  /** fetch data from the table in a streaming manner: "note_uploads" */
+  note_uploads_stream: Array<Note_Uploads>;
   /** fetch data from the table: "notes" */
   notes: Array<Notes>;
   /** fetch aggregated fields from the table: "notes" */
@@ -7191,6 +7539,36 @@ export type Subscription_RootLogs_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Logs_Stream_Cursor_Input>>;
   where?: InputMaybe<Logs_Bool_Exp>;
+};
+
+
+export type Subscription_RootNote_UploadsArgs = {
+  distinct_on?: InputMaybe<Array<Note_Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Note_Uploads_Order_By>>;
+  where?: InputMaybe<Note_Uploads_Bool_Exp>;
+};
+
+
+export type Subscription_RootNote_Uploads_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Note_Uploads_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Note_Uploads_Order_By>>;
+  where?: InputMaybe<Note_Uploads_Bool_Exp>;
+};
+
+
+export type Subscription_RootNote_Uploads_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootNote_Uploads_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Note_Uploads_Stream_Cursor_Input>>;
+  where?: InputMaybe<Note_Uploads_Bool_Exp>;
 };
 
 
@@ -11984,7 +12362,7 @@ export type CommentFieldsFragment = { __typename?: 'comments', id: string, conte
 
 export type LabelFieldsFragment = { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null };
 
-export type NoteFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } };
+export type NoteFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> };
 
 export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, created_at: string, updated_at: string };
 
@@ -12026,14 +12404,14 @@ export type GetNotesQueryVariables = Exact<{
 }>;
 
 
-export type GetNotesQuery = { __typename?: 'query_root', notes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
+export type GetNotesQuery = { __typename?: 'query_root', notes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> };
 
 export type GetNoteQueryVariables = Exact<{
   id: Scalars['uuid']['input'];
 }>;
 
 
-export type GetNoteQuery = { __typename?: 'query_root', notes_by_pk?: { __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
+export type GetNoteQuery = { __typename?: 'query_root', notes_by_pk?: { __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> } | null };
 
 export type CreateTodoMutationVariables = Exact<{
   objects: Array<Todos_Insert_Input> | Todos_Insert_Input;
@@ -12106,7 +12484,7 @@ export type CreateNoteMutationVariables = Exact<{
 }>;
 
 
-export type CreateNoteMutation = { __typename?: 'mutation_root', insert_notes?: { __typename?: 'notes_mutation_response', returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> } | null };
+export type CreateNoteMutation = { __typename?: 'mutation_root', insert_notes?: { __typename?: 'notes_mutation_response', returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null };
 
 export type UpdateNoteMutationVariables = Exact<{
   where: Notes_Bool_Exp;
@@ -12114,14 +12492,14 @@ export type UpdateNoteMutationVariables = Exact<{
 }>;
 
 
-export type UpdateNoteMutation = { __typename?: 'mutation_root', update_notes?: { __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> } | null };
+export type UpdateNoteMutation = { __typename?: 'mutation_root', update_notes?: { __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null };
 
 export type UpdateNotesMutationVariables = Exact<{
   updates: Array<Notes_Updates> | Notes_Updates;
 }>;
 
 
-export type UpdateNotesMutation = { __typename?: 'mutation_root', update_notes_many?: Array<{ __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> } | null> | null };
+export type UpdateNotesMutation = { __typename?: 'mutation_root', update_notes_many?: Array<{ __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null> | null };
 
 export type DeleteNoteMutationVariables = Exact<{
   where: Notes_Bool_Exp;
@@ -12143,6 +12521,20 @@ export type DeleteUploadMutationVariables = Exact<{
 
 
 export type DeleteUploadMutation = { __typename?: 'mutation_root', delete_uploads?: { __typename?: 'uploads_mutation_response', affected_rows: number } | null };
+
+export type CreateNoteUploadMutationVariables = Exact<{
+  objects: Array<Note_Uploads_Insert_Input> | Note_Uploads_Insert_Input;
+}>;
+
+
+export type CreateNoteUploadMutation = { __typename?: 'mutation_root', insert_note_uploads?: { __typename?: 'note_uploads_mutation_response', returning: Array<{ __typename?: 'note_uploads', id: string, url: string, note_id: string, created_at: string }> } | null };
+
+export type DeleteNoteUploadMutationVariables = Exact<{
+  where: Note_Uploads_Bool_Exp;
+}>;
+
+
+export type DeleteNoteUploadMutation = { __typename?: 'mutation_root', delete_note_uploads?: { __typename?: 'note_uploads_mutation_response', affected_rows: number } | null };
 
 export type GetUsersQueryVariables = Exact<{
   where?: InputMaybe<Users_Bool_Exp>;
@@ -12687,6 +13079,7 @@ export const NoteFieldsFragmentDoc = new TypedDocumentString(`
   user_id
   title
   content
+  cover_image_url
   sort_order
   created_at
   updated_at
@@ -12701,6 +13094,11 @@ export const NoteFieldsFragmentDoc = new TypedDocumentString(`
     id
     name
     alias
+  }
+  note_uploads {
+    id
+    url
+    created_at
   }
 }
     `, {"fragmentName":"NoteFields"}) as unknown as TypedDocumentString<NoteFieldsFragment, unknown>;
@@ -12999,6 +13397,7 @@ export const GetNotesDocument = new TypedDocumentString(`
   user_id
   title
   content
+  cover_image_url
   sort_order
   created_at
   updated_at
@@ -13013,6 +13412,11 @@ export const GetNotesDocument = new TypedDocumentString(`
     id
     name
     alias
+  }
+  note_uploads {
+    id
+    url
+    created_at
   }
 }`) as unknown as TypedDocumentString<GetNotesQuery, GetNotesQueryVariables>;
 export const GetNoteDocument = new TypedDocumentString(`
@@ -13027,6 +13431,7 @@ export const GetNoteDocument = new TypedDocumentString(`
   user_id
   title
   content
+  cover_image_url
   sort_order
   created_at
   updated_at
@@ -13041,6 +13446,11 @@ export const GetNoteDocument = new TypedDocumentString(`
     id
     name
     alias
+  }
+  note_uploads {
+    id
+    url
+    created_at
   }
 }`) as unknown as TypedDocumentString<GetNoteQuery, GetNoteQueryVariables>;
 export const CreateTodoDocument = new TypedDocumentString(`
@@ -13415,6 +13825,7 @@ export const CreateNoteDocument = new TypedDocumentString(`
   user_id
   title
   content
+  cover_image_url
   sort_order
   created_at
   updated_at
@@ -13429,6 +13840,11 @@ export const CreateNoteDocument = new TypedDocumentString(`
     id
     name
     alias
+  }
+  note_uploads {
+    id
+    url
+    created_at
   }
 }`) as unknown as TypedDocumentString<CreateNoteMutation, CreateNoteMutationVariables>;
 export const UpdateNoteDocument = new TypedDocumentString(`
@@ -13446,6 +13862,7 @@ export const UpdateNoteDocument = new TypedDocumentString(`
   user_id
   title
   content
+  cover_image_url
   sort_order
   created_at
   updated_at
@@ -13460,6 +13877,11 @@ export const UpdateNoteDocument = new TypedDocumentString(`
     id
     name
     alias
+  }
+  note_uploads {
+    id
+    url
+    created_at
   }
 }`) as unknown as TypedDocumentString<UpdateNoteMutation, UpdateNoteMutationVariables>;
 export const UpdateNotesDocument = new TypedDocumentString(`
@@ -13477,6 +13899,7 @@ export const UpdateNotesDocument = new TypedDocumentString(`
   user_id
   title
   content
+  cover_image_url
   sort_order
   created_at
   updated_at
@@ -13491,6 +13914,11 @@ export const UpdateNotesDocument = new TypedDocumentString(`
     id
     name
     alias
+  }
+  note_uploads {
+    id
+    url
+    created_at
   }
 }`) as unknown as TypedDocumentString<UpdateNotesMutation, UpdateNotesMutationVariables>;
 export const DeleteNoteDocument = new TypedDocumentString(`
@@ -13519,6 +13947,25 @@ export const DeleteUploadDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteUploadMutation, DeleteUploadMutationVariables>;
+export const CreateNoteUploadDocument = new TypedDocumentString(`
+    mutation CreateNoteUpload($objects: [note_uploads_insert_input!]!) {
+  insert_note_uploads(objects: $objects) {
+    returning {
+      id
+      url
+      note_id
+      created_at
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<CreateNoteUploadMutation, CreateNoteUploadMutationVariables>;
+export const DeleteNoteUploadDocument = new TypedDocumentString(`
+    mutation DeleteNoteUpload($where: note_uploads_bool_exp!) {
+  delete_note_uploads(where: $where) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteNoteUploadMutation, DeleteNoteUploadMutationVariables>;
 export const GetUsersDocument = new TypedDocumentString(`
     query GetUsers($where: users_bool_exp = {}, $order_by: [users_order_by!] = {}, $limit: Int = 100, $offset: Int = 0) {
   users(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
