@@ -517,6 +517,14 @@
         }
     },
     "notifications": {
+        "title": "Oznámení",
+        "mark_all_as_read": "Označit vše jako přečtené",
+        "loading": "Načítání oznámení...",
+        "no_notifications": "Zatím žádná oznámení",
+        "just_now": "Právě teď",
+        "minutes_ago": "před {{count}} min",
+        "hours_ago": "před {{count}}h",
+        "days_ago": "před {{count}}d",
         "assigned": "{{user}} vás přiřadil(a) na",
         "commented": "{{user}} komentoval(a)",
         "edited": "{{user}} upravil(a)",

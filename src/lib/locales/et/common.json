@@ -517,6 +517,14 @@
         }
     },
     "notifications": {
+        "title": "Teatised",
+        "mark_all_as_read": "Märgi kõik loetuks",
+        "loading": "Laen teatisi...",
+        "no_notifications": "Teatisi pole veel",
+        "just_now": "Äsja",
+        "minutes_ago": "{{count}} min tagasi",
+        "hours_ago": "{{count}}h tagasi",
+        "days_ago": "{{count}}p tagasi",
         "assigned": "{{user}} määras Sind ülesandele",
         "commented": "{{user}} kommenteeris",
         "edited": "{{user}} muutis",
