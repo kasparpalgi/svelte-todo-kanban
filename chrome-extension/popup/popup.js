@@ -38,7 +38,15 @@ async function init() {
     showLoading();
 
     // Check authentication
-    const isAuth = await isAuthenticated();
+    let isAuth = await isAuthenticated();
+
+    // If not authenticated, try to fetch token from web app
+    if (!isAuth) {
+      const token = await fetchJwtToken();
+      if (token) {
+        isAuth = true;
+      }
+    }
 
     if (!isAuth) {
       showAuthRequired();
@@ -344,7 +352,7 @@ function handleCancel() {
  */
 async function handleSignIn() {
   await openAuthFlow();
-  showInfo('Please sign in to ToDzz in the opened tab, then close and reopen this popup.');
+  showInfo('Authentication page opened. After signing in, close that tab and reopen this popup.');
 }
 
 /**

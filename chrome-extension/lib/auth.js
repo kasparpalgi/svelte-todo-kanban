@@ -96,12 +96,13 @@ async function logout() {
 
 /**
  * Open authentication flow
- * Opens the app's sign-in page in a new tab
+ * Opens the app's extension auth page in a new tab
+ * After user signs in, the page will automatically provide the JWT token
  * @returns {Promise<void>}
  */
 async function openAuthFlow() {
   const apiUrl = await getApiUrl();
-  const authUrl = `${apiUrl}/en/signin?extension=true`;
+  const authUrl = `${apiUrl}/extension-auth`;
 
   return new Promise((resolve) => {
     chrome.tabs.create({ url: authUrl }, () => {
