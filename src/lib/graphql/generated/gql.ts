@@ -24,10 +24,14 @@ type Documents = {
     "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.LabelFieldsFragmentDoc,
     "\n\tfragment NoteFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\ttitle\n\t\tcontent\n\t\tcover_image_url\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t\tnote_uploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t}\n": typeof types.NoteFieldsFragmentDoc,
     "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.UserFieldsFragmentDoc,
+    "\n\tquery GetTodos(\n\t\t$where: todos_bool_exp = {}\n\t\t$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\ttodos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...TodoFields\n\t\t}\n\t}\n": typeof types.GetTodosDocument,
     "\n\tquery GetLists(\n\t\t$where: lists_bool_exp = {}\n\t\t$order_by: [lists_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tlists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ListFields\n\t\t}\n\t}\n": typeof types.GetListsDocument,
     "\n\tquery GetBoards(\n\t\t$where: boards_bool_exp = {}\n\t\t$order_by: [boards_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboards(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardFields\n\t\t}\n\t}\n": typeof types.GetBoardsDocument,
     "\n\tquery GetNotes(\n\t\t$where: notes_bool_exp = {}\n\t\t$order_by: [notes_order_by!] = { sort_order: asc, created_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tnotes(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n": typeof types.GetNotesDocument,
     "\n\tquery GetNote($id: uuid!) {\n\t\tnotes_by_pk(id: $id) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n": typeof types.GetNoteDocument,
+    "\n\tmutation CreateTodo($objects: [todos_insert_input!]!) {\n\t\tinsert_todos(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...TodoFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateTodoDocument,
+    "\n\tmutation UpdateTodos($where: todos_bool_exp!, $_set: todos_set_input!) {\n\t\tupdate_todos(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...TodoFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateTodosDocument,
+    "\n\tmutation DeleteTodos($where: todos_bool_exp!) {\n\t\tdelete_todos(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteTodosDocument,
     "\n\tmutation CreateList($objects: [lists_insert_input!]!) {\n\t\tinsert_lists(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...ListFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateListDocument,
     "\n\tmutation UpdateList($where: lists_bool_exp!, $_set: lists_set_input!) {\n\t\tupdate_lists(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...ListFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateListDocument,
     "\n\tmutation DeleteList($where: lists_bool_exp!) {\n\t\tdelete_lists(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteListDocument,
@@ -38,6 +42,8 @@ type Documents = {
     "\n\tmutation UpdateNote($where: notes_bool_exp!, $_set: notes_set_input!) {\n\t\tupdate_notes(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateNoteDocument,
     "\n\tmutation UpdateNotes($updates: [notes_updates!]!) {\n\t\tupdate_notes_many(updates: $updates) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateNotesDocument,
     "\n\tmutation DeleteNote($where: notes_bool_exp!) {\n\t\tdelete_notes(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteNoteDocument,
+    "\n\tmutation CreateUpload($objects: [uploads_insert_input!]!) {\n\t\tinsert_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\ttodo_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateUploadDocument,
+    "\n\tmutation DeleteUpload($where: uploads_bool_exp!) {\n\t\tdelete_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteUploadDocument,
     "\n\tmutation CreateNoteUpload($objects: [note_uploads_insert_input!]!) {\n\t\tinsert_note_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\tnote_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateNoteUploadDocument,
     "\n\tmutation DeleteNoteUpload($where: note_uploads_bool_exp!) {\n\t\tdelete_note_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteNoteUploadDocument,
     "\n\tquery GetUsers(\n\t\t$where: users_bool_exp = {}\n\t\t$order_by: [users_order_by!] = {}\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tusers(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...UserFields\n\t\t}\n\t}\n": typeof types.GetUsersDocument,
@@ -68,11 +74,13 @@ type Documents = {
     "\n\tquery GetLogs(\n\t\t$where: logs_bool_exp\n\t\t$order_by: [logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tlogs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t\tdata\n\t\t\tuser_id\n\t\t\tsession_id\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlogs_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetLogsDocument,
     "\n\tfragment NotificationFields on notifications {\n\t\tid\n\t\tuser_id\n\t\ttodo_id\n\t\ttype\n\t\ttriggered_by_user_id\n\t\trelated_comment_id\n\t\tcontent\n\t\tis_read\n\t\tcreated_at\n\t\tupdated_at\n\t\ttriggered_by_user {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\ttodo {\n\t\t\tid\n\t\t\ttitle\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\talias\n\t\t\t\t\tuser {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tusername\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.NotificationFieldsFragmentDoc,
     "\n\tquery GetNotifications(\n\t\t$where: notifications_bool_exp\n\t\t$order_by: [notifications_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tnotifications(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...NotificationFields\n\t\t}\n\t\tnotifications_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetNotificationsDocument,
+    "\n\tmutation CreateNotification($notification: notifications_insert_input!) {\n\t\tinsert_notifications_one(object: $notification) {\n\t\t\t...NotificationFields\n\t\t}\n\t}\n": typeof types.CreateNotificationDocument,
     "\n\tmutation UpdateNotification($id: uuid!, $updates: notifications_set_input!) {\n\t\tupdate_notifications_by_pk(pk_columns: { id: $id }, _set: $updates) {\n\t\t\t...NotificationFields\n\t\t}\n\t}\n": typeof types.UpdateNotificationDocument,
     "\n\tmutation MarkNotificationsAsRead($notification_ids: [uuid!]!) {\n\t\tupdate_notifications(where: { id: { _in: $notification_ids } }, _set: { is_read: true }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.MarkNotificationsAsReadDocument,
     "\n\tmutation DeleteNotification($id: uuid!) {\n\t\tdelete_notifications_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteNotificationDocument,
     "\n\tfragment ActivityLogFields on activity_logs {\n\t\tid\n\t\tuser_id\n\t\ttodo_id\n\t\taction_type\n\t\tfield_name\n\t\told_value\n\t\tnew_value\n\t\tchanges\n\t\tcreated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\ttodo {\n\t\t\tid\n\t\t\ttitle\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\talias\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.ActivityLogFieldsFragmentDoc,
     "\n\tquery GetActivityLogs(\n\t\t$where: activity_logs_bool_exp\n\t\t$order_by: [activity_logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tactivity_logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ActivityLogFields\n\t\t}\n\t\tactivity_logs_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetActivityLogsDocument,
+    "\n\tmutation CreateActivityLog($log: activity_logs_insert_input!) {\n\t\tinsert_activity_logs_one(object: $log) {\n\t\t\t...ActivityLogFields\n\t\t}\n\t}\n": typeof types.CreateActivityLogDocument,
     "\n\tfragment TrackerSessionFields on tracker_sessions {\n\t\tid\n\t\twindow_title\n\t\tstart_time\n\t\tend_time\n\t\tduration_seconds\n\t\ttracker_app {\n\t\t\tid\n\t\t\tname\n\t\t}\n\t}\n": typeof types.TrackerSessionFieldsFragmentDoc,
     "\n\tfragment TrackerKeywordFields on tracker_keywords {\n\t\tid\n\t\tboard_id\n\t\tkeyword\n\t\tcase_sensitive\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t\ttracker_category {\n\t\t\tid\n\t\t\tname\n\t\t\tparent_category {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t\tsub_categories {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": typeof types.TrackerKeywordFieldsFragmentDoc,
     "\n\tquery GetTrackerSessions(\n\t\t$limit: Int = 15000\n\t\t$offset: Int = 0\n\t\t$order_by: [tracker_sessions_order_by!]\n\t\t$where: tracker_sessions_bool_exp\n\t) {\n\t\ttracker_sessions(\n\t\t\tlimit: $limit\n\t\t\toffset: $offset\n\t\t\torder_by: $order_by\n\t\t\twhere: $where\n\t\t) {\n\t\t\t...TrackerSessionFields\n\t\t}\n\t\ttracker_sessions_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t\tsum {\n\t\t\t\t\tduration_seconds\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetTrackerSessionsDocument,
@@ -89,10 +97,14 @@ const documents: Documents = {
     "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.LabelFieldsFragmentDoc,
     "\n\tfragment NoteFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\ttitle\n\t\tcontent\n\t\tcover_image_url\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t\tnote_uploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t}\n": types.NoteFieldsFragmentDoc,
     "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.UserFieldsFragmentDoc,
+    "\n\tquery GetTodos(\n\t\t$where: todos_bool_exp = {}\n\t\t$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\ttodos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...TodoFields\n\t\t}\n\t}\n": types.GetTodosDocument,
     "\n\tquery GetLists(\n\t\t$where: lists_bool_exp = {}\n\t\t$order_by: [lists_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tlists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ListFields\n\t\t}\n\t}\n": types.GetListsDocument,
     "\n\tquery GetBoards(\n\t\t$where: boards_bool_exp = {}\n\t\t$order_by: [boards_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboards(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardFields\n\t\t}\n\t}\n": types.GetBoardsDocument,
     "\n\tquery GetNotes(\n\t\t$where: notes_bool_exp = {}\n\t\t$order_by: [notes_order_by!] = { sort_order: asc, created_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tnotes(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n": types.GetNotesDocument,
     "\n\tquery GetNote($id: uuid!) {\n\t\tnotes_by_pk(id: $id) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n": types.GetNoteDocument,
+    "\n\tmutation CreateTodo($objects: [todos_insert_input!]!) {\n\t\tinsert_todos(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...TodoFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateTodoDocument,
+    "\n\tmutation UpdateTodos($where: todos_bool_exp!, $_set: todos_set_input!) {\n\t\tupdate_todos(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...TodoFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateTodosDocument,
+    "\n\tmutation DeleteTodos($where: todos_bool_exp!) {\n\t\tdelete_todos(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteTodosDocument,
     "\n\tmutation CreateList($objects: [lists_insert_input!]!) {\n\t\tinsert_lists(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...ListFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateListDocument,
     "\n\tmutation UpdateList($where: lists_bool_exp!, $_set: lists_set_input!) {\n\t\tupdate_lists(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...ListFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateListDocument,
     "\n\tmutation DeleteList($where: lists_bool_exp!) {\n\t\tdelete_lists(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteListDocument,
@@ -103,6 +115,8 @@ const documents: Documents = {
     "\n\tmutation UpdateNote($where: notes_bool_exp!, $_set: notes_set_input!) {\n\t\tupdate_notes(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateNoteDocument,
     "\n\tmutation UpdateNotes($updates: [notes_updates!]!) {\n\t\tupdate_notes_many(updates: $updates) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...NoteFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateNotesDocument,
     "\n\tmutation DeleteNote($where: notes_bool_exp!) {\n\t\tdelete_notes(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteNoteDocument,
+    "\n\tmutation CreateUpload($objects: [uploads_insert_input!]!) {\n\t\tinsert_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\ttodo_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n": types.CreateUploadDocument,
+    "\n\tmutation DeleteUpload($where: uploads_bool_exp!) {\n\t\tdelete_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteUploadDocument,
     "\n\tmutation CreateNoteUpload($objects: [note_uploads_insert_input!]!) {\n\t\tinsert_note_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\tnote_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n": types.CreateNoteUploadDocument,
     "\n\tmutation DeleteNoteUpload($where: note_uploads_bool_exp!) {\n\t\tdelete_note_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteNoteUploadDocument,
     "\n\tquery GetUsers(\n\t\t$where: users_bool_exp = {}\n\t\t$order_by: [users_order_by!] = {}\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tusers(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...UserFields\n\t\t}\n\t}\n": types.GetUsersDocument,
@@ -133,11 +147,13 @@ const documents: Documents = {
     "\n\tquery GetLogs(\n\t\t$where: logs_bool_exp\n\t\t$order_by: [logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tlogs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\tid\n\t\t\ttimestamp\n\t\t\tlevel\n\t\t\tcomponent\n\t\t\tmessage\n\t\t\tdata\n\t\t\tuser_id\n\t\t\tsession_id\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tlogs_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": types.GetLogsDocument,
     "\n\tfragment NotificationFields on notifications {\n\t\tid\n\t\tuser_id\n\t\ttodo_id\n\t\ttype\n\t\ttriggered_by_user_id\n\t\trelated_comment_id\n\t\tcontent\n\t\tis_read\n\t\tcreated_at\n\t\tupdated_at\n\t\ttriggered_by_user {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\ttodo {\n\t\t\tid\n\t\t\ttitle\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\talias\n\t\t\t\t\tuser {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tusername\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.NotificationFieldsFragmentDoc,
     "\n\tquery GetNotifications(\n\t\t$where: notifications_bool_exp\n\t\t$order_by: [notifications_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tnotifications(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...NotificationFields\n\t\t}\n\t\tnotifications_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": types.GetNotificationsDocument,
+    "\n\tmutation CreateNotification($notification: notifications_insert_input!) {\n\t\tinsert_notifications_one(object: $notification) {\n\t\t\t...NotificationFields\n\t\t}\n\t}\n": types.CreateNotificationDocument,
     "\n\tmutation UpdateNotification($id: uuid!, $updates: notifications_set_input!) {\n\t\tupdate_notifications_by_pk(pk_columns: { id: $id }, _set: $updates) {\n\t\t\t...NotificationFields\n\t\t}\n\t}\n": types.UpdateNotificationDocument,
     "\n\tmutation MarkNotificationsAsRead($notification_ids: [uuid!]!) {\n\t\tupdate_notifications(where: { id: { _in: $notification_ids } }, _set: { is_read: true }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.MarkNotificationsAsReadDocument,
     "\n\tmutation DeleteNotification($id: uuid!) {\n\t\tdelete_notifications_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteNotificationDocument,
     "\n\tfragment ActivityLogFields on activity_logs {\n\t\tid\n\t\tuser_id\n\t\ttodo_id\n\t\taction_type\n\t\tfield_name\n\t\told_value\n\t\tnew_value\n\t\tchanges\n\t\tcreated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\ttodo {\n\t\t\tid\n\t\t\ttitle\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\talias\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.ActivityLogFieldsFragmentDoc,
     "\n\tquery GetActivityLogs(\n\t\t$where: activity_logs_bool_exp\n\t\t$order_by: [activity_logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tactivity_logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ActivityLogFields\n\t\t}\n\t\tactivity_logs_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": types.GetActivityLogsDocument,
+    "\n\tmutation CreateActivityLog($log: activity_logs_insert_input!) {\n\t\tinsert_activity_logs_one(object: $log) {\n\t\t\t...ActivityLogFields\n\t\t}\n\t}\n": types.CreateActivityLogDocument,
     "\n\tfragment TrackerSessionFields on tracker_sessions {\n\t\tid\n\t\twindow_title\n\t\tstart_time\n\t\tend_time\n\t\tduration_seconds\n\t\ttracker_app {\n\t\t\tid\n\t\t\tname\n\t\t}\n\t}\n": types.TrackerSessionFieldsFragmentDoc,
     "\n\tfragment TrackerKeywordFields on tracker_keywords {\n\t\tid\n\t\tboard_id\n\t\tkeyword\n\t\tcase_sensitive\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t\ttracker_category {\n\t\t\tid\n\t\t\tname\n\t\t\tparent_category {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t\tsub_categories {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": types.TrackerKeywordFieldsFragmentDoc,
     "\n\tquery GetTrackerSessions(\n\t\t$limit: Int = 15000\n\t\t$offset: Int = 0\n\t\t$order_by: [tracker_sessions_order_by!]\n\t\t$where: tracker_sessions_bool_exp\n\t) {\n\t\ttracker_sessions(\n\t\t\tlimit: $limit\n\t\t\toffset: $offset\n\t\t\torder_by: $order_by\n\t\t\twhere: $where\n\t\t) {\n\t\t\t...TrackerSessionFields\n\t\t}\n\t\ttracker_sessions_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t\tsum {\n\t\t\t\t\tduration_seconds\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.GetTrackerSessionsDocument,
@@ -184,6 +200,10 @@ export function graphql(source: "\n\tfragment UserFields on users {\n\t\tid\n\t\
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n\tquery GetTodos(\n\t\t$where: todos_bool_exp = {}\n\t\t$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\ttodos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...TodoFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetTodosDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n\tquery GetLists(\n\t\t$where: lists_bool_exp = {}\n\t\t$order_by: [lists_order_by!] = { sort_order: asc, name: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tlists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ListFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetListsDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -197,6 +217,18 @@ export function graphql(source: "\n\tquery GetNotes(\n\t\t$where: notes_bool_exp
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tquery GetNote($id: uuid!) {\n\t\tnotes_by_pk(id: $id) {\n\t\t\t...NoteFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetNoteDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation CreateTodo($objects: [todos_insert_input!]!) {\n\t\tinsert_todos(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...TodoFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').CreateTodoDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation UpdateTodos($where: todos_bool_exp!, $_set: todos_set_input!) {\n\t\tupdate_todos(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...TodoFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateTodosDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation DeleteTodos($where: todos_bool_exp!) {\n\t\tdelete_todos(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteTodosDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -237,6 +269,14 @@ export function graphql(source: "\n\tmutation UpdateNotes($updates: [notes_updat
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tmutation DeleteNote($where: notes_bool_exp!) {\n\t\tdelete_notes(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteNoteDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation CreateUpload($objects: [uploads_insert_input!]!) {\n\t\tinsert_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\ttodo_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').CreateUploadDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation DeleteUpload($where: uploads_bool_exp!) {\n\t\tdelete_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteUploadDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -360,6 +400,10 @@ export function graphql(source: "\n\tquery GetNotifications(\n\t\t$where: notifi
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n\tmutation CreateNotification($notification: notifications_insert_input!) {\n\t\tinsert_notifications_one(object: $notification) {\n\t\t\t...NotificationFields\n\t\t}\n\t}\n"): typeof import('./graphql').CreateNotificationDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n\tmutation UpdateNotification($id: uuid!, $updates: notifications_set_input!) {\n\t\tupdate_notifications_by_pk(pk_columns: { id: $id }, _set: $updates) {\n\t\t\t...NotificationFields\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateNotificationDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -377,6 +421,10 @@ export function graphql(source: "\n\tfragment ActivityLogFields on activity_logs
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tquery GetActivityLogs(\n\t\t$where: activity_logs_bool_exp\n\t\t$order_by: [activity_logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tactivity_logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ActivityLogFields\n\t\t}\n\t\tactivity_logs_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetActivityLogsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation CreateActivityLog($log: activity_logs_insert_input!) {\n\t\tinsert_activity_logs_one(object: $log) {\n\t\t\t...ActivityLogFields\n\t\t}\n\t}\n"): typeof import('./graphql').CreateActivityLogDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
