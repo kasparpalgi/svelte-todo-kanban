@@ -9,27 +9,45 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const session = await locals.auth();
 
 	if (session) {
-		const { getTopBoardPath } = await import('$lib/utils/getTopBoardPath');
-		const topBoardPath = await getTopBoardPath(session, fetch);
-		if (topBoardPath) {
-			throw redirect(302, topBoardPath);
-		} else {
-			// Fetch user's current locale from database to avoid using stale session data
-			let locale = DEFAULT_LOCALE;
-			if (session.user?.id) {
-				const userData = (await request(
-					GET_USERS,
-					{
-						where: { id: { _eq: session.user.id } },
-						limit: 1
-					},
-					undefined,
-					fetch
-				)) as any;
+		try {
+			const { getTopBoardPath } = await import('$lib/utils/getTopBoardPath');
+			const topBoardPath = await getTopBoardPath(session, fetch);
+			if (topBoardPath) {
+				throw redirect(302, topBoardPath);
+			} else {
+				// Fetch user's current locale from database to avoid using stale session data
+				let locale = DEFAULT_LOCALE;
+				if (session.user?.id) {
+					const userData = (await request(
+						GET_USERS,
+						{
+							where: { id: { _eq: session.user.id } },
+							limit: 1
+						},
+						undefined,
+						fetch
+					)) as any;
 
-				locale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
+					locale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
+				}
+				throw redirect(302, `/${locale}`);
 			}
-			throw redirect(302, `/${locale}`);
+		} catch (error: any) {
+			// Handle authentication errors (e.g., when session exists but cookies are cleared during logout)
+			const isAuthError =
+				error?.name === 'AuthenticationError' ||
+				error?.message === 'Authentication required' ||
+				error?.message?.toLowerCase().includes('auth') ||
+				error?.message?.toLowerCase().includes('token');
+
+			if (isAuthError) {
+				// Session is invalid, treat as logged out
+				console.debug('[signin] Authentication error during session check, treating as logged out');
+				return { session: null };
+			}
+
+			// Re-throw redirects and other errors
+			throw error;
 		}
 	}
 
