@@ -157,8 +157,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true; // Async response
 });
 
-// Also make data available immediately for popup
+// Listen for messages from the web page
 window.addEventListener('message', (event) => {
+  // Only accept messages from todzz.eu or localhost
+  const allowedOrigins = ['https://todzz.eu', 'https://www.todzz.eu', 'http://localhost:5173'];
+  if (!allowedOrigins.includes(event.origin)) {
+    return;
+  }
+
+  // Handle authentication success message
+  if (event.data.type === 'TODZZ_AUTH_SUCCESS') {
+    console.log('Content script received auth success, forwarding to background');
+    chrome.runtime.sendMessage({
+      type: 'TODZZ_AUTH_SUCCESS',
+      token: event.data.token
+    });
+  }
+
+  // Handle page data request
   if (event.data.type === 'REQUEST_PAGE_DATA') {
     const data = extractPageData();
     event.source.postMessage({

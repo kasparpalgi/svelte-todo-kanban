@@ -40,14 +40,6 @@ async function init() {
     // Check authentication
     let isAuth = await isAuthenticated();
 
-    // If not authenticated, try to fetch token from web app
-    if (!isAuth) {
-      const token = await fetchJwtToken();
-      if (token) {
-        isAuth = true;
-      }
-    }
-
     if (!isAuth) {
       showAuthRequired();
       return;
@@ -352,7 +344,7 @@ function handleCancel() {
  */
 async function handleSignIn() {
   await openAuthFlow();
-  showInfo('Authentication page opened. After signing in, close that tab and reopen this popup.');
+  showInfo('Authentication page opened. After signing in, this popup will automatically update.');
 }
 
 /**
@@ -424,6 +416,15 @@ aiSummarizeCheckbox.addEventListener('change', handleAiSummarizeChange);
 saveBtn.addEventListener('click', handleSave);
 cancelBtn.addEventListener('click', handleCancel);
 signInBtn.addEventListener('click', handleSignIn);
+
+// Listen for auth complete message from background script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === 'AUTH_COMPLETE') {
+    console.log('Auth complete, reinitializing popup');
+    // Reinitialize the popup now that we have auth
+    init();
+  }
+});
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', init);

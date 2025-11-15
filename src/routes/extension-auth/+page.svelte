@@ -35,20 +35,21 @@
 			status = 'success';
 			message = 'Authentication successful! You can now close this tab and return to the extension.';
 
-			// Store token in localStorage so extension can access it
+			// Store token in localStorage for reference
 			localStorage.setItem('todzz_extension_token', data.token);
 			localStorage.setItem('todzz_extension_token_time', Date.now().toString());
 
-			// Also send message to any listening extension
-			if (window.opener) {
-				window.opener.postMessage(
-					{
-						type: 'TODZZ_AUTH_SUCCESS',
-						token: data.token
-					},
-					'*'
-				);
-			}
+			// Send message to extension via content script
+			// The content script will be listening and will forward to the background script
+			window.postMessage(
+				{
+					type: 'TODZZ_AUTH_SUCCESS',
+					token: data.token
+				},
+				window.location.origin
+			);
+
+			console.log('Posted auth success message to content script');
 
 			// Auto-close after 3 seconds
 			setTimeout(() => {
