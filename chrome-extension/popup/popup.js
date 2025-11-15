@@ -477,28 +477,42 @@ async function getAiSummary(content) {
   const apiUrl = await getApiUrl();
   const model = aiModelSelect.value || 'gpt-5-mini';
 
+  console.log('AI Summary - API URL:', apiUrl);
+  console.log('AI Summary - Content length:', content.length);
+  console.log('AI Summary - Model:', model);
+
+  const requestBody = {
+    text: content,
+    type: 'summarize',
+    model: model
+  };
+  console.log('AI Summary - Request body:', requestBody);
+
   const response = await fetch(`${apiUrl}/api/ai`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      text: content,
-      type: 'summarize',
-      model: model
-    })
+    body: JSON.stringify(requestBody)
   });
 
+  console.log('AI Summary - Response status:', response.status);
+
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('AI Summary - Error response:', errorText);
     throw new Error('AI summarization failed');
   }
 
   const data = await response.json();
+  console.log('AI Summary - Response data:', data);
 
   if (!data.success) {
+    console.error('AI Summary - API returned success=false:', data);
     throw new Error(data.message || 'AI summarization failed');
   }
 
+  console.log('AI Summary - Returned summary:', data.corrected);
   return data.corrected || content;
 }
 
