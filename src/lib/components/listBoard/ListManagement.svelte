@@ -27,7 +27,9 @@
 		SquarePen,
 		GripVertical,
 		FolderKanban,
-		MoreHorizontal // TODO: No new?
+		MoreHorizontal,
+		ArrowUp,
+		ArrowDown
 	} from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -139,6 +141,40 @@
 			closeModal();
 		}
 	}
+
+	async function moveListUp(index: number) {
+		if (index === 0) return; // Already at top
+
+		const currentList = filteredLists[index];
+		const previousList = filteredLists[index - 1];
+
+		// Swap sort_order values
+		const currentSortOrder = currentList.sort_order || 0;
+		const previousSortOrder = previousList.sort_order || 0;
+
+		// Update both lists
+		await Promise.all([
+			listsStore.updateList(currentList.id, { sort_order: previousSortOrder }),
+			listsStore.updateList(previousList.id, { sort_order: currentSortOrder })
+		]);
+	}
+
+	async function moveListDown(index: number) {
+		if (index === filteredLists.length - 1) return; // Already at bottom
+
+		const currentList = filteredLists[index];
+		const nextList = filteredLists[index + 1];
+
+		// Swap sort_order values
+		const currentSortOrder = currentList.sort_order || 0;
+		const nextSortOrder = nextList.sort_order || 0;
+
+		// Update both lists
+		await Promise.all([
+			listsStore.updateList(currentList.id, { sort_order: nextSortOrder }),
+			listsStore.updateList(nextList.id, { sort_order: currentSortOrder })
+		]);
+	}
 </script>
 
 {#if actionState.edit === 'showListManagement'}
@@ -222,9 +258,32 @@
 							<p class="text-xs">{$t('todo.createListPrompt')}</p>
 						</div>
 					{:else}
-						{#each filteredLists as list (list.id)}
+						{#each filteredLists as list, index (list.id)}
 							<div class="flex items-center gap-2 rounded border p-2">
 								<GripVertical class="h-4 w-4 text-muted-foreground" />
+
+								<div class="flex flex-col">
+									<Button
+										variant="ghost"
+										size="sm"
+										class="h-5 w-5 p-0"
+										disabled={index === 0}
+										onclick={() => moveListUp(index)}
+										title="Move up"
+									>
+										<ArrowUp class="h-3 w-3" />
+									</Button>
+									<Button
+										variant="ghost"
+										size="sm"
+										class="h-5 w-5 p-0"
+										disabled={index === filteredLists.length - 1}
+										onclick={() => moveListDown(index)}
+										title="Move down"
+									>
+										<ArrowDown class="h-3 w-3" />
+									</Button>
+								</div>
 
 								{#if editingList?.id === list.id}
 									<Input
