@@ -12,7 +12,6 @@ import {
 	API_ENDPOINT_DEV,
 	HASURA_ADMIN_SECRET
 } from '$env/static/private';
-import { env } from '$env/dynamic/private';
 import { PUBLIC_APP_ENV, PUBLIC_API_ENV } from '$env/static/public';
 import { SvelteKitAuth } from '@auth/sveltekit';
 import { sequence } from '@sveltejs/kit/hooks';
@@ -25,6 +24,7 @@ import type { Handle } from '@sveltejs/kit';
 import { hashPassword, verifyPassword } from '$lib/server/password';
 import { GraphQLClient } from 'graphql-request';
 
+// Extend the Session and JWT types to include custom properties
 declare module '@auth/core/types' {
 	interface Session {
 		hasuraRole?: string;
@@ -42,13 +42,13 @@ declare module '@auth/core/types' {
 	}
 }
 
-const maxAge = PUBLIC_APP_ENV ? 90 * 24 * 60 * 60 : 3 * 24 * 60 * 60;
-const apiEndpoint = PUBLIC_API_ENV === 'production' ? env.API_ENDPOINT : env.API_ENDPOINT_DEV;
+const maxAge = PUBLIC_APP_ENV ? 90 * 24 * 60 * 60 : 3 * 24 * 60 * 60; // 90 days vs 3 days
+const apiEndpoint = PUBLIC_API_ENV === 'production' ? API_ENDPOINT : API_ENDPOINT_DEV;
 
 const providers: Provider[] = [
 	Google({
-		clientId: env.AUTH_GOOGLE_ID!,
-		clientSecret: env.AUTH_GOOGLE_SECRET!,
+		clientId: AUTH_GOOGLE_ID,
+		clientSecret: AUTH_GOOGLE_SECRET,
 		authorization: {
 			params: {
 				scope:
@@ -60,17 +60,18 @@ const providers: Provider[] = [
 	}),
 	Nodemailer({
 		server: {
-			host: env.EMAIL_SERVER_HOST!,
-			port: Number(env.EMAIL_SERVER_PORT!),
+			host: EMAIL_SERVER_HOST,
+			port: Number(EMAIL_SERVER_PORT),
 			auth: {
-				user: env.EMAIL_SERVER_USER!,
-				pass: env.EMAIL_SERVER_PASSWORD!
+				user: EMAIL_SERVER_USER,
+				pass: EMAIL_SERVER_PASSWORD
 			}
 		},
-		from: env.EMAIL_FROM!
+		from: EMAIL_FROM
 	})
 ];
 
+// Email/Password Credentials provider
 providers.push(
 	Credentials({
 		id: 'credentials',
@@ -235,11 +236,11 @@ if (PUBLIC_APP_ENV !== 'production') {
 
 export const { handle: authHandle, signOut } = SvelteKitAuth({
 	adapter: HasuraAdapter({
-		endpoint: apiEndpoint!,
-		adminSecret: env.HASURA_ADMIN_SECRET!
+		endpoint: apiEndpoint,
+		adminSecret: HASURA_ADMIN_SECRET
 	}),
 	providers,
-	secret: env.AUTH_SECRET!,
+	secret: AUTH_SECRET,
 	trustHost: true,
 	session: {
 		strategy: 'jwt',
@@ -249,6 +250,13 @@ export const { handle: authHandle, signOut } = SvelteKitAuth({
 		jwt: async ({ token, user, account }) => {
 			// Initial sign in
 			if (account && user) {
+				console.log('Initial sign in - Account:', {
+					provider: account.provider,
+					hasAccessToken: !!account.access_token,
+					hasRefreshToken: !!account.refresh_token,
+					expiresAt: account.expires_at
+				});
+
 				token.userId = user.id;
 				token.hasuraRole = 'user';
 				token.accessToken = account.access_token;
@@ -263,6 +271,7 @@ export const { handle: authHandle, signOut } = SvelteKitAuth({
 			}
 
 			// Token has expired, try to refresh it
+			console.log('Refreshing token');
 			try {
 				const response = await fetch('https://oauth2.googleapis.com/token', {
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -282,6 +291,7 @@ export const { handle: authHandle, signOut } = SvelteKitAuth({
 					throw newTokens;
 				}
 
+				console.log('Token refreshed successfully');
 				return {
 					...token,
 					accessToken: newTokens.access_token,
@@ -299,6 +309,8 @@ export const { handle: authHandle, signOut } = SvelteKitAuth({
 				session.hasuraRole = token.hasuraRole as string;
 				session.accessToken = token.accessToken as string;
 				session.error = token.error as string | undefined;
+
+				console.log('Session callback - has access token:', !!session.accessToken);
 			}
 			return session;
 		}
