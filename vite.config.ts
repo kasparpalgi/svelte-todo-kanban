@@ -1,3 +1,4 @@
+/** @file vite.config.ts */
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
@@ -59,7 +60,18 @@ export default defineConfig({
 			kit: {}
 		})
 	],
-
+	server: {
+		port: 80,
+		fs: {
+			allow: ['..']
+		}
+	},
+	ssr: {
+		noExternal: process.env.NODE_ENV === 'production' ? [] : undefined
+	},
+	optimizeDeps: {
+		exclude: ['puppeteer', 'puppeteer-extra', 'puppeteer-extra-plugin-stealth', '@sveltejs/kit'] // TODO: try to optimise '@sveltejs/kit' for better performance or it was breaking?
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [
@@ -92,13 +104,5 @@ export default defineConfig({
 				}
 			}
 		]
-	},
-	optimizeDeps: {
-		exclude: ['@sveltejs/kit']
-	},
-	server: {
-		fs: {
-			allow: ['..']
-		}
 	}
 });
