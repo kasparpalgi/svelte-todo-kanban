@@ -405,7 +405,7 @@
 			event.preventDefault();
 			return;
 		}
-		goto(`/${lang}/${username}/${boardAlias}?card=${todo.id}`);
+		goto(`/${lang}/${username}/${boardAlias}?card=${todo.alias}`);
 	}
 </script>
 
@@ -437,7 +437,7 @@
 		>
 			{#if !isEditing}
 				<a
-					href="/{lang}/{username}/{boardAlias}?card={todo.id}"
+					href="/{lang}/{username}/{boardAlias}?card={todo.alias}"
 					data-sveltekit-preload-data="hover"
 					data-sveltekit-noscroll
 					class="block"

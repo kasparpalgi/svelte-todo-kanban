@@ -4,6 +4,7 @@ import { graphql } from './generated';
 export const TODO_FRAGMENT = graphql(`
 	fragment TodoFields on todos {
 		id
+		alias
 		title
 		content
 		due_on
@@ -902,6 +903,7 @@ export const ACTIVITY_LOG_FRAGMENT = graphql(`
 		}
 		todo {
 			id
+			alias
 			title
 			list {
 				id

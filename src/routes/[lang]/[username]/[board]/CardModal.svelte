@@ -11,7 +11,7 @@
 	import CardDetailView from '$lib/components/todo/CardDetailView.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
-	let { cardId, lang, onClose }: { cardId: string; lang: string; onClose: () => void } = $props();
+	let { cardAlias, lang, onClose }: { cardAlias: string; lang: string; onClose: () => void } = $props();
 
 	let todo = $state<TodoFieldsFragment | null>(null);
 	let loading = $state(true);
@@ -23,7 +23,7 @@
 	});
 
 	$effect(() => {
-		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
+		const foundTodo = todosStore.todos.find((t) => t.alias === cardAlias);
 		if (foundTodo && todo) {
 			todo = foundTodo;
 		}
@@ -38,10 +38,10 @@
 			await new Promise((resolve) => setTimeout(resolve, 50));
 		}
 
-		const foundTodo = todosStore.todos.find((t) => t.id === cardId);
+		const foundTodo = todosStore.todos.find((t) => t.alias === cardAlias);
 		if (foundTodo) {
 			todo = foundTodo;
-			await commentsStore.loadComments(cardId);
+			await commentsStore.loadComments(foundTodo.id);
 		}
 		loading = false;
 	});
