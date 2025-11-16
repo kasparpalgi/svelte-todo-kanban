@@ -78,9 +78,9 @@
 				</h2>
 				<kbd
 					class="hidden rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground md:inline-flex md:items-center md:gap-1"
-					title="Press F to toggle filters"
+					title="{$t('filters.press')} F"
 				>
-					<span class="text-[10px] opacity-70">Press</span>
+					<span class="text-[10px] opacity-70">{$t('filters.press')}</span>
 					<span class="text-sm font-semibold">F</span>
 				</kbd>
 			</div>

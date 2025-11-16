@@ -69,7 +69,8 @@
         "due_date": "Due date",
         "created_date": "Created date",
         "recently_active": "Recently active",
-        "close": "Close"
+        "close": "Close",
+        "press": "Press"
     },
     "board": {
         "board": "Board",
