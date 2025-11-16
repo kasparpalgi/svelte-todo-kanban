@@ -434,7 +434,7 @@
 
 	{#if openCardId}
 		<CardModal
-			cardId={openCardId}
+			cardAlias={openCardId}
 			{lang}
 			onClose={() => goto(`/${lang}/${username}/${boardAlias}`)}
 		/>
