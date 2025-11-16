@@ -11,7 +11,31 @@ vi.mock('$lib/graphql/client', () => ({
 // Mock $app/environment
 vi.mock('$app/environment', () => ({
 	browser: true,
-	dev: false
+	dev: true, // Set to true to disable sampling in tests
+	building: false,
+	version: '1.0.0'
+}));
+
+// Mock logging config to ensure test-friendly settings
+vi.mock('$lib/config/logging', () => ({
+	LOGGING_CONFIG: {
+		retentionDays: 30,
+		batchSize: 10,
+		batchTimeout: 5000,
+		rateLimitWindow: 60000,
+		rateLimitMax: 50,
+		sampling: {
+			enabled: false, // Disable sampling in tests
+			defaultRate: 1.0,
+			componentRates: {}
+		},
+		performance: {
+			slowOperationThreshold: 1000,
+			maxSlowOperationsTracked: 50
+		},
+		persistLevels: ['error', 'warn'],
+		maxInMemoryLogs: 500
+	}
 }));
 
 // Mock browser globals
@@ -36,6 +60,12 @@ Object.defineProperty(globalThis, 'crypto', {
 		randomUUID: () => 'test-uuid-' + Math.random().toString(36).slice(2, 9)
 	},
 	writable: true
+});
+
+// Mock fetch for authentication check
+globalThis.fetch = vi.fn().mockResolvedValue({
+	ok: true,
+	json: async () => ({})
 });
 
 describe('LoggingStore', () => {

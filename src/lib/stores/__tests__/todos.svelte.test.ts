@@ -3,12 +3,21 @@ import { todosStore } from '../todos.svelte';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
+vi.mock('$env/static/public', () => ({
+	PUBLIC_API_ENDPOINT: 'http://localhost:8080/v1/graphql',
+	PUBLIC_API_ENDPOINT_DEV: 'http://localhost:8080/v1/graphql',
+	PUBLIC_API_ENV: 'development'
+}));
+
 vi.mock('$lib/graphql/client', () => ({
 	request: vi.fn()
 }));
 
 vi.mock('$app/environment', () => ({
-	browser: true
+	browser: true,
+	dev: true,
+	building: false,
+	version: '1.0.0'
 }));
 
 vi.mock('$lib/graphql/client');

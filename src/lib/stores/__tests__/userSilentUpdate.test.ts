@@ -12,7 +12,10 @@ vi.mock('$lib/graphql/client', () => ({
 }));
 
 vi.mock('$app/environment', () => ({
-	browser: true
+	browser: true,
+	dev: true,
+	building: false,
+	version: '1.0.0'
 }));
 
 vi.mock('../logging.svelte', () => ({
