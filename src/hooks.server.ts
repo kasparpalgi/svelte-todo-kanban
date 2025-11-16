@@ -12,6 +12,7 @@ import {
 	API_ENDPOINT_DEV,
 	HASURA_ADMIN_SECRET
 } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { PUBLIC_APP_ENV, PUBLIC_API_ENV } from '$env/static/public';
 import { SvelteKitAuth } from '@auth/sveltekit';
 import { sequence } from '@sveltejs/kit/hooks';
@@ -24,7 +25,6 @@ import type { Handle } from '@sveltejs/kit';
 import { hashPassword, verifyPassword } from '$lib/server/password';
 import { GraphQLClient } from 'graphql-request';
 
-// Extend the Session and JWT types to include custom properties
 declare module '@auth/core/types' {
 	interface Session {
 		hasuraRole?: string;
@@ -42,13 +42,13 @@ declare module '@auth/core/types' {
 	}
 }
 
-const maxAge = PUBLIC_APP_ENV ? 90 * 24 * 60 * 60 : 3 * 24 * 60 * 60; // 90 days vs 3 days
-const apiEndpoint = PUBLIC_API_ENV === 'production' ? API_ENDPOINT : API_ENDPOINT_DEV;
+const maxAge = PUBLIC_APP_ENV ? 90 * 24 * 60 * 60 : 3 * 24 * 60 * 60;
+const apiEndpoint = PUBLIC_API_ENV === 'production' ? env.API_ENDPOINT : env.API_ENDPOINT_DEV;
 
 const providers: Provider[] = [
 	Google({
-		clientId: AUTH_GOOGLE_ID,
-		clientSecret: AUTH_GOOGLE_SECRET,
+		clientId: env.AUTH_GOOGLE_ID!,
+		clientSecret: env.AUTH_GOOGLE_SECRET!,
 		authorization: {
 			params: {
 				scope:
@@ -60,18 +60,17 @@ const providers: Provider[] = [
 	}),
 	Nodemailer({
 		server: {
-			host: EMAIL_SERVER_HOST,
-			port: Number(EMAIL_SERVER_PORT),
+			host: env.EMAIL_SERVER_HOST!,
+			port: Number(env.EMAIL_SERVER_PORT!),
 			auth: {
-				user: EMAIL_SERVER_USER,
-				pass: EMAIL_SERVER_PASSWORD
+				user: env.EMAIL_SERVER_USER!,
+				pass: env.EMAIL_SERVER_PASSWORD!
 			}
 		},
-		from: EMAIL_FROM
+		from: env.EMAIL_FROM!
 	})
 ];
 
-// Email/Password Credentials provider
 providers.push(
 	Credentials({
 		id: 'credentials',
