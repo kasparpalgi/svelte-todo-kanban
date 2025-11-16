@@ -20,8 +20,16 @@
 		X,
 		Funnel
 	} from 'lucide-svelte';
+	import { browser } from '$app/environment';
 
 	let searchTerm = $state('');
+
+	// Detect OS for keyboard shortcut display
+	const isMac = $derived(
+		browser && (navigator.platform.toUpperCase().indexOf('MAC') >= 0 ||
+		navigator.userAgent.toUpperCase().indexOf('MAC') >= 0)
+	);
+	const shortcutKey = $derived(isMac ? '⌘' : 'Ctrl');
 
 	function handleSearchInput() {
 		if (todoFilteringStore.setSearchFilter) {
@@ -72,10 +80,17 @@
 >
 	<div class="space-y-4 p-4">
 		<div class="flex items-center justify-between">
-			<h2 class="flex items-center gap-2 text-lg font-semibold">
-				<Funnel class="h-5 w-5" />
-				{$t('filters.title')}
-			</h2>
+			<div class="flex items-center gap-2">
+				<h2 class="flex items-center gap-2 text-lg font-semibold">
+					<Funnel class="h-5 w-5" />
+					{$t('filters.title')}
+				</h2>
+				<kbd
+					class="hidden rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground md:inline-block"
+				>
+					{shortcutKey} F
+				</kbd>
+			</div>
 			<Button
 				variant="ghost"
 				size="sm"
