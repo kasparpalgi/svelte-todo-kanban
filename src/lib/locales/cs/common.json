@@ -69,7 +69,8 @@
         "due_date": "Termín dokončení",
         "created_date": "Datum vytvoření",
         "recently_active": "Nedávno aktivní",
-        "close": "Zavřít"
+        "close": "Zavřít",
+        "press": "Stiskněte"
     },
     "board": {
         "board": "Deska",

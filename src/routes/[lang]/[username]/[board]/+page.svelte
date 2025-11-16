@@ -190,7 +190,26 @@
 	function handleImportComplete() {
 		todosStore.loadTodos();
 	}
+
+	function handleGlobalKeydown(event: KeyboardEvent) {
+		// Only handle if not typing in an input field
+		const target = event.target as HTMLElement;
+		const isInputField =
+			target.tagName === 'INPUT' ||
+			target.tagName === 'TEXTAREA' ||
+			target.isContentEditable;
+
+		if (isInputField) return;
+
+		// Toggle filters sidebar with 'F' key
+		if (event.key === 'f' || event.key === 'F') {
+			event.preventDefault();
+			actionState.showFilters = !actionState.showFilters;
+		}
+	}
 </script>
+
+<svelte:window onkeydown={handleGlobalKeydown} />
 
 <svelte:head>
 	<title

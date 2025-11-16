@@ -20,7 +20,6 @@
 		X,
 		Funnel
 	} from 'lucide-svelte';
-
 	let searchTerm = $state('');
 
 	function handleSearchInput() {
@@ -72,10 +71,19 @@
 >
 	<div class="space-y-4 p-4">
 		<div class="flex items-center justify-between">
-			<h2 class="flex items-center gap-2 text-lg font-semibold">
-				<Funnel class="h-5 w-5" />
-				{$t('filters.title')}
-			</h2>
+			<div class="flex items-center gap-2">
+				<h2 class="flex items-center gap-2 text-lg font-semibold">
+					<Funnel class="h-5 w-5" />
+					{$t('filters.title')}
+				</h2>
+				<kbd
+					class="hidden rounded border border-border bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground md:inline-flex md:items-center md:gap-1"
+					title="{$t('filters.press')} F"
+				>
+					<span class="text-[10px] opacity-70">{$t('filters.press')}</span>
+					<span class="text-sm font-semibold">F</span>
+				</kbd>
+			</div>
 			<Button
 				variant="ghost"
 				size="sm"

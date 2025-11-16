@@ -69,7 +69,8 @@
         "due_date": "Tähtaeg",
         "created_date": "Loomise kuupäev",
         "recently_active": "Hiljuti aktiivne",
-        "close": "Sulge"
+        "close": "Sulge",
+        "press": "Vajuta"
     },
     "board": {
         "board": "Projekt",
