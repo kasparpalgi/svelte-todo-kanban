@@ -87,6 +87,8 @@ export type KanbanColumnProps = {
 	onDragStart: (todo: TodoFieldsFragment) => void;
 	onDragEnd: () => void;
 	onDelete: (todoId: string) => void;
+	canMoveUp?: boolean;
+	canMoveDown?: boolean;
 };
 
 // Store results

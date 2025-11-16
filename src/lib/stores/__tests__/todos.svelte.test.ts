@@ -24,6 +24,7 @@ vi.mock('$lib/graphql/client');
 
 const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFieldsFragment => ({
 	id: 'test-id',
+	alias: 'test-todo',
 	title: 'Test Todo',
 	content: 'Test content',
 	completed_at: null,

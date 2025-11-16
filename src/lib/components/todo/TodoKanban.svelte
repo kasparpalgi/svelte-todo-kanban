@@ -433,7 +433,7 @@
 
 	<div class="w-full overflow-x-auto" bind:this={scrollContainer}>
 		<div class="flex min-w-max gap-6 p-6 pt-0">
-			{#each kanbanLists() as { list, todos } (list.id)}
+			{#each kanbanLists() as { list, todos }, idx (list.id)}
 				{@const stats = todos.reduce(
 					(acc, todo) => {
 						const min = todo.min_hours || 0;
@@ -450,6 +450,13 @@
 					},
 					{ min: 0, max: 0, avg: 0, count: 0 }
 				)}
+				{@const allLists = kanbanLists()}
+				{@const isInbox = list.id === 'inbox'}
+				{@const hasInbox = allLists[0]?.list.id === 'inbox'}
+				{@const firstNonInboxIdx = hasInbox ? 1 : 0}
+				{@const lastListIdx = allLists.length - 1}
+				{@const canMoveUp = !isInbox && idx > firstNonInboxIdx}
+				{@const canMoveDown = !isInbox && idx < lastListIdx}
 				<div class="w-80 flex-shrink-0">
 					<KanbanColumn
 						list={{
@@ -466,6 +473,8 @@
 						onDragStart={handleDragStart}
 						onDragEnd={handleDragEnd}
 						onDelete={handleDelete}
+						{canMoveUp}
+						{canMoveDown}
 					/>
 					{#if stats.count > 0}
 						<div class="-mt-2 text-center text-xs text-gray-400">

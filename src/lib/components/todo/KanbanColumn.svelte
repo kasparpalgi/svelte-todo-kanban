@@ -13,7 +13,7 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Trash2, Plus, Ellipsis, SquarePen } from 'lucide-svelte';
+	import { Trash2, Plus, Ellipsis, SquarePen, ChevronUp, ChevronDown } from 'lucide-svelte';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
@@ -32,7 +32,9 @@
 		dropTarget,
 		onDragStart,
 		onDragEnd,
-		onDelete
+		onDelete,
+		canMoveUp = false,
+		canMoveDown = false
 	}: KanbanColumnProps = $props();
 
 	let isEditing = $state(false);
@@ -126,6 +128,22 @@
 			cancelEdit();
 		}
 	}
+
+	async function handleMoveListUp() {
+		if (list.id === 'inbox') return;
+		const result = await listsStore.moveListUp(list.id);
+		if (!result.success) {
+			displayMessage(result.message);
+		}
+	}
+
+	async function handleMoveListDown() {
+		if (list.id === 'inbox') return;
+		const result = await listsStore.moveListDown(list.id);
+		if (!result.success) {
+			displayMessage(result.message);
+		}
+	}
 </script>
 
 <div class="h-full">
@@ -146,6 +164,30 @@
 				</div>
 
 				<div class="flex items-center gap-1">
+					{#if list.id !== 'inbox'}
+						{#if canMoveUp}
+							<Button
+								variant="ghost"
+								size="sm"
+								class="h-6 w-6 p-0 opacity-60 transition-opacity hover:opacity-100"
+								onclick={handleMoveListUp}
+								title="Move list up"
+							>
+								<ChevronUp class="h-3 w-3" />
+							</Button>
+						{/if}
+						{#if canMoveDown}
+							<Button
+								variant="ghost"
+								size="sm"
+								class="h-6 w-6 p-0 opacity-60 transition-opacity hover:opacity-100"
+								onclick={handleMoveListDown}
+								title="Move list down"
+							>
+								<ChevronDown class="h-3 w-3" />
+							</Button>
+						{/if}
+					{/if}
 					{#if todos.length > 0 && list.id !== 'inbox'}
 						<Button
 							variant="ghost"

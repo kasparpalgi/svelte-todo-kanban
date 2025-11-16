@@ -224,6 +224,58 @@ function createListsStore() {
 		}
 	}
 
+	async function moveListUp(id: string): Promise<ListBoardStoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		const currentIndex = sortedLists.findIndex((l) => l.id === id);
+		if (currentIndex <= 0) {
+			return { success: false, message: 'List is already at the top' };
+		}
+
+		const currentList = sortedLists[currentIndex];
+		const previousList = sortedLists[currentIndex - 1];
+
+		const currentSortOrder = currentList.sort_order || 0;
+		const previousSortOrder = previousList.sort_order || 0;
+
+		try {
+			await updateList(currentList.id, { sort_order: previousSortOrder });
+			await updateList(previousList.id, { sort_order: currentSortOrder });
+
+			return { success: true, message: 'List moved up successfully' };
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Error moving list up';
+			console.error('Move list up error:', err);
+			return { success: false, message };
+		}
+	}
+
+	async function moveListDown(id: string): Promise<ListBoardStoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		const currentIndex = sortedLists.findIndex((l) => l.id === id);
+		if (currentIndex < 0 || currentIndex >= sortedLists.length - 1) {
+			return { success: false, message: 'List is already at the bottom' };
+		}
+
+		const currentList = sortedLists[currentIndex];
+		const nextList = sortedLists[currentIndex + 1];
+
+		const currentSortOrder = currentList.sort_order || 0;
+		const nextSortOrder = nextList.sort_order || 0;
+
+		try {
+			await updateList(currentList.id, { sort_order: nextSortOrder });
+			await updateList(nextList.id, { sort_order: currentSortOrder });
+
+			return { success: true, message: 'List moved down successfully' };
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Error moving list down';
+			console.error('Move list down error:', err);
+			return { success: false, message };
+		}
+	}
+
 	async function createBoard(name: string): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!name.trim()) return { success: false, message: 'Name is required' };
@@ -412,6 +464,8 @@ function createListsStore() {
 		createList,
 		updateList,
 		deleteList,
+		moveListUp,
+		moveListDown,
 		createBoard,
 		updateBoard,
 		updateBoardVisibility,
