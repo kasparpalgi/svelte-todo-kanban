@@ -141,20 +141,20 @@
 		}
 
 		// Navigate to the card modal
-		if (log.todo_id) {
+		if (log.todo?.alias) {
 			// Close the activity modal first
 			onClose?.();
 
 			const currentUrl = $page.url;
 			const newUrl = new URL(currentUrl);
-			newUrl.searchParams.set('card', log.todo_id);
+			newUrl.searchParams.set('card', log.todo.alias);
 			goto(newUrl.toString());
 		}
 	}
 
 	function isClickable(log: any): boolean {
 		// Only make clickable if the todo still exists (not deleted)
-		return log.action_type !== 'deleted' && log.todo_id;
+		return log.action_type !== 'deleted' && log.todo?.alias;
 	}
 </script>
 

@@ -182,9 +182,9 @@
 		const board = notification.todo.list.board;
 		const boardAlias = board.alias;
 		const username = board.user?.username;
-		const cardId = notification.todo_id;
+		const cardAlias = notification.todo.alias;
 
-		if (!boardAlias || !username || !cardId) {
+		if (!boardAlias || !username || !cardAlias) {
 			return;
 		}
 
@@ -192,7 +192,7 @@
 		const lang = getEffectiveLocale($page.params.lang, userStore.user?.locale);
 
 		// Navigate to the card
-		const url = `/${lang}/${username}/${boardAlias}?card=${cardId}`;
+		const url = `/${lang}/${username}/${boardAlias}?card=${cardAlias}`;
 
 		// Mark as read when clicking
 		if (!notification.is_read) {
