@@ -235,11 +235,11 @@ if (PUBLIC_APP_ENV !== 'production') {
 
 export const { handle: authHandle, signOut } = SvelteKitAuth({
 	adapter: HasuraAdapter({
-		endpoint: apiEndpoint,
-		adminSecret: HASURA_ADMIN_SECRET
+		endpoint: apiEndpoint!,
+		adminSecret: env.HASURA_ADMIN_SECRET!
 	}),
 	providers,
-	secret: AUTH_SECRET,
+	secret: env.AUTH_SECRET!,
 	trustHost: true,
 	session: {
 		strategy: 'jwt',
