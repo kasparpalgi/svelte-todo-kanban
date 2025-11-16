@@ -31,7 +31,6 @@ RUN npm ci
 # Now copy the rest of the application
 COPY . .
 
-# Create a dummy .env with placeholder values for build
 RUN echo "AUTH_SECRET=dummy" > .env && \
     echo "AUTH_TRUST_HOST=true" >> .env && \
     echo "SECRET_ENCRYPTION_KEY=dummy" >> .env && \
@@ -53,10 +52,10 @@ RUN echo "AUTH_SECRET=dummy" > .env && \
     echo "ALLOWED_FILE_TYPES=image/jpeg" >> .env && \
     echo "GITHUB_CLIENT_ID=dummy" >> .env && \
     echo "GITHUB_CLIENT_SECRET=dummy" >> .env && \
-    echo "PUBLIC_APP_URL=http://localhost" >> .env && \
+    echo "PUBLIC_APP_URL=https://www.todzz.eu" >> .env && \
     echo "PUBLIC_APP_ENV=production" >> .env && \
     echo "PUBLIC_API_ENV=production" >> .env && \
-    echo "PUBLIC_API_ENDPOINT=http://localhost:3001/v1/graphql" >> .env && \
+    echo "PUBLIC_API_ENDPOINT=https://todzz.admin.servicehost.io/v1/graphql" >> .env && \
     echo "PUBLIC_API_ENDPOINT_DEV=http://localhost:3001/v1/graphql" >> .env && \
     echo "PUBLIC_FULL_CARD_DRAGGABLE=false" >> .env
 
