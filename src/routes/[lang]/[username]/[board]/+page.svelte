@@ -199,18 +199,12 @@
 			target.tagName === 'TEXTAREA' ||
 			target.isContentEditable;
 
-		// Toggle filters sidebar with 'F' key (plain) or Cmd+F / Ctrl+F
-		if ((event.key === 'f' || event.key === 'F')) {
-			// Allow plain F when not in input field
-			if (!isInputField && !event.ctrlKey && !event.metaKey) {
-				event.preventDefault();
-				actionState.showFilters = !actionState.showFilters;
-			}
-			// Allow Cmd+F (Mac) or Ctrl+F (Windows/Linux) anywhere
-			else if (event.metaKey || event.ctrlKey) {
-				event.preventDefault();
-				actionState.showFilters = !actionState.showFilters;
-			}
+		if (isInputField) return;
+
+		// Toggle filters sidebar with 'F' key
+		if (event.key === 'f' || event.key === 'F') {
+			event.preventDefault();
+			actionState.showFilters = !actionState.showFilters;
 		}
 	}
 </script>
