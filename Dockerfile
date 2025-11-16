@@ -1,12 +1,8 @@
-# Use Node.js base image that works on both AMD64 and ARM64
 FROM node:20-slim
 
 ENV LANG=en_US.UTF-8
-
-# Skip Puppeteer's chromium download -> install it manually
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-# Install Chrome/Chromium & dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     chromium \
@@ -21,14 +17,16 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+
+# Use npm install instead of npm ci (less strict)
+RUN npm install --production=false
+
 COPY . .
 RUN npm run build
 
-# Remove dev dependencies (reduce image size)
+# Remove dev dependencies
 RUN npm prune --omit=dev
 
-# Set env vars
 ENV NODE_ENV=production
 ENV PORT=80
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
