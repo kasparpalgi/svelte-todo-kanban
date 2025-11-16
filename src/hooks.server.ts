@@ -24,6 +24,27 @@ import type { Handle } from '@sveltejs/kit';
 import { hashPassword, verifyPassword } from '$lib/server/password';
 import { GraphQLClient } from 'graphql-request';
 
+// Suppress noisy i18n warnings during SSR
+// The sveltekit-i18n library logs these when translations are accessed before locale is set
+// This is expected behavior during server-side rendering and doesn't affect functionality
+const originalWarn = console.warn;
+console.warn = (...args: unknown[]) => {
+	const message = args[0]?.toString() || '';
+
+	// Suppress i18n "No locale provided" warnings
+	if (message.includes('[i18n]') && message.includes('No locale provided')) {
+		return;
+	}
+
+	// Suppress i18n "locale not found" warnings
+	if (message.includes('[i18n]') && message.includes('locale not found')) {
+		return;
+	}
+
+	// Allow all other warnings through
+	originalWarn(...args);
+};
+
 // Extend the Session and JWT types to include custom properties
 declare module '@auth/core/types' {
 	interface Session {
