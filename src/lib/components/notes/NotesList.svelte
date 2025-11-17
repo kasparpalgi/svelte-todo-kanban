@@ -7,31 +7,34 @@
 	import { notesStore } from '$lib/stores/notes.svelte';
 	import NoteItem from './NoteItem.svelte';
 
-	type Note = {
+	interface Note {
 		id: string;
 		title: string;
 		content: string | null;
 		cover_image_url: string | null;
 		updated_at: string;
 		parent_id?: string | null;
+		sort_order: number;
 		subnotes?: Note[];
-	};
+	}
 
-	let {
-		notes,
-		selectedNoteId,
-		onNoteSelect,
-		onCreateNote,
-		onCreateSubnote
-	}: {
+	interface Props {
 		notes: Note[];
 		selectedNoteId: string | null;
 		onNoteSelect: (id: string) => void;
 		onCreateNote: () => void;
 		onCreateSubnote: (parentId: string) => void;
-	} = $props();
+	}
+
+	let { notes, selectedNoteId, onNoteSelect, onCreateNote, onCreateSubnote }: Props = $props();
 
 	let searchQuery: string = $state('');
+	let draggedNote = $state<Note | null>(null);
+	let dropTarget = $state<{
+		noteId: string;
+		position: 'above' | 'below' | 'inside';
+		parentId: string | null;
+	} | null>(null);
 
 	// Filter to show only top-level notes (no parent_id)
 	const topLevelNotes = $derived(notes.filter((note) => !note.parent_id));
@@ -56,7 +59,176 @@
 
 		return parentNote.subnotes;
 	}
+
+	function handleDragStart(note: Note) {
+		draggedNote = note;
+		dropTarget = null;
+	}
+
+	async function handleDragEnd() {
+		if (!draggedNote || !dropTarget) {
+			draggedNote = null;
+			dropTarget = null;
+			return;
+		}
+
+		const { noteId: targetNoteId, position, parentId } = dropTarget;
+
+		// Don't do anything if dropping on itself
+		if (targetNoteId === draggedNote.id) {
+			draggedNote = null;
+			dropTarget = null;
+			return;
+		}
+
+		// Determine new parent and siblings for sort order calculation
+		let newParentId: string | null = null;
+		let siblings: Note[] = [];
+
+		if (position === 'inside') {
+			// Dropping inside a note makes it a subnote
+			newParentId = targetNoteId;
+			const targetNote = findNote(notes, targetNoteId);
+			siblings = targetNote?.subnotes || [];
+		} else {
+			// Dropping above/below means same parent as target
+			newParentId = parentId;
+			if (parentId) {
+				const parentNote = findNote(notes, parentId);
+				siblings = parentNote?.subnotes || [];
+			} else {
+				siblings = topLevelNotes;
+			}
+		}
+
+		// Calculate new sort order
+		const targetNote = findNote(notes, targetNoteId);
+		if (!targetNote) {
+			draggedNote = null;
+			dropTarget = null;
+			return;
+		}
+
+		let newSortOrder = 0;
+
+		if (position === 'inside') {
+			// Add to end of subnotes
+			newSortOrder = siblings.length > 0 ? Math.max(...siblings.map((n) => n.sort_order)) + 1 : 0;
+		} else {
+			const targetIndex = siblings.findIndex((n) => n.id === targetNoteId);
+			if (targetIndex === -1) {
+				draggedNote = null;
+				dropTarget = null;
+				return;
+			}
+
+			// Remove dragged note from siblings if it's there
+			const filteredSiblings = siblings.filter((n) => n.id !== draggedNote!.id);
+			const adjustedIndex =
+				position === 'above' ? targetIndex : Math.min(targetIndex + 1, filteredSiblings.length);
+
+			// Recalculate sort orders
+			const reorderedIds = [
+				...filteredSiblings.slice(0, adjustedIndex).map((n) => n.id),
+				draggedNote.id,
+				...filteredSiblings.slice(adjustedIndex).map((n) => n.id)
+			];
+
+			// Update all siblings with new sort order
+			const updates = reorderedIds.map((id, index) => ({ id, sort_order: index }));
+
+			// If parent changed, update parent first
+			if (draggedNote.parent_id !== newParentId) {
+				await notesStore.updateNoteParent(draggedNote.id, newParentId, adjustedIndex);
+			} else {
+				// Just reorder within same parent
+				await notesStore.reorderNotes(reorderedIds);
+			}
+
+			draggedNote = null;
+			dropTarget = null;
+			return;
+		}
+
+		// Update parent if it changed
+		if (draggedNote.parent_id !== newParentId) {
+			await notesStore.updateNoteParent(draggedNote.id, newParentId, newSortOrder);
+		}
+
+		draggedNote = null;
+		dropTarget = null;
+	}
+
+	function updateDropTarget(clientX: number, clientY: number) {
+		if (!draggedNote) return;
+
+		const elements = document.elementsFromPoint(clientX, clientY);
+		let foundTarget = false;
+
+		for (const el of elements) {
+			const noteEl = el.closest('[data-note-id]');
+			if (!noteEl) continue;
+
+			const noteId = noteEl.getAttribute('data-note-id');
+			if (!noteId || noteId === draggedNote.id) continue;
+
+			const parentId = noteEl.getAttribute('data-parent-id') || null;
+			const rect = noteEl.getBoundingClientRect();
+			const mouseY = clientY;
+
+			// Determine drop zone: top 25% = above, bottom 25% = below, middle 50% = inside
+			const relativeY = mouseY - rect.top;
+			const percentY = relativeY / rect.height;
+
+			let position: 'above' | 'below' | 'inside';
+			if (percentY < 0.25) {
+				position = 'above';
+			} else if (percentY > 0.75) {
+				position = 'below';
+			} else {
+				position = 'inside';
+			}
+
+			dropTarget = { noteId, position, parentId };
+			foundTarget = true;
+			break;
+		}
+
+		if (!foundTarget) {
+			dropTarget = null;
+		}
+	}
+
+	function handleGlobalMouseMove(e: MouseEvent) {
+		if (draggedNote) {
+			updateDropTarget(e.clientX, e.clientY);
+		}
+	}
+
+	function handleGlobalTouchMove(e: TouchEvent) {
+		if (!draggedNote || e.touches.length === 0) return;
+		const touch = e.touches[0];
+		updateDropTarget(touch.clientX, touch.clientY);
+	}
+
+	function findNote(notesList: Note[], id: string): Note | null {
+		for (const note of notesList) {
+			if (note.id === id) return note;
+			if (note.subnotes) {
+				const found = findNote(note.subnotes, id);
+				if (found) return found;
+			}
+		}
+		return null;
+	}
+
+	function getDropIndicator(note: Note, parentId: string | null = null): 'above' | 'below' | 'inside' | null {
+		if (!dropTarget || dropTarget.noteId !== note.id) return null;
+		return dropTarget.position;
+	}
 </script>
+
+<svelte:window onmousemove={handleGlobalMouseMove} ontouchmove={handleGlobalTouchMove} />
 
 <div class="flex h-full flex-col border-r bg-background">
 	<!-- Header -->
@@ -100,8 +272,13 @@
 						<NoteItem
 							{note}
 							isSelected={selectedNoteId === note.id}
+							isDragging={draggedNote?.id === note.id}
+							dropIndicator={getDropIndicator(note, null)}
 							onclick={() => onNoteSelect(note.id)}
 							onAddSubnote={onCreateSubnote}
+							onDragStart={handleDragStart}
+							onDragEnd={handleDragEnd}
+							parentId={null}
 						/>
 
 						<!-- Subnotes (indented) -->
@@ -110,8 +287,13 @@
 								<NoteItem
 									note={subnote}
 									isSelected={selectedNoteId === subnote.id}
+									isDragging={draggedNote?.id === subnote.id}
+									dropIndicator={getDropIndicator(subnote, note.id)}
 									onclick={() => onNoteSelect(subnote.id)}
 									onAddSubnote={onCreateSubnote}
+									onDragStart={handleDragStart}
+									onDragEnd={handleDragEnd}
+									parentId={note.id}
 								/>
 							</div>
 						{/each}
