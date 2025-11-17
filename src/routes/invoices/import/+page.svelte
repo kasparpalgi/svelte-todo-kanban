@@ -14,6 +14,7 @@
 	let processedInvoices = $state<any[]>([]);
 	let currentStep = $state<'select-folder' | 'select-files' | 'processing' | 'complete'>('select-folder');
 	let selectedFiles = $state<Set<string>>(new Set());
+	let bankStatementFileId = $state<string | null>(null);
 	let processingProgress = $state({ current: 0, total: 0 });
 	let spreadsheetUrl = $state<string | null>(null);
 	let breadcrumbs = $state<Array<{ id: string; name: string }>>([{ id: 'root', name: 'My Drive' }]);
@@ -83,6 +84,41 @@
 		processedInvoices = [];
 		processingProgress = { current: 0, total: selectedFiles.size };
 
+		// Step 1: Extract payments from bank statement if provided
+		let payments: any[] = [];
+		if (bankStatementFileId) {
+			try {
+				console.log('Extracting payments from bank statement...');
+				const downloadResponse = await fetch('/api/google-drive/download', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ fileId: bankStatementFileId })
+				});
+
+				if (downloadResponse.ok) {
+					const downloadData = await downloadResponse.json();
+					const extractResponse = await fetch('/api/bank-statement/extract', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							pdfBase64: downloadData.file.content,
+							fileName: 'bank-statement.pdf'
+						})
+					});
+
+					if (extractResponse.ok) {
+						const extractData = await extractResponse.json();
+						payments = extractData.payments || [];
+						console.log(`Extracted ${payments.length} payments from bank statement`);
+					}
+				}
+			} catch (error: any) {
+				console.error('Error processing bank statement:', error);
+				displayMessage('Warning: Could not extract payment dates from bank statement', 3000);
+			}
+		}
+
+		// Step 2: Process invoices
 		const selectedFilesList = files.filter((f) => selectedFiles.has(f.id));
 
 		for (const file of selectedFilesList) {
@@ -118,10 +154,26 @@
 				}
 
 				const extractData = await extractResponse.json();
+				const invoiceData = extractData.data;
+
+				// Step 3: Match payment date from bank statement
+				if (payments.length > 0 && invoiceData.vendor_name && invoiceData.total_amount) {
+					const matchedPayment = payments.find(p => {
+						const vendorMatch = p.vendor.toLowerCase().includes(invoiceData.vendor_name.toLowerCase()) ||
+							invoiceData.vendor_name.toLowerCase().includes(p.vendor.toLowerCase());
+						const amountMatch = Math.abs(p.amount - invoiceData.total_amount) < 0.01;
+						return vendorMatch && amountMatch;
+					});
+
+					if (matchedPayment) {
+						invoiceData.payment_date = matchedPayment.date;
+						console.log(`Matched payment for ${invoiceData.vendor_name}: ${matchedPayment.date}`);
+					}
+				}
 
 				processedInvoices.push({
 					fileName: file.name,
-					...extractData.data
+					...invoiceData
 				});
 
 				processingProgress.current++;
@@ -184,6 +236,7 @@
 		currentStep = 'select-folder';
 		selectedFiles.clear();
 		selectedFiles = selectedFiles;
+		bankStatementFileId = null;
 		processedInvoices = [];
 		spreadsheetUrl = null;
 		breadcrumbs = [{ id: 'root', name: 'My Drive' }];
@@ -299,6 +352,35 @@
 									</button>
 								{/each}
 							</div>
+						</div>
+
+						<!-- Bank Statement Selection -->
+						<div class="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+							<h3 class="mb-2 text-sm font-semibold">Bank Statement (Optional)</h3>
+							<p class="mb-3 text-xs text-muted-foreground">
+								Select a bank statement PDF (v.pnf) to automatically extract payment dates
+							</p>
+							<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+								{#each files as file}
+									<button
+										onclick={() => bankStatementFileId = bankStatementFileId === file.id ? null : file.id}
+										class="flex items-center gap-3 rounded-lg border p-3 text-left hover:bg-muted"
+										class:bg-green-50={bankStatementFileId === file.id}
+										class:border-green-500={bankStatementFileId === file.id}
+									>
+										<FileIcon class="h-5 w-5 text-green-500" />
+										<span class="flex-1 truncate text-sm">{file.name}</span>
+										{#if bankStatementFileId === file.id}
+											<CheckCircle2 class="h-5 w-5 text-green-500" />
+										{/if}
+									</button>
+								{/each}
+							</div>
+							{#if bankStatementFileId}
+								<p class="mt-2 text-xs text-green-700">
+									✓ Bank statement selected - payment dates will be extracted and matched to invoices
+								</p>
+							{/if}
 						</div>
 
 						<div class="mt-6 flex justify-end">
