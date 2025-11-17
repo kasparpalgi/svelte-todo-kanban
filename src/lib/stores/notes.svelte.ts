@@ -667,10 +667,20 @@ function createNotesStore() {
 
 			const serverNote = data.update_notes?.returning?.[0];
 			if (serverNote) {
-				// Reload to get fresh subnotes relationships
-				if (state.currentBoardId) {
-					await loadNotes(state.currentBoardId);
-				}
+				// Update the moved note with server data
+				const updateNoteInState = (notes: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+					return notes.map(n => {
+						if (n.id === noteId) {
+							return { ...n, ...serverNote };
+						}
+						if (n.subnotes) {
+							return { ...n, subnotes: updateNoteInState(n.subnotes) };
+						}
+						return n;
+					});
+				};
+
+				state.notes = updateNoteInState(state.notes);
 
 				return {
 					success: true,
