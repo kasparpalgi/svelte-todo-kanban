@@ -63,25 +63,42 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		// Use OpenAI to extract structured data
 		const prompt = `You are an expert at extracting structured data from invoices and payment slips, especially Estonian invoices.
 
+CRITICAL: "Makse saaja" (Payment recipient) is the SELLER/VENDOR who ISSUED the invoice and will RECEIVE the payment.
+This is NOT the buyer/customer who receives the invoice. Look for the company/person who is selling and will be paid.
+
 Extract the following information from the invoice/payment slip text below. Return ONLY a valid JSON object with these exact fields (use null if information is not found):
 
 {
-  "vendor_name": "string | null",  // Makse saaja / Vendor / Recipient
-  "invoice_number": "string | null",  // Arve number / Invoice number
-  "invoice_date": "YYYY-MM-DD | null",  // Arve kuupäev / Invoice date
-  "total_amount": number | null,  // Arve summa / Total amount (as a number, e.g., 123.45)
-  "amount_without_vat": number | null,  // Summa ilma km-ta / Amount without VAT (optional)
+  "vendor_name": "string | null",  // Makse saaja - The SELLER/VENDOR who issued the invoice (will receive payment)
+  "invoice_number": "string | null",  // Arve number / Invoice number / Arve nr
+  "invoice_date": "YYYY-MM-DD | null",  // Arve kuupäev / Invoice date / Kuupäev
+  "total_amount": number | null,  // Arve summa / Total amount / Kokku (as a number, e.g., 123.45)
+  "amount_without_vat": number | null,  // Summa ilma km-ta / Amount without VAT / Kokku ilma käibemaksuta (optional)
   "payment_date": "YYYY-MM-DD | null",  // Tasumise kuupäev / Payment date (if this is a payment slip)
   "confidence": "high" | "medium" | "low"  // Your confidence in the extraction
 }
 
 Rules:
-- Extract amounts as numbers (e.g., 123.45, not "123.45€")
-- Convert dates to YYYY-MM-DD format
+- vendor_name is the SELLER who issued the invoice (e.g., "OÜ Lonitseera"), NOT the buyer
+- Extract amounts as numbers without currency symbols (e.g., 123.45, not "123.45€" or "€123.45")
+- Convert all dates to YYYY-MM-DD format (e.g., "15.01.2025" becomes "2025-01-15")
 - Use null for missing fields
-- Set confidence based on how clear the data is
-- Look for Estonian terms: "Makse saaja", "Arve number", "Arve kuupäev", "Summa", "km" (VAT)
-- Also look for English terms: "Invoice", "Total", "Amount", "Date", "Vendor"
+- Set confidence based on how clear and unambiguous the data is
+- Common Estonian invoice terms:
+  * Müüja/Teenusepakkuja/Makse saaja = Seller/Vendor (who gets paid)
+  * Ostja/Saaja = Buyer (who receives invoice) - DO NOT use this for vendor_name
+  * Arve number/Arve nr = Invoice number
+  * Kuupäev/Arve kuupäev = Invoice date
+  * Kokku/Summa/Tasuda = Total amount
+  * Ilma käibemaksuta/ilma km-ta = Without VAT
+  * Tasumise kuupäev = Payment date
+
+Example:
+If invoice shows:
+Müüja: OÜ Example Company
+Ostja: Eesti Kirjanduse Selts
+
+Then vendor_name should be "OÜ Example Company" (the seller), NOT "Eesti Kirjanduse Selts" (the buyer).
 
 Invoice/Payment slip text:
 ${extractedText.substring(0, 4000)}`;
