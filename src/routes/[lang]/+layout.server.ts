@@ -2,12 +2,26 @@
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { getTopBoardPath } from '$lib/utils/getTopBoardPath';
+import { isSocialMediaBot } from '$lib/server/userAgent';
 
 export const load: LayoutServerLoad = async (event) => {
-	const { params, url, locals, fetch } = event;
+	const { params, url, locals, fetch, request } = event;
 	const session = await locals.auth();
 
-	if (!session && !url.pathname.includes('/signin') && !url.pathname.includes('/api/auth')) {
+	// Check if this is a bot or preview mode
+	const userAgent = request.headers.get('user-agent');
+	const isBot = isSocialMediaBot(userAgent);
+	const isPreviewMode = url.searchParams.get('og-preview') === 'true';
+
+	// Allow bots and preview mode through without authentication
+	// Regular users need to be authenticated (except on signin and auth pages)
+	if (
+		!session &&
+		!isBot &&
+		!isPreviewMode &&
+		!url.pathname.includes('/signin') &&
+		!url.pathname.includes('/api/auth')
+	) {
 		throw redirect(302, `/signin`);
 	}
 
