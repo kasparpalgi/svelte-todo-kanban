@@ -106,6 +106,7 @@
 			}}
 			role="dialog"
 			tabindex="-1"
+			data-card-modal
 		>
 			{#if loading}
 				<CardLoading />
