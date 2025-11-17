@@ -5440,7 +5440,15 @@ export type Notes = {
   note_uploads: Array<Note_Uploads>;
   /** An aggregate relationship */
   note_uploads_aggregate: Note_Uploads_Aggregate;
+  /** Reference to parent note for hierarchical subnotes structure */
+  parent_id?: Maybe<Scalars['uuid']['output']>;
+  /** An object relationship */
+  parent_note?: Maybe<Notes>;
   sort_order: Scalars['Int']['output'];
+  /** An array relationship */
+  subnotes: Array<Notes>;
+  /** An aggregate relationship */
+  subnotes_aggregate: Notes_Aggregate;
   title: Scalars['String']['output'];
   updated_at: Scalars['timestamptz']['output'];
   /** An object relationship */
@@ -5468,11 +5476,42 @@ export type NotesNote_Uploads_AggregateArgs = {
   where?: InputMaybe<Note_Uploads_Bool_Exp>;
 };
 
+
+/** columns and relationships of "notes" */
+export type NotesSubnotesArgs = {
+  distinct_on?: InputMaybe<Array<Notes_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notes_Order_By>>;
+  where?: InputMaybe<Notes_Bool_Exp>;
+};
+
+
+/** columns and relationships of "notes" */
+export type NotesSubnotes_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Notes_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notes_Order_By>>;
+  where?: InputMaybe<Notes_Bool_Exp>;
+};
+
 /** aggregated selection of "notes" */
 export type Notes_Aggregate = {
   __typename?: 'notes_aggregate';
   aggregate?: Maybe<Notes_Aggregate_Fields>;
   nodes: Array<Notes>;
+};
+
+export type Notes_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Notes_Aggregate_Bool_Exp_Count>;
+};
+
+export type Notes_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Notes_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Notes_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
 };
 
 /** aggregate fields of "notes" */
@@ -5498,10 +5537,37 @@ export type Notes_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** order by aggregate values of table "notes" */
+export type Notes_Aggregate_Order_By = {
+  avg?: InputMaybe<Notes_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Notes_Max_Order_By>;
+  min?: InputMaybe<Notes_Min_Order_By>;
+  stddev?: InputMaybe<Notes_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Notes_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Notes_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Notes_Sum_Order_By>;
+  var_pop?: InputMaybe<Notes_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Notes_Var_Samp_Order_By>;
+  variance?: InputMaybe<Notes_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "notes" */
+export type Notes_Arr_Rel_Insert_Input = {
+  data: Array<Notes_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Notes_On_Conflict>;
+};
+
 /** aggregate avg on columns */
 export type Notes_Avg_Fields = {
   __typename?: 'notes_avg_fields';
   sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "notes" */
+export type Notes_Avg_Order_By = {
+  sort_order?: InputMaybe<Order_By>;
 };
 
 /** Boolean expression to filter rows from the table "notes". All fields are combined with a logical 'AND'. */
@@ -5517,7 +5583,11 @@ export type Notes_Bool_Exp = {
   id?: InputMaybe<Uuid_Comparison_Exp>;
   note_uploads?: InputMaybe<Note_Uploads_Bool_Exp>;
   note_uploads_aggregate?: InputMaybe<Note_Uploads_Aggregate_Bool_Exp>;
+  parent_id?: InputMaybe<Uuid_Comparison_Exp>;
+  parent_note?: InputMaybe<Notes_Bool_Exp>;
   sort_order?: InputMaybe<Int_Comparison_Exp>;
+  subnotes?: InputMaybe<Notes_Bool_Exp>;
+  subnotes_aggregate?: InputMaybe<Notes_Aggregate_Bool_Exp>;
   title?: InputMaybe<String_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   user?: InputMaybe<Users_Bool_Exp>;
@@ -5544,7 +5614,11 @@ export type Notes_Insert_Input = {
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   note_uploads?: InputMaybe<Note_Uploads_Arr_Rel_Insert_Input>;
+  /** Reference to parent note for hierarchical subnotes structure */
+  parent_id?: InputMaybe<Scalars['uuid']['input']>;
+  parent_note?: InputMaybe<Notes_Obj_Rel_Insert_Input>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
+  subnotes?: InputMaybe<Notes_Arr_Rel_Insert_Input>;
   title?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
@@ -5559,10 +5633,27 @@ export type Notes_Max_Fields = {
   cover_image_url?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
+  /** Reference to parent note for hierarchical subnotes structure */
+  parent_id?: Maybe<Scalars['uuid']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
   user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by max() on columns of table "notes" */
+export type Notes_Max_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  content?: InputMaybe<Order_By>;
+  cover_image_url?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  /** Reference to parent note for hierarchical subnotes structure */
+  parent_id?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+  title?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
 };
 
 /** aggregate min on columns */
@@ -5573,10 +5664,27 @@ export type Notes_Min_Fields = {
   cover_image_url?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
+  /** Reference to parent note for hierarchical subnotes structure */
+  parent_id?: Maybe<Scalars['uuid']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
   user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "notes" */
+export type Notes_Min_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  content?: InputMaybe<Order_By>;
+  cover_image_url?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  /** Reference to parent note for hierarchical subnotes structure */
+  parent_id?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+  title?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "notes" */
@@ -5611,7 +5719,10 @@ export type Notes_Order_By = {
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   note_uploads_aggregate?: InputMaybe<Note_Uploads_Aggregate_Order_By>;
+  parent_id?: InputMaybe<Order_By>;
+  parent_note?: InputMaybe<Notes_Order_By>;
   sort_order?: InputMaybe<Order_By>;
+  subnotes_aggregate?: InputMaybe<Notes_Aggregate_Order_By>;
   title?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
   user?: InputMaybe<Users_Order_By>;
@@ -5636,6 +5747,8 @@ export enum Notes_Select_Column {
   /** column name */
   Id = 'id',
   /** column name */
+  ParentId = 'parent_id',
+  /** column name */
   SortOrder = 'sort_order',
   /** column name */
   Title = 'title',
@@ -5652,6 +5765,8 @@ export type Notes_Set_Input = {
   cover_image_url?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Reference to parent note for hierarchical subnotes structure */
+  parent_id?: InputMaybe<Scalars['uuid']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -5664,16 +5779,31 @@ export type Notes_Stddev_Fields = {
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev() on columns of table "notes" */
+export type Notes_Stddev_Order_By = {
+  sort_order?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_pop on columns */
 export type Notes_Stddev_Pop_Fields = {
   __typename?: 'notes_stddev_pop_fields';
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev_pop() on columns of table "notes" */
+export type Notes_Stddev_Pop_Order_By = {
+  sort_order?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_samp on columns */
 export type Notes_Stddev_Samp_Fields = {
   __typename?: 'notes_stddev_samp_fields';
   sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "notes" */
+export type Notes_Stddev_Samp_Order_By = {
+  sort_order?: InputMaybe<Order_By>;
 };
 
 /** Streaming cursor of the table "notes" */
@@ -5691,6 +5821,8 @@ export type Notes_Stream_Cursor_Value_Input = {
   cover_image_url?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Reference to parent note for hierarchical subnotes structure */
+  parent_id?: InputMaybe<Scalars['uuid']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -5701,6 +5833,11 @@ export type Notes_Stream_Cursor_Value_Input = {
 export type Notes_Sum_Fields = {
   __typename?: 'notes_sum_fields';
   sort_order?: Maybe<Scalars['Int']['output']>;
+};
+
+/** order by sum() on columns of table "notes" */
+export type Notes_Sum_Order_By = {
+  sort_order?: InputMaybe<Order_By>;
 };
 
 /** update columns of table "notes" */
@@ -5715,6 +5852,8 @@ export enum Notes_Update_Column {
   CreatedAt = 'created_at',
   /** column name */
   Id = 'id',
+  /** column name */
+  ParentId = 'parent_id',
   /** column name */
   SortOrder = 'sort_order',
   /** column name */
@@ -5740,16 +5879,31 @@ export type Notes_Var_Pop_Fields = {
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_pop() on columns of table "notes" */
+export type Notes_Var_Pop_Order_By = {
+  sort_order?: InputMaybe<Order_By>;
+};
+
 /** aggregate var_samp on columns */
 export type Notes_Var_Samp_Fields = {
   __typename?: 'notes_var_samp_fields';
   sort_order?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_samp() on columns of table "notes" */
+export type Notes_Var_Samp_Order_By = {
+  sort_order?: InputMaybe<Order_By>;
+};
+
 /** aggregate variance on columns */
 export type Notes_Variance_Fields = {
   __typename?: 'notes_variance_fields';
   sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "notes" */
+export type Notes_Variance_Order_By = {
+  sort_order?: InputMaybe<Order_By>;
 };
 
 /** Notifications for user actions on todos (assignments, comments, edits, etc.) */
