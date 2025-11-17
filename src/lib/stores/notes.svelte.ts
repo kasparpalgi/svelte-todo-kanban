@@ -572,18 +572,35 @@ function createNotesStore() {
 
 		const originalNotes = [...state.notes];
 
-		// Optimistic update: reorder notes in state
-		const reorderedNotes = noteIds
-			.map((id, index) => {
-				const note = state.notes.find((n) => n.id === id);
-				if (note) {
-					return { ...note, sort_order: index };
+		// Recursively find note anywhere in tree
+		const findNoteRecursive = (notesList: NoteFieldsFragment[], id: string): NoteFieldsFragment | null => {
+			for (const n of notesList) {
+				if (n.id === id) return n;
+				if (n.subnotes) {
+					const found = findNoteRecursive(n.subnotes, id);
+					if (found) return found;
 				}
-				return null;
-			})
-			.filter((n): n is NoteFieldsFragment => n !== null);
+			}
+			return null;
+		};
 
-		state.notes = reorderedNotes;
+		// Recursively update note's sort_order anywhere in tree
+		const updateSortOrderRecursively = (notesList: NoteFieldsFragment[], id: string, sortOrder: number): NoteFieldsFragment[] => {
+			return notesList.map(n => {
+				if (n.id === id) {
+					return { ...n, sort_order: sortOrder };
+				}
+				if (n.subnotes) {
+					return { ...n, subnotes: updateSortOrderRecursively(n.subnotes, id, sortOrder) };
+				}
+				return n;
+			});
+		};
+
+		// Optimistic update: update sort_order for each note
+		noteIds.forEach((id, index) => {
+			state.notes = updateSortOrderRecursively(state.notes, id, index);
+		});
 
 		try {
 			// Prepare batch update
@@ -603,10 +620,20 @@ function createNotesStore() {
 				);
 
 				if (updatedNotes.length > 0) {
-					// Update state with server response
-					state.notes = state.notes.map((note) => {
-						const updated = updatedNotes.find((n) => n.id === note.id);
-						return updated || note;
+					// Update state with server response (recursively)
+					updatedNotes.forEach(serverNote => {
+						const updateWithServerData = (notesList: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+							return notesList.map(n => {
+								if (n.id === serverNote.id) {
+									return { ...n, ...serverNote };
+								}
+								if (n.subnotes) {
+									return { ...n, subnotes: updateWithServerData(n.subnotes) };
+								}
+								return n;
+							});
+						};
+						state.notes = updateWithServerData(state.notes);
 					});
 
 					return {
