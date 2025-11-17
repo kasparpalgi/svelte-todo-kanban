@@ -152,17 +152,28 @@
 				})
 			});
 
+			const sheetData = await createSheetResponse.json();
+
 			if (!createSheetResponse.ok) {
-				throw new Error('Failed to create spreadsheet');
+				// Show helpful error with link to enable API if available
+				if (sheetData.enableUrl) {
+					const message = `${sheetData.error}\n\nClick here to enable the Google Sheets API:`;
+					displayMessage(message);
+					console.error('Enable Google Sheets API:', sheetData.enableUrl);
+					// Open the enable URL in a new tab
+					window.open(sheetData.enableUrl, '_blank');
+				} else {
+					displayMessage(sheetData.error || 'Failed to create spreadsheet');
+				}
+				throw new Error(sheetData.error || 'Failed to create spreadsheet');
 			}
 
-			const sheetData = await createSheetResponse.json();
 			spreadsheetUrl = sheetData.spreadsheetUrl;
 
 			currentStep = 'complete';
 			displayMessage('Invoices processed successfully!', 3000, true);
 		} catch (error: any) {
-			displayMessage(error.message || 'Failed to create spreadsheet');
+			// Error already handled above, just log it
 			console.error('Error creating spreadsheet:', error);
 		} finally {
 			processing = false;

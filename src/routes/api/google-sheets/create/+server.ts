@@ -160,12 +160,28 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		console.error('Google Sheets API error:', error);
 
 		let errorMessage = 'Failed to create spreadsheet';
+		let enableUrl = null;
+
 		if (error.code === 401) {
 			errorMessage = 'Google Sheets access token expired. Please sign in again.';
+		} else if (error.code === 403 && error.message?.includes('Google Sheets API has not been used')) {
+			// Extract project ID from error message
+			const projectIdMatch = error.message.match(/project (\d+)/);
+			const projectId = projectIdMatch ? projectIdMatch[1] : null;
+
+			if (projectId) {
+				enableUrl = `https://console.developers.google.com/apis/api/sheets.googleapis.com/overview?project=${projectId}`;
+				errorMessage = 'Google Sheets API is not enabled for your project. Please enable it in Google Cloud Console.';
+			} else {
+				errorMessage = 'Google Sheets API is not enabled. Please enable it in your Google Cloud Console.';
+			}
 		} else if (error.message) {
 			errorMessage = error.message;
 		}
 
-		return json({ error: errorMessage }, { status: error.code || 500 });
+		return json({
+			error: errorMessage,
+			enableUrl
+		}, { status: error.code || 500 });
 	}
 };
