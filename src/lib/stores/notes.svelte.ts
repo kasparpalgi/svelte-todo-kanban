@@ -576,6 +576,119 @@ function createNotesStore() {
 		}
 	}
 
+	async function updateNoteParent(
+		noteId: string,
+		newParentId: string | null,
+		sortOrder: number
+	): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		const originalNotes = [...state.notes];
+		const note = state.notes.find((n) => n.id === noteId);
+
+		if (!note) {
+			return { success: false, message: 'Note not found' };
+		}
+
+		// Prevent circular parent-child relationships
+		if (newParentId) {
+			const wouldCreateCycle = (parentId: string): boolean => {
+				if (parentId === noteId) return true;
+				const parent = state.notes.find((n) => n.id === parentId);
+				if (!parent || !parent.parent_id) return false;
+				return wouldCreateCycle(parent.parent_id);
+			};
+
+			if (wouldCreateCycle(newParentId)) {
+				return {
+					success: false,
+					message: 'Cannot create circular parent-child relationship'
+				};
+			}
+		}
+
+		const oldParentId = note.parent_id;
+
+		// Optimistic update
+		const updatedNote = { ...note, parent_id: newParentId, sort_order: sortOrder };
+
+		// Update in state
+		if (oldParentId) {
+			// Remove from old parent's subnotes
+			state.notes = state.notes.map((n) => {
+				if (n.id === oldParentId) {
+					return {
+						...n,
+						subnotes: (n.subnotes || []).filter((sub) => sub.id !== noteId)
+					};
+				}
+				return n;
+			});
+		} else {
+			// Remove from top-level notes if moving to subnote
+			if (newParentId) {
+				state.notes = state.notes.filter((n) => n.id !== noteId);
+			}
+		}
+
+		if (newParentId) {
+			// Add to new parent's subnotes
+			state.notes = state.notes.map((n) => {
+				if (n.id === newParentId) {
+					const subnotes = [...(n.subnotes || []), updatedNote].sort(
+						(a, b) => a.sort_order - b.sort_order
+					);
+					return { ...n, subnotes };
+				}
+				return n.id === noteId ? updatedNote : n;
+			});
+			// Auto-expand new parent
+			state.expandedNoteIds.add(newParentId);
+			state.expandedNoteIds = new Set(state.expandedNoteIds);
+		} else {
+			// Moving to top-level
+			if (!oldParentId) {
+				// Already top-level, just update
+				state.notes = state.notes.map((n) => (n.id === noteId ? updatedNote : n));
+			} else {
+				// Add as top-level note
+				state.notes = [...state.notes, updatedNote];
+			}
+		}
+
+		try {
+			const data = await request(UPDATE_NOTE, {
+				where: { id: { _eq: noteId } },
+				_set: {
+					parent_id: newParentId,
+					sort_order: sortOrder
+				}
+			}) as UpdateNoteMutation;
+
+			const serverNote = data.update_notes?.returning?.[0];
+			if (serverNote) {
+				// Reload to get fresh subnotes relationships
+				if (state.currentBoardId) {
+					await loadNotes(state.currentBoardId);
+				}
+
+				return {
+					success: true,
+					message: 'Note moved successfully',
+					data: serverNote
+				};
+			}
+
+			state.notes = originalNotes;
+			return { success: false, message: 'Failed to move note' };
+		} catch (error) {
+			state.notes = originalNotes;
+			const message = error instanceof Error ? error.message : 'Error moving note';
+			console.error('[NotesStore.updateNoteParent] Error:', error);
+			return { success: false, message };
+		}
+	}
+
 	async function createNoteUpload(noteId: string, url: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
@@ -698,6 +811,7 @@ function createNotesStore() {
 		updateNote,
 		deleteNote,
 		reorderNotes,
+		updateNoteParent,
 		createNoteUpload,
 		deleteNoteUpload,
 		setCoverImage,
