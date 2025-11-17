@@ -86,7 +86,7 @@ Successfully implemented a complete invoice import system that:
 
 ### UI Routes
 
-5. **`/[lang]/invoices/import/+page.svelte`**
+5. **`/invoices/import/+page.svelte`**
    - Complete user interface for invoice import
    - Multi-step workflow:
      - Select folder from Google Drive
@@ -100,13 +100,13 @@ Successfully implemented a complete invoice import system that:
      - Error handling and display
      - Success/failure status for each file
 
-6. **`/[lang]/invoices/import/+page.server.ts`**
+6. **`/invoices/import/+page.server.ts`**
    - Server-side authentication guard
    - Ensures user is logged in before accessing
 
 ## Workflow
 
-1. **User navigates to `/[lang]/invoices/import`**
+1. **User navigates to `/invoices/import`**
 2. **Browse Google Drive** - Navigate folders using breadcrumbs
 3. **Select PDFs** - Choose invoice PDFs from current folder
 4. **Process** - Click "Process" button to start extraction
@@ -168,7 +168,7 @@ Users need to:
 To test this feature:
 1. Ensure `.env` has `OPENAI_API_KEY` configured
 2. Sign out and sign back in with Google to grant new permissions
-3. Navigate to `/en/invoices/import` (or your language code)
+3. Navigate to `/invoices/import`
 4. Select a Google Drive folder with PDF invoices
 5. Process the invoices and verify the spreadsheet is created
 
