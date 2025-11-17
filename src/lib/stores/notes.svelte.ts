@@ -443,18 +443,43 @@ function createNotesStore() {
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		const noteIndex = state.notes.findIndex((n) => n.id === id);
-		if (noteIndex === -1) return { success: false, message: 'Note not found' };
+		// Recursively find the note (it might be a subnote)
+		const findNoteRecursive = (notesList: NoteFieldsFragment[]): NoteFieldsFragment | null => {
+			for (const n of notesList) {
+				if (n.id === id) return n;
+				if (n.subnotes) {
+					const found = findNoteRecursive(n.subnotes);
+					if (found) return found;
+				}
+			}
+			return null;
+		};
 
-		const originalNote = { ...state.notes[noteIndex] };
+		const note = findNoteRecursive(state.notes);
+		if (!note) return { success: false, message: 'Note not found' };
+
+		const originalNotes = [...state.notes];
+
+		// Helper to recursively update note
+		const updateNoteRecursively = (notesList: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+			return notesList.map(n => {
+				if (n.id === id) {
+					return {
+						...n,
+						...(updates.title !== undefined && { title: updates.title }),
+						...(updates.content !== undefined && { content: updates.content }),
+						...(updates.cover_image_url !== undefined && { cover_image_url: updates.cover_image_url })
+					};
+				}
+				if (n.subnotes) {
+					return { ...n, subnotes: updateNoteRecursively(n.subnotes) };
+				}
+				return n;
+			});
+		};
 
 		// Optimistic update
-		state.notes[noteIndex] = {
-			...state.notes[noteIndex],
-			...(updates.title !== undefined && { title: updates.title }),
-			...(updates.content !== undefined && { content: updates.content }),
-			...(updates.cover_image_url !== undefined && { cover_image_url: updates.cover_image_url })
-		};
+		state.notes = updateNoteRecursively(state.notes);
 
 		try {
 			const _set: any = {};
@@ -469,18 +494,19 @@ function createNotesStore() {
 
 			const updatedNote = data.update_notes?.returning?.[0];
 			if (updatedNote) {
-				state.notes[noteIndex] = updatedNote;
+				// Update with server data
+				state.notes = updateNoteRecursively(state.notes);
 				return {
 					success: true,
 					message: 'Note updated successfully',
 					data: updatedNote
 				};
 			} else {
-				state.notes[noteIndex] = originalNote;
+				state.notes = originalNotes;
 				return { success: false, message: 'Failed to update note' };
 			}
 		} catch (error) {
-			state.notes[noteIndex] = originalNote;
+			state.notes = originalNotes;
 			const message = error instanceof Error ? error.message : 'Error updating note';
 			console.error('[NotesStore.updateNote] Error:', error);
 			return { success: false, message };
@@ -490,13 +516,37 @@ function createNotesStore() {
 	async function deleteNote(id: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		const noteIndex = state.notes.findIndex((n) => n.id === id);
-		if (noteIndex === -1) return { success: false, message: 'Note not found' };
+		// Recursively find the note (it might be a subnote)
+		const findNoteRecursive = (notesList: NoteFieldsFragment[]): NoteFieldsFragment | null => {
+			for (const n of notesList) {
+				if (n.id === id) return n;
+				if (n.subnotes) {
+					const found = findNoteRecursive(n.subnotes);
+					if (found) return found;
+				}
+			}
+			return null;
+		};
+
+		const note = findNoteRecursive(state.notes);
+		if (!note) return { success: false, message: 'Note not found' };
 
 		const originalNotes = [...state.notes];
 
+		// Helper to recursively remove note from anywhere in the tree
+		const removeNoteRecursively = (notesList: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+			return notesList
+				.filter(n => n.id !== id)
+				.map(n => {
+					if (n.subnotes) {
+						return { ...n, subnotes: removeNoteRecursively(n.subnotes) };
+					}
+					return n;
+				});
+		};
+
 		// Optimistic delete
-		state.notes = state.notes.filter((n) => n.id !== id);
+		state.notes = removeNoteRecursively(state.notes);
 
 		try {
 			const data = await request(DELETE_NOTE, {
