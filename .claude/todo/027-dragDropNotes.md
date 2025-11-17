@@ -281,3 +281,32 @@ each_key_duplicate Keyed each block has duplicate key
 - `src/lib/stores/notes.svelte.ts` - Rewrote `updateNoteParent()` with recursive tree operations
 
 **Key Insight**: When working with hierarchical data structures, all operations must be recursive. Non-recursive operations (like `state.notes.map()`) only process the top level and will fail silently for nested items, leading to state inconsistencies.
+
+---
+
+### Bug #3: "Note not found" Error When Updating/Deleting Subnotes (Fixed ✅)
+
+**Symptom**: When editing a subnote's title:
+- Error message: "Note not found"
+- UI doesn't update in the left sidebar (but top-level notes update fine)
+- After closing and reopening the notes modal, the change appears
+- Same issue when trying to delete a subnote
+
+**Root Cause**: The `updateNote()` and `deleteNote()` functions only searched top-level notes using `state.notes.findIndex()` and `state.notes.filter()`. When operating on a subnote, they couldn't find it (returned -1), triggering the error. However, the server update still succeeded because it goes directly to the database, which is why reopening the modal (which reloads from server) would show the correct data.
+
+**Fix** (commit 06b31b7): Rewrote both functions to use recursive operations:
+
+**updateNote()**:
+- Added `findNoteRecursive()`: searches for note anywhere in tree
+- Added `updateNoteRecursively()`: updates note in place at any depth
+- Changed from array index manipulation to recursive tree mapping
+
+**deleteNote()**:
+- Added `findNoteRecursive()`: searches for note anywhere in tree
+- Added `removeNoteRecursively()`: removes note from any depth
+- Changed from `filter()` on top-level to recursive removal
+
+**Files Changed**:
+- `src/lib/stores/notes.svelte.ts` - Rewrote `updateNote()` and `deleteNote()` with recursive operations
+
+**Impact**: All note operations (create, read, update, delete, move) now properly handle hierarchical structures at any depth.
