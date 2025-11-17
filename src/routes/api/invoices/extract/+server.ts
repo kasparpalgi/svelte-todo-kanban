@@ -63,44 +63,70 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		// Use OpenAI to extract structured data
 		const prompt = `You are an expert at extracting structured data from invoices and payment slips, especially Estonian invoices.
 
-CRITICAL: "Makse saaja" (Payment recipient) is the SELLER/VENDOR who ISSUED the invoice and will RECEIVE the payment.
-This is NOT the buyer/customer who receives the invoice. Look for the company/person who is selling and will be paid.
+CRITICAL RULES:
+1. "Makse saaja" (Payment recipient) is the SELLER/VENDOR who ISSUED the invoice and will RECEIVE the payment.
+   This is NOT the buyer/customer. Look for the company/person who is selling and will be paid.
 
-Extract the following information from the invoice/payment slip text below. Return ONLY a valid JSON object with these exact fields (use null if information is not found):
+2. "Arve kuupäev" (Invoice date) is THE DATE THE INVOICE WAS ISSUED. This is usually near the top of the invoice.
+   Look for: "Kuupäev:", "Arve kuupäev:", "Date:", or any date near the invoice number.
+   This is DIFFERENT from due date (maksetähtaeg) or payment date.
+
+3. DO NOT extract payment date from invoices - leave it as null. Payment dates come from bank statements.
+
+Extract the following information from the invoice text below. Return ONLY a valid JSON object:
 
 {
-  "vendor_name": "string | null",  // Makse saaja - The SELLER/VENDOR who issued the invoice (will receive payment)
+  "vendor_name": "string | null",  // Makse saaja - The SELLER/VENDOR who issued the invoice
   "invoice_number": "string | null",  // Arve number / Invoice number / Arve nr
-  "invoice_date": "YYYY-MM-DD | null",  // Arve kuupäev / Invoice date / Kuupäev
-  "total_amount": number | null,  // Arve summa / Total amount / Kokku (as a number, e.g., 123.45)
-  "amount_without_vat": number | null,  // Summa ilma km-ta / Amount without VAT / Kokku ilma käibemaksuta (optional)
-  "payment_date": "YYYY-MM-DD | null",  // Tasumise kuupäev / Payment date (if this is a payment slip)
-  "confidence": "high" | "medium" | "low"  // Your confidence in the extraction
+  "invoice_date": "YYYY-MM-DD | null",  // Arve kuupäev - WHEN THE INVOICE WAS ISSUED (usually at top)
+  "total_amount": number | null,  // Arve summa / Total amount / Kokku (as number, e.g., 123.45)
+  "amount_without_vat": number | null,  // Summa ilma km-ta / Amount without VAT
+  "payment_date": null,  // Always null for invoices (comes from bank statements)
+  "confidence": "high" | "medium" | "low"
 }
 
+CRITICAL - Finding invoice date:
+- Look at the TOP of the invoice for the issue date
+- Common locations: near invoice number, near vendor info, labeled "Kuupäev:" or "Date:"
+- This is NOT the due date (maksetähtaeg), NOT the delivery date
+- Format: Convert to YYYY-MM-DD (e.g., "15.01.2025" → "2025-01-15")
+
 Rules:
-- vendor_name is the SELLER who issued the invoice (e.g., "OÜ Lonitseera"), NOT the buyer
-- Extract amounts as numbers without currency symbols (e.g., 123.45, not "123.45€" or "€123.45")
-- Convert all dates to YYYY-MM-DD format (e.g., "15.01.2025" becomes "2025-01-15")
-- Use null for missing fields
-- Set confidence based on how clear and unambiguous the data is
-- Common Estonian invoice terms:
-  * Müüja/Teenusepakkuja/Makse saaja = Seller/Vendor (who gets paid)
-  * Ostja/Saaja = Buyer (who receives invoice) - DO NOT use this for vendor_name
-  * Arve number/Arve nr = Invoice number
-  * Kuupäev/Arve kuupäev = Invoice date
-  * Kokku/Summa/Tasuda = Total amount
-  * Ilma käibemaksuta/ilma km-ta = Without VAT
-  * Tasumise kuupäev = Payment date
+- vendor_name: SELLER who issued invoice (e.g., "OÜ Lonitseera"), NOT buyer
+- invoice_number: Any invoice reference number (may contain letters/slashes)
+- invoice_date: Issue date from TOP of invoice (NOT due date, NOT payment date)
+- total_amount: Final amount to pay (with VAT if applicable), as NUMBER without €
+- amount_without_vat: Amount before VAT (if shown), as NUMBER
+- payment_date: ALWAYS null for invoices
+- confidence: "high" if all main fields clear, "medium" if some missing, "low" if uncertain
+
+Estonian terms:
+- Müüja/Teenusepakkuja/Makse saaja = Seller (extract this as vendor_name)
+- Ostja/Saaja/Klient = Buyer (IGNORE - do not use for vendor_name)
+- Arve nr/number = Invoice number
+- Kuupäev/Arve kuupäev = Invoice issue date (IMPORTANT - find this!)
+- Kokku/Summa/Tasuda = Total amount
+- Ilma käibemaksuta/ilma km-ta = Without VAT
+- Maksetähtaeg = Due date (NOT invoice date - ignore this)
 
 Example:
-If invoice shows:
+ARVE / INVOICE
+Kuupäev: 15.01.2025
+Arve nr: 12345
+
 Müüja: OÜ Example Company
 Ostja: Eesti Kirjanduse Selts
 
-Then vendor_name should be "OÜ Example Company" (the seller), NOT "Eesti Kirjanduse Selts" (the buyer).
+Kokku: 500.00 EUR
 
-Invoice/Payment slip text:
+Should extract:
+vendor_name: "OÜ Example Company"
+invoice_number: "12345"
+invoice_date: "2025-01-15"
+total_amount: 500.00
+payment_date: null
+
+Invoice text:
 ${extractedText.substring(0, 4000)}`;
 
 		console.log(`[InvoiceExtract] Sending to OpenAI for extraction`);
