@@ -310,3 +310,30 @@ each_key_duplicate Keyed each block has duplicate key
 - `src/lib/stores/notes.svelte.ts` - Rewrote `updateNote()` and `deleteNote()` with recursive operations
 
 **Impact**: All note operations (create, read, update, delete, move) now properly handle hierarchical structures at any depth.
+
+---
+
+### Bug #4: Subnotes Disappear When Reordering Within Same Parent (Fixed ✅)
+
+**Symptom**: When reordering subnotes under the same parent by dragging:
+- All subnotes temporarily disappear from the UI
+- Reopening the notes modal shows them in the correct reordered position
+- No error messages shown
+
+**Root Cause**: The `reorderNotes()` function had the same non-recursive search issue:
+- Line 578: Used `state.notes.find()` which only searches top-level notes
+- When reordering subnotes, it couldn't find them (returned null for each)
+- Line 584: These nulls were filtered out, removing all subnotes from state
+- Server update succeeded (it uses IDs directly), so data was correct in database
+- UI showed empty until reload brought server data back
+
+**Fix** (commit 49bb697): Rewrote `reorderNotes()` to use recursive operations:
+- Added `updateSortOrderRecursively()`: updates sort_order for note at any depth
+- Changed optimistic update from building filtered array to recursive mapping
+- Changed server response handling to recursively update each returned note
+- Now preserves all notes in state while updating sort orders
+
+**Files Changed**:
+- `src/lib/stores/notes.svelte.ts` - Rewrote `reorderNotes()` with recursive tree operations
+
+**Pattern Identified**: Every CRUD operation in a hierarchical store must use recursive tree operations, not array methods on the root level.
