@@ -370,7 +370,8 @@
         "unsavedChanges": "Unsaved changes",
         "saved": "All changes saved",
         "titlePlaceholder": "Note title",
-        "contentPlaceholder": "Start writing..."
+        "contentPlaceholder": "Start writing...",
+        "addNoteUnder": "Add note under here"
     },
     "card": {
         "loading_card": "Loading card...",

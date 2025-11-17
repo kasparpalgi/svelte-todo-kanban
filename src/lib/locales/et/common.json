@@ -370,7 +370,8 @@
         "unsavedChanges": "Salvestamata muudatused",
         "saved": "Kõik muudatused salvestatud",
         "titlePlaceholder": "Märkme pealkiri",
-        "contentPlaceholder": "Alusta kirjutamist..."
+        "contentPlaceholder": "Alusta kirjutamist...",
+        "addNoteUnder": "Lisa alamärge siia"
     },
     "card": {
         "loading_card": "Laen kaarti...",
