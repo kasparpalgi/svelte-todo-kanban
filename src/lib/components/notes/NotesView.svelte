@@ -18,9 +18,25 @@
 	let selectedNoteId: string | null = $state(null);
 	let saving: boolean = $state(false);
 
+	// Recursive function to find a note by ID in the hierarchy
+	function findNoteById(notes: any[], noteId: string | null): any | null {
+		if (!noteId) return null;
+
+		for (const note of notes) {
+			if (note.id === noteId) {
+				return note;
+			}
+			// Search in subnotes recursively
+			if (note.subnotes && note.subnotes.length > 0) {
+				const found = findNoteById(note.subnotes, noteId);
+				if (found) return found;
+			}
+		}
+		return null;
+	}
+
 	const selectedNote = $derived.by(() => {
-		const found = notesStore.sortedNotes.find((n) => n.id === selectedNoteId) || null;
-		return found;
+		return findNoteById(notesStore.sortedNotes, selectedNoteId);
 	});
 
 	onMount(async () => {
