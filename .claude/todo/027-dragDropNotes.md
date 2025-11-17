@@ -337,3 +337,29 @@ each_key_duplicate Keyed each block has duplicate key
 - `src/lib/stores/notes.svelte.ts` - Rewrote `reorderNotes()` with recursive tree operations
 
 **Pattern Identified**: Every CRUD operation in a hierarchical store must use recursive tree operations, not array methods on the root level.
+
+---
+
+## Design Decisions
+
+### Limiting Hierarchy to 2 Levels (Implemented ✅)
+
+**Decision** (commit 974c393): Restrict subnote creation to top-level notes only, preventing deeper nesting beyond 2 levels (parent → subnote).
+
+**Rationale**:
+- Adding subnotes to subnotes was not working correctly
+- User feedback: "not needed"
+- Simpler UX with clear parent/child relationship
+- Avoids complexity of deeply nested structures
+- Most use cases are satisfied with 2 levels
+
+**Implementation**:
+- Modified NoteItem.svelte line 185 condition
+- Changed from: `{#if onAddSubnote && !isDragging && !isDraggingLocal}`
+- Changed to: `{#if onAddSubnote && !isDragging && !isDraggingLocal && parentId === null}`
+- Result: "+" Add subnote button only appears on top-level notes
+
+**UI Behavior**:
+- Top-level notes: Show hover "+" button to add subnotes ✓
+- Subnotes: No "+" button (cannot add sub-subnotes) ✓
+- Can still drag subnotes to reparent or reorder them ✓
