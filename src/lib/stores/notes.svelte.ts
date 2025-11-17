@@ -584,7 +584,20 @@ function createNotesStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		const originalNotes = [...state.notes];
-		const note = state.notes.find((n) => n.id === noteId);
+
+		// Recursively find the note (it might be a subnote)
+		const findNoteRecursive = (notesList: NoteFieldsFragment[]): NoteFieldsFragment | null => {
+			for (const n of notesList) {
+				if (n.id === noteId) return n;
+				if (n.subnotes) {
+					const found = findNoteRecursive(n.subnotes);
+					if (found) return found;
+				}
+			}
+			return null;
+		};
+
+		const note = findNoteRecursive(state.notes);
 
 		if (!note) {
 			return { success: false, message: 'Note not found' };
@@ -592,11 +605,22 @@ function createNotesStore() {
 
 		// Prevent circular parent-child relationships
 		if (newParentId) {
-			const wouldCreateCycle = (parentId: string): boolean => {
-				if (parentId === noteId) return true;
-				const parent = state.notes.find((n) => n.id === parentId);
-				if (!parent || !parent.parent_id) return false;
-				return wouldCreateCycle(parent.parent_id);
+			const findById = (notesList: NoteFieldsFragment[], id: string): NoteFieldsFragment | null => {
+				for (const n of notesList) {
+					if (n.id === id) return n;
+					if (n.subnotes) {
+						const found = findById(n.subnotes, id);
+						if (found) return found;
+					}
+				}
+				return null;
+			};
+
+			const wouldCreateCycle = (checkParentId: string): boolean => {
+				if (checkParentId === noteId) return true;
+				const parentNode = findById(state.notes, checkParentId);
+				if (!parentNode || !parentNode.parent_id) return false;
+				return wouldCreateCycle(parentNode.parent_id);
 			};
 
 			if (wouldCreateCycle(newParentId)) {
@@ -612,48 +636,47 @@ function createNotesStore() {
 		// Optimistic update
 		const updatedNote = { ...note, parent_id: newParentId, sort_order: sortOrder };
 
-		// Update in state
-		if (oldParentId) {
-			// Remove from old parent's subnotes
-			state.notes = state.notes.map((n) => {
-				if (n.id === oldParentId) {
-					return {
-						...n,
-						subnotes: (n.subnotes || []).filter((sub) => sub.id !== noteId)
-					};
-				}
-				return n;
-			});
-		} else {
-			// Remove from top-level notes if moving to subnote
-			if (newParentId) {
-				state.notes = state.notes.filter((n) => n.id !== noteId);
-			}
-		}
+		// Helper to recursively remove note from anywhere in the tree
+		const removeNoteRecursively = (notesList: NoteFieldsFragment[], idToRemove: string): NoteFieldsFragment[] => {
+			return notesList
+				.filter(n => n.id !== idToRemove)
+				.map(n => {
+					if (n.subnotes) {
+						return { ...n, subnotes: removeNoteRecursively(n.subnotes, idToRemove) };
+					}
+					return n;
+				});
+		};
 
-		if (newParentId) {
-			// Add to new parent's subnotes
-			state.notes = state.notes.map((n) => {
-				if (n.id === newParentId) {
-					const subnotes = [...(n.subnotes || []), updatedNote].sort(
+		// Helper to recursively add note to a parent
+		const addNoteToParent = (notesList: NoteFieldsFragment[], parentId: string, childNote: NoteFieldsFragment): NoteFieldsFragment[] => {
+			return notesList.map(n => {
+				if (n.id === parentId) {
+					const subnotes = [...(n.subnotes || []), childNote].sort(
 						(a, b) => a.sort_order - b.sort_order
 					);
 					return { ...n, subnotes };
 				}
-				return n.id === noteId ? updatedNote : n;
+				if (n.subnotes) {
+					return { ...n, subnotes: addNoteToParent(n.subnotes, parentId, childNote) };
+				}
+				return n;
 			});
+		};
+
+		// Remove note from its current location
+		state.notes = removeNoteRecursively(state.notes, noteId);
+
+		// Add note to new location
+		if (newParentId) {
+			// Add to new parent's subnotes
+			state.notes = addNoteToParent(state.notes, newParentId, updatedNote);
 			// Auto-expand new parent
 			state.expandedNoteIds.add(newParentId);
 			state.expandedNoteIds = new Set(state.expandedNoteIds);
 		} else {
-			// Moving to top-level
-			if (!oldParentId) {
-				// Already top-level, just update
-				state.notes = state.notes.map((n) => (n.id === noteId ? updatedNote : n));
-			} else {
-				// Add as top-level note
-				state.notes = [...state.notes, updatedNote];
-			}
+			// Add as top-level note
+			state.notes = [...state.notes, updatedNote];
 		}
 
 		try {
