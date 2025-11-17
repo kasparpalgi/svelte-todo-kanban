@@ -8,6 +8,9 @@ object_relationships:
   - name: user
     using:
       foreign_key_constraint_on: user_id
+  - name: parent_note
+    using:
+      foreign_key_constraint_on: parent_id
 array_relationships:
   - name: note_uploads
     using:
@@ -15,6 +18,13 @@ array_relationships:
         column: note_id
         table:
           name: note_uploads
+          schema: public
+  - name: subnotes
+    using:
+      foreign_key_constraint_on:
+        column: parent_id
+        table:
+          name: notes
           schema: public
 insert_permissions:
   - role: user
@@ -36,6 +46,7 @@ insert_permissions:
         - cover_image_url
         - created_at
         - id
+        - parent_id
         - sort_order
         - title
         - updated_at
@@ -50,6 +61,7 @@ select_permissions:
         - cover_image_url
         - created_at
         - id
+        - parent_id
         - sort_order
         - title
         - updated_at
@@ -73,6 +85,7 @@ update_permissions:
       columns:
         - content
         - cover_image_url
+        - parent_id
         - sort_order
         - title
         - updated_at

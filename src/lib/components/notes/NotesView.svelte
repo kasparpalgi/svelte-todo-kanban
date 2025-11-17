@@ -45,6 +45,17 @@
 		}
 	}
 
+	async function handleCreateSubnote(parentId: string) {
+		const result = await notesStore.createNote(boardId, 'Untitled Note', '', parentId);
+
+		if (result.success && result.data) {
+			selectedNoteId = result.data.id;
+			displayMessage($t('notes.created'), 1500, true);
+		} else {
+			displayMessage(result.message, 3000, false);
+		}
+	}
+
 	async function handleUpdateNote(updates: { title?: string; content?: string }) {
 		if (!selectedNoteId) return;
 
@@ -117,6 +128,7 @@
 					{selectedNoteId}
 					onNoteSelect={handleNoteSelect}
 					onCreateNote={handleCreateNote}
+					onCreateSubnote={handleCreateSubnote}
 				/>
 			</div>
 

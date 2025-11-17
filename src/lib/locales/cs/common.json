@@ -370,7 +370,8 @@
         "unsavedChanges": "Neuložené změny",
         "saved": "Všechny změny uloženy",
         "titlePlaceholder": "Název poznámky",
-        "contentPlaceholder": "Začněte psát..."
+        "contentPlaceholder": "Začněte psát...",
+        "addNoteUnder": "Přidat poznámku sem"
     },
     "card": {
         "loading_card": "Načítání karty...",

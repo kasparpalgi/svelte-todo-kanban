@@ -11,6 +11,7 @@ const GET_NOTES = `
 			id
 			board_id
 			user_id
+			parent_id
 			title
 			content
 			cover_image_url
@@ -34,6 +35,23 @@ const GET_NOTES = `
 				url
 				created_at
 			}
+			subnotes(order_by: { sort_order: asc }) {
+				id
+				board_id
+				user_id
+				parent_id
+				title
+				content
+				cover_image_url
+				sort_order
+				created_at
+				updated_at
+				note_uploads {
+					id
+					url
+					created_at
+				}
+			}
 		}
 	}
 `;
@@ -45,6 +63,7 @@ const CREATE_NOTE = `
 				id
 				board_id
 				user_id
+				parent_id
 				title
 				content
 				cover_image_url
@@ -67,6 +86,16 @@ const CREATE_NOTE = `
 					id
 					url
 					created_at
+				}
+				subnotes(order_by: { sort_order: asc }) {
+					id
+					parent_id
+					title
+					content
+					cover_image_url
+					sort_order
+					created_at
+					updated_at
 				}
 			}
 		}
@@ -81,6 +110,7 @@ const UPDATE_NOTE = `
 				id
 				board_id
 				user_id
+				parent_id
 				title
 				content
 				cover_image_url
@@ -103,6 +133,16 @@ const UPDATE_NOTE = `
 					id
 					url
 					created_at
+				}
+				subnotes(order_by: { sort_order: asc }) {
+					id
+					parent_id
+					title
+					content
+					cover_image_url
+					sort_order
+					created_at
+					updated_at
 				}
 			}
 		}
@@ -117,6 +157,7 @@ const UPDATE_NOTES = `
 				id
 				board_id
 				user_id
+				parent_id
 				title
 				content
 				cover_image_url
@@ -139,6 +180,16 @@ const UPDATE_NOTES = `
 					id
 					url
 					created_at
+				}
+				subnotes(order_by: { sort_order: asc }) {
+					id
+					parent_id
+					title
+					content
+					cover_image_url
+					sort_order
+					created_at
+					updated_at
 				}
 			}
 		}
@@ -186,6 +237,7 @@ type NoteFieldsFragment = {
 	id: string;
 	board_id: string;
 	user_id: string;
+	parent_id: string | null;
 	title: string;
 	content: string | null;
 	cover_image_url: string | null;
@@ -205,6 +257,7 @@ type NoteFieldsFragment = {
 		alias: string | null;
 	};
 	note_uploads?: NoteUpload[];
+	subnotes?: NoteFieldsFragment[];
 };
 
 type GetNotesQuery = {
@@ -259,6 +312,7 @@ interface NotesState {
 	loading: boolean;
 	error: string | null;
 	currentBoardId: string | null;
+	expandedNoteIds: Set<string>;
 }
 
 function createNotesStore() {
@@ -266,7 +320,8 @@ function createNotesStore() {
 		notes: [],
 		loading: false,
 		error: null,
-		currentBoardId: null
+		currentBoardId: null,
+		expandedNoteIds: new Set<string>()
 	});
 
 	// Derived sorted notes
@@ -312,20 +367,33 @@ function createNotesStore() {
 	async function createNote(
 		boardId: string,
 		title: string = 'Untitled Note',
-		content: string = ''
+		content: string = '',
+		parentId: string | null = null
 	): Promise<StoreResult> {
 		if (!browser) {
 			return { success: false, message: 'Not in browser' };
 		}
 
 		try {
-			// Calculate next sort_order
-			const maxSortOrder = state.notes.reduce((max, note) => Math.max(max, note.sort_order), 0);
+			// Calculate next sort_order based on parent context
+			let maxSortOrder = 0;
+			if (parentId) {
+				// For subnotes, find max sort_order among siblings
+				const parentNote = state.notes.find((n) => n.id === parentId);
+				if (parentNote?.subnotes) {
+					maxSortOrder = parentNote.subnotes.reduce((max, note) => Math.max(max, note.sort_order), 0);
+				}
+			} else {
+				// For top-level notes, find max among all top-level notes
+				const topLevelNotes = state.notes.filter((n) => !n.parent_id);
+				maxSortOrder = topLevelNotes.reduce((max, note) => Math.max(max, note.sort_order), 0);
+			}
 
 			const data = await request(CREATE_NOTE, {
 				objects: [
 					{
 						board_id: boardId,
+						parent_id: parentId,
 						title: title.trim() || 'Untitled Note',
 						content: content.trim() || null,
 						sort_order: maxSortOrder + 1
@@ -336,7 +404,24 @@ function createNotesStore() {
 			const newNote = data.insert_notes?.returning?.[0];
 
 			if (newNote) {
-				state.notes = [...state.notes, newNote];
+				if (parentId) {
+					// Add to parent's subnotes
+					state.notes = state.notes.map((note) => {
+						if (note.id === parentId) {
+							return {
+								...note,
+								subnotes: [...(note.subnotes || []), newNote]
+							};
+						}
+						return note;
+					});
+					// Automatically expand parent when subnote is created
+					state.expandedNoteIds.add(parentId);
+				} else {
+					// Add as top-level note
+					state.notes = [...state.notes, newNote];
+				}
+
 				return {
 					success: true,
 					message: 'Note created successfully',
@@ -574,6 +659,20 @@ function createNotesStore() {
 		return updateNote(noteId, { cover_image_url: url });
 	}
 
+	function toggleNoteExpanded(noteId: string) {
+		if (state.expandedNoteIds.has(noteId)) {
+			state.expandedNoteIds.delete(noteId);
+		} else {
+			state.expandedNoteIds.add(noteId);
+		}
+		// Trigger reactivity
+		state.expandedNoteIds = new Set(state.expandedNoteIds);
+	}
+
+	function isNoteExpanded(noteId: string): boolean {
+		return state.expandedNoteIds.has(noteId);
+	}
+
 	return {
 		get notes() {
 			return state.notes;
@@ -590,6 +689,9 @@ function createNotesStore() {
 		get currentBoardId() {
 			return state.currentBoardId;
 		},
+		get expandedNoteIds() {
+			return state.expandedNoteIds;
+		},
 
 		loadNotes,
 		createNote,
@@ -599,6 +701,8 @@ function createNotesStore() {
 		createNoteUpload,
 		deleteNoteUpload,
 		setCoverImage,
+		toggleNoteExpanded,
+		isNoteExpanded,
 
 		clearError: () => {
 			state.error = null;
@@ -608,6 +712,7 @@ function createNotesStore() {
 			state.loading = false;
 			state.error = null;
 			state.currentBoardId = null;
+			state.expandedNoteIds = new Set<string>();
 		}
 	};
 }
