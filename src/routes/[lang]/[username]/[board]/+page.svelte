@@ -267,10 +267,16 @@
 {#if !data.session}
 	<!-- Bot view - show minimal content, OG tags are already rendered above -->
 	<div class="py-12 text-center">
+		<div class="mx-auto mb-8 h-24 w-24">
+			<img src="/pwa-512x512.png" alt="ToDzz" class="h-full w-full" />
+		</div>
 		<h1 class="mb-4 text-2xl font-bold">ToDzz</h1>
-		<p class="text-muted-foreground">
-			Sign in to view this board
-		</p>
+		<p class="mb-2 text-muted-foreground">Sign in to view this board</p>
+		{#if data.ogData}
+			<p class="text-sm text-muted-foreground/70">
+				Preview: {data.ogData.title}
+			</p>
+		{/if}
 	</div>
 {:else if loading}
 	<div class="flex items-center justify-center py-12">

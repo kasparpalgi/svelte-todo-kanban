@@ -12,8 +12,11 @@ export const load: PageServerLoad = async ({ locals, url, params, fetch, request
 	const userAgent = req.headers.get('user-agent');
 	const isBot = isSocialMediaBot(userAgent);
 
-	// Allow bots through for OG tag scraping, but require auth for real users
-	if (!session && !isBot) {
+	// Allow preview mode for testing (add ?og-preview=true to URL)
+	const isPreviewMode = url.searchParams.get('og-preview') === 'true';
+
+	// Allow bots and preview mode through for OG tag scraping, but require auth for real users
+	if (!session && !isBot && !isPreviewMode) {
 		throw redirect(302, '/signin');
 	}
 
@@ -30,9 +33,9 @@ export const load: PageServerLoad = async ({ locals, url, params, fetch, request
 
 	const pageUrl = `${PUBLIC_APP_URL}/${lang}/${username}/${boardAlias}`;
 
-	// For bots, provide basic OG data with the logo
+	// For bots and preview mode, provide basic OG data with the logo
 	// They can't authenticate, so we skip the GraphQL queries
-	if (isBot) {
+	if (isBot || isPreviewMode) {
 		if (cardAlias) {
 			ogData = {
 				title: `Card on ${boardAlias} | ToDzz`,
