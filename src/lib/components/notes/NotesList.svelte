@@ -176,6 +176,13 @@
 			const rect = noteEl.getBoundingClientRect();
 			const mouseY = clientY;
 
+			// Find the target note to check if it has expanded children
+			const targetNote = findNote(notes, noteId);
+			const hasExpandedChildren = targetNote &&
+				targetNote.subnotes &&
+				targetNote.subnotes.length > 0 &&
+				notesStore.isNoteExpanded(noteId);
+
 			// Determine drop zone: top 25% = above, bottom 25% = below, middle 50% = inside
 			const relativeY = mouseY - rect.top;
 			const percentY = relativeY / rect.height;
@@ -184,7 +191,9 @@
 			if (percentY < 0.25) {
 				position = 'above';
 			} else if (percentY > 0.75) {
-				position = 'below';
+				// If this note has expanded children, treat "below" as "inside" to make it easier
+				// to drop as first child
+				position = hasExpandedChildren ? 'inside' : 'below';
 			} else {
 				position = 'inside';
 			}

@@ -443,18 +443,43 @@ function createNotesStore() {
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		const noteIndex = state.notes.findIndex((n) => n.id === id);
-		if (noteIndex === -1) return { success: false, message: 'Note not found' };
+		// Recursively find the note (it might be a subnote)
+		const findNoteRecursive = (notesList: NoteFieldsFragment[]): NoteFieldsFragment | null => {
+			for (const n of notesList) {
+				if (n.id === id) return n;
+				if (n.subnotes) {
+					const found = findNoteRecursive(n.subnotes);
+					if (found) return found;
+				}
+			}
+			return null;
+		};
 
-		const originalNote = { ...state.notes[noteIndex] };
+		const note = findNoteRecursive(state.notes);
+		if (!note) return { success: false, message: 'Note not found' };
+
+		const originalNotes = [...state.notes];
+
+		// Helper to recursively update note
+		const updateNoteRecursively = (notesList: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+			return notesList.map(n => {
+				if (n.id === id) {
+					return {
+						...n,
+						...(updates.title !== undefined && { title: updates.title }),
+						...(updates.content !== undefined && { content: updates.content }),
+						...(updates.cover_image_url !== undefined && { cover_image_url: updates.cover_image_url })
+					};
+				}
+				if (n.subnotes) {
+					return { ...n, subnotes: updateNoteRecursively(n.subnotes) };
+				}
+				return n;
+			});
+		};
 
 		// Optimistic update
-		state.notes[noteIndex] = {
-			...state.notes[noteIndex],
-			...(updates.title !== undefined && { title: updates.title }),
-			...(updates.content !== undefined && { content: updates.content }),
-			...(updates.cover_image_url !== undefined && { cover_image_url: updates.cover_image_url })
-		};
+		state.notes = updateNoteRecursively(state.notes);
 
 		try {
 			const _set: any = {};
@@ -469,18 +494,19 @@ function createNotesStore() {
 
 			const updatedNote = data.update_notes?.returning?.[0];
 			if (updatedNote) {
-				state.notes[noteIndex] = updatedNote;
+				// Update with server data
+				state.notes = updateNoteRecursively(state.notes);
 				return {
 					success: true,
 					message: 'Note updated successfully',
 					data: updatedNote
 				};
 			} else {
-				state.notes[noteIndex] = originalNote;
+				state.notes = originalNotes;
 				return { success: false, message: 'Failed to update note' };
 			}
 		} catch (error) {
-			state.notes[noteIndex] = originalNote;
+			state.notes = originalNotes;
 			const message = error instanceof Error ? error.message : 'Error updating note';
 			console.error('[NotesStore.updateNote] Error:', error);
 			return { success: false, message };
@@ -490,13 +516,37 @@ function createNotesStore() {
 	async function deleteNote(id: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		const noteIndex = state.notes.findIndex((n) => n.id === id);
-		if (noteIndex === -1) return { success: false, message: 'Note not found' };
+		// Recursively find the note (it might be a subnote)
+		const findNoteRecursive = (notesList: NoteFieldsFragment[]): NoteFieldsFragment | null => {
+			for (const n of notesList) {
+				if (n.id === id) return n;
+				if (n.subnotes) {
+					const found = findNoteRecursive(n.subnotes);
+					if (found) return found;
+				}
+			}
+			return null;
+		};
+
+		const note = findNoteRecursive(state.notes);
+		if (!note) return { success: false, message: 'Note not found' };
 
 		const originalNotes = [...state.notes];
 
+		// Helper to recursively remove note from anywhere in the tree
+		const removeNoteRecursively = (notesList: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+			return notesList
+				.filter(n => n.id !== id)
+				.map(n => {
+					if (n.subnotes) {
+						return { ...n, subnotes: removeNoteRecursively(n.subnotes) };
+					}
+					return n;
+				});
+		};
+
 		// Optimistic delete
-		state.notes = state.notes.filter((n) => n.id !== id);
+		state.notes = removeNoteRecursively(state.notes);
 
 		try {
 			const data = await request(DELETE_NOTE, {
@@ -522,18 +572,35 @@ function createNotesStore() {
 
 		const originalNotes = [...state.notes];
 
-		// Optimistic update: reorder notes in state
-		const reorderedNotes = noteIds
-			.map((id, index) => {
-				const note = state.notes.find((n) => n.id === id);
-				if (note) {
-					return { ...note, sort_order: index };
+		// Recursively find note anywhere in tree
+		const findNoteRecursive = (notesList: NoteFieldsFragment[], id: string): NoteFieldsFragment | null => {
+			for (const n of notesList) {
+				if (n.id === id) return n;
+				if (n.subnotes) {
+					const found = findNoteRecursive(n.subnotes, id);
+					if (found) return found;
 				}
-				return null;
-			})
-			.filter((n): n is NoteFieldsFragment => n !== null);
+			}
+			return null;
+		};
 
-		state.notes = reorderedNotes;
+		// Recursively update note's sort_order anywhere in tree
+		const updateSortOrderRecursively = (notesList: NoteFieldsFragment[], id: string, sortOrder: number): NoteFieldsFragment[] => {
+			return notesList.map(n => {
+				if (n.id === id) {
+					return { ...n, sort_order: sortOrder };
+				}
+				if (n.subnotes) {
+					return { ...n, subnotes: updateSortOrderRecursively(n.subnotes, id, sortOrder) };
+				}
+				return n;
+			});
+		};
+
+		// Optimistic update: update sort_order for each note
+		noteIds.forEach((id, index) => {
+			state.notes = updateSortOrderRecursively(state.notes, id, index);
+		});
 
 		try {
 			// Prepare batch update
@@ -553,10 +620,20 @@ function createNotesStore() {
 				);
 
 				if (updatedNotes.length > 0) {
-					// Update state with server response
-					state.notes = state.notes.map((note) => {
-						const updated = updatedNotes.find((n) => n.id === note.id);
-						return updated || note;
+					// Update state with server response (recursively)
+					updatedNotes.forEach(serverNote => {
+						const updateWithServerData = (notesList: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+							return notesList.map(n => {
+								if (n.id === serverNote.id) {
+									return { ...n, ...serverNote };
+								}
+								if (n.subnotes) {
+									return { ...n, subnotes: updateWithServerData(n.subnotes) };
+								}
+								return n;
+							});
+						};
+						state.notes = updateWithServerData(state.notes);
 					});
 
 					return {
@@ -584,7 +661,20 @@ function createNotesStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		const originalNotes = [...state.notes];
-		const note = state.notes.find((n) => n.id === noteId);
+
+		// Recursively find the note (it might be a subnote)
+		const findNoteRecursive = (notesList: NoteFieldsFragment[]): NoteFieldsFragment | null => {
+			for (const n of notesList) {
+				if (n.id === noteId) return n;
+				if (n.subnotes) {
+					const found = findNoteRecursive(n.subnotes);
+					if (found) return found;
+				}
+			}
+			return null;
+		};
+
+		const note = findNoteRecursive(state.notes);
 
 		if (!note) {
 			return { success: false, message: 'Note not found' };
@@ -592,11 +682,22 @@ function createNotesStore() {
 
 		// Prevent circular parent-child relationships
 		if (newParentId) {
-			const wouldCreateCycle = (parentId: string): boolean => {
-				if (parentId === noteId) return true;
-				const parent = state.notes.find((n) => n.id === parentId);
-				if (!parent || !parent.parent_id) return false;
-				return wouldCreateCycle(parent.parent_id);
+			const findById = (notesList: NoteFieldsFragment[], id: string): NoteFieldsFragment | null => {
+				for (const n of notesList) {
+					if (n.id === id) return n;
+					if (n.subnotes) {
+						const found = findById(n.subnotes, id);
+						if (found) return found;
+					}
+				}
+				return null;
+			};
+
+			const wouldCreateCycle = (checkParentId: string): boolean => {
+				if (checkParentId === noteId) return true;
+				const parentNode = findById(state.notes, checkParentId);
+				if (!parentNode || !parentNode.parent_id) return false;
+				return wouldCreateCycle(parentNode.parent_id);
 			};
 
 			if (wouldCreateCycle(newParentId)) {
@@ -612,48 +713,47 @@ function createNotesStore() {
 		// Optimistic update
 		const updatedNote = { ...note, parent_id: newParentId, sort_order: sortOrder };
 
-		// Update in state
-		if (oldParentId) {
-			// Remove from old parent's subnotes
-			state.notes = state.notes.map((n) => {
-				if (n.id === oldParentId) {
-					return {
-						...n,
-						subnotes: (n.subnotes || []).filter((sub) => sub.id !== noteId)
-					};
-				}
-				return n;
-			});
-		} else {
-			// Remove from top-level notes if moving to subnote
-			if (newParentId) {
-				state.notes = state.notes.filter((n) => n.id !== noteId);
-			}
-		}
+		// Helper to recursively remove note from anywhere in the tree
+		const removeNoteRecursively = (notesList: NoteFieldsFragment[], idToRemove: string): NoteFieldsFragment[] => {
+			return notesList
+				.filter(n => n.id !== idToRemove)
+				.map(n => {
+					if (n.subnotes) {
+						return { ...n, subnotes: removeNoteRecursively(n.subnotes, idToRemove) };
+					}
+					return n;
+				});
+		};
 
-		if (newParentId) {
-			// Add to new parent's subnotes
-			state.notes = state.notes.map((n) => {
-				if (n.id === newParentId) {
-					const subnotes = [...(n.subnotes || []), updatedNote].sort(
+		// Helper to recursively add note to a parent
+		const addNoteToParent = (notesList: NoteFieldsFragment[], parentId: string, childNote: NoteFieldsFragment): NoteFieldsFragment[] => {
+			return notesList.map(n => {
+				if (n.id === parentId) {
+					const subnotes = [...(n.subnotes || []), childNote].sort(
 						(a, b) => a.sort_order - b.sort_order
 					);
 					return { ...n, subnotes };
 				}
-				return n.id === noteId ? updatedNote : n;
+				if (n.subnotes) {
+					return { ...n, subnotes: addNoteToParent(n.subnotes, parentId, childNote) };
+				}
+				return n;
 			});
+		};
+
+		// Remove note from its current location
+		state.notes = removeNoteRecursively(state.notes, noteId);
+
+		// Add note to new location
+		if (newParentId) {
+			// Add to new parent's subnotes
+			state.notes = addNoteToParent(state.notes, newParentId, updatedNote);
 			// Auto-expand new parent
 			state.expandedNoteIds.add(newParentId);
 			state.expandedNoteIds = new Set(state.expandedNoteIds);
 		} else {
-			// Moving to top-level
-			if (!oldParentId) {
-				// Already top-level, just update
-				state.notes = state.notes.map((n) => (n.id === noteId ? updatedNote : n));
-			} else {
-				// Add as top-level note
-				state.notes = [...state.notes, updatedNote];
-			}
+			// Add as top-level note
+			state.notes = [...state.notes, updatedNote];
 		}
 
 		try {
@@ -667,10 +767,20 @@ function createNotesStore() {
 
 			const serverNote = data.update_notes?.returning?.[0];
 			if (serverNote) {
-				// Reload to get fresh subnotes relationships
-				if (state.currentBoardId) {
-					await loadNotes(state.currentBoardId);
-				}
+				// Update the moved note with server data
+				const updateNoteInState = (notes: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+					return notes.map(n => {
+						if (n.id === noteId) {
+							return { ...n, ...serverNote };
+						}
+						if (n.subnotes) {
+							return { ...n, subnotes: updateNoteInState(n.subnotes) };
+						}
+						return n;
+					});
+				};
+
+				state.notes = updateNoteInState(state.notes);
 
 				return {
 					success: true,

@@ -241,3 +241,125 @@ For automated testing (future):
 - E2E tests with Playwright for drag-and-drop flows
 - Test circular reference prevention
 - Test optimistic updates and rollback on error
+
+---
+
+## Bug Fixes
+
+### Bug #1: Editor Crash When Moving Notes to Top-Level (Fixed ✅)
+
+**Symptom**: When moving a subnote to top-level, the Tiptap editor would crash with:
+```
+[tiptap error]: The editor view is not available. Cannot read properties of undefined (reading 'control')
+```
+
+**Root Cause**: `updateNoteParent()` was calling `loadNotes()` after the server update, which reloaded all notes. This caused the entire notes tree to unmount and remount, destroying the editor instance while it was still being used.
+
+**Fix** (commit e5e0e5b): Removed the full reload and instead updated only the moved note with server data using a recursive `updateNoteInState()` function. This preserves all component instances including the editor.
+
+**Files Changed**:
+- `src/lib/stores/notes.svelte.ts` - Modified `updateNoteParent()` to update only the moved note
+
+---
+
+### Bug #2: Duplicate Key Error When Moving Subnotes (Fixed ✅)
+
+**Symptom**: When moving a subnote to top-level, Svelte would throw:
+```
+each_key_duplicate Keyed each block has duplicate key
+```
+
+**Root Cause**: The state manipulation logic only searched top-level notes when removing from or adding to parents. When the parent itself was a subnote (nested hierarchy), the operations would fail to find it, leaving the note in both its old location and new location simultaneously. This caused duplicate keys in the `{#each}` block rendering.
+
+**Fix** (commit 1ba3952): Completely rewrote `updateNoteParent()` to use fully recursive tree operations:
+- Added `removeNoteRecursively()`: removes note from anywhere in the tree (filters at each level and recursively processes subnotes)
+- Added `addNoteToParent()`: recursively finds and adds to parent anywhere in the tree
+- Fixed circular reference detection to use recursive search
+- Simplified state update logic: unconditionally remove from old location, then add to new location
+
+**Files Changed**:
+- `src/lib/stores/notes.svelte.ts` - Rewrote `updateNoteParent()` with recursive tree operations
+
+**Key Insight**: When working with hierarchical data structures, all operations must be recursive. Non-recursive operations (like `state.notes.map()`) only process the top level and will fail silently for nested items, leading to state inconsistencies.
+
+---
+
+### Bug #3: "Note not found" Error When Updating/Deleting Subnotes (Fixed ✅)
+
+**Symptom**: When editing a subnote's title:
+- Error message: "Note not found"
+- UI doesn't update in the left sidebar (but top-level notes update fine)
+- After closing and reopening the notes modal, the change appears
+- Same issue when trying to delete a subnote
+
+**Root Cause**: The `updateNote()` and `deleteNote()` functions only searched top-level notes using `state.notes.findIndex()` and `state.notes.filter()`. When operating on a subnote, they couldn't find it (returned -1), triggering the error. However, the server update still succeeded because it goes directly to the database, which is why reopening the modal (which reloads from server) would show the correct data.
+
+**Fix** (commit 06b31b7): Rewrote both functions to use recursive operations:
+
+**updateNote()**:
+- Added `findNoteRecursive()`: searches for note anywhere in tree
+- Added `updateNoteRecursively()`: updates note in place at any depth
+- Changed from array index manipulation to recursive tree mapping
+
+**deleteNote()**:
+- Added `findNoteRecursive()`: searches for note anywhere in tree
+- Added `removeNoteRecursively()`: removes note from any depth
+- Changed from `filter()` on top-level to recursive removal
+
+**Files Changed**:
+- `src/lib/stores/notes.svelte.ts` - Rewrote `updateNote()` and `deleteNote()` with recursive operations
+
+**Impact**: All note operations (create, read, update, delete, move) now properly handle hierarchical structures at any depth.
+
+---
+
+### Bug #4: Subnotes Disappear When Reordering Within Same Parent (Fixed ✅)
+
+**Symptom**: When reordering subnotes under the same parent by dragging:
+- All subnotes temporarily disappear from the UI
+- Reopening the notes modal shows them in the correct reordered position
+- No error messages shown
+
+**Root Cause**: The `reorderNotes()` function had the same non-recursive search issue:
+- Line 578: Used `state.notes.find()` which only searches top-level notes
+- When reordering subnotes, it couldn't find them (returned null for each)
+- Line 584: These nulls were filtered out, removing all subnotes from state
+- Server update succeeded (it uses IDs directly), so data was correct in database
+- UI showed empty until reload brought server data back
+
+**Fix** (commit 49bb697): Rewrote `reorderNotes()` to use recursive operations:
+- Added `updateSortOrderRecursively()`: updates sort_order for note at any depth
+- Changed optimistic update from building filtered array to recursive mapping
+- Changed server response handling to recursively update each returned note
+- Now preserves all notes in state while updating sort orders
+
+**Files Changed**:
+- `src/lib/stores/notes.svelte.ts` - Rewrote `reorderNotes()` with recursive tree operations
+
+**Pattern Identified**: Every CRUD operation in a hierarchical store must use recursive tree operations, not array methods on the root level.
+
+---
+
+## Design Decisions
+
+### Limiting Hierarchy to 2 Levels (Implemented ✅)
+
+**Decision** (commit 974c393): Restrict subnote creation to top-level notes only, preventing deeper nesting beyond 2 levels (parent → subnote).
+
+**Rationale**:
+- Adding subnotes to subnotes was not working correctly
+- User feedback: "not needed"
+- Simpler UX with clear parent/child relationship
+- Avoids complexity of deeply nested structures
+- Most use cases are satisfied with 2 levels
+
+**Implementation**:
+- Modified NoteItem.svelte line 185 condition
+- Changed from: `{#if onAddSubnote && !isDragging && !isDraggingLocal}`
+- Changed to: `{#if onAddSubnote && !isDragging && !isDraggingLocal && parentId === null}`
+- Result: "+" Add subnote button only appears on top-level notes
+
+**UI Behavior**:
+- Top-level notes: Show hover "+" button to add subnotes ✓
+- Subnotes: No "+" button (cannot add sub-subnotes) ✓
+- Can still drag subnotes to reparent or reorder them ✓

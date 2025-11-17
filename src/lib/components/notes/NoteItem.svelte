@@ -181,8 +181,8 @@
 				</div>
 			</div>
 
-			<!-- Add subnote button - bottom right -->
-			{#if onAddSubnote && !isDragging && !isDraggingLocal}
+			<!-- Add subnote button - bottom right (only for top-level notes) -->
+			{#if onAddSubnote && !isDragging && !isDraggingLocal && parentId === null}
 				<button
 					type="button"
 					onclick={(e) => {
