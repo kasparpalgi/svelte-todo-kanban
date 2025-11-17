@@ -241,3 +241,43 @@ For automated testing (future):
 - E2E tests with Playwright for drag-and-drop flows
 - Test circular reference prevention
 - Test optimistic updates and rollback on error
+
+---
+
+## Bug Fixes
+
+### Bug #1: Editor Crash When Moving Notes to Top-Level (Fixed ✅)
+
+**Symptom**: When moving a subnote to top-level, the Tiptap editor would crash with:
+```
+[tiptap error]: The editor view is not available. Cannot read properties of undefined (reading 'control')
+```
+
+**Root Cause**: `updateNoteParent()` was calling `loadNotes()` after the server update, which reloaded all notes. This caused the entire notes tree to unmount and remount, destroying the editor instance while it was still being used.
+
+**Fix** (commit e5e0e5b): Removed the full reload and instead updated only the moved note with server data using a recursive `updateNoteInState()` function. This preserves all component instances including the editor.
+
+**Files Changed**:
+- `src/lib/stores/notes.svelte.ts` - Modified `updateNoteParent()` to update only the moved note
+
+---
+
+### Bug #2: Duplicate Key Error When Moving Subnotes (Fixed ✅)
+
+**Symptom**: When moving a subnote to top-level, Svelte would throw:
+```
+each_key_duplicate Keyed each block has duplicate key
+```
+
+**Root Cause**: The state manipulation logic only searched top-level notes when removing from or adding to parents. When the parent itself was a subnote (nested hierarchy), the operations would fail to find it, leaving the note in both its old location and new location simultaneously. This caused duplicate keys in the `{#each}` block rendering.
+
+**Fix** (commit 1ba3952): Completely rewrote `updateNoteParent()` to use fully recursive tree operations:
+- Added `removeNoteRecursively()`: removes note from anywhere in the tree (filters at each level and recursively processes subnotes)
+- Added `addNoteToParent()`: recursively finds and adds to parent anywhere in the tree
+- Fixed circular reference detection to use recursive search
+- Simplified state update logic: unconditionally remove from old location, then add to new location
+
+**Files Changed**:
+- `src/lib/stores/notes.svelte.ts` - Rewrote `updateNoteParent()` with recursive tree operations
+
+**Key Insight**: When working with hierarchical data structures, all operations must be recursive. Non-recursive operations (like `state.notes.map()`) only process the top level and will fail silently for nested items, leading to state inconsistencies.
