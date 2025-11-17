@@ -60,12 +60,17 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		});
 
 		const spreadsheetId = spreadsheet.data.spreadsheetId;
+		const sheetId = spreadsheet.data.sheets?.[0]?.properties?.sheetId;
 
 		if (!spreadsheetId) {
 			return json({ error: 'Failed to create spreadsheet' }, { status: 500 });
 		}
 
-		console.log(`[GoogleSheets] Spreadsheet created: ${spreadsheetId}`);
+		if (sheetId === undefined) {
+			return json({ error: 'Failed to get sheet ID' }, { status: 500 });
+		}
+
+		console.log(`[GoogleSheets] Spreadsheet created: ${spreadsheetId}, Sheet ID: ${sheetId}`);
 
 		// Prepare header row
 		const headers = [
@@ -112,7 +117,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					{
 						repeatCell: {
 							range: {
-								sheetId: 0,
+								sheetId: sheetId,
 								startRowIndex: 0,
 								endRowIndex: 1
 							},
@@ -135,7 +140,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					{
 						autoResizeDimensions: {
 							dimensions: {
-								sheetId: 0,
+								sheetId: sheetId,
 								dimension: 'COLUMNS',
 								startIndex: 0,
 								endIndex: 7
