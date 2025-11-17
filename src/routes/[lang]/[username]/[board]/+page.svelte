@@ -219,6 +219,49 @@
 				listsStore.selectedBoard?.name
 			: listsStore.selectedBoard?.name} | ToDzz</title
 	>
+	{#if data.ogData}
+		<!-- Open Graph meta tags -->
+		<meta property="og:title" content={data.ogData.title} />
+		<meta property="og:description" content={data.ogData.description} />
+		<meta property="og:url" content={data.ogData.url} />
+		<meta property="og:type" content="website" />
+		{#if data.ogData.image}
+			<!-- Use uploaded image if available -->
+			<meta property="og:image" content={data.ogData.image} />
+		{:else}
+			<!-- Use fallback OG image -->
+			<meta
+				property="og:image"
+				content={`${data.ogData.url.split('?')[0]}/og-image.png?${new URLSearchParams({
+					type: openCardId ? 'card' : 'board',
+					username,
+					boardAlias,
+					...(openCardId && { cardAlias: openCardId }),
+					lang
+				}).toString()}`}
+			/>
+		{/if}
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<!-- Twitter Card meta tags -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={data.ogData.title} />
+		<meta name="twitter:description" content={data.ogData.description} />
+		{#if data.ogData.image}
+			<meta name="twitter:image" content={data.ogData.image} />
+		{:else}
+			<meta
+				name="twitter:image"
+				content={`${data.ogData.url.split('?')[0]}/og-image.png?${new URLSearchParams({
+					type: openCardId ? 'card' : 'board',
+					username,
+					boardAlias,
+					...(openCardId && { cardAlias: openCardId }),
+					lang
+				}).toString()}`}
+			/>
+		{/if}
+	{/if}
 </svelte:head>
 
 {#if loading}
@@ -266,7 +309,7 @@
 		</Card>
 	</div>
 {:else}
-	<div class="relative w-full">
+	<div class="relative w-full" data-board-container>
 		<div class="px-4 py-6">
 			<div class="mb-6 flex items-center justify-between">
 				<h1 class="hidden text-3xl font-bold tracking-tight md:block">
