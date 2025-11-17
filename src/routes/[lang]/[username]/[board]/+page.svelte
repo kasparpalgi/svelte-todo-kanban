@@ -264,7 +264,15 @@
 	{/if}
 </svelte:head>
 
-{#if loading}
+{#if !data.session}
+	<!-- Bot view - show minimal content, OG tags are already rendered above -->
+	<div class="py-12 text-center">
+		<h1 class="mb-4 text-2xl font-bold">ToDzz</h1>
+		<p class="text-muted-foreground">
+			Sign in to view this board
+		</p>
+	</div>
+{:else if loading}
 	<div class="flex items-center justify-center py-12">
 		<div
 			class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
