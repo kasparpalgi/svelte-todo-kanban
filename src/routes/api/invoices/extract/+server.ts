@@ -96,9 +96,16 @@ Rules:
 - invoice_number: Any invoice reference number (may contain letters/slashes)
 - invoice_date: Issue date from TOP of invoice (NOT due date, NOT payment date)
 - total_amount: Final amount to pay (with VAT if applicable), as NUMBER without €
-- amount_without_vat: Amount before VAT (if shown), as NUMBER
+- amount_without_vat: Amount before VAT ONLY if shown separately (if no VAT breakdown, use null)
 - payment_date: ALWAYS null for invoices
 - confidence: "high" if all main fields clear, "medium" if some missing, "low" if uncertain
+
+IMPORTANT - amount_without_vat:
+- Only extract if invoice explicitly shows amount WITHOUT VAT/km
+- If invoice only shows one total amount (non-VAT company), leave as null
+- Look for: "Ilma käibemaksuta", "ilma km-ta", "Summa ilma käibemaksuta"
+- If you see VAT breakdown (e.g., "20% km: 50€"), extract the pre-VAT amount
+- If no VAT mentioned at all, use null
 
 Estonian terms:
 - Müüja/Teenusepakkuja/Makse saaja = Seller (extract this as vendor_name)

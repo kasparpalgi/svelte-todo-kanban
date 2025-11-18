@@ -55,22 +55,23 @@
 	}
 
 	function toggleFileSelection(fileId: string) {
-		if (selectedFiles.has(fileId)) {
-			selectedFiles.delete(fileId);
+		const newSelectedFiles = new Set(selectedFiles);
+		if (newSelectedFiles.has(fileId)) {
+			newSelectedFiles.delete(fileId);
 		} else {
-			selectedFiles.add(fileId);
+			newSelectedFiles.add(fileId);
 		}
-		selectedFiles = selectedFiles;
+		selectedFiles = newSelectedFiles;
 	}
 
 	function selectAllFiles() {
-		files.forEach((file) => selectedFiles.add(file.id));
-		selectedFiles = selectedFiles;
+		const newSelectedFiles = new Set(selectedFiles);
+		files.forEach((file) => newSelectedFiles.add(file.id));
+		selectedFiles = newSelectedFiles;
 	}
 
 	function deselectAllFiles() {
-		selectedFiles.clear();
-		selectedFiles = selectedFiles;
+		selectedFiles = new Set();
 	}
 
 	async function processInvoices() {
@@ -355,29 +356,30 @@
 						</div>
 
 						<!-- Bank Statement Selection -->
-						<div class="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-							<h3 class="mb-2 text-sm font-semibold">Bank Statement (Optional)</h3>
-							<p class="mb-3 text-xs text-muted-foreground">
+						<div class="mt-6 rounded-lg border border-blue-300 bg-blue-50 p-4 dark:border-blue-700 dark:bg-blue-950">
+							<h3 class="mb-2 text-sm font-semibold text-blue-900 dark:text-blue-100">Bank Statement (Optional)</h3>
+							<p class="mb-3 text-xs text-blue-700 dark:text-blue-300">
 								Select a bank statement PDF (v.pnf) to automatically extract payment dates
 							</p>
 							<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
 								{#each files as file}
 									<button
 										onclick={() => bankStatementFileId = bankStatementFileId === file.id ? null : file.id}
-										class="flex items-center gap-3 rounded-lg border p-3 text-left hover:bg-muted"
-										class:bg-green-50={bankStatementFileId === file.id}
+										class="flex items-center gap-3 rounded-lg border border-gray-300 bg-white p-3 text-left hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700"
+										class:bg-green-100={bankStatementFileId === file.id}
 										class:border-green-500={bankStatementFileId === file.id}
+										class:dark:bg-green-900={bankStatementFileId === file.id}
 									>
-										<FileIcon class="h-5 w-5 text-green-500" />
+										<FileIcon class="h-5 w-5 text-green-600 dark:text-green-400" />
 										<span class="flex-1 truncate text-sm">{file.name}</span>
 										{#if bankStatementFileId === file.id}
-											<CheckCircle2 class="h-5 w-5 text-green-500" />
+											<CheckCircle2 class="h-5 w-5 text-green-600 dark:text-green-400" />
 										{/if}
 									</button>
 								{/each}
 							</div>
 							{#if bankStatementFileId}
-								<p class="mt-2 text-xs text-green-700">
+								<p class="mt-2 text-xs font-medium text-green-700 dark:text-green-300">
 									✓ Bank statement selected - payment dates will be extracted and matched to invoices
 								</p>
 							{/if}
