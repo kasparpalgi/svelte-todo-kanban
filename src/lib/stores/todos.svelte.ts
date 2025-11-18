@@ -535,6 +535,7 @@ function createTodosStore() {
 					let fieldName: string | undefined;
 					let oldValue: string | undefined;
 					let newValue: string | undefined;
+					let changes: any = undefined;
 
 					// Determine action type based on what actually changed
 					if (updates.completed_at !== undefined) {
@@ -544,23 +545,95 @@ function createTodosStore() {
 						// Priority changed (and values are different)
 						actionType = 'priority_changed';
 						fieldName = 'priority';
-						oldValue = originalTodo.priority?.toString() || '';
-						newValue = updates.priority?.toString() || '';
+						oldValue = originalTodo.priority?.toString() || 'none';
+						newValue = updates.priority?.toString() || 'none';
 					} else if (updates.due_on !== undefined && originalTodo.due_on !== updates.due_on) {
 						// Due date changed (and values are different)
 						actionType = 'due_date_changed';
 						fieldName = 'due_on';
-						oldValue = originalTodo.due_on || '';
-						newValue = updates.due_on || '';
+						oldValue = originalTodo.due_on || 'none';
+						newValue = updates.due_on || 'none';
+						// Include has_time info in changes
+						if (updates.has_time !== undefined) {
+							changes = {
+								has_time: {
+									old: originalTodo.has_time || false,
+									new: updates.has_time
+								}
+							};
+						}
 					} else if (updates.assigned_to !== undefined && originalTodo.assigned_to !== updates.assigned_to) {
 						// Assignee changed (and values are different)
 						actionType = updates.assigned_to ? 'assigned' : 'unassigned';
+						fieldName = 'assigned_to';
+						oldValue = originalTodo.assigned_to || '';
+						newValue = updates.assigned_to || '';
+						// Store assignee info in changes for display
+						changes = {
+							assignee_id: updates.assigned_to
+						};
 					} else if (updates.list_id !== undefined && originalTodo.list?.id !== updates.list_id) {
 						// List changed (card moved)
-						actionType = 'updated';
-					} else if (updates.title !== undefined || updates.content !== undefined) {
-						// Title or content changed
-						actionType = 'updated';
+						actionType = 'list_moved';
+						fieldName = 'list_id';
+						// Get list names for better display
+						const oldListName = originalTodo.list?.name || 'Unknown';
+						const newList = listsStore.lists.find((l) => l.id === updates.list_id);
+						const newListName = newList?.name || 'Unknown';
+						oldValue = oldListName;
+						newValue = newListName;
+						changes = {
+							old_list_id: originalTodo.list?.id,
+							new_list_id: updates.list_id
+						};
+					} else if (updates.title !== undefined && originalTodo.title !== updates.title) {
+						// Title changed
+						actionType = 'title_changed';
+						fieldName = 'title';
+						oldValue = originalTodo.title || '';
+						newValue = updates.title || '';
+					} else if (updates.content !== undefined && originalTodo.content !== updates.content) {
+						// Content changed
+						actionType = 'content_updated';
+						fieldName = 'content';
+						// Don't store full content, just indicate it changed
+						oldValue = 'Content updated';
+						newValue = 'Content updated';
+					} else if (
+						(updates.min_hours !== undefined && originalTodo.min_hours !== updates.min_hours) ||
+						(updates.max_hours !== undefined && originalTodo.max_hours !== updates.max_hours) ||
+						(updates.actual_hours !== undefined && originalTodo.actual_hours !== updates.actual_hours) ||
+						(updates.comment_hours !== undefined && originalTodo.comment_hours !== updates.comment_hours)
+					) {
+						// Time tracking hours changed
+						actionType = 'hours_changed';
+						fieldName = 'time_tracking';
+						changes = {
+							min_hours: {
+								old: originalTodo.min_hours,
+								new: updates.min_hours !== undefined ? updates.min_hours : originalTodo.min_hours
+							},
+							max_hours: {
+								old: originalTodo.max_hours,
+								new: updates.max_hours !== undefined ? updates.max_hours : originalTodo.max_hours
+							},
+							actual_hours: {
+								old: originalTodo.actual_hours,
+								new: updates.actual_hours !== undefined ? updates.actual_hours : originalTodo.actual_hours
+							},
+							comment_hours: {
+								old: originalTodo.comment_hours,
+								new: updates.comment_hours !== undefined ? updates.comment_hours : originalTodo.comment_hours
+							}
+						};
+						// Create a summary for display
+						const changedFields = [];
+						if (updates.min_hours !== undefined) changedFields.push('min');
+						if (updates.max_hours !== undefined) changedFields.push('max');
+						if (updates.actual_hours !== undefined) changedFields.push('actual');
+						if (updates.comment_hours !== undefined) changedFields.push('comment');
+						oldValue = `Updated ${changedFields.join(', ')} hours`;
+						newValue = `Updated ${changedFields.join(', ')} hours`;
 					}
 
 					// Only log if there's an actual change
@@ -571,7 +644,8 @@ function createTodosStore() {
 								action_type: actionType,
 								field_name: fieldName,
 								old_value: oldValue,
-								new_value: newValue
+								new_value: newValue,
+								changes: changes
 							}
 						});
 					}
