@@ -60,6 +60,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			`[InvoiceExtract] Extracted ${extractedText.length} characters from PDF`
 		);
 
+		// Log extracted text for debugging
+		console.log(`[InvoiceExtract] PDF TEXT (first 500 chars):\n---\n${extractedText.substring(0, 500)}\n---`);
+
 		// Use OpenAI to extract structured data
 		const prompt = `You are an expert at extracting structured data from invoices and payment slips, especially Estonian invoices.
 
@@ -166,6 +169,9 @@ ${extractedText.substring(0, 4000)}`;
 		const data = await response.json();
 		const extractedDataStr = data.choices[0]?.message?.content?.trim();
 
+		// Log AI response for debugging
+		console.log(`[InvoiceExtract] AI RESPONSE for ${fileName}:\n${extractedDataStr}`);
+
 		if (!extractedDataStr) {
 			return json({ error: 'No data extracted from AI' }, { status: 500 });
 		}
@@ -174,6 +180,7 @@ ${extractedText.substring(0, 4000)}`;
 		let invoiceData: InvoiceData;
 		try {
 			invoiceData = JSON.parse(extractedDataStr);
+			console.log(`[InvoiceExtract] PARSED DATA for ${fileName}:`, invoiceData);
 		} catch (e) {
 			console.error('Failed to parse AI response:', extractedDataStr);
 			return json(

@@ -53,6 +53,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			`[BankStatementExtract] Extracted ${extractedText.length} characters from PDF`
 		);
 
+		// Log extracted text for debugging
+		console.log(`[BankStatementExtract] BANK STATEMENT TEXT (first 1000 chars):\n---\n${extractedText.substring(0, 1000)}\n---`);
+
 		// Use OpenAI to extract structured data
 		const prompt = `You are an expert at extracting payment data from Estonian bank statements (KONTO VÄLJAVÕTE).
 
@@ -129,6 +132,9 @@ ${extractedText.substring(0, 8000)}`;
 		const data = await response.json();
 		const extractedDataStr = data.choices[0]?.message?.content?.trim();
 
+		// Log AI response for debugging
+		console.log(`[BankStatementExtract] AI RESPONSE:\n${extractedDataStr}`);
+
 		if (!extractedDataStr) {
 			return json({ error: 'No data extracted from AI' }, { status: 500 });
 		}
@@ -137,6 +143,7 @@ ${extractedText.substring(0, 8000)}`;
 		let paymentsData: { payments: PaymentRecord[] };
 		try {
 			paymentsData = JSON.parse(extractedDataStr);
+			console.log(`[BankStatementExtract] PARSED PAYMENTS (count: ${paymentsData.payments?.length || 0}):`, paymentsData.payments);
 		} catch (e) {
 			console.error('Failed to parse AI response:', extractedDataStr);
 			return json(
