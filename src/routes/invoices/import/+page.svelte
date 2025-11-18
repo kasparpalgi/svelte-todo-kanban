@@ -91,36 +91,55 @@
 
 		// Step 1: Extract payments from bank statement if provided
 		let payments: any[] = [];
+		console.log('[ProcessInvoices] Bank statement file ID:', bankStatementFileId);
+
 		if (bankStatementFileId) {
 			try {
-				console.log('Extracting payments from bank statement...');
+				console.log('[ProcessInvoices] Starting bank statement extraction...');
 				const downloadResponse = await fetch('/api/google-drive/download', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ fileId: bankStatementFileId })
 				});
 
-				if (downloadResponse.ok) {
-					const downloadData = await downloadResponse.json();
-					const extractResponse = await fetch('/api/bank-statement/extract', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							pdfBase64: downloadData.file.content,
-							fileName: 'bank-statement.pdf'
-						})
-					});
+				console.log('[ProcessInvoices] Bank statement download response status:', downloadResponse.status);
 
-					if (extractResponse.ok) {
-						const extractData = await extractResponse.json();
-						payments = extractData.payments || [];
-						console.log(`Extracted ${payments.length} payments from bank statement`);
-					}
+				if (!downloadResponse.ok) {
+					const errorData = await downloadResponse.json();
+					console.error('[ProcessInvoices] Bank statement download failed:', errorData);
+					throw new Error(`Download failed: ${errorData.error || 'Unknown error'}`);
 				}
+
+				const downloadData = await downloadResponse.json();
+				console.log('[ProcessInvoices] Bank statement downloaded, size:', downloadData.file?.content?.length || 0);
+
+				const extractResponse = await fetch('/api/bank-statement/extract', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						pdfBase64: downloadData.file.content,
+						fileName: 'bank-statement.pdf'
+					})
+				});
+
+				console.log('[ProcessInvoices] Bank statement extraction response status:', extractResponse.status);
+
+				if (!extractResponse.ok) {
+					const errorData = await extractResponse.json();
+					console.error('[ProcessInvoices] Bank statement extraction failed:', errorData);
+					throw new Error(`Extraction failed: ${errorData.error || 'Unknown error'}`);
+				}
+
+				const extractData = await extractResponse.json();
+				payments = extractData.payments || [];
+				console.log(`[ProcessInvoices] Successfully extracted ${payments.length} payments from bank statement`);
+				console.log('[ProcessInvoices] Payments:', payments);
 			} catch (error: any) {
-				console.error('Error processing bank statement:', error);
-				displayMessage('Warning: Could not extract payment dates from bank statement', 3000);
+				console.error('[ProcessInvoices] Error processing bank statement:', error);
+				displayMessage(`Warning: Could not extract payment dates from bank statement: ${error.message}`, 5000);
 			}
+		} else {
+			console.log('[ProcessInvoices] No bank statement file selected');
 		}
 
 		// Step 2: Process invoices (exclude bank statement)
@@ -165,16 +184,42 @@
 
 				// Step 3: Match payment date from bank statement
 				if (payments.length > 0 && invoiceData.vendor_name && invoiceData.total_amount) {
+					console.log(`[PaymentMatch] Trying to match payment for invoice:`, {
+						vendor: invoiceData.vendor_name,
+						amount: invoiceData.total_amount,
+						availablePayments: payments.length
+					});
+
 					const matchedPayment = payments.find(p => {
 						const vendorMatch = p.vendor.toLowerCase().includes(invoiceData.vendor_name.toLowerCase()) ||
 							invoiceData.vendor_name.toLowerCase().includes(p.vendor.toLowerCase());
 						const amountMatch = Math.abs(p.amount - invoiceData.total_amount) < 0.01;
+
+						console.log(`[PaymentMatch] Checking payment:`, {
+							paymentVendor: p.vendor,
+							paymentAmount: p.amount,
+							paymentDate: p.date,
+							vendorMatch,
+							amountMatch,
+							amountDiff: Math.abs(p.amount - invoiceData.total_amount)
+						});
+
 						return vendorMatch && amountMatch;
 					});
 
 					if (matchedPayment) {
 						invoiceData.payment_date = matchedPayment.date;
-						console.log(`Matched payment for ${invoiceData.vendor_name}: ${matchedPayment.date}`);
+						console.log(`[PaymentMatch] ✓ Matched payment for ${invoiceData.vendor_name}: ${matchedPayment.date}`);
+					} else {
+						console.log(`[PaymentMatch] ✗ No matching payment found for ${invoiceData.vendor_name} (${invoiceData.total_amount})`);
+					}
+				} else {
+					if (payments.length === 0) {
+						console.log(`[PaymentMatch] No payments available for matching`);
+					} else if (!invoiceData.vendor_name) {
+						console.log(`[PaymentMatch] Invoice has no vendor name`);
+					} else if (!invoiceData.total_amount) {
+						console.log(`[PaymentMatch] Invoice has no total amount`);
 					}
 				}
 
