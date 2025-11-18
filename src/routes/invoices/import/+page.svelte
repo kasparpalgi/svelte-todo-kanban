@@ -82,7 +82,12 @@
 		processing = true;
 		currentStep = 'processing';
 		processedInvoices = [];
-		processingProgress = { current: 0, total: selectedFileIds.length };
+
+		// Calculate total invoices to process (exclude bank statement)
+		const invoiceCount = bankStatementFileId
+			? selectedFileIds.filter(id => id !== bankStatementFileId).length
+			: selectedFileIds.length;
+		processingProgress = { current: 0, total: invoiceCount };
 
 		// Step 1: Extract payments from bank statement if provided
 		let payments: any[] = [];
@@ -118,8 +123,10 @@
 			}
 		}
 
-		// Step 2: Process invoices
-		const selectedFilesList = files.filter((f) => selectedFileIds.includes(f.id));
+		// Step 2: Process invoices (exclude bank statement)
+		const selectedFilesList = files.filter((f) =>
+			selectedFileIds.includes(f.id) && f.id !== bankStatementFileId
+		);
 
 		for (const file of selectedFilesList) {
 			try {
