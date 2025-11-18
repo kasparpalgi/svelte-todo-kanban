@@ -142,7 +142,8 @@ function createCommentsStore() {
 					await request(CREATE_ACTIVITY_LOG, {
 						log: {
 							todo_id: todoId,
-							action_type: 'commented'
+							action_type: 'commented',
+							new_value: content.trim().substring(0, 200) + (content.trim().length > 200 ? '...' : '')
 						}
 					});
 				} catch (error) {
@@ -244,10 +245,14 @@ function createCommentsStore() {
 
 				// Log activity: comment edited
 				try {
+					const oldContent = originalComment.content.substring(0, 200) + (originalComment.content.length > 200 ? '...' : '');
+					const newContent = content.trim().substring(0, 200) + (content.trim().length > 200 ? '...' : '');
 					await request(CREATE_ACTIVITY_LOG, {
 						log: {
 							todo_id: updatedComment.todo_id,
-							action_type: 'comment_edited'
+							action_type: 'comment_edited',
+							old_value: oldContent,
+							new_value: newContent
 						}
 					});
 				} catch (error) {

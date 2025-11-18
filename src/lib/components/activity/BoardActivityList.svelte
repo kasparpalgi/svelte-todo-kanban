@@ -91,63 +91,38 @@
 	}
 
 	function formatActivityDescription(log: any): string {
-		const actionKey = `activity.actions.${log.action_type}`;
+		const descKey = `activity.descriptions.${log.action_type}`;
 		const todoTitle = log.todo?.title || 'Unknown task';
 
-		switch (log.action_type) {
-			case 'created':
-				return `${$t(actionKey)} "${todoTitle}"`;
-			case 'completed':
-			case 'uncompleted':
-			case 'deleted':
-				return `${$t(actionKey)} "${todoTitle}"`;
-			case 'updated':
-				if (log.field_name) {
-					return `${$t('activity.actions.updated_field', { field: log.field_name })} in "${todoTitle}"`;
-				}
-				return `${$t(actionKey)} "${todoTitle}"`;
-			case 'commented':
-				return `${$t(actionKey)} on "${todoTitle}"`;
-			case 'comment_edited':
-			case 'comment_deleted':
-				return `${$t(actionKey)} on "${todoTitle}"`;
-			case 'assigned':
-				return `${$t(actionKey)} "${todoTitle}"`;
-			case 'unassigned':
-				return `${$t(actionKey)} "${todoTitle}"`;
-			case 'priority_changed':
-				if (log.old_value && log.new_value) {
-					return `Changed priority from ${log.old_value} to ${log.new_value} in "${todoTitle}"`;
-				}
-				return `${$t(actionKey)} in "${todoTitle}"`;
-			case 'due_date_changed':
-				if (log.old_value && log.new_value) {
-					return `Changed due date from ${log.old_value} to ${log.new_value} in "${todoTitle}"`;
-				}
-				return `${$t(actionKey)} in "${todoTitle}"`;
-			case 'list_moved':
-				if (log.old_value && log.new_value) {
-					return `Moved "${todoTitle}" from ${log.old_value} to ${log.new_value}`;
-				}
-				return `Moved "${todoTitle}" to a different list`;
-			case 'title_changed':
-				if (log.old_value && log.new_value) {
-					return `Changed title from "${log.old_value}" to "${log.new_value}"`;
-				}
-				return `Changed title of "${todoTitle}"`;
-			case 'content_updated':
-				return `Updated content of "${todoTitle}"`;
-			case 'hours_changed':
-				if (log.old_value) {
-					return `${log.old_value} in "${todoTitle}"`;
-				}
-				return `Updated time tracking in "${todoTitle}"`;
-			case 'image_added':
-			case 'image_removed':
-				return `${$t(actionKey)} in "${todoTitle}"`;
-			default:
-				return `${log.action_type} "${todoTitle}"`;
+		// Check if we have old and new values for detailed descriptions
+		if (log.old_value && log.new_value) {
+			return $t(descKey, {
+				title: todoTitle,
+				oldValue: log.old_value,
+				newValue: log.new_value
+			});
 		}
+
+		// For comments, show comment preview if available
+		if (log.action_type === 'commented' && log.new_value) {
+			return $t(descKey, { title: todoTitle }) + ': "' + log.new_value + '"';
+		}
+
+		// For comment edits, show old/new if available
+		if (log.action_type === 'comment_edited') {
+			return $t(descKey, { title: todoTitle });
+		}
+
+		// For hours changed, the old_value contains the summary
+		if (log.action_type === 'hours_changed' && log.old_value) {
+			return $t(descKey, {
+				oldValue: log.old_value,
+				title: todoTitle
+			});
+		}
+
+		// Default: use simple description with title
+		return $t(descKey, { title: todoTitle });
 	}
 
 	function getDateFnsLocale() {
