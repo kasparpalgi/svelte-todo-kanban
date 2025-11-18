@@ -111,7 +111,7 @@ ${extractedText.substring(0, 8000)}`;
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				model: 'gpt-4o-mini',
+				model: 'gpt-4o',
 				messages: [
 					{
 						role: 'user',

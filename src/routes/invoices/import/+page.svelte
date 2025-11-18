@@ -13,11 +13,14 @@
 	let processing = $state(false);
 	let processedInvoices = $state<any[]>([]);
 	let currentStep = $state<'select-folder' | 'select-files' | 'processing' | 'complete'>('select-folder');
-	let selectedFiles = $state<Set<string>>(new Set());
+	let selectedFileIds = $state<string[]>([]);
 	let bankStatementFileId = $state<string | null>(null);
 	let processingProgress = $state({ current: 0, total: 0 });
 	let spreadsheetUrl = $state<string | null>(null);
 	let breadcrumbs = $state<Array<{ id: string; name: string }>>([{ id: 'root', name: 'My Drive' }]);
+
+	// Derived value for selected count
+	const selectedCount = $derived(selectedFileIds.length);
 
 	async function loadFolder(folderId: string, folderName?: string) {
 		loadingFolders = true;
@@ -55,27 +58,23 @@
 	}
 
 	function toggleFileSelection(fileId: string) {
-		const newSelectedFiles = new Set(selectedFiles);
-		if (newSelectedFiles.has(fileId)) {
-			newSelectedFiles.delete(fileId);
+		if (selectedFileIds.includes(fileId)) {
+			selectedFileIds = selectedFileIds.filter(id => id !== fileId);
 		} else {
-			newSelectedFiles.add(fileId);
+			selectedFileIds = [...selectedFileIds, fileId];
 		}
-		selectedFiles = newSelectedFiles;
 	}
 
 	function selectAllFiles() {
-		const newSelectedFiles = new Set(selectedFiles);
-		files.forEach((file) => newSelectedFiles.add(file.id));
-		selectedFiles = newSelectedFiles;
+		selectedFileIds = files.map(file => file.id);
 	}
 
 	function deselectAllFiles() {
-		selectedFiles = new Set();
+		selectedFileIds = [];
 	}
 
 	async function processInvoices() {
-		if (selectedFiles.size === 0) {
+		if (selectedFileIds.length === 0) {
 			displayMessage('Please select at least one PDF file');
 			return;
 		}
@@ -83,7 +82,7 @@
 		processing = true;
 		currentStep = 'processing';
 		processedInvoices = [];
-		processingProgress = { current: 0, total: selectedFiles.size };
+		processingProgress = { current: 0, total: selectedFileIds.length };
 
 		// Step 1: Extract payments from bank statement if provided
 		let payments: any[] = [];
@@ -120,7 +119,7 @@
 		}
 
 		// Step 2: Process invoices
-		const selectedFilesList = files.filter((f) => selectedFiles.has(f.id));
+		const selectedFilesList = files.filter((f) => selectedFileIds.includes(f.id));
 
 		for (const file of selectedFilesList) {
 			try {
@@ -235,8 +234,7 @@
 
 	function reset() {
 		currentStep = 'select-folder';
-		selectedFiles.clear();
-		selectedFiles = selectedFiles;
+		selectedFileIds = [];
 		bankStatementFileId = null;
 		processedInvoices = [];
 		spreadsheetUrl = null;
@@ -319,7 +317,14 @@
 					{#if files.length > 0}
 						<div>
 							<div class="mb-2 flex items-center justify-between">
-								<h3 class="text-sm font-semibold">PDF Files ({files.length})</h3>
+								<h3 class="text-sm font-semibold">
+									PDF Files ({files.length})
+									{#if selectedCount > 0}
+										<span class="ml-2 text-blue-600 dark:text-blue-400">
+											- {selectedCount} selected
+										</span>
+									{/if}
+								</h3>
 								<div class="flex gap-2">
 									<Button
 										size="sm"
@@ -342,12 +347,12 @@
 									<button
 										onclick={() => toggleFileSelection(file.id)}
 										class="flex items-center gap-3 rounded-lg border p-3 text-left hover:bg-muted"
-										class:bg-blue-50={selectedFiles.has(file.id)}
-										class:border-blue-500={selectedFiles.has(file.id)}
+										class:bg-blue-50={selectedFileIds.includes(file.id)}
+										class:border-blue-500={selectedFileIds.includes(file.id)}
 									>
 										<FileIcon class="h-5 w-5 text-red-500" />
 										<span class="flex-1 truncate">{file.name}</span>
-										{#if selectedFiles.has(file.id)}
+										{#if selectedFileIds.includes(file.id)}
 											<CheckCircle2 class="h-5 w-5 text-blue-500" />
 										{/if}
 									</button>
@@ -388,10 +393,10 @@
 						<div class="mt-6 flex justify-end">
 							<Button
 								onclick={processInvoices}
-								disabled={selectedFiles.size === 0}
+								disabled={selectedCount === 0}
 								size="lg"
 							>
-								Process {selectedFiles.size} Invoice{selectedFiles.size !== 1 ? 's' : ''}
+								Process {selectedCount} Invoice{selectedCount !== 1 ? 's' : ''}
 							</Button>
 						</div>
 					{:else if folders.length === 0}
