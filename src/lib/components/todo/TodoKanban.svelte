@@ -17,6 +17,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Plus, RefreshCw, ChevronDown } from 'lucide-svelte';
 	import KanbanColumn from './KanbanColumn.svelte';
+	import ColumnHourSummary from './ColumnHourSummary.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
 	let draggedTodo = $state<TodoFieldsFragment | null>(null);
@@ -438,19 +439,32 @@
 					(acc, todo) => {
 						const min = todo.min_hours || 0;
 						const max = todo.max_hours || 0;
-						if (min > 0 || max > 0) {
+						const actual = todo.actual_hours || 0;
+						if (min > 0 || max > 0 || actual > 0) {
 							const effectiveMin = min || max;
 							const effectiveMax = max || min;
 							acc.min += min;
 							acc.max += max;
 							acc.avg += (effectiveMin + effectiveMax) / 2;
+							acc.actual += actual;
 							acc.count++;
 						}
 						return acc;
 					},
-					{ min: 0, max: 0, avg: 0, count: 0 }
+					{ min: 0, max: 0, avg: 0, actual: 0, count: 0 }
 				)}
 				<div class="w-80 flex-shrink-0">
+					{#if stats.count > 0}
+						<div class="mb-2 flex justify-center">
+							<ColumnHourSummary
+								minHours={stats.min}
+								maxHours={stats.max}
+								avgHours={stats.avg}
+								actualHours={stats.actual}
+								count={stats.count}
+							/>
+						</div>
+					{/if}
 					<KanbanColumn
 						list={{
 							id: list.id,
@@ -467,13 +481,6 @@
 						onDragEnd={handleDragEnd}
 						onDelete={handleDelete}
 					/>
-					{#if stats.count > 0}
-						<div class="-mt-2 text-center text-xs text-gray-400">
-							<span title="Total Minimum Hours">Min: {stats.min.toFixed(1)}h</span> |
-							<span title="Total Average Hours">Avg: {stats.avg.toFixed(1)}h</span> |
-							<span title="Total Maximum Hours">Max: {stats.max.toFixed(1)}h</span>
-						</div>
-					{/if}
 				</div>
 			{/each}
 
