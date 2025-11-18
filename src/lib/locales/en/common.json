@@ -619,7 +619,31 @@
             "image_added": "added an image",
             "image_removed": "removed an image",
             "priority_changed": "changed priority",
-            "due_date_changed": "changed due date"
+            "due_date_changed": "changed due date",
+            "list_moved": "moved",
+            "title_changed": "changed title",
+            "content_updated": "updated content",
+            "hours_changed": "updated time tracking"
+        },
+        "descriptions": {
+            "created": "Created \"{{title}}\"",
+            "deleted": "Deleted \"{{title}}\"",
+            "completed": "Completed \"{{title}}\"",
+            "uncompleted": "Uncompleted \"{{title}}\"",
+            "updated": "Updated \"{{title}}\"",
+            "commented": "Commented on \"{{title}}\"",
+            "comment_edited": "Edited comment on \"{{title}}\"",
+            "comment_deleted": "Deleted comment on \"{{title}}\"",
+            "assigned": "Assigned \"{{title}}\"",
+            "unassigned": "Unassigned \"{{title}}\"",
+            "priority_changed": "Changed priority from {{oldValue}} to {{newValue}} in \"{{title}}\"",
+            "due_date_changed": "Changed due date from {{oldValue}} to {{newValue}} in \"{{title}}\"",
+            "list_moved": "Moved \"{{title}}\" from {{oldValue}} to {{newValue}}",
+            "title_changed": "Changed title from \"{{oldValue}}\" to \"{{newValue}}\"",
+            "content_updated": "Updated content of \"{{title}}\"",
+            "hours_changed": "{{oldValue}} in \"{{title}}\"",
+            "image_added": "Added an image in \"{{title}}\"",
+            "image_removed": "Removed an image from \"{{title}}\""
         }
     }
 }

@@ -34,7 +34,7 @@
 </script>
 
 <Dialog bind:open>
-	<DialogContent class="max-h-[85vh] max-w-3xl">
+	<DialogContent class="max-h-[85vh] max-w-5xl">
 		<DialogHeader>
 			<DialogTitle>{$t('activity.board_activity')}</DialogTitle>
 			<DialogDescription>
