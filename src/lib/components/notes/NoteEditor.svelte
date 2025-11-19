@@ -382,23 +382,13 @@
 				showToolbar={true}
 			/>
 			<div class="mt-2 flex items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2">
-				{#if editorStore}
-					{@const context = getEditorContext()}
-					<VoiceInput
-						onTranscript={handleContentVoice}
-						onError={handleVoiceError}
-						title={title || ''}
-						contentBefore={context.contentBefore}
-						contentAfter={context.contentAfter}
-						useContextualCorrection={true}
-					/>
-				{:else}
-					<VoiceInput
-						onTranscript={handleContentVoice}
-						onError={handleVoiceError}
-						title={title || ''}
-					/>
-				{/if}
+				<VoiceInput
+					onTranscript={handleContentVoice}
+					onError={handleVoiceError}
+					title={title || ''}
+					getContext={getEditorContext}
+					useContextualCorrection={!!editorStore}
+				/>
 				<AITaskButton
 					onResult={handleAITaskResult}
 					title={title || ''}

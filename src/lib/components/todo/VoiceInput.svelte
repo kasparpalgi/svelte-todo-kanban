@@ -19,8 +19,7 @@
 		title = '',
 		minimal = false,
 		startAutomatically = false,
-		contentBefore = '',
-		contentAfter = '',
+		getContext = () => ({ contentBefore: '', contentAfter: '' }),
 		useContextualCorrection = false
 	} = $props();
 
@@ -96,8 +95,9 @@
 
 			// Add context for contextual correction
 			if (useContextualCorrection) {
-				requestBody.contentBefore = contentBefore || '';
-				requestBody.contentAfter = contentAfter || '';
+				const context = getContext();
+				requestBody.contentBefore = context.contentBefore || '';
+				requestBody.contentAfter = context.contentAfter || '';
 				requestBody.title = title || '';
 			} else if (title) {
 				requestBody.context = `Title context: "${title}"`;

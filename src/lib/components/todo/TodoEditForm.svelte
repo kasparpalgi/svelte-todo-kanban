@@ -191,25 +191,14 @@
 						<div
 							class="flex items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2"
 						>
-							{#if editor}
-								{@const context = getEditorContext()}
-								<VoiceInput
-									onTranscript={handleContentVoice}
-									onError={handleVoiceError}
-									disabled={isSubmitting}
-									title={editData.title || ''}
-									contentBefore={context.contentBefore}
-									contentAfter={context.contentAfter}
-									useContextualCorrection={true}
-								/>
-							{:else}
-								<VoiceInput
-									onTranscript={handleContentVoice}
-									onError={handleVoiceError}
-									disabled={isSubmitting}
-									title={editData.title || ''}
-								/>
-							{/if}
+							<VoiceInput
+								onTranscript={handleContentVoice}
+								onError={handleVoiceError}
+								disabled={isSubmitting}
+								title={editData.title || ''}
+								getContext={getEditorContext}
+								useContextualCorrection={!!editor}
+							/>
 							<AITaskButton
 								onResult={handleAITaskResult}
 								title={editData.title || ''}
