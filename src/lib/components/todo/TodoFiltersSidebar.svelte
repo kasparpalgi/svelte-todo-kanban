@@ -334,7 +334,7 @@
 					class="w-full justify-start"
 				>
 					<AlertCircle class="mr-2 h-4 w-4" />
-					{$t('todo.priority.high')}
+					{$t('todo.priority_high')}
 				</Button>
 				<Button
 					variant={selectedPriorities.includes('medium') ? 'default' : 'outline'}
@@ -343,7 +343,7 @@
 					class="w-full justify-start"
 				>
 					<AlertCircle class="mr-2 h-4 w-4" />
-					{$t('todo.priority.medium')}
+					{$t('todo.priority_medium')}
 				</Button>
 				<Button
 					variant={selectedPriorities.includes('low') ? 'secondary' : 'outline'}
@@ -352,7 +352,7 @@
 					class="w-full justify-start"
 				>
 					<AlertCircle class="mr-2 h-4 w-4" />
-					{$t('todo.priority.low')}
+					{$t('todo.priority_low')}
 				</Button>
 			</div>
 		</div>
