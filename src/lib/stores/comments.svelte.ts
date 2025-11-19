@@ -277,14 +277,15 @@ function createCommentsStore() {
 		}
 	}
 
-	async function deleteComment(id: string): Promise<StoreResult> {
+	async function deleteComment(id: string, todo?: any): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		const commentIndex = state.comments.findIndex((c) => c.id === id);
 		if (commentIndex === -1) return { success: false, message: 'Comment not found' };
 
 		const originalComments = [...state.comments];
-		const todoId = state.comments[commentIndex].todo_id;
+		const comment = state.comments[commentIndex];
+		const todoId = comment.todo_id;
 
 		// Log activity BEFORE deletion
 		try {
@@ -309,6 +310,34 @@ function createCommentsStore() {
 			});
 
 			if (data.delete_comments?.affected_rows && data.delete_comments.affected_rows > 0) {
+				// Sync deletion to GitHub if comment has a GitHub ID
+				const githubCommentId = comment.github_comment_id;
+				const boardGithub = todo?.list?.board?.github;
+
+				if (githubCommentId && boardGithub) {
+					try {
+						const githubData = typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
+						const { owner, repo } = githubData as { owner: string; repo: string };
+
+						fetch('/api/github/delete-comment', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								commentId: id,
+								githubCommentId,
+								owner,
+								repo
+							})
+						}).catch((err) => {
+							// Non-blocking: log error but don't fail comment deletion
+							console.error('Failed to sync comment deletion to GitHub:', err);
+						});
+					} catch (githubError) {
+						// Non-blocking: log error but don't fail comment deletion
+						console.error('Failed to sync comment deletion to GitHub:', githubError);
+					}
+				}
+
 				return { success: true, message: 'Comment deleted successfully' };
 			}
 
