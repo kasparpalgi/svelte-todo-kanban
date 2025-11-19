@@ -37,7 +37,9 @@
 	function handleVoiceTranscript(transcript: string) {
 		taskInput = transcript;
 		setTimeout(() => {
-			textareaEl?.focus();
+			if (textareaEl && typeof textareaEl.focus === 'function') {
+				textareaEl.focus();
+			}
 		}, 100);
 	}
 
