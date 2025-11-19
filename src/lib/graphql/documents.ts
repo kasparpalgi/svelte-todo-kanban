@@ -135,7 +135,6 @@ export const BOARD_FRAGMENT = graphql(`
 		is_public
 		allow_public_comments
 		settings
-		customer_invoice_details
 		created_at
 		updated_at
 		labels {
