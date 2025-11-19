@@ -32,7 +32,8 @@
 		Users,
 		Globe,
 		ChevronUp,
-		ChevronDown
+		ChevronDown,
+		FileText
 	} from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -42,6 +43,7 @@
 	import GithubRepoSelector from './GithubRepoSelector.svelte';
 	import BoardMembers from './BoardMembers.svelte';
 	import BoardVisibilitySettings from './BoardVisibilitySettings.svelte';
+	import BoardCustomerInvoiceDetails from './BoardCustomerInvoiceDetails.svelte';
 	import githubLogo from '$lib/assets/github.svg';
 
 	let showBoardDialog = $state(false);
@@ -55,6 +57,8 @@
 	let selectedBoardForMembers = $state<any>(null);
 	let showVisibilityDialog = $state(false);
 	let selectedBoardForVisibility = $state<any>(null);
+	let showInvoiceDialog = $state(false);
+	let selectedBoardForInvoice = $state<any>(null);
 
 	const hasGithubConnected = $derived(userStore.hasGithubConnected);
 	const currentUser = $derived(userStore.user);
@@ -196,6 +200,11 @@
 	function openVisibilityDialog(board: any) {
 		selectedBoardForVisibility = board;
 		showVisibilityDialog = true;
+	}
+
+	function openInvoiceDialog(board: any) {
+		selectedBoardForInvoice = board;
+		showInvoiceDialog = true;
 	}
 
 	async function moveBoardUp(boardId: string) {
@@ -402,6 +411,10 @@
 													<Globe class="mr-2 h-3 w-3" />
 													{$t('board.sharing_visibility')}
 												</DropdownMenuItem>
+												<DropdownMenuItem onclick={() => openInvoiceDialog(board)}>
+													<FileText class="mr-2 h-3 w-3" />
+													Customer Invoice Details
+												</DropdownMenuItem>
 												{#if hasGithubConnected}
 													<DropdownMenuItem onclick={() => openGithubSelector(board)}>
 														<img src={githubLogo} alt="GitHub" class="mr-2 h-3 w-3" />
@@ -540,4 +553,12 @@
 			selectedBoardForVisibility = null;
 		}}
 	/>
+{/if}
+
+{#if showInvoiceDialog && selectedBoardForInvoice}
+	<Dialog bind:open={showInvoiceDialog}>
+		<DialogContent class="max-w-2xl">
+			<BoardCustomerInvoiceDetails boardId={selectedBoardForInvoice.id} />
+		</DialogContent>
+	</Dialog>
 {/if}

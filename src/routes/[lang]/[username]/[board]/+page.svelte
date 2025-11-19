@@ -28,7 +28,8 @@
 		Funnel,
 		ArrowRight,
 		Github,
-		Bell
+		Bell,
+		FileText
 	} from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
@@ -359,6 +360,14 @@
 					>
 						<Funnel class="mr-2 h-4 w-4" />
 						<span class="hidden md:block">Filter</span>
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={() => goto(`/${lang}/${username}/${boardAlias}/invoices`)}
+					>
+						<FileText class="mr-2 h-4 w-4" />
+						<span class="hidden md:block">Invoices</span>
 					</Button>
 					<NotesButton onclick={() => (showNotesDialog = true)} />
 					<BoardActivityButton onclick={() => (showActivityDialog = true)} />

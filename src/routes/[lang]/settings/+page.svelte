@@ -22,6 +22,7 @@
 	import { User, Moon, Sun, Layers, List, Save, Brain, ChartColumn } from 'lucide-svelte';
 	import GithubIntegration from '$lib/components/settings/GithubIntegration.svelte';
 	import GoogleCalendarIntegration from '$lib/components/settings/GoogleCalendarIntegration.svelte';
+	import InvoiceSettings from '$lib/components/settings/InvoiceSettings.svelte';
 	import DevMode from '$lib/components/DevMode.svelte';
 
 	let user = $derived(userStore.user);
@@ -325,6 +326,8 @@
 			<GithubIntegration />
 
 			<GoogleCalendarIntegration />
+
+			<InvoiceSettings />
 
 			<div class="flex justify-start">
 				<Button
