@@ -263,7 +263,13 @@ function createListsStore() {
 		updates: Partial<
 			Pick<
 				BoardFieldsFragment,
-				'name' | 'sort_order' | 'github' | 'is_public' | 'allow_public_comments' | 'settings'
+				| 'name'
+				| 'sort_order'
+				| 'github'
+				| 'is_public'
+				| 'allow_public_comments'
+				| 'settings'
+				| 'customer_invoice_details'
 			>
 		>
 	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
