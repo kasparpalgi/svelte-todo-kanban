@@ -11,6 +11,7 @@
 	import { Check, X, Image as ImageIcon, Upload, Trash2 } from 'lucide-svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import VoiceInput from './VoiceInput.svelte';
+	import AITaskButton from './AITaskButton.svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import type { TodoEditProps } from '$lib/types/todo';
 	import type { Readable } from 'svelte/store';
@@ -76,12 +77,44 @@
 
 	function handleContentVoice(transcript: string) {
 		if (editor) {
-			get(editor).commands.setContent(transcript);
+			const editorInstance = get(editor);
+			// Insert at cursor position instead of replacing all content
+			editorInstance.commands.insertContent(transcript);
 		}
+	}
+
+	function getEditorContext(): { contentBefore: string; contentAfter: string } {
+		if (!editor) return { contentBefore: '', contentAfter: '' };
+
+		const editorInstance = get(editor);
+		const { from } = editorInstance.state.selection;
+		const doc = editorInstance.state.doc;
+
+		// Get text content before cursor
+		const contentBefore = doc.textBetween(0, from, '\n');
+		// Get text content after cursor
+		const contentAfter = doc.textBetween(from, doc.content.size, '\n');
+
+		return { contentBefore, contentAfter };
 	}
 
 	function handleVoiceError(error: string) {
 		displayMessage(error, 3000, false);
+	}
+
+	function handleAITaskResult(result: string) {
+		if (editor) {
+			const editorInstance = get(editor);
+			// Insert AI task result at cursor position
+			editorInstance.commands.insertContent(result);
+		}
+	}
+
+	function getCleanContent(): string {
+		if (!editor) return '';
+		const editorInstance = get(editor);
+		// Get text content without HTML tags
+		return editorInstance.getText();
 	}
 
 	function handleSave() {
@@ -155,13 +188,28 @@
 					</label>
 					<div class="space-y-2">
 						<RichTextEditor bind:editor content={editData.content} showToolbar={false} />
-						<div class="flex justify-start">
+						<div
+							class="flex items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2"
+						>
 							<VoiceInput
 								onTranscript={handleContentVoice}
 								onError={handleVoiceError}
 								disabled={isSubmitting}
 								title={editData.title || ''}
+								getContext={getEditorContext}
+								useContextualCorrection={!!editor}
 							/>
+							<AITaskButton
+								onResult={handleAITaskResult}
+								title={editData.title || ''}
+								content={getCleanContent()}
+								disabled={isSubmitting}
+								minimal={true}
+							/>
+							<div class="flex-1"></div>
+							<span class="text-xs text-muted-foreground">
+								{$t('ai.toolbar_hint') || 'Voice input or AI task'}
+							</span>
 						</div>
 					</div>
 					{#if validationErrors.content}

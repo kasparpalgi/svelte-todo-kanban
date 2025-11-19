@@ -7,6 +7,8 @@
 	import { Input } from '$lib/components/ui/input';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import NoteImageManager from '$lib/components/notes/NoteImageManager.svelte';
+	import VoiceInput from '$lib/components/todo/VoiceInput.svelte';
+	import AITaskButton from '$lib/components/todo/AITaskButton.svelte';
 	import { notesStore } from '$lib/stores/notes.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { t } from '$lib/i18n';
@@ -52,6 +54,7 @@
 	let editorInitialized: boolean = false;
 	let imageManager: any = $state(null);
 	let showImageSection: boolean = $state(false);
+	let titleInputEl: any = $state(null);
 
 	// Update when note changes
 	$effect(() => {
@@ -250,6 +253,70 @@
 		});
 	}
 
+	function handleTitleVoice(transcript: string) {
+		title = transcript;
+		hasUnsavedChanges = true;
+		scheduleAutoSave();
+		setTimeout(() => {
+			if (titleInputEl && typeof titleInputEl.focus === 'function') {
+				titleInputEl.focus();
+			}
+		}, 100);
+	}
+
+	function handleContentVoice(transcript: string) {
+		if (editorStore) {
+			const editor = get(editorStore);
+			if (editor) {
+				// Insert at cursor position instead of replacing all content
+				editor.commands.insertContent(transcript);
+				hasUnsavedChanges = true;
+				scheduleAutoSave();
+			}
+		}
+	}
+
+	function getEditorContext(): { contentBefore: string; contentAfter: string } {
+		if (!editorStore) return { contentBefore: '', contentAfter: '' };
+
+		const editor = get(editorStore);
+		if (!editor) return { contentBefore: '', contentAfter: '' };
+
+		const { from } = editor.state.selection;
+		const doc = editor.state.doc;
+
+		// Get text content before cursor
+		const contentBefore = doc.textBetween(0, from, '\n');
+		// Get text content after cursor
+		const contentAfter = doc.textBetween(from, doc.content.size, '\n');
+
+		return { contentBefore, contentAfter };
+	}
+
+	function handleVoiceError(error: string) {
+		displayMessage(error, 3000, false);
+	}
+
+	function handleAITaskResult(result: string) {
+		if (editorStore) {
+			const editor = get(editorStore);
+			if (editor) {
+				// Insert AI task result at cursor position
+				editor.commands.insertContent(result);
+				hasUnsavedChanges = true;
+				scheduleAutoSave();
+			}
+		}
+	}
+
+	function getCleanContent(): string {
+		if (!editorStore) return '';
+		const editor = get(editorStore);
+		if (!editor) return '';
+		// Get text content without HTML tags
+		return editor.getText();
+	}
+
 	onDestroy(() => {
 		if (autoSaveTimeout) {
 			clearTimeout(autoSaveTimeout);
@@ -274,13 +341,21 @@
 				</div>
 			{/if}
 			<div class="p-4">
-				<Input
-					type="text"
-					bind:value={title}
-					oninput={handleTitleChange}
-					placeholder={$t('notes.untitled')}
-					class="mb-2 text-xl font-semibold"
-				/>
+				<div class="mb-2 flex gap-2">
+					<Input
+						bind:this={titleInputEl}
+						type="text"
+						bind:value={title}
+						oninput={handleTitleChange}
+						placeholder={$t('notes.untitled')}
+						class="flex-1 text-xl font-semibold"
+					/>
+					<VoiceInput
+						onTranscript={handleTitleVoice}
+						onError={handleVoiceError}
+						minimal={true}
+					/>
+				</div>
 				<div class="flex items-center justify-between">
 					<div class="text-xs text-muted-foreground">
 						<span>Updated {formatDate(note.updated_at)}</span>
@@ -306,6 +381,25 @@
 				bind:editor={editorStore}
 				showToolbar={true}
 			/>
+			<div class="mt-2 flex items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2">
+				<VoiceInput
+					onTranscript={handleContentVoice}
+					onError={handleVoiceError}
+					title={title || ''}
+					getContext={getEditorContext}
+					useContextualCorrection={!!editorStore}
+				/>
+				<AITaskButton
+					onResult={handleAITaskResult}
+					title={title || ''}
+					content={getCleanContent()}
+					minimal={true}
+				/>
+				<div class="flex-1"></div>
+				<span class="text-xs text-muted-foreground">
+					{$t('ai.toolbar_hint') || 'Voice input or AI task'}
+				</span>
+			</div>
 
 			<!-- Image Manager -->
 			<div class="mt-6 border-t pt-6">

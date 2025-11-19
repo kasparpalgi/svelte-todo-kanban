@@ -605,12 +605,12 @@
         "allSessions": "Kõik seansid"
     },
     "activity": {
-        "title": "Tegevus",
-        "board_activity": "Laua tegevus",
-        "board_activity_description": "Hiljutine tegevus laual {{boardName}}",
-        "showing_activities": "Näitan {{count}} tegevust",
+        "title": "Logid",
+        "board_activity": "Projekti ajalugu",
+        "board_activity_description": "{{boardName}} viimased tegevused",
+        "showing_activities": "Näitan {{count}} logi",
         "loading": "Laen tegevust...",
-        "no_activity": "Veel tegevust pole",
+        "no_activity": "Rohkem logisid pole",
         "actions": {
             "created": "loodud",
             "updated": "uuendatud",
@@ -652,5 +652,22 @@
             "image_added": "Lisas pildi \"{{title}}\" juurde",
             "image_removed": "Eemaldas pildi \"{{title}}\" juurest"
         }
+    },
+    "ai": {
+        "task_button": "AI Ülesanne",
+        "task_title": "AI Ülesanne",
+        "task_description": "Anna AI-le ülesanne selle sisu täiendamiseks. Näited: \"Uuri seda teemat\", \"Tee kokkuvõte põhipunktidest\", \"Soovita järgmisi samme\", \"Leia seotud teavet\"",
+        "task_input_label": "Mida AI peaks tegema?",
+        "task_placeholder": "nt. \"Uuri seda teemat ja lisa põhipunktid\", \"Tee sisust kokkuvõte\", \"Soovita parendusi\"",
+        "context_info": "AI-l on juurdepääs:",
+        "title_context": "Pealkiri",
+        "content_context": "Sisu",
+        "characters": "tähemärki",
+        "processing": "Töötlen...",
+        "run_task": "Käivita Ülesanne",
+        "keyboard_hint": "Vajuta <kbd>Ctrl+Enter</kbd> saatmiseks, <kbd>Esc</kbd> sulgemiseks",
+        "toolbar_hint": "Häälsisestus või AI ülesanne",
+        "task_completed": "Ülesanne edukalt lõpetatud",
+        "no_result": "AI ei tagastanud tulemust. Palun proovi uuesti või sõnasta ülesanne ümber."
     }
 }
