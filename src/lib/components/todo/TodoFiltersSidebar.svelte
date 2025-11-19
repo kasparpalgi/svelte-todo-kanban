@@ -9,7 +9,7 @@
 	import { actionState } from '$lib/stores/states.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { boardMembersStore } from '$lib/stores/boardMembers.svelte';
-	import { listsAndBoardsStore } from '$lib/stores/listsBoards.svelte';
+	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Badge } from '$lib/components/ui/badge';
@@ -40,7 +40,7 @@
 
 	const user = $derived(userStore.user);
 	const members = $derived(boardMembersStore.members);
-	const currentBoard = $derived(listsAndBoardsStore.currentBoard);
+	const currentBoard = $derived(listsStore.selectedBoard);
 	const boardLabels = $derived(currentBoard?.labels || []);
 
 	onMount(async () => {
