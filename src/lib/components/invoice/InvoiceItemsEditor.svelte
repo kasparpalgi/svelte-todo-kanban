@@ -28,6 +28,18 @@
 
 	let { boardId, items = $bindable(), onItemsChange }: Props = $props();
 
+	// Load todos for the board when component mounts
+	$effect(() => {
+		console.log('[InvoiceItemsEditor] Effect running - checking if todos need loading');
+		console.log('[InvoiceItemsEditor] Current board ID:', boardId);
+		console.log('[InvoiceItemsEditor] Todos count:', todosStore.todos.length);
+
+		if (boardId && todosStore.todos.length === 0) {
+			console.log('[InvoiceItemsEditor] Loading todos for board:', boardId);
+			todosStore.loadTodos();
+		}
+	});
+
 	// Get todos for the board
 	let todos = $derived.by(() => {
 		const filteredTodos = todosStore.todos.filter(
