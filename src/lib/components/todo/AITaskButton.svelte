@@ -35,15 +35,9 @@
 	let isProcessing = $state(false);
 	let processingTime = $state('');
 	let processingCost = $state('');
-	let textareaEl: HTMLTextAreaElement | undefined;
 
 	function handleVoiceTranscript(transcript: string) {
 		taskInput = transcript;
-		setTimeout(() => {
-			if (textareaEl && typeof textareaEl.focus === 'function') {
-				textareaEl.focus();
-			}
-		}, 100);
 	}
 
 	function handleVoiceError(error: string) {
@@ -178,7 +172,6 @@
 					/>
 				</div>
 				<Textarea
-					bind:ref={textareaEl}
 					id="ai-task-input"
 					bind:value={taskInput}
 					placeholder={$t('ai.task_placeholder') ||
