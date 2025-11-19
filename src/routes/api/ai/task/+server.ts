@@ -56,7 +56,7 @@ Please complete this task thoughtfully. If it involves research or external info
 						content: prompt
 					}
 				],
-				max_completion_tokens: 2000
+				max_completion_tokens: 16000 // High limit to allow for reasoning + output
 			})
 		});
 
@@ -67,32 +67,23 @@ Please complete this task thoughtfully. If it involves research or external info
 		}
 
 		const data = await response.json();
-
-		// Debug logging to understand response structure
-		console.log('OpenAI response structure:', {
-			hasChoices: !!data.choices,
-			choicesLength: data.choices?.length,
-			firstChoice: data.choices?.[0],
-			message: data.choices?.[0]?.message,
-			content: data.choices?.[0]?.message?.content,
-			contentType: typeof data.choices?.[0]?.message?.content,
-			contentLength: data.choices?.[0]?.message?.content?.length
-		});
-
 		const result = data.choices[0]?.message?.content?.trim() || '';
 		const processingTime = Date.now() - startTime;
 		const inputTokens = data.usage?.prompt_tokens || 0;
 		const outputTokens = data.usage?.completion_tokens || 0;
 		const cachedTokens = data.usage?.prompt_tokens_details?.cached_tokens || 0;
+		const reasoningTokens = data.usage?.completion_tokens_details?.reasoning_tokens || 0;
 
 		const cost = await calculateCost(selectedModel, inputTokens, outputTokens, cachedTokens);
 
-		// Log if result is empty to help with debugging
+		// Log if result is empty (likely reasoning model hit token limit during reasoning phase)
 		if (!result) {
 			console.error('AI task returned empty result', {
 				task,
 				model: selectedModel,
-				fullResponse: JSON.stringify(data, null, 2)
+				reasoning_tokens: reasoningTokens,
+				total_completion_tokens: outputTokens,
+				finish_reason: data.choices[0]?.finish_reason
 			});
 		}
 
