@@ -44,7 +44,21 @@
 
 	let selectedTodoId = $state<string>('');
 
+	// Log when selectedTodoId changes
+	$effect(() => {
+		console.log('[InvoiceItemsEditor] selectedTodoId changed:', selectedTodoId);
+		console.log('[InvoiceItemsEditor] Button disabled?', !selectedTodoId);
+	});
+
+	// Log todos and items
+	$effect(() => {
+		console.log('[InvoiceItemsEditor] Available todos:', todos);
+		console.log('[InvoiceItemsEditor] Current items:', items);
+		console.log('[InvoiceItemsEditor] Todos already in invoice:', items.filter(i => i.todo_id).map(i => i.todo_id));
+	});
+
 	function addTodoItem() {
+		console.log('[InvoiceItemsEditor] addTodoItem called with selectedTodoId:', selectedTodoId);
 		if (!selectedTodoId) return;
 
 		const todo = todos.find((t) => t.id === selectedTodoId);
@@ -156,7 +170,15 @@
 	<CardContent class="space-y-4">
 		<!-- Add Todo Item -->
 		<div class="flex gap-2">
-			<Select bind:value={selectedTodoId}>
+			<Select
+				bind:value={selectedTodoId}
+				onValueChange={(value) => {
+					console.log('[InvoiceItemsEditor Select] onValueChange triggered:', value);
+					if (value) {
+						selectedTodoId = value;
+					}
+				}}
+			>
 				<SelectTrigger class="flex-1" placeholder="Select a task to add...">
 					{selectedTodoId ? getTodoDisplay(selectedTodoId) : 'Select a task to add...'}
 				</SelectTrigger>
