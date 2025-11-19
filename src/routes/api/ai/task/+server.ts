@@ -40,7 +40,19 @@ export const POST: RequestHandler = async ({ request }) => {
 "${task}"
 ${contextInfo}
 
-Please complete this task thoughtfully. If it involves research or external information, clearly state that you're providing suggestions based on your knowledge (not live internet access). Your response should be helpful, well-formatted, and ready to be inserted into the document.`;
+Please complete this task thoughtfully. If it involves research or external information, clearly state that you're providing suggestions based on your knowledge (not live internet access).
+
+IMPORTANT: Format your response using HTML tags for proper display in a rich text editor. Use these tags:
+- <p> for paragraphs
+- <strong> for bold text
+- <em> for italic text
+- <ul> and <li> for unordered lists
+- <ol> and <li> for ordered lists
+- <h2>, <h3> for headings
+- <table>, <tr>, <th>, <td> for tables (if needed)
+- <br> for line breaks
+
+Do NOT use markdown. Use HTML only. Your response should be well-formatted and ready to be inserted into the document.`;
 
 		const response = await fetch('https://api.openai.com/v1/chat/completions', {
 			method: 'POST',
