@@ -7,10 +7,20 @@
 	} from '$lib/stores/todoFiltering.svelte';
 	import { t } from '$lib/i18n';
 	import { actionState } from '$lib/stores/states.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
+	import { boardMembersStore } from '$lib/stores/boardMembers.svelte';
+	import { listsAndBoardsStore } from '$lib/stores/listsBoards.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
+	import { Checkbox } from '$lib/components/ui/checkbox';
+	import {
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuTrigger,
+		DropdownMenuCheckboxItem
+	} from '$lib/components/ui/dropdown-menu';
 	import {
 		Search,
 		ArrowUpNarrowWide,
@@ -18,9 +28,28 @@
 		Calendar,
 		TriangleAlert,
 		X,
-		Funnel
+		Funnel,
+		User,
+		Tag,
+		AlertCircle
 	} from 'lucide-svelte';
+	import { onMount } from 'svelte';
+
 	let searchTerm = $state('');
+	let searchContentEnabled = $state(false);
+
+	const user = $derived(userStore.user);
+	const members = $derived(boardMembersStore.members);
+	const currentBoard = $derived(listsAndBoardsStore.currentBoard);
+	const boardLabels = $derived(currentBoard?.labels || []);
+
+	onMount(async () => {
+		if (currentBoard?.id) {
+			await boardMembersStore.loadMembers(currentBoard.id);
+		}
+		// Load initial search content state from filters
+		searchContentEnabled = todoFilteringStore.filters.searchContent || false;
+	});
 
 	function handleSearchInput() {
 		if (todoFilteringStore.setSearchFilter) {
@@ -52,19 +81,81 @@
 	function clearAllFilters() {
 		todoFilteringStore.clearAllFilters();
 		searchTerm = '';
+		searchContentEnabled = false;
 	}
 
 	function getActiveFilterCount() {
 		const filters = todoFilteringStore.filters;
 		return Object.keys(filters).filter(
-			(key) => key !== 'boardId' && filters[key as keyof typeof filters] !== undefined
+			(key) =>
+				key !== 'boardId' &&
+				key !== 'searchContent' &&
+				filters[key as keyof typeof filters] !== undefined
 		).length;
+	}
+
+	function handleSearchContentToggle() {
+		searchContentEnabled = !searchContentEnabled;
+		if (searchContentEnabled) {
+			todoFilteringStore.setFilter('searchContent', true);
+		} else {
+			todoFilteringStore.clearFilter('searchContent');
+		}
+	}
+
+	function togglePriority(priority: string) {
+		const currentPriorities = todoFilteringStore.filters.priority || [];
+		if (currentPriorities.includes(priority)) {
+			const newPriorities = currentPriorities.filter((p) => p !== priority);
+			if (newPriorities.length === 0) {
+				todoFilteringStore.clearFilter('priority');
+			} else {
+				todoFilteringStore.setFilter('priority', newPriorities);
+			}
+		} else {
+			todoFilteringStore.setFilter('priority', [...currentPriorities, priority]);
+		}
+	}
+
+	function toggleLabel(labelId: string) {
+		const currentLabels = todoFilteringStore.filters.labelIds || [];
+		if (currentLabels.includes(labelId)) {
+			const newLabels = currentLabels.filter((id) => id !== labelId);
+			if (newLabels.length === 0) {
+				todoFilteringStore.clearFilter('labelIds');
+			} else {
+				todoFilteringStore.setFilter('labelIds', newLabels);
+			}
+		} else {
+			todoFilteringStore.setFilter('labelIds', [...currentLabels, labelId]);
+		}
+	}
+
+	function toggleAssignedToMe() {
+		if (todoFilteringStore.filters.assignedToMe) {
+			todoFilteringStore.clearFilter('assignedToMe');
+		} else {
+			todoFilteringStore.setFilter('assignedToMe', true);
+			// Clear assignedTo filter if assignedToMe is enabled
+			todoFilteringStore.clearFilter('assignedTo');
+		}
+	}
+
+	function setAssignedTo(userId: string | null) {
+		if (todoFilteringStore.filters.assignedTo === userId) {
+			todoFilteringStore.clearFilter('assignedTo');
+		} else {
+			todoFilteringStore.setFilter('assignedTo', userId);
+			// Clear assignedToMe filter if assignedTo is set
+			todoFilteringStore.clearFilter('assignedToMe');
+		}
 	}
 
 	let activeFilterCount = $derived(getActiveFilterCount());
 	let currentFilters = $derived(todoFilteringStore.filters);
 	let currentSorting = $derived(todoFilteringStore.sorting);
-</script>
+	let selectedPriorities = $derived(currentFilters.priority || []);
+	let selectedLabels = $derived(currentFilters.labelIds || []);</script>
 
 <div
 	class="fixed top-0 right-0 z-50 h-screen w-80 overflow-y-auto border-l bg-background shadow-lg"
@@ -120,6 +211,19 @@
 					class="pl-9"
 				/>
 			</div>
+			<div class="flex items-center gap-2 pl-1">
+				<Checkbox
+					id="search-content"
+					checked={searchContentEnabled}
+					onCheckedChange={handleSearchContentToggle}
+				/>
+				<label
+					for="search-content"
+					class="text-sm text-muted-foreground cursor-pointer select-none"
+				>
+					{$t('filters.search_content')}
+				</label>
+			</div>
 		</div>
 
 		<Separator />
@@ -151,6 +255,134 @@
 		</div>
 
 		<Separator />
+
+		<!-- Assignment Filters -->
+		<div class="space-y-3">
+			<label class="text-sm font-medium">{$t('filters.assignment')}</label>
+			<div class="space-y-2">
+				<Button
+					variant={currentFilters.assignedToMe ? 'default' : 'outline'}
+					size="sm"
+					onclick={toggleAssignedToMe}
+					class="w-full justify-start"
+				>
+					<User class="mr-2 h-4 w-4" />
+					{$t('filters.assigned_to_me')}
+				</Button>
+
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild let:builder>
+						<Button builders={[builder]} variant="outline" size="sm" class="w-full justify-start">
+							<User class="mr-2 h-4 w-4" />
+							{#if currentFilters.assignedTo === null}
+								{$t('filters.unassigned')}
+							{:else if currentFilters.assignedTo}
+								{members.find((m) => m.user.id === currentFilters.assignedTo)?.user.name ||
+									$t('filters.assigned_to_other')}
+							{:else}
+								{$t('filters.assigned_to_other')}
+							{/if}
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="start" class="w-48">
+						<DropdownMenuCheckboxItem
+							checked={currentFilters.assignedTo === null}
+							onCheckedChange={() => setAssignedTo(null)}
+						>
+							{$t('filters.unassigned')}
+						</DropdownMenuCheckboxItem>
+						{#each members as member (member.id)}
+							<DropdownMenuCheckboxItem
+								checked={currentFilters.assignedTo === member.user.id}
+								onCheckedChange={() => setAssignedTo(member.user.id)}
+							>
+								<div class="flex items-center gap-2">
+									{#if member.user.image}
+										<img
+											src={member.user.image}
+											alt={member.user.name || member.user.username}
+											class="h-5 w-5 rounded-full"
+										/>
+									{:else}
+										<div class="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
+											<span class="text-xs text-muted-foreground">
+												{(member.user.name || member.user.username)?.[0]?.toUpperCase()}
+											</span>
+										</div>
+									{/if}
+									<span class="text-sm">
+										{member.user.name || member.user.username}
+									</span>
+								</div>
+							</DropdownMenuCheckboxItem>
+						{/each}
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</div>
+		</div>
+
+		<Separator />
+
+		<!-- Priority Filters -->
+		<div class="space-y-3">
+			<label class="text-sm font-medium">{$t('filters.priority')}</label>
+			<div class="space-y-1">
+				<Button
+					variant={selectedPriorities.includes('high') ? 'destructive' : 'outline'}
+					size="sm"
+					onclick={() => togglePriority('high')}
+					class="w-full justify-start"
+				>
+					<AlertCircle class="mr-2 h-4 w-4" />
+					{$t('todo.priority.high')}
+				</Button>
+				<Button
+					variant={selectedPriorities.includes('medium') ? 'default' : 'outline'}
+					size="sm"
+					onclick={() => togglePriority('medium')}
+					class="w-full justify-start"
+				>
+					<AlertCircle class="mr-2 h-4 w-4" />
+					{$t('todo.priority.medium')}
+				</Button>
+				<Button
+					variant={selectedPriorities.includes('low') ? 'secondary' : 'outline'}
+					size="sm"
+					onclick={() => togglePriority('low')}
+					class="w-full justify-start"
+				>
+					<AlertCircle class="mr-2 h-4 w-4" />
+					{$t('todo.priority.low')}
+				</Button>
+			</div>
+		</div>
+
+		<Separator />
+
+		<!-- Label Filters -->
+		{#if boardLabels.length > 0}
+			<div class="space-y-3">
+				<label class="text-sm font-medium">{$t('filters.labels')}</label>
+				<div class="flex flex-wrap gap-2">
+					{#each boardLabels as label (label.id)}
+						<Button
+							variant={selectedLabels.includes(label.id) ? 'default' : 'outline'}
+							size="sm"
+							onclick={() => toggleLabel(label.id)}
+							class="gap-2"
+							style={selectedLabels.includes(label.id)
+								? `background-color: ${label.color}; border-color: ${label.color};`
+								: `border-color: ${label.color}; color: ${label.color};`}
+						>
+							<Tag class="h-3 w-3" />
+							{label.name}
+						</Button>
+					{/each}
+				</div>
+			</div>
+
+			<Separator />
+		{/if}
 
 		<!-- Sorting -->
 		<div class="space-y-3">
