@@ -144,7 +144,8 @@
         "settings_updated": "Board settings updated",
         "mobile_add": "Mobile quick add (for adding to homescreen)",
         "customer_invoice_details": "Customer Invoice Details",
-        "invoices": "Invoices"
+        "invoices": "Invoices",
+        "board": "Board"
     },
     "members": {
         "board_members": "Board Members",
@@ -714,7 +715,8 @@
         "no_items": "No items added yet. Add tasks or custom rows to get started.",
         "print": "Print",
         "back_to_invoices": "Back to Invoices",
-        "back_to_board": "Back to Board"
+        "back_to_board": "Back to Board",
+        "board_not_found": "Board not found"
     },
     "ai": {
         "task_button": "AI Task",

@@ -367,7 +367,7 @@
 						onclick={() => goto(`/${lang}/${username}/${boardAlias}/invoices`)}
 					>
 						<FileText class="mr-2 h-4 w-4" />
-						<span class="hidden md:block">Invoices</span>
+						<span class="hidden md:block">{$t('board.invoices')}</span>
 					</Button>
 					<NotesButton onclick={() => (showNotesDialog = true)} />
 					<BoardActivityButton onclick={() => (showActivityDialog = true)} />

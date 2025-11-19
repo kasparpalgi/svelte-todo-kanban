@@ -6,6 +6,7 @@
 	import InvoiceList from '$lib/components/invoice/InvoiceList.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ArrowLeft } from 'lucide-svelte';
+	import { t } from '$lib/i18n';
 
 	let boardAlias = $derived($page.params.board);
 	let username = $derived($page.params.username);
@@ -27,7 +28,7 @@
 </script>
 
 <svelte:head>
-	<title>Invoices - {board?.name || 'Board'}</title>
+	<title>{$t('board.invoices')} - {board?.name || $t('board.board')}</title>
 </svelte:head>
 
 <div class="container mx-auto max-w-6xl p-4">
@@ -37,16 +38,16 @@
 		class="mb-4 gap-2"
 	>
 		<ArrowLeft class="h-4 w-4" />
-		Back to Board
+		{$t('common.back_to_board')}
 	</Button>
 
 	{#if board}
 		<InvoiceList
 			boardId={board.id}
-			{onNewInvoice}
-			{onInvoiceClick}
+			onNewInvoice={handleNewInvoice}
+			onInvoiceClick={handleInvoiceClick}
 		/>
 	{:else}
-		<div class="py-8 text-center">Board not found</div>
+		<div class="py-8 text-center">{$t('common.board_not_found')}</div>
 	{/if}
 </div>

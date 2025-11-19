@@ -144,7 +144,8 @@
         "settings_updated": "Projekti seaded on uuendatud",
         "mobile_add": "Mobiili kiirlisamine (link avaekraanile lisamiseks)",
         "customer_invoice_details": "Kliendi arveandmed",
-        "invoices": "Arved"
+        "invoices": "Arved",
+        "board": "Tahvel"
     },
     "members": {
         "board_members": "Projekti liikmed",
@@ -714,7 +715,8 @@
         "no_items": "Ridu pole veel lisatud. Lisa ülesandeid või kohandatud ridu alustamiseks.",
         "print": "Prindi",
         "back_to_invoices": "Tagasi arvete juurde",
-        "back_to_board": "Tagasi tahvli juurde"
+        "back_to_board": "Tagasi tahvli juurde",
+        "board_not_found": "Tahvlit ei leitud"
     },
     "ai": {
         "task_button": "AI Ülesanne",
