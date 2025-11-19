@@ -1,0 +1,1 @@
+Add to every user under settings AI usage total and every time AI is used sum up that number.
