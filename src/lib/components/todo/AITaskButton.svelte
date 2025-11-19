@@ -15,7 +15,9 @@
 	import { loggingStore } from '$lib/stores/logging.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { formatDuration } from '$lib/utils/formatDuration';
+	import { formatCost } from '$lib/utils/formatCost';
 	import { t } from '$lib/i18n';
+	import { page } from '$app/stores';
 
 	let {
 		onResult = (result: string) => {},
@@ -27,6 +29,7 @@
 
 	let user = $derived(userStore.user);
 	let aiModel = $derived(user?.settings?.ai_model || 'gpt-5-mini');
+	let currentLang = $derived($page.params.lang || 'en');
 	let open = $state(false);
 	let taskInput = $state('');
 	let isProcessing = $state(false);
@@ -91,8 +94,15 @@
 				model: aiModel
 			});
 
-			onResult(result.result || '');
-			displayMessage($t('common.success') || 'Task completed', 2000, true);
+			// Check if we got a valid result
+			if (!result.result || result.result.trim() === '') {
+				displayMessage($t('ai.no_result') || 'AI returned no result. Please try again.', 3000, false);
+				isProcessing = false;
+				return;
+			}
+
+			onResult(result.result);
+			displayMessage($t('ai.task_completed') || 'Task completed', 2000, true);
 
 			// Reset and close
 			taskInput = '';
@@ -202,7 +212,7 @@
 			<div class="flex items-center justify-between gap-2">
 				<div class="text-xs text-muted-foreground">
 					{#if processingTime && processingCost}
-						{processingTime} • €{processingCost}
+						{processingTime} • {formatCost(processingCost, currentLang)}
 					{/if}
 				</div>
 				<div class="flex gap-2">

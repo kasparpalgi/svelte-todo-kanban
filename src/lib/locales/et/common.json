@@ -666,6 +666,8 @@
         "processing": "Töötlen...",
         "run_task": "Käivita Ülesanne",
         "keyboard_hint": "Vajuta <kbd>Ctrl+Enter</kbd> saatmiseks, <kbd>Esc</kbd> sulgemiseks",
-        "toolbar_hint": "Häälsisestus või AI ülesanne"
+        "toolbar_hint": "Häälsisestus või AI ülesanne",
+        "task_completed": "Ülesanne edukalt lõpetatud",
+        "no_result": "AI ei tagastanud tulemust. Palun proovi uuesti või sõnasta ülesanne ümber."
     }
 }

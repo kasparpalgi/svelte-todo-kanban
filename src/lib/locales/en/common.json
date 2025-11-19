@@ -666,6 +666,8 @@
         "processing": "Processing...",
         "run_task": "Run Task",
         "keyboard_hint": "Press <kbd>Ctrl+Enter</kbd> to submit, <kbd>Esc</kbd> to close",
-        "toolbar_hint": "Voice input or AI task"
+        "toolbar_hint": "Voice input or AI task",
+        "task_completed": "Task completed successfully",
+        "no_result": "AI returned no result. Please try again or rephrase your task."
     }
 }

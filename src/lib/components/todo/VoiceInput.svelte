@@ -11,6 +11,8 @@
 		SpeechRecognitionEvent
 	} from '$lib/types/voiceInput';
 	import { formatDuration } from '$lib/utils/formatDuration';
+	import { formatCost } from '$lib/utils/formatCost';
+	import { page } from '$app/stores';
 
 	let {
 		onTranscript = (text: string) => {},
@@ -26,6 +28,7 @@
 	let user = $derived(userStore.user);
 	let autoAICorrect = $derived(user?.settings?.auto_ai_correct || false);
 	let aiModel = $derived(user?.settings?.ai_model || 'gpt-5-mini');
+	let currentLang = $derived($page.params.lang || 'en');
 	let isRecording = $state(false);
 	let isSupported = $state(false);
 	let recognition: SpeechRecognition | null = null;
@@ -476,7 +479,7 @@
 
 		{#if (processingTime && processingCost) || (showRevertButton && processingTime)}
 			<div class="text-xs text-gray-400">
-				{processingTime} €{processingCost}
+				{processingTime} {formatCost(processingCost, currentLang)}
 			</div>
 		{/if}
 	</div>

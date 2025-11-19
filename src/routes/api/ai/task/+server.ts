@@ -75,6 +75,15 @@ Please complete this task thoughtfully. If it involves research or external info
 
 		const cost = await calculateCost(selectedModel, inputTokens, outputTokens, cachedTokens);
 
+		// Log if result is empty to help with debugging
+		if (!result) {
+			console.error('AI task returned empty result', {
+				task,
+				model: selectedModel,
+				response: data
+			});
+		}
+
 		return json({
 			task,
 			result,
