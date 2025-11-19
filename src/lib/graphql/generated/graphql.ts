@@ -12876,6 +12876,13 @@ export type GetCommentByGithubIdQueryVariables = Exact<{
 
 export type GetCommentByGithubIdQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, github_comment_id?: number | null }> };
 
+export type GetUserByGithubUsernameQueryVariables = Exact<{
+  githubUsername: Scalars['String']['input'];
+}>;
+
+
+export type GetUserByGithubUsernameQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, username: string, settings: any }> };
+
 export type CreateLogMutationVariables = Exact<{
   log: Logs_Insert_Input;
 }>;
@@ -14586,6 +14593,18 @@ export const GetCommentByGithubIdDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetCommentByGithubIdQuery, GetCommentByGithubIdQueryVariables>;
+export const GetUserByGithubUsernameDocument = new TypedDocumentString(`
+    query GetUserByGithubUsername($githubUsername: String!) {
+  users(
+    where: {settings: {_contains: {tokens: {github: {username: $githubUsername}}}}}
+    limit: 1
+  ) {
+    id
+    username
+    settings
+  }
+}
+    `) as unknown as TypedDocumentString<GetUserByGithubUsernameQuery, GetUserByGithubUsernameQueryVariables>;
 export const CreateLogDocument = new TypedDocumentString(`
     mutation CreateLog($log: logs_insert_input!) {
   insert_logs_one(object: $log) {
