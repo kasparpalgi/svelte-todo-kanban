@@ -16,9 +16,17 @@
 
 	function handleNewInvoice() {
 		console.log('[InvoicesPage] handleNewInvoice called');
-		console.log('[InvoicesPage] Navigating to:', `/${lang}/${username}/${boardAlias}/invoices/new`);
-		console.log('[InvoicesPage] Current values - lang:', lang, 'username:', username, 'boardAlias:', boardAlias);
-		goto(`/${lang}/${username}/${boardAlias}/invoices/new`);
+		console.log('[InvoicesPage] Reactive values:', { lang, username, boardAlias });
+
+		const targetUrl = `/${lang}/${username}/${boardAlias}/invoices/new`;
+		console.log('[InvoicesPage] Navigating to:', targetUrl);
+
+		try {
+			goto(targetUrl);
+			console.log('[InvoicesPage] goto() called successfully');
+		} catch (error) {
+			console.error('[InvoicesPage] goto() failed:', error);
+		}
 	}
 
 	function handleInvoiceClick(invoiceId: string) {
