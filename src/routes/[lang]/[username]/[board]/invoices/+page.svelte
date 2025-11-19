@@ -15,10 +15,14 @@
 	let board = $derived(listsStore.boards.find((b) => b.alias === boardAlias));
 
 	function handleNewInvoice() {
+		console.log('[InvoicesPage] handleNewInvoice called');
+		console.log('[InvoicesPage] Navigating to:', `/${lang}/${username}/${boardAlias}/invoices/new`);
+		console.log('[InvoicesPage] Current values - lang:', lang, 'username:', username, 'boardAlias:', boardAlias);
 		goto(`/${lang}/${username}/${boardAlias}/invoices/new`);
 	}
 
 	function handleInvoiceClick(invoiceId: string) {
+		console.log('[InvoicesPage] handleInvoiceClick called with:', invoiceId);
 		goto(`/${lang}/${username}/${boardAlias}/invoices/${invoiceId}`);
 	}
 

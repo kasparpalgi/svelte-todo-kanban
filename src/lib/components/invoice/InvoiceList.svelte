@@ -72,9 +72,15 @@
 	}
 
 	function handleNewInvoice() {
+		console.log('[InvoiceList] handleNewInvoice called');
+		console.log('[InvoiceList] onNewInvoice exists?', !!onNewInvoice);
+		console.log('[InvoiceList] onNewInvoice value:', onNewInvoice);
+
 		if (onNewInvoice) {
+			console.log('[InvoiceList] Calling onNewInvoice callback');
 			onNewInvoice();
 		} else {
+			console.log('[InvoiceList] No callback, navigating to invoices/new');
 			goto('invoices/new');
 		}
 	}
@@ -84,7 +90,10 @@
 	<div class="flex items-center justify-between">
 		<h2 class="text-2xl font-bold">Invoices</h2>
 		<Button
-			onclick={handleNewInvoice}
+			onclick={() => {
+				console.log('[InvoiceList Button] Button clicked!');
+				handleNewInvoice();
+			}}
 			class="gap-2"
 		>
 			<Plus class="h-4 w-4" />
@@ -104,7 +113,10 @@
 						Create your first invoice to get started
 					</p>
 					<Button
-						onclick={handleNewInvoice}
+						onclick={() => {
+							console.log('[InvoiceList EmptyState Button] Button clicked!');
+							handleNewInvoice();
+						}}
 						class="gap-2"
 					>
 						<Plus class="h-4 w-4" />
