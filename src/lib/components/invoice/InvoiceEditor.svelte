@@ -188,7 +188,7 @@
 			{isNew ? 'New Invoice' : `Edit Invoice ${formData.invoice_number}`}
 		</h2>
 		<Button
-			on:click={handleSave}
+			onclick={handleSave}
 			disabled={saving}
 			class="gap-2"
 		>

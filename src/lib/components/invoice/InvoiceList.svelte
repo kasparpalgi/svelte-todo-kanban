@@ -84,7 +84,7 @@
 	<div class="flex items-center justify-between">
 		<h2 class="text-2xl font-bold">Invoices</h2>
 		<Button
-			on:click={handleNewInvoice}
+			onclick={handleNewInvoice}
 			class="gap-2"
 		>
 			<Plus class="h-4 w-4" />
@@ -104,7 +104,7 @@
 						Create your first invoice to get started
 					</p>
 					<Button
-						on:click={handleNewInvoice}
+						onclick={handleNewInvoice}
 						class="gap-2"
 					>
 						<Plus class="h-4 w-4" />

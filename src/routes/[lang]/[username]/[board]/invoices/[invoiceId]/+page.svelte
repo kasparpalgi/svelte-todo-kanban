@@ -40,7 +40,7 @@
 	<div class="mb-4 flex items-center justify-between">
 		<Button
 			variant="ghost"
-			on:click={goBack}
+			onclick={goBack}
 			class="gap-2"
 		>
 			<ArrowLeft class="h-4 w-4" />
@@ -50,7 +50,7 @@
 		{#if invoice}
 			<Button
 				variant="outline"
-				on:click={handlePrint}
+				onclick={handlePrint}
 				class="gap-2"
 			>
 				<Printer class="h-4 w-4" />

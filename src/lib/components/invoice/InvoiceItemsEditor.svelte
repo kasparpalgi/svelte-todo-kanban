@@ -166,7 +166,7 @@
 				</SelectContent>
 			</Select>
 			<Button
-				on:click={addTodoItem}
+				onclick={addTodoItem}
 				disabled={!selectedTodoId}
 				variant="outline"
 				class="gap-2"
@@ -175,7 +175,7 @@
 				Add Task
 			</Button>
 			<Button
-				on:click={addCustomRow}
+				onclick={addCustomRow}
 				variant="outline"
 				class="gap-2"
 			>
@@ -239,7 +239,7 @@
 						</div>
 						<div class="col-span-1">
 							<Button
-								on:click={() => removeItem(index)}
+								onclick={() => removeItem(index)}
 								variant="ghost"
 								size="icon"
 							>
