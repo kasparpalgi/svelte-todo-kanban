@@ -16,8 +16,7 @@
 		Select,
 		SelectContent,
 		SelectItem,
-		SelectTrigger,
-		SelectValue
+		SelectTrigger
 	} from '$lib/components/ui/select';
 	import { Plus, Trash2, ListTodo } from 'lucide-svelte';
 
@@ -152,8 +151,8 @@
 		<!-- Add Todo Item -->
 		<div class="flex gap-2">
 			<Select bind:value={selectedTodoId}>
-				<SelectTrigger class="flex-1">
-					<SelectValue placeholder="Select a task to add..." />
+				<SelectTrigger class="flex-1" placeholder="Select a task to add...">
+					{selectedTodoId ? getTodoDisplay(selectedTodoId) : 'Select a task to add...'}
 				</SelectTrigger>
 				<SelectContent>
 					{#each todos as todo (todo.id)}

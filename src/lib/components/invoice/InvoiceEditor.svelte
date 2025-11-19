@@ -14,8 +14,7 @@
 		Select,
 		SelectContent,
 		SelectItem,
-		SelectTrigger,
-		SelectValue
+		SelectTrigger
 	} from '$lib/components/ui/select';
 	import {
 		Card,
@@ -239,7 +238,7 @@
 					<Label for="status">Status</Label>
 					<Select bind:value={formData.status}>
 						<SelectTrigger>
-							<SelectValue placeholder="Select status" />
+							{formData.status ? formData.status.charAt(0).toUpperCase() + formData.status.slice(1) : 'Select status'}
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="draft">Draft</SelectItem>
