@@ -29,9 +29,15 @@
 	let { boardId, items = $bindable(), onItemsChange }: Props = $props();
 
 	// Get todos for the board
-	let todos = $derived(
-		todosStore.todos.filter((todo) => todo.list?.board_id === boardId && !todo.completed_at)
-	);
+	let todos = $derived.by(() => {
+		const filteredTodos = todosStore.todos.filter(
+			(todo) => todo.list?.board?.id === boardId && !todo.completed_at
+		);
+		console.log('[InvoiceItemsEditor] Filtered todos:', filteredTodos.length);
+		console.log('[InvoiceItemsEditor] Board ID:', boardId);
+		console.log('[InvoiceItemsEditor] All todos:', todosStore.todos.length);
+		return filteredTodos;
+	});
 
 	let board = $derived(listsStore.boards.find((b) => b.id === boardId));
 	let defaultHourlyRate = $derived(board?.customer_invoice_details?.hourly_rate || 0);
