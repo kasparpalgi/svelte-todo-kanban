@@ -271,13 +271,26 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 				const userId = await findUserByGithubUsername(comment.user.login, todo);
 
 				if (userId) {
+					// Determine if this is a fallback user (board owner) vs actual mapped user
+					const userData = await serverRequest<
+						{ users: Array<any> },
+						{ githubUsername: string }
+					>(GET_USER_BY_GITHUB_USERNAME, { githubUsername: comment.user.login });
+
+					const isActualUser = userData?.users?.length > 0;
+
+					// Prefix comment with GitHub username if using fallback user
+					const commentContent = isActualUser
+						? comment.body
+						: `**[${comment.user.login} on GitHub]:**\n\n${comment.body}`;
+
 					// Create new comment
 					const result = await serverRequest(CREATE_COMMENT, {
 						objects: [
 							{
 								todo_id: todo.id,
 								user_id: userId,
-								content: comment.body,
+								content: commentContent,
 								github_comment_id: comment.id,
 								github_synced_at: new Date().toISOString()
 							}
@@ -286,7 +299,7 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 
 					if (result?.insert_comments?.returning?.[0]) {
 						console.log(
-							`Created comment ${result.insert_comments.returning[0].id} from GitHub comment ${comment.id}`
+							`Created comment ${result.insert_comments.returning[0].id} from GitHub comment ${comment.id} (${isActualUser ? 'mapped user' : 'fallback to board owner'})`
 						);
 
 						// Log activity
@@ -298,7 +311,12 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 									new_value:
 										comment.body.substring(0, 200) +
 										(comment.body.length > 200 ? '...' : ''),
-									metadata: { source: 'github', github_comment_id: comment.id }
+									metadata: {
+										source: 'github',
+										github_comment_id: comment.id,
+										github_user: comment.user.login,
+										is_fallback_user: !isActualUser
+									}
 								}
 							});
 						} catch (error) {

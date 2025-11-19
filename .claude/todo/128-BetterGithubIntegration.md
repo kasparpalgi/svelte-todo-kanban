@@ -80,10 +80,19 @@ The webhook handler already supports:
 #### User Mapping Strategy
 For comments created in GitHub, the app attempts to:
 1. Find user by GitHub username in `users.settings.tokens.github.username`
-2. If not found, use the board owner as fallback
+2. If not found, use the board owner as fallback **with comment prefix**
 3. If no board owner, skip comment creation (logged)
 
-This ensures comments are always attributed to a valid user in the system.
+**Fallback Attribution**: When a comment is from an unknown GitHub user, the comment content is prefixed with `**[username on GitHub]:**` to clearly identify the actual author. This prevents confusion about who wrote the comment.
+
+Example:
+```
+**[octocat on GitHub]:**
+
+This is the actual comment content from GitHub user 'octocat'
+```
+
+This ensures proper attribution even when the GitHub user doesn't have an account in the app.
 
 #### Activity Logging
 All GitHub webhook events log activities with:
@@ -106,7 +115,8 @@ The webhook is now configured to listen for:
 
 ### Known Limitations
 
-1. **User Mapping**: Comments from unknown GitHub users fallback to board owner
+1. **User Mapping**: Comments from unknown GitHub users are prefixed with `[username on GitHub]:` and attributed to board owner
+   - Comment clearly shows actual GitHub username to prevent confusion
    - Future improvement: Allow manual user mapping in settings
 
 2. **Branch Filtering**: Only `main` and `master` branches are tracked for commits
