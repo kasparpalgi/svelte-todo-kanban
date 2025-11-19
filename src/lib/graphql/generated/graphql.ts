@@ -1557,8 +1557,14 @@ export type Boards = {
   /** An aggregate relationship */
   board_members_aggregate: Board_Members_Aggregate;
   created_at: Scalars['timestamptz']['output'];
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: Maybe<Scalars['jsonb']['output']>;
   github?: Maybe<Scalars['String']['output']>;
   id: Scalars['uuid']['output'];
+  /** An array relationship */
+  invoices: Array<Invoices>;
+  /** An aggregate relationship */
+  invoices_aggregate: Invoices_Aggregate;
   /** When true, board is viewable by anyone (read-only unless member) */
   is_public: Scalars['Boolean']['output'];
   /** An array relationship */
@@ -1620,6 +1626,32 @@ export type BoardsBoard_Members_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Board_Members_Order_By>>;
   where?: InputMaybe<Board_Members_Bool_Exp>;
+};
+
+
+/** columns and relationships of "boards" */
+export type BoardsCustomer_Invoice_DetailsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** columns and relationships of "boards" */
+export type BoardsInvoicesArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+/** columns and relationships of "boards" */
+export type BoardsInvoices_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
 };
 
 
@@ -1762,6 +1794,8 @@ export type Boards_Aggregate_Order_By = {
 
 /** append existing jsonb value of filtered columns with new jsonb value */
 export type Boards_Append_Input = {
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
@@ -1795,8 +1829,11 @@ export type Boards_Bool_Exp = {
   board_members?: InputMaybe<Board_Members_Bool_Exp>;
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Bool_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  customer_invoice_details?: InputMaybe<Jsonb_Comparison_Exp>;
   github?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
+  invoices?: InputMaybe<Invoices_Bool_Exp>;
+  invoices_aggregate?: InputMaybe<Invoices_Aggregate_Bool_Exp>;
   is_public?: InputMaybe<Boolean_Comparison_Exp>;
   labels?: InputMaybe<Labels_Bool_Exp>;
   labels_aggregate?: InputMaybe<Labels_Aggregate_Bool_Exp>;
@@ -1822,16 +1859,22 @@ export enum Boards_Constraint {
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
 export type Boards_Delete_At_Path_Input = {
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Array<Scalars['String']['input']>>;
   settings?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
 export type Boards_Delete_Elem_Input = {
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['Int']['input']>;
   settings?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** delete key/value pair or string element. key/value pairs are matched based on their key value */
 export type Boards_Delete_Key_Input = {
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1848,8 +1891,11 @@ export type Boards_Insert_Input = {
   board_invitations?: InputMaybe<Board_Invitations_Arr_Rel_Insert_Input>;
   board_members?: InputMaybe<Board_Members_Arr_Rel_Insert_Input>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
   github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  invoices?: InputMaybe<Invoices_Arr_Rel_Insert_Input>;
   /** When true, board is viewable by anyone (read-only unless member) */
   is_public?: InputMaybe<Scalars['Boolean']['input']>;
   labels?: InputMaybe<Labels_Arr_Rel_Insert_Input>;
@@ -1943,8 +1989,10 @@ export type Boards_Order_By = {
   board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Order_By>;
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Order_By>;
   created_at?: InputMaybe<Order_By>;
+  customer_invoice_details?: InputMaybe<Order_By>;
   github?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  invoices_aggregate?: InputMaybe<Invoices_Aggregate_Order_By>;
   is_public?: InputMaybe<Order_By>;
   labels_aggregate?: InputMaybe<Labels_Aggregate_Order_By>;
   lists_aggregate?: InputMaybe<Lists_Aggregate_Order_By>;
@@ -1964,6 +2012,8 @@ export type Boards_Pk_Columns_Input = {
 
 /** prepend existing jsonb value of filtered columns with new jsonb value */
 export type Boards_Prepend_Input = {
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
@@ -1975,6 +2025,8 @@ export enum Boards_Select_Column {
   AllowPublicComments = 'allow_public_comments',
   /** column name */
   CreatedAt = 'created_at',
+  /** column name */
+  CustomerInvoiceDetails = 'customer_invoice_details',
   /** column name */
   Github = 'github',
   /** column name */
@@ -2015,6 +2067,8 @@ export type Boards_Set_Input = {
   /** When true and is_public=true, non-members can comment on todos */
   allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
   github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   /** When true, board is viewable by anyone (read-only unless member) */
@@ -2073,6 +2127,8 @@ export type Boards_Stream_Cursor_Value_Input = {
   /** When true and is_public=true, non-members can comment on todos */
   allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
   github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   /** When true, board is viewable by anyone (read-only unless member) */
@@ -2103,6 +2159,8 @@ export enum Boards_Update_Column {
   AllowPublicComments = 'allow_public_comments',
   /** column name */
   CreatedAt = 'created_at',
+  /** column name */
+  CustomerInvoiceDetails = 'customer_invoice_details',
   /** column name */
   Github = 'github',
   /** column name */
@@ -2636,6 +2694,1123 @@ export type Date_Comparison_Exp = {
   _lte?: InputMaybe<Scalars['date']['input']>;
   _neq?: InputMaybe<Scalars['date']['input']>;
   _nin?: InputMaybe<Array<Scalars['date']['input']>>;
+};
+
+/** Line items for invoices (both todo items and custom rows) */
+export type Invoice_Items = {
+  __typename?: 'invoice_items';
+  amount: Scalars['numeric']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description: Scalars['String']['output'];
+  hours: Scalars['numeric']['output'];
+  id: Scalars['uuid']['output'];
+  /** An object relationship */
+  invoice: Invoices;
+  invoice_id: Scalars['uuid']['output'];
+  rate: Scalars['numeric']['output'];
+  sort_order: Scalars['Int']['output'];
+  /** An object relationship */
+  todo?: Maybe<Todos>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  updated_at: Scalars['timestamptz']['output'];
+};
+
+/** aggregated selection of "invoice_items" */
+export type Invoice_Items_Aggregate = {
+  __typename?: 'invoice_items_aggregate';
+  aggregate?: Maybe<Invoice_Items_Aggregate_Fields>;
+  nodes: Array<Invoice_Items>;
+};
+
+export type Invoice_Items_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Invoice_Items_Aggregate_Bool_Exp_Count>;
+};
+
+export type Invoice_Items_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Invoice_Items_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "invoice_items" */
+export type Invoice_Items_Aggregate_Fields = {
+  __typename?: 'invoice_items_aggregate_fields';
+  avg?: Maybe<Invoice_Items_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Invoice_Items_Max_Fields>;
+  min?: Maybe<Invoice_Items_Min_Fields>;
+  stddev?: Maybe<Invoice_Items_Stddev_Fields>;
+  stddev_pop?: Maybe<Invoice_Items_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Invoice_Items_Stddev_Samp_Fields>;
+  sum?: Maybe<Invoice_Items_Sum_Fields>;
+  var_pop?: Maybe<Invoice_Items_Var_Pop_Fields>;
+  var_samp?: Maybe<Invoice_Items_Var_Samp_Fields>;
+  variance?: Maybe<Invoice_Items_Variance_Fields>;
+};
+
+
+/** aggregate fields of "invoice_items" */
+export type Invoice_Items_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "invoice_items" */
+export type Invoice_Items_Aggregate_Order_By = {
+  avg?: InputMaybe<Invoice_Items_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Invoice_Items_Max_Order_By>;
+  min?: InputMaybe<Invoice_Items_Min_Order_By>;
+  stddev?: InputMaybe<Invoice_Items_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Invoice_Items_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Invoice_Items_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Invoice_Items_Sum_Order_By>;
+  var_pop?: InputMaybe<Invoice_Items_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Invoice_Items_Var_Samp_Order_By>;
+  variance?: InputMaybe<Invoice_Items_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "invoice_items" */
+export type Invoice_Items_Arr_Rel_Insert_Input = {
+  data: Array<Invoice_Items_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Invoice_Items_On_Conflict>;
+};
+
+/** aggregate avg on columns */
+export type Invoice_Items_Avg_Fields = {
+  __typename?: 'invoice_items_avg_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "invoice_items" */
+export type Invoice_Items_Avg_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "invoice_items". All fields are combined with a logical 'AND'. */
+export type Invoice_Items_Bool_Exp = {
+  _and?: InputMaybe<Array<Invoice_Items_Bool_Exp>>;
+  _not?: InputMaybe<Invoice_Items_Bool_Exp>;
+  _or?: InputMaybe<Array<Invoice_Items_Bool_Exp>>;
+  amount?: InputMaybe<Numeric_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  description?: InputMaybe<String_Comparison_Exp>;
+  hours?: InputMaybe<Numeric_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  invoice?: InputMaybe<Invoices_Bool_Exp>;
+  invoice_id?: InputMaybe<Uuid_Comparison_Exp>;
+  rate?: InputMaybe<Numeric_Comparison_Exp>;
+  sort_order?: InputMaybe<Int_Comparison_Exp>;
+  todo?: InputMaybe<Todos_Bool_Exp>;
+  todo_id?: InputMaybe<Uuid_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "invoice_items" */
+export enum Invoice_Items_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  InvoiceItemsPkey = 'invoice_items_pkey'
+}
+
+/** input type for incrementing numeric columns in table "invoice_items" */
+export type Invoice_Items_Inc_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  hours?: InputMaybe<Scalars['numeric']['input']>;
+  rate?: InputMaybe<Scalars['numeric']['input']>;
+  sort_order?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "invoice_items" */
+export type Invoice_Items_Insert_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: InputMaybe<Scalars['String']['input']>;
+  hours?: InputMaybe<Scalars['numeric']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice?: InputMaybe<Invoices_Obj_Rel_Insert_Input>;
+  invoice_id?: InputMaybe<Scalars['uuid']['input']>;
+  rate?: InputMaybe<Scalars['numeric']['input']>;
+  sort_order?: InputMaybe<Scalars['Int']['input']>;
+  todo?: InputMaybe<Todos_Obj_Rel_Insert_Input>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate max on columns */
+export type Invoice_Items_Max_Fields = {
+  __typename?: 'invoice_items_max_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: Maybe<Scalars['String']['output']>;
+  hours?: Maybe<Scalars['numeric']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  invoice_id?: Maybe<Scalars['uuid']['output']>;
+  rate?: Maybe<Scalars['numeric']['output']>;
+  sort_order?: Maybe<Scalars['Int']['output']>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** order by max() on columns of table "invoice_items" */
+export type Invoice_Items_Max_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoice_id?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Invoice_Items_Min_Fields = {
+  __typename?: 'invoice_items_min_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: Maybe<Scalars['String']['output']>;
+  hours?: Maybe<Scalars['numeric']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  invoice_id?: Maybe<Scalars['uuid']['output']>;
+  rate?: Maybe<Scalars['numeric']['output']>;
+  sort_order?: Maybe<Scalars['Int']['output']>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** order by min() on columns of table "invoice_items" */
+export type Invoice_Items_Min_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoice_id?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "invoice_items" */
+export type Invoice_Items_Mutation_Response = {
+  __typename?: 'invoice_items_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Invoice_Items>;
+};
+
+/** on_conflict condition type for table "invoice_items" */
+export type Invoice_Items_On_Conflict = {
+  constraint: Invoice_Items_Constraint;
+  update_columns?: Array<Invoice_Items_Update_Column>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "invoice_items". */
+export type Invoice_Items_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  description?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoice?: InputMaybe<Invoices_Order_By>;
+  invoice_id?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+  todo?: InputMaybe<Todos_Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: invoice_items */
+export type Invoice_Items_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "invoice_items" */
+export enum Invoice_Items_Select_Column {
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Description = 'description',
+  /** column name */
+  Hours = 'hours',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InvoiceId = 'invoice_id',
+  /** column name */
+  Rate = 'rate',
+  /** column name */
+  SortOrder = 'sort_order',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+/** input type for updating data in table "invoice_items" */
+export type Invoice_Items_Set_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: InputMaybe<Scalars['String']['input']>;
+  hours?: InputMaybe<Scalars['numeric']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_id?: InputMaybe<Scalars['uuid']['input']>;
+  rate?: InputMaybe<Scalars['numeric']['input']>;
+  sort_order?: InputMaybe<Scalars['Int']['input']>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Invoice_Items_Stddev_Fields = {
+  __typename?: 'invoice_items_stddev_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev() on columns of table "invoice_items" */
+export type Invoice_Items_Stddev_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Invoice_Items_Stddev_Pop_Fields = {
+  __typename?: 'invoice_items_stddev_pop_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_pop() on columns of table "invoice_items" */
+export type Invoice_Items_Stddev_Pop_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Invoice_Items_Stddev_Samp_Fields = {
+  __typename?: 'invoice_items_stddev_samp_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "invoice_items" */
+export type Invoice_Items_Stddev_Samp_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "invoice_items" */
+export type Invoice_Items_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Invoice_Items_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Invoice_Items_Stream_Cursor_Value_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: InputMaybe<Scalars['String']['input']>;
+  hours?: InputMaybe<Scalars['numeric']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_id?: InputMaybe<Scalars['uuid']['input']>;
+  rate?: InputMaybe<Scalars['numeric']['input']>;
+  sort_order?: InputMaybe<Scalars['Int']['input']>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Invoice_Items_Sum_Fields = {
+  __typename?: 'invoice_items_sum_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+  hours?: Maybe<Scalars['numeric']['output']>;
+  rate?: Maybe<Scalars['numeric']['output']>;
+  sort_order?: Maybe<Scalars['Int']['output']>;
+};
+
+/** order by sum() on columns of table "invoice_items" */
+export type Invoice_Items_Sum_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+};
+
+/** update columns of table "invoice_items" */
+export enum Invoice_Items_Update_Column {
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Description = 'description',
+  /** column name */
+  Hours = 'hours',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InvoiceId = 'invoice_id',
+  /** column name */
+  Rate = 'rate',
+  /** column name */
+  SortOrder = 'sort_order',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+export type Invoice_Items_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Invoice_Items_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Invoice_Items_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Invoice_Items_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Invoice_Items_Var_Pop_Fields = {
+  __typename?: 'invoice_items_var_pop_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_pop() on columns of table "invoice_items" */
+export type Invoice_Items_Var_Pop_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Invoice_Items_Var_Samp_Fields = {
+  __typename?: 'invoice_items_var_samp_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_samp() on columns of table "invoice_items" */
+export type Invoice_Items_Var_Samp_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Invoice_Items_Variance_Fields = {
+  __typename?: 'invoice_items_variance_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "invoice_items" */
+export type Invoice_Items_Variance_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+};
+
+/** Invoices for boards */
+export type Invoices = {
+  __typename?: 'invoices';
+  /** An object relationship */
+  board: Boards;
+  board_id: Scalars['uuid']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  /** Customer details at time of invoice creation */
+  customer_details: Scalars['jsonb']['output'];
+  due_date?: Maybe<Scalars['date']['output']>;
+  id: Scalars['uuid']['output'];
+  invoice_date: Scalars['date']['output'];
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details: Scalars['jsonb']['output'];
+  /** An array relationship */
+  invoice_items: Array<Invoice_Items>;
+  /** An aggregate relationship */
+  invoice_items_aggregate: Invoice_Items_Aggregate;
+  /** Human-readable invoice number */
+  invoice_number: Scalars['String']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+  subtotal: Scalars['numeric']['output'];
+  tax_amount?: Maybe<Scalars['numeric']['output']>;
+  tax_rate?: Maybe<Scalars['numeric']['output']>;
+  total: Scalars['numeric']['output'];
+  updated_at: Scalars['timestamptz']['output'];
+  /** An object relationship */
+  user: Users;
+  user_id: Scalars['uuid']['output'];
+};
+
+
+/** Invoices for boards */
+export type InvoicesCustomer_DetailsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Invoices for boards */
+export type InvoicesInvoice_From_DetailsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Invoices for boards */
+export type InvoicesInvoice_ItemsArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+/** Invoices for boards */
+export type InvoicesInvoice_Items_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+/** aggregated selection of "invoices" */
+export type Invoices_Aggregate = {
+  __typename?: 'invoices_aggregate';
+  aggregate?: Maybe<Invoices_Aggregate_Fields>;
+  nodes: Array<Invoices>;
+};
+
+export type Invoices_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Invoices_Aggregate_Bool_Exp_Count>;
+};
+
+export type Invoices_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Invoices_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Invoices_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "invoices" */
+export type Invoices_Aggregate_Fields = {
+  __typename?: 'invoices_aggregate_fields';
+  avg?: Maybe<Invoices_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Invoices_Max_Fields>;
+  min?: Maybe<Invoices_Min_Fields>;
+  stddev?: Maybe<Invoices_Stddev_Fields>;
+  stddev_pop?: Maybe<Invoices_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Invoices_Stddev_Samp_Fields>;
+  sum?: Maybe<Invoices_Sum_Fields>;
+  var_pop?: Maybe<Invoices_Var_Pop_Fields>;
+  var_samp?: Maybe<Invoices_Var_Samp_Fields>;
+  variance?: Maybe<Invoices_Variance_Fields>;
+};
+
+
+/** aggregate fields of "invoices" */
+export type Invoices_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Invoices_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "invoices" */
+export type Invoices_Aggregate_Order_By = {
+  avg?: InputMaybe<Invoices_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Invoices_Max_Order_By>;
+  min?: InputMaybe<Invoices_Min_Order_By>;
+  stddev?: InputMaybe<Invoices_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Invoices_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Invoices_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Invoices_Sum_Order_By>;
+  var_pop?: InputMaybe<Invoices_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Invoices_Var_Samp_Order_By>;
+  variance?: InputMaybe<Invoices_Variance_Order_By>;
+};
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type Invoices_Append_Input = {
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** input type for inserting array relation for remote table "invoices" */
+export type Invoices_Arr_Rel_Insert_Input = {
+  data: Array<Invoices_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Invoices_On_Conflict>;
+};
+
+/** aggregate avg on columns */
+export type Invoices_Avg_Fields = {
+  __typename?: 'invoices_avg_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "invoices" */
+export type Invoices_Avg_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "invoices". All fields are combined with a logical 'AND'. */
+export type Invoices_Bool_Exp = {
+  _and?: InputMaybe<Array<Invoices_Bool_Exp>>;
+  _not?: InputMaybe<Invoices_Bool_Exp>;
+  _or?: InputMaybe<Array<Invoices_Bool_Exp>>;
+  board?: InputMaybe<Boards_Bool_Exp>;
+  board_id?: InputMaybe<Uuid_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  customer_details?: InputMaybe<Jsonb_Comparison_Exp>;
+  due_date?: InputMaybe<Date_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  invoice_date?: InputMaybe<Date_Comparison_Exp>;
+  invoice_from_details?: InputMaybe<Jsonb_Comparison_Exp>;
+  invoice_items?: InputMaybe<Invoice_Items_Bool_Exp>;
+  invoice_items_aggregate?: InputMaybe<Invoice_Items_Aggregate_Bool_Exp>;
+  invoice_number?: InputMaybe<String_Comparison_Exp>;
+  notes?: InputMaybe<String_Comparison_Exp>;
+  status?: InputMaybe<String_Comparison_Exp>;
+  subtotal?: InputMaybe<Numeric_Comparison_Exp>;
+  tax_amount?: InputMaybe<Numeric_Comparison_Exp>;
+  tax_rate?: InputMaybe<Numeric_Comparison_Exp>;
+  total?: InputMaybe<Numeric_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "invoices" */
+export enum Invoices_Constraint {
+  /** unique or primary key constraint on columns "user_id", "invoice_number" */
+  InvoicesInvoiceNumberUserIdKey = 'invoices_invoice_number_user_id_key',
+  /** unique or primary key constraint on columns "id" */
+  InvoicesPkey = 'invoices_pkey'
+}
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type Invoices_Delete_At_Path_Input = {
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type Invoices_Delete_Elem_Input = {
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['Int']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type Invoices_Delete_Key_Input = {
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['String']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** input type for incrementing numeric columns in table "invoices" */
+export type Invoices_Inc_Input = {
+  subtotal?: InputMaybe<Scalars['numeric']['input']>;
+  tax_amount?: InputMaybe<Scalars['numeric']['input']>;
+  tax_rate?: InputMaybe<Scalars['numeric']['input']>;
+  total?: InputMaybe<Scalars['numeric']['input']>;
+};
+
+/** input type for inserting data into table "invoices" */
+export type Invoices_Insert_Input = {
+  board?: InputMaybe<Boards_Obj_Rel_Insert_Input>;
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['jsonb']['input']>;
+  due_date?: InputMaybe<Scalars['date']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_date?: InputMaybe<Scalars['date']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+  invoice_items?: InputMaybe<Invoice_Items_Arr_Rel_Insert_Input>;
+  /** Human-readable invoice number */
+  invoice_number?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  subtotal?: InputMaybe<Scalars['numeric']['input']>;
+  tax_amount?: InputMaybe<Scalars['numeric']['input']>;
+  tax_rate?: InputMaybe<Scalars['numeric']['input']>;
+  total?: InputMaybe<Scalars['numeric']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Invoices_Max_Fields = {
+  __typename?: 'invoices_max_fields';
+  board_id?: Maybe<Scalars['uuid']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  due_date?: Maybe<Scalars['date']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  invoice_date?: Maybe<Scalars['date']['output']>;
+  /** Human-readable invoice number */
+  invoice_number?: Maybe<Scalars['String']['output']>;
+  notes?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  subtotal?: Maybe<Scalars['numeric']['output']>;
+  tax_amount?: Maybe<Scalars['numeric']['output']>;
+  tax_rate?: Maybe<Scalars['numeric']['output']>;
+  total?: Maybe<Scalars['numeric']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by max() on columns of table "invoices" */
+export type Invoices_Max_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  due_date?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoice_date?: InputMaybe<Order_By>;
+  /** Human-readable invoice number */
+  invoice_number?: InputMaybe<Order_By>;
+  notes?: InputMaybe<Order_By>;
+  status?: InputMaybe<Order_By>;
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Invoices_Min_Fields = {
+  __typename?: 'invoices_min_fields';
+  board_id?: Maybe<Scalars['uuid']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  due_date?: Maybe<Scalars['date']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  invoice_date?: Maybe<Scalars['date']['output']>;
+  /** Human-readable invoice number */
+  invoice_number?: Maybe<Scalars['String']['output']>;
+  notes?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  subtotal?: Maybe<Scalars['numeric']['output']>;
+  tax_amount?: Maybe<Scalars['numeric']['output']>;
+  tax_rate?: Maybe<Scalars['numeric']['output']>;
+  total?: Maybe<Scalars['numeric']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "invoices" */
+export type Invoices_Min_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  due_date?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoice_date?: InputMaybe<Order_By>;
+  /** Human-readable invoice number */
+  invoice_number?: InputMaybe<Order_By>;
+  notes?: InputMaybe<Order_By>;
+  status?: InputMaybe<Order_By>;
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "invoices" */
+export type Invoices_Mutation_Response = {
+  __typename?: 'invoices_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Invoices>;
+};
+
+/** input type for inserting object relation for remote table "invoices" */
+export type Invoices_Obj_Rel_Insert_Input = {
+  data: Invoices_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Invoices_On_Conflict>;
+};
+
+/** on_conflict condition type for table "invoices" */
+export type Invoices_On_Conflict = {
+  constraint: Invoices_Constraint;
+  update_columns?: Array<Invoices_Update_Column>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "invoices". */
+export type Invoices_Order_By = {
+  board?: InputMaybe<Boards_Order_By>;
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  customer_details?: InputMaybe<Order_By>;
+  due_date?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoice_date?: InputMaybe<Order_By>;
+  invoice_from_details?: InputMaybe<Order_By>;
+  invoice_items_aggregate?: InputMaybe<Invoice_Items_Aggregate_Order_By>;
+  invoice_number?: InputMaybe<Order_By>;
+  notes?: InputMaybe<Order_By>;
+  status?: InputMaybe<Order_By>;
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: invoices */
+export type Invoices_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type Invoices_Prepend_Input = {
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** select columns of table "invoices" */
+export enum Invoices_Select_Column {
+  /** column name */
+  BoardId = 'board_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  CustomerDetails = 'customer_details',
+  /** column name */
+  DueDate = 'due_date',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InvoiceDate = 'invoice_date',
+  /** column name */
+  InvoiceFromDetails = 'invoice_from_details',
+  /** column name */
+  InvoiceNumber = 'invoice_number',
+  /** column name */
+  Notes = 'notes',
+  /** column name */
+  Status = 'status',
+  /** column name */
+  Subtotal = 'subtotal',
+  /** column name */
+  TaxAmount = 'tax_amount',
+  /** column name */
+  TaxRate = 'tax_rate',
+  /** column name */
+  Total = 'total',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "invoices" */
+export type Invoices_Set_Input = {
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['jsonb']['input']>;
+  due_date?: InputMaybe<Scalars['date']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_date?: InputMaybe<Scalars['date']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Human-readable invoice number */
+  invoice_number?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  subtotal?: InputMaybe<Scalars['numeric']['input']>;
+  tax_amount?: InputMaybe<Scalars['numeric']['input']>;
+  tax_rate?: InputMaybe<Scalars['numeric']['input']>;
+  total?: InputMaybe<Scalars['numeric']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Invoices_Stddev_Fields = {
+  __typename?: 'invoices_stddev_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev() on columns of table "invoices" */
+export type Invoices_Stddev_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Invoices_Stddev_Pop_Fields = {
+  __typename?: 'invoices_stddev_pop_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_pop() on columns of table "invoices" */
+export type Invoices_Stddev_Pop_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Invoices_Stddev_Samp_Fields = {
+  __typename?: 'invoices_stddev_samp_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "invoices" */
+export type Invoices_Stddev_Samp_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "invoices" */
+export type Invoices_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Invoices_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Invoices_Stream_Cursor_Value_Input = {
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['jsonb']['input']>;
+  due_date?: InputMaybe<Scalars['date']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_date?: InputMaybe<Scalars['date']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Human-readable invoice number */
+  invoice_number?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  subtotal?: InputMaybe<Scalars['numeric']['input']>;
+  tax_amount?: InputMaybe<Scalars['numeric']['input']>;
+  tax_rate?: InputMaybe<Scalars['numeric']['input']>;
+  total?: InputMaybe<Scalars['numeric']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Invoices_Sum_Fields = {
+  __typename?: 'invoices_sum_fields';
+  subtotal?: Maybe<Scalars['numeric']['output']>;
+  tax_amount?: Maybe<Scalars['numeric']['output']>;
+  tax_rate?: Maybe<Scalars['numeric']['output']>;
+  total?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** order by sum() on columns of table "invoices" */
+export type Invoices_Sum_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
+/** update columns of table "invoices" */
+export enum Invoices_Update_Column {
+  /** column name */
+  BoardId = 'board_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  CustomerDetails = 'customer_details',
+  /** column name */
+  DueDate = 'due_date',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InvoiceDate = 'invoice_date',
+  /** column name */
+  InvoiceFromDetails = 'invoice_from_details',
+  /** column name */
+  InvoiceNumber = 'invoice_number',
+  /** column name */
+  Notes = 'notes',
+  /** column name */
+  Status = 'status',
+  /** column name */
+  Subtotal = 'subtotal',
+  /** column name */
+  TaxAmount = 'tax_amount',
+  /** column name */
+  TaxRate = 'tax_rate',
+  /** column name */
+  Total = 'total',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Invoices_Updates = {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: InputMaybe<Invoices_Append_Input>;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _delete_at_path?: InputMaybe<Invoices_Delete_At_Path_Input>;
+  /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+  _delete_elem?: InputMaybe<Invoices_Delete_Elem_Input>;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _delete_key?: InputMaybe<Invoices_Delete_Key_Input>;
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Invoices_Inc_Input>;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: InputMaybe<Invoices_Prepend_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Invoices_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Invoices_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Invoices_Var_Pop_Fields = {
+  __typename?: 'invoices_var_pop_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_pop() on columns of table "invoices" */
+export type Invoices_Var_Pop_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Invoices_Var_Samp_Fields = {
+  __typename?: 'invoices_var_samp_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_samp() on columns of table "invoices" */
+export type Invoices_Var_Samp_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Invoices_Variance_Fields = {
+  __typename?: 'invoices_variance_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "invoices" */
+export type Invoices_Variance_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
 };
 
 export type Jsonb_Cast_Exp = {
@@ -3802,6 +4977,14 @@ export type Mutation_Root = {
   delete_comments?: Maybe<Comments_Mutation_Response>;
   /** delete single row from the table: "comments" */
   delete_comments_by_pk?: Maybe<Comments>;
+  /** delete data from the table: "invoice_items" */
+  delete_invoice_items?: Maybe<Invoice_Items_Mutation_Response>;
+  /** delete single row from the table: "invoice_items" */
+  delete_invoice_items_by_pk?: Maybe<Invoice_Items>;
+  /** delete data from the table: "invoices" */
+  delete_invoices?: Maybe<Invoices_Mutation_Response>;
+  /** delete single row from the table: "invoices" */
+  delete_invoices_by_pk?: Maybe<Invoices>;
   /** delete data from the table: "labels" */
   delete_labels?: Maybe<Labels_Mutation_Response>;
   /** delete single row from the table: "labels" */
@@ -3894,6 +5077,14 @@ export type Mutation_Root = {
   insert_comments?: Maybe<Comments_Mutation_Response>;
   /** insert a single row into the table: "comments" */
   insert_comments_one?: Maybe<Comments>;
+  /** insert data into the table: "invoice_items" */
+  insert_invoice_items?: Maybe<Invoice_Items_Mutation_Response>;
+  /** insert a single row into the table: "invoice_items" */
+  insert_invoice_items_one?: Maybe<Invoice_Items>;
+  /** insert data into the table: "invoices" */
+  insert_invoices?: Maybe<Invoices_Mutation_Response>;
+  /** insert a single row into the table: "invoices" */
+  insert_invoices_one?: Maybe<Invoices>;
   /** insert data into the table: "labels" */
   insert_labels?: Maybe<Labels_Mutation_Response>;
   /** insert a single row into the table: "labels" */
@@ -3998,6 +5189,18 @@ export type Mutation_Root = {
   update_comments_by_pk?: Maybe<Comments>;
   /** update multiples rows of table: "comments" */
   update_comments_many?: Maybe<Array<Maybe<Comments_Mutation_Response>>>;
+  /** update data of the table: "invoice_items" */
+  update_invoice_items?: Maybe<Invoice_Items_Mutation_Response>;
+  /** update single row of the table: "invoice_items" */
+  update_invoice_items_by_pk?: Maybe<Invoice_Items>;
+  /** update multiples rows of table: "invoice_items" */
+  update_invoice_items_many?: Maybe<Array<Maybe<Invoice_Items_Mutation_Response>>>;
+  /** update data of the table: "invoices" */
+  update_invoices?: Maybe<Invoices_Mutation_Response>;
+  /** update single row of the table: "invoices" */
+  update_invoices_by_pk?: Maybe<Invoices>;
+  /** update multiples rows of table: "invoices" */
+  update_invoices_many?: Maybe<Array<Maybe<Invoices_Mutation_Response>>>;
   /** update data of the table: "labels" */
   update_labels?: Maybe<Labels_Mutation_Response>;
   /** update single row of the table: "labels" */
@@ -4171,6 +5374,30 @@ export type Mutation_RootDelete_CommentsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Comments_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Invoice_ItemsArgs = {
+  where: Invoice_Items_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Invoice_Items_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_InvoicesArgs = {
+  where: Invoices_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Invoices_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -4462,6 +5689,34 @@ export type Mutation_RootInsert_CommentsArgs = {
 export type Mutation_RootInsert_Comments_OneArgs = {
   object: Comments_Insert_Input;
   on_conflict?: InputMaybe<Comments_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Invoice_ItemsArgs = {
+  objects: Array<Invoice_Items_Insert_Input>;
+  on_conflict?: InputMaybe<Invoice_Items_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Invoice_Items_OneArgs = {
+  object: Invoice_Items_Insert_Input;
+  on_conflict?: InputMaybe<Invoice_Items_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_InvoicesArgs = {
+  objects: Array<Invoices_Insert_Input>;
+  on_conflict?: InputMaybe<Invoices_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Invoices_OneArgs = {
+  object: Invoices_Insert_Input;
+  on_conflict?: InputMaybe<Invoices_On_Conflict>;
 };
 
 
@@ -4846,6 +6101,60 @@ export type Mutation_RootUpdate_Comments_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Comments_ManyArgs = {
   updates: Array<Comments_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoice_ItemsArgs = {
+  _inc?: InputMaybe<Invoice_Items_Inc_Input>;
+  _set?: InputMaybe<Invoice_Items_Set_Input>;
+  where: Invoice_Items_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoice_Items_By_PkArgs = {
+  _inc?: InputMaybe<Invoice_Items_Inc_Input>;
+  _set?: InputMaybe<Invoice_Items_Set_Input>;
+  pk_columns: Invoice_Items_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoice_Items_ManyArgs = {
+  updates: Array<Invoice_Items_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_InvoicesArgs = {
+  _append?: InputMaybe<Invoices_Append_Input>;
+  _delete_at_path?: InputMaybe<Invoices_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Invoices_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Invoices_Delete_Key_Input>;
+  _inc?: InputMaybe<Invoices_Inc_Input>;
+  _prepend?: InputMaybe<Invoices_Prepend_Input>;
+  _set?: InputMaybe<Invoices_Set_Input>;
+  where: Invoices_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoices_By_PkArgs = {
+  _append?: InputMaybe<Invoices_Append_Input>;
+  _delete_at_path?: InputMaybe<Invoices_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Invoices_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Invoices_Delete_Key_Input>;
+  _inc?: InputMaybe<Invoices_Inc_Input>;
+  _prepend?: InputMaybe<Invoices_Prepend_Input>;
+  _set?: InputMaybe<Invoices_Set_Input>;
+  pk_columns: Invoices_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoices_ManyArgs = {
+  updates: Array<Invoices_Updates>;
 };
 
 
@@ -6313,6 +7622,18 @@ export type Query_Root = {
   /** fetch data from the table: "comments" using primary key columns */
   comments_by_pk?: Maybe<Comments>;
   /** An array relationship */
+  invoice_items: Array<Invoice_Items>;
+  /** An aggregate relationship */
+  invoice_items_aggregate: Invoice_Items_Aggregate;
+  /** fetch data from the table: "invoice_items" using primary key columns */
+  invoice_items_by_pk?: Maybe<Invoice_Items>;
+  /** An array relationship */
+  invoices: Array<Invoices>;
+  /** An aggregate relationship */
+  invoices_aggregate: Invoices_Aggregate;
+  /** fetch data from the table: "invoices" using primary key columns */
+  invoices_by_pk?: Maybe<Invoices>;
+  /** An array relationship */
   labels: Array<Labels>;
   /** An aggregate relationship */
   labels_aggregate: Labels_Aggregate;
@@ -6559,6 +7880,52 @@ export type Query_RootComments_AggregateArgs = {
 
 
 export type Query_RootComments_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootInvoice_ItemsArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+export type Query_RootInvoice_Items_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+export type Query_RootInvoice_Items_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootInvoicesArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+export type Query_RootInvoices_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+export type Query_RootInvoices_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -7276,6 +8643,22 @@ export type Subscription_Root = {
   /** fetch data from the table in a streaming manner: "comments" */
   comments_stream: Array<Comments>;
   /** An array relationship */
+  invoice_items: Array<Invoice_Items>;
+  /** An aggregate relationship */
+  invoice_items_aggregate: Invoice_Items_Aggregate;
+  /** fetch data from the table: "invoice_items" using primary key columns */
+  invoice_items_by_pk?: Maybe<Invoice_Items>;
+  /** fetch data from the table in a streaming manner: "invoice_items" */
+  invoice_items_stream: Array<Invoice_Items>;
+  /** An array relationship */
+  invoices: Array<Invoices>;
+  /** An aggregate relationship */
+  invoices_aggregate: Invoices_Aggregate;
+  /** fetch data from the table: "invoices" using primary key columns */
+  invoices_by_pk?: Maybe<Invoices>;
+  /** fetch data from the table in a streaming manner: "invoices" */
+  invoices_stream: Array<Invoices>;
+  /** An array relationship */
   labels: Array<Labels>;
   /** An aggregate relationship */
   labels_aggregate: Labels_Aggregate;
@@ -7603,6 +8986,66 @@ export type Subscription_RootComments_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Comments_Stream_Cursor_Input>>;
   where?: InputMaybe<Comments_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoice_ItemsArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoice_Items_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoice_Items_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootInvoice_Items_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Invoice_Items_Stream_Cursor_Input>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoicesArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoices_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoices_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootInvoices_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Invoices_Stream_Cursor_Input>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
 };
 
 
@@ -8409,6 +9852,12 @@ export type Todos = {
   has_time: Scalars['Boolean']['output'];
   id: Scalars['uuid']['output'];
   /** An array relationship */
+  invoice_items: Array<Invoice_Items>;
+  /** An aggregate relationship */
+  invoice_items_aggregate: Invoice_Items_Aggregate;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['numeric']['output']>;
+  /** An array relationship */
   labels: Array<Todo_Labels>;
   /** An aggregate relationship */
   labels_aggregate: Todo_Labels_Aggregate;
@@ -8472,6 +9921,26 @@ export type TodosComments_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Comments_Order_By>>;
   where?: InputMaybe<Comments_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosInvoice_ItemsArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosInvoice_Items_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
 };
 
 
@@ -8621,6 +10090,8 @@ export type Todos_Avg_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -8633,6 +10104,8 @@ export type Todos_Avg_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -8662,6 +10135,9 @@ export type Todos_Bool_Exp = {
   github_url?: InputMaybe<String_Comparison_Exp>;
   has_time?: InputMaybe<Boolean_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
+  invoice_items?: InputMaybe<Invoice_Items_Bool_Exp>;
+  invoice_items_aggregate?: InputMaybe<Invoice_Items_Aggregate_Bool_Exp>;
+  invoiced_hours?: InputMaybe<Numeric_Comparison_Exp>;
   labels?: InputMaybe<Todo_Labels_Bool_Exp>;
   labels_aggregate?: InputMaybe<Todo_Labels_Aggregate_Bool_Exp>;
   list?: InputMaybe<Lists_Bool_Exp>;
@@ -8695,6 +10171,8 @@ export type Todos_Inc_Input = {
   github_issue_id?: InputMaybe<Scalars['bigint']['input']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Scalars['Int']['input']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Scalars['numeric']['input']>;
   max_hours?: InputMaybe<Scalars['numeric']['input']>;
   min_hours?: InputMaybe<Scalars['numeric']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
@@ -8724,6 +10202,9 @@ export type Todos_Insert_Input = {
   github_url?: InputMaybe<Scalars['String']['input']>;
   has_time?: InputMaybe<Scalars['Boolean']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_items?: InputMaybe<Invoice_Items_Arr_Rel_Insert_Input>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Scalars['numeric']['input']>;
   labels?: InputMaybe<Todo_Labels_Arr_Rel_Insert_Input>;
   list?: InputMaybe<Lists_Obj_Rel_Insert_Input>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
@@ -8760,6 +10241,8 @@ export type Todos_Max_Fields = {
   /** Direct URL to GitHub issue */
   github_url?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['numeric']['output']>;
   list_id?: Maybe<Scalars['uuid']['output']>;
   max_hours?: Maybe<Scalars['numeric']['output']>;
   min_hours?: Maybe<Scalars['numeric']['output']>;
@@ -8790,6 +10273,8 @@ export type Todos_Max_Order_By = {
   /** Direct URL to GitHub issue */
   github_url?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   list_id?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
@@ -8821,6 +10306,8 @@ export type Todos_Min_Fields = {
   /** Direct URL to GitHub issue */
   github_url?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['numeric']['output']>;
   list_id?: Maybe<Scalars['uuid']['output']>;
   max_hours?: Maybe<Scalars['numeric']['output']>;
   min_hours?: Maybe<Scalars['numeric']['output']>;
@@ -8851,6 +10338,8 @@ export type Todos_Min_Order_By = {
   /** Direct URL to GitHub issue */
   github_url?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   list_id?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
@@ -8903,6 +10392,8 @@ export type Todos_Order_By = {
   github_url?: InputMaybe<Order_By>;
   has_time?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  invoice_items_aggregate?: InputMaybe<Invoice_Items_Aggregate_Order_By>;
+  invoiced_hours?: InputMaybe<Order_By>;
   labels_aggregate?: InputMaybe<Todo_Labels_Aggregate_Order_By>;
   list?: InputMaybe<Lists_Order_By>;
   list_id?: InputMaybe<Order_By>;
@@ -8954,6 +10445,8 @@ export enum Todos_Select_Column {
   /** column name */
   Id = 'id',
   /** column name */
+  InvoicedHours = 'invoiced_hours',
+  /** column name */
   ListId = 'list_id',
   /** column name */
   MaxHours = 'max_hours',
@@ -9004,6 +10497,8 @@ export type Todos_Set_Input = {
   github_url?: InputMaybe<Scalars['String']['input']>;
   has_time?: InputMaybe<Scalars['Boolean']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Scalars['numeric']['input']>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
   max_hours?: InputMaybe<Scalars['numeric']['input']>;
   min_hours?: InputMaybe<Scalars['numeric']['input']>;
@@ -9022,6 +10517,8 @@ export type Todos_Stddev_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9034,6 +10531,8 @@ export type Todos_Stddev_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9047,6 +10546,8 @@ export type Todos_Stddev_Pop_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9059,6 +10560,8 @@ export type Todos_Stddev_Pop_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9072,6 +10575,8 @@ export type Todos_Stddev_Samp_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9084,6 +10589,8 @@ export type Todos_Stddev_Samp_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9118,6 +10625,8 @@ export type Todos_Stream_Cursor_Value_Input = {
   github_url?: InputMaybe<Scalars['String']['input']>;
   has_time?: InputMaybe<Scalars['Boolean']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Scalars['numeric']['input']>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
   max_hours?: InputMaybe<Scalars['numeric']['input']>;
   min_hours?: InputMaybe<Scalars['numeric']['input']>;
@@ -9136,6 +10645,8 @@ export type Todos_Sum_Fields = {
   github_issue_id?: Maybe<Scalars['bigint']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Int']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['numeric']['output']>;
   max_hours?: Maybe<Scalars['numeric']['output']>;
   min_hours?: Maybe<Scalars['numeric']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
@@ -9148,6 +10659,8 @@ export type Todos_Sum_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9184,6 +10697,8 @@ export enum Todos_Update_Column {
   /** column name */
   Id = 'id',
   /** column name */
+  InvoicedHours = 'invoiced_hours',
+  /** column name */
   ListId = 'list_id',
   /** column name */
   MaxHours = 'max_hours',
@@ -9218,6 +10733,8 @@ export type Todos_Var_Pop_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9230,6 +10747,8 @@ export type Todos_Var_Pop_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9243,6 +10762,8 @@ export type Todos_Var_Samp_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9255,6 +10776,8 @@ export type Todos_Var_Samp_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9268,6 +10791,8 @@ export type Todos_Variance_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9280,6 +10805,8 @@ export type Todos_Variance_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -11649,6 +13176,12 @@ export type Users = {
   emailVerified?: Maybe<Scalars['timestamptz']['output']>;
   id: Scalars['uuid']['output'];
   image?: Maybe<Scalars['String']['output']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: Maybe<Scalars['jsonb']['output']>;
+  /** An array relationship */
+  invoices: Array<Invoices>;
+  /** An aggregate relationship */
+  invoices_aggregate: Invoices_Aggregate;
   locale: Scalars['String']['output'];
   /** An array relationship */
   logs: Array<Logs>;
@@ -11813,6 +13346,32 @@ export type UsersComments_AggregateArgs = {
 /** columns and relationships of "users" */
 export type UsersDefault_LabelsArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersInvoice_From_DetailsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersInvoicesArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersInvoices_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
 };
 
 
@@ -12006,6 +13565,8 @@ export type Users_Aggregate_FieldsCountArgs = {
 /** append existing jsonb value of filtered columns with new jsonb value */
 export type Users_Append_Input = {
   default_labels?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
@@ -12033,6 +13594,9 @@ export type Users_Bool_Exp = {
   emailVerified?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   image?: InputMaybe<String_Comparison_Exp>;
+  invoice_from_details?: InputMaybe<Jsonb_Comparison_Exp>;
+  invoices?: InputMaybe<Invoices_Bool_Exp>;
+  invoices_aggregate?: InputMaybe<Invoices_Aggregate_Bool_Exp>;
   locale?: InputMaybe<String_Comparison_Exp>;
   logs?: InputMaybe<Logs_Bool_Exp>;
   logs_aggregate?: InputMaybe<Logs_Aggregate_Bool_Exp>;
@@ -12070,18 +13634,24 @@ export enum Users_Constraint {
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
 export type Users_Delete_At_Path_Input = {
   default_labels?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Array<Scalars['String']['input']>>;
   settings?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
 export type Users_Delete_Elem_Input = {
   default_labels?: InputMaybe<Scalars['Int']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['Int']['input']>;
   settings?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** delete key/value pair or string element. key/value pairs are matched based on their key value */
 export type Users_Delete_Key_Input = {
   default_labels?: InputMaybe<Scalars['String']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -12100,6 +13670,9 @@ export type Users_Insert_Input = {
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+  invoices?: InputMaybe<Invoices_Arr_Rel_Insert_Input>;
   locale?: InputMaybe<Scalars['String']['input']>;
   logs?: InputMaybe<Logs_Arr_Rel_Insert_Input>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -12184,6 +13757,8 @@ export type Users_Order_By = {
   emailVerified?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   image?: InputMaybe<Order_By>;
+  invoice_from_details?: InputMaybe<Order_By>;
+  invoices_aggregate?: InputMaybe<Invoices_Aggregate_Order_By>;
   locale?: InputMaybe<Order_By>;
   logs_aggregate?: InputMaybe<Logs_Aggregate_Order_By>;
   name?: InputMaybe<Order_By>;
@@ -12208,6 +13783,8 @@ export type Users_Pk_Columns_Input = {
 /** prepend existing jsonb value of filtered columns with new jsonb value */
 export type Users_Prepend_Input = {
   default_labels?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
@@ -12227,6 +13804,8 @@ export enum Users_Select_Column {
   Id = 'id',
   /** column name */
   Image = 'image',
+  /** column name */
+  InvoiceFromDetails = 'invoice_from_details',
   /** column name */
   Locale = 'locale',
   /** column name */
@@ -12250,6 +13829,8 @@ export type Users_Set_Input = {
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
@@ -12275,6 +13856,8 @@ export type Users_Stream_Cursor_Value_Input = {
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
@@ -12299,6 +13882,8 @@ export enum Users_Update_Column {
   Id = 'id',
   /** column name */
   Image = 'image',
+  /** column name */
+  InvoiceFromDetails = 'invoice_from_details',
   /** column name */
   Locale = 'locale',
   /** column name */
@@ -12502,7 +14087,7 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, invoiced_hours?: number | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null };
 
@@ -12528,7 +14113,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, invoiced_hours?: number | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -12572,7 +14157,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, invoiced_hours?: number | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -12580,7 +14165,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, invoiced_hours?: number | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -12994,6 +14579,84 @@ export type GetTrackerCategoriesQueryVariables = Exact<{
 
 export type GetTrackerCategoriesQuery = { __typename?: 'query_root', tracker_categories: Array<{ __typename?: 'tracker_categories', id: string, name: string, parent_category?: { __typename?: 'tracker_categories', id: string, name: string } | null, sub_categories: Array<{ __typename?: 'tracker_categories', id: string, name: string }>, tracker_keywords: Array<{ __typename?: 'tracker_keywords', id: string, keyword: string, case_sensitive: boolean, board_id?: string | null }> }> };
 
+export type InvoiceFieldsFragment = { __typename?: 'invoices', id: string, invoice_number: string, board_id: string, user_id: string, invoice_date: string, due_date?: string | null, status: string, customer_details: any, invoice_from_details: any, subtotal: number, tax_rate?: number | null, tax_amount?: number | null, total: number, notes?: string | null, created_at: string, updated_at: string, board: { __typename?: 'boards', id: string, name: string, alias: string }, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null } };
+
+export type InvoiceItemFieldsFragment = { __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, description: string, hours: number, rate: number, amount: number, sort_order: number, created_at: string, updated_at: string, todo?: { __typename?: 'todos', id: string, title: string, alias: string } | null };
+
+export type GetInvoicesQueryVariables = Exact<{
+  where?: InputMaybe<Invoices_Bool_Exp>;
+  order_by?: InputMaybe<Array<Invoices_Order_By> | Invoices_Order_By>;
+}>;
+
+
+export type GetInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, invoice_number: string, board_id: string, user_id: string, invoice_date: string, due_date?: string | null, status: string, customer_details: any, invoice_from_details: any, subtotal: number, tax_rate?: number | null, tax_amount?: number | null, total: number, notes?: string | null, created_at: string, updated_at: string, board: { __typename?: 'boards', id: string, name: string, alias: string }, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null } }> };
+
+export type GetInvoiceByIdQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetInvoiceByIdQuery = { __typename?: 'query_root', invoices_by_pk?: { __typename?: 'invoices', id: string, invoice_number: string, board_id: string, user_id: string, invoice_date: string, due_date?: string | null, status: string, customer_details: any, invoice_from_details: any, subtotal: number, tax_rate?: number | null, tax_amount?: number | null, total: number, notes?: string | null, created_at: string, updated_at: string, invoice_items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, description: string, hours: number, rate: number, amount: number, sort_order: number, created_at: string, updated_at: string, todo?: { __typename?: 'todos', id: string, title: string, alias: string } | null }>, board: { __typename?: 'boards', id: string, name: string, alias: string }, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null } } | null };
+
+export type GetBoardInvoicesQueryVariables = Exact<{
+  board_id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetBoardInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, invoice_number: string, board_id: string, user_id: string, invoice_date: string, due_date?: string | null, status: string, customer_details: any, invoice_from_details: any, subtotal: number, tax_rate?: number | null, tax_amount?: number | null, total: number, notes?: string | null, created_at: string, updated_at: string, board: { __typename?: 'boards', id: string, name: string, alias: string }, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null } }> };
+
+export type CreateInvoiceMutationVariables = Exact<{
+  object: Invoices_Insert_Input;
+}>;
+
+
+export type CreateInvoiceMutation = { __typename?: 'mutation_root', insert_invoices_one?: { __typename?: 'invoices', id: string, invoice_number: string, board_id: string, user_id: string, invoice_date: string, due_date?: string | null, status: string, customer_details: any, invoice_from_details: any, subtotal: number, tax_rate?: number | null, tax_amount?: number | null, total: number, notes?: string | null, created_at: string, updated_at: string, board: { __typename?: 'boards', id: string, name: string, alias: string }, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null } } | null };
+
+export type UpdateInvoiceMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  set: Invoices_Set_Input;
+}>;
+
+
+export type UpdateInvoiceMutation = { __typename?: 'mutation_root', update_invoices_by_pk?: { __typename?: 'invoices', id: string, invoice_number: string, board_id: string, user_id: string, invoice_date: string, due_date?: string | null, status: string, customer_details: any, invoice_from_details: any, subtotal: number, tax_rate?: number | null, tax_amount?: number | null, total: number, notes?: string | null, created_at: string, updated_at: string, board: { __typename?: 'boards', id: string, name: string, alias: string }, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null } } | null };
+
+export type DeleteInvoiceMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type DeleteInvoiceMutation = { __typename?: 'mutation_root', delete_invoices_by_pk?: { __typename?: 'invoices', id: string } | null };
+
+export type CreateInvoiceItemMutationVariables = Exact<{
+  object: Invoice_Items_Insert_Input;
+}>;
+
+
+export type CreateInvoiceItemMutation = { __typename?: 'mutation_root', insert_invoice_items_one?: { __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, description: string, hours: number, rate: number, amount: number, sort_order: number, created_at: string, updated_at: string, todo?: { __typename?: 'todos', id: string, title: string, alias: string } | null } | null };
+
+export type UpdateInvoiceItemMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  set: Invoice_Items_Set_Input;
+}>;
+
+
+export type UpdateInvoiceItemMutation = { __typename?: 'mutation_root', update_invoice_items_by_pk?: { __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, description: string, hours: number, rate: number, amount: number, sort_order: number, created_at: string, updated_at: string, todo?: { __typename?: 'todos', id: string, title: string, alias: string } | null } | null };
+
+export type DeleteInvoiceItemMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type DeleteInvoiceItemMutation = { __typename?: 'mutation_root', delete_invoice_items_by_pk?: { __typename?: 'invoice_items', id: string } | null };
+
+export type UpdateTodoInvoicedHoursMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  invoiced_hours: Scalars['numeric']['input'];
+}>;
+
+
+export type UpdateTodoInvoicedHoursMutation = { __typename?: 'mutation_root', update_todos_by_pk?: { __typename?: 'todos', id: string, invoiced_hours?: number | null } | null };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -13065,6 +14728,7 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  invoiced_hours
   assignee {
     id
     name
@@ -13387,6 +15051,56 @@ export const TrackerKeywordFieldsFragmentDoc = new TypedDocumentString(`
   }
 }
     `, {"fragmentName":"TrackerKeywordFields"}) as unknown as TypedDocumentString<TrackerKeywordFieldsFragment, unknown>;
+export const InvoiceFieldsFragmentDoc = new TypedDocumentString(`
+    fragment InvoiceFields on invoices {
+  id
+  invoice_number
+  board_id
+  user_id
+  invoice_date
+  due_date
+  status
+  customer_details
+  invoice_from_details
+  subtotal
+  tax_rate
+  tax_amount
+  total
+  notes
+  created_at
+  updated_at
+  board {
+    id
+    name
+    alias
+  }
+  user {
+    id
+    name
+    username
+    email
+  }
+}
+    `, {"fragmentName":"InvoiceFields"}) as unknown as TypedDocumentString<InvoiceFieldsFragment, unknown>;
+export const InvoiceItemFieldsFragmentDoc = new TypedDocumentString(`
+    fragment InvoiceItemFields on invoice_items {
+  id
+  invoice_id
+  todo_id
+  description
+  hours
+  rate
+  amount
+  sort_order
+  created_at
+  updated_at
+  todo {
+    id
+    title
+    alias
+  }
+}
+    `, {"fragmentName":"InvoiceItemFields"}) as unknown as TypedDocumentString<InvoiceItemFieldsFragment, unknown>;
 export const GetTodosDocument = new TypedDocumentString(`
     query GetTodos($where: todos_bool_exp = {}, $order_by: [todos_order_by!] = {sort_order: asc, due_on: desc, updated_at: desc}, $limit: Int = 100, $offset: Int = 0) {
   todos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
@@ -13415,6 +15129,7 @@ export const GetTodosDocument = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  invoiced_hours
   assignee {
     id
     name
@@ -13647,6 +15362,7 @@ export const CreateTodoDocument = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  invoiced_hours
   assignee {
     id
     name
@@ -13738,6 +15454,7 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  invoiced_hours
   assignee {
     id
     name
@@ -14959,3 +16676,269 @@ export const GetTrackerCategoriesDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetTrackerCategoriesQuery, GetTrackerCategoriesQueryVariables>;
+export const GetInvoicesDocument = new TypedDocumentString(`
+    query GetInvoices($where: invoices_bool_exp, $order_by: [invoices_order_by!]) {
+  invoices(where: $where, order_by: $order_by) {
+    ...InvoiceFields
+  }
+}
+    fragment InvoiceFields on invoices {
+  id
+  invoice_number
+  board_id
+  user_id
+  invoice_date
+  due_date
+  status
+  customer_details
+  invoice_from_details
+  subtotal
+  tax_rate
+  tax_amount
+  total
+  notes
+  created_at
+  updated_at
+  board {
+    id
+    name
+    alias
+  }
+  user {
+    id
+    name
+    username
+    email
+  }
+}`) as unknown as TypedDocumentString<GetInvoicesQuery, GetInvoicesQueryVariables>;
+export const GetInvoiceByIdDocument = new TypedDocumentString(`
+    query GetInvoiceById($id: uuid!) {
+  invoices_by_pk(id: $id) {
+    ...InvoiceFields
+    invoice_items(order_by: {sort_order: asc}) {
+      ...InvoiceItemFields
+    }
+  }
+}
+    fragment InvoiceFields on invoices {
+  id
+  invoice_number
+  board_id
+  user_id
+  invoice_date
+  due_date
+  status
+  customer_details
+  invoice_from_details
+  subtotal
+  tax_rate
+  tax_amount
+  total
+  notes
+  created_at
+  updated_at
+  board {
+    id
+    name
+    alias
+  }
+  user {
+    id
+    name
+    username
+    email
+  }
+}
+fragment InvoiceItemFields on invoice_items {
+  id
+  invoice_id
+  todo_id
+  description
+  hours
+  rate
+  amount
+  sort_order
+  created_at
+  updated_at
+  todo {
+    id
+    title
+    alias
+  }
+}`) as unknown as TypedDocumentString<GetInvoiceByIdQuery, GetInvoiceByIdQueryVariables>;
+export const GetBoardInvoicesDocument = new TypedDocumentString(`
+    query GetBoardInvoices($board_id: uuid!) {
+  invoices(where: {board_id: {_eq: $board_id}}, order_by: {created_at: desc}) {
+    ...InvoiceFields
+  }
+}
+    fragment InvoiceFields on invoices {
+  id
+  invoice_number
+  board_id
+  user_id
+  invoice_date
+  due_date
+  status
+  customer_details
+  invoice_from_details
+  subtotal
+  tax_rate
+  tax_amount
+  total
+  notes
+  created_at
+  updated_at
+  board {
+    id
+    name
+    alias
+  }
+  user {
+    id
+    name
+    username
+    email
+  }
+}`) as unknown as TypedDocumentString<GetBoardInvoicesQuery, GetBoardInvoicesQueryVariables>;
+export const CreateInvoiceDocument = new TypedDocumentString(`
+    mutation CreateInvoice($object: invoices_insert_input!) {
+  insert_invoices_one(object: $object) {
+    ...InvoiceFields
+  }
+}
+    fragment InvoiceFields on invoices {
+  id
+  invoice_number
+  board_id
+  user_id
+  invoice_date
+  due_date
+  status
+  customer_details
+  invoice_from_details
+  subtotal
+  tax_rate
+  tax_amount
+  total
+  notes
+  created_at
+  updated_at
+  board {
+    id
+    name
+    alias
+  }
+  user {
+    id
+    name
+    username
+    email
+  }
+}`) as unknown as TypedDocumentString<CreateInvoiceMutation, CreateInvoiceMutationVariables>;
+export const UpdateInvoiceDocument = new TypedDocumentString(`
+    mutation UpdateInvoice($id: uuid!, $set: invoices_set_input!) {
+  update_invoices_by_pk(pk_columns: {id: $id}, _set: $set) {
+    ...InvoiceFields
+  }
+}
+    fragment InvoiceFields on invoices {
+  id
+  invoice_number
+  board_id
+  user_id
+  invoice_date
+  due_date
+  status
+  customer_details
+  invoice_from_details
+  subtotal
+  tax_rate
+  tax_amount
+  total
+  notes
+  created_at
+  updated_at
+  board {
+    id
+    name
+    alias
+  }
+  user {
+    id
+    name
+    username
+    email
+  }
+}`) as unknown as TypedDocumentString<UpdateInvoiceMutation, UpdateInvoiceMutationVariables>;
+export const DeleteInvoiceDocument = new TypedDocumentString(`
+    mutation DeleteInvoice($id: uuid!) {
+  delete_invoices_by_pk(id: $id) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteInvoiceMutation, DeleteInvoiceMutationVariables>;
+export const CreateInvoiceItemDocument = new TypedDocumentString(`
+    mutation CreateInvoiceItem($object: invoice_items_insert_input!) {
+  insert_invoice_items_one(object: $object) {
+    ...InvoiceItemFields
+  }
+}
+    fragment InvoiceItemFields on invoice_items {
+  id
+  invoice_id
+  todo_id
+  description
+  hours
+  rate
+  amount
+  sort_order
+  created_at
+  updated_at
+  todo {
+    id
+    title
+    alias
+  }
+}`) as unknown as TypedDocumentString<CreateInvoiceItemMutation, CreateInvoiceItemMutationVariables>;
+export const UpdateInvoiceItemDocument = new TypedDocumentString(`
+    mutation UpdateInvoiceItem($id: uuid!, $set: invoice_items_set_input!) {
+  update_invoice_items_by_pk(pk_columns: {id: $id}, _set: $set) {
+    ...InvoiceItemFields
+  }
+}
+    fragment InvoiceItemFields on invoice_items {
+  id
+  invoice_id
+  todo_id
+  description
+  hours
+  rate
+  amount
+  sort_order
+  created_at
+  updated_at
+  todo {
+    id
+    title
+    alias
+  }
+}`) as unknown as TypedDocumentString<UpdateInvoiceItemMutation, UpdateInvoiceItemMutationVariables>;
+export const DeleteInvoiceItemDocument = new TypedDocumentString(`
+    mutation DeleteInvoiceItem($id: uuid!) {
+  delete_invoice_items_by_pk(id: $id) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteInvoiceItemMutation, DeleteInvoiceItemMutationVariables>;
+export const UpdateTodoInvoicedHoursDocument = new TypedDocumentString(`
+    mutation UpdateTodoInvoicedHours($id: uuid!, $invoiced_hours: numeric!) {
+  update_todos_by_pk(
+    pk_columns: {id: $id}
+    _set: {invoiced_hours: $invoiced_hours}
+  ) {
+    id
+    invoiced_hours
+  }
+}
+    `) as unknown as TypedDocumentString<UpdateTodoInvoicedHoursMutation, UpdateTodoInvoicedHoursMutationVariables>;
