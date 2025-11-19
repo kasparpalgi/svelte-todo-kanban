@@ -6,6 +6,7 @@
 	import { todoFilteringStore } from '$lib/stores/todoFiltering.svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { actionState } from '$lib/stores/states.svelte';
+	import { userStore } from '$lib/stores/user.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import {
 		Card,
@@ -43,8 +44,10 @@
 		}
 	});
 
+	const user = $derived(userStore.user);
+
 	let kanbanLists = $derived(() => {
-		const todosByListId = todoFilteringStore.getTodosByList(todosStore.todos);
+		const todosByListId = todoFilteringStore.getTodosByList(todosStore.todos, user?.id);
 		const result = [];
 
 		const inboxTodos = todosByListId.get('inbox');
