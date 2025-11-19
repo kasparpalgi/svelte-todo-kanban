@@ -67,6 +67,18 @@ Please complete this task thoughtfully. If it involves research or external info
 		}
 
 		const data = await response.json();
+
+		// Debug logging to understand response structure
+		console.log('OpenAI response structure:', {
+			hasChoices: !!data.choices,
+			choicesLength: data.choices?.length,
+			firstChoice: data.choices?.[0],
+			message: data.choices?.[0]?.message,
+			content: data.choices?.[0]?.message?.content,
+			contentType: typeof data.choices?.[0]?.message?.content,
+			contentLength: data.choices?.[0]?.message?.content?.length
+		});
+
 		const result = data.choices[0]?.message?.content?.trim() || '';
 		const processingTime = Date.now() - startTime;
 		const inputTokens = data.usage?.prompt_tokens || 0;
@@ -80,7 +92,7 @@ Please complete this task thoughtfully. If it involves research or external info
 			console.error('AI task returned empty result', {
 				task,
 				model: selectedModel,
-				response: data
+				fullResponse: JSON.stringify(data, null, 2)
 			});
 		}
 
