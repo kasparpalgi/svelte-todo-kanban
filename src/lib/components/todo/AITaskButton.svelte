@@ -32,7 +32,7 @@
 	let isProcessing = $state(false);
 	let processingTime = $state('');
 	let processingCost = $state('');
-	let textareaEl: HTMLTextAreaElement | undefined = $state(undefined);
+	let textareaEl: HTMLTextAreaElement | undefined;
 
 	function handleVoiceTranscript(transcript: string) {
 		taskInput = transcript;
@@ -115,15 +115,17 @@
 </script>
 
 {#if minimal}
-	<button
-		onclick={() => (open = true)}
-		{disabled}
-		class="rounded p-1 transition-colors hover:bg-muted"
-		title="AI Task"
-		type="button"
-	>
-		<Sparkles class="h-4 w-4 text-purple-600 hover:text-purple-700" />
-	</button>
+	<div class="self-start">
+		<button
+			onclick={() => (open = true)}
+			{disabled}
+			class="rounded p-1 transition-colors hover:bg-muted"
+			title="AI Task"
+			type="button"
+		>
+			<Sparkles class="h-4 w-4 text-purple-600 hover:text-purple-700" />
+		</button>
+	</div>
 {:else}
 	<Button
 		variant="outline"

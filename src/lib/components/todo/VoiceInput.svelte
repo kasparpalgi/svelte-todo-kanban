@@ -413,8 +413,8 @@
 </script>
 
 {#if isSupported}
-	<div class="flex flex-col gap-1">
-		<div class="flex flex-col items-start gap-1">
+	<div class="flex flex-col gap-1 self-start">
+		<div class="flex items-center gap-1">
 			<div class="relative">
 				<button
 					onclick={toggleRecording}
