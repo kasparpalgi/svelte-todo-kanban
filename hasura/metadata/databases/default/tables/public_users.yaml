@@ -44,6 +44,13 @@ array_relationships:
         table:
           name: comments
           schema: public
+  - name: invoices
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: invoices
+          schema: public
   - name: logs
     using:
       foreign_key_constraint_on:
@@ -112,6 +119,7 @@ insert_permissions:
         - emailVerified
         - id
         - image
+        - invoice_from_details
         - locale
         - name
         - password
@@ -130,6 +138,7 @@ select_permissions:
         - default_labels
         - settings
         - image
+        - invoice_from_details
         - username
         - created_at
         - emailVerified
@@ -146,6 +155,7 @@ update_permissions:
         - email
         - emailVerified
         - image
+        - invoice_from_details
         - locale
         - name
         - settings

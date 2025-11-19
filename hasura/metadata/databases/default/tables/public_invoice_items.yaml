@@ -1,0 +1,115 @@
+table:
+  name: invoice_items
+  schema: public
+object_relationships:
+  - name: invoice
+    using:
+      foreign_key_constraint_on: invoice_id
+  - name: todo
+    using:
+      foreign_key_constraint_on: todo_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        invoice:
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - board:
+                user_id:
+                  _eq: X-Hasura-User-Id
+            - board:
+                board_members:
+                  _and:
+                    - user_id:
+                        _eq: X-Hasura-User-Id
+                    - role:
+                        _in: [owner, editor]
+      columns:
+        - id
+        - invoice_id
+        - todo_id
+        - description
+        - hours
+        - rate
+        - amount
+        - sort_order
+        - created_at
+        - updated_at
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - id
+        - invoice_id
+        - todo_id
+        - description
+        - hours
+        - rate
+        - amount
+        - sort_order
+        - created_at
+        - updated_at
+      filter:
+        invoice:
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - board:
+                user_id:
+                  _eq: X-Hasura-User-Id
+            - board:
+                board_members:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - todo_id
+        - description
+        - hours
+        - rate
+        - amount
+        - sort_order
+        - updated_at
+      filter:
+        invoice:
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - board:
+                user_id:
+                  _eq: X-Hasura-User-Id
+            - board:
+                board_members:
+                  _and:
+                    - user_id:
+                        _eq: X-Hasura-User-Id
+                    - role:
+                        _in: [owner, editor]
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        invoice:
+          _or:
+            - user_id:
+                _eq: X-Hasura-User-Id
+            - board:
+                user_id:
+                  _eq: X-Hasura-User-Id
+            - board:
+                board_members:
+                  _and:
+                    - user_id:
+                        _eq: X-Hasura-User-Id
+                    - role:
+                        _in: [owner, editor]
+    comment: ""

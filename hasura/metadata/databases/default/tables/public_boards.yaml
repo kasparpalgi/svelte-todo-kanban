@@ -20,6 +20,13 @@ array_relationships:
         table:
           name: board_members
           schema: public
+  - name: invoices
+    using:
+      foreign_key_constraint_on:
+        column: board_id
+        table:
+          name: invoices
+          schema: public
   - name: labels
     using:
       foreign_key_constraint_on:
@@ -53,6 +60,7 @@ insert_permissions:
         - alias
         - allow_public_comments
         - created_at
+        - customer_invoice_details
         - github
         - id
         - is_public
@@ -69,6 +77,7 @@ select_permissions:
         - alias
         - allow_public_comments
         - created_at
+        - customer_invoice_details
         - github
         - id
         - is_public
@@ -99,6 +108,7 @@ update_permissions:
       columns:
         - alias
         - allow_public_comments
+        - customer_invoice_details
         - github
         - is_public
         - name

@@ -381,6 +381,25 @@ function createListsStore() {
 		initialized = false;
 	}
 
+	/**
+	 * Update customer invoice details for a board
+	 */
+	async function updateBoardCustomerInvoiceDetails(
+		boardId: string,
+		customerDetails: {
+			company_name?: string;
+			code?: string;
+			vat?: string;
+			address?: string;
+			contact_details?: string;
+			hourly_rate?: number;
+		}
+	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
+		return updateBoard(boardId, {
+			customer_invoice_details: customerDetails as any
+		});
+	}
+
 	return {
 		get lists() {
 			return lists;
@@ -415,6 +434,7 @@ function createListsStore() {
 		createBoard,
 		updateBoard,
 		updateBoardVisibility,
+		updateBoardCustomerInvoiceDetails,
 		deleteBoard,
 		setSelectedBoard,
 		clearError,

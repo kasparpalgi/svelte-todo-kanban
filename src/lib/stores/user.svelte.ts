@@ -202,6 +202,27 @@ function createUserStore() {
 		return await updateUser(userId, { dark_mode: newDarkMode });
 	}
 
+	/**
+	 * Update invoice from details for the user
+	 */
+	async function updateInvoiceFromDetails(
+		userId: string,
+		invoiceDetails: {
+			company_name?: string;
+			code?: string;
+			vat?: string;
+			address?: string;
+			contact_details?: string;
+		}
+	) {
+		loggingStore.info('UserStore', 'Updating invoice from details', {
+			userId,
+			hasDetails: !!invoiceDetails
+		});
+
+		return await updateUser(userId, { invoice_from_details: invoiceDetails }, false);
+	}
+
 	function reset() {
 		state.isLoggingOut = true;
 		state.initialized = false;
@@ -244,6 +265,7 @@ function createUserStore() {
 		updateUser,
 		updateViewPreference,
 		toggleDarkMode,
+		updateInvoiceFromDetails,
 		reset,
 		clearLogoutFlag
 	};

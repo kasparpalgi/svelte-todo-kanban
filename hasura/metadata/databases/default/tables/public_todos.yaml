@@ -26,6 +26,13 @@ array_relationships:
         table:
           name: comments
           schema: public
+  - name: invoice_items
+    using:
+      foreign_key_constraint_on:
+        column: todo_id
+        table:
+          name: invoice_items
+          schema: public
   - name: labels
     using:
       foreign_key_constraint_on:
@@ -79,6 +86,7 @@ insert_permissions:
         - github_url
         - has_time
         - id
+        - invoiced_hours
         - list_id
         - max_hours
         - min_hours
@@ -106,6 +114,7 @@ select_permissions:
         - github_url
         - has_time
         - id
+        - invoiced_hours
         - list_id
         - max_hours
         - min_hours
@@ -157,6 +166,7 @@ update_permissions:
         - github_synced_at
         - github_url
         - has_time
+        - invoiced_hours
         - list_id
         - max_hours
         - min_hours

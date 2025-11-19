@@ -1,0 +1,137 @@
+table:
+  name: invoices
+  schema: public
+object_relationships:
+  - name: board
+    using:
+      foreign_key_constraint_on: board_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+array_relationships:
+  - name: invoice_items
+    using:
+      foreign_key_constraint_on:
+        column: invoice_id
+        table:
+          name: invoice_items
+          schema: public
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                _and:
+                  - user_id:
+                      _eq: X-Hasura-User-Id
+                  - role:
+                      _in: [owner, editor]
+      set:
+        user_id: x-hasura-User-Id
+      columns:
+        - id
+        - invoice_number
+        - board_id
+        - invoice_date
+        - due_date
+        - status
+        - customer_details
+        - invoice_from_details
+        - subtotal
+        - tax_rate
+        - tax_amount
+        - total
+        - notes
+        - created_at
+        - updated_at
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - id
+        - invoice_number
+        - board_id
+        - user_id
+        - invoice_date
+        - due_date
+        - status
+        - customer_details
+        - invoice_from_details
+        - subtotal
+        - tax_rate
+        - tax_amount
+        - total
+        - notes
+        - created_at
+        - updated_at
+      filter:
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - invoice_number
+        - invoice_date
+        - due_date
+        - status
+        - customer_details
+        - invoice_from_details
+        - subtotal
+        - tax_rate
+        - tax_amount
+        - total
+        - notes
+        - updated_at
+      filter:
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                _and:
+                  - user_id:
+                      _eq: X-Hasura-User-Id
+                  - role:
+                      _in: [owner, editor]
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                _and:
+                  - user_id:
+                      _eq: X-Hasura-User-Id
+                  - role:
+                      _eq: owner
+    comment: ""
