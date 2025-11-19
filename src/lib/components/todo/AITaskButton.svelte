@@ -10,6 +10,7 @@
 		DialogDescription
 	} from '$lib/components/ui/dialog';
 	import { Textarea } from '$lib/components/ui/textarea';
+	import VoiceInput from './VoiceInput.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
@@ -31,6 +32,18 @@
 	let isProcessing = $state(false);
 	let processingTime = $state('');
 	let processingCost = $state('');
+	let textareaEl: HTMLTextAreaElement | undefined = $state(undefined);
+
+	function handleVoiceTranscript(transcript: string) {
+		taskInput = transcript;
+		setTimeout(() => {
+			textareaEl?.focus();
+		}, 100);
+	}
+
+	function handleVoiceError(error: string) {
+		displayMessage(error, 3000, false);
+	}
 
 	async function handleSubmitTask() {
 		if (!taskInput.trim() || isProcessing) return;
@@ -139,10 +152,19 @@
 
 		<div class="space-y-4">
 			<div>
-				<label for="ai-task-input" class="mb-2 block text-sm font-medium">
-					{$t('ai.task_input_label') || 'What should AI do?'}
-				</label>
+				<div class="mb-2 flex items-center justify-between">
+					<label for="ai-task-input" class="text-sm font-medium">
+						{$t('ai.task_input_label') || 'What should AI do?'}
+					</label>
+					<VoiceInput
+						onTranscript={handleVoiceTranscript}
+						onError={handleVoiceError}
+						disabled={isProcessing}
+						minimal={true}
+					/>
+				</div>
 				<Textarea
+					bind:this={textareaEl}
 					id="ai-task-input"
 					bind:value={taskInput}
 					placeholder={$t('ai.task_placeholder') ||

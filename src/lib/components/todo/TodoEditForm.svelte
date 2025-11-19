@@ -189,9 +189,8 @@
 					<div class="space-y-2">
 						<RichTextEditor bind:editor content={editData.content} showToolbar={false} />
 						<div
-							class="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2"
+							class="flex items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2"
 						>
-							<span class="text-xs font-medium text-muted-foreground">AI:</span>
 							{#if editor}
 								{@const context = getEditorContext()}
 								<VoiceInput

@@ -652,5 +652,20 @@
             "image_added": "Added an image in \"{{title}}\"",
             "image_removed": "Removed an image from \"{{title}}\""
         }
+    },
+    "ai": {
+        "task_button": "AI Task",
+        "task_title": "AI Task",
+        "task_description": "Give AI a task to help with this content. Examples: \"Research this topic\", \"Summarize key points\", \"Suggest next steps\", \"Find related information\"",
+        "task_input_label": "What should AI do?",
+        "task_placeholder": "e.g., \"Research this topic and add key points\", \"Summarize the content\", \"Suggest improvements\"",
+        "context_info": "AI will have access to:",
+        "title_context": "Title",
+        "content_context": "Content",
+        "characters": "characters",
+        "processing": "Processing...",
+        "run_task": "Run Task",
+        "keyboard_hint": "Press <kbd>Ctrl+Enter</kbd> to submit, <kbd>Esc</kbd> to close",
+        "toolbar_hint": "Voice input or AI task"
     }
 }

@@ -381,8 +381,7 @@
 				bind:editor={editorStore}
 				showToolbar={true}
 			/>
-			<div class="mt-2 flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2">
-				<span class="text-xs font-medium text-muted-foreground">AI:</span>
+			<div class="mt-2 flex items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2">
 				{#if editorStore}
 					{@const context = getEditorContext()}
 					<VoiceInput

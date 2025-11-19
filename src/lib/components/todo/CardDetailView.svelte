@@ -20,6 +20,8 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { X, Calendar as CalendarIcon, Tag, Clock } from 'lucide-svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
+	import VoiceInput from '$lib/components/todo/VoiceInput.svelte';
+	import AITaskButton from '$lib/components/todo/AITaskButton.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
 	import CardAssignee from '$lib/components/todo/CardAssignee.svelte';
 	import CardImageManager from '$lib/components/card/CardImageManager.svelte';
@@ -226,6 +228,48 @@
 		}
 	}
 
+	function handleContentVoice(transcript: string) {
+		if (editor) {
+			const editorInstance = get(editor);
+			// Insert at cursor position instead of replacing all content
+			editorInstance.commands.insertContent(transcript);
+		}
+	}
+
+	function getEditorContext(): { contentBefore: string; contentAfter: string } {
+		if (!editor) return { contentBefore: '', contentAfter: '' };
+
+		const editorInstance = get(editor);
+		const { from } = editorInstance.state.selection;
+		const doc = editorInstance.state.doc;
+
+		// Get text content before cursor
+		const contentBefore = doc.textBetween(0, from, '\n');
+		// Get text content after cursor
+		const contentAfter = doc.textBetween(from, doc.content.size, '\n');
+
+		return { contentBefore, contentAfter };
+	}
+
+	function handleVoiceError(error: string) {
+		displayMessage(error, 3000, false);
+	}
+
+	function handleAITaskResult(result: string) {
+		if (editor) {
+			const editorInstance = get(editor);
+			// Insert AI task result at cursor position
+			editorInstance.commands.insertContent(result);
+		}
+	}
+
+	function getCleanContent(): string {
+		if (!editor) return todo.content || '';
+		const editorInstance = get(editor);
+		// Get text content without HTML tags
+		return editorInstance.getText();
+	}
+
 	export function save() {
 		return saveTodo();
 	}
@@ -285,7 +329,43 @@
 	<CardContent class="space-y-6">
 		<div>
 			<Label class="mb-2">{$t('card.description_label')}</Label>
-			<RichTextEditor bind:editor content={todo.content || ''} />
+			<div class="space-y-2">
+				<RichTextEditor bind:editor content={todo.content || ''} />
+				<div
+					class="flex items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2"
+				>
+					{#if editor}
+						{@const context = getEditorContext()}
+						<VoiceInput
+							onTranscript={handleContentVoice}
+							onError={handleVoiceError}
+							disabled={isSubmitting}
+							title={editData.title || ''}
+							contentBefore={context.contentBefore}
+							contentAfter={context.contentAfter}
+							useContextualCorrection={true}
+						/>
+					{:else}
+						<VoiceInput
+							onTranscript={handleContentVoice}
+							onError={handleVoiceError}
+							disabled={isSubmitting}
+							title={editData.title || ''}
+						/>
+					{/if}
+					<AITaskButton
+						onResult={handleAITaskResult}
+						title={editData.title || ''}
+						content={getCleanContent()}
+						disabled={isSubmitting}
+						minimal={true}
+					/>
+					<div class="flex-1"></div>
+					<span class="text-xs text-muted-foreground">
+						{$t('ai.toolbar_hint') || 'Voice input or AI task'}
+					</span>
+				</div>
+			</div>
 			{#if validationErrors.content}
 				<p class="mt-1 text-xs text-red-500">{validationErrors.content}</p>
 			{/if}
