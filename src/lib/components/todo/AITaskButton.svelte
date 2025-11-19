@@ -178,7 +178,7 @@
 					/>
 				</div>
 				<Textarea
-					bind:this={textareaEl}
+					bind:ref={textareaEl}
 					id="ai-task-input"
 					bind:value={taskInput}
 					placeholder={$t('ai.task_placeholder') ||
