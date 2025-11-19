@@ -34,7 +34,7 @@
 <div class="container mx-auto max-w-6xl p-4">
 	<Button
 		variant="ghost"
-		on:click={goBack}
+		onclick={goBack}
 		class="mb-4 gap-2"
 	>
 		<ArrowLeft class="h-4 w-4" />

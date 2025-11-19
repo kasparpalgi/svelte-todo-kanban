@@ -207,7 +207,7 @@
 								bind:value={item.description}
 								placeholder="Description"
 								disabled={!!item.todo_id}
-								on:blur={() => onItemsChange && onItemsChange(items)}
+								onblur={() => onItemsChange && onItemsChange(items)}
 							/>
 						</div>
 						<div class="col-span-2">
@@ -216,7 +216,7 @@
 								step="0.25"
 								min="0"
 								bind:value={item.hours}
-								on:input={() => updateItem(index, 'hours', item.hours)}
+								oninput={() => updateItem(index, 'hours', item.hours)}
 							/>
 						</div>
 						<div class="col-span-2">
@@ -225,7 +225,7 @@
 								step="0.01"
 								min="0"
 								bind:value={item.rate}
-								on:input={() => updateItem(index, 'rate', item.rate)}
+								oninput={() => updateItem(index, 'rate', item.rate)}
 							/>
 						</div>
 						<div class="col-span-2">
@@ -234,7 +234,7 @@
 								step="0.01"
 								min="0"
 								bind:value={item.amount}
-								on:input={() => updateItem(index, 'amount', item.amount)}
+								oninput={() => updateItem(index, 'amount', item.amount)}
 							/>
 						</div>
 						<div class="col-span-1">
