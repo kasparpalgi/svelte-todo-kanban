@@ -76,8 +76,25 @@
 
 	function handleContentVoice(transcript: string) {
 		if (editor) {
-			get(editor).commands.setContent(transcript);
+			const editorInstance = get(editor);
+			// Insert at cursor position instead of replacing all content
+			editorInstance.commands.insertContent(transcript);
 		}
+	}
+
+	function getEditorContext(): { contentBefore: string; contentAfter: string } {
+		if (!editor) return { contentBefore: '', contentAfter: '' };
+
+		const editorInstance = get(editor);
+		const { from } = editorInstance.state.selection;
+		const doc = editorInstance.state.doc;
+
+		// Get text content before cursor
+		const contentBefore = doc.textBetween(0, from, '\n');
+		// Get text content after cursor
+		const contentAfter = doc.textBetween(from, doc.content.size, '\n');
+
+		return { contentBefore, contentAfter };
 	}
 
 	function handleVoiceError(error: string) {
@@ -156,12 +173,25 @@
 					<div class="space-y-2">
 						<RichTextEditor bind:editor content={editData.content} showToolbar={false} />
 						<div class="flex justify-start">
-							<VoiceInput
-								onTranscript={handleContentVoice}
-								onError={handleVoiceError}
-								disabled={isSubmitting}
-								title={editData.title || ''}
-							/>
+							{#if editor}
+								{@const context = getEditorContext()}
+								<VoiceInput
+									onTranscript={handleContentVoice}
+									onError={handleVoiceError}
+									disabled={isSubmitting}
+									title={editData.title || ''}
+									contentBefore={context.contentBefore}
+									contentAfter={context.contentAfter}
+									useContextualCorrection={true}
+								/>
+							{:else}
+								<VoiceInput
+									onTranscript={handleContentVoice}
+									onError={handleVoiceError}
+									disabled={isSubmitting}
+									title={editData.title || ''}
+								/>
+							{/if}
 						</div>
 					</div>
 					{#if validationErrors.content}

@@ -18,7 +18,10 @@
 		disabled = false,
 		title = '',
 		minimal = false,
-		startAutomatically = false
+		startAutomatically = false,
+		contentBefore = '',
+		contentAfter = '',
+		useContextualCorrection = false
 	} = $props();
 
 	let user = $derived(userStore.user);
@@ -80,22 +83,32 @@
 	): Promise<{ corrected: string; time: string; cost: string }> {
 		if (!text.trim()) return { corrected: text, time: '', cost: '' };
 
-		loggingStore.info('VoiceInput', 'Starting AI correction', { text, model: aiModel });
+		loggingStore.info('VoiceInput', 'Starting AI correction', { text, model: aiModel, useContextualCorrection });
 
 		const startTime = Date.now();
 
 		try {
+			const requestBody: any = {
+				text: text,
+				type: useContextualCorrection ? 'contextual' : 'correct',
+				model: aiModel
+			};
+
+			// Add context for contextual correction
+			if (useContextualCorrection) {
+				requestBody.contentBefore = contentBefore || '';
+				requestBody.contentAfter = contentAfter || '';
+				requestBody.title = title || '';
+			} else if (title) {
+				requestBody.context = `Title context: "${title}"`;
+			}
+
 			const response = await fetch('/api/ai', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({
-					text: text,
-					type: 'correct',
-					model: aiModel,
-					context: title ? `Title context: "${title}"` : undefined
-				})
+				body: JSON.stringify(requestBody)
 			});
 
 			if (!response.ok) {
@@ -113,7 +126,8 @@
 				changed: result.changed,
 				duration: timeStr,
 				cost: result.cost || 'N/A',
-				model: aiModel
+				model: aiModel,
+				contextual: useContextualCorrection
 			});
 
 			return {

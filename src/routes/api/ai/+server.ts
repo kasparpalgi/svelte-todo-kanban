@@ -9,7 +9,15 @@ export const POST: RequestHandler = async ({ request }) => {
 	const startTime = Date.now();
 
 	try {
-		const { text, type = 'correct', model = 'gpt-5-mini', context } = await request.json();
+		const {
+			text,
+			type = 'correct',
+			model = 'gpt-5-mini',
+			context,
+			contentBefore,
+			contentAfter,
+			title
+		} = await request.json();
 
 		if (!text || typeof text !== 'string') {
 			return json({ error: 'Text is required' }, { status: 400 });
@@ -29,6 +37,21 @@ export const POST: RequestHandler = async ({ request }) => {
 				prompt += `. ${context}`;
 			}
 			prompt += `:\n\n"${text}"`;
+		} else if (type === 'contextual') {
+			prompt = `You are helping a user add content to their document using voice input. Your task is to:
+1. Fix grammar, punctuation, and spelling in the voice input
+2. Consider the context of surrounding content to make it flow naturally
+3. Optionally add a very short (1-2 sentence) helpful suggestion at the end if relevant
+
+Context information:
+${title ? `- Document/Card title: "${title}"` : ''}
+${contentBefore ? `- Content before user input: "${contentBefore.slice(-200)}"` : '- This is at the beginning of the content'}
+${contentAfter ? `- Content after user input: "${contentAfter.slice(0, 200)}"` : '- This is at the end of the content'}
+
+User's voice input to correct:
+"${text}"
+
+Return only the corrected text (and optional suggestion), nothing else. Make sure it flows well with the surrounding content.`;
 		} else if (type === 'summarize') {
 			prompt = `You are a helpful assistant that creates concise summaries of web page content. Read the following web page content and provide a clear, informative summary in 2-3 sentences. Focus on the main topic and key points. Only return the summary, nothing else.\n\nWeb page content:\n\n"${text}"`;
 		} else {
