@@ -271,8 +271,8 @@
 				</Button>
 
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild let:builder>
-						<Button builders={[builder]} variant="outline" size="sm" class="w-full justify-start">
+					<DropdownMenuTrigger class="w-full">
+						<Button variant="outline" size="sm" class="w-full justify-start">
 							<User class="mr-2 h-4 w-4" />
 							{#if currentFilters.assignedTo === null}
 								{$t('filters.unassigned')}
