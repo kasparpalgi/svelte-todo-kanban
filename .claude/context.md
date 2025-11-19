@@ -1,5 +1,7 @@
 # Project Context - Kanban Todo App
 
+IMPORTANT: if you create a new branch then name it starting with the task file name!!!! 
+
 ## MCP Servers (Pre-configured)
 
 ### Verify MCP Configuration
