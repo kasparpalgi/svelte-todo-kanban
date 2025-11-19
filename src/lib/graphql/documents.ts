@@ -753,6 +753,16 @@ export const GET_COMMENT_BY_GITHUB_ID = graphql(`
 	}
 `);
 
+export const GET_USER_BY_GITHUB_USERNAME = graphql(`
+	query GetUserByGithubUsername($githubUsername: String!) {
+		users(where: { settings: { _contains: { tokens: { github: { username: $githubUsername } } } } }, limit: 1) {
+			id
+			username
+			settings
+		}
+	}
+`);
+
 // ========== Logging ==========
 
 export const CREATE_LOG = graphql(`

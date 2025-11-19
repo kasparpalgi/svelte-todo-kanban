@@ -31,7 +31,7 @@
 	async function deleteComment(commentId: string) {
 		if (!confirm($t('card.delete_comment_confirm'))) return;
 
-		const result = await commentsStore.deleteComment(commentId);
+		const result = await commentsStore.deleteComment(commentId, todo);
 		if (!result.success) {
 			displayMessage(result.message || $t('card.delete_comment_failed'));
 		}

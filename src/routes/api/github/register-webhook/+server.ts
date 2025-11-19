@@ -8,7 +8,7 @@ import { getGithubToken, githubRequest } from '$lib/server/github';
  * Webhook Registration Endpoint
  *
  * Registers a GitHub webhook for a repository to receive real-time updates
- * about issues and comments.
+ * about issues, comments, and commits.
  *
  * Requirements:
  * - User must have admin access to the repository
@@ -102,7 +102,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		const webhookConfig: WebhookConfig = {
 			name: 'web',
 			active: true,
-			events: ['issues', 'issue_comment'],
+			events: ['issues', 'issue_comment', 'push'],
 			config: {
 				url: webhookUrl,
 				content_type: 'json',

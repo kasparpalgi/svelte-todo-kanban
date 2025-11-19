@@ -8,19 +8,23 @@ import {
 	UPDATE_TODOS,
 	CREATE_COMMENT,
 	UPDATE_COMMENT,
+	DELETE_COMMENT,
 	GET_TODO_BY_GITHUB_ISSUE,
-	GET_COMMENT_BY_GITHUB_ID
+	GET_COMMENT_BY_GITHUB_ID,
+	GET_USER_BY_GITHUB_USERNAME,
+	CREATE_ACTIVITY_LOG
 } from '$lib/graphql/documents';
 
 /**
  * GitHub Webhook Endpoint
  *
- * Receives real-time events from GitHub when issues or comments change.
+ * Receives real-time events from GitHub when issues, comments, or commits change.
  * Implements signature verification for security.
  *
  * Supported events:
  * - issues: edited, closed, reopened, deleted
  * - issue_comment: created, edited, deleted
+ * - push: commits pushed to main/master branches (logs commits that reference issues)
  */
 
 interface GitHubIssueEvent {
@@ -63,6 +67,38 @@ interface GitHubCommentEvent {
 	repository: {
 		full_name: string;
 	};
+}
+
+interface GitHubPushEvent {
+	ref: string;
+	before: string;
+	after: string;
+	repository: {
+		id: number;
+		full_name: string;
+		owner: {
+			login: string;
+		};
+		name: string;
+	};
+	pusher: {
+		name: string;
+		email: string;
+	};
+	commits: Array<{
+		id: string;
+		message: string;
+		timestamp: string;
+		url: string;
+		author: {
+			name: string;
+			email: string;
+			username?: string;
+		};
+		added: string[];
+		removed: string[];
+		modified: string[];
+	}>;
 }
 
 /**
@@ -166,6 +202,42 @@ async function handleIssueEvent(event: GitHubIssueEvent): Promise<void> {
 }
 
 /**
+ * Find user by GitHub username from their settings
+ * Falls back to the todo's board owner if user not found
+ */
+async function findUserByGithubUsername(
+	githubUsername: string,
+	fallbackTodo: any
+): Promise<string | null> {
+	try {
+		// Try to find user by GitHub username in settings
+		const userData = await serverRequest<
+			{ users: Array<any> },
+			{ githubUsername: string }
+		>(GET_USER_BY_GITHUB_USERNAME, { githubUsername });
+
+		if (userData?.users?.length > 0) {
+			return userData.users[0].id;
+		}
+
+		// Fallback: use the board owner
+		const boardOwnerId = fallbackTodo?.list?.board?.user_id;
+		if (boardOwnerId) {
+			console.log(
+				`GitHub user ${githubUsername} not found, using board owner ${boardOwnerId} as fallback`
+			);
+			return boardOwnerId;
+		}
+
+		console.log(`Could not map GitHub user ${githubUsername} to app user`);
+		return null;
+	} catch (error) {
+		console.error('Error finding user by GitHub username:', error);
+		return null;
+	}
+}
+
+/**
  * Handle comment events from GitHub
  */
 async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
@@ -195,10 +267,47 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 			>(GET_COMMENT_BY_GITHUB_ID, { githubCommentId: comment.id });
 
 			if (existingData?.comments?.length === 0) {
-				// Create new comment
-				// Note: We don't have the user_id from GitHub, so we'll need to handle this
-				// For now, we'll skip creating comments from webhooks until we implement user mapping
-				console.log(`Comment creation from webhook not yet implemented (GitHub comment ${comment.id})`);
+				// Find or map the user
+				const userId = await findUserByGithubUsername(comment.user.login, todo);
+
+				if (userId) {
+					// Create new comment
+					const result = await serverRequest(CREATE_COMMENT, {
+						objects: [
+							{
+								todo_id: todo.id,
+								user_id: userId,
+								content: comment.body,
+								github_comment_id: comment.id,
+								github_synced_at: new Date().toISOString()
+							}
+						]
+					});
+
+					if (result?.insert_comments?.returning?.[0]) {
+						console.log(
+							`Created comment ${result.insert_comments.returning[0].id} from GitHub comment ${comment.id}`
+						);
+
+						// Log activity
+						try {
+							await serverRequest(CREATE_ACTIVITY_LOG, {
+								log: {
+									todo_id: todo.id,
+									action_type: 'commented',
+									new_value:
+										comment.body.substring(0, 200) +
+										(comment.body.length > 200 ? '...' : ''),
+									metadata: { source: 'github', github_comment_id: comment.id }
+								}
+							});
+						} catch (error) {
+							console.error('Failed to log activity for GitHub comment creation:', error);
+						}
+					}
+				} else {
+					console.log(`Could not create comment: user mapping failed for ${comment.user.login}`);
+				}
 			}
 			break;
 
@@ -220,24 +329,189 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 					}
 				});
 				console.log(`Updated comment ${existingComment.id} from GitHub edit`);
+
+				// Log activity
+				try {
+					await serverRequest(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: todo.id,
+							action_type: 'comment_edited',
+							old_value:
+								existingComment.content.substring(0, 200) +
+								(existingComment.content.length > 200 ? '...' : ''),
+							new_value: comment.body.substring(0, 200) + (comment.body.length > 200 ? '...' : ''),
+							metadata: { source: 'github', github_comment_id: comment.id }
+						}
+					});
+				} catch (error) {
+					console.error('Failed to log activity for GitHub comment edit:', error);
+				}
 			}
 			break;
 
 		case 'deleted':
-			// Find and optionally delete comment
+			// Find and delete comment
 			const deleteData = await serverRequest<
 				{ comments: Array<any> },
 				{ githubCommentId: number }
 			>(GET_COMMENT_BY_GITHUB_ID, { githubCommentId: comment.id });
 
-			if (deleteData?.comments?.length > 0) {
-				// For now, we'll preserve the comment but log it
-				console.log(`GitHub comment ${comment.id} was deleted, preserving local comment`);
+			const commentToDelete = deleteData?.comments?.[0];
+
+			if (commentToDelete) {
+				// Log activity BEFORE deletion
+				try {
+					await serverRequest(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: todo.id,
+							action_type: 'comment_deleted',
+							metadata: { source: 'github', github_comment_id: comment.id }
+						}
+					});
+				} catch (error) {
+					console.error('Failed to log activity for GitHub comment deletion:', error);
+				}
+
+				// Delete the comment
+				await serverRequest(DELETE_COMMENT, {
+					where: { id: { _eq: commentToDelete.id } }
+				});
+				console.log(
+					`Deleted comment ${commentToDelete.id} from GitHub comment deletion ${comment.id}`
+				);
 			}
 			break;
 
 		default:
 			console.log(`Unhandled comment action: ${action}`);
+	}
+}
+
+/**
+ * Extract issue numbers from commit message
+ * Looks for patterns like #123, fixes #456, closes #789, etc.
+ */
+function extractIssueNumbers(message: string): number[] {
+	const patterns = [
+		/#(\d+)/g, // Basic #123
+		/(?:fix|fixes|fixed|close|closes|closed|resolve|resolves|resolved)\s+#(\d+)/gi // Keywords + #123
+	];
+
+	const issueNumbers = new Set<number>();
+
+	for (const pattern of patterns) {
+		const matches = message.matchAll(pattern);
+		for (const match of matches) {
+			const issueNumber = parseInt(match[1], 10);
+			if (!isNaN(issueNumber)) {
+				issueNumbers.add(issueNumber);
+			}
+		}
+	}
+
+	return Array.from(issueNumbers);
+}
+
+/**
+ * Handle push events from GitHub
+ * Logs commits that reference issues in the activity log
+ */
+async function handlePushEvent(event: GitHubPushEvent): Promise<void> {
+	const { commits, repository, ref } = event;
+
+	// Only process commits on main/master branches
+	const branch = ref.replace('refs/heads/', '');
+	if (!['main', 'master'].includes(branch)) {
+		console.log(`Skipping push event on branch ${branch} (only processing main/master)`);
+		return;
+	}
+
+	console.log(
+		`Processing ${commits.length} commits from push event on ${repository.full_name}/${branch}`
+	);
+
+	for (const commit of commits) {
+		// Extract issue numbers from commit message
+		const issueNumbers = extractIssueNumbers(commit.message);
+
+		if (issueNumbers.length === 0) {
+			continue; // Skip commits that don't reference any issues
+		}
+
+		console.log(`Commit ${commit.id.substring(0, 7)} references issues: ${issueNumbers.join(', ')}`);
+
+		// For each issue number, find the corresponding todo and log activity
+		for (const issueNumber of issueNumbers) {
+			try {
+				// Find todos for this repository with this issue number
+				const todoData = await serverRequest<
+					{ todos: Array<any> },
+					{ issueNumber: number; repoFullName: string }
+				>(
+					`
+						query GetTodoByIssueNumber($issueNumber: bigint!, $repoFullName: String!) {
+							todos(
+								where: {
+									github_issue_number: { _eq: $issueNumber }
+									list: {
+										board: {
+											github: { _contains: { owner: "${repository.owner.login}", repo: "${repository.name}" } }
+										}
+									}
+								}
+								limit: 1
+							) {
+								id
+								title
+								github_issue_number
+								list {
+									board {
+										id
+										github
+									}
+								}
+							}
+						}
+					`,
+					{ issueNumber, repoFullName: repository.full_name }
+				);
+
+				const todo = todoData?.todos?.[0];
+
+				if (todo) {
+					// Log commit activity
+					const commitShortId = commit.id.substring(0, 7);
+					const commitFirstLine = commit.message.split('\n')[0];
+					const commitAuthor = commit.author.username || commit.author.name;
+
+					await serverRequest(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: todo.id,
+							action_type: 'github_commit',
+							new_value: `${commitAuthor}: ${commitFirstLine}`,
+							metadata: {
+								source: 'github',
+								commit_sha: commit.id,
+								commit_short_sha: commitShortId,
+								commit_url: commit.url,
+								commit_author: commitAuthor,
+								commit_message: commit.message,
+								branch: branch,
+								files_changed: commit.added.length + commit.modified.length + commit.removed.length
+							}
+						}
+					});
+
+					console.log(`Logged commit ${commitShortId} to todo ${todo.id} (issue #${issueNumber})`);
+				} else {
+					console.log(
+						`Issue #${issueNumber} not found in ${repository.full_name} - skipping commit ${commit.id.substring(0, 7)}`
+					);
+				}
+			} catch (error) {
+				console.error(`Error processing commit ${commit.id} for issue #${issueNumber}:`, error);
+			}
+		}
 	}
 }
 
@@ -271,6 +545,10 @@ export const POST: RequestHandler = async ({ request }) => {
 
 			case 'issue_comment':
 				await handleCommentEvent(event as GitHubCommentEvent);
+				break;
+
+			case 'push':
+				await handlePushEvent(event as GitHubPushEvent);
 				break;
 
 			case 'ping':
