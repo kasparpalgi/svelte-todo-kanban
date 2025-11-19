@@ -183,11 +183,13 @@
 		<!-- Add Todo Item -->
 		<div class="flex gap-2">
 			<Select
-				bind:value={selectedTodoId}
 				onValueChange={(value) => {
 					console.log('[InvoiceItemsEditor Select] onValueChange triggered:', value);
-					if (value) {
-						selectedTodoId = value;
+					// Select component returns array, extract the string value
+					const todoId = Array.isArray(value) ? value[0] : value;
+					console.log('[InvoiceItemsEditor Select] Extracted todoId:', todoId);
+					if (todoId) {
+						selectedTodoId = todoId;
 					}
 				}}
 			>
