@@ -605,12 +605,12 @@
         "allSessions": "Kõik seansid"
     },
     "activity": {
-        "title": "Tegevus",
-        "board_activity": "Laua tegevus",
-        "board_activity_description": "Hiljutine tegevus laual {{boardName}}",
-        "showing_activities": "Näitan {{count}} tegevust",
+        "title": "Logid",
+        "board_activity": "Projekti ajalugu",
+        "board_activity_description": "{{boardName}} viimased tegevused",
+        "showing_activities": "Näitan {{count}} logi",
         "loading": "Laen tegevust...",
-        "no_activity": "Veel tegevust pole",
+        "no_activity": "Rohkem logisid pole",
         "actions": {
             "created": "loodud",
             "updated": "uuendatud",
