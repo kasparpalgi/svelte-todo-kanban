@@ -11,6 +11,7 @@
 	import { Check, X, Image as ImageIcon, Upload, Trash2 } from 'lucide-svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import VoiceInput from './VoiceInput.svelte';
+	import AITaskButton from './AITaskButton.svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import type { TodoEditProps } from '$lib/types/todo';
 	import type { Readable } from 'svelte/store';
@@ -101,6 +102,21 @@
 		displayMessage(error, 3000, false);
 	}
 
+	function handleAITaskResult(result: string) {
+		if (editor) {
+			const editorInstance = get(editor);
+			// Insert AI task result at cursor position
+			editorInstance.commands.insertContent(result);
+		}
+	}
+
+	function getCleanContent(): string {
+		if (!editor) return '';
+		const editorInstance = get(editor);
+		// Get text content without HTML tags
+		return editorInstance.getText();
+	}
+
 	function handleSave() {
 		if (editor) {
 			editData.content = get(editor).getHTML();
@@ -172,7 +188,10 @@
 					</label>
 					<div class="space-y-2">
 						<RichTextEditor bind:editor content={editData.content} showToolbar={false} />
-						<div class="flex justify-start">
+						<div
+							class="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2"
+						>
+							<span class="text-xs font-medium text-muted-foreground">AI:</span>
 							{#if editor}
 								{@const context = getEditorContext()}
 								<VoiceInput
@@ -192,6 +211,17 @@
 									title={editData.title || ''}
 								/>
 							{/if}
+							<AITaskButton
+								onResult={handleAITaskResult}
+								title={editData.title || ''}
+								content={getCleanContent()}
+								disabled={isSubmitting}
+								minimal={true}
+							/>
+							<div class="flex-1"></div>
+							<span class="text-xs text-muted-foreground">
+								{$t('ai.toolbar_hint') || 'Voice input or AI task'}
+							</span>
 						</div>
 					</div>
 					{#if validationErrors.content}

@@ -8,6 +8,7 @@
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import NoteImageManager from '$lib/components/notes/NoteImageManager.svelte';
 	import VoiceInput from '$lib/components/todo/VoiceInput.svelte';
+	import AITaskButton from '$lib/components/todo/AITaskButton.svelte';
 	import { notesStore } from '$lib/stores/notes.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { t } from '$lib/i18n';
@@ -296,6 +297,26 @@
 		displayMessage(error, 3000, false);
 	}
 
+	function handleAITaskResult(result: string) {
+		if (editorStore) {
+			const editor = get(editorStore);
+			if (editor) {
+				// Insert AI task result at cursor position
+				editor.commands.insertContent(result);
+				hasUnsavedChanges = true;
+				scheduleAutoSave();
+			}
+		}
+	}
+
+	function getCleanContent(): string {
+		if (!editorStore) return '';
+		const editor = get(editorStore);
+		if (!editor) return '';
+		// Get text content without HTML tags
+		return editor.getText();
+	}
+
 	onDestroy(() => {
 		if (autoSaveTimeout) {
 			clearTimeout(autoSaveTimeout);
@@ -360,7 +381,8 @@
 				bind:editor={editorStore}
 				showToolbar={true}
 			/>
-			<div class="mt-2 flex justify-start">
+			<div class="mt-2 flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2">
+				<span class="text-xs font-medium text-muted-foreground">AI:</span>
 				{#if editorStore}
 					{@const context = getEditorContext()}
 					<VoiceInput
@@ -378,6 +400,16 @@
 						title={title || ''}
 					/>
 				{/if}
+				<AITaskButton
+					onResult={handleAITaskResult}
+					title={title || ''}
+					content={getCleanContent()}
+					minimal={true}
+				/>
+				<div class="flex-1"></div>
+				<span class="text-xs text-muted-foreground">
+					{$t('ai.toolbar_hint') || 'Voice input or AI task'}
+				</span>
 			</div>
 
 			<!-- Image Manager -->

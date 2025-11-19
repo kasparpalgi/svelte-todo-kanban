@@ -79,4 +79,80 @@ If there's pre-existing content then provide to AI also the existing content to 
 - Test with real voice input in browser
 - Fine-tune AI prompts based on user feedback
 - Add user setting to control suggestion generation
-- Consider adding language detection for multilingual support 
+- Consider adding language detection for multilingual support
+
+---
+
+## Update 2: AI Task Button & Improved Visibility
+
+### Additional Changes Made:
+
+1. **Created AITaskButton Component** (`src/lib/components/todo/AITaskButton.svelte`)
+   - New purple sparkle icon (distinct from blue microphone)
+   - Opens dialog for users to give AI tasks
+   - Examples: "Research this topic", "Summarize key points", "Suggest improvements"
+   - Shows context info (title, content length)
+   - Displays processing time and cost
+   - Keyboard shortcuts: Ctrl+Enter to submit, Esc to close
+
+2. **Created AI Task API** (`src/routes/api/ai/task/+server.ts`)
+   - Handles AI task requests
+   - Provides full context to AI (title, current content)
+   - Returns formatted result ready for insertion
+   - Supports up to 2000 token responses
+
+3. **Enhanced TodoEditForm Visibility**
+   - Added prominent AI toolbar below content editor
+   - Toolbar shows "AI:" label with both icons
+   - Voice input icon (microphone) for voice-to-text
+   - AI Task icon (purple sparkle) for giving AI commands
+   - Hint text: "Voice input or AI task"
+   - Visual separator with border and background
+
+4. **Enhanced NoteEditor Visibility**
+   - Same AI toolbar as TodoEditForm
+   - Both voice input and AI task buttons visible
+   - Consistent UX across todos and notes
+
+### New Features:
+
+**Voice Input (Microphone Icon):**
+- Click to record voice
+- AI corrects grammar/spelling
+- Inserts at cursor position
+- Context-aware for natural flow
+
+**AI Task (Purple Sparkle Icon):**
+- Click to open task dialog
+- Type AI commands like:
+  - "Research this topic and add key points"
+  - "Summarize the content above"
+  - "Suggest next steps based on this task"
+  - "Create a checklist from this description"
+  - "Add examples for each point"
+- AI has access to title and full content
+- Result inserted at cursor position
+
+### User Experience:
+
+**Before:** Voice input button was hard to find below editor
+
+**After:**
+- Prominent AI toolbar with clear "AI:" label
+- Two distinct icons (blue microphone, purple sparkle)
+- Hint text explaining functionality
+- Professional toolbar appearance
+
+### Files Added:
+- `src/lib/components/todo/AITaskButton.svelte` - Reusable AI task component
+- `src/routes/api/ai/task/+server.ts` - AI task API endpoint
+
+### Files Modified:
+- `src/lib/components/todo/TodoEditForm.svelte` - Added AI toolbar
+- `src/lib/components/notes/NoteEditor.svelte` - Added AI toolbar
+
+### Testing:
+- Type checking passed ✓
+- No new type errors introduced ✓
+- Components properly imported ✓
+- API endpoint created ✓ 
