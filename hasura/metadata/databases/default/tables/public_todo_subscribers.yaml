@@ -12,21 +12,18 @@ insert_permissions:
   - role: user
     permission:
       check:
-        _and:
-          - _or:
-              - todo:
-                  list:
-                    board:
-                      user_id:
-                        _eq: X-Hasura-User-Id
-              - todo:
-                  list:
-                    board:
-                      board_members:
-                        user_id:
-                          _eq: X-Hasura-User-Id
-          - user_id:
-              _eq: X-Hasura-User-Id
+        _or:
+          - todo:
+              list:
+                board:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - todo:
+              list:
+                board:
+                  board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
       columns:
         - created_at
         - todo_id
@@ -86,6 +83,21 @@ delete_permissions:
   - role: user
     permission:
       filter:
-        user_id:
-          _eq: X-Hasura-User-Id
+        _or:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - todo:
+              list:
+                board:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - todo:
+              list:
+                board:
+                  board_members:
+                    _and:
+                      - user_id:
+                          _eq: X-Hasura-User-Id
+                      - role:
+                          _in: [owner, editor]
     comment: ""
