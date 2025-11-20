@@ -52,7 +52,7 @@ const providers: Provider[] = [
 		authorization: {
 			params: {
 				scope:
-					'openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+					'openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/spreadsheets',
 				access_type: 'offline',
 				prompt: 'consent'
 			}
