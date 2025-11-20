@@ -214,7 +214,7 @@
 <svelte:head>
 	<title
 		>{openCardId
-			? todosStore.todos.find((t) => t.id === openCardId)?.title +
+			? todosStore.todos.find((t) => t.alias === openCardId)?.title +
 				' @ ' +
 				listsStore.selectedBoard?.name
 			: listsStore.selectedBoard?.name} | ToDzz</title
