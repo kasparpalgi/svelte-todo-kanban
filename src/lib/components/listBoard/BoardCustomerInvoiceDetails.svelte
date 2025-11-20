@@ -24,6 +24,7 @@
 	let boards = $derived(listsStore.boards);
 	let board = $derived(boards.find((b) => b.id === boardId));
 	let saving = $state(false);
+	let lastInitializedBoardId = $state<string | null>(null);
 
 	// Form data with default values
 	let formData = $state({
@@ -35,23 +36,40 @@
 		hourly_rate: 0
 	});
 
-	// Initialize form data from board settings
+	// Initialize form data from board settings when board changes
 	$effect(() => {
-		console.log('[BoardCustomerInvoiceDetails] Effect running');
+		console.log('[BoardCustomerInvoiceDetails] Effect running, boardId:', boardId);
+		console.log('[BoardCustomerInvoiceDetails] lastInitializedBoardId:', lastInitializedBoardId);
 		console.log('[BoardCustomerInvoiceDetails] Board:', board);
-		console.log('[BoardCustomerInvoiceDetails] customer_invoice_details:', board?.customer_invoice_details);
 
-		if (board?.customer_invoice_details) {
-			console.log('[BoardCustomerInvoiceDetails] Initializing form data from board');
-			formData = {
-				company_name: board.customer_invoice_details.company_name || '',
-				code: board.customer_invoice_details.code || '',
-				vat: board.customer_invoice_details.vat || '',
-				address: board.customer_invoice_details.address || '',
-				contact_details: board.customer_invoice_details.contact_details || '',
-				hourly_rate: board.customer_invoice_details.hourly_rate || 0
-			};
-			console.log('[BoardCustomerInvoiceDetails] Form data initialized:', formData);
+		// Only initialize when boardId changes or first load
+		if (board && boardId !== lastInitializedBoardId) {
+			console.log('[BoardCustomerInvoiceDetails] BoardId changed or first load');
+
+			if (board.customer_invoice_details) {
+				console.log('[BoardCustomerInvoiceDetails] Initializing form data from board');
+				console.log('[BoardCustomerInvoiceDetails] customer_invoice_details:', board.customer_invoice_details);
+
+				formData.company_name = board.customer_invoice_details.company_name || '';
+				formData.code = board.customer_invoice_details.code || '';
+				formData.vat = board.customer_invoice_details.vat || '';
+				formData.address = board.customer_invoice_details.address || '';
+				formData.contact_details = board.customer_invoice_details.contact_details || '';
+				formData.hourly_rate = board.customer_invoice_details.hourly_rate || 0;
+
+				console.log('[BoardCustomerInvoiceDetails] Form data initialized:', formData);
+			} else {
+				console.log('[BoardCustomerInvoiceDetails] No customer_invoice_details, resetting form');
+				// Reset form if no data
+				formData.company_name = '';
+				formData.code = '';
+				formData.vat = '';
+				formData.address = '';
+				formData.contact_details = '';
+				formData.hourly_rate = 0;
+			}
+
+			lastInitializedBoardId = boardId;
 		}
 	});
 
