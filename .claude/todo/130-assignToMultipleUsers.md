@@ -44,16 +44,31 @@ It is good that there's a assigned user of a card. Let's leave it like that. The
 
 #### 5. UI Components
 - **Created**: `src/lib/components/todo/CardSubscribers.svelte`
-  - Quick toggle button (bell icon) for current user to subscribe/unsubscribe
-  - Dropdown showing subscriber count with full list of board members
+  - Single bell icon button showing subscriber count
+  - Dropdown with full list of board members (excluding assigned user)
   - Checkbox interface to manage multiple subscribers
   - Shows avatars and names for all subscribers
   - Visual indication for currently subscribed users
+  - Full multilingual support (EN, ET, CS)
+  - Filters out assigned user (they're already notified)
 - **Updated**: `src/lib/components/todo/CardDetailView.svelte`
   - Imported CardSubscribers component
   - Added CardSubscribers next to CardAssignee in the UI
 
-#### 6. Notification Logic (`src/lib/stores/comments.svelte.ts`)
+#### 6. Multilingual Support
+- **Added translations** to `src/lib/locales/en/common.json` (English)
+- **Added translations** to `src/lib/locales/et/common.json` (Estonian)
+- **Added translations** to `src/lib/locales/cs/common.json` (Czech)
+- Translation keys added:
+  - `todo.subscribers` - Label for subscribers
+  - `todo.manage_subscribers` - Button tooltip
+  - `todo.subscribed_success` - Success message for subscribe
+  - `todo.unsubscribed_success` - Success message for unsubscribe
+  - `todo.no_members_to_subscribe` - Empty state message
+  - `todo.you` - Current user indicator
+  - `todo.subscribers_count` - Subscriber count message (with plural support)
+
+#### 7. Notification Logic (`src/lib/stores/comments.svelte.ts`)
 - **Updated comment creation**:
   - When a comment is added, notifications are sent to:
     1. The assigned user (if different from comment author)
@@ -65,11 +80,12 @@ It is good that there's a assigned user of a card. Let's leave it like that. The
 ✅ Main assignee remains unchanged
 ✅ Multiple users can subscribe to a todo
 ✅ Subscribers receive notifications for comments
-✅ Visual UI with bell icons showing subscription status
-✅ Quick toggle for current user
-✅ Full subscriber management dropdown
+✅ Visual UI with bell icon showing subscriber count
+✅ Single dropdown for managing all subscribers
+✅ Assigned user automatically excluded from subscriber list (already notified)
+✅ Full multilingual support (EN, ET, CS)
 ✅ Prevents duplicate notifications
-✅ Proper permissions (users can only subscribe to accessible todos)
+✅ Proper permissions (board owners/editors can manage subscribers)
 ✅ Database relationships and constraints
 
 ### Technical Details
