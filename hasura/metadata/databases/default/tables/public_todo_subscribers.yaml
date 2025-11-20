@@ -1,0 +1,91 @@
+table:
+  name: todo_subscribers
+  schema: public
+object_relationships:
+  - name: subscriber
+    using:
+      foreign_key_constraint_on: user_id
+  - name: todo
+    using:
+      foreign_key_constraint_on: todo_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        _and:
+          - _or:
+              - todo:
+                  list:
+                    board:
+                      user_id:
+                        _eq: X-Hasura-User-Id
+              - todo:
+                  list:
+                    board:
+                      board_members:
+                        user_id:
+                          _eq: X-Hasura-User-Id
+          - user_id:
+              _eq: X-Hasura-User-Id
+      columns:
+        - created_at
+        - todo_id
+        - user_id
+    comment: ""
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - created_at
+        - todo_id
+        - user_id
+      filter:
+        _or:
+          - todo:
+              list:
+                board:
+                  user_id:
+                    _eq: X-Hasura-User-Id
+          - todo:
+              list:
+                board:
+                  board_members:
+                    user_id:
+                      _eq: X-Hasura-User-Id
+          - todo:
+              list:
+                board:
+                  is_public:
+                    _eq: true
+      allow_aggregations: true
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - created_at
+      filter:
+        _and:
+          - user_id:
+              _eq: X-Hasura-User-Id
+          - _or:
+              - todo:
+                  list:
+                    board:
+                      user_id:
+                        _eq: X-Hasura-User-Id
+              - todo:
+                  list:
+                    board:
+                      board_members:
+                        user_id:
+                          _eq: X-Hasura-User-Id
+      check: {}
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""

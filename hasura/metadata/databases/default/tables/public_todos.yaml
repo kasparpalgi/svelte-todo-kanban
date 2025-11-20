@@ -47,6 +47,13 @@ array_relationships:
         table:
           name: uploads
           schema: public
+  - name: subscribers
+    using:
+      foreign_key_constraint_on:
+        column: todo_id
+        table:
+          name: todo_subscribers
+          schema: public
 insert_permissions:
   - role: user
     permission:
