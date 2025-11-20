@@ -15,7 +15,7 @@
 		DropdownMenuSeparator,
 		DropdownMenuCheckboxItem
 	} from '$lib/components/ui/dropdown-menu';
-	import { Bell, BellOff } from 'lucide-svelte';
+	import { Bell } from 'lucide-svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
 	let { todo }: { todo: TodoFieldsFragment } = $props();
@@ -26,8 +26,10 @@
 	const subscribers = $derived(todo.subscribers || []);
 	const subscriberIds = $derived(new Set(subscribers.map((s: any) => s.user_id)));
 	const subscriberCount = $derived(subscribers.length);
-	const isCurrentUserSubscribed = $derived(
-		user?.id ? subscriberIds.has(user.id) : false
+
+	// Filter out the assigned user from available members (they're already notified as assignee)
+	const availableMembers = $derived(
+		members.filter(member => member.user.id !== todo.assigned_to)
 	);
 
 	onMount(async () => {
@@ -47,7 +49,7 @@
 
 		if (result.success) {
 			displayMessage(
-				isSubscribed ? 'Unsubscribed successfully' : 'Subscribed successfully',
+				isSubscribed ? $t('todo.unsubscribed_success') : $t('todo.subscribed_success'),
 				1500,
 				true
 			);
@@ -55,36 +57,16 @@
 			displayMessage(result.message);
 		}
 	}
-
-	async function toggleCurrentUserSubscription() {
-		if (!user?.id || !todo.id) return;
-		await toggleSubscription(user.id);
-	}
 </script>
 
 <div class="flex items-center gap-2">
-	<!-- Quick toggle button for current user -->
-	<Button
-		variant="ghost"
-		size="sm"
-		class="gap-2 h-8 px-2"
-		onclick={toggleCurrentUserSubscription}
-		title={isCurrentUserSubscribed ? 'Unsubscribe from notifications' : 'Subscribe to notifications'}
-	>
-		{#if isCurrentUserSubscribed}
-			<Bell class="h-4 w-4 text-primary" />
-		{:else}
-			<BellOff class="h-4 w-4 text-muted-foreground" />
-		{/if}
-	</Button>
-
-	<!-- Dropdown to manage all subscribers -->
 	<DropdownMenu bind:open={isOpen}>
 		<DropdownMenuTrigger>
 			<Button
 				variant="outline"
 				size="sm"
 				class="gap-2 h-8 px-2"
+				title={$t('todo.manage_subscribers')}
 			>
 				<Bell class="h-4 w-4" />
 				{#if subscriberCount > 0}
@@ -96,16 +78,16 @@
 		</DropdownMenuTrigger>
 
 		<DropdownMenuContent align="start" class="w-64">
-			<DropdownMenuLabel>Subscribers</DropdownMenuLabel>
+			<DropdownMenuLabel>{$t('todo.subscribers')}</DropdownMenuLabel>
 			<DropdownMenuSeparator />
 
 			<div class="max-h-64 overflow-y-auto">
-				{#if members.length === 0}
+				{#if availableMembers.length === 0}
 					<div class="px-2 py-3 text-sm text-muted-foreground">
-						No board members available
+						{$t('todo.no_members_to_subscribe')}
 					</div>
 				{:else}
-					{#each members as member (member.id)}
+					{#each availableMembers as member (member.id)}
 						{@const isSubscribed = subscriberIds.has(member.user.id)}
 						<DropdownMenuCheckboxItem
 							checked={isSubscribed}
@@ -128,7 +110,7 @@
 								<span class="text-sm">
 									{member.user.name || member.user.username}
 									{#if member.user.id === user?.id}
-										<span class="text-xs text-muted-foreground">(you)</span>
+										<span class="text-xs text-muted-foreground">({$t('todo.you')})</span>
 									{/if}
 								</span>
 							</div>
@@ -140,7 +122,7 @@
 			{#if subscriberCount > 0}
 				<DropdownMenuSeparator />
 				<div class="px-2 py-2 text-xs text-muted-foreground">
-					{subscriberCount} subscriber{subscriberCount === 1 ? '' : 's'} will receive notifications
+					{$t('todo.subscribers_count', { count: subscriberCount })}
 				</div>
 			{/if}
 		</DropdownMenuContent>
