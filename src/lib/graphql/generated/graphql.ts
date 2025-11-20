@@ -1557,6 +1557,8 @@ export type Boards = {
   /** An aggregate relationship */
   board_members_aggregate: Board_Members_Aggregate;
   created_at: Scalars['timestamptz']['output'];
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: Maybe<Scalars['jsonb']['output']>;
   github?: Maybe<Scalars['String']['output']>;
   id: Scalars['uuid']['output'];
   /** When true, board is viewable by anyone (read-only unless member) */
@@ -1620,6 +1622,12 @@ export type BoardsBoard_Members_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Board_Members_Order_By>>;
   where?: InputMaybe<Board_Members_Bool_Exp>;
+};
+
+
+/** columns and relationships of "boards" */
+export type BoardsCustomer_Invoice_DetailsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1762,6 +1770,8 @@ export type Boards_Aggregate_Order_By = {
 
 /** append existing jsonb value of filtered columns with new jsonb value */
 export type Boards_Append_Input = {
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
@@ -1795,6 +1805,7 @@ export type Boards_Bool_Exp = {
   board_members?: InputMaybe<Board_Members_Bool_Exp>;
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Bool_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  customer_invoice_details?: InputMaybe<Jsonb_Comparison_Exp>;
   github?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   is_public?: InputMaybe<Boolean_Comparison_Exp>;
@@ -1822,16 +1833,22 @@ export enum Boards_Constraint {
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
 export type Boards_Delete_At_Path_Input = {
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Array<Scalars['String']['input']>>;
   settings?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
 export type Boards_Delete_Elem_Input = {
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['Int']['input']>;
   settings?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** delete key/value pair or string element. key/value pairs are matched based on their key value */
 export type Boards_Delete_Key_Input = {
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1848,6 +1865,8 @@ export type Boards_Insert_Input = {
   board_invitations?: InputMaybe<Board_Invitations_Arr_Rel_Insert_Input>;
   board_members?: InputMaybe<Board_Members_Arr_Rel_Insert_Input>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
   github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   /** When true, board is viewable by anyone (read-only unless member) */
@@ -1943,6 +1962,7 @@ export type Boards_Order_By = {
   board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Order_By>;
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Order_By>;
   created_at?: InputMaybe<Order_By>;
+  customer_invoice_details?: InputMaybe<Order_By>;
   github?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   is_public?: InputMaybe<Order_By>;
@@ -1964,6 +1984,8 @@ export type Boards_Pk_Columns_Input = {
 
 /** prepend existing jsonb value of filtered columns with new jsonb value */
 export type Boards_Prepend_Input = {
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
@@ -1975,6 +1997,8 @@ export enum Boards_Select_Column {
   AllowPublicComments = 'allow_public_comments',
   /** column name */
   CreatedAt = 'created_at',
+  /** column name */
+  CustomerInvoiceDetails = 'customer_invoice_details',
   /** column name */
   Github = 'github',
   /** column name */
@@ -2015,6 +2039,8 @@ export type Boards_Set_Input = {
   /** When true and is_public=true, non-members can comment on todos */
   allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
   github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   /** When true, board is viewable by anyone (read-only unless member) */
@@ -2073,6 +2099,8 @@ export type Boards_Stream_Cursor_Value_Input = {
   /** When true and is_public=true, non-members can comment on todos */
   allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
+  customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
   github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   /** When true, board is viewable by anyone (read-only unless member) */
@@ -2103,6 +2131,8 @@ export enum Boards_Update_Column {
   AllowPublicComments = 'allow_public_comments',
   /** column name */
   CreatedAt = 'created_at',
+  /** column name */
+  CustomerInvoiceDetails = 'customer_invoice_details',
   /** column name */
   Github = 'github',
   /** column name */
@@ -3834,6 +3864,10 @@ export type Mutation_Root = {
   delete_todo_labels?: Maybe<Todo_Labels_Mutation_Response>;
   /** delete single row from the table: "todo_labels" */
   delete_todo_labels_by_pk?: Maybe<Todo_Labels>;
+  /** delete data from the table: "todo_subscribers" */
+  delete_todo_subscribers?: Maybe<Todo_Subscribers_Mutation_Response>;
+  /** delete single row from the table: "todo_subscribers" */
+  delete_todo_subscribers_by_pk?: Maybe<Todo_Subscribers>;
   /** delete data from the table: "todos" */
   delete_todos?: Maybe<Todos_Mutation_Response>;
   /** delete single row from the table: "todos" */
@@ -3926,6 +3960,10 @@ export type Mutation_Root = {
   insert_todo_labels?: Maybe<Todo_Labels_Mutation_Response>;
   /** insert a single row into the table: "todo_labels" */
   insert_todo_labels_one?: Maybe<Todo_Labels>;
+  /** insert data into the table: "todo_subscribers" */
+  insert_todo_subscribers?: Maybe<Todo_Subscribers_Mutation_Response>;
+  /** insert a single row into the table: "todo_subscribers" */
+  insert_todo_subscribers_one?: Maybe<Todo_Subscribers>;
   /** insert data into the table: "todos" */
   insert_todos?: Maybe<Todos_Mutation_Response>;
   /** insert a single row into the table: "todos" */
@@ -4046,6 +4084,12 @@ export type Mutation_Root = {
   update_todo_labels_by_pk?: Maybe<Todo_Labels>;
   /** update multiples rows of table: "todo_labels" */
   update_todo_labels_many?: Maybe<Array<Maybe<Todo_Labels_Mutation_Response>>>;
+  /** update data of the table: "todo_subscribers" */
+  update_todo_subscribers?: Maybe<Todo_Subscribers_Mutation_Response>;
+  /** update single row of the table: "todo_subscribers" */
+  update_todo_subscribers_by_pk?: Maybe<Todo_Subscribers>;
+  /** update multiples rows of table: "todo_subscribers" */
+  update_todo_subscribers_many?: Maybe<Array<Maybe<Todo_Subscribers_Mutation_Response>>>;
   /** update data of the table: "todos" */
   update_todos?: Maybe<Todos_Mutation_Response>;
   /** update single row of the table: "todos" */
@@ -4269,6 +4313,19 @@ export type Mutation_RootDelete_Todo_LabelsArgs = {
 export type Mutation_RootDelete_Todo_Labels_By_PkArgs = {
   label_id: Scalars['uuid']['input'];
   todo_id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Todo_SubscribersArgs = {
+  where: Todo_Subscribers_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Todo_Subscribers_By_PkArgs = {
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
 };
 
 
@@ -4574,6 +4631,20 @@ export type Mutation_RootInsert_Todo_LabelsArgs = {
 export type Mutation_RootInsert_Todo_Labels_OneArgs = {
   object: Todo_Labels_Insert_Input;
   on_conflict?: InputMaybe<Todo_Labels_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Todo_SubscribersArgs = {
+  objects: Array<Todo_Subscribers_Insert_Input>;
+  on_conflict?: InputMaybe<Todo_Subscribers_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Todo_Subscribers_OneArgs = {
+  object: Todo_Subscribers_Insert_Input;
+  on_conflict?: InputMaybe<Todo_Subscribers_On_Conflict>;
 };
 
 
@@ -5022,6 +5093,26 @@ export type Mutation_RootUpdate_Todo_Labels_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Todo_Labels_ManyArgs = {
   updates: Array<Todo_Labels_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Todo_SubscribersArgs = {
+  _set?: InputMaybe<Todo_Subscribers_Set_Input>;
+  where: Todo_Subscribers_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Todo_Subscribers_By_PkArgs = {
+  _set?: InputMaybe<Todo_Subscribers_Set_Input>;
+  pk_columns: Todo_Subscribers_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Todo_Subscribers_ManyArgs = {
+  updates: Array<Todo_Subscribers_Updates>;
 };
 
 
@@ -6360,6 +6451,12 @@ export type Query_Root = {
   todo_labels_aggregate: Todo_Labels_Aggregate;
   /** fetch data from the table: "todo_labels" using primary key columns */
   todo_labels_by_pk?: Maybe<Todo_Labels>;
+  /** fetch data from the table: "todo_subscribers" */
+  todo_subscribers: Array<Todo_Subscribers>;
+  /** fetch aggregated fields from the table: "todo_subscribers" */
+  todo_subscribers_aggregate: Todo_Subscribers_Aggregate;
+  /** fetch data from the table: "todo_subscribers" using primary key columns */
+  todo_subscribers_by_pk?: Maybe<Todo_Subscribers>;
   /** An array relationship */
   todos: Array<Todos>;
   /** An aggregate relationship */
@@ -6745,6 +6842,30 @@ export type Query_RootTodo_Labels_AggregateArgs = {
 export type Query_RootTodo_Labels_By_PkArgs = {
   label_id: Scalars['uuid']['input'];
   todo_id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootTodo_SubscribersArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Subscribers_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Subscribers_Order_By>>;
+  where?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+};
+
+
+export type Query_RootTodo_Subscribers_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Subscribers_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Subscribers_Order_By>>;
+  where?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+};
+
+
+export type Query_RootTodo_Subscribers_By_PkArgs = {
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
 };
 
 
@@ -7339,6 +7460,14 @@ export type Subscription_Root = {
   todo_labels_by_pk?: Maybe<Todo_Labels>;
   /** fetch data from the table in a streaming manner: "todo_labels" */
   todo_labels_stream: Array<Todo_Labels>;
+  /** fetch data from the table: "todo_subscribers" */
+  todo_subscribers: Array<Todo_Subscribers>;
+  /** fetch aggregated fields from the table: "todo_subscribers" */
+  todo_subscribers_aggregate: Todo_Subscribers_Aggregate;
+  /** fetch data from the table: "todo_subscribers" using primary key columns */
+  todo_subscribers_by_pk?: Maybe<Todo_Subscribers>;
+  /** fetch data from the table in a streaming manner: "todo_subscribers" */
+  todo_subscribers_stream: Array<Todo_Subscribers>;
   /** An array relationship */
   todos: Array<Todos>;
   /** An aggregate relationship */
@@ -7844,6 +7973,37 @@ export type Subscription_RootTodo_Labels_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Todo_Labels_Stream_Cursor_Input>>;
   where?: InputMaybe<Todo_Labels_Bool_Exp>;
+};
+
+
+export type Subscription_RootTodo_SubscribersArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Subscribers_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Subscribers_Order_By>>;
+  where?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+};
+
+
+export type Subscription_RootTodo_Subscribers_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Subscribers_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Subscribers_Order_By>>;
+  where?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+};
+
+
+export type Subscription_RootTodo_Subscribers_By_PkArgs = {
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootTodo_Subscribers_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Todo_Subscribers_Stream_Cursor_Input>>;
+  where?: InputMaybe<Todo_Subscribers_Bool_Exp>;
 };
 
 
@@ -8376,6 +8536,202 @@ export type Todo_Labels_Updates = {
   where: Todo_Labels_Bool_Exp;
 };
 
+/** Users subscribed to todos for notifications */
+export type Todo_Subscribers = {
+  __typename?: 'todo_subscribers';
+  created_at: Scalars['timestamptz']['output'];
+  /** An object relationship */
+  subscriber: Users;
+  /** An object relationship */
+  todo: Todos;
+  todo_id: Scalars['uuid']['output'];
+  user_id: Scalars['uuid']['output'];
+};
+
+/** aggregated selection of "todo_subscribers" */
+export type Todo_Subscribers_Aggregate = {
+  __typename?: 'todo_subscribers_aggregate';
+  aggregate?: Maybe<Todo_Subscribers_Aggregate_Fields>;
+  nodes: Array<Todo_Subscribers>;
+};
+
+export type Todo_Subscribers_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Todo_Subscribers_Aggregate_Bool_Exp_Count>;
+};
+
+export type Todo_Subscribers_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Todo_Subscribers_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "todo_subscribers" */
+export type Todo_Subscribers_Aggregate_Fields = {
+  __typename?: 'todo_subscribers_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Todo_Subscribers_Max_Fields>;
+  min?: Maybe<Todo_Subscribers_Min_Fields>;
+};
+
+
+/** aggregate fields of "todo_subscribers" */
+export type Todo_Subscribers_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Todo_Subscribers_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "todo_subscribers" */
+export type Todo_Subscribers_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Todo_Subscribers_Max_Order_By>;
+  min?: InputMaybe<Todo_Subscribers_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "todo_subscribers" */
+export type Todo_Subscribers_Arr_Rel_Insert_Input = {
+  data: Array<Todo_Subscribers_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Todo_Subscribers_On_Conflict>;
+};
+
+/** Boolean expression to filter rows from the table "todo_subscribers". All fields are combined with a logical 'AND'. */
+export type Todo_Subscribers_Bool_Exp = {
+  _and?: InputMaybe<Array<Todo_Subscribers_Bool_Exp>>;
+  _not?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+  _or?: InputMaybe<Array<Todo_Subscribers_Bool_Exp>>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  subscriber?: InputMaybe<Users_Bool_Exp>;
+  todo?: InputMaybe<Todos_Bool_Exp>;
+  todo_id?: InputMaybe<Uuid_Comparison_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "todo_subscribers" */
+export enum Todo_Subscribers_Constraint {
+  /** unique or primary key constraint on columns "user_id", "todo_id" */
+  TodoSubscribersPkey = 'todo_subscribers_pkey'
+}
+
+/** input type for inserting data into table "todo_subscribers" */
+export type Todo_Subscribers_Insert_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  subscriber?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  todo?: InputMaybe<Todos_Obj_Rel_Insert_Input>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Todo_Subscribers_Max_Fields = {
+  __typename?: 'todo_subscribers_max_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by max() on columns of table "todo_subscribers" */
+export type Todo_Subscribers_Max_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Todo_Subscribers_Min_Fields = {
+  __typename?: 'todo_subscribers_min_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "todo_subscribers" */
+export type Todo_Subscribers_Min_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "todo_subscribers" */
+export type Todo_Subscribers_Mutation_Response = {
+  __typename?: 'todo_subscribers_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Todo_Subscribers>;
+};
+
+/** on_conflict condition type for table "todo_subscribers" */
+export type Todo_Subscribers_On_Conflict = {
+  constraint: Todo_Subscribers_Constraint;
+  update_columns?: Array<Todo_Subscribers_Update_Column>;
+  where?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "todo_subscribers". */
+export type Todo_Subscribers_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  subscriber?: InputMaybe<Users_Order_By>;
+  todo?: InputMaybe<Todos_Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: todo_subscribers */
+export type Todo_Subscribers_Pk_Columns_Input = {
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "todo_subscribers" */
+export enum Todo_Subscribers_Select_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "todo_subscribers" */
+export type Todo_Subscribers_Set_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** Streaming cursor of the table "todo_subscribers" */
+export type Todo_Subscribers_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Todo_Subscribers_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Todo_Subscribers_Stream_Cursor_Value_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** update columns of table "todo_subscribers" */
+export enum Todo_Subscribers_Update_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Todo_Subscribers_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Todo_Subscribers_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Todo_Subscribers_Bool_Exp;
+};
+
 /** columns and relationships of "todos" */
 export type Todos = {
   __typename?: 'todos';
@@ -8408,6 +8764,8 @@ export type Todos = {
   github_url?: Maybe<Scalars['String']['output']>;
   has_time: Scalars['Boolean']['output'];
   id: Scalars['uuid']['output'];
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['numeric']['output']>;
   /** An array relationship */
   labels: Array<Todo_Labels>;
   /** An aggregate relationship */
@@ -8423,6 +8781,10 @@ export type Todos = {
   notifications_aggregate: Notifications_Aggregate;
   priority?: Maybe<Scalars['String']['output']>;
   sort_order: Scalars['Int']['output'];
+  /** An array relationship */
+  subscribers: Array<Todo_Subscribers>;
+  /** An aggregate relationship */
+  subscribers_aggregate: Todo_Subscribers_Aggregate;
   title: Scalars['String']['output'];
   updated_at: Scalars['timestamptz']['output'];
   /** An array relationship */
@@ -8512,6 +8874,26 @@ export type TodosNotifications_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Notifications_Order_By>>;
   where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosSubscribersArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Subscribers_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Subscribers_Order_By>>;
+  where?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosSubscribers_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Subscribers_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Subscribers_Order_By>>;
+  where?: InputMaybe<Todo_Subscribers_Bool_Exp>;
 };
 
 
@@ -8621,6 +9003,8 @@ export type Todos_Avg_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -8633,6 +9017,8 @@ export type Todos_Avg_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -8662,6 +9048,7 @@ export type Todos_Bool_Exp = {
   github_url?: InputMaybe<String_Comparison_Exp>;
   has_time?: InputMaybe<Boolean_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
+  invoiced_hours?: InputMaybe<Numeric_Comparison_Exp>;
   labels?: InputMaybe<Todo_Labels_Bool_Exp>;
   labels_aggregate?: InputMaybe<Todo_Labels_Aggregate_Bool_Exp>;
   list?: InputMaybe<Lists_Bool_Exp>;
@@ -8672,6 +9059,8 @@ export type Todos_Bool_Exp = {
   notifications_aggregate?: InputMaybe<Notifications_Aggregate_Bool_Exp>;
   priority?: InputMaybe<String_Comparison_Exp>;
   sort_order?: InputMaybe<Int_Comparison_Exp>;
+  subscribers?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+  subscribers_aggregate?: InputMaybe<Todo_Subscribers_Aggregate_Bool_Exp>;
   title?: InputMaybe<String_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   uploads?: InputMaybe<Uploads_Bool_Exp>;
@@ -8695,6 +9084,8 @@ export type Todos_Inc_Input = {
   github_issue_id?: InputMaybe<Scalars['bigint']['input']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Scalars['Int']['input']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Scalars['numeric']['input']>;
   max_hours?: InputMaybe<Scalars['numeric']['input']>;
   min_hours?: InputMaybe<Scalars['numeric']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
@@ -8724,6 +9115,8 @@ export type Todos_Insert_Input = {
   github_url?: InputMaybe<Scalars['String']['input']>;
   has_time?: InputMaybe<Scalars['Boolean']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Scalars['numeric']['input']>;
   labels?: InputMaybe<Todo_Labels_Arr_Rel_Insert_Input>;
   list?: InputMaybe<Lists_Obj_Rel_Insert_Input>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
@@ -8732,6 +9125,7 @@ export type Todos_Insert_Input = {
   notifications?: InputMaybe<Notifications_Arr_Rel_Insert_Input>;
   priority?: InputMaybe<Scalars['String']['input']>;
   sort_order?: InputMaybe<Scalars['Int']['input']>;
+  subscribers?: InputMaybe<Todo_Subscribers_Arr_Rel_Insert_Input>;
   title?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   uploads?: InputMaybe<Uploads_Arr_Rel_Insert_Input>;
@@ -8760,6 +9154,8 @@ export type Todos_Max_Fields = {
   /** Direct URL to GitHub issue */
   github_url?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['numeric']['output']>;
   list_id?: Maybe<Scalars['uuid']['output']>;
   max_hours?: Maybe<Scalars['numeric']['output']>;
   min_hours?: Maybe<Scalars['numeric']['output']>;
@@ -8790,6 +9186,8 @@ export type Todos_Max_Order_By = {
   /** Direct URL to GitHub issue */
   github_url?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   list_id?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
@@ -8821,6 +9219,8 @@ export type Todos_Min_Fields = {
   /** Direct URL to GitHub issue */
   github_url?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['numeric']['output']>;
   list_id?: Maybe<Scalars['uuid']['output']>;
   max_hours?: Maybe<Scalars['numeric']['output']>;
   min_hours?: Maybe<Scalars['numeric']['output']>;
@@ -8851,6 +9251,8 @@ export type Todos_Min_Order_By = {
   /** Direct URL to GitHub issue */
   github_url?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   list_id?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
@@ -8903,6 +9305,7 @@ export type Todos_Order_By = {
   github_url?: InputMaybe<Order_By>;
   has_time?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  invoiced_hours?: InputMaybe<Order_By>;
   labels_aggregate?: InputMaybe<Todo_Labels_Aggregate_Order_By>;
   list?: InputMaybe<Lists_Order_By>;
   list_id?: InputMaybe<Order_By>;
@@ -8911,6 +9314,7 @@ export type Todos_Order_By = {
   notifications_aggregate?: InputMaybe<Notifications_Aggregate_Order_By>;
   priority?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
+  subscribers_aggregate?: InputMaybe<Todo_Subscribers_Aggregate_Order_By>;
   title?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
   uploads_aggregate?: InputMaybe<Uploads_Aggregate_Order_By>;
@@ -8953,6 +9357,8 @@ export enum Todos_Select_Column {
   HasTime = 'has_time',
   /** column name */
   Id = 'id',
+  /** column name */
+  InvoicedHours = 'invoiced_hours',
   /** column name */
   ListId = 'list_id',
   /** column name */
@@ -9004,6 +9410,8 @@ export type Todos_Set_Input = {
   github_url?: InputMaybe<Scalars['String']['input']>;
   has_time?: InputMaybe<Scalars['Boolean']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Scalars['numeric']['input']>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
   max_hours?: InputMaybe<Scalars['numeric']['input']>;
   min_hours?: InputMaybe<Scalars['numeric']['input']>;
@@ -9022,6 +9430,8 @@ export type Todos_Stddev_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9034,6 +9444,8 @@ export type Todos_Stddev_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9047,6 +9459,8 @@ export type Todos_Stddev_Pop_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9059,6 +9473,8 @@ export type Todos_Stddev_Pop_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9072,6 +9488,8 @@ export type Todos_Stddev_Samp_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9084,6 +9502,8 @@ export type Todos_Stddev_Samp_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9118,6 +9538,8 @@ export type Todos_Stream_Cursor_Value_Input = {
   github_url?: InputMaybe<Scalars['String']['input']>;
   has_time?: InputMaybe<Scalars['Boolean']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Scalars['numeric']['input']>;
   list_id?: InputMaybe<Scalars['uuid']['input']>;
   max_hours?: InputMaybe<Scalars['numeric']['input']>;
   min_hours?: InputMaybe<Scalars['numeric']['input']>;
@@ -9136,6 +9558,8 @@ export type Todos_Sum_Fields = {
   github_issue_id?: Maybe<Scalars['bigint']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Int']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['numeric']['output']>;
   max_hours?: Maybe<Scalars['numeric']['output']>;
   min_hours?: Maybe<Scalars['numeric']['output']>;
   sort_order?: Maybe<Scalars['Int']['output']>;
@@ -9148,6 +9572,8 @@ export type Todos_Sum_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9184,6 +9610,8 @@ export enum Todos_Update_Column {
   /** column name */
   Id = 'id',
   /** column name */
+  InvoicedHours = 'invoiced_hours',
+  /** column name */
   ListId = 'list_id',
   /** column name */
   MaxHours = 'max_hours',
@@ -9218,6 +9646,8 @@ export type Todos_Var_Pop_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9230,6 +9660,8 @@ export type Todos_Var_Pop_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9243,6 +9675,8 @@ export type Todos_Var_Samp_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9255,6 +9689,8 @@ export type Todos_Var_Samp_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -9268,6 +9704,8 @@ export type Todos_Variance_Fields = {
   github_issue_id?: Maybe<Scalars['Float']['output']>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: Maybe<Scalars['Float']['output']>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: Maybe<Scalars['Float']['output']>;
   max_hours?: Maybe<Scalars['Float']['output']>;
   min_hours?: Maybe<Scalars['Float']['output']>;
   sort_order?: Maybe<Scalars['Float']['output']>;
@@ -9280,6 +9718,8 @@ export type Todos_Variance_Order_By = {
   github_issue_id?: InputMaybe<Order_By>;
   /** GitHub issue number (human-readable, e.g., 42) */
   github_issue_number?: InputMaybe<Order_By>;
+  /** Hours that have been invoiced for this todo */
+  invoiced_hours?: InputMaybe<Order_By>;
   max_hours?: InputMaybe<Order_By>;
   min_hours?: InputMaybe<Order_By>;
   sort_order?: InputMaybe<Order_By>;
@@ -11649,6 +12089,8 @@ export type Users = {
   emailVerified?: Maybe<Scalars['timestamptz']['output']>;
   id: Scalars['uuid']['output'];
   image?: Maybe<Scalars['String']['output']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: Maybe<Scalars['jsonb']['output']>;
   locale: Scalars['String']['output'];
   /** An array relationship */
   logs: Array<Logs>;
@@ -11812,6 +12254,12 @@ export type UsersComments_AggregateArgs = {
 
 /** columns and relationships of "users" */
 export type UsersDefault_LabelsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersInvoice_From_DetailsArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -12006,6 +12454,8 @@ export type Users_Aggregate_FieldsCountArgs = {
 /** append existing jsonb value of filtered columns with new jsonb value */
 export type Users_Append_Input = {
   default_labels?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
@@ -12033,6 +12483,7 @@ export type Users_Bool_Exp = {
   emailVerified?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   image?: InputMaybe<String_Comparison_Exp>;
+  invoice_from_details?: InputMaybe<Jsonb_Comparison_Exp>;
   locale?: InputMaybe<String_Comparison_Exp>;
   logs?: InputMaybe<Logs_Bool_Exp>;
   logs_aggregate?: InputMaybe<Logs_Aggregate_Bool_Exp>;
@@ -12070,18 +12521,24 @@ export enum Users_Constraint {
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
 export type Users_Delete_At_Path_Input = {
   default_labels?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Array<Scalars['String']['input']>>;
   settings?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
 export type Users_Delete_Elem_Input = {
   default_labels?: InputMaybe<Scalars['Int']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['Int']['input']>;
   settings?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** delete key/value pair or string element. key/value pairs are matched based on their key value */
 export type Users_Delete_Key_Input = {
   default_labels?: InputMaybe<Scalars['String']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -12100,6 +12557,8 @@ export type Users_Insert_Input = {
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   logs?: InputMaybe<Logs_Arr_Rel_Insert_Input>;
   name?: InputMaybe<Scalars['String']['input']>;
@@ -12184,6 +12643,7 @@ export type Users_Order_By = {
   emailVerified?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   image?: InputMaybe<Order_By>;
+  invoice_from_details?: InputMaybe<Order_By>;
   locale?: InputMaybe<Order_By>;
   logs_aggregate?: InputMaybe<Logs_Aggregate_Order_By>;
   name?: InputMaybe<Order_By>;
@@ -12208,6 +12668,8 @@ export type Users_Pk_Columns_Input = {
 /** prepend existing jsonb value of filtered columns with new jsonb value */
 export type Users_Prepend_Input = {
   default_labels?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
@@ -12227,6 +12689,8 @@ export enum Users_Select_Column {
   Id = 'id',
   /** column name */
   Image = 'image',
+  /** column name */
+  InvoiceFromDetails = 'invoice_from_details',
   /** column name */
   Locale = 'locale',
   /** column name */
@@ -12250,6 +12714,8 @@ export type Users_Set_Input = {
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
@@ -12275,6 +12741,8 @@ export type Users_Stream_Cursor_Value_Input = {
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
+  /** Invoice from details: company_name, code, vat, address, contact_details */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
@@ -12299,6 +12767,8 @@ export enum Users_Update_Column {
   Id = 'id',
   /** column name */
   Image = 'image',
+  /** column name */
+  InvoiceFromDetails = 'invoice_from_details',
   /** column name */
   Locale = 'locale',
   /** column name */
@@ -12502,7 +12972,7 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null };
 
@@ -12528,7 +12998,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -12572,7 +13042,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -12580,7 +13050,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -12960,6 +13430,36 @@ export type CreateActivityLogMutationVariables = Exact<{
 
 export type CreateActivityLogMutation = { __typename?: 'mutation_root', insert_activity_logs_one?: { __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } } | null };
 
+export type SubscribeToTodoMutationVariables = Exact<{
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
+}>;
+
+
+export type SubscribeToTodoMutation = { __typename?: 'mutation_root', insert_todo_subscribers_one?: { __typename?: 'todo_subscribers', todo_id: string, user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } } | null };
+
+export type UnsubscribeFromTodoMutationVariables = Exact<{
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
+}>;
+
+
+export type UnsubscribeFromTodoMutation = { __typename?: 'mutation_root', delete_todo_subscribers_by_pk?: { __typename?: 'todo_subscribers', todo_id: string, user_id: string } | null };
+
+export type GetTodoSubscribersQueryVariables = Exact<{
+  todo_id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetTodoSubscribersQuery = { __typename?: 'query_root', todo_subscribers: Array<{ __typename?: 'todo_subscribers', todo_id: string, user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> };
+
+export type GetUserSubscriptionsQueryVariables = Exact<{
+  user_id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetUserSubscriptionsQuery = { __typename?: 'query_root', todo_subscribers: Array<{ __typename?: 'todo_subscribers', todo_id: string, user_id: string, created_at: string, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } }> };
+
 export type TrackerSessionFieldsFragment = { __typename?: 'tracker_sessions', id: number, window_title?: string | null, start_time: string, end_time: string, duration_seconds: number, tracker_app: { __typename?: 'tracker_apps', id: number, name: string } };
 
 export type TrackerKeywordFieldsFragment = { __typename?: 'tracker_keywords', id: string, board_id?: string | null, keyword: string, case_sensitive: boolean, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null, tracker_category?: { __typename?: 'tracker_categories', id: string, name: string, parent_category?: { __typename?: 'tracker_categories', id: string, name: string } | null, sub_categories: Array<{ __typename?: 'tracker_categories', id: string, name: string }> } | null };
@@ -13084,6 +13584,17 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
     id
     url
     created_at
+  }
+  subscribers {
+    user_id
+    created_at
+    subscriber {
+      id
+      name
+      username
+      image
+      email
+    }
   }
   list {
     id
@@ -13435,6 +13946,17 @@ export const GetTodosDocument = new TypedDocumentString(`
     url
     created_at
   }
+  subscribers {
+    user_id
+    created_at
+    subscriber {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
   list {
     id
     name
@@ -13667,6 +14189,17 @@ export const CreateTodoDocument = new TypedDocumentString(`
     url
     created_at
   }
+  subscribers {
+    user_id
+    created_at
+    subscriber {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
   list {
     id
     name
@@ -13757,6 +14290,17 @@ export const UpdateTodosDocument = new TypedDocumentString(`
     id
     url
     created_at
+  }
+  subscribers {
+    user_id
+    created_at
+    subscriber {
+      id
+      name
+      username
+      image
+      email
+    }
   }
   list {
     id
@@ -14868,6 +15412,73 @@ export const CreateActivityLogDocument = new TypedDocumentString(`
     }
   }
 }`) as unknown as TypedDocumentString<CreateActivityLogMutation, CreateActivityLogMutationVariables>;
+export const SubscribeToTodoDocument = new TypedDocumentString(`
+    mutation SubscribeToTodo($todo_id: uuid!, $user_id: uuid!) {
+  insert_todo_subscribers_one(object: {todo_id: $todo_id, user_id: $user_id}) {
+    todo_id
+    user_id
+    created_at
+    subscriber {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<SubscribeToTodoMutation, SubscribeToTodoMutationVariables>;
+export const UnsubscribeFromTodoDocument = new TypedDocumentString(`
+    mutation UnsubscribeFromTodo($todo_id: uuid!, $user_id: uuid!) {
+  delete_todo_subscribers_by_pk(todo_id: $todo_id, user_id: $user_id) {
+    todo_id
+    user_id
+  }
+}
+    `) as unknown as TypedDocumentString<UnsubscribeFromTodoMutation, UnsubscribeFromTodoMutationVariables>;
+export const GetTodoSubscribersDocument = new TypedDocumentString(`
+    query GetTodoSubscribers($todo_id: uuid!) {
+  todo_subscribers(where: {todo_id: {_eq: $todo_id}}) {
+    todo_id
+    user_id
+    created_at
+    subscriber {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetTodoSubscribersQuery, GetTodoSubscribersQueryVariables>;
+export const GetUserSubscriptionsDocument = new TypedDocumentString(`
+    query GetUserSubscriptions($user_id: uuid!) {
+  todo_subscribers(where: {user_id: {_eq: $user_id}}) {
+    todo_id
+    user_id
+    created_at
+    todo {
+      id
+      alias
+      title
+      list {
+        id
+        name
+        board {
+          id
+          name
+          alias
+          user {
+            id
+            username
+          }
+        }
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetUserSubscriptionsQuery, GetUserSubscriptionsQueryVariables>;
 export const GetTrackerSessionsDocument = new TypedDocumentString(`
     query GetTrackerSessions($limit: Int = 15000, $offset: Int = 0, $order_by: [tracker_sessions_order_by!], $where: tracker_sessions_bool_exp) {
   tracker_sessions(
