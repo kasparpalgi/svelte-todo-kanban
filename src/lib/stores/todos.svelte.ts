@@ -7,7 +7,10 @@ import {
 	CREATE_UPLOAD,
 	DELETE_UPLOAD,
 	CREATE_NOTIFICATION,
-	CREATE_ACTIVITY_LOG
+	CREATE_ACTIVITY_LOG,
+	SUBSCRIBE_TO_TODO,
+	UNSUBSCRIBE_FROM_TODO,
+	GET_TODO_SUBSCRIBERS
 } from '$lib/graphql/documents';
 import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
@@ -886,6 +889,71 @@ function createTodosStore() {
 		}
 	}
 
+	async function subscribeToTodo(todoId: string, userId: string): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		try {
+			const data: any = await request(SUBSCRIBE_TO_TODO, {
+				todo_id: todoId,
+				user_id: userId
+			});
+
+			if (data.insert_todo_subscribers_one) {
+				// Refresh the todo to get updated subscribers
+				await refreshTodo(todoId);
+				return { success: true, message: 'Subscribed successfully' };
+			}
+
+			return { success: false, message: 'Failed to subscribe' };
+		} catch (error) {
+			console.error('Subscribe to todo error:', error);
+			return {
+				success: false,
+				message: error instanceof Error ? error.message : 'Failed to subscribe'
+			};
+		}
+	}
+
+	async function unsubscribeFromTodo(todoId: string, userId: string): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		try {
+			const data: any = await request(UNSUBSCRIBE_FROM_TODO, {
+				todo_id: todoId,
+				user_id: userId
+			});
+
+			if (data.delete_todo_subscribers_by_pk) {
+				// Refresh the todo to get updated subscribers
+				await refreshTodo(todoId);
+				return { success: true, message: 'Unsubscribed successfully' };
+			}
+
+			return { success: false, message: 'Failed to unsubscribe' };
+		} catch (error) {
+			console.error('Unsubscribe from todo error:', error);
+			return {
+				success: false,
+				message: error instanceof Error ? error.message : 'Failed to unsubscribe'
+			};
+		}
+	}
+
+	async function getTodoSubscribers(todoId: string): Promise<any[]> {
+		if (!browser) return [];
+
+		try {
+			const data: any = await request(GET_TODO_SUBSCRIBERS, {
+				todo_id: todoId
+			});
+
+			return data.todo_subscribers || [];
+		} catch (error) {
+			console.error('Get todo subscribers error:', error);
+			return [];
+		}
+	}
+
 	const activeTodos = $derived(() => {
 		const currentFilters = { ...todoFilteringStore.filters, completed: false };
 		const tempState = {
@@ -996,6 +1064,9 @@ function createTodosStore() {
 		createUpload,
 		deleteUpload,
 		refreshTodo,
+		subscribeToTodo,
+		unsubscribeFromTodo,
+		getTodoSubscribers,
 		clearError: () => {
 			state.error = null;
 		},

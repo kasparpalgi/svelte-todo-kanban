@@ -172,6 +172,36 @@ function createCommentsStore() {
 					}
 				}
 
+				// Create notifications for all subscribers (excluding the comment author and assigned user)
+				if (currentUser && todo?.subscribers) {
+					const notifiedUsers = new Set([currentUser.id]);
+					if (todo.assigned_to) {
+						notifiedUsers.add(todo.assigned_to); // Already notified above
+					}
+
+					for (const subscription of todo.subscribers) {
+						const subscriberId = (subscription as any).user_id;
+						if (!notifiedUsers.has(subscriberId)) {
+							notifiedUsers.add(subscriberId);
+							try {
+								await request(CREATE_NOTIFICATION, {
+									notification: {
+										user_id: subscriberId,
+										todo_id: todoId,
+										type: 'commented',
+										triggered_by_user_id: currentUser.id,
+										related_comment_id: newComment.id,
+										content: `"${content.trim().substring(0, 50)}${content.trim().length > 50 ? '...' : ''}"`
+									}
+								}) as CreateNotificationMutation;
+							} catch (notificationError) {
+								// Non-blocking: log error but don't fail comment creation
+								console.error('[CommentsStore.addComment] Failed to create notification for subscriber:', notificationError);
+							}
+						}
+					}
+				}
+
 				// Sync to GitHub if todo has a GitHub issue
 				const githubIssueNumber = todo?.github_issue_number;
 				const githubIssueId = todo?.github_issue_id;

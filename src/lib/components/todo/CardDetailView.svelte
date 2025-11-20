@@ -24,6 +24,7 @@
 	import AITaskButton from '$lib/components/todo/AITaskButton.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
 	import CardAssignee from '$lib/components/todo/CardAssignee.svelte';
+	import CardSubscribers from '$lib/components/todo/CardSubscribers.svelte';
 	import CardImageManager from '$lib/components/card/CardImageManager.svelte';
 	import CardComments from '$lib/components/card/CardComments.svelte';
 	import CardHourTracking from '$lib/components/todo/CardHourTracking.svelte';
@@ -308,6 +309,7 @@
 
 		<div class="mb-3 flex flex-wrap items-center gap-2">
 			<CardAssignee {todo} />
+			<CardSubscribers {todo} />
 		</div>
 
 		<div class="space-y-4">

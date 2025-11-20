@@ -44,6 +44,17 @@ export const TODO_FRAGMENT = graphql(`
 			url
 			created_at
 		}
+		subscribers {
+			user_id
+			created_at
+			subscriber {
+				id
+				name
+				username
+				image
+				email
+			}
+		}
 		list {
 			id
 			name
@@ -950,6 +961,79 @@ export const CREATE_ACTIVITY_LOG = graphql(`
 	mutation CreateActivityLog($log: activity_logs_insert_input!) {
 		insert_activity_logs_one(object: $log) {
 			...ActivityLogFields
+		}
+	}
+`);
+
+// ========== Todo Subscribers ==========
+
+export const SUBSCRIBE_TO_TODO = graphql(`
+	mutation SubscribeToTodo($todo_id: uuid!, $user_id: uuid!) {
+		insert_todo_subscribers_one(object: { todo_id: $todo_id, user_id: $user_id }) {
+			todo_id
+			user_id
+			created_at
+			subscriber {
+				id
+				name
+				username
+				image
+				email
+			}
+		}
+	}
+`);
+
+export const UNSUBSCRIBE_FROM_TODO = graphql(`
+	mutation UnsubscribeFromTodo($todo_id: uuid!, $user_id: uuid!) {
+		delete_todo_subscribers_by_pk(todo_id: $todo_id, user_id: $user_id) {
+			todo_id
+			user_id
+		}
+	}
+`);
+
+export const GET_TODO_SUBSCRIBERS = graphql(`
+	query GetTodoSubscribers($todo_id: uuid!) {
+		todo_subscribers(where: { todo_id: { _eq: $todo_id } }) {
+			todo_id
+			user_id
+			created_at
+			subscriber {
+				id
+				name
+				username
+				image
+				email
+			}
+		}
+	}
+`);
+
+export const GET_USER_SUBSCRIPTIONS = graphql(`
+	query GetUserSubscriptions($user_id: uuid!) {
+		todo_subscribers(where: { user_id: { _eq: $user_id } }) {
+			todo_id
+			user_id
+			created_at
+			todo {
+				id
+				alias
+				title
+				list {
+					id
+					name
+					board {
+						id
+						name
+						alias
+						user {
+							id
+							username
+						}
+					}
+				}
+			}
 		}
 	}
 `);
