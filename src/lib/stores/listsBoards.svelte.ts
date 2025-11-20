@@ -269,6 +269,7 @@ function createListsStore() {
 				| 'is_public'
 				| 'allow_public_comments'
 				| 'settings'
+				| 'customer_invoice_details'
 			>
 		>
 	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
@@ -389,22 +390,21 @@ function createListsStore() {
 	/**
 	 * Update customer invoice details for a board
 	 */
-	// TODO: Re-enable after migrations are applied
-	// async function updateBoardCustomerInvoiceDetails(
-	// 	boardId: string,
-	// 	customerDetails: {
-	// 		company_name?: string;
-	// 		code?: string;
-	// 		vat?: string;
-	// 		address?: string;
-	// 		contact_details?: string;
-	// 		hourly_rate?: number;
-	// 	}
-	// ): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
-	// 	return updateBoard(boardId, {
-	// 		customer_invoice_details: customerDetails as any
-	// 	});
-	// }
+	async function updateBoardCustomerInvoiceDetails(
+		boardId: string,
+		customerDetails: {
+			company_name?: string;
+			code?: string;
+			vat?: string;
+			address?: string;
+			contact_details?: string;
+			hourly_rate?: number;
+		}
+	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
+		return updateBoard(boardId, {
+			customer_invoice_details: customerDetails as any
+		});
+	}
 
 	return {
 		get lists() {
@@ -440,7 +440,7 @@ function createListsStore() {
 		createBoard,
 		updateBoard,
 		updateBoardVisibility,
-		// updateBoardCustomerInvoiceDetails, // TODO: Re-enable after migrations are applied
+		updateBoardCustomerInvoiceDetails,
 		deleteBoard,
 		setSelectedBoard,
 		clearError,
