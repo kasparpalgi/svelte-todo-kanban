@@ -18,13 +18,21 @@ export default defineConfig({
 			selfDestroying: false,
 			manifest: {
 				short_name: 'ToDzz',
-				name: 'ToDzz',
+				name: 'ToDzz - Kanban Task Manager',
+				description: 'Modern Kanban-style task management application with drag-and-drop, rich text editing, and GitHub integration',
 				start_url: '/',
 				scope: '/',
 				display: 'standalone',
+				orientation: 'any',
 				theme_color: '#19183B',
 				background_color: '#A1C2BD',
+				categories: ['productivity', 'business', 'utilities'],
 				icons: [
+					{
+						src: '/pwa-64x64.png',
+						sizes: '64x64',
+						type: 'image/png'
+					},
 					{
 						src: '/pwa-192x192.png',
 						sizes: '192x192',
@@ -42,6 +50,22 @@ export default defineConfig({
 						type: 'image/png',
 						purpose: 'maskable'
 					}
+				],
+				shortcuts: [
+					{
+						name: 'My Boards',
+						short_name: 'Boards',
+						description: 'View your Kanban boards',
+						url: '/',
+						icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }]
+					},
+					{
+						name: 'Create Task',
+						short_name: 'New Task',
+						description: 'Create a new task',
+						url: '/?action=new-task',
+						icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }]
+					}
 				]
 			},
 			injectManifest: {
@@ -50,7 +74,49 @@ export default defineConfig({
 			workbox: {
 				globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}'],
 				cleanupOutdatedCaches: true,
-				clientsClaim: true
+				clientsClaim: true,
+				skipWaiting: true,
+				runtimeCaching: [
+					{
+						urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+						handler: 'CacheFirst',
+						options: {
+							cacheName: 'google-fonts-cache',
+							expiration: {
+								maxEntries: 10,
+								maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+							},
+							cacheableResponse: {
+								statuses: [0, 200]
+							}
+						}
+					},
+					{
+						urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+						handler: 'CacheFirst',
+						options: {
+							cacheName: 'gstatic-fonts-cache',
+							expiration: {
+								maxEntries: 10,
+								maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+							},
+							cacheableResponse: {
+								statuses: [0, 200]
+							}
+						}
+					},
+					{
+						urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
+						handler: 'CacheFirst',
+						options: {
+							cacheName: 'images-cache',
+							expiration: {
+								maxEntries: 50,
+								maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+							}
+						}
+					}
+				]
 			},
 			devOptions: {
 				enabled: true,

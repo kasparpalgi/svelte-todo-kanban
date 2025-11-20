@@ -2,7 +2,6 @@
 <script>
 	// @ts-nocheck
 	import '../app.css';
-	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { pwaInfo } from 'virtual:pwa-info';
@@ -10,6 +9,9 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import ErrorSuccess from '$lib/components/ui/ErrorSuccess.svelte';
 	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
+	import PWAPrompt from '$lib/components/pwa/PWAPrompt.svelte';
+	import InstallPrompt from '$lib/components/pwa/InstallPrompt.svelte';
+	import OfflineIndicator from '$lib/components/pwa/OfflineIndicator.svelte';
 	import faviconUrl from '$lib/assets/favicon.svg?url';
 	import { DEFAULT_LOCALE } from '$lib/constants/locale';
 
@@ -21,21 +23,6 @@
 		if (!page.params.lang) {
 			const locale = data?.session?.user?.locale || DEFAULT_LOCALE;
 			initTranslations(locale);
-		}
-	});
-
-	onMount(async () => {
-		if (pwaInfo && browser) {
-			const { registerSW } = await import('virtual:pwa-register');
-			registerSW({
-				immediate: true,
-				onRegistered(r) {
-					// SW registered successfully
-				},
-				onRegisterError(error) {
-					console.log('[Root Layout] SW registration error', error);
-				}
-			});
 		}
 	});
 </script>
@@ -51,6 +38,11 @@
 </svelte:head>
 
 <ModeWatcher />
+
+<!-- PWA Components -->
+<PWAPrompt />
+<InstallPrompt />
+<OfflineIndicator />
 
 <ErrorBoundary>
 	<div class="min-h-screen w-full bg-background">
