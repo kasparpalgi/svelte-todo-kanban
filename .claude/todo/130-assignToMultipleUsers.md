@@ -1,0 +1,1 @@
+It is good that there's a assigned user of a card. Let's leave it like that. The main assignee. But let's make it possible to add optionally other users to the card also and let's call them subscribers. They just will get notifications on cards they are subscribed to.
