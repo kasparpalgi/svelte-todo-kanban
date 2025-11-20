@@ -37,7 +37,12 @@
 
 	// Initialize form data from board settings
 	$effect(() => {
+		console.log('[BoardCustomerInvoiceDetails] Effect running');
+		console.log('[BoardCustomerInvoiceDetails] Board:', board);
+		console.log('[BoardCustomerInvoiceDetails] customer_invoice_details:', board?.customer_invoice_details);
+
 		if (board?.customer_invoice_details) {
+			console.log('[BoardCustomerInvoiceDetails] Initializing form data from board');
 			formData = {
 				company_name: board.customer_invoice_details.company_name || '',
 				code: board.customer_invoice_details.code || '',
@@ -46,10 +51,14 @@
 				contact_details: board.customer_invoice_details.contact_details || '',
 				hourly_rate: board.customer_invoice_details.hourly_rate || 0
 			};
+			console.log('[BoardCustomerInvoiceDetails] Form data initialized:', formData);
 		}
 	});
 
 	async function handleSave() {
+		console.log('[BoardCustomerInvoiceDetails] handleSave called');
+		console.log('[BoardCustomerInvoiceDetails] Form data to save:', formData);
+
 		if (!boardId) {
 			displayMessage('Board not found');
 			return;
@@ -59,13 +68,17 @@
 
 		try {
 			const result = await listsStore.updateBoardCustomerInvoiceDetails(boardId, formData);
+			console.log('[BoardCustomerInvoiceDetails] Save result:', result);
 
 			if (result.success) {
+				console.log('[BoardCustomerInvoiceDetails] Save successful, updated board:', result.data);
 				displayMessage('Customer details saved successfully', 3000, true);
 			} else {
+				console.error('[BoardCustomerInvoiceDetails] Save failed:', result.message);
 				displayMessage(result.message || 'Failed to save customer details');
 			}
 		} catch (error) {
+			console.error('[BoardCustomerInvoiceDetails] Save error:', error);
 			const message = error instanceof Error ? error.message : 'Failed to save customer details';
 			displayMessage(message);
 		} finally {
@@ -86,7 +99,10 @@
 	</CardHeader>
 	<CardContent>
 		<form
-			on:submit|preventDefault={handleSave}
+			onsubmit={(e) => {
+				e.preventDefault();
+				handleSave();
+			}}
 			class="space-y-4"
 		>
 			<div class="grid gap-4 sm:grid-cols-2">

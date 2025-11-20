@@ -283,15 +283,21 @@ function createListsStore() {
 		}
 
 		try {
+			console.log('[listsStore] updateBoard - Sending updates:', updates);
 			const data: UpdateBoardMutation = await request(UPDATE_BOARD, {
 				where: { id: { _eq: id } },
 				_set: updates
 			});
+			console.log('[listsStore] updateBoard - Response data:', data);
 
 			const updatedBoard = data.update_boards?.returning?.[0];
+			console.log('[listsStore] updateBoard - Updated board:', updatedBoard);
+			console.log('[listsStore] updateBoard - customer_invoice_details in response:', updatedBoard?.customer_invoice_details);
+
 			if (updatedBoard) {
 				if (boardIndex !== -1) {
 					boards[boardIndex] = updatedBoard;
+					console.log('[listsStore] updateBoard - Updated boards array, index:', boardIndex);
 				}
 				return {
 					success: true,
