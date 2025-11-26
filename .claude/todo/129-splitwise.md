@@ -22,6 +22,8 @@ created_at- timestamp with time zone, default: now()
 updated_at- timestamp with time zone, default: now()
 deleted_at- timestamp with time zone
 
+(you need to create at /hasura folder the persmissions - I just created table, foreigh keys and relationships)
+
 Must look good on mobile and desktop both.
 
 As a long task, make it into smaller pieces, plan in this file throughly each step before execution.
