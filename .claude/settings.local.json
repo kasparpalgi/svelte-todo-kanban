@@ -23,7 +23,8 @@
       "Bash(hasura:*)",
       "Bash(npm run:*)",
       "Bash(npm test:*)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(docker-compose ps:*)"
     ],
     "deny": [],
     "ask": []

@@ -207,8 +207,8 @@ export function getSuggestedSettlements(expenses: Expense[]): Settlement[] {
  * Format currency amount
  */
 export function formatCurrency(amount: number): string {
-	return new Intl.NumberFormat('en-US', {
+	return new Intl.NumberFormat('en-EU', {
 		style: 'currency',
-		currency: 'USD'
+		currency: 'EUR'
 	}).format(amount);
 }

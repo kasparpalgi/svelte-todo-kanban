@@ -18,6 +18,7 @@ import {
 	getSuggestedSettlements
 } from '$lib/utils/expenseCalculations';
 import type { UserBalance, Settlement } from '$lib/utils/expenseCalculations';
+import type { ParsedCsvData, SplitwiseExpense } from '$lib/utils/splitwiseCsvParser';
 
 type Expense = GetBoardExpensesQuery['expenses'][number];
 
@@ -85,7 +86,7 @@ function createExpensesStore() {
 		if (Math.abs(splitTotal - amount) > 0.01) {
 			return {
 				success: false,
-				message: `Splits total ($${splitTotal}) must equal expense amount ($${amount})`
+				message: `Splits total (€${splitTotal}) must equal expense amount (€${amount})`
 			};
 		}
 
@@ -208,6 +209,108 @@ function createExpensesStore() {
 		return getSuggestedSettlements(state.expenses);
 	}
 
+	/**
+	 * Import expenses from Splitwise CSV
+	 */
+	async function importFromSplitwise(
+		boardId: string,
+		parsedData: ParsedCsvData,
+		userMapping: Map<string, string>, // csvUserName -> boardMemberUserId
+		currentUserId: string
+	): Promise<{ success: boolean; message: string }> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		let successCount = 0;
+		let failCount = 0;
+
+		try {
+			// Process each expense
+			for (const csvExpense of parsedData.expenses) {
+				try {
+					// Convert Splitwise expense to our format
+					// In Splitwise CSV: negative = owes, positive = owed
+					// We need to determine who paid and how to split
+
+					// Find who paid (the user with the most positive amount in this expense)
+					let paidByUserId = currentUserId;
+					let maxPositive = -Infinity;
+
+					for (const [csvUserName, amount] of csvExpense.splits.entries()) {
+						if (amount > maxPositive) {
+							maxPositive = amount;
+							const userId = userMapping.get(csvUserName);
+							if (userId) {
+								paidByUserId = userId;
+							}
+						}
+					}
+
+					// Calculate splits: convert Splitwise amounts to our format
+					// In our system: splits represent how much each user owes
+					const splits: Array<{ user_id: string; amount: number }> = [];
+
+					for (const [csvUserName, csvAmount] of csvExpense.splits.entries()) {
+						const userId = userMapping.get(csvUserName);
+						if (!userId) continue;
+
+						// Splitwise: negative = owes money
+						// Our system: split amount = what user owes
+						// So if csvAmount is negative, the absolute value is what they owe
+						if (csvAmount < 0) {
+							splits.push({
+								user_id: userId,
+								amount: Math.abs(csvAmount)
+							});
+						}
+					}
+
+					// If no splits (everyone paid their share), skip
+					if (splits.length === 0) {
+						console.log('[importFromSplitwise] Skipping expense with no splits:', csvExpense.description);
+						continue;
+					}
+
+					// Add the expense
+					const result = await addExpense(
+						boardId,
+						csvExpense.cost,
+						paidByUserId,
+						splits,
+						csvExpense.description
+					);
+
+					if (result.success) {
+						successCount++;
+					} else {
+						failCount++;
+						console.error('[importFromSplitwise] Failed to add expense:', result.message);
+					}
+				} catch (error) {
+					failCount++;
+					console.error('[importFromSplitwise] Error processing expense:', error);
+				}
+			}
+
+			console.log('[importFromSplitwise] Import complete:', { successCount, failCount });
+
+			if (successCount > 0) {
+				return {
+					success: true,
+					message: `Imported ${successCount} expense${successCount === 1 ? '' : 's'}${failCount > 0 ? `, ${failCount} failed` : ''}`
+				};
+			} else {
+				return {
+					success: false,
+					message: `Failed to import expenses (${failCount} errors)`
+				};
+			}
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Import failed';
+			console.error('[importFromSplitwise] Error:', error);
+			return { success: false, message };
+		}
+	}
+
 	return {
 		// State getters
 		get expenses() {
@@ -232,7 +335,8 @@ function createExpensesStore() {
 		deleteExpense,
 		settleUp,
 		getBalances,
-		getSuggested
+		getSuggested,
+		importFromSplitwise
 	};
 }
 

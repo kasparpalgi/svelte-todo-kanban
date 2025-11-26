@@ -4,13 +4,14 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
-	import { ArrowLeft, Plus, Wallet } from 'lucide-svelte';
+	import { ArrowLeft, Plus, Wallet, Upload } from 'lucide-svelte';
 	import { expensesStore } from '$lib/stores/expenses.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import ExpenseCard from '$lib/components/expenses/ExpenseCard.svelte';
 	import BalanceSummary from '$lib/components/expenses/BalanceSummary.svelte';
 	import AddExpenseDialog from '$lib/components/expenses/AddExpenseDialog.svelte';
 	import SettleUpDialog from '$lib/components/expenses/SettleUpDialog.svelte';
+	import ImportSplitwiseDialog from '$lib/components/expenses/ImportSplitwiseDialog.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -21,6 +22,7 @@
 
 	let addExpenseOpen = $state(false);
 	let settleUpOpen = $state(false);
+	let importSplitwiseOpen = $state(false);
 	let settleFromUser = $state<string | undefined>(undefined);
 	let settleToUser = $state<string | undefined>(undefined);
 	let settleAmount = $state<number | undefined>(undefined);
@@ -117,10 +119,21 @@
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
 					<h2 class="text-lg font-semibold">All Expenses</h2>
-					<p class="text-sm text-muted-foreground">
-						{expensesStore.expenses.length}
-						{expensesStore.expenses.length === 1 ? 'expense' : 'expenses'}
-					</p>
+					<div class="flex items-center gap-3">
+						<Button
+							variant="ghost"
+							size="sm"
+							onclick={() => (importSplitwiseOpen = true)}
+							class="text-xs"
+						>
+							<Upload class="h-3 w-3 mr-1" />
+							Import from Splitwise
+						</Button>
+						<p class="text-sm text-muted-foreground">
+							{expensesStore.expenses.length}
+							{expensesStore.expenses.length === 1 ? 'expense' : 'expenses'}
+						</p>
+					</div>
 				</div>
 
 				{#if expensesStore.loading}
@@ -184,5 +197,13 @@
 		defaultFromUser={settleFromUser}
 		defaultToUser={settleToUser}
 		defaultAmount={settleAmount}
+	/>
+
+	<ImportSplitwiseDialog
+		bind:open={importSplitwiseOpen}
+		boardId={board.id}
+		{boardMembers}
+		{currentUserId}
+		onOpenChange={(open) => (importSplitwiseOpen = open)}
 	/>
 </div>
