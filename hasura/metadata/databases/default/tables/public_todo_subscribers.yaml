@@ -99,5 +99,7 @@ delete_permissions:
                       - user_id:
                           _eq: X-Hasura-User-Id
                       - role:
-                          _in: [owner, editor]
+                          _in:
+                            - owner
+                            - editor
     comment: ""

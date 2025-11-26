@@ -1,0 +1,1 @@
+<!-- @file: src/routes/[lang]/[username]/[board]/expenses/+page.svelte -->

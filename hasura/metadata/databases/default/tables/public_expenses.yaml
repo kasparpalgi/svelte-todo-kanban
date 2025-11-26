@@ -1,0 +1,3 @@
+table:
+  name: expenses
+  schema: public
