@@ -95,6 +95,7 @@ function createExpensesStore() {
 				object: {
 					board_id: boardId,
 					amount,
+					description,
 					expense_splits: {
 						data: splits
 					}

@@ -1179,6 +1179,7 @@ export const EXPENSE_FRAGMENT = graphql(`
 	fragment ExpenseFields on expenses {
 		id
 		amount
+		description
 		created_by
 		board_id
 		created_at

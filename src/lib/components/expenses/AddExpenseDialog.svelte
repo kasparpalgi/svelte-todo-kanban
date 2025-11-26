@@ -35,6 +35,7 @@
 	let { open = $bindable(), boardId, boardMembers, currentUserId, onOpenChange }: Props = $props();
 
 	let amount = $state('');
+	let description = $state('');
 	let paidBy = $state(currentUserId);
 	let splitType = $state<'equal' | 'custom'>('equal');
 	let selectedMembers = $state<Set<string>>(new Set(boardMembers.map((m) => m.user_id)));
@@ -45,6 +46,7 @@
 	$effect(() => {
 		if (open) {
 			amount = '';
+			description = '';
 			paidBy = currentUserId;
 			splitType = 'equal';
 			selectedMembers = new Set(boardMembers.map((m) => m.user_id));
@@ -135,7 +137,8 @@
 				boardId,
 				parseFloat(amount),
 				paidBy,
-				splits
+				splits,
+				description
 			);
 
 			if (result.success) {
@@ -171,6 +174,17 @@
 					min="0"
 					placeholder="0.00"
 					bind:value={amount}
+				/>
+			</div>
+
+			<!-- Description -->
+			<div class="space-y-2">
+				<Label for="description">Description</Label>
+				<Input
+					id="description"
+					type="text"
+					placeholder="What was this expense for?"
+					bind:value={description}
 				/>
 			</div>
 

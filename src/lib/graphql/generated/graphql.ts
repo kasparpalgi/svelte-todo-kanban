@@ -3028,6 +3028,7 @@ export type Expenses = {
   created_at: Scalars['timestamptz']['output'];
   created_by: Scalars['uuid']['output'];
   deleted_at?: Maybe<Scalars['timestamptz']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
   expense_splits: Array<Expense_Splits>;
   /** An aggregate relationship */
@@ -3142,6 +3143,7 @@ export type Expenses_Bool_Exp = {
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   created_by?: InputMaybe<Uuid_Comparison_Exp>;
   deleted_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  description?: InputMaybe<String_Comparison_Exp>;
   expense_splits?: InputMaybe<Expense_Splits_Bool_Exp>;
   expense_splits_aggregate?: InputMaybe<Expense_Splits_Aggregate_Bool_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
@@ -3168,6 +3170,7 @@ export type Expenses_Insert_Input = {
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   created_by?: InputMaybe<Scalars['uuid']['input']>;
   deleted_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   expense_splits?: InputMaybe<Expense_Splits_Arr_Rel_Insert_Input>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -3181,6 +3184,7 @@ export type Expenses_Max_Fields = {
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   created_by?: Maybe<Scalars['uuid']['output']>;
   deleted_at?: Maybe<Scalars['timestamptz']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
 };
@@ -3192,6 +3196,7 @@ export type Expenses_Max_Order_By = {
   created_at?: InputMaybe<Order_By>;
   created_by?: InputMaybe<Order_By>;
   deleted_at?: InputMaybe<Order_By>;
+  description?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
 };
@@ -3204,6 +3209,7 @@ export type Expenses_Min_Fields = {
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   created_by?: Maybe<Scalars['uuid']['output']>;
   deleted_at?: Maybe<Scalars['timestamptz']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
 };
@@ -3215,6 +3221,7 @@ export type Expenses_Min_Order_By = {
   created_at?: InputMaybe<Order_By>;
   created_by?: InputMaybe<Order_By>;
   deleted_at?: InputMaybe<Order_By>;
+  description?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
 };
@@ -3251,6 +3258,7 @@ export type Expenses_Order_By = {
   created_at?: InputMaybe<Order_By>;
   created_by?: InputMaybe<Order_By>;
   deleted_at?: InputMaybe<Order_By>;
+  description?: InputMaybe<Order_By>;
   expense_splits_aggregate?: InputMaybe<Expense_Splits_Aggregate_Order_By>;
   id?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
@@ -3274,6 +3282,8 @@ export enum Expenses_Select_Column {
   /** column name */
   DeletedAt = 'deleted_at',
   /** column name */
+  Description = 'description',
+  /** column name */
   Id = 'id',
   /** column name */
   UpdatedAt = 'updated_at'
@@ -3286,6 +3296,7 @@ export type Expenses_Set_Input = {
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   created_by?: InputMaybe<Scalars['uuid']['input']>;
   deleted_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
 };
@@ -3338,6 +3349,7 @@ export type Expenses_Stream_Cursor_Value_Input = {
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   created_by?: InputMaybe<Scalars['uuid']['input']>;
   deleted_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
 };
@@ -3365,6 +3377,8 @@ export enum Expenses_Update_Column {
   CreatedBy = 'created_by',
   /** column name */
   DeletedAt = 'deleted_at',
+  /** column name */
+  Description = 'description',
   /** column name */
   Id = 'id',
   /** column name */
@@ -15593,21 +15607,21 @@ export type GetTrackerCategoriesQuery = { __typename?: 'query_root', tracker_cat
 
 export type ExpenseSplitFieldsFragment = { __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } };
 
-export type ExpenseFieldsFragment = { __typename?: 'expenses', id: string, amount: number, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } };
+export type ExpenseFieldsFragment = { __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } };
 
 export type GetBoardExpensesQueryVariables = Exact<{
   board_id: Scalars['uuid']['input'];
 }>;
 
 
-export type GetBoardExpensesQuery = { __typename?: 'query_root', expenses: Array<{ __typename?: 'expenses', id: string, amount: number, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
+export type GetBoardExpensesQuery = { __typename?: 'query_root', expenses: Array<{ __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
 
 export type CreateExpenseMutationVariables = Exact<{
   object: Expenses_Insert_Input;
 }>;
 
 
-export type CreateExpenseMutation = { __typename?: 'mutation_root', insert_expenses_one?: { __typename?: 'expenses', id: string, amount: number, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
+export type CreateExpenseMutation = { __typename?: 'mutation_root', insert_expenses_one?: { __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
 
 export type DeleteExpenseMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
@@ -15615,7 +15629,7 @@ export type DeleteExpenseMutationVariables = Exact<{
 }>;
 
 
-export type DeleteExpenseMutation = { __typename?: 'mutation_root', update_expenses_by_pk?: { __typename?: 'expenses', id: string, amount: number, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
+export type DeleteExpenseMutation = { __typename?: 'mutation_root', update_expenses_by_pk?: { __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -16040,6 +16054,7 @@ export const ExpenseFieldsFragmentDoc = new TypedDocumentString(`
     fragment ExpenseFields on expenses {
   id
   amount
+  description
   created_by
   board_id
   created_at
@@ -17771,6 +17786,7 @@ export const GetBoardExpensesDocument = new TypedDocumentString(`
 fragment ExpenseFields on expenses {
   id
   amount
+  description
   created_by
   board_id
   created_at
@@ -17814,6 +17830,7 @@ export const CreateExpenseDocument = new TypedDocumentString(`
 fragment ExpenseFields on expenses {
   id
   amount
+  description
   created_by
   board_id
   created_at
@@ -17857,6 +17874,7 @@ export const DeleteExpenseDocument = new TypedDocumentString(`
 fragment ExpenseFields on expenses {
   id
   amount
+  description
   created_by
   board_id
   created_at

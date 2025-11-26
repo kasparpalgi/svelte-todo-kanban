@@ -1,9 +1,9 @@
 <script lang="ts">
 	/** @file src/lib/components/expenses/ExpenseCard.svelte */
 	import type { GetBoardExpensesQuery } from '$lib/graphql/generated/graphql';
-	import { Avatar } from '$lib/components/ui/avatar';
+	import * as Avatar from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button';
-	import { Card } from '$lib/components/ui/card';
+	import * as Card from '$lib/components/ui/card';
 	import { Trash2 } from 'lucide-svelte';
 	import { formatCurrency } from '$lib/utils/expenseCalculations';
 	import { page } from '$app/stores';
@@ -74,6 +74,13 @@
 					</p>
 				</div>
 			</div>
+
+			<!-- Description -->
+			{#if expense.description}
+				<div class="ml-11 mb-2">
+					<p class="text-sm text-foreground">{expense.description}</p>
+				</div>
+			{/if}
 
 			<!-- Split details -->
 			{#if !isSettlement}

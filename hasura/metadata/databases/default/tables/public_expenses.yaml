@@ -33,6 +33,7 @@ insert_permissions:
         - amount
         - board_id
         - created_at
+        - description
         - id
         - updated_at
     comment: ""
@@ -45,6 +46,7 @@ select_permissions:
         - created_at
         - created_by
         - deleted_at
+        - description
         - id
         - updated_at
       filter:

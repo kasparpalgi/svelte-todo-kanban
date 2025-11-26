@@ -2,7 +2,7 @@
 	/** @file src/lib/components/expenses/BalanceSummary.svelte */
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
-	import { Avatar } from '$lib/components/ui/avatar';
+	import * as Avatar from '$lib/components/ui/avatar';
 	import { formatCurrency } from '$lib/utils/expenseCalculations';
 	import { ChevronDown, ChevronUp } from 'lucide-svelte';
 
