@@ -91,6 +91,11 @@ type Documents = {
     "\n\tquery GetTrackerSessions(\n\t\t$limit: Int = 15000\n\t\t$offset: Int = 0\n\t\t$order_by: [tracker_sessions_order_by!]\n\t\t$where: tracker_sessions_bool_exp\n\t) {\n\t\ttracker_sessions(\n\t\t\tlimit: $limit\n\t\t\toffset: $offset\n\t\t\torder_by: $order_by\n\t\t\twhere: $where\n\t\t) {\n\t\t\t...TrackerSessionFields\n\t\t}\n\t\ttracker_sessions_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t\tsum {\n\t\t\t\t\tduration_seconds\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetTrackerSessionsDocument,
     "\n\tquery GetTrackerKeywords(\n\t\t$limit: Int = 5000\n\t\t$offset: Int = 0\n\t\t$order_by: [tracker_keywords_order_by!]\n\t\t$where: tracker_keywords_bool_exp\n\t) {\n\t\ttracker_keywords(\n\t\t\tlimit: $limit\n\t\t\toffset: $offset\n\t\t\torder_by: $order_by\n\t\t\twhere: $where\n\t\t) {\n\t\t\t...TrackerKeywordFields\n\t\t}\n\t}\n": typeof types.GetTrackerKeywordsDocument,
     "\n\tquery GetTrackerCategories(\n\t\t$limit: Int = 5000\n\t\t$offset: Int = 0\n\t\t$order_by: [tracker_categories_order_by!]\n\t\t$where: tracker_categories_bool_exp\n\t) {\n\t\ttracker_categories(\n\t\t\tlimit: $limit\n\t\t\toffset: $offset\n\t\t\torder_by: $order_by\n\t\t\twhere: $where\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tparent_category {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t\tsub_categories {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t\ttracker_keywords {\n\t\t\t\tid\n\t\t\t\tkeyword\n\t\t\t\tcase_sensitive\n\t\t\t\tboard_id\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetTrackerCategoriesDocument,
+    "\n\tfragment ExpenseSplitFields on expense_splits {\n\t\tid\n\t\tuser_id\n\t\tamount\n\t\texpense_id\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n": typeof types.ExpenseSplitFieldsFragmentDoc,
+    "\n\tfragment ExpenseFields on expenses {\n\t\tid\n\t\tamount\n\t\tcreated_by\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tdeleted_at\n\t\tcreated {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\texpense_splits {\n\t\t\t...ExpenseSplitFields\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n": typeof types.ExpenseFieldsFragmentDoc,
+    "\n\tquery GetBoardExpenses($board_id: uuid!) {\n\t\texpenses(\n\t\t\twhere: { board_id: { _eq: $board_id }, deleted_at: { _is_null: true } }\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": typeof types.GetBoardExpensesDocument,
+    "\n\tmutation CreateExpense($object: expenses_insert_input!) {\n\t\tinsert_expenses_one(object: $object) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": typeof types.CreateExpenseDocument,
+    "\n\tmutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses_by_pk(pk_columns: { id: $id }, _set: { deleted_at: $deleted_at }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": typeof types.DeleteExpenseDocument,
 };
 const documents: Documents = {
     "\n\tfragment TodoFields on todos {\n\t\tid\n\t\talias\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\thas_time\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tassigned_to\n\t\tgithub_issue_number\n\t\tgithub_issue_id\n\t\tgithub_synced_at\n\t\tgithub_url\n\t\tmin_hours\n\t\tmax_hours\n\t\tactual_hours\n\t\tcomment_hours\n\t\tassignee {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tcomments(order_by: { created_at: asc }) {\n\t\t\t...CommentFields\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tsubscribers {\n\t\t\tuser_id\n\t\t\tcreated_at\n\t\t\tsubscriber {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tusername\n\t\t\t\timage\n\t\t\t\temail\n\t\t\t}\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t\tgithub\n\t\t\t\tsettings\n\t\t\t}\n\t\t}\n\t}\n": types.TodoFieldsFragmentDoc,
@@ -169,6 +174,11 @@ const documents: Documents = {
     "\n\tquery GetTrackerSessions(\n\t\t$limit: Int = 15000\n\t\t$offset: Int = 0\n\t\t$order_by: [tracker_sessions_order_by!]\n\t\t$where: tracker_sessions_bool_exp\n\t) {\n\t\ttracker_sessions(\n\t\t\tlimit: $limit\n\t\t\toffset: $offset\n\t\t\torder_by: $order_by\n\t\t\twhere: $where\n\t\t) {\n\t\t\t...TrackerSessionFields\n\t\t}\n\t\ttracker_sessions_aggregate(where: $where) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t\tsum {\n\t\t\t\t\tduration_seconds\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.GetTrackerSessionsDocument,
     "\n\tquery GetTrackerKeywords(\n\t\t$limit: Int = 5000\n\t\t$offset: Int = 0\n\t\t$order_by: [tracker_keywords_order_by!]\n\t\t$where: tracker_keywords_bool_exp\n\t) {\n\t\ttracker_keywords(\n\t\t\tlimit: $limit\n\t\t\toffset: $offset\n\t\t\torder_by: $order_by\n\t\t\twhere: $where\n\t\t) {\n\t\t\t...TrackerKeywordFields\n\t\t}\n\t}\n": types.GetTrackerKeywordsDocument,
     "\n\tquery GetTrackerCategories(\n\t\t$limit: Int = 5000\n\t\t$offset: Int = 0\n\t\t$order_by: [tracker_categories_order_by!]\n\t\t$where: tracker_categories_bool_exp\n\t) {\n\t\ttracker_categories(\n\t\t\tlimit: $limit\n\t\t\toffset: $offset\n\t\t\torder_by: $order_by\n\t\t\twhere: $where\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tparent_category {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t\tsub_categories {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t\ttracker_keywords {\n\t\t\t\tid\n\t\t\t\tkeyword\n\t\t\t\tcase_sensitive\n\t\t\t\tboard_id\n\t\t\t}\n\t\t}\n\t}\n": types.GetTrackerCategoriesDocument,
+    "\n\tfragment ExpenseSplitFields on expense_splits {\n\t\tid\n\t\tuser_id\n\t\tamount\n\t\texpense_id\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n": types.ExpenseSplitFieldsFragmentDoc,
+    "\n\tfragment ExpenseFields on expenses {\n\t\tid\n\t\tamount\n\t\tcreated_by\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tdeleted_at\n\t\tcreated {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\texpense_splits {\n\t\t\t...ExpenseSplitFields\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n": types.ExpenseFieldsFragmentDoc,
+    "\n\tquery GetBoardExpenses($board_id: uuid!) {\n\t\texpenses(\n\t\t\twhere: { board_id: { _eq: $board_id }, deleted_at: { _is_null: true } }\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": types.GetBoardExpensesDocument,
+    "\n\tmutation CreateExpense($object: expenses_insert_input!) {\n\t\tinsert_expenses_one(object: $object) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": types.CreateExpenseDocument,
+    "\n\tmutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses_by_pk(pk_columns: { id: $id }, _set: { deleted_at: $deleted_at }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": types.DeleteExpenseDocument,
 };
 
 /**
@@ -475,6 +485,26 @@ export function graphql(source: "\n\tquery GetTrackerKeywords(\n\t\t$limit: Int 
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tquery GetTrackerCategories(\n\t\t$limit: Int = 5000\n\t\t$offset: Int = 0\n\t\t$order_by: [tracker_categories_order_by!]\n\t\t$where: tracker_categories_bool_exp\n\t) {\n\t\ttracker_categories(\n\t\t\tlimit: $limit\n\t\t\toffset: $offset\n\t\t\torder_by: $order_by\n\t\t\twhere: $where\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tparent_category {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t\tsub_categories {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t\ttracker_keywords {\n\t\t\t\tid\n\t\t\t\tkeyword\n\t\t\t\tcase_sensitive\n\t\t\t\tboard_id\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetTrackerCategoriesDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tfragment ExpenseSplitFields on expense_splits {\n\t\tid\n\t\tuser_id\n\t\tamount\n\t\texpense_id\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n"): typeof import('./graphql').ExpenseSplitFieldsFragmentDoc;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tfragment ExpenseFields on expenses {\n\t\tid\n\t\tamount\n\t\tcreated_by\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tdeleted_at\n\t\tcreated {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\texpense_splits {\n\t\t\t...ExpenseSplitFields\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n"): typeof import('./graphql').ExpenseFieldsFragmentDoc;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetBoardExpenses($board_id: uuid!) {\n\t\texpenses(\n\t\t\twhere: { board_id: { _eq: $board_id }, deleted_at: { _is_null: true } }\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetBoardExpensesDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation CreateExpense($object: expenses_insert_input!) {\n\t\tinsert_expenses_one(object: $object) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n"): typeof import('./graphql').CreateExpenseDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses_by_pk(pk_columns: { id: $id }, _set: { deleted_at: $deleted_at }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteExpenseDocument;
 
 
 export function graphql(source: string) {

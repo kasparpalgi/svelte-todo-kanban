@@ -1,1 +1,1 @@
-Open `.claude` folder and read `context.md` then do the task from `.claude/todo` folder:
+Open `.claude` folder and read `context.md` then do the task from `.claude/todo` folder: 

@@ -28,7 +28,8 @@
 		Funnel,
 		ArrowRight,
 		Github,
-		Bell
+		Bell,
+		Wallet
 	} from 'lucide-svelte';
 	import TodoList from '$lib/components/todo/TodoList.svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
@@ -501,5 +502,17 @@
 			boardId={listsStore.selectedBoard.id}
 			boardName={listsStore.selectedBoard.name}
 		/>
+	{/if}
+
+	<!-- Floating Expenses Button -->
+	{#if listsStore.selectedBoard}
+		<Button
+			size="icon"
+			class="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all"
+			onclick={() => goto(`/${lang}/${username}/${boardAlias}/expenses`)}
+			title="Expenses"
+		>
+			<Wallet class="h-6 w-6" />
+		</Button>
 	{/if}
 {/if}

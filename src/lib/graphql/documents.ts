@@ -1156,3 +1156,75 @@ export const GET_TRACKER_CATEGORIES = graphql(`
 		}
 	}
 `);
+
+// ========== Expenses ==========
+
+export const EXPENSE_SPLIT_FRAGMENT = graphql(`
+	fragment ExpenseSplitFields on expense_splits {
+		id
+		user_id
+		amount
+		expense_id
+		user {
+			id
+			name
+			username
+			image
+			email
+		}
+	}
+`);
+
+export const EXPENSE_FRAGMENT = graphql(`
+	fragment ExpenseFields on expenses {
+		id
+		amount
+		created_by
+		board_id
+		created_at
+		updated_at
+		deleted_at
+		created {
+			id
+			name
+			username
+			image
+			email
+		}
+		expense_splits {
+			...ExpenseSplitFields
+		}
+		board {
+			id
+			name
+			alias
+		}
+	}
+`);
+
+export const GET_BOARD_EXPENSES = graphql(`
+	query GetBoardExpenses($board_id: uuid!) {
+		expenses(
+			where: { board_id: { _eq: $board_id }, deleted_at: { _is_null: true } }
+			order_by: { created_at: desc }
+		) {
+			...ExpenseFields
+		}
+	}
+`);
+
+export const CREATE_EXPENSE = graphql(`
+	mutation CreateExpense($object: expenses_insert_input!) {
+		insert_expenses_one(object: $object) {
+			...ExpenseFields
+		}
+	}
+`);
+
+export const DELETE_EXPENSE = graphql(`
+	mutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {
+		update_expenses_by_pk(pk_columns: { id: $id }, _set: { deleted_at: $deleted_at }) {
+			...ExpenseFields
+		}
+	}
+`);

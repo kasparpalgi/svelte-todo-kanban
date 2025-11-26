@@ -1,0 +1,3 @@
+See task 129 where Splitwise-like functionality was created. Now see in '_notes' folder how expenses exported from Splitwise look like in file 'import.csv' where there are just 2 users so it is clear that -X€ is me and the +X€ the other user on the board. Then see 'import2.csv' where there are expenses split between more than 2 users so we need to ask the names of the users behind these expenses. 
+
+Add button to expenses page 'Import from Splitwise' small somewhere. Then let the user to select file from the device to import.

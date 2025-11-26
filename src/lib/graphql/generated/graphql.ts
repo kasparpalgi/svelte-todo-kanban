@@ -1559,6 +1559,10 @@ export type Boards = {
   created_at: Scalars['timestamptz']['output'];
   /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
   customer_invoice_details?: Maybe<Scalars['jsonb']['output']>;
+  /** An array relationship */
+  expenses: Array<Expenses>;
+  /** An aggregate relationship */
+  expenses_aggregate: Expenses_Aggregate;
   github?: Maybe<Scalars['String']['output']>;
   id: Scalars['uuid']['output'];
   /** When true, board is viewable by anyone (read-only unless member) */
@@ -1628,6 +1632,26 @@ export type BoardsBoard_Members_AggregateArgs = {
 /** columns and relationships of "boards" */
 export type BoardsCustomer_Invoice_DetailsArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** columns and relationships of "boards" */
+export type BoardsExpensesArgs = {
+  distinct_on?: InputMaybe<Array<Expenses_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expenses_Order_By>>;
+  where?: InputMaybe<Expenses_Bool_Exp>;
+};
+
+
+/** columns and relationships of "boards" */
+export type BoardsExpenses_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Expenses_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expenses_Order_By>>;
+  where?: InputMaybe<Expenses_Bool_Exp>;
 };
 
 
@@ -1806,6 +1830,8 @@ export type Boards_Bool_Exp = {
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Bool_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   customer_invoice_details?: InputMaybe<Jsonb_Comparison_Exp>;
+  expenses?: InputMaybe<Expenses_Bool_Exp>;
+  expenses_aggregate?: InputMaybe<Expenses_Aggregate_Bool_Exp>;
   github?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   is_public?: InputMaybe<Boolean_Comparison_Exp>;
@@ -1867,6 +1893,7 @@ export type Boards_Insert_Input = {
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
   customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
+  expenses?: InputMaybe<Expenses_Arr_Rel_Insert_Input>;
   github?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   /** When true, board is viewable by anyone (read-only unless member) */
@@ -1963,6 +1990,7 @@ export type Boards_Order_By = {
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Order_By>;
   created_at?: InputMaybe<Order_By>;
   customer_invoice_details?: InputMaybe<Order_By>;
+  expenses_aggregate?: InputMaybe<Expenses_Aggregate_Order_By>;
   github?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   is_public?: InputMaybe<Order_By>;
@@ -2666,6 +2694,1521 @@ export type Date_Comparison_Exp = {
   _lte?: InputMaybe<Scalars['date']['input']>;
   _neq?: InputMaybe<Scalars['date']['input']>;
   _nin?: InputMaybe<Array<Scalars['date']['input']>>;
+};
+
+/** columns and relationships of "expense_splits" */
+export type Expense_Splits = {
+  __typename?: 'expense_splits';
+  amount: Scalars['numeric']['output'];
+  /** An object relationship */
+  expense: Expenses;
+  expense_id: Scalars['uuid']['output'];
+  id: Scalars['uuid']['output'];
+  /** An object relationship */
+  user: Users;
+  user_id: Scalars['uuid']['output'];
+};
+
+/** aggregated selection of "expense_splits" */
+export type Expense_Splits_Aggregate = {
+  __typename?: 'expense_splits_aggregate';
+  aggregate?: Maybe<Expense_Splits_Aggregate_Fields>;
+  nodes: Array<Expense_Splits>;
+};
+
+export type Expense_Splits_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Expense_Splits_Aggregate_Bool_Exp_Count>;
+};
+
+export type Expense_Splits_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Expense_Splits_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Expense_Splits_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "expense_splits" */
+export type Expense_Splits_Aggregate_Fields = {
+  __typename?: 'expense_splits_aggregate_fields';
+  avg?: Maybe<Expense_Splits_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Expense_Splits_Max_Fields>;
+  min?: Maybe<Expense_Splits_Min_Fields>;
+  stddev?: Maybe<Expense_Splits_Stddev_Fields>;
+  stddev_pop?: Maybe<Expense_Splits_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Expense_Splits_Stddev_Samp_Fields>;
+  sum?: Maybe<Expense_Splits_Sum_Fields>;
+  var_pop?: Maybe<Expense_Splits_Var_Pop_Fields>;
+  var_samp?: Maybe<Expense_Splits_Var_Samp_Fields>;
+  variance?: Maybe<Expense_Splits_Variance_Fields>;
+};
+
+
+/** aggregate fields of "expense_splits" */
+export type Expense_Splits_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Expense_Splits_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "expense_splits" */
+export type Expense_Splits_Aggregate_Order_By = {
+  avg?: InputMaybe<Expense_Splits_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Expense_Splits_Max_Order_By>;
+  min?: InputMaybe<Expense_Splits_Min_Order_By>;
+  stddev?: InputMaybe<Expense_Splits_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Expense_Splits_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Expense_Splits_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Expense_Splits_Sum_Order_By>;
+  var_pop?: InputMaybe<Expense_Splits_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Expense_Splits_Var_Samp_Order_By>;
+  variance?: InputMaybe<Expense_Splits_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "expense_splits" */
+export type Expense_Splits_Arr_Rel_Insert_Input = {
+  data: Array<Expense_Splits_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Expense_Splits_On_Conflict>;
+};
+
+/** aggregate avg on columns */
+export type Expense_Splits_Avg_Fields = {
+  __typename?: 'expense_splits_avg_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "expense_splits" */
+export type Expense_Splits_Avg_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "expense_splits". All fields are combined with a logical 'AND'. */
+export type Expense_Splits_Bool_Exp = {
+  _and?: InputMaybe<Array<Expense_Splits_Bool_Exp>>;
+  _not?: InputMaybe<Expense_Splits_Bool_Exp>;
+  _or?: InputMaybe<Array<Expense_Splits_Bool_Exp>>;
+  amount?: InputMaybe<Numeric_Comparison_Exp>;
+  expense?: InputMaybe<Expenses_Bool_Exp>;
+  expense_id?: InputMaybe<Uuid_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "expense_splits" */
+export enum Expense_Splits_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  ExpenseSplitsPkey = 'expense_splits_pkey'
+}
+
+/** input type for incrementing numeric columns in table "expense_splits" */
+export type Expense_Splits_Inc_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+};
+
+/** input type for inserting data into table "expense_splits" */
+export type Expense_Splits_Insert_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  expense?: InputMaybe<Expenses_Obj_Rel_Insert_Input>;
+  expense_id?: InputMaybe<Scalars['uuid']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Expense_Splits_Max_Fields = {
+  __typename?: 'expense_splits_max_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+  expense_id?: Maybe<Scalars['uuid']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by max() on columns of table "expense_splits" */
+export type Expense_Splits_Max_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  expense_id?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Expense_Splits_Min_Fields = {
+  __typename?: 'expense_splits_min_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+  expense_id?: Maybe<Scalars['uuid']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "expense_splits" */
+export type Expense_Splits_Min_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  expense_id?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "expense_splits" */
+export type Expense_Splits_Mutation_Response = {
+  __typename?: 'expense_splits_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Expense_Splits>;
+};
+
+/** on_conflict condition type for table "expense_splits" */
+export type Expense_Splits_On_Conflict = {
+  constraint: Expense_Splits_Constraint;
+  update_columns?: Array<Expense_Splits_Update_Column>;
+  where?: InputMaybe<Expense_Splits_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "expense_splits". */
+export type Expense_Splits_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  expense?: InputMaybe<Expenses_Order_By>;
+  expense_id?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: expense_splits */
+export type Expense_Splits_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "expense_splits" */
+export enum Expense_Splits_Select_Column {
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  ExpenseId = 'expense_id',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "expense_splits" */
+export type Expense_Splits_Set_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  expense_id?: InputMaybe<Scalars['uuid']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Expense_Splits_Stddev_Fields = {
+  __typename?: 'expense_splits_stddev_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev() on columns of table "expense_splits" */
+export type Expense_Splits_Stddev_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Expense_Splits_Stddev_Pop_Fields = {
+  __typename?: 'expense_splits_stddev_pop_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_pop() on columns of table "expense_splits" */
+export type Expense_Splits_Stddev_Pop_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Expense_Splits_Stddev_Samp_Fields = {
+  __typename?: 'expense_splits_stddev_samp_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "expense_splits" */
+export type Expense_Splits_Stddev_Samp_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "expense_splits" */
+export type Expense_Splits_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Expense_Splits_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Expense_Splits_Stream_Cursor_Value_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  expense_id?: InputMaybe<Scalars['uuid']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Expense_Splits_Sum_Fields = {
+  __typename?: 'expense_splits_sum_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** order by sum() on columns of table "expense_splits" */
+export type Expense_Splits_Sum_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** update columns of table "expense_splits" */
+export enum Expense_Splits_Update_Column {
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  ExpenseId = 'expense_id',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Expense_Splits_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Expense_Splits_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Expense_Splits_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Expense_Splits_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Expense_Splits_Var_Pop_Fields = {
+  __typename?: 'expense_splits_var_pop_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_pop() on columns of table "expense_splits" */
+export type Expense_Splits_Var_Pop_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Expense_Splits_Var_Samp_Fields = {
+  __typename?: 'expense_splits_var_samp_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_samp() on columns of table "expense_splits" */
+export type Expense_Splits_Var_Samp_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Expense_Splits_Variance_Fields = {
+  __typename?: 'expense_splits_variance_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "expense_splits" */
+export type Expense_Splits_Variance_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** columns and relationships of "expenses" */
+export type Expenses = {
+  __typename?: 'expenses';
+  amount: Scalars['numeric']['output'];
+  /** An object relationship */
+  board: Boards;
+  board_id: Scalars['uuid']['output'];
+  /** An object relationship */
+  created: Users;
+  created_at: Scalars['timestamptz']['output'];
+  created_by: Scalars['uuid']['output'];
+  deleted_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** An array relationship */
+  expense_splits: Array<Expense_Splits>;
+  /** An aggregate relationship */
+  expense_splits_aggregate: Expense_Splits_Aggregate;
+  id: Scalars['uuid']['output'];
+  updated_at: Scalars['timestamptz']['output'];
+};
+
+
+/** columns and relationships of "expenses" */
+export type ExpensesExpense_SplitsArgs = {
+  distinct_on?: InputMaybe<Array<Expense_Splits_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expense_Splits_Order_By>>;
+  where?: InputMaybe<Expense_Splits_Bool_Exp>;
+};
+
+
+/** columns and relationships of "expenses" */
+export type ExpensesExpense_Splits_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Expense_Splits_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expense_Splits_Order_By>>;
+  where?: InputMaybe<Expense_Splits_Bool_Exp>;
+};
+
+/** aggregated selection of "expenses" */
+export type Expenses_Aggregate = {
+  __typename?: 'expenses_aggregate';
+  aggregate?: Maybe<Expenses_Aggregate_Fields>;
+  nodes: Array<Expenses>;
+};
+
+export type Expenses_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Expenses_Aggregate_Bool_Exp_Count>;
+};
+
+export type Expenses_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Expenses_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Expenses_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "expenses" */
+export type Expenses_Aggregate_Fields = {
+  __typename?: 'expenses_aggregate_fields';
+  avg?: Maybe<Expenses_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Expenses_Max_Fields>;
+  min?: Maybe<Expenses_Min_Fields>;
+  stddev?: Maybe<Expenses_Stddev_Fields>;
+  stddev_pop?: Maybe<Expenses_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Expenses_Stddev_Samp_Fields>;
+  sum?: Maybe<Expenses_Sum_Fields>;
+  var_pop?: Maybe<Expenses_Var_Pop_Fields>;
+  var_samp?: Maybe<Expenses_Var_Samp_Fields>;
+  variance?: Maybe<Expenses_Variance_Fields>;
+};
+
+
+/** aggregate fields of "expenses" */
+export type Expenses_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Expenses_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "expenses" */
+export type Expenses_Aggregate_Order_By = {
+  avg?: InputMaybe<Expenses_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Expenses_Max_Order_By>;
+  min?: InputMaybe<Expenses_Min_Order_By>;
+  stddev?: InputMaybe<Expenses_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Expenses_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Expenses_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Expenses_Sum_Order_By>;
+  var_pop?: InputMaybe<Expenses_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Expenses_Var_Samp_Order_By>;
+  variance?: InputMaybe<Expenses_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "expenses" */
+export type Expenses_Arr_Rel_Insert_Input = {
+  data: Array<Expenses_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Expenses_On_Conflict>;
+};
+
+/** aggregate avg on columns */
+export type Expenses_Avg_Fields = {
+  __typename?: 'expenses_avg_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "expenses" */
+export type Expenses_Avg_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "expenses". All fields are combined with a logical 'AND'. */
+export type Expenses_Bool_Exp = {
+  _and?: InputMaybe<Array<Expenses_Bool_Exp>>;
+  _not?: InputMaybe<Expenses_Bool_Exp>;
+  _or?: InputMaybe<Array<Expenses_Bool_Exp>>;
+  amount?: InputMaybe<Numeric_Comparison_Exp>;
+  board?: InputMaybe<Boards_Bool_Exp>;
+  board_id?: InputMaybe<Uuid_Comparison_Exp>;
+  created?: InputMaybe<Users_Bool_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  created_by?: InputMaybe<Uuid_Comparison_Exp>;
+  deleted_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  expense_splits?: InputMaybe<Expense_Splits_Bool_Exp>;
+  expense_splits_aggregate?: InputMaybe<Expense_Splits_Aggregate_Bool_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "expenses" */
+export enum Expenses_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  ExpensesPkey = 'expenses_pkey'
+}
+
+/** input type for incrementing numeric columns in table "expenses" */
+export type Expenses_Inc_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+};
+
+/** input type for inserting data into table "expenses" */
+export type Expenses_Insert_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  board?: InputMaybe<Boards_Obj_Rel_Insert_Input>;
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  created_by?: InputMaybe<Scalars['uuid']['input']>;
+  deleted_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  expense_splits?: InputMaybe<Expense_Splits_Arr_Rel_Insert_Input>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate max on columns */
+export type Expenses_Max_Fields = {
+  __typename?: 'expenses_max_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+  board_id?: Maybe<Scalars['uuid']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  created_by?: Maybe<Scalars['uuid']['output']>;
+  deleted_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** order by max() on columns of table "expenses" */
+export type Expenses_Max_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  created_by?: InputMaybe<Order_By>;
+  deleted_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Expenses_Min_Fields = {
+  __typename?: 'expenses_min_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+  board_id?: Maybe<Scalars['uuid']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  created_by?: Maybe<Scalars['uuid']['output']>;
+  deleted_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** order by min() on columns of table "expenses" */
+export type Expenses_Min_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  created_by?: InputMaybe<Order_By>;
+  deleted_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "expenses" */
+export type Expenses_Mutation_Response = {
+  __typename?: 'expenses_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Expenses>;
+};
+
+/** input type for inserting object relation for remote table "expenses" */
+export type Expenses_Obj_Rel_Insert_Input = {
+  data: Expenses_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Expenses_On_Conflict>;
+};
+
+/** on_conflict condition type for table "expenses" */
+export type Expenses_On_Conflict = {
+  constraint: Expenses_Constraint;
+  update_columns?: Array<Expenses_Update_Column>;
+  where?: InputMaybe<Expenses_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "expenses". */
+export type Expenses_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  board?: InputMaybe<Boards_Order_By>;
+  board_id?: InputMaybe<Order_By>;
+  created?: InputMaybe<Users_Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  created_by?: InputMaybe<Order_By>;
+  deleted_at?: InputMaybe<Order_By>;
+  expense_splits_aggregate?: InputMaybe<Expense_Splits_Aggregate_Order_By>;
+  id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: expenses */
+export type Expenses_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "expenses" */
+export enum Expenses_Select_Column {
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  BoardId = 'board_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  CreatedBy = 'created_by',
+  /** column name */
+  DeletedAt = 'deleted_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+/** input type for updating data in table "expenses" */
+export type Expenses_Set_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  created_by?: InputMaybe<Scalars['uuid']['input']>;
+  deleted_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Expenses_Stddev_Fields = {
+  __typename?: 'expenses_stddev_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev() on columns of table "expenses" */
+export type Expenses_Stddev_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Expenses_Stddev_Pop_Fields = {
+  __typename?: 'expenses_stddev_pop_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_pop() on columns of table "expenses" */
+export type Expenses_Stddev_Pop_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Expenses_Stddev_Samp_Fields = {
+  __typename?: 'expenses_stddev_samp_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "expenses" */
+export type Expenses_Stddev_Samp_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "expenses" */
+export type Expenses_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Expenses_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Expenses_Stream_Cursor_Value_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  created_by?: InputMaybe<Scalars['uuid']['input']>;
+  deleted_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Expenses_Sum_Fields = {
+  __typename?: 'expenses_sum_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** order by sum() on columns of table "expenses" */
+export type Expenses_Sum_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** update columns of table "expenses" */
+export enum Expenses_Update_Column {
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  BoardId = 'board_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  CreatedBy = 'created_by',
+  /** column name */
+  DeletedAt = 'deleted_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+export type Expenses_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Expenses_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Expenses_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Expenses_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Expenses_Var_Pop_Fields = {
+  __typename?: 'expenses_var_pop_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_pop() on columns of table "expenses" */
+export type Expenses_Var_Pop_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Expenses_Var_Samp_Fields = {
+  __typename?: 'expenses_var_samp_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_samp() on columns of table "expenses" */
+export type Expenses_Var_Samp_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Expenses_Variance_Fields = {
+  __typename?: 'expenses_variance_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "expenses" */
+export type Expenses_Variance_Order_By = {
+  amount?: InputMaybe<Order_By>;
+};
+
+/** Line items for invoices (both todo items and custom rows) */
+export type Invoice_Items = {
+  __typename?: 'invoice_items';
+  amount: Scalars['numeric']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description: Scalars['String']['output'];
+  hours: Scalars['numeric']['output'];
+  id: Scalars['uuid']['output'];
+  invoice_id: Scalars['uuid']['output'];
+  rate: Scalars['numeric']['output'];
+  sort_order: Scalars['Int']['output'];
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  updated_at: Scalars['timestamptz']['output'];
+};
+
+/** aggregated selection of "invoice_items" */
+export type Invoice_Items_Aggregate = {
+  __typename?: 'invoice_items_aggregate';
+  aggregate?: Maybe<Invoice_Items_Aggregate_Fields>;
+  nodes: Array<Invoice_Items>;
+};
+
+/** aggregate fields of "invoice_items" */
+export type Invoice_Items_Aggregate_Fields = {
+  __typename?: 'invoice_items_aggregate_fields';
+  avg?: Maybe<Invoice_Items_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Invoice_Items_Max_Fields>;
+  min?: Maybe<Invoice_Items_Min_Fields>;
+  stddev?: Maybe<Invoice_Items_Stddev_Fields>;
+  stddev_pop?: Maybe<Invoice_Items_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Invoice_Items_Stddev_Samp_Fields>;
+  sum?: Maybe<Invoice_Items_Sum_Fields>;
+  var_pop?: Maybe<Invoice_Items_Var_Pop_Fields>;
+  var_samp?: Maybe<Invoice_Items_Var_Samp_Fields>;
+  variance?: Maybe<Invoice_Items_Variance_Fields>;
+};
+
+
+/** aggregate fields of "invoice_items" */
+export type Invoice_Items_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Invoice_Items_Avg_Fields = {
+  __typename?: 'invoice_items_avg_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "invoice_items". All fields are combined with a logical 'AND'. */
+export type Invoice_Items_Bool_Exp = {
+  _and?: InputMaybe<Array<Invoice_Items_Bool_Exp>>;
+  _not?: InputMaybe<Invoice_Items_Bool_Exp>;
+  _or?: InputMaybe<Array<Invoice_Items_Bool_Exp>>;
+  amount?: InputMaybe<Numeric_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  description?: InputMaybe<String_Comparison_Exp>;
+  hours?: InputMaybe<Numeric_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  invoice_id?: InputMaybe<Uuid_Comparison_Exp>;
+  rate?: InputMaybe<Numeric_Comparison_Exp>;
+  sort_order?: InputMaybe<Int_Comparison_Exp>;
+  todo_id?: InputMaybe<Uuid_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "invoice_items" */
+export enum Invoice_Items_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  InvoiceItemsPkey = 'invoice_items_pkey'
+}
+
+/** input type for incrementing numeric columns in table "invoice_items" */
+export type Invoice_Items_Inc_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  hours?: InputMaybe<Scalars['numeric']['input']>;
+  rate?: InputMaybe<Scalars['numeric']['input']>;
+  sort_order?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "invoice_items" */
+export type Invoice_Items_Insert_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: InputMaybe<Scalars['String']['input']>;
+  hours?: InputMaybe<Scalars['numeric']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_id?: InputMaybe<Scalars['uuid']['input']>;
+  rate?: InputMaybe<Scalars['numeric']['input']>;
+  sort_order?: InputMaybe<Scalars['Int']['input']>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate max on columns */
+export type Invoice_Items_Max_Fields = {
+  __typename?: 'invoice_items_max_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: Maybe<Scalars['String']['output']>;
+  hours?: Maybe<Scalars['numeric']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  invoice_id?: Maybe<Scalars['uuid']['output']>;
+  rate?: Maybe<Scalars['numeric']['output']>;
+  sort_order?: Maybe<Scalars['Int']['output']>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** aggregate min on columns */
+export type Invoice_Items_Min_Fields = {
+  __typename?: 'invoice_items_min_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: Maybe<Scalars['String']['output']>;
+  hours?: Maybe<Scalars['numeric']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  invoice_id?: Maybe<Scalars['uuid']['output']>;
+  rate?: Maybe<Scalars['numeric']['output']>;
+  sort_order?: Maybe<Scalars['Int']['output']>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** response of any mutation on the table "invoice_items" */
+export type Invoice_Items_Mutation_Response = {
+  __typename?: 'invoice_items_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Invoice_Items>;
+};
+
+/** on_conflict condition type for table "invoice_items" */
+export type Invoice_Items_On_Conflict = {
+  constraint: Invoice_Items_Constraint;
+  update_columns?: Array<Invoice_Items_Update_Column>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "invoice_items". */
+export type Invoice_Items_Order_By = {
+  amount?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  description?: InputMaybe<Order_By>;
+  hours?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoice_id?: InputMaybe<Order_By>;
+  rate?: InputMaybe<Order_By>;
+  sort_order?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: invoice_items */
+export type Invoice_Items_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "invoice_items" */
+export enum Invoice_Items_Select_Column {
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Description = 'description',
+  /** column name */
+  Hours = 'hours',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InvoiceId = 'invoice_id',
+  /** column name */
+  Rate = 'rate',
+  /** column name */
+  SortOrder = 'sort_order',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+/** input type for updating data in table "invoice_items" */
+export type Invoice_Items_Set_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: InputMaybe<Scalars['String']['input']>;
+  hours?: InputMaybe<Scalars['numeric']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_id?: InputMaybe<Scalars['uuid']['input']>;
+  rate?: InputMaybe<Scalars['numeric']['input']>;
+  sort_order?: InputMaybe<Scalars['Int']['input']>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Invoice_Items_Stddev_Fields = {
+  __typename?: 'invoice_items_stddev_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Invoice_Items_Stddev_Pop_Fields = {
+  __typename?: 'invoice_items_stddev_pop_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Invoice_Items_Stddev_Samp_Fields = {
+  __typename?: 'invoice_items_stddev_samp_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "invoice_items" */
+export type Invoice_Items_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Invoice_Items_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Invoice_Items_Stream_Cursor_Value_Input = {
+  amount?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Item description (todo title for todo items, custom text for custom rows) */
+  description?: InputMaybe<Scalars['String']['input']>;
+  hours?: InputMaybe<Scalars['numeric']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_id?: InputMaybe<Scalars['uuid']['input']>;
+  rate?: InputMaybe<Scalars['numeric']['input']>;
+  sort_order?: InputMaybe<Scalars['Int']['input']>;
+  /** Reference to todo if this is a todo item (null for custom rows) */
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Invoice_Items_Sum_Fields = {
+  __typename?: 'invoice_items_sum_fields';
+  amount?: Maybe<Scalars['numeric']['output']>;
+  hours?: Maybe<Scalars['numeric']['output']>;
+  rate?: Maybe<Scalars['numeric']['output']>;
+  sort_order?: Maybe<Scalars['Int']['output']>;
+};
+
+/** update columns of table "invoice_items" */
+export enum Invoice_Items_Update_Column {
+  /** column name */
+  Amount = 'amount',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Description = 'description',
+  /** column name */
+  Hours = 'hours',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InvoiceId = 'invoice_id',
+  /** column name */
+  Rate = 'rate',
+  /** column name */
+  SortOrder = 'sort_order',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+export type Invoice_Items_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Invoice_Items_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Invoice_Items_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Invoice_Items_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Invoice_Items_Var_Pop_Fields = {
+  __typename?: 'invoice_items_var_pop_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Invoice_Items_Var_Samp_Fields = {
+  __typename?: 'invoice_items_var_samp_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Invoice_Items_Variance_Fields = {
+  __typename?: 'invoice_items_variance_fields';
+  amount?: Maybe<Scalars['Float']['output']>;
+  hours?: Maybe<Scalars['Float']['output']>;
+  rate?: Maybe<Scalars['Float']['output']>;
+  sort_order?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Invoices for boards */
+export type Invoices = {
+  __typename?: 'invoices';
+  board_id: Scalars['uuid']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  /** Customer details at time of invoice creation */
+  customer_details: Scalars['jsonb']['output'];
+  due_date?: Maybe<Scalars['date']['output']>;
+  id: Scalars['uuid']['output'];
+  invoice_date: Scalars['date']['output'];
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details: Scalars['jsonb']['output'];
+  /** Human-readable invoice number */
+  invoice_number: Scalars['String']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+  subtotal: Scalars['numeric']['output'];
+  tax_amount?: Maybe<Scalars['numeric']['output']>;
+  tax_rate?: Maybe<Scalars['numeric']['output']>;
+  total: Scalars['numeric']['output'];
+  updated_at: Scalars['timestamptz']['output'];
+  user_id: Scalars['uuid']['output'];
+};
+
+
+/** Invoices for boards */
+export type InvoicesCustomer_DetailsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** Invoices for boards */
+export type InvoicesInvoice_From_DetailsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregated selection of "invoices" */
+export type Invoices_Aggregate = {
+  __typename?: 'invoices_aggregate';
+  aggregate?: Maybe<Invoices_Aggregate_Fields>;
+  nodes: Array<Invoices>;
+};
+
+/** aggregate fields of "invoices" */
+export type Invoices_Aggregate_Fields = {
+  __typename?: 'invoices_aggregate_fields';
+  avg?: Maybe<Invoices_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Invoices_Max_Fields>;
+  min?: Maybe<Invoices_Min_Fields>;
+  stddev?: Maybe<Invoices_Stddev_Fields>;
+  stddev_pop?: Maybe<Invoices_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Invoices_Stddev_Samp_Fields>;
+  sum?: Maybe<Invoices_Sum_Fields>;
+  var_pop?: Maybe<Invoices_Var_Pop_Fields>;
+  var_samp?: Maybe<Invoices_Var_Samp_Fields>;
+  variance?: Maybe<Invoices_Variance_Fields>;
+};
+
+
+/** aggregate fields of "invoices" */
+export type Invoices_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Invoices_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type Invoices_Append_Input = {
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Invoices_Avg_Fields = {
+  __typename?: 'invoices_avg_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "invoices". All fields are combined with a logical 'AND'. */
+export type Invoices_Bool_Exp = {
+  _and?: InputMaybe<Array<Invoices_Bool_Exp>>;
+  _not?: InputMaybe<Invoices_Bool_Exp>;
+  _or?: InputMaybe<Array<Invoices_Bool_Exp>>;
+  board_id?: InputMaybe<Uuid_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  customer_details?: InputMaybe<Jsonb_Comparison_Exp>;
+  due_date?: InputMaybe<Date_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  invoice_date?: InputMaybe<Date_Comparison_Exp>;
+  invoice_from_details?: InputMaybe<Jsonb_Comparison_Exp>;
+  invoice_number?: InputMaybe<String_Comparison_Exp>;
+  notes?: InputMaybe<String_Comparison_Exp>;
+  status?: InputMaybe<String_Comparison_Exp>;
+  subtotal?: InputMaybe<Numeric_Comparison_Exp>;
+  tax_amount?: InputMaybe<Numeric_Comparison_Exp>;
+  tax_rate?: InputMaybe<Numeric_Comparison_Exp>;
+  total?: InputMaybe<Numeric_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "invoices" */
+export enum Invoices_Constraint {
+  /** unique or primary key constraint on columns "user_id", "invoice_number" */
+  InvoicesInvoiceNumberUserIdKey = 'invoices_invoice_number_user_id_key',
+  /** unique or primary key constraint on columns "id" */
+  InvoicesPkey = 'invoices_pkey'
+}
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type Invoices_Delete_At_Path_Input = {
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type Invoices_Delete_Elem_Input = {
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['Int']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type Invoices_Delete_Key_Input = {
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['String']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** input type for incrementing numeric columns in table "invoices" */
+export type Invoices_Inc_Input = {
+  subtotal?: InputMaybe<Scalars['numeric']['input']>;
+  tax_amount?: InputMaybe<Scalars['numeric']['input']>;
+  tax_rate?: InputMaybe<Scalars['numeric']['input']>;
+  total?: InputMaybe<Scalars['numeric']['input']>;
+};
+
+/** input type for inserting data into table "invoices" */
+export type Invoices_Insert_Input = {
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['jsonb']['input']>;
+  due_date?: InputMaybe<Scalars['date']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_date?: InputMaybe<Scalars['date']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Human-readable invoice number */
+  invoice_number?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  subtotal?: InputMaybe<Scalars['numeric']['input']>;
+  tax_amount?: InputMaybe<Scalars['numeric']['input']>;
+  tax_rate?: InputMaybe<Scalars['numeric']['input']>;
+  total?: InputMaybe<Scalars['numeric']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Invoices_Max_Fields = {
+  __typename?: 'invoices_max_fields';
+  board_id?: Maybe<Scalars['uuid']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  due_date?: Maybe<Scalars['date']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  invoice_date?: Maybe<Scalars['date']['output']>;
+  /** Human-readable invoice number */
+  invoice_number?: Maybe<Scalars['String']['output']>;
+  notes?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  subtotal?: Maybe<Scalars['numeric']['output']>;
+  tax_amount?: Maybe<Scalars['numeric']['output']>;
+  tax_rate?: Maybe<Scalars['numeric']['output']>;
+  total?: Maybe<Scalars['numeric']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** aggregate min on columns */
+export type Invoices_Min_Fields = {
+  __typename?: 'invoices_min_fields';
+  board_id?: Maybe<Scalars['uuid']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  due_date?: Maybe<Scalars['date']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  invoice_date?: Maybe<Scalars['date']['output']>;
+  /** Human-readable invoice number */
+  invoice_number?: Maybe<Scalars['String']['output']>;
+  notes?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  subtotal?: Maybe<Scalars['numeric']['output']>;
+  tax_amount?: Maybe<Scalars['numeric']['output']>;
+  tax_rate?: Maybe<Scalars['numeric']['output']>;
+  total?: Maybe<Scalars['numeric']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** response of any mutation on the table "invoices" */
+export type Invoices_Mutation_Response = {
+  __typename?: 'invoices_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Invoices>;
+};
+
+/** on_conflict condition type for table "invoices" */
+export type Invoices_On_Conflict = {
+  constraint: Invoices_Constraint;
+  update_columns?: Array<Invoices_Update_Column>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "invoices". */
+export type Invoices_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  customer_details?: InputMaybe<Order_By>;
+  due_date?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoice_date?: InputMaybe<Order_By>;
+  invoice_from_details?: InputMaybe<Order_By>;
+  invoice_number?: InputMaybe<Order_By>;
+  notes?: InputMaybe<Order_By>;
+  status?: InputMaybe<Order_By>;
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: invoices */
+export type Invoices_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type Invoices_Prepend_Input = {
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** select columns of table "invoices" */
+export enum Invoices_Select_Column {
+  /** column name */
+  BoardId = 'board_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  CustomerDetails = 'customer_details',
+  /** column name */
+  DueDate = 'due_date',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InvoiceDate = 'invoice_date',
+  /** column name */
+  InvoiceFromDetails = 'invoice_from_details',
+  /** column name */
+  InvoiceNumber = 'invoice_number',
+  /** column name */
+  Notes = 'notes',
+  /** column name */
+  Status = 'status',
+  /** column name */
+  Subtotal = 'subtotal',
+  /** column name */
+  TaxAmount = 'tax_amount',
+  /** column name */
+  TaxRate = 'tax_rate',
+  /** column name */
+  Total = 'total',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "invoices" */
+export type Invoices_Set_Input = {
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['jsonb']['input']>;
+  due_date?: InputMaybe<Scalars['date']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_date?: InputMaybe<Scalars['date']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Human-readable invoice number */
+  invoice_number?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  subtotal?: InputMaybe<Scalars['numeric']['input']>;
+  tax_amount?: InputMaybe<Scalars['numeric']['input']>;
+  tax_rate?: InputMaybe<Scalars['numeric']['input']>;
+  total?: InputMaybe<Scalars['numeric']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Invoices_Stddev_Fields = {
+  __typename?: 'invoices_stddev_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Invoices_Stddev_Pop_Fields = {
+  __typename?: 'invoices_stddev_pop_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Invoices_Stddev_Samp_Fields = {
+  __typename?: 'invoices_stddev_samp_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "invoices" */
+export type Invoices_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Invoices_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Invoices_Stream_Cursor_Value_Input = {
+  board_id?: InputMaybe<Scalars['uuid']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  /** Customer details at time of invoice creation */
+  customer_details?: InputMaybe<Scalars['jsonb']['input']>;
+  due_date?: InputMaybe<Scalars['date']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoice_date?: InputMaybe<Scalars['date']['input']>;
+  /** Invoice from details at time of invoice creation */
+  invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+  /** Human-readable invoice number */
+  invoice_number?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+  subtotal?: InputMaybe<Scalars['numeric']['input']>;
+  tax_amount?: InputMaybe<Scalars['numeric']['input']>;
+  tax_rate?: InputMaybe<Scalars['numeric']['input']>;
+  total?: InputMaybe<Scalars['numeric']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Invoices_Sum_Fields = {
+  __typename?: 'invoices_sum_fields';
+  subtotal?: Maybe<Scalars['numeric']['output']>;
+  tax_amount?: Maybe<Scalars['numeric']['output']>;
+  tax_rate?: Maybe<Scalars['numeric']['output']>;
+  total?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** update columns of table "invoices" */
+export enum Invoices_Update_Column {
+  /** column name */
+  BoardId = 'board_id',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  CustomerDetails = 'customer_details',
+  /** column name */
+  DueDate = 'due_date',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InvoiceDate = 'invoice_date',
+  /** column name */
+  InvoiceFromDetails = 'invoice_from_details',
+  /** column name */
+  InvoiceNumber = 'invoice_number',
+  /** column name */
+  Notes = 'notes',
+  /** column name */
+  Status = 'status',
+  /** column name */
+  Subtotal = 'subtotal',
+  /** column name */
+  TaxAmount = 'tax_amount',
+  /** column name */
+  TaxRate = 'tax_rate',
+  /** column name */
+  Total = 'total',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Invoices_Updates = {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: InputMaybe<Invoices_Append_Input>;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _delete_at_path?: InputMaybe<Invoices_Delete_At_Path_Input>;
+  /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+  _delete_elem?: InputMaybe<Invoices_Delete_Elem_Input>;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _delete_key?: InputMaybe<Invoices_Delete_Key_Input>;
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Invoices_Inc_Input>;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: InputMaybe<Invoices_Prepend_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Invoices_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Invoices_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Invoices_Var_Pop_Fields = {
+  __typename?: 'invoices_var_pop_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Invoices_Var_Samp_Fields = {
+  __typename?: 'invoices_var_samp_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Invoices_Variance_Fields = {
+  __typename?: 'invoices_variance_fields';
+  subtotal?: Maybe<Scalars['Float']['output']>;
+  tax_amount?: Maybe<Scalars['Float']['output']>;
+  tax_rate?: Maybe<Scalars['Float']['output']>;
+  total?: Maybe<Scalars['Float']['output']>;
 };
 
 export type Jsonb_Cast_Exp = {
@@ -3832,6 +5375,22 @@ export type Mutation_Root = {
   delete_comments?: Maybe<Comments_Mutation_Response>;
   /** delete single row from the table: "comments" */
   delete_comments_by_pk?: Maybe<Comments>;
+  /** delete data from the table: "expense_splits" */
+  delete_expense_splits?: Maybe<Expense_Splits_Mutation_Response>;
+  /** delete single row from the table: "expense_splits" */
+  delete_expense_splits_by_pk?: Maybe<Expense_Splits>;
+  /** delete data from the table: "expenses" */
+  delete_expenses?: Maybe<Expenses_Mutation_Response>;
+  /** delete single row from the table: "expenses" */
+  delete_expenses_by_pk?: Maybe<Expenses>;
+  /** delete data from the table: "invoice_items" */
+  delete_invoice_items?: Maybe<Invoice_Items_Mutation_Response>;
+  /** delete single row from the table: "invoice_items" */
+  delete_invoice_items_by_pk?: Maybe<Invoice_Items>;
+  /** delete data from the table: "invoices" */
+  delete_invoices?: Maybe<Invoices_Mutation_Response>;
+  /** delete single row from the table: "invoices" */
+  delete_invoices_by_pk?: Maybe<Invoices>;
   /** delete data from the table: "labels" */
   delete_labels?: Maybe<Labels_Mutation_Response>;
   /** delete single row from the table: "labels" */
@@ -3928,6 +5487,22 @@ export type Mutation_Root = {
   insert_comments?: Maybe<Comments_Mutation_Response>;
   /** insert a single row into the table: "comments" */
   insert_comments_one?: Maybe<Comments>;
+  /** insert data into the table: "expense_splits" */
+  insert_expense_splits?: Maybe<Expense_Splits_Mutation_Response>;
+  /** insert a single row into the table: "expense_splits" */
+  insert_expense_splits_one?: Maybe<Expense_Splits>;
+  /** insert data into the table: "expenses" */
+  insert_expenses?: Maybe<Expenses_Mutation_Response>;
+  /** insert a single row into the table: "expenses" */
+  insert_expenses_one?: Maybe<Expenses>;
+  /** insert data into the table: "invoice_items" */
+  insert_invoice_items?: Maybe<Invoice_Items_Mutation_Response>;
+  /** insert a single row into the table: "invoice_items" */
+  insert_invoice_items_one?: Maybe<Invoice_Items>;
+  /** insert data into the table: "invoices" */
+  insert_invoices?: Maybe<Invoices_Mutation_Response>;
+  /** insert a single row into the table: "invoices" */
+  insert_invoices_one?: Maybe<Invoices>;
   /** insert data into the table: "labels" */
   insert_labels?: Maybe<Labels_Mutation_Response>;
   /** insert a single row into the table: "labels" */
@@ -4036,6 +5611,30 @@ export type Mutation_Root = {
   update_comments_by_pk?: Maybe<Comments>;
   /** update multiples rows of table: "comments" */
   update_comments_many?: Maybe<Array<Maybe<Comments_Mutation_Response>>>;
+  /** update data of the table: "expense_splits" */
+  update_expense_splits?: Maybe<Expense_Splits_Mutation_Response>;
+  /** update single row of the table: "expense_splits" */
+  update_expense_splits_by_pk?: Maybe<Expense_Splits>;
+  /** update multiples rows of table: "expense_splits" */
+  update_expense_splits_many?: Maybe<Array<Maybe<Expense_Splits_Mutation_Response>>>;
+  /** update data of the table: "expenses" */
+  update_expenses?: Maybe<Expenses_Mutation_Response>;
+  /** update single row of the table: "expenses" */
+  update_expenses_by_pk?: Maybe<Expenses>;
+  /** update multiples rows of table: "expenses" */
+  update_expenses_many?: Maybe<Array<Maybe<Expenses_Mutation_Response>>>;
+  /** update data of the table: "invoice_items" */
+  update_invoice_items?: Maybe<Invoice_Items_Mutation_Response>;
+  /** update single row of the table: "invoice_items" */
+  update_invoice_items_by_pk?: Maybe<Invoice_Items>;
+  /** update multiples rows of table: "invoice_items" */
+  update_invoice_items_many?: Maybe<Array<Maybe<Invoice_Items_Mutation_Response>>>;
+  /** update data of the table: "invoices" */
+  update_invoices?: Maybe<Invoices_Mutation_Response>;
+  /** update single row of the table: "invoices" */
+  update_invoices_by_pk?: Maybe<Invoices>;
+  /** update multiples rows of table: "invoices" */
+  update_invoices_many?: Maybe<Array<Maybe<Invoices_Mutation_Response>>>;
   /** update data of the table: "labels" */
   update_labels?: Maybe<Labels_Mutation_Response>;
   /** update single row of the table: "labels" */
@@ -4215,6 +5814,54 @@ export type Mutation_RootDelete_CommentsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Comments_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Expense_SplitsArgs = {
+  where: Expense_Splits_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Expense_Splits_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_ExpensesArgs = {
+  where: Expenses_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Expenses_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Invoice_ItemsArgs = {
+  where: Invoice_Items_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Invoice_Items_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_InvoicesArgs = {
+  where: Invoices_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Invoices_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -4519,6 +6166,62 @@ export type Mutation_RootInsert_CommentsArgs = {
 export type Mutation_RootInsert_Comments_OneArgs = {
   object: Comments_Insert_Input;
   on_conflict?: InputMaybe<Comments_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Expense_SplitsArgs = {
+  objects: Array<Expense_Splits_Insert_Input>;
+  on_conflict?: InputMaybe<Expense_Splits_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Expense_Splits_OneArgs = {
+  object: Expense_Splits_Insert_Input;
+  on_conflict?: InputMaybe<Expense_Splits_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_ExpensesArgs = {
+  objects: Array<Expenses_Insert_Input>;
+  on_conflict?: InputMaybe<Expenses_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Expenses_OneArgs = {
+  object: Expenses_Insert_Input;
+  on_conflict?: InputMaybe<Expenses_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Invoice_ItemsArgs = {
+  objects: Array<Invoice_Items_Insert_Input>;
+  on_conflict?: InputMaybe<Invoice_Items_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Invoice_Items_OneArgs = {
+  object: Invoice_Items_Insert_Input;
+  on_conflict?: InputMaybe<Invoice_Items_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_InvoicesArgs = {
+  objects: Array<Invoices_Insert_Input>;
+  on_conflict?: InputMaybe<Invoices_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Invoices_OneArgs = {
+  object: Invoices_Insert_Input;
+  on_conflict?: InputMaybe<Invoices_On_Conflict>;
 };
 
 
@@ -4917,6 +6620,104 @@ export type Mutation_RootUpdate_Comments_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Comments_ManyArgs = {
   updates: Array<Comments_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Expense_SplitsArgs = {
+  _inc?: InputMaybe<Expense_Splits_Inc_Input>;
+  _set?: InputMaybe<Expense_Splits_Set_Input>;
+  where: Expense_Splits_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Expense_Splits_By_PkArgs = {
+  _inc?: InputMaybe<Expense_Splits_Inc_Input>;
+  _set?: InputMaybe<Expense_Splits_Set_Input>;
+  pk_columns: Expense_Splits_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Expense_Splits_ManyArgs = {
+  updates: Array<Expense_Splits_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_ExpensesArgs = {
+  _inc?: InputMaybe<Expenses_Inc_Input>;
+  _set?: InputMaybe<Expenses_Set_Input>;
+  where: Expenses_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Expenses_By_PkArgs = {
+  _inc?: InputMaybe<Expenses_Inc_Input>;
+  _set?: InputMaybe<Expenses_Set_Input>;
+  pk_columns: Expenses_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Expenses_ManyArgs = {
+  updates: Array<Expenses_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoice_ItemsArgs = {
+  _inc?: InputMaybe<Invoice_Items_Inc_Input>;
+  _set?: InputMaybe<Invoice_Items_Set_Input>;
+  where: Invoice_Items_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoice_Items_By_PkArgs = {
+  _inc?: InputMaybe<Invoice_Items_Inc_Input>;
+  _set?: InputMaybe<Invoice_Items_Set_Input>;
+  pk_columns: Invoice_Items_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoice_Items_ManyArgs = {
+  updates: Array<Invoice_Items_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_InvoicesArgs = {
+  _append?: InputMaybe<Invoices_Append_Input>;
+  _delete_at_path?: InputMaybe<Invoices_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Invoices_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Invoices_Delete_Key_Input>;
+  _inc?: InputMaybe<Invoices_Inc_Input>;
+  _prepend?: InputMaybe<Invoices_Prepend_Input>;
+  _set?: InputMaybe<Invoices_Set_Input>;
+  where: Invoices_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoices_By_PkArgs = {
+  _append?: InputMaybe<Invoices_Append_Input>;
+  _delete_at_path?: InputMaybe<Invoices_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Invoices_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Invoices_Delete_Key_Input>;
+  _inc?: InputMaybe<Invoices_Inc_Input>;
+  _prepend?: InputMaybe<Invoices_Prepend_Input>;
+  _set?: InputMaybe<Invoices_Set_Input>;
+  pk_columns: Invoices_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoices_ManyArgs = {
+  updates: Array<Invoices_Updates>;
 };
 
 
@@ -6404,6 +8205,30 @@ export type Query_Root = {
   /** fetch data from the table: "comments" using primary key columns */
   comments_by_pk?: Maybe<Comments>;
   /** An array relationship */
+  expense_splits: Array<Expense_Splits>;
+  /** An aggregate relationship */
+  expense_splits_aggregate: Expense_Splits_Aggregate;
+  /** fetch data from the table: "expense_splits" using primary key columns */
+  expense_splits_by_pk?: Maybe<Expense_Splits>;
+  /** An array relationship */
+  expenses: Array<Expenses>;
+  /** An aggregate relationship */
+  expenses_aggregate: Expenses_Aggregate;
+  /** fetch data from the table: "expenses" using primary key columns */
+  expenses_by_pk?: Maybe<Expenses>;
+  /** fetch data from the table: "invoice_items" */
+  invoice_items: Array<Invoice_Items>;
+  /** fetch aggregated fields from the table: "invoice_items" */
+  invoice_items_aggregate: Invoice_Items_Aggregate;
+  /** fetch data from the table: "invoice_items" using primary key columns */
+  invoice_items_by_pk?: Maybe<Invoice_Items>;
+  /** fetch data from the table: "invoices" */
+  invoices: Array<Invoices>;
+  /** fetch aggregated fields from the table: "invoices" */
+  invoices_aggregate: Invoices_Aggregate;
+  /** fetch data from the table: "invoices" using primary key columns */
+  invoices_by_pk?: Maybe<Invoices>;
+  /** An array relationship */
   labels: Array<Labels>;
   /** An aggregate relationship */
   labels_aggregate: Labels_Aggregate;
@@ -6656,6 +8481,98 @@ export type Query_RootComments_AggregateArgs = {
 
 
 export type Query_RootComments_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootExpense_SplitsArgs = {
+  distinct_on?: InputMaybe<Array<Expense_Splits_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expense_Splits_Order_By>>;
+  where?: InputMaybe<Expense_Splits_Bool_Exp>;
+};
+
+
+export type Query_RootExpense_Splits_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Expense_Splits_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expense_Splits_Order_By>>;
+  where?: InputMaybe<Expense_Splits_Bool_Exp>;
+};
+
+
+export type Query_RootExpense_Splits_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootExpensesArgs = {
+  distinct_on?: InputMaybe<Array<Expenses_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expenses_Order_By>>;
+  where?: InputMaybe<Expenses_Bool_Exp>;
+};
+
+
+export type Query_RootExpenses_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Expenses_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expenses_Order_By>>;
+  where?: InputMaybe<Expenses_Bool_Exp>;
+};
+
+
+export type Query_RootExpenses_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootInvoice_ItemsArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+export type Query_RootInvoice_Items_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+export type Query_RootInvoice_Items_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootInvoicesArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+export type Query_RootInvoices_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+export type Query_RootInvoices_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -7397,6 +9314,38 @@ export type Subscription_Root = {
   /** fetch data from the table in a streaming manner: "comments" */
   comments_stream: Array<Comments>;
   /** An array relationship */
+  expense_splits: Array<Expense_Splits>;
+  /** An aggregate relationship */
+  expense_splits_aggregate: Expense_Splits_Aggregate;
+  /** fetch data from the table: "expense_splits" using primary key columns */
+  expense_splits_by_pk?: Maybe<Expense_Splits>;
+  /** fetch data from the table in a streaming manner: "expense_splits" */
+  expense_splits_stream: Array<Expense_Splits>;
+  /** An array relationship */
+  expenses: Array<Expenses>;
+  /** An aggregate relationship */
+  expenses_aggregate: Expenses_Aggregate;
+  /** fetch data from the table: "expenses" using primary key columns */
+  expenses_by_pk?: Maybe<Expenses>;
+  /** fetch data from the table in a streaming manner: "expenses" */
+  expenses_stream: Array<Expenses>;
+  /** fetch data from the table: "invoice_items" */
+  invoice_items: Array<Invoice_Items>;
+  /** fetch aggregated fields from the table: "invoice_items" */
+  invoice_items_aggregate: Invoice_Items_Aggregate;
+  /** fetch data from the table: "invoice_items" using primary key columns */
+  invoice_items_by_pk?: Maybe<Invoice_Items>;
+  /** fetch data from the table in a streaming manner: "invoice_items" */
+  invoice_items_stream: Array<Invoice_Items>;
+  /** fetch data from the table: "invoices" */
+  invoices: Array<Invoices>;
+  /** fetch aggregated fields from the table: "invoices" */
+  invoices_aggregate: Invoices_Aggregate;
+  /** fetch data from the table: "invoices" using primary key columns */
+  invoices_by_pk?: Maybe<Invoices>;
+  /** fetch data from the table in a streaming manner: "invoices" */
+  invoices_stream: Array<Invoices>;
+  /** An array relationship */
   labels: Array<Labels>;
   /** An aggregate relationship */
   labels_aggregate: Labels_Aggregate;
@@ -7732,6 +9681,126 @@ export type Subscription_RootComments_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Comments_Stream_Cursor_Input>>;
   where?: InputMaybe<Comments_Bool_Exp>;
+};
+
+
+export type Subscription_RootExpense_SplitsArgs = {
+  distinct_on?: InputMaybe<Array<Expense_Splits_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expense_Splits_Order_By>>;
+  where?: InputMaybe<Expense_Splits_Bool_Exp>;
+};
+
+
+export type Subscription_RootExpense_Splits_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Expense_Splits_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expense_Splits_Order_By>>;
+  where?: InputMaybe<Expense_Splits_Bool_Exp>;
+};
+
+
+export type Subscription_RootExpense_Splits_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootExpense_Splits_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Expense_Splits_Stream_Cursor_Input>>;
+  where?: InputMaybe<Expense_Splits_Bool_Exp>;
+};
+
+
+export type Subscription_RootExpensesArgs = {
+  distinct_on?: InputMaybe<Array<Expenses_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expenses_Order_By>>;
+  where?: InputMaybe<Expenses_Bool_Exp>;
+};
+
+
+export type Subscription_RootExpenses_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Expenses_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expenses_Order_By>>;
+  where?: InputMaybe<Expenses_Bool_Exp>;
+};
+
+
+export type Subscription_RootExpenses_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootExpenses_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Expenses_Stream_Cursor_Input>>;
+  where?: InputMaybe<Expenses_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoice_ItemsArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoice_Items_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Items_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Items_Order_By>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoice_Items_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootInvoice_Items_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Invoice_Items_Stream_Cursor_Input>>;
+  where?: InputMaybe<Invoice_Items_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoicesArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoices_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoices_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootInvoices_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Invoices_Stream_Cursor_Input>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
 };
 
 
@@ -12087,6 +14156,10 @@ export type Users = {
   default_labels?: Maybe<Scalars['jsonb']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   emailVerified?: Maybe<Scalars['timestamptz']['output']>;
+  /** An array relationship */
+  expenses: Array<Expenses>;
+  /** An aggregate relationship */
+  expenses_aggregate: Expenses_Aggregate;
   id: Scalars['uuid']['output'];
   image?: Maybe<Scalars['String']['output']>;
   /** Invoice from details: company_name, code, vat, address, contact_details */
@@ -12255,6 +14328,26 @@ export type UsersComments_AggregateArgs = {
 /** columns and relationships of "users" */
 export type UsersDefault_LabelsArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersExpensesArgs = {
+  distinct_on?: InputMaybe<Array<Expenses_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expenses_Order_By>>;
+  where?: InputMaybe<Expenses_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersExpenses_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Expenses_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expenses_Order_By>>;
+  where?: InputMaybe<Expenses_Bool_Exp>;
 };
 
 
@@ -12481,6 +14574,8 @@ export type Users_Bool_Exp = {
   default_labels?: InputMaybe<Jsonb_Comparison_Exp>;
   email?: InputMaybe<String_Comparison_Exp>;
   emailVerified?: InputMaybe<Timestamptz_Comparison_Exp>;
+  expenses?: InputMaybe<Expenses_Bool_Exp>;
+  expenses_aggregate?: InputMaybe<Expenses_Aggregate_Bool_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   image?: InputMaybe<String_Comparison_Exp>;
   invoice_from_details?: InputMaybe<Jsonb_Comparison_Exp>;
@@ -12555,6 +14650,7 @@ export type Users_Insert_Input = {
   default_labels?: InputMaybe<Scalars['jsonb']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
+  expenses?: InputMaybe<Expenses_Arr_Rel_Insert_Input>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
   /** Invoice from details: company_name, code, vat, address, contact_details */
@@ -12641,6 +14737,7 @@ export type Users_Order_By = {
   default_labels?: InputMaybe<Order_By>;
   email?: InputMaybe<Order_By>;
   emailVerified?: InputMaybe<Order_By>;
+  expenses_aggregate?: InputMaybe<Expenses_Aggregate_Order_By>;
   id?: InputMaybe<Order_By>;
   image?: InputMaybe<Order_By>;
   invoice_from_details?: InputMaybe<Order_By>;
@@ -13494,6 +15591,32 @@ export type GetTrackerCategoriesQueryVariables = Exact<{
 
 export type GetTrackerCategoriesQuery = { __typename?: 'query_root', tracker_categories: Array<{ __typename?: 'tracker_categories', id: string, name: string, parent_category?: { __typename?: 'tracker_categories', id: string, name: string } | null, sub_categories: Array<{ __typename?: 'tracker_categories', id: string, name: string }>, tracker_keywords: Array<{ __typename?: 'tracker_keywords', id: string, keyword: string, case_sensitive: boolean, board_id?: string | null }> }> };
 
+export type ExpenseSplitFieldsFragment = { __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } };
+
+export type ExpenseFieldsFragment = { __typename?: 'expenses', id: string, amount: number, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } };
+
+export type GetBoardExpensesQueryVariables = Exact<{
+  board_id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetBoardExpensesQuery = { __typename?: 'query_root', expenses: Array<{ __typename?: 'expenses', id: string, amount: number, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
+
+export type CreateExpenseMutationVariables = Exact<{
+  object: Expenses_Insert_Input;
+}>;
+
+
+export type CreateExpenseMutation = { __typename?: 'mutation_root', insert_expenses_one?: { __typename?: 'expenses', id: string, amount: number, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
+
+export type DeleteExpenseMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  deleted_at: Scalars['timestamptz']['input'];
+}>;
+
+
+export type DeleteExpenseMutation = { __typename?: 'mutation_root', update_expenses_by_pk?: { __typename?: 'expenses', id: string, amount: number, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -13898,6 +16021,59 @@ export const TrackerKeywordFieldsFragmentDoc = new TypedDocumentString(`
   }
 }
     `, {"fragmentName":"TrackerKeywordFields"}) as unknown as TypedDocumentString<TrackerKeywordFieldsFragment, unknown>;
+export const ExpenseSplitFieldsFragmentDoc = new TypedDocumentString(`
+    fragment ExpenseSplitFields on expense_splits {
+  id
+  user_id
+  amount
+  expense_id
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}
+    `, {"fragmentName":"ExpenseSplitFields"}) as unknown as TypedDocumentString<ExpenseSplitFieldsFragment, unknown>;
+export const ExpenseFieldsFragmentDoc = new TypedDocumentString(`
+    fragment ExpenseFields on expenses {
+  id
+  amount
+  created_by
+  board_id
+  created_at
+  updated_at
+  deleted_at
+  created {
+    id
+    name
+    username
+    image
+    email
+  }
+  expense_splits {
+    ...ExpenseSplitFields
+  }
+  board {
+    id
+    name
+    alias
+  }
+}
+    fragment ExpenseSplitFields on expense_splits {
+  id
+  user_id
+  amount
+  expense_id
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}`, {"fragmentName":"ExpenseFields"}) as unknown as TypedDocumentString<ExpenseFieldsFragment, unknown>;
 export const GetTodosDocument = new TypedDocumentString(`
     query GetTodos($where: todos_bool_exp = {}, $order_by: [todos_order_by!] = {sort_order: asc, due_on: desc, updated_at: desc}, $limit: Int = 100, $offset: Int = 0) {
   todos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
@@ -15570,3 +17746,135 @@ export const GetTrackerCategoriesDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetTrackerCategoriesQuery, GetTrackerCategoriesQueryVariables>;
+export const GetBoardExpensesDocument = new TypedDocumentString(`
+    query GetBoardExpenses($board_id: uuid!) {
+  expenses(
+    where: {board_id: {_eq: $board_id}, deleted_at: {_is_null: true}}
+    order_by: {created_at: desc}
+  ) {
+    ...ExpenseFields
+  }
+}
+    fragment ExpenseSplitFields on expense_splits {
+  id
+  user_id
+  amount
+  expense_id
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}
+fragment ExpenseFields on expenses {
+  id
+  amount
+  created_by
+  board_id
+  created_at
+  updated_at
+  deleted_at
+  created {
+    id
+    name
+    username
+    image
+    email
+  }
+  expense_splits {
+    ...ExpenseSplitFields
+  }
+  board {
+    id
+    name
+    alias
+  }
+}`) as unknown as TypedDocumentString<GetBoardExpensesQuery, GetBoardExpensesQueryVariables>;
+export const CreateExpenseDocument = new TypedDocumentString(`
+    mutation CreateExpense($object: expenses_insert_input!) {
+  insert_expenses_one(object: $object) {
+    ...ExpenseFields
+  }
+}
+    fragment ExpenseSplitFields on expense_splits {
+  id
+  user_id
+  amount
+  expense_id
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}
+fragment ExpenseFields on expenses {
+  id
+  amount
+  created_by
+  board_id
+  created_at
+  updated_at
+  deleted_at
+  created {
+    id
+    name
+    username
+    image
+    email
+  }
+  expense_splits {
+    ...ExpenseSplitFields
+  }
+  board {
+    id
+    name
+    alias
+  }
+}`) as unknown as TypedDocumentString<CreateExpenseMutation, CreateExpenseMutationVariables>;
+export const DeleteExpenseDocument = new TypedDocumentString(`
+    mutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {
+  update_expenses_by_pk(pk_columns: {id: $id}, _set: {deleted_at: $deleted_at}) {
+    ...ExpenseFields
+  }
+}
+    fragment ExpenseSplitFields on expense_splits {
+  id
+  user_id
+  amount
+  expense_id
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}
+fragment ExpenseFields on expenses {
+  id
+  amount
+  created_by
+  board_id
+  created_at
+  updated_at
+  deleted_at
+  created {
+    id
+    name
+    username
+    image
+    email
+  }
+  expense_splits {
+    ...ExpenseSplitFields
+  }
+  board {
+    id
+    name
+    alias
+  }
+}`) as unknown as TypedDocumentString<DeleteExpenseMutation, DeleteExpenseMutationVariables>;
