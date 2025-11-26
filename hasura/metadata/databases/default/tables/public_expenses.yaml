@@ -1,3 +1,18 @@
 table:
   name: expenses
   schema: public
+object_relationships:
+  - name: board
+    using:
+      foreign_key_constraint_on: board_id
+  - name: created
+    using:
+      foreign_key_constraint_on: created_by
+array_relationships:
+  - name: expense_splits
+    using:
+      foreign_key_constraint_on:
+        column: expense_id
+        table:
+          name: expense_splits
+          schema: public

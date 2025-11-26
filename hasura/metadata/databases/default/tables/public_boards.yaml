@@ -20,6 +20,13 @@ array_relationships:
         table:
           name: board_members
           schema: public
+  - name: expenses
+    using:
+      foreign_key_constraint_on:
+        column: board_id
+        table:
+          name: expenses
+          schema: public
   - name: labels
     using:
       foreign_key_constraint_on:

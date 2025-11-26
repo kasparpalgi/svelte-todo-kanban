@@ -44,6 +44,13 @@ array_relationships:
         table:
           name: comments
           schema: public
+  - name: expenses
+    using:
+      foreign_key_constraint_on:
+        column: created_by
+        table:
+          name: expenses
+          schema: public
   - name: logs
     using:
       foreign_key_constraint_on:
