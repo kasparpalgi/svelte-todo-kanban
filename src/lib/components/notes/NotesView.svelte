@@ -139,16 +139,16 @@
 </script>
 
 <Dialog {open} onOpenChange={handleOpenChange}>
-	<DialogContent class="!max-w-[96vw] flex h-[85vh] w-[96vw] flex-col p-0">
-		<DialogHeader class="border-b px-6 py-4">
+	<DialogContent class="!max-w-[96vw] flex h-[85vh] w-[96vw] flex-col overflow-hidden p-0">
+		<DialogHeader class="flex-shrink-0 border-b px-6 py-4">
 			<DialogTitle>{$t('notes.title')}</DialogTitle>
 		</DialogHeader>
 
-		<div class="flex flex-1 overflow-hidden">
+		<div class="flex min-h-0 flex-1 overflow-hidden">
 			<!-- Left Sidebar: Notes List -->
 			<!-- On mobile: hidden when showMobileEditor is true -->
 			<!-- On desktop (md+): always visible -->
-			<div class="w-full flex-shrink-0 md:w-80 {showMobileEditor ? 'hidden md:flex' : 'flex'}">
+			<div class="min-w-0 flex-shrink-0 {showMobileEditor ? 'hidden md:flex md:w-80' : 'flex w-full md:w-80'}">
 				<NotesList
 					notes={notesStore.sortedNotes}
 					{selectedNoteId}
@@ -161,7 +161,7 @@
 			<!-- Right Panel: Note Editor -->
 			<!-- On mobile: hidden when showMobileEditor is false -->
 			<!-- On desktop (md+): always visible -->
-			<div class="w-full flex-1 overflow-hidden {showMobileEditor ? 'flex' : 'hidden md:flex'}">
+			<div class="min-w-0 flex-1 overflow-hidden {showMobileEditor ? 'flex w-full' : 'hidden md:flex'}">
 				{#key selectedNoteId}
 					<NoteEditor
 						note={selectedNote}

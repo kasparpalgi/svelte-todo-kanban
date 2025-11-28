@@ -330,9 +330,9 @@
 </script>
 
 {#if note}
-	<div class="flex h-full flex-col">
+	<div class="flex h-full w-full flex-col overflow-hidden">
 		<!-- Header with Cover Image -->
-		<div class="border-b">
+		<div class="w-full flex-shrink-0 border-b">
 			{#if note.cover_image_url}
 				<div class="h-32 w-full overflow-hidden">
 					<img
@@ -342,15 +342,15 @@
 					/>
 				</div>
 			{/if}
-			<div class="p-4">
-				<div class="mb-2 flex gap-2">
+			<div class="w-full p-4">
+				<div class="mb-2 flex w-full min-w-0 gap-2">
 					<!-- Back button - only visible on mobile -->
 					{#if onBackToList}
 						<Button
 							variant="ghost"
 							size="sm"
 							onclick={onBackToList}
-							class="md:hidden"
+							class="flex-shrink-0 md:hidden"
 							aria-label="Back to list"
 						>
 							<ChevronLeft class="h-5 w-5" />
@@ -362,7 +362,7 @@
 						bind:value={title}
 						oninput={handleTitleChange}
 						placeholder={$t('notes.untitled')}
-						class="flex-1 text-xl font-semibold"
+						class="min-w-0 flex-1 text-xl font-semibold"
 					/>
 					<VoiceInput
 						onTranscript={handleTitleVoice}
@@ -389,13 +389,15 @@
 		</div>
 
 		<!-- Editor -->
-		<div class="flex-1 overflow-y-auto p-4">
-			<RichTextEditor
-				content={editorContent}
-				bind:editor={editorStore}
-				showToolbar={true}
-			/>
-			<div class="mt-2 flex items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2">
+		<div class="w-full min-w-0 flex-1 overflow-y-auto p-4">
+			<div class="w-full">
+				<RichTextEditor
+					content={editorContent}
+					bind:editor={editorStore}
+					showToolbar={true}
+				/>
+			</div>
+			<div class="mt-2 flex w-full min-w-0 flex-wrap items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2">
 				<VoiceInput
 					onTranscript={handleContentVoice}
 					onError={handleVoiceError}
@@ -416,7 +418,7 @@
 			</div>
 
 			<!-- Image Manager -->
-			<div class="mt-6 border-t pt-6">
+			<div class="mt-6 w-full border-t pt-6">
 				<NoteImageManager
 					bind:this={imageManager}
 					noteId={note.id}
