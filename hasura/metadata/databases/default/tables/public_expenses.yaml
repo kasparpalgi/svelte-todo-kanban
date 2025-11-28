@@ -27,12 +27,11 @@ insert_permissions:
             - board_members:
                 user_id:
                   _eq: X-Hasura-User-Id
-      set:
-        created_by: x-hasura-User-Id
       columns:
         - amount
         - board_id
         - created_at
+        - created_by
         - description
         - id
         - updated_at

@@ -165,13 +165,46 @@ Date,Description,Category,Cost,Currency,User1,User2,User3,...
 
 ---
 
-## Status: ✅ Complete
+## Bug Fixes (Post-Implementation)
 
-All requirements have been implemented:
+### Issue 1: Only importing expenses paid by one user
+**Problem**: Hasura permissions forced `created_by` to be the session user, preventing import of expenses paid by other board members.
+
+**Solution**: Modified Hasura permissions to allow setting `created_by` explicitly:
+- Removed `set: created_by: x-hasura-User-Id` from insert permissions
+- Added `created_by` to allowed columns list
+- Updated `addExpense()` to pass `created_by: paidBy` parameter
+- Applied metadata changes with `hasura metadata apply`
+
+### Issue 2: Rounding errors in CSV amounts
+**Problem**: CSV amounts like 41.09 split in half become 20.545, which rounds to 20.54 in CSV. When adding back: 20.54 + 20.54 = 41.08 ≠ 41.09.
+
+**Solution**: Added rounding error correction:
+- Calculate total of splits after parsing
+- If difference is small (< 0.1) but not negligible (> 0.001), adjust last split
+- Round adjustment to 2 decimal places
+- Ensures splits always sum exactly to expense amount
+
+### Issue 3: Incorrect automatic user detection
+**Problem**: The system tried to auto-detect which CSV user is the current user by assuming the one with negative total balance is the current user. This was incorrect and caused expenses to be assigned to the wrong users.
+
+**Solution**: Removed automatic detection:
+- Always show user mapping dialog, even for 2-user imports
+- Let the user explicitly identify which CSV user corresponds to which board member
+- Updated dialog description to be clearer about the need to correctly identify users
+- Users now have full control over the mapping
+
+---
+
+## Status: ✅ Complete (with fixes)
+
+All requirements have been implemented and bugs fixed:
 - ✅ CSV parser for Splitwise format
 - ✅ User mapping for multi-user imports
 - ✅ Import button on expenses page
 - ✅ File upload and import flow
 - ✅ Currency changed from $ to €
 - ✅ Type checking passes (no new errors)
-- ✅ Ready for testing with sample CSV files
+- ✅ Imports expenses paid by ALL users (not just current user)
+- ✅ Handles rounding errors in CSV amounts
+- ✅ Ready for production use

@@ -59,9 +59,10 @@
 <Dialog {open} onOpenChange={onOpenChange}>
 	<DialogContent class="sm:max-w-[500px]">
 		<DialogHeader>
-			<DialogTitle>Map Users to Board Members</DialogTitle>
+			<DialogTitle>Identify Users in CSV</DialogTitle>
 			<DialogDescription>
-				The CSV file contains multiple users. Please map each CSV user name to a board member.
+				Please identify which board member each CSV user name corresponds to.
+				Make sure to correctly map yourself and other users.
 			</DialogDescription>
 		</DialogHeader>
 

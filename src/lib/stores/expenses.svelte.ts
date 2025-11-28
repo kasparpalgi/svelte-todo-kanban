@@ -91,11 +91,11 @@ function createExpensesStore() {
 		}
 
 		try {
-			// Note: created_by is automatically set by Hasura permissions using the session user
 			const data: CreateExpenseMutation = await request(CREATE_EXPENSE, {
 				object: {
 					board_id: boardId,
 					amount,
+					created_by: paidBy,
 					description,
 					expense_splits: {
 						data: splits
@@ -246,28 +246,39 @@ function createExpensesStore() {
 					}
 
 					// Calculate splits: convert Splitwise amounts to our format
-					// In our system: splits represent how much each user owes
+					// In our system: splits represent each user's share of the expense
+					// In Splitwise CSV: amounts show net balance (positive = owed, negative = owes)
+					// But the absolute value is each person's share of the total
 					const splits: Array<{ user_id: string; amount: number }> = [];
 
 					for (const [csvUserName, csvAmount] of csvExpense.splits.entries()) {
 						const userId = userMapping.get(csvUserName);
 						if (!userId) continue;
 
-						// Splitwise: negative = owes money
-						// Our system: split amount = what user owes
-						// So if csvAmount is negative, the absolute value is what they owe
-						if (csvAmount < 0) {
+						// Each user's split is the absolute value of their CSV amount
+						// This represents their share of the total expense
+						const shareAmount = Math.abs(csvAmount);
+						if (shareAmount > 0.01) {
 							splits.push({
 								user_id: userId,
-								amount: Math.abs(csvAmount)
+								amount: shareAmount
 							});
 						}
 					}
 
-					// If no splits (everyone paid their share), skip
+					// If no splits, skip
 					if (splits.length === 0) {
 						console.log('[importFromSplitwise] Skipping expense with no splits:', csvExpense.description);
 						continue;
+					}
+
+					// Fix rounding errors: adjust the last split to match the total exactly
+					const splitTotal = splits.reduce((sum, split) => sum + split.amount, 0);
+					const roundingDiff = csvExpense.cost - splitTotal;
+					if (Math.abs(roundingDiff) > 0.001 && Math.abs(roundingDiff) < 0.1 && splits.length > 0) {
+						// Adjust the last split by the rounding difference
+						splits[splits.length - 1].amount += roundingDiff;
+						splits[splits.length - 1].amount = Math.round(splits[splits.length - 1].amount * 100) / 100;
 					}
 
 					// Add the expense

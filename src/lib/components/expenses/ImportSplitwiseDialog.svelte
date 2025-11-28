@@ -14,11 +14,7 @@
 	import { expensesStore } from '$lib/stores/expenses.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import UserMappingDialog from './UserMappingDialog.svelte';
-	import {
-		parseSplitwiseCsv,
-		isSimpleTwoUserCase,
-		identifyCurrentUserInSimpleCase
-	} from '$lib/utils/splitwiseCsvParser';
+	import { parseSplitwiseCsv } from '$lib/utils/splitwiseCsvParser';
 	import type { ParsedCsvData } from '$lib/utils/splitwiseCsvParser';
 	import type { GetBoardMembersQuery } from '$lib/graphql/generated/graphql';
 
@@ -91,31 +87,9 @@
 	function handleImportClick() {
 		if (!parsedData) return;
 
-		// Check if it's a simple 2-user case
-		if (isSimpleTwoUserCase(parsedData)) {
-			// Automatically map users for 2-user case
-			const currentUserIndex = identifyCurrentUserInSimpleCase(parsedData);
-			const otherUserIndex = currentUserIndex === 0 ? 1 : 0;
-
-			// The current user from CSV maps to the current board user
-			// The other user from CSV maps to the other board member
-			const otherBoardMember = boardMembers.find((m) => m.user_id !== currentUserId);
-
-			if (!otherBoardMember) {
-				displayMessage('Board must have at least 2 members');
-				return;
-			}
-
-			const mapping = new Map<string, string>();
-			mapping.set(parsedData.userNames[currentUserIndex], currentUserId);
-			mapping.set(parsedData.userNames[otherUserIndex], otherBoardMember.user_id);
-
-			console.log('[ImportSplitwiseDialog] Auto-mapping (2 users):', Array.from(mapping.entries()));
-			performImport(mapping);
-		} else {
-			// Multiple users - show mapping dialog
-			userMappingOpen = true;
-		}
+		// Always show user mapping dialog to let user confirm their identity
+		// We cannot reliably auto-detect who is who from the CSV
+		userMappingOpen = true;
 	}
 
 	async function handleUserMappingConfirm(mapping: Map<string, string>) {
