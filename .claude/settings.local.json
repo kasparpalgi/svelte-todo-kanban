@@ -24,7 +24,10 @@
       "Bash(npm run:*)",
       "Bash(npm test:*)",
       "Bash(git diff:*)",
-      "Bash(docker-compose ps:*)"
+      "Bash(docker-compose ps:*)",
+      "Bash(timeout:*)",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_close"
     ],
     "deny": [],
     "ask": []

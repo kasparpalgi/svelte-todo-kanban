@@ -17,6 +17,7 @@
 
 	let selectedNoteId: string | null = $state(null);
 	let saving: boolean = $state(false);
+	let showMobileEditor: boolean = $state(false);
 
 	// Recursive function to find a note by ID in the hierarchy
 	function findNoteById(notes: any[], noteId: string | null): any | null {
@@ -118,14 +119,21 @@
 
 	function handleNoteSelect(id: string) {
 		selectedNoteId = id;
+		// On mobile, switch to editor view when a note is selected
+		showMobileEditor = true;
+	}
+
+	function handleBackToList() {
+		showMobileEditor = false;
 	}
 
 	function handleOpenChange(newOpen: boolean) {
 		open = newOpen;
 
-		// Reset selection when closing
+		// Reset selection and mobile view when closing
 		if (!newOpen) {
 			selectedNoteId = null;
+			showMobileEditor = false;
 		}
 	}
 </script>
@@ -138,7 +146,9 @@
 
 		<div class="flex flex-1 overflow-hidden">
 			<!-- Left Sidebar: Notes List -->
-			<div class="w-80 flex-shrink-0">
+			<!-- On mobile: hidden when showMobileEditor is true -->
+			<!-- On desktop (md+): always visible -->
+			<div class="w-full flex-shrink-0 md:w-80 {showMobileEditor ? 'hidden md:flex' : 'flex'}">
 				<NotesList
 					notes={notesStore.sortedNotes}
 					{selectedNoteId}
@@ -149,13 +159,16 @@
 			</div>
 
 			<!-- Right Panel: Note Editor -->
-			<div class="flex-1 overflow-hidden">
+			<!-- On mobile: hidden when showMobileEditor is false -->
+			<!-- On desktop (md+): always visible -->
+			<div class="w-full flex-1 overflow-hidden {showMobileEditor ? 'flex' : 'hidden md:flex'}">
 				{#key selectedNoteId}
 					<NoteEditor
 						note={selectedNote}
 						onUpdate={handleUpdateNote}
 						onDelete={handleDeleteNote}
 						{saving}
+						onBackToList={handleBackToList}
 					/>
 				{/key}
 			</div>

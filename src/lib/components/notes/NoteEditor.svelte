@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { get } from 'svelte/store';
-	import { Trash2 } from 'lucide-svelte';
+	import { Trash2, ChevronLeft } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
@@ -35,11 +35,13 @@
 		note,
 		onUpdate,
 		onDelete,
+		onBackToList,
 		saving = false
 	}: {
 		note: Note | null;
 		onUpdate: (updates: { title?: string; content?: string }) => Promise<void>;
 		onDelete: () => Promise<void>;
+		onBackToList?: () => void;
 		saving?: boolean;
 	} = $props();
 
@@ -342,6 +344,18 @@
 			{/if}
 			<div class="p-4">
 				<div class="mb-2 flex gap-2">
+					<!-- Back button - only visible on mobile -->
+					{#if onBackToList}
+						<Button
+							variant="ghost"
+							size="sm"
+							onclick={onBackToList}
+							class="md:hidden"
+							aria-label="Back to list"
+						>
+							<ChevronLeft class="h-5 w-5" />
+						</Button>
+					{/if}
 					<Input
 						bind:this={titleInputEl}
 						type="text"
