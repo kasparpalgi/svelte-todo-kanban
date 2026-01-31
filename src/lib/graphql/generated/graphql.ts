@@ -5429,6 +5429,10 @@ export type Mutation_Root = {
   delete_notifications?: Maybe<Notifications_Mutation_Response>;
   /** delete single row from the table: "notifications" */
   delete_notifications_by_pk?: Maybe<Notifications>;
+  /** delete data from the table: "penon" */
+  delete_penon?: Maybe<Penon_Mutation_Response>;
+  /** delete single row from the table: "penon" */
+  delete_penon_by_pk?: Maybe<Penon>;
   /** delete data from the table: "sessions" */
   delete_sessions?: Maybe<Sessions_Mutation_Response>;
   /** delete single row from the table: "sessions" */
@@ -5541,6 +5545,10 @@ export type Mutation_Root = {
   insert_notifications?: Maybe<Notifications_Mutation_Response>;
   /** insert a single row into the table: "notifications" */
   insert_notifications_one?: Maybe<Notifications>;
+  /** insert data into the table: "penon" */
+  insert_penon?: Maybe<Penon_Mutation_Response>;
+  /** insert a single row into the table: "penon" */
+  insert_penon_one?: Maybe<Penon>;
   /** insert data into the table: "sessions" */
   insert_sessions?: Maybe<Sessions_Mutation_Response>;
   /** insert a single row into the table: "sessions" */
@@ -5685,6 +5693,12 @@ export type Mutation_Root = {
   update_notifications_by_pk?: Maybe<Notifications>;
   /** update multiples rows of table: "notifications" */
   update_notifications_many?: Maybe<Array<Maybe<Notifications_Mutation_Response>>>;
+  /** update data of the table: "penon" */
+  update_penon?: Maybe<Penon_Mutation_Response>;
+  /** update single row of the table: "penon" */
+  update_penon_by_pk?: Maybe<Penon>;
+  /** update multiples rows of table: "penon" */
+  update_penon_many?: Maybe<Array<Maybe<Penon_Mutation_Response>>>;
   /** update data of the table: "sessions" */
   update_sessions?: Maybe<Sessions_Mutation_Response>;
   /** update single row of the table: "sessions" */
@@ -5948,6 +5962,18 @@ export type Mutation_RootDelete_NotificationsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Notifications_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_PenonArgs = {
+  where: Penon_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Penon_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -6320,6 +6346,20 @@ export type Mutation_RootInsert_NotificationsArgs = {
 export type Mutation_RootInsert_Notifications_OneArgs = {
   object: Notifications_Insert_Input;
   on_conflict?: InputMaybe<Notifications_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_PenonArgs = {
+  objects: Array<Penon_Insert_Input>;
+  on_conflict?: InputMaybe<Penon_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Penon_OneArgs = {
+  object: Penon_Insert_Input;
+  on_conflict?: InputMaybe<Penon_On_Conflict>;
 };
 
 
@@ -6868,6 +6908,28 @@ export type Mutation_RootUpdate_Notifications_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Notifications_ManyArgs = {
   updates: Array<Notifications_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_PenonArgs = {
+  _inc?: InputMaybe<Penon_Inc_Input>;
+  _set?: InputMaybe<Penon_Set_Input>;
+  where: Penon_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Penon_By_PkArgs = {
+  _inc?: InputMaybe<Penon_Inc_Input>;
+  _set?: InputMaybe<Penon_Set_Input>;
+  pk_columns: Penon_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Penon_ManyArgs = {
+  updates: Array<Penon_Updates>;
 };
 
 
@@ -8180,6 +8242,257 @@ export enum Order_By {
   DescNullsLast = 'desc_nulls_last'
 }
 
+/** columns and relationships of "penon" */
+export type Penon = {
+  __typename?: 'penon';
+  humidity: Scalars['numeric']['output'];
+  id: Scalars['uuid']['output'];
+  soil: Scalars['Int']['output'];
+  temp: Scalars['numeric']['output'];
+  timestamp: Scalars['timestamptz']['output'];
+};
+
+/** aggregated selection of "penon" */
+export type Penon_Aggregate = {
+  __typename?: 'penon_aggregate';
+  aggregate?: Maybe<Penon_Aggregate_Fields>;
+  nodes: Array<Penon>;
+};
+
+/** aggregate fields of "penon" */
+export type Penon_Aggregate_Fields = {
+  __typename?: 'penon_aggregate_fields';
+  avg?: Maybe<Penon_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Penon_Max_Fields>;
+  min?: Maybe<Penon_Min_Fields>;
+  stddev?: Maybe<Penon_Stddev_Fields>;
+  stddev_pop?: Maybe<Penon_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Penon_Stddev_Samp_Fields>;
+  sum?: Maybe<Penon_Sum_Fields>;
+  var_pop?: Maybe<Penon_Var_Pop_Fields>;
+  var_samp?: Maybe<Penon_Var_Samp_Fields>;
+  variance?: Maybe<Penon_Variance_Fields>;
+};
+
+
+/** aggregate fields of "penon" */
+export type Penon_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Penon_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Penon_Avg_Fields = {
+  __typename?: 'penon_avg_fields';
+  humidity?: Maybe<Scalars['Float']['output']>;
+  soil?: Maybe<Scalars['Float']['output']>;
+  temp?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "penon". All fields are combined with a logical 'AND'. */
+export type Penon_Bool_Exp = {
+  _and?: InputMaybe<Array<Penon_Bool_Exp>>;
+  _not?: InputMaybe<Penon_Bool_Exp>;
+  _or?: InputMaybe<Array<Penon_Bool_Exp>>;
+  humidity?: InputMaybe<Numeric_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  soil?: InputMaybe<Int_Comparison_Exp>;
+  temp?: InputMaybe<Numeric_Comparison_Exp>;
+  timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "penon" */
+export enum Penon_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  PenonPkey = 'penon_pkey'
+}
+
+/** input type for incrementing numeric columns in table "penon" */
+export type Penon_Inc_Input = {
+  humidity?: InputMaybe<Scalars['numeric']['input']>;
+  soil?: InputMaybe<Scalars['Int']['input']>;
+  temp?: InputMaybe<Scalars['numeric']['input']>;
+};
+
+/** input type for inserting data into table "penon" */
+export type Penon_Insert_Input = {
+  humidity?: InputMaybe<Scalars['numeric']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  soil?: InputMaybe<Scalars['Int']['input']>;
+  temp?: InputMaybe<Scalars['numeric']['input']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate max on columns */
+export type Penon_Max_Fields = {
+  __typename?: 'penon_max_fields';
+  humidity?: Maybe<Scalars['numeric']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  soil?: Maybe<Scalars['Int']['output']>;
+  temp?: Maybe<Scalars['numeric']['output']>;
+  timestamp?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** aggregate min on columns */
+export type Penon_Min_Fields = {
+  __typename?: 'penon_min_fields';
+  humidity?: Maybe<Scalars['numeric']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  soil?: Maybe<Scalars['Int']['output']>;
+  temp?: Maybe<Scalars['numeric']['output']>;
+  timestamp?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** response of any mutation on the table "penon" */
+export type Penon_Mutation_Response = {
+  __typename?: 'penon_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Penon>;
+};
+
+/** on_conflict condition type for table "penon" */
+export type Penon_On_Conflict = {
+  constraint: Penon_Constraint;
+  update_columns?: Array<Penon_Update_Column>;
+  where?: InputMaybe<Penon_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "penon". */
+export type Penon_Order_By = {
+  humidity?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  soil?: InputMaybe<Order_By>;
+  temp?: InputMaybe<Order_By>;
+  timestamp?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: penon */
+export type Penon_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "penon" */
+export enum Penon_Select_Column {
+  /** column name */
+  Humidity = 'humidity',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Soil = 'soil',
+  /** column name */
+  Temp = 'temp',
+  /** column name */
+  Timestamp = 'timestamp'
+}
+
+/** input type for updating data in table "penon" */
+export type Penon_Set_Input = {
+  humidity?: InputMaybe<Scalars['numeric']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  soil?: InputMaybe<Scalars['Int']['input']>;
+  temp?: InputMaybe<Scalars['numeric']['input']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Penon_Stddev_Fields = {
+  __typename?: 'penon_stddev_fields';
+  humidity?: Maybe<Scalars['Float']['output']>;
+  soil?: Maybe<Scalars['Float']['output']>;
+  temp?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Penon_Stddev_Pop_Fields = {
+  __typename?: 'penon_stddev_pop_fields';
+  humidity?: Maybe<Scalars['Float']['output']>;
+  soil?: Maybe<Scalars['Float']['output']>;
+  temp?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Penon_Stddev_Samp_Fields = {
+  __typename?: 'penon_stddev_samp_fields';
+  humidity?: Maybe<Scalars['Float']['output']>;
+  soil?: Maybe<Scalars['Float']['output']>;
+  temp?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "penon" */
+export type Penon_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Penon_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Penon_Stream_Cursor_Value_Input = {
+  humidity?: InputMaybe<Scalars['numeric']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  soil?: InputMaybe<Scalars['Int']['input']>;
+  temp?: InputMaybe<Scalars['numeric']['input']>;
+  timestamp?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Penon_Sum_Fields = {
+  __typename?: 'penon_sum_fields';
+  humidity?: Maybe<Scalars['numeric']['output']>;
+  soil?: Maybe<Scalars['Int']['output']>;
+  temp?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** update columns of table "penon" */
+export enum Penon_Update_Column {
+  /** column name */
+  Humidity = 'humidity',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Soil = 'soil',
+  /** column name */
+  Temp = 'temp',
+  /** column name */
+  Timestamp = 'timestamp'
+}
+
+export type Penon_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Penon_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Penon_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Penon_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Penon_Var_Pop_Fields = {
+  __typename?: 'penon_var_pop_fields';
+  humidity?: Maybe<Scalars['Float']['output']>;
+  soil?: Maybe<Scalars['Float']['output']>;
+  temp?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Penon_Var_Samp_Fields = {
+  __typename?: 'penon_var_samp_fields';
+  humidity?: Maybe<Scalars['Float']['output']>;
+  soil?: Maybe<Scalars['Float']['output']>;
+  temp?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Penon_Variance_Fields = {
+  __typename?: 'penon_variance_fields';
+  humidity?: Maybe<Scalars['Float']['output']>;
+  soil?: Maybe<Scalars['Float']['output']>;
+  temp?: Maybe<Scalars['Float']['output']>;
+};
+
 export type Query_Root = {
   __typename?: 'query_root';
   /** An array relationship */
@@ -8278,6 +8591,12 @@ export type Query_Root = {
   notifications_aggregate: Notifications_Aggregate;
   /** fetch data from the table: "notifications" using primary key columns */
   notifications_by_pk?: Maybe<Notifications>;
+  /** fetch data from the table: "penon" */
+  penon: Array<Penon>;
+  /** fetch aggregated fields from the table: "penon" */
+  penon_aggregate: Penon_Aggregate;
+  /** fetch data from the table: "penon" using primary key columns */
+  penon_by_pk?: Maybe<Penon>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -8725,6 +9044,29 @@ export type Query_RootNotifications_AggregateArgs = {
 
 
 export type Query_RootNotifications_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootPenonArgs = {
+  distinct_on?: InputMaybe<Array<Penon_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Penon_Order_By>>;
+  where?: InputMaybe<Penon_Bool_Exp>;
+};
+
+
+export type Query_RootPenon_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Penon_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Penon_Order_By>>;
+  where?: InputMaybe<Penon_Bool_Exp>;
+};
+
+
+export type Query_RootPenon_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -9407,6 +9749,14 @@ export type Subscription_Root = {
   notifications_by_pk?: Maybe<Notifications>;
   /** fetch data from the table in a streaming manner: "notifications" */
   notifications_stream: Array<Notifications>;
+  /** fetch data from the table: "penon" */
+  penon: Array<Penon>;
+  /** fetch aggregated fields from the table: "penon" */
+  penon_aggregate: Penon_Aggregate;
+  /** fetch data from the table: "penon" using primary key columns */
+  penon_by_pk?: Maybe<Penon>;
+  /** fetch data from the table in a streaming manner: "penon" */
+  penon_stream: Array<Penon>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -9995,6 +10345,36 @@ export type Subscription_RootNotifications_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Notifications_Stream_Cursor_Input>>;
   where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+export type Subscription_RootPenonArgs = {
+  distinct_on?: InputMaybe<Array<Penon_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Penon_Order_By>>;
+  where?: InputMaybe<Penon_Bool_Exp>;
+};
+
+
+export type Subscription_RootPenon_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Penon_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Penon_Order_By>>;
+  where?: InputMaybe<Penon_Bool_Exp>;
+};
+
+
+export type Subscription_RootPenon_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootPenon_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Penon_Stream_Cursor_Input>>;
+  where?: InputMaybe<Penon_Bool_Exp>;
 };
 
 
