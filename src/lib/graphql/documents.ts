@@ -1229,3 +1229,23 @@ export const DELETE_EXPENSE = graphql(`
 		}
 	}
 `);
+
+export const Penon = graphql(`
+  query Penon($where: penon_bool_exp = {}, $order_by: [penon_order_by!] = {timestamp: desc}, $limit: Int = 5000, $offset: Int = 0) {
+    penon(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+      id
+      temp
+      humidity
+      soil
+      timestamp
+    }
+  }
+`);
+
+export const InsertPenon = graphql(`
+  mutation InsertPenon($objects: [penon_insert_input!]!) {
+    insert_penon(objects: $objects) {
+      affected_rows
+    }
+  }
+`);

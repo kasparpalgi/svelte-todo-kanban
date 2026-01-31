@@ -16011,6 +16011,23 @@ export type DeleteExpenseMutationVariables = Exact<{
 
 export type DeleteExpenseMutation = { __typename?: 'mutation_root', update_expenses_by_pk?: { __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
 
+export type PenonQueryVariables = Exact<{
+  where?: InputMaybe<Penon_Bool_Exp>;
+  order_by?: InputMaybe<Array<Penon_Order_By> | Penon_Order_By>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type PenonQuery = { __typename?: 'query_root', penon: Array<{ __typename?: 'penon', id: string, temp: number, humidity: number, soil: number, timestamp: string }> };
+
+export type InsertPenonMutationVariables = Exact<{
+  objects: Array<Penon_Insert_Input> | Penon_Insert_Input;
+}>;
+
+
+export type InsertPenonMutation = { __typename?: 'mutation_root', insert_penon?: { __typename?: 'penon_mutation_response', affected_rows: number } | null };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -18276,3 +18293,21 @@ fragment ExpenseFields on expenses {
     alias
   }
 }`) as unknown as TypedDocumentString<DeleteExpenseMutation, DeleteExpenseMutationVariables>;
+export const PenonDocument = new TypedDocumentString(`
+    query Penon($where: penon_bool_exp = {}, $order_by: [penon_order_by!] = {timestamp: desc}, $limit: Int = 5000, $offset: Int = 0) {
+  penon(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+    id
+    temp
+    humidity
+    soil
+    timestamp
+  }
+}
+    `) as unknown as TypedDocumentString<PenonQuery, PenonQueryVariables>;
+export const InsertPenonDocument = new TypedDocumentString(`
+    mutation InsertPenon($objects: [penon_insert_input!]!) {
+  insert_penon(objects: $objects) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<InsertPenonMutation, InsertPenonMutationVariables>;
