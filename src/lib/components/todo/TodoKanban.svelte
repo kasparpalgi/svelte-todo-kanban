@@ -16,7 +16,7 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
-	import { Plus, RefreshCw, ChevronDown } from 'lucide-svelte';
+	import { Plus, RefreshCw, ChevronDown, AlertTriangle } from 'lucide-svelte';
 	import KanbanColumn from './KanbanColumn.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
@@ -441,6 +441,18 @@
 					(acc, todo) => {
 						const min = todo.min_hours || 0;
 						const max = todo.max_hours || 0;
+						const actual = todo.actual_hours || 0;
+
+						if (actual > 0) {
+							acc.actual += actual;
+						} else if (min > 0 || max > 0) {
+							const effectiveMin = min || max;
+							const effectiveMax = max || min;
+							acc.actual += (effectiveMin + effectiveMax) / 2;
+						} else {
+							acc.missingData = true;
+						}
+
 						if (min > 0 || max > 0) {
 							const effectiveMin = min || max;
 							const effectiveMax = max || min;
@@ -451,7 +463,7 @@
 						}
 						return acc;
 					},
-					{ min: 0, max: 0, avg: 0, count: 0 }
+					{ min: 0, max: 0, avg: 0, count: 0, actual: 0, missingData: false }
 				)}
 				<div class="w-80 flex-shrink-0">
 					<KanbanColumn
@@ -470,11 +482,23 @@
 						onDragEnd={handleDragEnd}
 						onDelete={handleDelete}
 					/>
-					{#if stats.count > 0}
+					{#if stats.count > 0 || stats.actual > 0}
 						<div class="-mt-2 text-center text-xs text-gray-400">
-							<span title="Total Minimum Hours">Min: {stats.min.toFixed(1)}h</span> |
-							<span title="Total Average Hours">Avg: {stats.avg.toFixed(1)}h</span> |
-							<span title="Total Maximum Hours">Max: {stats.max.toFixed(1)}h</span>
+							{#if stats.count > 0}
+								<span title="Total Minimum Hours">Min: {stats.min.toFixed(1)}h</span> |
+								<span title="Total Average Hours">Avg: {stats.avg.toFixed(1)}h</span> |
+								<span title="Total Maximum Hours">Max: {stats.max.toFixed(1)}h</span>
+							{/if}
+							{#if stats.actual > 0}
+								<span title="Total Actual Hours">
+									{stats.count > 0 ? ' | ' : ''}Actual: {stats.actual.toFixed(1)}h
+								</span>
+							{/if}
+							{#if stats.missingData}
+								<span title="Some cards are missing hour estimates">
+									<AlertTriangle class="inline h-3 w-3 text-red-500" />
+								</span>
+							{/if}
 						</div>
 					{/if}
 				</div>
