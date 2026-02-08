@@ -88,3 +88,10 @@ export const InsertPenon = graphql(`
 Now I created empty test route at /src/routes/penon/+page.svelte that visitors can see without login. Create there the charts.
 
 Do it only in English (no multilang needed.)
+
+Also note that penon table is at different api endpoint and in different Hasura:
+
+API_URL="https://api.admin.servicehost.io/v1/graphql"
+API_SECRET="Asdc1523!Asdc1523!"
+
+Hardcode into the code these and do not use queries from lib/graphql/documents.ts
