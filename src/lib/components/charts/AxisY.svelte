@@ -1,14 +1,19 @@
 <script>
 	import { getContext } from 'svelte';
+	import { browser } from '$app/environment';
 
-	const { height, y, yScale } = getContext('LayerCake');
+	const context = getContext('LayerCake');
+	const { height, y, yScale } = context || {};
 
-	export let gridlines = true;
-	export let tickMarks = false;
-	export let ticks = 4;
-	export let format = d => d;
+	let { 
+		gridlines = true,
+		tickMarks = false,
+		ticks = 4,
+		format = d => d
+	} = $props();
 </script>
 
+{#if browser && yScale}
 <g class="axis y-axis">
 	{#if gridlines}
 		{#each $yScale.ticks(ticks) as tick}
@@ -27,6 +32,7 @@
 		</g>
 	{/each}
 </g>
+{/if}
 
 <style>
 	.tick {

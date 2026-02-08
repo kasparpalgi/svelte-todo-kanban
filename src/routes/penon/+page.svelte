@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import { LayerCake, Svg } from 'layercake';
 	import { scaleTime, scaleLinear } from 'd3-scale';
 
@@ -13,21 +14,53 @@
 	let data = $state([]);
 	let loading = $state(true);
 	let error = $state(null);
+	let mounted = $state(false);
 
 	let endDate = $state(new Date());
 
+	// Helper function to format date in Spanish
+	function formatSpanishDate(date: Date): string {
+		const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+		const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+		
+		const dayName = days[date.getDay()];
+		const day = date.getDate();
+		const monthName = months[date.getMonth()];
+		const year = date.getFullYear().toString().slice(-2);
+		
+		return `${dayName}, ${day} de ${monthName}'${year}`;
+	}
+
+	// Helper function to convert to Gran Canaria time
+	function toGranCanariaTime(date: Date): Date {
+		// Gran Canaria uses WET (UTC+0) in winter and WEST (UTC+1) in summer
+		// Determine if DST is in effect (last Sunday of March to last Sunday of October)
+		const year = date.getFullYear();
+		
+		// Last Sunday of March at 1:00 UTC
+		const marchLastSunday = new Date(Date.UTC(year, 2, 31));
+		marchLastSunday.setUTCDate(31 - ((marchLastSunday.getUTCDay() + 6) % 7));
+		marchLastSunday.setUTCHours(1, 0, 0, 0);
+		
+		// Last Sunday of October at 1:00 UTC
+		const octoberLastSunday = new Date(Date.UTC(year, 9, 31));
+		octoberLastSunday.setUTCDate(31 - ((octoberLastSunday.getUTCDay() + 6) % 7));
+		octoberLastSunday.setUTCHours(1, 0, 0, 0);
+		
+		const isDST = date >= marchLastSunday && date < octoberLastSunday;
+		const offsetHours = isDST ? 1 : 0; // UTC+1 in summer, UTC+0 in winter
+		
+		return new Date(date.getTime() + offsetHours * 60 * 60 * 1000);
+	}
+
 	async function fetchData() {
+		if (!browser) return;
+		
 		loading = true;
 		error = null;
 
 		const startDate = new Date(endDate);
 		startDate.setDate(startDate.getDate() - 1);
-
-		// Adjust for Gran Canaria timezone (WET/WEST)
-		const offset = new Date().getTimezoneOffset() * 60000;
-		const granCanariaOffset = 0; // WET in winter
-		const adjustedStartDate = new Date(startDate.getTime() - offset + granCanariaOffset);
-		const adjustedEndDate = new Date(endDate.getTime() - offset + granCanariaOffset);
 
 		const query = `
       query Penon($where: penon_bool_exp) {
@@ -44,8 +77,8 @@
 		const variables = {
 			where: {
 				timestamp: {
-					_gte: adjustedStartDate.toISOString(),
-					_lte: adjustedEndDate.toISOString()
+					_gte: startDate.toISOString(),
+					_lte: endDate.toISOString()
 				}
 			}
 		};
@@ -70,7 +103,7 @@
 			}
 			data = result.data.penon.map((d) => ({
 				...d,
-				timestamp: new Date(d.timestamp)
+				timestamp: toGranCanariaTime(new Date(d.timestamp))
 			}));
 		} catch (e) {
 			error = e.message;
@@ -90,6 +123,7 @@
 	}
 
 	onMount(() => {
+		mounted = true;
 		fetchData();
 	});
 
@@ -110,11 +144,13 @@
 			24h &gt;
 		</button>
 		<div class="ml-4 text-gray-600">
-			{endDate.toLocaleDateString()}
+			{formatSpanishDate(endDate)}
 		</div>
 	</div>
 
-	{#if loading}
+	{#if !mounted}
+		<p>Cargando…</p>
+	{:else if loading}
 		<p>Cargando…</p>
 	{:else if error}
 		<p class="text-red-500">{error}</p>
@@ -127,6 +163,7 @@
 				<h2 class="text-xl font-semibold mb-2">Temperatura interior (°C)</h2>
 				<div class="chart-container">
 					<LayerCake
+						padding={{ top: 10, right: 10, bottom: 30, left: 50 }}
 						{data}
 						x={xGet}
 						y={yGetTemp}
@@ -135,9 +172,9 @@
 						yDomain={[Math.min(...data.map(yGetTemp)) - 1, Math.max(...data.map(yGetTemp)) + 1]}
 					>
 						<Svg>
-							<AxisX />
-							<AxisY />
-							<Line />
+							<AxisX gridlines={true} />
+							<AxisY gridlines={true} format={d => d.toFixed(1) + '°C'} />
+							<Line valueType="temp" label="°C" />
 						</Svg>
 					</LayerCake>
 				</div>
@@ -148,6 +185,7 @@
 				<h2 class="text-xl font-semibold mb-2">Humedad interior (%)</h2>
 				<div class="chart-container">
 					<LayerCake
+						padding={{ top: 10, right: 10, bottom: 30, left: 50 }}
 						{data}
 						x={xGet}
 						y={yGetHumidity}
@@ -159,9 +197,9 @@
 						]}
 					>
 						<Svg>
-							<AxisX />
-							<AxisY />
-							<Line />
+							<AxisX gridlines={true} />
+							<AxisY gridlines={true} format={d => d.toFixed(0) + '%'} />
+							<Line valueType="humidity" label="%" />
 						</Svg>
 					</LayerCake>
 				</div>
@@ -172,6 +210,7 @@
 				<h2 class="text-xl font-semibold mb-2">Humedad del suelo 1</h2>
 				<div class="chart-container">
 					<LayerCake
+						padding={{ top: 10, right: 10, bottom: 30, left: 50 }}
 						{data}
 						x={xGet}
 						y={yGetSoil}
@@ -180,9 +219,9 @@
 						yDomain={[Math.min(...data.map(yGetSoil)) - 100, Math.max(...data.map(yGetSoil)) + 100]}
 					>
 						<Svg>
-							<AxisX />
-							<AxisY />
-							<Line />
+							<AxisX gridlines={true} />
+							<AxisY gridlines={true} />
+							<Line valueType="soil" />
 						</Svg>
 					</LayerCake>
 				</div>
