@@ -1,30 +1,30 @@
-<script>
+<script lang="ts">
 	import { getContext } from 'svelte';
 	import { browser } from '$app/environment';
+	import type { LayerCakeContext } from '$lib/types/charting';
 
-	const context = getContext('LayerCake');
-	const { height, y, yScale } = context || {};
+	const { height, yScale } = getContext<LayerCakeContext>('LayerCake');
 
 	let { 
 		gridlines = true,
 		tickMarks = false,
 		ticks = 4,
-		format = d => d
+		format = (d: number) => d
 	} = $props();
 </script>
 
 {#if browser && yScale}
 <g class="axis y-axis">
 	{#if gridlines}
-		{#each $yScale.ticks(ticks) as tick}
-			<g class="tick" transform="translate(0, {$y(tick)})">
-				<line x2={$height} />
+		{#each yScale.ticks(ticks) as tick}
+			<g class="tick" transform="translate(0, {yScale(tick)})">
+				<line x2={height} />
 			</g>
 		{/each}
 	{/if}
 
-	{#each $yScale.ticks(ticks) as tick}
-		<g class="tick" transform="translate(0, {$y(tick)})">
+	{#each yScale.ticks(ticks) as tick}
+		<g class="tick" transform="translate(0, {yScale(tick)})">
 			{#if tickMarks}
 				<line x2="-6" />
 			{/if}

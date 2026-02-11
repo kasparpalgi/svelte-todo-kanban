@@ -7,16 +7,21 @@
 	import Line from '$lib/components/charts/Line.svelte';
 	import AxisX from '$lib/components/charts/AxisX.svelte';
 	import AxisY from '$lib/components/charts/AxisY.svelte';
+	import ReferenceLine from '$lib/components/charts/ReferenceLine.svelte';
+	import type { PenonData } from '$lib/types/penon';
 
 	const API_URL = 'https://api.admin.servicehost.io/v1/graphql';
 	const API_SECRET = 'Asdc1523!Asdc1523!';
 
-	let data = $state([]);
+	let data: PenonData[] = $state([]);
 	let loading = $state(true);
-	let error = $state(null);
+	let error: string | null = $state(null);
 	let mounted = $state(false);
 
 	let endDate = $state(new Date());
+
+	let lastTemp = $derived(data.length > 0 ? data[data.length - 1].temp : null);
+	let lastHumidity = $derived(data.length > 0 ? data[data.length - 1].humidity : null);
 
 	// Helper function to format date in Spanish
 	function formatSpanishDate(date: Date): string {
@@ -99,13 +104,13 @@
 
 			const result = await response.json();
 			if (result.errors) {
-				throw new Error(result.errors.map((e) => e.message).join(', '));
+				throw new Error(result.errors.map((e: { message: string }) => e.message).join(', '));
 			}
-			data = result.data.penon.map((d) => ({
+			data = result.data.penon.map((d: PenonData) => ({
 				...d,
 				timestamp: toGranCanariaTime(new Date(d.timestamp))
 			}));
-		} catch (e) {
+		} catch (e: any) {
 			error = e.message;
 		} finally {
 			loading = false;
@@ -127,10 +132,10 @@
 		fetchData();
 	});
 
-	const xGet = (d) => d.timestamp;
-	const yGetTemp = (d) => d.temp;
-	const yGetHumidity = (d) => d.humidity;
-	const yGetSoil = (d) => d.soil;
+	const xGet = (d: PenonData) => d.timestamp;
+	const yGetTemp = (d: PenonData) => d.temp;
+	const yGetHumidity = (d: PenonData) => d.humidity;
+	const yGetSoil = (d: PenonData) => d.soil;
 </script>
 
 <div class="p-4">
@@ -147,6 +152,19 @@
 			{formatSpanishDate(endDate)}
 		</div>
 	</div>
+
+	{#if data.length > 0 && lastTemp !== null && lastHumidity !== null}
+		<div class="mb-8 flex justify-around items-center bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md">
+			<div class="text-center">
+				<p class="text-xl text-gray-500">Última Temperatura</p>
+				<p class="text-5xl font-bold text-blue-600 dark:text-blue-400">{lastTemp.toFixed(1)}°C</p>
+			</div>
+			<div class="text-center">
+				<p class="text-xl text-gray-500">Última Humedad</p>
+				<p class="text-5xl font-bold text-green-600 dark:text-green-400">{lastHumidity.toFixed(0)}%</p>
+			</div>
+		</div>
+	{/if}
 
 	{#if !mounted}
 		<p>Cargando…</p>
@@ -173,7 +191,8 @@
 					>
 						<Svg>
 							<AxisX gridlines={true} />
-							<AxisY gridlines={true} format={d => d.toFixed(1) + '°C'} />
+							<AxisY gridlines={true} format={(d: number) => d.toFixed(1) + '°C'} />
+							<ReferenceLine values={[25, 20, 18]} stroke="red" strokeWidth={1} strokeDasharray="4 4" />
 							<Line valueType="temp" label="°C" />
 						</Svg>
 					</LayerCake>
@@ -198,7 +217,7 @@
 					>
 						<Svg>
 							<AxisX gridlines={true} />
-							<AxisY gridlines={true} format={d => d.toFixed(0) + '%'} />
+							<AxisY gridlines={true} format={(d: number) => d.toFixed(0) + '%'} />
 							<Line valueType="humidity" label="%" />
 						</Svg>
 					</LayerCake>
