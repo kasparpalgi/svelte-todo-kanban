@@ -166,11 +166,11 @@
 	{#if data.length > 0 && lastTemp !== null && lastHumidity !== null}
 		<div class="mb-8 flex justify-around items-center bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-md">
 			<div class="text-center">
-				<p class="text-xl text-gray-500">Última Temperatura</p>
+				<p class="text-xl text-gray-500">Temperatura</p>
 				<p class="text-5xl font-bold text-blue-600 dark:text-blue-400">{lastTemp.toFixed(1)}°C</p>
 			</div>
 			<div class="text-center">
-				<p class="text-xl text-gray-500">Última Humedad</p>
+				<p class="text-xl text-gray-500">Humedad</p>
 				<p class="text-5xl font-bold text-green-600 dark:text-green-400">{lastHumidity.toFixed(0)}%</p>
 			</div>
 		</div>
@@ -179,7 +179,7 @@
 	{#if !mounted}
 		<p>Cargando… (not mounted)</p>
 	{:else if loading}
-		<p>Cargando… (loading data)</p>
+		<p>Cargando…</p>
 	{:else if error}
 		<p class="text-red-500">Error: {error}</p>
 	{:else if data.length === 0}
