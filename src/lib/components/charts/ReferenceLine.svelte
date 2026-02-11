@@ -13,9 +13,9 @@
 {#each values as value}
   <line
     x1={0}
-    y1={yScale(value)}
-    x2={width}
-    y2={yScale(value)}
+    y1={$yScale(value)}
+    x2={$width}
+    y2={$yScale(value)}
     {stroke}
     stroke-width={strokeWidth}
     stroke-dasharray={strokeDasharray}

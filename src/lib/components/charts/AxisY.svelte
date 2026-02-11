@@ -4,6 +4,8 @@
 	import type { LayerCakeContext } from '$lib/types/charting';
 
 	const { height, yScale } = getContext<LayerCakeContext>('LayerCake');
+	console.log('[AxisY.svelte] yScale:', yScale);
+	console.log('[AxisY.svelte] height:', height);
 
 	let { 
 		gridlines = true,
@@ -13,18 +15,18 @@
 	} = $props();
 </script>
 
-{#if browser && yScale}
+{#if browser && $yScale}
 <g class="axis y-axis">
 	{#if gridlines}
-		{#each yScale.ticks(ticks) as tick}
-			<g class="tick" transform="translate(0, {yScale(tick)})">
-				<line x2={height} />
+		{#each $yScale.ticks(ticks) as tick}
+			<g class="tick" transform="translate(0, {$yScale(tick)})">
+				<line x2={$height} />
 			</g>
 		{/each}
 	{/if}
 
-	{#each yScale.ticks(ticks) as tick}
-		<g class="tick" transform="translate(0, {yScale(tick)})">
+	{#each $yScale.ticks(ticks) as tick}
+		<g class="tick" transform="translate(0, {$yScale(tick)})">
 			{#if tickMarks}
 				<line x2="-6" />
 			{/if}

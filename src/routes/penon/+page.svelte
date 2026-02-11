@@ -63,6 +63,7 @@
 		
 		loading = true;
 		error = null;
+		console.log('[penon/+page.svelte] fetchData: loading = true');
 
 		const startDate = new Date(endDate);
 		startDate.setDate(startDate.getDate() - 1);
@@ -88,6 +89,8 @@
 			}
 		};
 
+		console.log('[penon/+page.svelte] fetchData: Querying API with variables:', variables);
+
 		try {
 			const response = await fetch(API_URL, {
 				method: 'POST',
@@ -98,6 +101,8 @@
 				body: JSON.stringify({ query, variables })
 			});
 
+			console.log('[penon/+page.svelte] fetchData: API Response status:', response.status);
+
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
@@ -106,14 +111,18 @@
 			if (result.errors) {
 				throw new Error(result.errors.map((e: { message: string }) => e.message).join(', '));
 			}
+			console.log('[penon/+page.svelte] fetchData: Raw API data result:', result.data.penon);
 			data = result.data.penon.map((d: PenonData) => ({
 				...d,
 				timestamp: toGranCanariaTime(new Date(d.timestamp))
 			}));
+			console.log('[penon/+page.svelte] fetchData: Processed data:', data);
 		} catch (e: any) {
 			error = e.message;
+			console.error('[penon/+page.svelte] fetchData: Error:', error);
 		} finally {
 			loading = false;
+			console.log('[penon/+page.svelte] fetchData: loading = false');
 		}
 	}
 
@@ -129,6 +138,7 @@
 
 	onMount(() => {
 		mounted = true;
+		console.log('[penon/+page.svelte] onMount: mounted =', mounted);
 		fetchData();
 	});
 
@@ -167,11 +177,11 @@
 	{/if}
 
 	{#if !mounted}
-		<p>Cargando…</p>
+		<p>Cargando… (not mounted)</p>
 	{:else if loading}
-		<p>Cargando…</p>
+		<p>Cargando… (loading data)</p>
 	{:else if error}
-		<p class="text-red-500">{error}</p>
+		<p class="text-red-500">Error: {error}</p>
 	{:else if data.length === 0}
 		<p>No hay datos disponibles para este período.</p>
 	{:else}

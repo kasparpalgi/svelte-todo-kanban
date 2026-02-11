@@ -1,21 +1,27 @@
 import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import type { PenonData } from '../types/penon';
 
+// Define a generic Svelte store type
+interface SvelteStore<T> {
+    subscribe: (
+        this: void,
+        run: (value: T) => void,
+        invalidate?: (value?: T) => void
+    ) => () => void;
+}
+
 export interface LayerCakeContext {
-    xScale: ScaleTime<number, number>;
-    yScale: ScaleLinear<number, number>;
-    width: number;
-    height: number;
-    xGet: (d: PenonData) => any;
-    yGet: (d: PenonData) => any;
-    data: PenonData[]; // Added data property
-    config: {
+    xScale: SvelteStore<ScaleTime<number, number>>;
+    yScale: SvelteStore<ScaleLinear<number, number>>;
+    width: SvelteStore<number>;
+    height: SvelteStore<number>;
+    xGet: SvelteStore<(d: PenonData) => any>;
+    yGet: SvelteStore<(d: PenonData) => any>;
+    data: SvelteStore<PenonData[]>;
+    config: SvelteStore<{
         x: string;
         y: string;
         r: string;
         data: PenonData[];
-    };
-    // LayerCake also provides these as reactive stores if you use $syntax,
-    // but when accessing directly from context, they are the raw values/functions.
-    // We'll define them as such for direct access.
+    }>;
 }

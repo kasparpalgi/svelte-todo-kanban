@@ -1,0 +1,1 @@
+Display bigger in top last temp and humidity and add horisontal lines to the temp grapgh to 25, 20 and 18C

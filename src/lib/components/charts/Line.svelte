@@ -9,14 +9,14 @@
 
 	let { label = '', valueType = '' } = $props();
 
-	const path = browser && data ? line<PenonData>()
-		.x(d => xGet(d))
-		.y(d => yGet(d)) : null;
+	const path = browser && $data ? line<PenonData>()
+		.x(d => $xGet(d))
+		.y(d => $yGet(d)) : null;
 
 	let tooltip = $state({ show: false, x: 0, y: 0, time: '', value: '' });
 
 	function handleMouseMove(event: MouseEvent) {
-		if (!browser || !data) return;
+		if (!browser || !$data) return;
 		
 		const svg = event.currentTarget as SVGRectElement;
 		const rect = svg.getBoundingClientRect();
@@ -26,8 +26,8 @@
 		let closestPoint: PenonData | null = null;
 		let minDistance = Infinity;
 		
-		for (const point of data) {
-			const pointX = xGet(point);
+		for (const point of $data) {
+			const pointX = $xGet(point);
 			const distance = Math.abs(pointX - mouseX);
 			
 			if (distance < minDistance) {
@@ -37,8 +37,8 @@
 		}
 		
 		if (closestPoint && minDistance < 30) {
-			const x = xGet(closestPoint);
-			const y = yGet(closestPoint);
+			const x = $xGet(closestPoint);
+			const y = $yGet(closestPoint);
 			const time = closestPoint.timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 			
 			// Get the correct value based on valueType prop
@@ -50,7 +50,7 @@
 			} else if (valueType === 'soil') {
 				value = closestPoint.soil;
 			} else {
-				value = yGet(closestPoint);
+				value = $yGet(closestPoint);
 			}
 			
 			tooltip = {
@@ -70,13 +70,13 @@
 	}
 </script>
 
-{#if browser && data && path}
+{#if browser && $data && path}
 <g class="line-group">
-	<path d={path(data)} />
+	<path d={path($data)} />
 	
 	<rect 
-		width={width} 
-		height={height} 
+		width={$width} 
+		height={$height} 
 		fill="transparent" 
 		onmousemove={handleMouseMove}
 		onmouseleave={handleMouseLeave}
