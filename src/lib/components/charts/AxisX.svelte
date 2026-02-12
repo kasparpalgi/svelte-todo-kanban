@@ -24,10 +24,11 @@
 	{/if}
 
 	{#each $xScale.ticks(ticks) as tick}
-		<g class="tick" transform="translate({$xScale(tick)},0)">
+		<g class="tick" transform="translate({$xScale(tick)},-5)">
 			{#if tickMarks}
 				<line y2="6" />
 			{/if}
+			<rect x="-20" y="12" width="40" height="18" fill="white" />
 			<text y="20" dy="0.71em">{format(tick)}</text>
 		</g>
 	{/each}
@@ -36,10 +37,11 @@
 
 <style>
 	.tick {
-		font-size: 11px;
+		font-size: 12px;
+		font-weight: bold;
 	}
 	.tick text {
-		fill: #666;
+		fill: #333;
 	}
 	.tick line {
 		stroke: #aaa;

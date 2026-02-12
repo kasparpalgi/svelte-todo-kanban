@@ -1,0 +1,1 @@
+On the vertical axis we have time and dotted lines from top to bottom and in the top the time eg. 18:00 is displayed n top of the line that looks bad so make the timr number bigger and bolder + add background around it.
