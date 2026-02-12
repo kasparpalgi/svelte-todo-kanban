@@ -66,10 +66,12 @@ export default defineConfig({
 			allow: ['..']
 		}
 	},
-	ssr: {
-		noExternal: process.env.NODE_ENV === 'production' ? [] : undefined
-	},
-	optimizeDeps: {
+	  ssr: {
+	    noExternal: process.env.NODE_ENV === 'production' ? [] : undefined
+	  },
+	  build: {
+	    target: 'es2015'
+	  },	optimizeDeps: {
 		exclude: ['puppeteer', 'puppeteer-extra', 'puppeteer-extra-plugin-stealth', '@sveltejs/kit'] // TODO: try to optimise '@sveltejs/kit' for better performance or it was breaking?
 	},
 	test: {

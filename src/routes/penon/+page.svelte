@@ -186,7 +186,7 @@
 						y={yGetTemp}
 						xScale={scaleTime()}
 						yScale={scaleLinear()}
-						yDomain={[Math.min(...data.map(yGetTemp)) - 1, Math.max(...data.map(yGetTemp)) + 1]}
+						yDomain={[data.map(yGetTemp).reduce((a, b) => Math.min(a, b), Infinity) - 1, data.map(yGetTemp).reduce((a, b) => Math.max(a, b), -Infinity) + 1]}
 					>
 						<Svg>
 							<AxisX gridlines={true} />
@@ -209,8 +209,8 @@
 						xScale={scaleTime()}
 						yScale={scaleLinear()}
 						yDomain={[
-							Math.min(...data.map(yGetHumidity)) - 5,
-							Math.max(...data.map(yGetHumidity)) + 5
+							data.map(yGetHumidity).reduce((a, b) => Math.min(a, b), Infinity) - 5,
+							data.map(yGetHumidity).reduce((a, b) => Math.max(a, b), -Infinity) + 5
 						]}
 					>
 						<Svg>
@@ -233,7 +233,7 @@
 						y={yGetSoil}
 						xScale={scaleTime()}
 						yScale={scaleLinear()}
-						yDomain={[Math.min(...data.map(yGetSoil)) - 100, Math.max(...data.map(yGetSoil)) + 100]}
+						yDomain={[data.map(yGetSoil).reduce((a, b) => Math.min(a, b), Infinity) - 100, data.map(yGetSoil).reduce((a, b) => Math.max(a, b), -Infinity) + 100]}
 					>
 						<Svg>
 							<AxisX gridlines={true} />
