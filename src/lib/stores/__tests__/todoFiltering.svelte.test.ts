@@ -299,6 +299,7 @@ describe('TodoFilteringStore', () => {
 
 			todoFilteringStore.setFilter('boardId', 'board1');
 			todoFilteringStore.setFilter('search', 'important');
+			todoFilteringStore.setFilter('searchContent', true);
 			const filtered = todoFilteringStore.filterTodos(todosWithContent);
 
 			expect(filtered).toHaveLength(2);

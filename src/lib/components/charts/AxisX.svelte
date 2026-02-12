@@ -3,9 +3,7 @@
 	import { browser } from '$app/environment';
 	import type { LayerCakeContext } from '$lib/types/charting';
 
-	const { width, xScale } = getContext<LayerCakeContext>('LayerCake');
-	console.log('[AxisX.svelte] xScale:', xScale);
-	console.log('[AxisX.svelte] width:', width);
+	const { width, height, xScale } = getContext<LayerCakeContext>('LayerCake');
 
 	let { 
 		gridlines = true,
@@ -20,7 +18,7 @@
 	{#if gridlines}
 		{#each $xScale.ticks(ticks) as tick}
 			<g class="tick" transform="translate({$xScale(tick)},0)">
-				<line y2={$width} />
+				<line y2={$height} />
 			</g>
 		{/each}
 	{/if}
