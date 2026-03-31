@@ -33,25 +33,25 @@
 
 	$effect(() => {
 		if (!invitationsStore.initialized && !invitationsStore.loading) {
-			invitationsStore.loadMyInvitations();
+			invitationsStore.loadMyInvitations().catch((e) => console.error('[NotificationBell] loadMyInvitations error:', e));
 		}
 	});
 
 	// Load notifications when bell is opened
 	$effect(() => {
 		if (isOpen && user?.id) {
-			notificationStore.loadNotifications(user.id);
+			notificationStore.loadNotifications(user.id).catch((e) => console.error('[NotificationBell] loadNotifications error:', e));
 		}
 	});
 
 	onMount(() => {
 		if (user?.id) {
-			notificationStore.loadNotifications(user.id);
+			notificationStore.loadNotifications(user.id).catch((e) => console.error('[NotificationBell] initial loadNotifications error:', e));
 
 			// Poll for new notifications every 30 seconds
 			const pollInterval = setInterval(() => {
 				if (user?.id) {
-					notificationStore.loadNotifications(user.id);
+					notificationStore.loadNotifications(user.id).catch((e) => console.error('[NotificationBell] poll loadNotifications error:', e));
 				}
 			}, 30000);
 

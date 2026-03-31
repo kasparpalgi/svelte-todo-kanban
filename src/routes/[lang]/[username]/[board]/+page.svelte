@@ -136,13 +136,13 @@
 	$effect(() => {
 		// Only load if we have a session and boards are already loaded (not first mount)
 		if (data?.session && listsStore.boards.length > 0) {
-			loadBoardData(boardAlias);
+			loadBoardData(boardAlias).catch((e) => console.error('[BoardPage] loadBoardData error:', e));
 		}
 	});
 
 	$effect(() => {
 		if (isNotMember) {
-			invitationsStore.loadMyInvitations();
+			invitationsStore.loadMyInvitations().catch((e) => console.error('[BoardPage] loadMyInvitations error:', e));
 		}
 	});
 

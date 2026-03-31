@@ -31,15 +31,29 @@
 	}
 
 	function handleUnhandledRejection(event: PromiseRejectionEvent) {
-		error = event.reason;
-		errorInfo = event.reason?.stack || String(event.reason) || 'Unhandled promise rejection';
+		const reason = event.reason;
+
+		// Network errors (Failed to fetch, timeouts, ad blockers blocking requests) are
+		// transient — stores already handle them gracefully. Don't crash the entire UI.
+		const isNetworkError =
+			reason instanceof TypeError &&
+			(reason.message === 'Failed to fetch' ||
+				reason.message === 'Load failed' ||
+				reason.message === 'NetworkError when attempting to fetch resource.' ||
+				reason.message?.startsWith('Failed to get JWT token'));
 
 		loggingStore.error('ErrorBoundary', 'Unhandled promise rejection', {
-			reason: String(event.reason),
-			stack: event.reason?.stack
+			reason: String(reason),
+			stack: reason?.stack,
+			isNetworkError
 		});
 
 		event.preventDefault();
+
+		if (!isNetworkError) {
+			error = reason;
+			errorInfo = reason?.stack || String(reason) || 'Unhandled promise rejection';
+		}
 	}
 
 	function reload() {
