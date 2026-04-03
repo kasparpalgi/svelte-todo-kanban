@@ -6,33 +6,110 @@ import { browser } from '$app/environment';
 const apiEndpoint = PUBLIC_API_ENV === 'production' ? PUBLIC_API_ENDPOINT : PUBLIC_API_ENDPOINT_DEV;
 const client = new GraphQLClient(apiEndpoint);
 
+const TOKEN_LS_KEY = 'app_jwt_cache';
+const TOKEN_REFRESH_BUFFER_MS = 10 * 60 * 1000; // refresh 10 min before expiry
+
+// In-memory cache for current page session + deduplication of concurrent fetches
+let _cachedToken: string | null = null;
+let _tokenExpiresAt = 0;
+let _tokenFetchPromise: Promise<string | null> | null = null;
+
+function getTokenExpiry(token: string): number {
+	try {
+		const payload = JSON.parse(atob(token.split('.')[1]));
+		return payload.exp * 1000;
+	} catch {
+		return Date.now() + 23 * 60 * 60 * 1000;
+	}
+}
+
+function getPersistedToken(): { token: string; expiresAt: number } | null {
+	if (!browser) return null;
+	try {
+		const stored = localStorage.getItem(TOKEN_LS_KEY);
+		if (!stored) return null;
+		return JSON.parse(stored);
+	} catch {
+		return null;
+	}
+}
+
+function persistToken(token: string, expiresAt: number) {
+	if (!browser) return;
+	try {
+		localStorage.setItem(TOKEN_LS_KEY, JSON.stringify({ token, expiresAt }));
+	} catch {}
+}
+
+export function clearTokenCache() {
+	_cachedToken = null;
+	_tokenExpiresAt = 0;
+	if (browser) {
+		try {
+			localStorage.removeItem(TOKEN_LS_KEY);
+		} catch {}
+	}
+}
+
 async function getJWTToken(
 	fetchFn: typeof globalThis.fetch = globalThis.fetch
 ): Promise<string | null> {
-	try {
-		const response = await fetchFn('/api/auth/token');
+	const now = Date.now();
 
-		if (response.status === 401) {
-			console.debug('[GraphQLClient] User not authenticated (401)');
-			return null;
-		}
-
-		if (!response.ok) {
-			console.error('[GraphQLClient] Failed to fetch JWT token', {
-				status: response.status,
-				statusText: response.statusText
-			});
-			throw new Error(`Failed to get JWT token: ${response.status}`);
-		}
-
-		const data = await response.json();
-		return data.token;
-	} catch (error) {
-		if (error instanceof TypeError) {
-			console.debug('[GraphQLClient] Network error fetching token:', error.message);
-		}
-		throw error;
+	// 1. In-memory cache (fastest — same page load)
+	if (_cachedToken && now < _tokenExpiresAt - TOKEN_REFRESH_BUFFER_MS) {
+		return _cachedToken;
 	}
+
+	// 2. localStorage cache (survives cold starts)
+	const persisted = getPersistedToken();
+	if (persisted && now < persisted.expiresAt - TOKEN_REFRESH_BUFFER_MS) {
+		_cachedToken = persisted.token;
+		_tokenExpiresAt = persisted.expiresAt;
+		return _cachedToken;
+	}
+
+	// 3. Deduplicate concurrent token fetches (single in-flight request)
+	if (_tokenFetchPromise) return _tokenFetchPromise;
+
+	_tokenFetchPromise = (async () => {
+		try {
+			const response = await fetchFn('/api/auth/token');
+
+			if (response.status === 401) {
+				console.debug('[GraphQLClient] User not authenticated (401)');
+				clearTokenCache();
+				return null;
+			}
+
+			if (!response.ok) {
+				console.error('[GraphQLClient] Failed to fetch JWT token', {
+					status: response.status,
+					statusText: response.statusText
+				});
+				throw new Error(`Failed to get JWT token: ${response.status}`);
+			}
+
+			const data = await response.json();
+			const token: string = data.token;
+			const expiresAt = getTokenExpiry(token);
+
+			_cachedToken = token;
+			_tokenExpiresAt = expiresAt;
+			persistToken(token, expiresAt);
+
+			return token;
+		} catch (error) {
+			if (error instanceof TypeError) {
+				console.debug('[GraphQLClient] Network error fetching token:', error.message);
+			}
+			throw error;
+		} finally {
+			_tokenFetchPromise = null;
+		}
+	})();
+
+	return _tokenFetchPromise;
 }
 
 export async function request<TResult, TVariables = any>(

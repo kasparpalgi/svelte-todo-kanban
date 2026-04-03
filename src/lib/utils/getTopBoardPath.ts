@@ -9,38 +9,34 @@ export async function getTopBoardPath(
 	fetch: typeof globalThis.fetch
 ): Promise<string | null> {
 	try {
-		// Fetch the user's current locale from database to avoid using stale session data
-		let userLocale = DEFAULT_LOCALE;
-		if (session?.user?.id) {
-			const userData = (await request(
-				GET_USERS,
-				{
-					where: { id: { _eq: session.user.id } },
-					limit: 1
-				},
-				undefined,
-				fetch
-			)) as any;
-
-			userLocale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
-		}
-
 		const lastBoardAlias = session?.user?.settings?.lastBoardAlias;
 
-		if (lastBoardAlias) {
-			const dataByAlias: GetBoardsQuery = await request(
-				GET_BOARDS,
-				{
-					where: { alias: { _eq: lastBoardAlias } },
-					limit: 1
-				},
-				undefined,
-				fetch
-			);
+		// Fetch user locale and last board in parallel
+		const [userData, dataByAlias] = await Promise.all([
+			session?.user?.id
+				? (request(
+						GET_USERS,
+						{ where: { id: { _eq: session.user.id } }, limit: 1 },
+						undefined,
+						fetch
+					) as Promise<any>)
+				: Promise.resolve(null),
+			lastBoardAlias
+				? request(
+						GET_BOARDS,
+						{ where: { alias: { _eq: lastBoardAlias } }, limit: 1 },
+						undefined,
+						fetch
+					)
+				: Promise.resolve(null)
+		]);
 
-			if (dataByAlias.boards && dataByAlias.boards.length > 0) {
-				const board = dataByAlias.boards[0];
+		const userLocale = (userData as any)?.users?.[0]?.locale || DEFAULT_LOCALE;
 
+		if (dataByAlias) {
+			const boardsByAlias = dataByAlias as GetBoardsQuery;
+			if (boardsByAlias.boards && boardsByAlias.boards.length > 0) {
+				const board = boardsByAlias.boards[0];
 				if (board.user?.username && board.alias) {
 					return `/${userLocale}/${board.user.username}/${board.alias}`;
 				}
