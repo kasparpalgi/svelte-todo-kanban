@@ -389,7 +389,7 @@
 		</div>
 
 		<!-- Editor -->
-		<div class="w-full min-w-0 flex-1 overflow-y-auto p-4">
+		<div class="w-full min-w-0 flex-1 overflow-y-auto p-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
 			<div class="w-full">
 				<RichTextEditor
 					content={editorContent}

@@ -1,0 +1,1 @@
+Can't click around in the open note when on mobile. Can't click on the title input, click on content textarea, can't click on the link in the content.

@@ -162,7 +162,7 @@
 			<!-- On mobile: hidden when showMobileEditor is false -->
 			<!-- On desktop (md+): always visible -->
 			<div class="min-w-0 flex-1 overflow-hidden {showMobileEditor ? 'flex w-full' : 'hidden md:flex'}">
-				{#key selectedNoteId}
+				{#key `${selectedNoteId}:${showMobileEditor}`}
 					<NoteEditor
 						note={selectedNote}
 						onUpdate={handleUpdateNote}
