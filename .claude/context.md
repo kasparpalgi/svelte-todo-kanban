@@ -11,16 +11,14 @@ claude mcp list
 # Should show (✓ Connected):
 # - playwright
 # - sequential-thinking
-# - filesystem (optional but recommended)
-# - context7 (optional)
+# - context7
 ```
 
-If any are missing, see setup instructions in README.md.
-
 ### MCP Usage
-- **Playwright**: Browser testing, console logs, UI snapshots
-- **Sequential Thinking**: Complex planning, architecture decisions
-- **Filesystem**: Bulk file operations (optional)
+- **Playwright**: Browser testing, console logs, UI snapshots, network inspection
+- **Sequential Thinking**: Complex planning (use for features touching >3 files)
+- **Context7**: Fetch up-to-date docs for SvelteKit, Svelte 5, Hasura, Auth.js
+  Usage: `"use context7 to get SvelteKit load function docs"`
 
 ## Tech Stack
 
