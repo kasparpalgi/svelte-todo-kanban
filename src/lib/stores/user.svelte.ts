@@ -1,6 +1,6 @@
 /** @file src/lib/stores/user.svelte.ts */
 import { browser } from '$app/environment';
-import { request } from '$lib/graphql/client';
+import { request, clearTokenCache } from '$lib/graphql/client';
 import { GET_USERS, UPDATE_USER } from '$lib/graphql/documents';
 import { DEFAULT_LOCALE } from '$lib/constants/locale';
 import { displayMessage } from './errorSuccess.svelte';
@@ -208,6 +208,7 @@ function createUserStore() {
 		state.loading = true;
 		state.error = null;
 		state.cachedUser = null;
+		clearTokenCache();
 		loggingStore.setUserId(null);
 	}
 

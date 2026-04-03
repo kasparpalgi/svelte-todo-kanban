@@ -6,7 +6,8 @@ const APP_STORAGE_KEYS = [
 	'todo-filtering-preferences',
 	'todo-view-mode',
 	'mode-watcher-mode',
-	'mode-watcher-theme'
+	'mode-watcher-theme',
+	'app_jwt_cache'
 ] as const;
 
 export function clearAppStorage(): void {
