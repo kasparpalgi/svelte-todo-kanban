@@ -28,7 +28,10 @@
       "Bash(timeout:*)",
       "mcp__playwright__browser_resize",
       "mcp__playwright__browser_close",
-      "Bash(wait $!)"
+      "Bash(wait $!)",
+      "Bash(ls /Users/klarity/Documents/GitHub/svelte-todo-kanban/*.env*)",
+      "Bash(ls /Users/klarity/Documents/GitHub/svelte-todo-kanban/.env*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

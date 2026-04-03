@@ -22,8 +22,6 @@ If any are missing, see setup instructions in README.md.
 - **Sequential Thinking**: Complex planning, architecture decisions
 - **Filesystem**: Bulk file operations (optional)
 
----
-
 ## Tech Stack
 
 **Frontend**: Svelte 5, SvelteKit, TypeScript, Tailwind, shadcn-svelte, Neodrag  
@@ -35,7 +33,7 @@ If any are missing, see setup instructions in README.md.
 ## Development Workflow
 
 ### 1. Plan
-- Create task file in `todo/` with original requirement at top
+- In the existing task file in `todo/`. Leave the existing original requirement at top
 - Use Sequential Thinking MCP for complex features
 - Read relevant files for context
 
