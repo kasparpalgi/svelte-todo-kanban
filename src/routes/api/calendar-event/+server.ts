@@ -57,6 +57,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		);
 
 		const calendarSettings = userData.users_by_pk?.settings?.tokens?.google_calendar;
+		const calendarId = calendarSettings?.calendar_id || 'primary';
 
 		if (!calendarSettings?.encrypted) {
 			console.error('No calendar token found for user');
@@ -143,7 +144,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		const response = await calendar.events.insert({
-			calendarId: 'primary',
+			calendarId,
 			requestBody: event
 		});
 
