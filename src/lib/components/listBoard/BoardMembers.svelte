@@ -24,8 +24,6 @@
 
 	let inviteInput = $state('');
 	let inviteRole = $state<'editor' | 'viewer'>('editor');
-	let searchResults = $state<any[]>([]);
-	let isSearching = $state(false);
 
 	const currentUser = $derived(userStore.user);
 	const members = $derived(boardMembersStore.members);
@@ -49,19 +47,6 @@
 		await boardMembersStore.loadInvitations(board.id);
 	}
 
-	async function handleSearch() {
-		if (!inviteInput.trim()) {
-			searchResults = [];
-			return;
-		}
-
-		isSearching = true;
-		const results = await boardMembersStore.searchUsers(inviteInput);
-
-		searchResults = results.filter((user) => user.id !== currentUser?.id);
-		isSearching = false;
-	}
-
 	async function handleInvite() {
 		if (!inviteInput.trim()) return;
 
@@ -70,7 +55,6 @@
 		if (result.success) {
 			displayMessage($t('members.invitation_sent'), 1500, true);
 			inviteInput = '';
-			searchResults = [];
 			await loadData();
 		} else {
 			displayMessage(result.message);
@@ -149,7 +133,6 @@
 							<Input
 								bind:value={inviteInput}
 								placeholder={$t('members.invite_email_username_placeholder')}
-								oninput={handleSearch}
 								class="flex-1"
 							/>
 							<select
@@ -165,34 +148,6 @@
 							</Button>
 						</div>
 
-						<!-- Search Results -->
-						{#if searchResults.length > 0}
-							<div class="max-h-32 space-y-1 overflow-y-auto rounded-md border p-2">
-								{#each searchResults as user}
-									<button
-										class="flex w-full items-center gap-2 rounded px-2 py-1 text-left text-sm hover:bg-accent"
-										onclick={() => {
-											inviteInput = user.username || user.email;
-											searchResults = [];
-										}}
-									>
-										{#if user.image}
-											<img src={user.image} alt={user.username} class="h-6 w-6 rounded-full" />
-										{:else}
-											<div
-												class="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-medium"
-											>
-												{user.username?.charAt(0)?.toUpperCase() || '?'}
-											</div>
-										{/if}
-										<div>
-											<div class="font-medium">@{user.username}</div>
-											<div class="text-xs text-muted-foreground">{user.email}</div>
-										</div>
-									</button>
-								{/each}
-							</div>
-						{/if}
 					</CardContent>
 				</Card>
 			{/if}

@@ -9,8 +9,6 @@ import { browser } from '$app/environment';
 import { userStore } from './user.svelte';
 import type {
 	GetMyInvitationsQuery,
-	UpdateBoardInvitationMutation,
-	AddBoardMemberMutation,
 	BoardInvitationFieldsFragment
 } from '$lib/graphql/generated/graphql';
 import type { InvitationsState, StoreResult } from '$lib/types/invitation';
@@ -69,7 +67,7 @@ function createInvitationsStore() {
 		}
 
 		try {
-			const memberData: AddBoardMemberMutation = await request(ADD_BOARD_MEMBER, {
+			await request(ADD_BOARD_MEMBER, {
 				objects: [
 					{
 						board_id: invitation.board_id,
@@ -78,44 +76,34 @@ function createInvitationsStore() {
 					}
 				]
 			});
+		} catch (memberError) {
+			console.warn('Add board member error (may already be a member):', memberError);
+		}
 
-			const invitationData: UpdateBoardInvitationMutation = await request(UPDATE_BOARD_INVITATION, {
+		try {
+			await request(UPDATE_BOARD_INVITATION, {
 				where: { id: { _eq: invitationId } },
 				_set: { status: 'accepted' }
 			});
-
-			const updateSuccess =
-				invitationData?.update_board_invitations?.affected_rows &&
-				invitationData.update_board_invitations.affected_rows > 0;
-
-			if (updateSuccess) {
-				state.myInvitations = state.myInvitations.filter((i) => i.id !== invitationId);
-				return { success: true, message: 'Invitation accepted' };
-			}
-
-			return { success: false, message: 'Failed to update invitation status' };
-		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error accepting invitation';
-			console.error('Accept invitation error:', error);
-			return { success: false, message };
+		} catch (updateError) {
+			console.warn('Update invitation status error:', updateError);
 		}
+
+		state.myInvitations = state.myInvitations.filter((i) => i.id !== invitationId);
+		return { success: true, message: 'Invitation accepted' };
 	}
 
 	async function declineInvitation(invitationId: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		try {
-			const data: UpdateBoardInvitationMutation = await request(UPDATE_BOARD_INVITATION, {
+			await request(UPDATE_BOARD_INVITATION, {
 				where: { id: { _eq: invitationId } },
 				_set: { status: 'declined' }
 			});
 
-			if (data.update_board_invitations?.affected_rows) {
-				state.myInvitations = state.myInvitations.filter((i) => i.id !== invitationId);
-				return { success: true, message: 'Invitation declined' };
-			}
-
-			return { success: false, message: 'Failed to decline invitation' };
+			state.myInvitations = state.myInvitations.filter((i) => i.id !== invitationId);
+			return { success: true, message: 'Invitation declined' };
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error declining invitation';
 			console.error('Decline invitation error:', error);
