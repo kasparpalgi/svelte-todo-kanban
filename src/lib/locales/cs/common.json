@@ -531,6 +531,22 @@
       "model_description": "Vyberte AI model pro korekce a vylepšení hlasového vstupu",
       "auto_correct": "Automatická AI korekce hlasového vstupu",
       "auto_correct_description": "Automaticky aplikovat AI korekce na hlasový vstup bez manuálního potvrzení"
+    },
+    "speech": {
+      "title": "Řeč na text",
+      "description": "Vyberte poskytovatele pro přepis hlasového vstupu",
+      "provider": "Poskytovatel přepisu",
+      "provider_browser": "Vestavěný prohlížeč (zdarma, bez API klíče)",
+      "provider_groq": "Groq (rychlý, vyžaduje API klíč)",
+      "provider_whisper": "OpenAI Whisper (přesný, používá serverový klíč)",
+      "browser_description": "Používá vestavěné rozpoznávání řeči zařízení. Zdarma a funguje offline na podporovaných platformách.",
+      "groq_description": "Používá Groq Whisper API. Velmi rychlý přepis. Vyžaduje vlastní Groq API klíč.",
+      "whisper_description": "Používá model OpenAI Whisper přes server. Přepis s vysokou přesností.",
+      "groq_api_key": "Groq API klíč",
+      "groq_api_key_hint": "Získejte API klíč na console.groq.com",
+      "save": "Uložit nastavení řeči",
+      "saved": "Nastavení řeči uloženo",
+      "save_failed": "Uložení nastavení řeči se nezdařilo"
     }
   },
   "notifications": {

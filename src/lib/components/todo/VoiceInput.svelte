@@ -28,10 +28,16 @@
 	let user = $derived(userStore.user);
 	let autoAICorrect = $derived(user?.settings?.auto_ai_correct || false);
 	let aiModel = $derived(user?.settings?.ai_model || 'gpt-5-mini');
+	let speechProvider = $derived(
+		(user?.settings?.speech_provider as 'browser' | 'groq' | 'whisper') || 'browser'
+	);
+	let groqApiKey = $derived((user?.settings?.tokens as any)?.groq?.api_key || '');
 	let currentLang = $derived($page.params.lang || 'en');
 	let isRecording = $state(false);
 	let isSupported = $state(false);
 	let recognition: SpeechRecognition | null = null;
+	let mediaRecorder: MediaRecorder | null = null;
+	let isTranscribing = $state(false);
 	let interimTranscript = $state('');
 	let finalTranscript = $state('');
 	let isMobile = $state(false);
@@ -232,6 +238,75 @@
 			.join(' ');
 	}
 
+	async function transcribeAudio(audioBlob: Blob) {
+		isTranscribing = true;
+		try {
+			const form = new FormData();
+			form.append('audio', audioBlob, 'audio.webm');
+			form.append('provider', speechProvider);
+			if (speechProvider === 'groq') {
+				form.append('groqApiKey', groqApiKey);
+			}
+
+			const response = await fetch('/api/transcribe', { method: 'POST', body: form });
+			if (!response.ok) throw new Error(`Transcription failed: ${response.status}`);
+
+			const data = await response.json();
+			const text = (data.text || '').trim();
+			if (text) {
+				finalTranscript = text;
+				onTranscript(text);
+				await handleAICorrection(text);
+			}
+		} catch (error) {
+			loggingStore.error('VoiceInput', 'Transcription failed', { error });
+			displayMessage('Transcription failed. Please try again.');
+			onError('Transcription failed');
+		} finally {
+			isTranscribing = false;
+		}
+	}
+
+	async function startMediaRecording() {
+		try {
+			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			const chunks: Blob[] = [];
+			mediaRecorder = new MediaRecorder(stream);
+
+			mediaRecorder.ondataavailable = (e) => {
+				if (e.data.size > 0) chunks.push(e.data);
+			};
+
+			mediaRecorder.onstop = async () => {
+				stream.getTracks().forEach((t) => t.stop());
+				const blob = new Blob(chunks, { type: 'audio/webm' });
+				await transcribeAudio(blob);
+			};
+
+			mediaRecorder.start();
+			isRecording = true;
+			interimTranscript = '';
+			finalTranscript = '';
+			showRevertButton = false;
+			showAICorrectButton = false;
+			isAIUndone = false;
+			originalText = '';
+			correctedText = '';
+			loggingStore.info('VoiceInput', 'Media recording started', { provider: speechProvider });
+		} catch (error) {
+			loggingStore.error('VoiceInput', 'Failed to start media recording', { error });
+			displayMessage('Microphone access denied');
+			onError('Microphone access denied');
+		}
+	}
+
+	function stopMediaRecording() {
+		if (mediaRecorder && isRecording) {
+			mediaRecorder.stop();
+			isRecording = false;
+		}
+	}
+
 	onMount(() => {
 		isMobile = detectMobile();
 		loggingStore.debug('VoiceInput', 'Component mounted', {
@@ -240,6 +315,16 @@
 			autoAICorrect,
 			aiModel
 		});
+
+		if (speechProvider === 'groq' || speechProvider === 'whisper') {
+			isSupported = !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== 'undefined';
+			if (!isSupported) {
+				loggingStore.warn('VoiceInput', 'MediaRecorder not supported', {
+					userAgent: navigator.userAgent
+				});
+			}
+			return;
+		}
 
 		const SpeechRecognition =
 			(window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -384,14 +469,22 @@
 	});
 
 	onDestroy(() => {
-		if (recognition && isRecording) {
-			recognition.stop();
+		if (speechProvider === 'browser') {
+			if (recognition && isRecording) recognition.stop();
+		} else {
+			if (mediaRecorder && isRecording) mediaRecorder.stop();
 		}
 	});
 
 	function startRecording() {
-		if (!recognition || !isSupported) return;
+		if (!isSupported) return;
 
+		if (speechProvider === 'groq' || speechProvider === 'whisper') {
+			startMediaRecording();
+			return;
+		}
+
+		if (!recognition) return;
 		try {
 			recognition.start();
 		} catch (error) {
@@ -401,7 +494,9 @@
 	}
 
 	function stopRecording() {
-		if (recognition && isRecording) {
+		if (speechProvider === 'groq' || speechProvider === 'whisper') {
+			stopMediaRecording();
+		} else if (recognition && isRecording) {
 			recognition.stop();
 		}
 	}
@@ -437,6 +532,13 @@
 			</div>
 
 			<div class="flex items-center gap-1">
+				{#if isTranscribing}
+					<div class="flex items-center gap-1 text-sm text-purple-600">
+						<div
+							class="h-3 w-3 animate-spin rounded-full border border-purple-600 border-t-transparent"
+						></div>
+					</div>
+				{/if}
 				{#if isProcessingAI}
 					<div class="flex items-center gap-1 text-sm text-blue-600">
 						<div

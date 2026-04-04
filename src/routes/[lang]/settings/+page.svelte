@@ -22,6 +22,7 @@
 	import { User, Moon, Sun, Layers, List, Save, Brain, ChartColumn } from 'lucide-svelte';
 	import GithubIntegration from '$lib/components/settings/GithubIntegration.svelte';
 	import GoogleCalendarIntegration from '$lib/components/settings/GoogleCalendarIntegration.svelte';
+	import SpeechToTextIntegration from '$lib/components/settings/SpeechToTextIntegration.svelte';
 	import DevMode from '$lib/components/DevMode.svelte';
 
 	let user = $derived(userStore.user);
@@ -321,6 +322,8 @@
 					</div>
 				</CardContent>
 			</Card>
+
+			<SpeechToTextIntegration />
 
 			<GithubIntegration />
 

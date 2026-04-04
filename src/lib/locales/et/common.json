@@ -531,6 +531,22 @@
       "model_description": "Vali AI mudel häälsisestuse paranduste ja täiustuste jaoks",
       "auto_correct": "Paranda häälsisestus automaatselt AI-ga",
       "auto_correct_description": "Rakenda AI parandused häälsisestusele automaatselt ilma käsitsi kinnitamata"
+    },
+    "speech": {
+      "title": "Kõne tekstiks",
+      "description": "Vali pakkuja häälsisestuse transkriptsiooniks",
+      "provider": "Transkriptsiooni pakkuja",
+      "provider_browser": "Brauseri sisseehitatud (tasuta, API võtit pole vaja)",
+      "provider_groq": "Groq (kiire, nõuab API võtit)",
+      "provider_whisper": "OpenAI Whisper (täpne, kasutab serveri võtit)",
+      "browser_description": "Kasutab seadme sisseehitatud kõnetuvastust. Tasuta ja töötab toetatud platvormidel võrguühenduseta.",
+      "groq_description": "Kasutab Groq Whisper API-t. Väga kiire transkriptsioon. Nõuab oma Groq API võtit.",
+      "whisper_description": "Kasutab OpenAI Whisper mudelit serveri kaudu. Kõrge täpsusega transkriptsioon.",
+      "groq_api_key": "Groq API võti",
+      "groq_api_key_hint": "Hangi API võti aadressilt console.groq.com",
+      "save": "Salvesta kõneseaded",
+      "saved": "Kõneseaded salvestatud",
+      "save_failed": "Kõneseadete salvestamine ebaõnnestus"
     }
   },
   "notifications": {

@@ -531,6 +531,22 @@
       "model_description": "Choose the AI model for voice input corrections and enhancements",
       "auto_correct": "Auto-correct voice input with AI",
       "auto_correct_description": "Apply AI corrections to voice input automatically without manual confirmation"
+    },
+    "speech": {
+      "title": "Speech-to-Text",
+      "description": "Choose the provider for voice input transcription",
+      "provider": "Transcription Provider",
+      "provider_browser": "Browser built-in (free, no API key)",
+      "provider_groq": "Groq (fast, requires API key)",
+      "provider_whisper": "OpenAI Whisper (accurate, uses server key)",
+      "browser_description": "Uses the device's built-in speech recognition. Free and works offline on supported platforms.",
+      "groq_description": "Uses Groq's Whisper API. Very fast transcription. Requires your own Groq API key.",
+      "whisper_description": "Uses OpenAI's Whisper model via the server. High accuracy transcription.",
+      "groq_api_key": "Groq API Key",
+      "groq_api_key_hint": "Get your API key from console.groq.com",
+      "save": "Save Speech Settings",
+      "saved": "Speech settings saved",
+      "save_failed": "Failed to save speech settings"
     }
   },
   "notifications": {
