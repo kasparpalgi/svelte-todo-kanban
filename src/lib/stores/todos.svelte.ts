@@ -332,6 +332,8 @@ function createTodosStore() {
 		// Import user store to get current user ID
 		const { userStore: us } = await import('./user.svelte');
 
+		const tempId = `temp-${crypto.randomUUID()}`;
+
 		try {
 			let sortOrder: number;
 
@@ -360,6 +362,74 @@ function createTodosStore() {
 				}
 			}
 
+			// Optimistic insert — show the card immediately before API responds
+			const now = new Date().toISOString();
+			const listData = listId ? (listsStore.lists.find((l) => l.id === listId) ?? null) : null;
+			const optimisticTodo = {
+				id: tempId,
+				alias: '',
+				title: title.trim(),
+				content: content?.trim() || null,
+				sort_order: sortOrder,
+				list_id: listId || null,
+				completed_at: null,
+				created_at: now,
+				updated_at: now,
+				assigned_to: us.user?.id || null,
+				due_on: null,
+				has_time: false,
+				priority: priority || null,
+				github_issue_number: null,
+				github_issue_id: null,
+				github_synced_at: null,
+				github_url: null,
+				min_hours: null,
+				max_hours: null,
+				actual_hours: null,
+				comment_hours: null,
+				assignee: us.user
+					? {
+							id: us.user.id,
+							name: us.user.name ?? null,
+							username: us.user.username ?? '',
+							image: us.user.image ?? null,
+							email: us.user.email ?? null
+						}
+					: null,
+				labels: [],
+				comments: [],
+				uploads: [],
+				subscribers: [],
+				list: listData
+					? {
+							id: listData.id,
+							name: listData.name,
+							sort_order: listData.sort_order,
+							board: listData.board
+								? {
+										id: listData.board.id,
+										name: listData.board.name,
+										alias: listData.board.alias,
+										sort_order: listData.board.sort_order,
+										github: listData.board.github ?? null,
+										settings: (listData.board as any).settings ?? null
+									}
+								: null
+						}
+					: null
+			} as unknown as TodoFieldsFragment;
+
+			const insertIndex = state.todos.findIndex((t) => (t.sort_order || 1000) > sortOrder);
+			if (insertIndex === -1) {
+				state.todos = [...state.todos, optimisticTodo];
+			} else {
+				state.todos = [
+					...state.todos.slice(0, insertIndex),
+					optimisticTodo,
+					...state.todos.slice(insertIndex)
+				];
+			}
+
 			const data: CreateTodoMutation = await request(CREATE_TODO, {
 				objects: [
 					{
@@ -374,16 +444,12 @@ function createTodosStore() {
 
 			const newTodo = data.insert_todos?.returning?.[0];
 			if (newTodo) {
-				const todoIndex = state.todos.findIndex((t) => (t.sort_order || 1000) > sortOrder);
-
-				if (todoIndex === -1) {
-					state.todos = [...state.todos, newTodo];
+				// Replace optimistic placeholder with real todo from API
+				const tempIdx = state.todos.findIndex((t) => t.id === tempId);
+				if (tempIdx !== -1) {
+					state.todos[tempIdx] = newTodo;
 				} else {
-					state.todos = [
-						...state.todos.slice(0, todoIndex),
-						newTodo,
-						...state.todos.slice(todoIndex)
-					];
+					state.todos = [...state.todos, newTodo];
 				}
 
 				// Log activity: todo created
@@ -443,8 +509,12 @@ function createTodosStore() {
 				};
 			}
 
+			// API returned no todo — rollback optimistic insert
+			state.todos = state.todos.filter((t) => t.id !== tempId);
 			return { success: false, message: 'Failed to add todo' };
 		} catch (error) {
+			// Rollback optimistic insert on error
+			state.todos = state.todos.filter((t) => t.id !== tempId);
 			const message = error instanceof Error ? error.message : 'Error adding todo';
 			console.error('Add todo error:', error);
 			return { success: false, message };

@@ -1,0 +1,3 @@
+I can quick add new card in Kanban view at the top and at the bottom of each list. If I add in the bottom then it seems to be instant (optimistic) when I create but when I add in the top then the quick add form disappears and the item is seen below once it is created in the API and is even slower when it needs to create also GitHub issue.
+
+Do the changes in main branch where we are and do not commit. I will commit. Add this also to memory or CLAUDE.md or wherever needed so I don't need to tell it every time.

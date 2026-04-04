@@ -87,6 +87,14 @@
 		const boardGithub = list.board?.github;
 		const createGithubIssue = !!(boardGithub && !skipGithub);
 
+		// Close form and clear input immediately — the store inserts optimistically
+		if (addToTop) {
+			newTaskTitleTop = '';
+			showQuickAdd = false;
+		} else {
+			newTaskTitleBottom = '';
+		}
+
 		const result = await todosStore.addTodo(
 			title.trim(),
 			undefined,
@@ -96,14 +104,15 @@
 		);
 
 		if (result.success) {
-			if (addToTop) {
-				newTaskTitleTop = '';
-			} else {
-				newTaskTitleBottom = '';
-			}
-			showQuickAdd = false;
 			displayMessage($t('todo.task_added'), 1500, true);
 		} else {
+			// Restore form so user can retry
+			if (addToTop) {
+				newTaskTitleTop = title;
+				showQuickAdd = true;
+			} else {
+				newTaskTitleBottom = title;
+			}
 			displayMessage(result.message);
 		}
 	}
