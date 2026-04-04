@@ -58,6 +58,14 @@
 	const username: string = $derived(page.params.username || '');
 	const boardAlias: string = $derived(page.params.board || '');
 	const lang: string = $derived(getEffectiveLocale(page.params.lang, userStore.user?.locale));
+
+	// True when the selected board has changed but todos haven't loaded for it yet.
+	// This prevents old board content from flashing before the spinner appears.
+	const isSwitchingBoards = $derived(
+		todosStore.initialized &&
+		listsStore.selectedBoard !== null &&
+		todosStore.currentBoardId !== listsStore.selectedBoard?.id
+	);
 	const isNotMember: boolean = $derived.by(() => {
 		const board = listsStore.selectedBoard;
 		const currentUser = userStore.user;
@@ -273,7 +281,7 @@
 			Sign in to view this board
 		</p>
 	</div>
-{:else if loading}
+{:else if loading || isSwitchingBoards}
 	<div class="flex items-center justify-center py-12">
 		<div
 			class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
