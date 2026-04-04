@@ -19,7 +19,7 @@ export const GET: RequestHandler = async ({ url }) => {
 	authUrl.searchParams.set('client_id', AUTH_GOOGLE_ID);
 	authUrl.searchParams.set('redirect_uri', redirectUri);
 	authUrl.searchParams.set('response_type', 'code');
-	authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/calendar.events');
+	authUrl.searchParams.set('scope', 'https://www.googleapis.com/auth/calendar.app.created');
 	authUrl.searchParams.set('access_type', 'offline');
 	authUrl.searchParams.set('prompt', 'consent');
 	authUrl.searchParams.set('state', userId);
