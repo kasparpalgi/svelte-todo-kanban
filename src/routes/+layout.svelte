@@ -41,7 +41,7 @@
 </script>
 
 <svelte:head>
-	{#if pwaInfo}
+	{#if pwaInfo && !page.url.pathname.endsWith('/mobile-add')}
 		{@html pwaInfo.webManifest.linkTag}
 	{/if}
 	<meta name="viewport" content="width=device-width, initial-scale=1" />

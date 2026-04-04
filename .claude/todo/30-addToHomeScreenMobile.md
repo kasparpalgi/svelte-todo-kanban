@@ -1,0 +1,1 @@
+At the bottom of each board there is a link to click for a voice quick add item to that board's specific list. The idea is that on mobile you can add then that specific page to the home screen and when you click on that it will open that /[lang]/[username]/[board]/mobile-add when clicked but when I add it to the homescreen on mobile it will just open the last opened board.

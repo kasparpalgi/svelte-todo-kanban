@@ -66,6 +66,10 @@
 
 <svelte:head>
 	<title>{$t('todo.quick_add_board')}</title>
+	<link
+		rel="manifest"
+		href="/api/manifest/{page.params.lang}/{page.params.username}/{page.params.board}/mobile-add"
+	/>
 </svelte:head>
 
 <div class="p-4">
