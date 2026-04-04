@@ -202,7 +202,7 @@ function createBoardMembersStore() {
 
 		try {
 			const data: GetBoardInvitationsQuery = await request(GET_BOARD_INVITATIONS, {
-				where: { board_id: { _eq: boardId } },
+				where: { board_id: { _eq: boardId }, status: { _eq: 'pending' } },
 				order_by: [{ created_at: 'desc' }]
 			});
 
