@@ -497,6 +497,7 @@
     "description": "Manage your account settings and preferences",
     "saving": "Saving...",
     "save_changes": "Save Changes",
+    "log_out": "Log Out",
     "view_statistics": "View Time Tracker Statistics",
     "technical_logs": "Technical Logs",
     "profile": {

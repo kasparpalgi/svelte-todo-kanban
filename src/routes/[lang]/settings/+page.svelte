@@ -19,7 +19,9 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
-	import { User, Moon, Sun, Layers, List, Save, Brain, ChartColumn } from 'lucide-svelte';
+	import { User, Moon, Sun, Layers, List, Save, Brain, ChartColumn, LogOut } from 'lucide-svelte';
+	import { listsStore } from '$lib/stores/listsBoards.svelte';
+	import { clearAllStorage } from '$lib/utils/localStorage';
 	import GithubIntegration from '$lib/components/settings/GithubIntegration.svelte';
 	import GoogleCalendarIntegration from '$lib/components/settings/GoogleCalendarIntegration.svelte';
 	import SpeechToTextIntegration from '$lib/components/settings/SpeechToTextIntegration.svelte';
@@ -119,6 +121,17 @@
 		if (!result.success) {
 			formData.autoAICorrect = !formData.autoAICorrect;
 		}
+	}
+
+	async function handleLogout() {
+		listsStore.reset();
+		userStore.reset();
+		await clearAllStorage();
+		const form = document.createElement('form');
+		form.method = 'POST';
+		form.action = '/logout';
+		document.body.appendChild(form);
+		form.submit();
 	}
 
 	$effect(() => {
@@ -329,7 +342,7 @@
 
 			<GoogleCalendarIntegration />
 
-			<div class="flex justify-start">
+			<div class="flex items-center justify-between">
 				<Button
 					type="submit"
 					disabled={userStore.loading}
@@ -342,6 +355,16 @@
 					{:else}
 						{$t('settings.save_changes')}
 					{/if}
+				</Button>
+				<Button
+					type="button"
+					variant="outline"
+					size="lg"
+					onclick={handleLogout}
+					class="flex items-center gap-2"
+				>
+					<LogOut class="h-4 w-4" />
+					{$t('settings.log_out')}
 				</Button>
 			</div>
 		</form>

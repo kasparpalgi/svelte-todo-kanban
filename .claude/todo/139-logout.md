@@ -1,0 +1,1 @@
+I'm not sure I already had at some point logout functionality but can't find it on the UI right ow. Add logout button at the very bottom right hand side in one line with left hand side "Save" button under settings.

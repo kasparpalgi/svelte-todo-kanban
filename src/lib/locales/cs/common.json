@@ -497,6 +497,7 @@
     "description": "Spravujte nastavení svého účtu a předvolby",
     "saving": "Ukládání...",
     "save_changes": "Uložit změny",
+    "log_out": "Odhlásit se",
     "view_statistics": "Zobrazit statistiky",
     "technical_logs": "Technické záznamy",
     "profile": {
