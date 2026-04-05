@@ -3,19 +3,17 @@ import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async (event) => {
-	const session = await event.locals.auth();
+	// Auth.js uses __Secure- prefix in production (HTTPS).
+	// Clear both variants to cover dev (HTTP) and prod (HTTPS).
+	const cookieOpts = { path: '/', httpOnly: true, sameSite: 'lax' } as const;
 
-	event.cookies.set('authjs.session-token', '', {
-		path: '/',
-		expires: new Date(0),
-		httpOnly: true,
-		sameSite: 'lax'
-	});
+	event.cookies.delete('authjs.session-token', cookieOpts);
+	event.cookies.delete('authjs.callback-url', { path: '/' });
 
-	event.cookies.set('authjs.callback-url', '', {
-		path: '/',
-		expires: new Date(0),
-		sameSite: 'lax'
+	// __Secure- prefix requires secure:true in the Set-Cookie header
+	event.cookies.delete('__Secure-authjs.session-token', {
+		...cookieOpts,
+		secure: true
 	});
 
 	throw redirect(303, '/signin');
