@@ -44,9 +44,6 @@ export default defineConfig({
 					}
 				]
 			},
-			injectManifest: {
-				globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}']
-			},
 			workbox: {
 				globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}'],
 				cleanupOutdatedCaches: true,
@@ -55,8 +52,8 @@ export default defineConfig({
 				navigateFallback: null
 			},
 			devOptions: {
-				enabled: true,
-				suppressWarnings: process.env.SUPPRESS_WARNING === 'true',
+				enabled: false,
+				suppressWarnings: true,
 				type: 'module'
 			},
 			kit: {}

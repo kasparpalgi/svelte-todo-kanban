@@ -1249,3 +1249,52 @@ export const InsertPenon = graphql(`
     }
   }
 `);
+
+// ========== Podcasts ==========
+
+export const GET_PODCASTS = graphql(`
+  query GetPodcasts {
+    podcasts(limit: 5000, order_by: { created_at: desc }) {
+      id
+      podcast_name
+      url
+      title
+      description
+      date
+      transcription_md
+      created_at
+      user {
+        id
+        username
+      }
+    }
+  }
+`);
+
+export const INSERT_PODCAST = graphql(`
+  mutation InsertPodcast($object: podcasts_insert_input!) {
+    insert_podcasts_one(object: $object) {
+      id
+      podcast_name
+      url
+      title
+      description
+      date
+      transcription_md
+      created_at
+      user {
+        id
+        username
+      }
+    }
+  }
+`);
+
+export const UPDATE_PODCAST_TRANSCRIPTION = graphql(`
+  mutation UpdatePodcastTranscription($id: uuid!, $transcription_md: String!) {
+    update_podcasts_by_pk(pk_columns: { id: $id }, _set: { transcription_md: $transcription_md }) {
+      id
+      transcription_md
+    }
+  }
+`);

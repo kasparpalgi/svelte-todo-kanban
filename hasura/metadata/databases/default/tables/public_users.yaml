@@ -127,6 +127,13 @@ insert_permissions:
         - username
     comment: ""
 select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - id
+        - username
+      filter: {}
+    comment: ""
   - role: user
     permission:
       columns:

@@ -554,8 +554,8 @@ export type Activity_Logs = {
   todo: Todos;
   todo_id: Scalars['uuid']['output'];
   /** An object relationship */
-  user: Users;
-  user_id: Scalars['uuid']['output'];
+  user?: Maybe<Users>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
 };
 
 
@@ -5433,6 +5433,10 @@ export type Mutation_Root = {
   delete_penon?: Maybe<Penon_Mutation_Response>;
   /** delete single row from the table: "penon" */
   delete_penon_by_pk?: Maybe<Penon>;
+  /** delete data from the table: "podcasts" */
+  delete_podcasts?: Maybe<Podcasts_Mutation_Response>;
+  /** delete single row from the table: "podcasts" */
+  delete_podcasts_by_pk?: Maybe<Podcasts>;
   /** delete data from the table: "sessions" */
   delete_sessions?: Maybe<Sessions_Mutation_Response>;
   /** delete single row from the table: "sessions" */
@@ -5549,6 +5553,10 @@ export type Mutation_Root = {
   insert_penon?: Maybe<Penon_Mutation_Response>;
   /** insert a single row into the table: "penon" */
   insert_penon_one?: Maybe<Penon>;
+  /** insert data into the table: "podcasts" */
+  insert_podcasts?: Maybe<Podcasts_Mutation_Response>;
+  /** insert a single row into the table: "podcasts" */
+  insert_podcasts_one?: Maybe<Podcasts>;
   /** insert data into the table: "sessions" */
   insert_sessions?: Maybe<Sessions_Mutation_Response>;
   /** insert a single row into the table: "sessions" */
@@ -5699,6 +5707,12 @@ export type Mutation_Root = {
   update_penon_by_pk?: Maybe<Penon>;
   /** update multiples rows of table: "penon" */
   update_penon_many?: Maybe<Array<Maybe<Penon_Mutation_Response>>>;
+  /** update data of the table: "podcasts" */
+  update_podcasts?: Maybe<Podcasts_Mutation_Response>;
+  /** update single row of the table: "podcasts" */
+  update_podcasts_by_pk?: Maybe<Podcasts>;
+  /** update multiples rows of table: "podcasts" */
+  update_podcasts_many?: Maybe<Array<Maybe<Podcasts_Mutation_Response>>>;
   /** update data of the table: "sessions" */
   update_sessions?: Maybe<Sessions_Mutation_Response>;
   /** update single row of the table: "sessions" */
@@ -5974,6 +5988,18 @@ export type Mutation_RootDelete_PenonArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Penon_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_PodcastsArgs = {
+  where: Podcasts_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Podcasts_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -6360,6 +6386,20 @@ export type Mutation_RootInsert_PenonArgs = {
 export type Mutation_RootInsert_Penon_OneArgs = {
   object: Penon_Insert_Input;
   on_conflict?: InputMaybe<Penon_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_PodcastsArgs = {
+  objects: Array<Podcasts_Insert_Input>;
+  on_conflict?: InputMaybe<Podcasts_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Podcasts_OneArgs = {
+  object: Podcasts_Insert_Input;
+  on_conflict?: InputMaybe<Podcasts_On_Conflict>;
 };
 
 
@@ -6930,6 +6970,26 @@ export type Mutation_RootUpdate_Penon_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Penon_ManyArgs = {
   updates: Array<Penon_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_PodcastsArgs = {
+  _set?: InputMaybe<Podcasts_Set_Input>;
+  where: Podcasts_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Podcasts_By_PkArgs = {
+  _set?: InputMaybe<Podcasts_Set_Input>;
+  pk_columns: Podcasts_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Podcasts_ManyArgs = {
+  updates: Array<Podcasts_Updates>;
 };
 
 
@@ -8493,6 +8553,229 @@ export type Penon_Variance_Fields = {
   temp?: Maybe<Scalars['Float']['output']>;
 };
 
+/** columns and relationships of "podcasts" */
+export type Podcasts = {
+  __typename?: 'podcasts';
+  created_at: Scalars['timestamptz']['output'];
+  date?: Maybe<Scalars['date']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['uuid']['output'];
+  podcast_name: Scalars['String']['output'];
+  title?: Maybe<Scalars['String']['output']>;
+  transcription_md: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+  /** An object relationship */
+  user?: Maybe<Users>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** aggregated selection of "podcasts" */
+export type Podcasts_Aggregate = {
+  __typename?: 'podcasts_aggregate';
+  aggregate?: Maybe<Podcasts_Aggregate_Fields>;
+  nodes: Array<Podcasts>;
+};
+
+/** aggregate fields of "podcasts" */
+export type Podcasts_Aggregate_Fields = {
+  __typename?: 'podcasts_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Podcasts_Max_Fields>;
+  min?: Maybe<Podcasts_Min_Fields>;
+};
+
+
+/** aggregate fields of "podcasts" */
+export type Podcasts_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Podcasts_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Boolean expression to filter rows from the table "podcasts". All fields are combined with a logical 'AND'. */
+export type Podcasts_Bool_Exp = {
+  _and?: InputMaybe<Array<Podcasts_Bool_Exp>>;
+  _not?: InputMaybe<Podcasts_Bool_Exp>;
+  _or?: InputMaybe<Array<Podcasts_Bool_Exp>>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  date?: InputMaybe<Date_Comparison_Exp>;
+  description?: InputMaybe<String_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  podcast_name?: InputMaybe<String_Comparison_Exp>;
+  title?: InputMaybe<String_Comparison_Exp>;
+  transcription_md?: InputMaybe<String_Comparison_Exp>;
+  url?: InputMaybe<String_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "podcasts" */
+export enum Podcasts_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  PodcastsPkey = 'podcasts_pkey'
+}
+
+/** input type for inserting data into table "podcasts" */
+export type Podcasts_Insert_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  date?: InputMaybe<Scalars['date']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  podcast_name?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  transcription_md?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Podcasts_Max_Fields = {
+  __typename?: 'podcasts_max_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  date?: Maybe<Scalars['date']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  podcast_name?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  transcription_md?: Maybe<Scalars['String']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** aggregate min on columns */
+export type Podcasts_Min_Fields = {
+  __typename?: 'podcasts_min_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  date?: Maybe<Scalars['date']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  podcast_name?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  transcription_md?: Maybe<Scalars['String']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** response of any mutation on the table "podcasts" */
+export type Podcasts_Mutation_Response = {
+  __typename?: 'podcasts_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Podcasts>;
+};
+
+/** on_conflict condition type for table "podcasts" */
+export type Podcasts_On_Conflict = {
+  constraint: Podcasts_Constraint;
+  update_columns?: Array<Podcasts_Update_Column>;
+  where?: InputMaybe<Podcasts_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "podcasts". */
+export type Podcasts_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  date?: InputMaybe<Order_By>;
+  description?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  podcast_name?: InputMaybe<Order_By>;
+  title?: InputMaybe<Order_By>;
+  transcription_md?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: podcasts */
+export type Podcasts_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "podcasts" */
+export enum Podcasts_Select_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Date = 'date',
+  /** column name */
+  Description = 'description',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  PodcastName = 'podcast_name',
+  /** column name */
+  Title = 'title',
+  /** column name */
+  TranscriptionMd = 'transcription_md',
+  /** column name */
+  Url = 'url',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "podcasts" */
+export type Podcasts_Set_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  date?: InputMaybe<Scalars['date']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  podcast_name?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  transcription_md?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** Streaming cursor of the table "podcasts" */
+export type Podcasts_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Podcasts_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Podcasts_Stream_Cursor_Value_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  date?: InputMaybe<Scalars['date']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  podcast_name?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  transcription_md?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** update columns of table "podcasts" */
+export enum Podcasts_Update_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Date = 'date',
+  /** column name */
+  Description = 'description',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  PodcastName = 'podcast_name',
+  /** column name */
+  Title = 'title',
+  /** column name */
+  TranscriptionMd = 'transcription_md',
+  /** column name */
+  Url = 'url',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Podcasts_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Podcasts_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Podcasts_Bool_Exp;
+};
+
 export type Query_Root = {
   __typename?: 'query_root';
   /** An array relationship */
@@ -8597,6 +8880,12 @@ export type Query_Root = {
   penon_aggregate: Penon_Aggregate;
   /** fetch data from the table: "penon" using primary key columns */
   penon_by_pk?: Maybe<Penon>;
+  /** fetch data from the table: "podcasts" */
+  podcasts: Array<Podcasts>;
+  /** fetch aggregated fields from the table: "podcasts" */
+  podcasts_aggregate: Podcasts_Aggregate;
+  /** fetch data from the table: "podcasts" using primary key columns */
+  podcasts_by_pk?: Maybe<Podcasts>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -9067,6 +9356,29 @@ export type Query_RootPenon_AggregateArgs = {
 
 
 export type Query_RootPenon_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootPodcastsArgs = {
+  distinct_on?: InputMaybe<Array<Podcasts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Podcasts_Order_By>>;
+  where?: InputMaybe<Podcasts_Bool_Exp>;
+};
+
+
+export type Query_RootPodcasts_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Podcasts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Podcasts_Order_By>>;
+  where?: InputMaybe<Podcasts_Bool_Exp>;
+};
+
+
+export type Query_RootPodcasts_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -9757,6 +10069,14 @@ export type Subscription_Root = {
   penon_by_pk?: Maybe<Penon>;
   /** fetch data from the table in a streaming manner: "penon" */
   penon_stream: Array<Penon>;
+  /** fetch data from the table: "podcasts" */
+  podcasts: Array<Podcasts>;
+  /** fetch aggregated fields from the table: "podcasts" */
+  podcasts_aggregate: Podcasts_Aggregate;
+  /** fetch data from the table: "podcasts" using primary key columns */
+  podcasts_by_pk?: Maybe<Podcasts>;
+  /** fetch data from the table in a streaming manner: "podcasts" */
+  podcasts_stream: Array<Podcasts>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -10375,6 +10695,36 @@ export type Subscription_RootPenon_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Penon_Stream_Cursor_Input>>;
   where?: InputMaybe<Penon_Bool_Exp>;
+};
+
+
+export type Subscription_RootPodcastsArgs = {
+  distinct_on?: InputMaybe<Array<Podcasts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Podcasts_Order_By>>;
+  where?: InputMaybe<Podcasts_Bool_Exp>;
+};
+
+
+export type Subscription_RootPodcasts_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Podcasts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Podcasts_Order_By>>;
+  where?: InputMaybe<Podcasts_Bool_Exp>;
+};
+
+
+export type Subscription_RootPodcasts_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootPodcasts_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Podcasts_Stream_Cursor_Input>>;
+  where?: InputMaybe<Podcasts_Bool_Exp>;
 };
 
 
@@ -15902,7 +16252,7 @@ export type DeleteNotificationMutationVariables = Exact<{
 
 export type DeleteNotificationMutation = { __typename?: 'mutation_root', delete_notifications_by_pk?: { __typename?: 'notifications', id: string } | null };
 
-export type ActivityLogFieldsFragment = { __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } };
+export type ActivityLogFieldsFragment = { __typename?: 'activity_logs', id: string, user_id?: string | null, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } };
 
 export type GetActivityLogsQueryVariables = Exact<{
   where?: InputMaybe<Activity_Logs_Bool_Exp>;
@@ -15912,14 +16262,14 @@ export type GetActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type GetActivityLogsQuery = { __typename?: 'query_root', activity_logs: Array<{ __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } }>, activity_logs_aggregate: { __typename?: 'activity_logs_aggregate', aggregate?: { __typename?: 'activity_logs_aggregate_fields', count: number } | null } };
+export type GetActivityLogsQuery = { __typename?: 'query_root', activity_logs: Array<{ __typename?: 'activity_logs', id: string, user_id?: string | null, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } }>, activity_logs_aggregate: { __typename?: 'activity_logs_aggregate', aggregate?: { __typename?: 'activity_logs_aggregate_fields', count: number } | null } };
 
 export type CreateActivityLogMutationVariables = Exact<{
   log: Activity_Logs_Insert_Input;
 }>;
 
 
-export type CreateActivityLogMutation = { __typename?: 'mutation_root', insert_activity_logs_one?: { __typename?: 'activity_logs', id: string, user_id: string, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } } | null };
+export type CreateActivityLogMutation = { __typename?: 'mutation_root', insert_activity_logs_one?: { __typename?: 'activity_logs', id: string, user_id?: string | null, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } } | null };
 
 export type SubscribeToTodoMutationVariables = Exact<{
   todo_id: Scalars['uuid']['input'];
@@ -16027,6 +16377,26 @@ export type InsertPenonMutationVariables = Exact<{
 
 
 export type InsertPenonMutation = { __typename?: 'mutation_root', insert_penon?: { __typename?: 'penon_mutation_response', affected_rows: number } | null };
+
+export type GetPodcastsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPodcastsQuery = { __typename?: 'query_root', podcasts: Array<{ __typename?: 'podcasts', id: string, podcast_name: string, url: string, title?: string | null, description?: string | null, date?: string | null, transcription_md: string, created_at: string, user?: { __typename?: 'users', id: string, username: string } | null }> };
+
+export type InsertPodcastMutationVariables = Exact<{
+  object: Podcasts_Insert_Input;
+}>;
+
+
+export type InsertPodcastMutation = { __typename?: 'mutation_root', insert_podcasts_one?: { __typename?: 'podcasts', id: string, podcast_name: string, url: string, title?: string | null, description?: string | null, date?: string | null, transcription_md: string, created_at: string, user?: { __typename?: 'users', id: string, username: string } | null } | null };
+
+export type UpdatePodcastTranscriptionMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  transcription_md: Scalars['String']['input'];
+}>;
+
+
+export type UpdatePodcastTranscriptionMutation = { __typename?: 'mutation_root', update_podcasts_by_pk?: { __typename?: 'podcasts', id: string, transcription_md: string } | null };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -18311,3 +18681,50 @@ export const InsertPenonDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<InsertPenonMutation, InsertPenonMutationVariables>;
+export const GetPodcastsDocument = new TypedDocumentString(`
+    query GetPodcasts {
+  podcasts(limit: 5000, order_by: {created_at: desc}) {
+    id
+    podcast_name
+    url
+    title
+    description
+    date
+    transcription_md
+    created_at
+    user {
+      id
+      username
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetPodcastsQuery, GetPodcastsQueryVariables>;
+export const InsertPodcastDocument = new TypedDocumentString(`
+    mutation InsertPodcast($object: podcasts_insert_input!) {
+  insert_podcasts_one(object: $object) {
+    id
+    podcast_name
+    url
+    title
+    description
+    date
+    transcription_md
+    created_at
+    user {
+      id
+      username
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<InsertPodcastMutation, InsertPodcastMutationVariables>;
+export const UpdatePodcastTranscriptionDocument = new TypedDocumentString(`
+    mutation UpdatePodcastTranscription($id: uuid!, $transcription_md: String!) {
+  update_podcasts_by_pk(
+    pk_columns: {id: $id}
+    _set: {transcription_md: $transcription_md}
+  ) {
+    id
+    transcription_md
+  }
+}
+    `) as unknown as TypedDocumentString<UpdatePodcastTranscriptionMutation, UpdatePodcastTranscriptionMutationVariables>;

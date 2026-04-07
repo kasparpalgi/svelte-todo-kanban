@@ -98,6 +98,9 @@ type Documents = {
     "\n\tmutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses_by_pk(pk_columns: { id: $id }, _set: { deleted_at: $deleted_at }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": typeof types.DeleteExpenseDocument,
     "\n  query Penon($where: penon_bool_exp = {}, $order_by: [penon_order_by!] = {timestamp: desc}, $limit: Int = 5000, $offset: Int = 0) {\n    penon(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n      id\n      temp\n      humidity\n      soil\n      timestamp\n    }\n  }\n": typeof types.PenonDocument,
     "\n  mutation InsertPenon($objects: [penon_insert_input!]!) {\n    insert_penon(objects: $objects) {\n      affected_rows\n    }\n  }\n": typeof types.InsertPenonDocument,
+    "\n  query GetPodcasts {\n    podcasts(limit: 5000, order_by: { created_at: desc }) {\n      id\n      podcast_name\n      url\n      title\n      description\n      date\n      transcription_md\n      created_at\n      user {\n        id\n        username\n      }\n    }\n  }\n": typeof types.GetPodcastsDocument,
+    "\n  mutation InsertPodcast($object: podcasts_insert_input!) {\n    insert_podcasts_one(object: $object) {\n      id\n      podcast_name\n      url\n      title\n      description\n      date\n      transcription_md\n      created_at\n      user {\n        id\n        username\n      }\n    }\n  }\n": typeof types.InsertPodcastDocument,
+    "\n  mutation UpdatePodcastTranscription($id: uuid!, $transcription_md: String!) {\n    update_podcasts_by_pk(pk_columns: { id: $id }, _set: { transcription_md: $transcription_md }) {\n      id\n      transcription_md\n    }\n  }\n": typeof types.UpdatePodcastTranscriptionDocument,
 };
 const documents: Documents = {
     "\n\tfragment TodoFields on todos {\n\t\tid\n\t\talias\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\thas_time\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tassigned_to\n\t\tgithub_issue_number\n\t\tgithub_issue_id\n\t\tgithub_synced_at\n\t\tgithub_url\n\t\tmin_hours\n\t\tmax_hours\n\t\tactual_hours\n\t\tcomment_hours\n\t\tassignee {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tcomments(order_by: { created_at: asc }) {\n\t\t\t...CommentFields\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tsubscribers {\n\t\t\tuser_id\n\t\t\tcreated_at\n\t\t\tsubscriber {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tusername\n\t\t\t\timage\n\t\t\t\temail\n\t\t\t}\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t\tgithub\n\t\t\t\tsettings\n\t\t\t}\n\t\t}\n\t}\n": types.TodoFieldsFragmentDoc,
@@ -183,6 +186,9 @@ const documents: Documents = {
     "\n\tmutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses_by_pk(pk_columns: { id: $id }, _set: { deleted_at: $deleted_at }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": types.DeleteExpenseDocument,
     "\n  query Penon($where: penon_bool_exp = {}, $order_by: [penon_order_by!] = {timestamp: desc}, $limit: Int = 5000, $offset: Int = 0) {\n    penon(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n      id\n      temp\n      humidity\n      soil\n      timestamp\n    }\n  }\n": types.PenonDocument,
     "\n  mutation InsertPenon($objects: [penon_insert_input!]!) {\n    insert_penon(objects: $objects) {\n      affected_rows\n    }\n  }\n": types.InsertPenonDocument,
+    "\n  query GetPodcasts {\n    podcasts(limit: 5000, order_by: { created_at: desc }) {\n      id\n      podcast_name\n      url\n      title\n      description\n      date\n      transcription_md\n      created_at\n      user {\n        id\n        username\n      }\n    }\n  }\n": types.GetPodcastsDocument,
+    "\n  mutation InsertPodcast($object: podcasts_insert_input!) {\n    insert_podcasts_one(object: $object) {\n      id\n      podcast_name\n      url\n      title\n      description\n      date\n      transcription_md\n      created_at\n      user {\n        id\n        username\n      }\n    }\n  }\n": types.InsertPodcastDocument,
+    "\n  mutation UpdatePodcastTranscription($id: uuid!, $transcription_md: String!) {\n    update_podcasts_by_pk(pk_columns: { id: $id }, _set: { transcription_md: $transcription_md }) {\n      id\n      transcription_md\n    }\n  }\n": types.UpdatePodcastTranscriptionDocument,
 };
 
 /**
@@ -517,6 +523,18 @@ export function graphql(source: "\n  query Penon($where: penon_bool_exp = {}, $o
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation InsertPenon($objects: [penon_insert_input!]!) {\n    insert_penon(objects: $objects) {\n      affected_rows\n    }\n  }\n"): typeof import('./graphql').InsertPenonDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetPodcasts {\n    podcasts(limit: 5000, order_by: { created_at: desc }) {\n      id\n      podcast_name\n      url\n      title\n      description\n      date\n      transcription_md\n      created_at\n      user {\n        id\n        username\n      }\n    }\n  }\n"): typeof import('./graphql').GetPodcastsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation InsertPodcast($object: podcasts_insert_input!) {\n    insert_podcasts_one(object: $object) {\n      id\n      podcast_name\n      url\n      title\n      description\n      date\n      transcription_md\n      created_at\n      user {\n        id\n        username\n      }\n    }\n  }\n"): typeof import('./graphql').InsertPodcastDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UpdatePodcastTranscription($id: uuid!, $transcription_md: String!) {\n    update_podcasts_by_pk(pk_columns: { id: $id }, _set: { transcription_md: $transcription_md }) {\n      id\n      transcription_md\n    }\n  }\n"): typeof import('./graphql').UpdatePodcastTranscriptionDocument;
 
 
 export function graphql(source: string) {

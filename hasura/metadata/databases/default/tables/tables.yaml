@@ -14,6 +14,8 @@
 - "!include public_note_uploads.yaml"
 - "!include public_notes.yaml"
 - "!include public_notifications.yaml"
+- "!include public_penon.yaml"
+- "!include public_podcasts.yaml"
 - "!include public_sessions.yaml"
 - "!include public_todo_labels.yaml"
 - "!include public_todo_subscribers.yaml"

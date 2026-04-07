@@ -1,1 +1,21 @@
-[]
+- name: allowed-queries
+  definition:
+    queries:
+      - name: Podcasts
+        query: |
+          query Podcasts {
+            podcasts(limit: 5000, order_by: {created_at:desc}) {
+              id
+              podcast_name
+              url
+              title
+              description
+              date
+              transcription_md
+              created_at
+              user {
+                id
+                username
+              }
+            }
+          }
