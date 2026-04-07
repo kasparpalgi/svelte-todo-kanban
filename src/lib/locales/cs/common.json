@@ -662,6 +662,22 @@
     "url_required": "Audio URL je povinné",
     "name_required": "Název podcastu je povinný",
     "groq_key_required": "Groq API klíč je povinný",
-    "file_too_large": "Audio soubor je příliš velký (max 25 MB). Zkuste kratší epizodu."
+    "file_too_large": "Audio soubor je příliš velký (max 25 MB). Zkuste kratší epizodu.",
+    "language": "Jazyk audia",
+    "lang_et": "Estonština",
+    "lang_en": "Angličtina",
+    "lang_cs": "Čeština",
+    "groq_key_link": "Získejte svůj bezplatný klíč API zde",
+    "edit_podcast": "Upravit podcast",
+    "delete_podcast": "Smazat podcast",
+    "delete_confirm": "Opravdu chcete smazat tento podcast?",
+    "delete_success": "Podcast byl úspěšně smazán",
+    "delete_failed": "Smazání podcastu se nezdařilo",
+    "update_success": "Podcast byl úspěšně aktualizován",
+    "update_failed": "Aktualizace podcastu se nezdařila",
+    "progress_downloading": "Stahování audia...",
+    "progress_splitting": "Rozdělování audia...",
+    "progress_transcribing": "Přepisování částí...",
+    "progress_polishing": "Vylepšování pomocí AI..."
   }
 }

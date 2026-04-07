@@ -1298,3 +1298,31 @@ export const UPDATE_PODCAST_TRANSCRIPTION = graphql(`
     }
   }
 `);
+
+export const DELETE_PODCAST = graphql(`
+  mutation DeletePodcast($id: uuid!) {
+    delete_podcasts_by_pk(id: $id) {
+      id
+    }
+  }
+`);
+
+export const UPDATE_PODCAST = graphql(`
+  mutation UpdatePodcast($id: uuid!, $podcast_name: String, $title: String, $description: String, $date: date) {
+    update_podcasts_by_pk(
+      pk_columns: { id: $id },
+      _set: { 
+        podcast_name: $podcast_name, 
+        title: $title, 
+        description: $description, 
+        date: $date 
+      }
+    ) {
+      id
+      podcast_name
+      title
+      description
+      date
+    }
+  }
+`);

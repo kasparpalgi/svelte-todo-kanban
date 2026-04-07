@@ -37,7 +37,7 @@ export const POST: RequestHandler = async ({ request, fetch: svelteFetch }) => {
 	const chunks: string[] = [];
 
 	try {
-		const { audioUrl: inputUrl, groqApiKey } = await request.json();
+		const { audioUrl: inputUrl, groqApiKey, language = 'en' } = await request.json();
 
 		if (!inputUrl) {
 			return json({ error: 'audioUrl is required' }, { status: 400 });
@@ -143,6 +143,9 @@ export const POST: RequestHandler = async ({ request, fetch: svelteFetch }) => {
 			formData.append('file', new Blob([new Uint8Array(chunkBuffer)], { type: `audio/${ext}` }), filename);
 			formData.append('model', 'whisper-large-v3-turbo');
 			formData.append('response_format', 'text');
+			if (language) {
+				formData.append('language', language);
+			}
 
 			const groqRes = await svelteFetch('https://api.groq.com/openai/v1/audio/transcriptions', {
 				method: 'POST',
@@ -160,7 +163,52 @@ export const POST: RequestHandler = async ({ request, fetch: svelteFetch }) => {
 			transcriptions.push(text.trim());
 		}
 
-		const transcription_md = transcriptions.join('\n\n');
+		const rawTranscription = transcriptions.join('\n\n');
+
+		// 7. Post-process with AI (Groq Chat Completion)
+		console.log('[transcribe-podcast] Post-processing transcription with AI...');
+		let transcription_md = rawTranscription;
+
+		try {
+			const chatRes = await svelteFetch('https://api.groq.com/openai/v1/chat/completions', {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${groqApiKey}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					model: 'llama-3.3-70b-versatile',
+					messages: [
+						{
+							role: 'system',
+							content:
+								'You are a professional editor. Your task is to take a raw podcast transcription, fix any spelling or grammar mistakes, and format it into clean, readable Markdown. Preserve the original meaning and structure. Use headings, bullet points, and bold text where appropriate to make it easy to read. Do not add any introductory or concluding remarks; just return the formatted transcript.'
+						},
+						{
+							role: 'user',
+							content: `Please clean up and format this podcast transcript:\n\n${rawTranscription}`
+						}
+					],
+					temperature: 0.1,
+					max_completion_tokens: 8000
+				})
+			});
+
+			if (chatRes.ok) {
+				const chatData = await chatRes.json();
+				const processedText = chatData.choices[0]?.message?.content?.trim();
+				if (processedText) {
+					transcription_md = processedText;
+					console.log('[transcribe-podcast] AI post-processing successful');
+				}
+			} else {
+				console.warn('[transcribe-podcast] AI post-processing failed, using raw transcription:', await chatRes.text());
+			}
+		} catch (chatErr) {
+			console.error('[transcribe-podcast] AI post-processing error:', chatErr);
+			// Fallback to raw transcription if AI processing fails
+		}
+
 		return json({ transcription_md, success: true });
 
 	} catch (e) {

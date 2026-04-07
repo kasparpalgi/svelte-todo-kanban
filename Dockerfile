@@ -1,53 +1,39 @@
-# Use Node.js base image
+# Build stage
+FROM node:20-slim AS builder
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+RUN npm prune --omit=dev
+
+# Final stage
 FROM node:20-slim
 
 ENV LANG=en_US.UTF-8
+ENV NODE_ENV=production
+ENV PORT=80
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Install Chrome/Chromium, dependencies, ffmpeg and yt-dlp
+# Install runtime dependencies: Chromium, ffmpeg, yt-dlp (requires python3)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     chromium \
-    fonts-ipafont-gothic \
-    fonts-wqy-zenhei \
-    fonts-thai-tlwg \
-    fonts-khmeros \
-    fonts-kacst \
     fonts-freefont-ttf \
     ca-certificates \
     ffmpeg \
     python3 \
-    python3-pip \
-    python3-venv \
     curl \
     && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
-# Copy config files needed for npm install
-COPY package*.json ./
-COPY svelte.config.js ./
-COPY vite.config.ts ./
-COPY tsconfig.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy the rest
-COPY . .
-
-# Build - SvelteKit will use empty strings for missing env vars during build
-RUN npm run build
-
-# Remove dev dependencies
-RUN npm prune --omit=dev
-
-# Runtime env
-ENV NODE_ENV=production
-ENV PORT=80
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+COPY --from=builder /app/build ./build
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 
 EXPOSE 80
 CMD ["node", "build/index.js"]

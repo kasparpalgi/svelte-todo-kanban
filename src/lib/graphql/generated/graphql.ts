@@ -16398,6 +16398,24 @@ export type UpdatePodcastTranscriptionMutationVariables = Exact<{
 
 export type UpdatePodcastTranscriptionMutation = { __typename?: 'mutation_root', update_podcasts_by_pk?: { __typename?: 'podcasts', id: string, transcription_md: string } | null };
 
+export type DeletePodcastMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type DeletePodcastMutation = { __typename?: 'mutation_root', delete_podcasts_by_pk?: { __typename?: 'podcasts', id: string } | null };
+
+export type UpdatePodcastMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  podcast_name?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  date?: InputMaybe<Scalars['date']['input']>;
+}>;
+
+
+export type UpdatePodcastMutation = { __typename?: 'mutation_root', update_podcasts_by_pk?: { __typename?: 'podcasts', id: string, podcast_name: string, title?: string | null, description?: string | null, date?: string | null } | null };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -18728,3 +18746,24 @@ export const UpdatePodcastTranscriptionDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<UpdatePodcastTranscriptionMutation, UpdatePodcastTranscriptionMutationVariables>;
+export const DeletePodcastDocument = new TypedDocumentString(`
+    mutation DeletePodcast($id: uuid!) {
+  delete_podcasts_by_pk(id: $id) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<DeletePodcastMutation, DeletePodcastMutationVariables>;
+export const UpdatePodcastDocument = new TypedDocumentString(`
+    mutation UpdatePodcast($id: uuid!, $podcast_name: String, $title: String, $description: String, $date: date) {
+  update_podcasts_by_pk(
+    pk_columns: {id: $id}
+    _set: {podcast_name: $podcast_name, title: $title, description: $description, date: $date}
+  ) {
+    id
+    podcast_name
+    title
+    description
+    date
+  }
+}
+    `) as unknown as TypedDocumentString<UpdatePodcastMutation, UpdatePodcastMutationVariables>;

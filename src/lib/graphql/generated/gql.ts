@@ -101,6 +101,8 @@ type Documents = {
     "\n  query GetPodcasts {\n    podcasts(limit: 5000, order_by: { created_at: desc }) {\n      id\n      podcast_name\n      url\n      title\n      description\n      date\n      transcription_md\n      created_at\n      user {\n        id\n        username\n      }\n    }\n  }\n": typeof types.GetPodcastsDocument,
     "\n  mutation InsertPodcast($object: podcasts_insert_input!) {\n    insert_podcasts_one(object: $object) {\n      id\n      podcast_name\n      url\n      title\n      description\n      date\n      transcription_md\n      created_at\n      user {\n        id\n        username\n      }\n    }\n  }\n": typeof types.InsertPodcastDocument,
     "\n  mutation UpdatePodcastTranscription($id: uuid!, $transcription_md: String!) {\n    update_podcasts_by_pk(pk_columns: { id: $id }, _set: { transcription_md: $transcription_md }) {\n      id\n      transcription_md\n    }\n  }\n": typeof types.UpdatePodcastTranscriptionDocument,
+    "\n  mutation DeletePodcast($id: uuid!) {\n    delete_podcasts_by_pk(id: $id) {\n      id\n    }\n  }\n": typeof types.DeletePodcastDocument,
+    "\n  mutation UpdatePodcast($id: uuid!, $podcast_name: String, $title: String, $description: String, $date: date) {\n    update_podcasts_by_pk(\n      pk_columns: { id: $id },\n      _set: { \n        podcast_name: $podcast_name, \n        title: $title, \n        description: $description, \n        date: $date \n      }\n    ) {\n      id\n      podcast_name\n      title\n      description\n      date\n    }\n  }\n": typeof types.UpdatePodcastDocument,
 };
 const documents: Documents = {
     "\n\tfragment TodoFields on todos {\n\t\tid\n\t\talias\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\thas_time\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tassigned_to\n\t\tgithub_issue_number\n\t\tgithub_issue_id\n\t\tgithub_synced_at\n\t\tgithub_url\n\t\tmin_hours\n\t\tmax_hours\n\t\tactual_hours\n\t\tcomment_hours\n\t\tassignee {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tcomments(order_by: { created_at: asc }) {\n\t\t\t...CommentFields\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tsubscribers {\n\t\t\tuser_id\n\t\t\tcreated_at\n\t\t\tsubscriber {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tusername\n\t\t\t\timage\n\t\t\t\temail\n\t\t\t}\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t\tgithub\n\t\t\t\tsettings\n\t\t\t}\n\t\t}\n\t}\n": types.TodoFieldsFragmentDoc,
@@ -189,6 +191,8 @@ const documents: Documents = {
     "\n  query GetPodcasts {\n    podcasts(limit: 5000, order_by: { created_at: desc }) {\n      id\n      podcast_name\n      url\n      title\n      description\n      date\n      transcription_md\n      created_at\n      user {\n        id\n        username\n      }\n    }\n  }\n": types.GetPodcastsDocument,
     "\n  mutation InsertPodcast($object: podcasts_insert_input!) {\n    insert_podcasts_one(object: $object) {\n      id\n      podcast_name\n      url\n      title\n      description\n      date\n      transcription_md\n      created_at\n      user {\n        id\n        username\n      }\n    }\n  }\n": types.InsertPodcastDocument,
     "\n  mutation UpdatePodcastTranscription($id: uuid!, $transcription_md: String!) {\n    update_podcasts_by_pk(pk_columns: { id: $id }, _set: { transcription_md: $transcription_md }) {\n      id\n      transcription_md\n    }\n  }\n": types.UpdatePodcastTranscriptionDocument,
+    "\n  mutation DeletePodcast($id: uuid!) {\n    delete_podcasts_by_pk(id: $id) {\n      id\n    }\n  }\n": types.DeletePodcastDocument,
+    "\n  mutation UpdatePodcast($id: uuid!, $podcast_name: String, $title: String, $description: String, $date: date) {\n    update_podcasts_by_pk(\n      pk_columns: { id: $id },\n      _set: { \n        podcast_name: $podcast_name, \n        title: $title, \n        description: $description, \n        date: $date \n      }\n    ) {\n      id\n      podcast_name\n      title\n      description\n      date\n    }\n  }\n": types.UpdatePodcastDocument,
 };
 
 /**
@@ -535,6 +539,14 @@ export function graphql(source: "\n  mutation InsertPodcast($object: podcasts_in
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation UpdatePodcastTranscription($id: uuid!, $transcription_md: String!) {\n    update_podcasts_by_pk(pk_columns: { id: $id }, _set: { transcription_md: $transcription_md }) {\n      id\n      transcription_md\n    }\n  }\n"): typeof import('./graphql').UpdatePodcastTranscriptionDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation DeletePodcast($id: uuid!) {\n    delete_podcasts_by_pk(id: $id) {\n      id\n    }\n  }\n"): typeof import('./graphql').DeletePodcastDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UpdatePodcast($id: uuid!, $podcast_name: String, $title: String, $description: String, $date: date) {\n    update_podcasts_by_pk(\n      pk_columns: { id: $id },\n      _set: { \n        podcast_name: $podcast_name, \n        title: $title, \n        description: $description, \n        date: $date \n      }\n    ) {\n      id\n      podcast_name\n      title\n      description\n      date\n    }\n  }\n"): typeof import('./graphql').UpdatePodcastDocument;
 
 
 export function graphql(source: string) {

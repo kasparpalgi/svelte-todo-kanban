@@ -4,12 +4,16 @@ import { browser } from '$app/environment';
 import { PUBLIC_API_ENDPOINT, PUBLIC_API_ENDPOINT_DEV, PUBLIC_API_ENV } from '$env/static/public';
 import {
 	INSERT_PODCAST,
-	UPDATE_PODCAST_TRANSCRIPTION
+	UPDATE_PODCAST_TRANSCRIPTION,
+	DELETE_PODCAST,
+	UPDATE_PODCAST
 } from '$lib/graphql/documents';
 import type {
 	GetPodcastsQuery,
 	InsertPodcastMutation,
-	UpdatePodcastTranscriptionMutation
+	UpdatePodcastTranscriptionMutation,
+	DeletePodcastMutation,
+	UpdatePodcastMutation
 } from '$lib/graphql/generated/graphql';
 import type { StoreResult } from '$lib/types/todo';
 
@@ -34,10 +38,13 @@ async function anonymousRequest<T>(query: string, variables?: Record<string, unk
 	return json.data as T;
 }
 
+export type TranscriptionProgressStep = 'downloading' | 'splitting' | 'transcribing' | 'polishing' | 'idle';
+
 interface PodcastsState {
 	podcasts: Podcast[];
 	loading: boolean;
 	transcribing: boolean;
+	transcriptionProgress: TranscriptionProgressStep;
 	error: string | null;
 }
 
@@ -46,6 +53,7 @@ function createPodcastsStore() {
 		podcasts: [],
 		loading: false,
 		transcribing: false,
+		transcriptionProgress: 'idle',
 		error: null
 	});
 
@@ -75,8 +83,6 @@ function createPodcastsStore() {
 
 	/**
 	 * Insert a new podcast.
-	 * - When authenticated: uses JWT request so Hasura auto-sets user_id from session.
-	 * - When not authenticated (guest): uses anonymous GraphQL request with user_id = null.
 	 */
 	async function insertPodcast(
 		object: {
@@ -91,19 +97,13 @@ function createPodcastsStore() {
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		console.log('[PodcastsStore] insertPodcast, isAuthenticated:', isAuthenticated);
-
 		try {
 			let podcast: Podcast | null = null;
 
 			if (isAuthenticated) {
-				// Hasura `user` role auto-sets user_id from JWT via `set` constraint
-				console.log('[PodcastsStore] insertPodcast via authenticated request');
 				const data = (await request(INSERT_PODCAST, { object })) as InsertPodcastMutation;
 				podcast = data.insert_podcasts_one ?? null;
 			} else {
-				// Anonymous: no user_id
-				console.log('[PodcastsStore] insertPodcast via anonymous request');
 				const INSERT_QUERY = `
 					mutation InsertPodcastAnon($object: podcasts_insert_input!) {
 						insert_podcasts_one(object: $object) {
@@ -118,14 +118,57 @@ function createPodcastsStore() {
 
 			if (podcast) {
 				state.podcasts = [podcast, ...state.podcasts];
-				console.log('[PodcastsStore] insertPodcast success:', podcast.id);
 				return { success: true, message: 'Podcast added', data: podcast };
 			}
 			return { success: false, message: 'Failed to insert podcast' };
 		} catch (e) {
 			const message = e instanceof Error ? e.message : 'Error inserting podcast';
-			console.error('[PodcastsStore] insertPodcast FAILED:', message);
 			return { success: false, message };
+		}
+	}
+
+	/**
+	 * Update an existing podcast's metadata.
+	 */
+	async function updatePodcast(
+		id: string,
+		updates: {
+			podcast_name?: string;
+			title?: string;
+			description?: string;
+			date?: string;
+		}
+	): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+		try {
+			const data = (await request(UPDATE_PODCAST, { id, ...updates })) as UpdatePodcastMutation;
+			const updated = data.update_podcasts_by_pk;
+			if (updated) {
+				state.podcasts = state.podcasts.map((p) =>
+					p.id === id ? { ...p, ...updated } : p
+				);
+				return { success: true, message: 'Podcast updated', data: updated };
+			}
+			return { success: false, message: 'Podcast not found' };
+		} catch (e) {
+			return { success: false, message: e instanceof Error ? e.message : 'Update failed' };
+		}
+	}
+
+	/**
+	 * Delete a podcast.
+	 */
+	async function deletePodcast(id: string): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+		try {
+			const data = (await request(DELETE_PODCAST, { id })) as DeletePodcastMutation;
+			if (data.delete_podcasts_by_pk) {
+				state.podcasts = state.podcasts.filter((p) => p.id !== id);
+				return { success: true, message: 'Podcast deleted' };
+			}
+			return { success: false, message: 'Podcast not found' };
+		} catch (e) {
+			return { success: false, message: e instanceof Error ? e.message : 'Delete failed' };
 		}
 	}
 
@@ -135,34 +178,40 @@ function createPodcastsStore() {
 	async function transcribeAndSave(
 		podcastId: string,
 		audioUrl: string,
-		groqApiKey: string
+		groqApiKey: string,
+		language: string = 'en'
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		state.transcribing = true;
-		console.log('[PodcastsStore] transcribeAndSave start:', { podcastId, audioUrlLength: audioUrl?.length, audioUrl: audioUrl?.substring(0, 100) + (audioUrl?.length > 100 ? '...' : '') });
+		state.transcriptionProgress = 'downloading';
 		
 		try {
 			// Basic client-side validation
 			try {
 				new URL(audioUrl);
 			} catch {
-				console.error('[PodcastsStore] Invalid URL passed to transcribeAndSave:', audioUrl);
-				return { success: false, message: 'Invalid audio URL. Please ensure it is a full URL starting with http:// or https://' };
+				return { success: false, message: 'Invalid audio URL' };
 			}
 
+			// Since we can't easily stream progress from the serverless function without more complex setup (like Sockets or SSE),
+			// we will manually transition through expected steps to give user feedback.
+			// Ideally the API would return these, but for now we'll simulate the timing or just use the first step.
+			
 			const res = await fetch('/api/transcribe-podcast', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ audioUrl, groqApiKey })
+				body: JSON.stringify({ audioUrl, groqApiKey, language })
 			});
-			console.log('[PodcastsStore] transcribeAndSave API response status:', res.status);
+
 			if (!res.ok) {
 				const err = await res.json().catch(() => ({}));
-				console.error('[PodcastsStore] transcribeAndSave API error:', err);
 				return { success: false, message: (err as any).error || 'Transcription failed' };
 			}
+			
+			// If it's a large file, the server will take time. We are already at 'downloading'.
+			// Once the response arrives, we save it.
+			
 			const { transcription_md } = await res.json();
-			console.log('[PodcastsStore] transcription received, chars:', transcription_md?.length);
 
 			const updateData = (await request(UPDATE_PODCAST_TRANSCRIPTION, {
 				id: podcastId,
@@ -173,34 +222,28 @@ function createPodcastsStore() {
 				state.podcasts = state.podcasts.map((p) =>
 					p.id === podcastId ? { ...p, transcription_md } : p
 				);
-				console.log('[PodcastsStore] transcription saved for:', podcastId);
 				return { success: true, message: 'Transcription saved', data: { transcription_md } };
 			}
 			return { success: false, message: 'Failed to save transcription' };
 		} catch (e) {
 			const message = e instanceof Error ? e.message : 'Transcription error';
-			console.error('[PodcastsStore] transcribeAndSave FAILED:', message);
 			return { success: false, message };
 		} finally {
 			state.transcribing = false;
+			state.transcriptionProgress = 'idle';
 		}
 	}
 
 	return {
-		get podcasts() {
-			return state.podcasts;
-		},
-		get loading() {
-			return state.loading;
-		},
-		get transcribing() {
-			return state.transcribing;
-		},
-		get error() {
-			return state.error;
-		},
+		get podcasts() { return state.podcasts; },
+		get loading() { return state.loading; },
+		get transcribing() { return state.transcribing; },
+		get transcriptionProgress() { return state.transcriptionProgress; },
+		get error() { return state.error; },
 		loadPodcasts,
 		insertPodcast,
+		updatePodcast,
+		deletePodcast,
 		transcribeAndSave
 	};
 }

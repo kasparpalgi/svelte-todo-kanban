@@ -784,6 +784,22 @@
     "url_required": "Audio URL is required",
     "name_required": "Podcast name is required",
     "groq_key_required": "Groq API key is required",
-    "file_too_large": "Audio file is too large (max 25 MB). Try a shorter episode."
+    "file_too_large": "Audio file is too large (max 25 MB). Try a shorter episode.",
+    "language": "Audio language",
+    "lang_et": "Estonian",
+    "lang_en": "English",
+    "lang_cs": "Czech",
+    "groq_key_link": "Get your free API key here",
+    "edit_podcast": "Edit podcast",
+    "delete_podcast": "Delete podcast",
+    "delete_confirm": "Are you sure you want to delete this podcast?",
+    "delete_success": "Podcast deleted successfully",
+    "delete_failed": "Failed to delete podcast",
+    "update_success": "Podcast updated successfully",
+    "update_failed": "Failed to update podcast",
+    "progress_downloading": "Downloading audio...",
+    "progress_splitting": "Splitting audio...",
+    "progress_transcribing": "Transcribing chunks...",
+    "progress_polishing": "Polishing with AI..."
   }
 }

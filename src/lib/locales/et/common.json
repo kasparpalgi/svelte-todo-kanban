@@ -784,6 +784,22 @@
     "url_required": "Heli URL on kohustuslik",
     "name_required": "Podcasti nimi on kohustuslik",
     "groq_key_required": "Groq API võti on kohustuslik",
-    "file_too_large": "Helifail on liiga suur (max 25 MB). Proovi lühemat episoodi."
+    "file_too_large": "Helifail on liiga suur (max 25 MB). Proovi lühemat episoodi.",
+    "language": "Heli keel",
+    "lang_et": "Eesti",
+    "lang_en": "Inglise",
+    "lang_cs": "Tšehhi",
+    "groq_key_link": "Hangi oma tasuta API võti siit",
+    "edit_podcast": "Muuda podcasti",
+    "delete_podcast": "Kustuta podcast",
+    "delete_confirm": "Kas oled kindel, et soovid selle podcasti kustutada?",
+    "delete_success": "Podcast on edukalt kustutatud",
+    "delete_failed": "Podcasti kustutamine ebaõnnestus",
+    "update_success": "Podcast on edukalt uuendatud",
+    "update_failed": "Podcasti uuendamine ebaõnnestus",
+    "progress_downloading": "Heli allalaadimine...",
+    "progress_splitting": "Heli tükeldamine...",
+    "progress_transcribing": "Tükkide transkribeerimine...",
+    "progress_polishing": "AI-ga lihvimine..."
   }
 }
