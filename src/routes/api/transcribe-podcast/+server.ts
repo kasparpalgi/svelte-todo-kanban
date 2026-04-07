@@ -6,6 +6,7 @@ import { promisify } from 'util';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import ffmpegStatic from 'ffmpeg-static';
 
 const execAsync = promisify(exec);
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB Groq limit
@@ -110,28 +111,23 @@ export const POST: RequestHandler = async ({ request, fetch: svelteFetch }) => {
 		const audioPath = path.join(tempDir, `original.${ext}`);
 		await fs.writeFile(audioPath, audioBuffer);
 
-		// 5. Split if too large or just use as is
-		const hasFfmpeg = await commandExists('ffmpeg');
-		if (totalSize > MAX_BYTES && hasFfmpeg) {
-			console.log('[transcribe-podcast] Splitting large file with ffmpeg...');
+		// 5. Split if too large
+		// Use portable ffmpeg from ffmpeg-static if available, otherwise fallback to system ffmpeg
+		const ffmpegPath = ffmpegStatic || (await commandExists('ffmpeg') ? 'ffmpeg' : null);
+
+		if (totalSize > MAX_BYTES && ffmpegPath) {
+			console.log('[transcribe-podcast] Splitting large file with ffmpeg:', ffmpegPath);
 			// Split into 10-minute chunks (600 seconds)
-			// Using copy codec for speed
-			await execAsync(`ffmpeg -i "${audioPath}" -f segment -segment_time 600 -c copy "${path.join(tempDir, 'chunk_%03d.' + ext)}"`);
+			// Using copy codec for speed and to preserve format
+			await execAsync(`"${ffmpegPath}" -i "${audioPath}" -f segment -segment_time 600 -c copy "${path.join(tempDir, 'chunk_%03d.' + ext)}"`);
 			const files = await fs.readdir(tempDir);
 			chunks.push(...files.filter(f => f.startsWith('chunk_')).sort().map(f => path.join(tempDir, f)));
 		} else if (totalSize > MAX_BYTES) {
-			// Fallback: simple byte splitting for MP3 (crude but might work)
-			console.warn('[transcribe-podcast] No ffmpeg, using crude byte splitting for large file...');
-			let offset = 0;
-			let i = 0;
-			while (offset < totalSize) {
-				const end = Math.min(offset + MAX_BYTES - 1024, totalSize); // Leave some room
-				const chunkPath = path.join(tempDir, `chunk_${String(i).padStart(3, '0')}.${ext}`);
-				await fs.writeFile(chunkPath, audioBuffer.subarray(offset, end));
-				chunks.push(chunkPath);
-				offset = end;
-				i++;
-			}
+			// Without ffmpeg, we can't reliably split MP3s without breaking frame headers.
+			// Return an error rather than sending corrupted chunks to Groq.
+			return json({ 
+				error: `Audio file too large (${Math.round(totalSize / 1024 / 1024)} MB) and no audio processing tools available on the server to split it.` 
+			}, { status: 400 });
 		} else {
 			chunks.push(audioPath);
 		}
