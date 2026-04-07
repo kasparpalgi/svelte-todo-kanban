@@ -1,0 +1,1 @@
+Make it possible to download Algorütm podcast without pasting mp3 so if you select Algorütm then it will download the latest podcast if that's not in the db already from https://feeds.captivate.fm/algorytm/

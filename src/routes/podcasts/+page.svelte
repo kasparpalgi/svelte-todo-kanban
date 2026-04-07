@@ -111,6 +111,13 @@
 		isSaving = false;
 
 		const podcast = insertResult.data as (typeof podcastsStore.podcasts)[number];
+		
+		// If it's a very long text, it's probably not a URL
+		if (podcast.url.length > 500 && !podcast.url.startsWith('http')) {
+			displayMessage($t('podcasts.transcribe_failed') + ': Invalid audio URL format', 5000, false);
+			return;
+		}
+
 		const transcribeResult = await podcastsStore.transcribeAndSave(
 			podcast.id,
 			podcast.url,
@@ -120,9 +127,14 @@
 		if (transcribeResult.success) {
 			displayMessage($t('podcasts.transcribe_success'), 3000, true);
 		} else {
+			// Check if it's the "relative URL" error and give a better hint
+			let errorMsg = transcribeResult.message;
+			if (errorMsg.includes('relative URL') || errorMsg.includes('Invalid URL')) {
+				errorMsg = 'Invalid audio URL. Please provide a direct link to an MP3 file or a valid podcast/RSS URL.';
+			}
 			displayMessage(
-				`${$t('podcasts.transcribe_failed')}: ${transcribeResult.message}`,
-				5000,
+				`${$t('podcasts.transcribe_failed')}: ${errorMsg}`,
+				7000,
 				false
 			);
 		}

@@ -139,8 +139,17 @@ function createPodcastsStore() {
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		state.transcribing = true;
-		console.log('[PodcastsStore] transcribeAndSave start:', podcastId, audioUrl);
+		console.log('[PodcastsStore] transcribeAndSave start:', { podcastId, audioUrlLength: audioUrl?.length, audioUrl: audioUrl?.substring(0, 100) + (audioUrl?.length > 100 ? '...' : '') });
+		
 		try {
+			// Basic client-side validation
+			try {
+				new URL(audioUrl);
+			} catch {
+				console.error('[PodcastsStore] Invalid URL passed to transcribeAndSave:', audioUrl);
+				return { success: false, message: 'Invalid audio URL. Please ensure it is a full URL starting with http:// or https://' };
+			}
+
 			const res = await fetch('/api/transcribe-podcast', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },

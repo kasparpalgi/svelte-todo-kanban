@@ -4,7 +4,7 @@ FROM node:20-slim
 ENV LANG=en_US.UTF-8
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
-# Install Chrome/Chromium & dependencies
+# Install Chrome/Chromium, dependencies, ffmpeg and yt-dlp
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     chromium \
@@ -15,6 +15,13 @@ RUN apt-get update \
     fonts-kacst \
     fonts-freefont-ttf \
     ca-certificates \
+    ffmpeg \
+    python3 \
+    python3-pip \
+    python3-venv \
+    curl \
+    && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
+    && chmod a+rx /usr/local/bin/yt-dlp \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
