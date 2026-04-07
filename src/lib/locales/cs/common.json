@@ -678,6 +678,8 @@
     "progress_downloading": "Stahování audia...",
     "progress_splitting": "Rozdělování audia...",
     "progress_transcribing": "Přepisování částí...",
-    "progress_polishing": "Vylepšování pomocí AI..."
+    "progress_polishing": "Vylepšování pomocí AI...",
+    "progress_chunks_found": "Audio bylo rozděleno na {{count}} částí",
+    "progress_part_n_of_m": "Přepisuji část {{current}} z {{total}}..."
   }
 }

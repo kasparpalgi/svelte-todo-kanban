@@ -800,6 +800,8 @@
     "progress_downloading": "Downloading audio...",
     "progress_splitting": "Splitting audio...",
     "progress_transcribing": "Transcribing chunks...",
-    "progress_polishing": "Polishing with AI..."
+    "progress_polishing": "Polishing with AI...",
+    "progress_chunks_found": "Audio split into {{count}} parts",
+    "progress_part_n_of_m": "Transcribing part {{current}} of {{total}}..."
   }
 }

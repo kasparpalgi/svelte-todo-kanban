@@ -38,13 +38,14 @@ async function anonymousRequest<T>(query: string, variables?: Record<string, unk
 	return json.data as T;
 }
 
-export type TranscriptionProgressStep = 'downloading' | 'splitting' | 'transcribing' | 'polishing' | 'idle';
+export type TranscriptionProgressStep = 'downloading' | 'splitting' | 'chunks_found' | 'transcribing' | 'polishing' | 'idle';
 
 interface PodcastsState {
 	podcasts: Podcast[];
 	loading: boolean;
 	transcribing: boolean;
 	transcriptionProgress: TranscriptionProgressStep;
+	transcriptionStatus: { current?: number; total?: number; count?: number } | null;
 	error: string | null;
 }
 
@@ -54,6 +55,7 @@ function createPodcastsStore() {
 		loading: false,
 		transcribing: false,
 		transcriptionProgress: 'idle',
+		transcriptionStatus: null,
 		error: null
 	});
 
@@ -64,17 +66,13 @@ function createPodcastsStore() {
 		if (!browser) return;
 		state.loading = true;
 		state.error = null;
-		console.log('[PodcastsStore] loadPodcasts → REST:', PODCASTS_REST_URL);
 		try {
 			const res = await fetch(PODCASTS_REST_URL);
-			console.log('[PodcastsStore] loadPodcasts response status:', res.status);
 			if (!res.ok) throw new Error(`HTTP ${res.status} from ${PODCASTS_REST_URL}`);
 			const data: { podcasts: Podcast[] } = await res.json();
 			state.podcasts = data.podcasts || [];
-			console.log('[PodcastsStore] loadPodcasts success:', state.podcasts.length, 'podcasts');
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : 'Error loading podcasts';
-			console.error('[PodcastsStore] loadPodcasts FAILED:', msg);
 			state.error = msg;
 		} finally {
 			state.loading = false;
@@ -122,8 +120,7 @@ function createPodcastsStore() {
 			}
 			return { success: false, message: 'Failed to insert podcast' };
 		} catch (e) {
-			const message = e instanceof Error ? e.message : 'Error inserting podcast';
-			return { success: false, message };
+			return { success: false, message: e instanceof Error ? e.message : 'Error inserting podcast' };
 		}
 	}
 
@@ -173,7 +170,7 @@ function createPodcastsStore() {
 	}
 
 	/**
-	 * Call the server-side transcription API, then persist the result via authenticated GraphQL.
+	 * Call the server-side transcription API (streaming NDJSON), then persist the result.
 	 */
 	async function transcribeAndSave(
 		podcastId: string,
@@ -183,20 +180,10 @@ function createPodcastsStore() {
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		state.transcribing = true;
-		state.transcriptionProgress = 'downloading';
+		state.transcriptionProgress = 'idle';
+		state.transcriptionStatus = null;
 		
 		try {
-			// Basic client-side validation
-			try {
-				new URL(audioUrl);
-			} catch {
-				return { success: false, message: 'Invalid audio URL' };
-			}
-
-			// Since we can't easily stream progress from the serverless function without more complex setup (like Sockets or SSE),
-			// we will manually transition through expected steps to give user feedback.
-			// Ideally the API would return these, but for now we'll simulate the timing or just use the first step.
-			
 			const res = await fetch('/api/transcribe-podcast', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -204,14 +191,47 @@ function createPodcastsStore() {
 			});
 
 			if (!res.ok) {
-				const err = await res.json().catch(() => ({}));
-				return { success: false, message: (err as any).error || 'Transcription failed' };
+				return { success: false, message: 'Server error' };
 			}
-			
-			// If it's a large file, the server will take time. We are already at 'downloading'.
-			// Once the response arrives, we save it.
-			
-			const { transcription_md } = await res.json();
+
+			const reader = res.body?.getReader();
+			if (!reader) throw new Error('No reader available');
+
+			const decoder = new TextDecoder();
+			let transcription_md = '';
+			let buffer = '';
+
+			// eslint-disable-next-line no-constant-condition
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+
+				buffer += decoder.decode(value, { stream: true });
+				const lines = buffer.split('\n');
+				buffer = lines.pop() || '';
+
+				for (const line of lines) {
+					if (!line.trim()) continue;
+					const data = JSON.parse(line);
+					
+					if (data.error) throw new Error(data.error);
+					
+					if (data.step) {
+						state.transcriptionProgress = data.step;
+						state.transcriptionStatus = { 
+							current: data.current, 
+							total: data.total, 
+							count: data.count 
+						};
+					}
+					
+					if (data.success) {
+						transcription_md = data.transcription_md;
+					}
+				}
+			}
+
+			if (!transcription_md) throw new Error('Transcription failed or empty result');
 
 			const updateData = (await request(UPDATE_PODCAST_TRANSCRIPTION, {
 				id: podcastId,
@@ -231,6 +251,7 @@ function createPodcastsStore() {
 		} finally {
 			state.transcribing = false;
 			state.transcriptionProgress = 'idle';
+			state.transcriptionStatus = null;
 		}
 	}
 
@@ -239,6 +260,7 @@ function createPodcastsStore() {
 		get loading() { return state.loading; },
 		get transcribing() { return state.transcribing; },
 		get transcriptionProgress() { return state.transcriptionProgress; },
+		get transcriptionStatus() { return state.transcriptionStatus; },
 		get error() { return state.error; },
 		loadPodcasts,
 		insertPodcast,

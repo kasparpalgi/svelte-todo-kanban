@@ -800,6 +800,8 @@
     "progress_downloading": "Heli allalaadimine...",
     "progress_splitting": "Heli tükeldamine...",
     "progress_transcribing": "Tükkide transkribeerimine...",
-    "progress_polishing": "AI-ga lihvimine..."
+    "progress_polishing": "AI-ga lihvimine...",
+    "progress_chunks_found": "Heli on jagatud {{count}} osaks",
+    "progress_part_n_of_m": "Transkribeerin osa {{current}} / {{total}}..."
   }
 }

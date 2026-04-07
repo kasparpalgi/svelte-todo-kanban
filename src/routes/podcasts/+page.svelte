@@ -176,53 +176,6 @@
 		}
 	}
 
-	async function handleSaveOnly() {
-		if (!form.podcast_name.trim()) {
-			displayMessage($t('podcasts.name_required'), 3000, false);
-			return;
-		}
-		
-		isSaving = true;
-		let result;
-		
-		if (isEditing && editingId) {
-			result = await podcastsStore.updatePodcast(editingId, {
-				podcast_name: form.podcast_name.trim(),
-				title: form.title.trim() || undefined,
-				description: form.description.trim() || undefined,
-				date: form.date || undefined
-			});
-		} else {
-			if (!form.url.trim()) {
-				displayMessage($t('podcasts.url_required'), 3000, false);
-				isSaving = false;
-				return;
-			}
-			result = await podcastsStore.insertPodcast(
-				{
-					podcast_name: form.podcast_name.trim(),
-					url: form.url.trim(),
-					title: form.title.trim() || undefined,
-					description: form.description.trim() || undefined,
-					date: form.date || undefined,
-					transcription_md: ''
-				},
-				isAuthenticated
-			);
-		}
-		
-		isSaving = false;
-
-		if (!result.success) {
-			displayMessage(isEditing ? $t('podcasts.update_failed') : $t('podcasts.add_failed'), 3000, false);
-			return;
-		}
-
-		displayMessage(isEditing ? $t('podcasts.update_success') : $t('podcasts.added_success'), 3000, true);
-		showForm = false;
-		resetForm();
-	}
-
 	function startEdit(podcast: (typeof podcastsStore.podcasts)[number]) {
 		isEditing = true;
 		editingId = podcast.id;
@@ -284,12 +237,20 @@
 	}
 
 	const progressText = $derived(() => {
+		const status = podcastsStore.transcriptionStatus;
 		switch (podcastsStore.transcriptionProgress) {
-			case 'downloading': return $t('podcasts.progress_downloading');
-			case 'splitting': return $t('podcasts.progress_splitting');
-			case 'transcribing': return $t('podcasts.progress_transcribing');
-			case 'polishing': return $t('podcasts.progress_polishing');
-			default: return $t('podcasts.transcribing');
+			case 'downloading':
+				return $t('podcasts.progress_downloading');
+			case 'splitting':
+				return $t('podcasts.progress_splitting');
+			case 'chunks_found':
+				return $t('podcasts.progress_chunks_found', { count: status?.count });
+			case 'transcribing':
+				return $t('podcasts.progress_part_n_of_m', { current: status?.current, total: status?.total });
+			case 'polishing':
+				return $t('podcasts.progress_polishing');
+			default:
+				return $t('podcasts.transcribing');
 		}
 	});
 </script>
@@ -447,14 +408,6 @@
 						class="flex-1"
 					>
 						{$t('podcasts.cancel')}
-					</Button>
-					<Button
-						variant="outline"
-						onclick={handleSaveOnly}
-						disabled={isSaving}
-						class="flex-1"
-					>
-						{isSaving ? $t('podcasts.saving') : $t('podcasts.save')}
 					</Button>
 					<Button
 						onclick={handleSaveAndTranscribe}
