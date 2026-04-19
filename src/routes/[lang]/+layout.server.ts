@@ -3,6 +3,7 @@ import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { getTopBoardPath } from '$lib/utils/getTopBoardPath';
 import { publicRequest } from '$lib/graphql/client';
+import { serverRequest } from '$lib/graphql/server-client';
 import { GET_URL_SHORTCUT_BY_ALIAS, INCREMENT_URL_SHORTCUT_VISITS } from '$lib/graphql/documents';
 import { RESERVED_ALIASES, normalizeTargetUrl } from '$lib/utils/shortcutAlias';
 
@@ -27,26 +28,23 @@ export const load: LayoutServerLoad = async (event) => {
 		!RESERVED_ALIASES.has(segment.toLowerCase())
 	) {
 		try {
-			console.log('[shortcut] lookup', { segment });
 			const data = await publicRequest<ShortcutLookupResult>(GET_URL_SHORTCUT_BY_ALIAS, {
 				alias: segment
 			});
-			console.log('[shortcut] lookup result', { rows: data.url_shortcuts?.length ?? 0 });
 			const hit = data.url_shortcuts?.[0];
 			if (hit?.target_url) {
 				try {
-					console.log('[shortcut] incrementing visits', { alias: hit.alias });
-					const incResult = await publicRequest<{
-						update_url_shortcuts?: { affected_rows: number } | null;
-					}>(INCREMENT_URL_SHORTCUT_VISITS, { alias: hit.alias });
-					console.log('[shortcut] increment response', {
+					const incResult = await serverRequest<
+						{ update_url_shortcuts?: { affected_rows: number } | null },
+						{ alias: string }
+					>(INCREMENT_URL_SHORTCUT_VISITS, { alias: hit.alias });
+					console.log('[shortcut] increment', {
+						alias: hit.alias,
 						affected_rows: incResult.update_url_shortcuts?.affected_rows ?? null
 					});
 				} catch (incErr: any) {
 					console.warn('[shortcut] visit increment failed', {
-						message: incErr?.message,
-						response: incErr?.response,
-						errors: incErr?.response?.errors
+						message: incErr?.message
 					});
 				}
 				throw redirect(302, normalizeTargetUrl(hit.target_url));
