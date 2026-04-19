@@ -27,15 +27,27 @@ export const load: LayoutServerLoad = async (event) => {
 		!RESERVED_ALIASES.has(segment.toLowerCase())
 	) {
 		try {
+			console.log('[shortcut] lookup', { segment });
 			const data = await publicRequest<ShortcutLookupResult>(GET_URL_SHORTCUT_BY_ALIAS, {
 				alias: segment
 			});
+			console.log('[shortcut] lookup result', { rows: data.url_shortcuts?.length ?? 0 });
 			const hit = data.url_shortcuts?.[0];
 			if (hit?.target_url) {
 				try {
-					await publicRequest(INCREMENT_URL_SHORTCUT_VISITS, { alias: hit.alias });
-				} catch (incErr) {
-					console.warn('[layout.server] visit increment failed', incErr);
+					console.log('[shortcut] incrementing visits', { alias: hit.alias });
+					const incResult = await publicRequest<{
+						update_url_shortcuts?: { affected_rows: number } | null;
+					}>(INCREMENT_URL_SHORTCUT_VISITS, { alias: hit.alias });
+					console.log('[shortcut] increment response', {
+						affected_rows: incResult.update_url_shortcuts?.affected_rows ?? null
+					});
+				} catch (incErr: any) {
+					console.warn('[shortcut] visit increment failed', {
+						message: incErr?.message,
+						response: incErr?.response,
+						errors: incErr?.response?.errors
+					});
 				}
 				throw redirect(302, normalizeTargetUrl(hit.target_url));
 			}
