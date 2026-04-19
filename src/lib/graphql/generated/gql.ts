@@ -109,6 +109,7 @@ type Documents = {
     "\n  mutation CreateUrlShortcut($object: url_shortcuts_insert_input!) {\n    insert_url_shortcuts_one(object: $object) {\n      ...UrlShortcutFields\n    }\n  }\n": typeof types.CreateUrlShortcutDocument,
     "\n  mutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {\n    update_url_shortcuts_by_pk(pk_columns: { id: $id }, _set: $_set) {\n      ...UrlShortcutFields\n    }\n  }\n": typeof types.UpdateUrlShortcutDocument,
     "\n  mutation DeleteUrlShortcut($id: uuid!) {\n    delete_url_shortcuts_by_pk(id: $id) {\n      id\n    }\n  }\n": typeof types.DeleteUrlShortcutDocument,
+    "\n  mutation IncrementUrlShortcutVisits($alias: String!) {\n    update_url_shortcuts(\n      where: { alias: { _eq: $alias } }\n      _inc: { visit_count: 1 }\n    ) {\n      affected_rows\n    }\n  }\n": typeof types.IncrementUrlShortcutVisitsDocument,
     "\n  query GetAllUserExpenses {\n    expenses(\n      where: { deleted_at: { _is_null: true } }\n      order_by: { created_at: desc }\n    ) {\n      ...ExpenseFields\n    }\n  }\n": typeof types.GetAllUserExpensesDocument,
 };
 const documents: Documents = {
@@ -206,6 +207,7 @@ const documents: Documents = {
     "\n  mutation CreateUrlShortcut($object: url_shortcuts_insert_input!) {\n    insert_url_shortcuts_one(object: $object) {\n      ...UrlShortcutFields\n    }\n  }\n": types.CreateUrlShortcutDocument,
     "\n  mutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {\n    update_url_shortcuts_by_pk(pk_columns: { id: $id }, _set: $_set) {\n      ...UrlShortcutFields\n    }\n  }\n": types.UpdateUrlShortcutDocument,
     "\n  mutation DeleteUrlShortcut($id: uuid!) {\n    delete_url_shortcuts_by_pk(id: $id) {\n      id\n    }\n  }\n": types.DeleteUrlShortcutDocument,
+    "\n  mutation IncrementUrlShortcutVisits($alias: String!) {\n    update_url_shortcuts(\n      where: { alias: { _eq: $alias } }\n      _inc: { visit_count: 1 }\n    ) {\n      affected_rows\n    }\n  }\n": types.IncrementUrlShortcutVisitsDocument,
     "\n  query GetAllUserExpenses {\n    expenses(\n      where: { deleted_at: { _is_null: true } }\n      order_by: { created_at: desc }\n    ) {\n      ...ExpenseFields\n    }\n  }\n": types.GetAllUserExpensesDocument,
 };
 
@@ -585,6 +587,10 @@ export function graphql(source: "\n  mutation UpdateUrlShortcut($id: uuid!, $_se
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation DeleteUrlShortcut($id: uuid!) {\n    delete_url_shortcuts_by_pk(id: $id) {\n      id\n    }\n  }\n"): typeof import('./graphql').DeleteUrlShortcutDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation IncrementUrlShortcutVisits($alias: String!) {\n    update_url_shortcuts(\n      where: { alias: { _eq: $alias } }\n      _inc: { visit_count: 1 }\n    ) {\n      affected_rows\n    }\n  }\n"): typeof import('./graphql').IncrementUrlShortcutVisitsDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

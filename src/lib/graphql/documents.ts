@@ -1382,6 +1382,17 @@ export const DELETE_URL_SHORTCUT = graphql(`
   }
 `);
 
+export const INCREMENT_URL_SHORTCUT_VISITS = graphql(`
+  mutation IncrementUrlShortcutVisits($alias: String!) {
+    update_url_shortcuts(
+      where: { alias: { _eq: $alias } }
+      _inc: { visit_count: 1 }
+    ) {
+      affected_rows
+    }
+  }
+`);
+
 // ========== Splitwise (cross-board expense aggregation) ==========
 
 export const GET_ALL_USER_EXPENSES = graphql(`

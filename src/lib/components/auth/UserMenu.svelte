@@ -44,9 +44,18 @@
 		form.submit();
 	}
 
+	function splitwisePath(): string {
+		const board = listsStore.selectedBoard;
+		const username = board?.user?.username;
+		if (board?.alias && username) {
+			return `/${username}/${board.alias}/expenses`;
+		}
+		return '/splitwise';
+	}
+
 	const menuItems = $derived([
 		{ label: $t('menu.shortener'), icon: Link2, path: '/shortener' },
-		{ label: $t('menu.splitwise'), icon: Wallet, path: '/splitwise' },
+		{ label: $t('menu.splitwise'), icon: Wallet, path: splitwisePath() },
 		{ label: $t('menu.settings'), icon: Settings, path: '/settings' }
 	]);
 </script>

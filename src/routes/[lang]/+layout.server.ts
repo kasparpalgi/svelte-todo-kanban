@@ -3,7 +3,7 @@ import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { getTopBoardPath } from '$lib/utils/getTopBoardPath';
 import { publicRequest } from '$lib/graphql/client';
-import { GET_URL_SHORTCUT_BY_ALIAS } from '$lib/graphql/documents';
+import { GET_URL_SHORTCUT_BY_ALIAS, INCREMENT_URL_SHORTCUT_VISITS } from '$lib/graphql/documents';
 import { RESERVED_ALIASES, normalizeTargetUrl } from '$lib/utils/shortcutAlias';
 
 const KNOWN_LANGUAGES = new Set(['en', 'cs', 'et']);
@@ -32,6 +32,11 @@ export const load: LayoutServerLoad = async (event) => {
 			});
 			const hit = data.url_shortcuts?.[0];
 			if (hit?.target_url) {
+				try {
+					await publicRequest(INCREMENT_URL_SHORTCUT_VISITS, { alias: hit.alias });
+				} catch (incErr) {
+					console.warn('[layout.server] visit increment failed', incErr);
+				}
 				throw redirect(302, normalizeTargetUrl(hit.target_url));
 			}
 		} catch (err) {

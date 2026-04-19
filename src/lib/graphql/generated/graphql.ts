@@ -17322,6 +17322,13 @@ export type DeleteUrlShortcutMutationVariables = Exact<{
 
 export type DeleteUrlShortcutMutation = { __typename?: 'mutation_root', delete_url_shortcuts_by_pk?: { __typename?: 'url_shortcuts', id: string } | null };
 
+export type IncrementUrlShortcutVisitsMutationVariables = Exact<{
+  alias: Scalars['String']['input'];
+}>;
+
+
+export type IncrementUrlShortcutVisitsMutation = { __typename?: 'mutation_root', update_url_shortcuts?: { __typename?: 'url_shortcuts_mutation_response', affected_rows: number } | null };
+
 export type GetAllUserExpensesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -19749,6 +19756,13 @@ export const DeleteUrlShortcutDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteUrlShortcutMutation, DeleteUrlShortcutMutationVariables>;
+export const IncrementUrlShortcutVisitsDocument = new TypedDocumentString(`
+    mutation IncrementUrlShortcutVisits($alias: String!) {
+  update_url_shortcuts(where: {alias: {_eq: $alias}}, _inc: {visit_count: 1}) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<IncrementUrlShortcutVisitsMutation, IncrementUrlShortcutVisitsMutationVariables>;
 export const GetAllUserExpensesDocument = new TypedDocumentString(`
     query GetAllUserExpenses {
   expenses(where: {deleted_at: {_is_null: true}}, order_by: {created_at: desc}) {
