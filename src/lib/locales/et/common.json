@@ -749,6 +749,44 @@
     "select_at_least_one": "Palun vali vähemalt üks inimene",
     "enter_valid_amount": "Palun sisesta kehtiv summa"
   },
+  "menu": {
+    "open": "Ava menüü",
+    "shortener": "Lühilingid",
+    "splitwise": "Splitwise",
+    "settings": "Seaded",
+    "logout": "Logi välja"
+  },
+  "shortener": {
+    "title": "Lühilingid",
+    "description": "Loo lühilinke, mida saad jagada. Kõik, kel on link, suunatakse sihtaadressile.",
+    "createButton": "Loo",
+    "creating": "Loon...",
+    "aliasLabel": "Alias",
+    "aliasPlaceholder": "jäta tühjaks juhusliku jaoks",
+    "targetLabel": "Siht-URL",
+    "targetPlaceholder": "https://näide.ee",
+    "randomizeButton": "Genereeri",
+    "deleteConfirmTitle": "Kustuta lühilink",
+    "deleteConfirm": "Kas oled kindel, et soovid selle lühilingi kustutada?",
+    "emptyState": "Sul pole veel lühilinke. Loo esimene ülal.",
+    "visits": "külastust",
+    "copyLink": "Kopeeri link",
+    "copied": "Link kopeeritud",
+    "createdSuccess": "Lühilink loodud",
+    "deletedSuccess": "Lühilink kustutatud",
+    "errorReserved": "See alias on reserveeritud. Palun vali teine.",
+    "errorInvalidChars": "Alias võib sisaldada ainult tähti, numbreid ja sümboleid '.', '_', '-'.",
+    "errorEmpty": "Palun sisesta alias või kliki Genereeri.",
+    "errorTargetRequired": "Siht-URL on kohustuslik.",
+    "errorAliasTaken": "See alias on juba kasutusel."
+  },
+  "splitwise": {
+    "title": "Splitwise",
+    "description": "Koondatud kulud kõikidelt sinu projektidelt.",
+    "emptyState": "Ühelgi sinu projektil pole veel kulusid.",
+    "allBoards": "Kõik projektid",
+    "loading": "Laen kulusid..."
+  },
   "podcasts": {
     "title": "Podcastid",
     "add_transcribe": "Lisa / transkribeeri podcast",

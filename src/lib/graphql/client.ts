@@ -112,6 +112,19 @@ async function getJWTToken(
 	return _tokenFetchPromise;
 }
 
+export async function publicRequest<TResult, TVariables = any>(
+	document: { toString(): string },
+	variables?: TVariables,
+	customHeaders?: HeadersInit
+): Promise<TResult> {
+	const query = document.toString();
+	const headers = {
+		'X-Hasura-Role': 'anonymous',
+		...customHeaders
+	};
+	return client.request<TResult>(query, variables as any, headers);
+}
+
 export async function request<TResult, TVariables = any>(
 	document: { toString(): string },
 	variables?: TVariables,

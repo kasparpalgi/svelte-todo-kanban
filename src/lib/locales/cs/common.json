@@ -627,6 +627,44 @@
     "expiry_notice": "Toto pozvání vyprší za 7 dní. Pokud jej nechcete přijmout, můžete tento e-mail jednoduše smazat.",
     "footer_text": "Tento e-mail byl odeslán z ToDzz.eu. Pokud máte jakékoli dotazy, kontaktujte nás na"
   },
+  "menu": {
+    "open": "Otevřít menu",
+    "shortener": "Krátké odkazy",
+    "splitwise": "Splitwise",
+    "settings": "Nastavení",
+    "logout": "Odhlásit"
+  },
+  "shortener": {
+    "title": "Krátké odkazy",
+    "description": "Vytvořte krátké odkazy ke sdílení. Kdokoli s odkazem bude přesměrován na cílovou URL.",
+    "createButton": "Vytvořit",
+    "creating": "Vytvářím...",
+    "aliasLabel": "Alias",
+    "aliasPlaceholder": "ponechte prázdné pro náhodný",
+    "targetLabel": "Cílová URL",
+    "targetPlaceholder": "https://example.com",
+    "randomizeButton": "Generovat",
+    "deleteConfirmTitle": "Smazat odkaz",
+    "deleteConfirm": "Opravdu chcete tento odkaz smazat?",
+    "emptyState": "Zatím nemáte žádné krátké odkazy. Vytvořte první výše.",
+    "visits": "návštěv",
+    "copyLink": "Kopírovat odkaz",
+    "copied": "Odkaz zkopírován",
+    "createdSuccess": "Odkaz vytvořen",
+    "deletedSuccess": "Odkaz smazán",
+    "errorReserved": "Tento alias je rezervovaný. Zvolte prosím jiný.",
+    "errorInvalidChars": "Alias může obsahovat pouze písmena, číslice a znaky '.', '_', '-'.",
+    "errorEmpty": "Zadejte alias nebo klikněte na Generovat.",
+    "errorTargetRequired": "Cílová URL je povinná.",
+    "errorAliasTaken": "Tento alias je již obsazený."
+  },
+  "splitwise": {
+    "title": "Splitwise",
+    "description": "Souhrn výdajů ze všech vašich projektů.",
+    "emptyState": "Žádný z vašich projektů zatím nemá výdaje.",
+    "allBoards": "Všechny projekty",
+    "loading": "Načítání výdajů..."
+  },
   "podcasts": {
     "title": "Podcasty",
     "add_transcribe": "Přidat / přepsat podcast",

@@ -4,6 +4,7 @@ import { browser } from '$app/environment';
 import { request } from '$lib/graphql/client';
 import {
 	GET_BOARD_EXPENSES,
+	GET_ALL_USER_EXPENSES,
 	CREATE_EXPENSE,
 	DELETE_EXPENSE
 } from '$lib/graphql/documents';
@@ -64,6 +65,29 @@ function createExpensesStore() {
 			const message = error instanceof Error ? error.message : 'Failed to load expenses';
 			state.error = message;
 			console.error('[expensesStore.loadBoardExpenses] Error:', error);
+		} finally {
+			state.loading = false;
+		}
+	}
+
+	/**
+	 * Load expenses across all boards the user has access to.
+	 * Hasura row-level permissions scope results to accessible boards automatically.
+	 */
+	async function loadAllExpenses() {
+		if (!browser) return;
+
+		state.loading = true;
+		state.error = null;
+		state.currentBoardId = null;
+
+		try {
+			const data: GetBoardExpensesQuery = await request(GET_ALL_USER_EXPENSES, {});
+			state.expenses = data.expenses || [];
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Failed to load expenses';
+			state.error = message;
+			console.error('[expensesStore.loadAllExpenses] Error:', error);
 		} finally {
 			state.loading = false;
 		}
@@ -342,6 +366,7 @@ function createExpensesStore() {
 
 		// Methods
 		loadBoardExpenses,
+		loadAllExpenses,
 		addExpense,
 		deleteExpense,
 		settleUp,

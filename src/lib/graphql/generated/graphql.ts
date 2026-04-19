@@ -3802,6 +3802,17 @@ export type Invoices_Aggregate = {
   nodes: Array<Invoices>;
 };
 
+export type Invoices_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Invoices_Aggregate_Bool_Exp_Count>;
+};
+
+export type Invoices_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Invoices_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Invoices_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
 /** aggregate fields of "invoices" */
 export type Invoices_Aggregate_Fields = {
   __typename?: 'invoices_aggregate_fields';
@@ -3825,12 +3836,34 @@ export type Invoices_Aggregate_FieldsCountArgs = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+/** order by aggregate values of table "invoices" */
+export type Invoices_Aggregate_Order_By = {
+  avg?: InputMaybe<Invoices_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Invoices_Max_Order_By>;
+  min?: InputMaybe<Invoices_Min_Order_By>;
+  stddev?: InputMaybe<Invoices_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Invoices_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Invoices_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Invoices_Sum_Order_By>;
+  var_pop?: InputMaybe<Invoices_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Invoices_Var_Samp_Order_By>;
+  variance?: InputMaybe<Invoices_Variance_Order_By>;
+};
+
 /** append existing jsonb value of filtered columns with new jsonb value */
 export type Invoices_Append_Input = {
   /** Customer details at time of invoice creation */
   customer_details?: InputMaybe<Scalars['jsonb']['input']>;
   /** Invoice from details at time of invoice creation */
   invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** input type for inserting array relation for remote table "invoices" */
+export type Invoices_Arr_Rel_Insert_Input = {
+  data: Array<Invoices_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Invoices_On_Conflict>;
 };
 
 /** aggregate avg on columns */
@@ -3840,6 +3873,14 @@ export type Invoices_Avg_Fields = {
   tax_amount?: Maybe<Scalars['Float']['output']>;
   tax_rate?: Maybe<Scalars['Float']['output']>;
   total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "invoices" */
+export type Invoices_Avg_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
 };
 
 /** Boolean expression to filter rows from the table "invoices". All fields are combined with a logical 'AND'. */
@@ -3948,6 +3989,25 @@ export type Invoices_Max_Fields = {
   user_id?: Maybe<Scalars['uuid']['output']>;
 };
 
+/** order by max() on columns of table "invoices" */
+export type Invoices_Max_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  due_date?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoice_date?: InputMaybe<Order_By>;
+  /** Human-readable invoice number */
+  invoice_number?: InputMaybe<Order_By>;
+  notes?: InputMaybe<Order_By>;
+  status?: InputMaybe<Order_By>;
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
 /** aggregate min on columns */
 export type Invoices_Min_Fields = {
   __typename?: 'invoices_min_fields';
@@ -3966,6 +4026,25 @@ export type Invoices_Min_Fields = {
   total?: Maybe<Scalars['numeric']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
   user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "invoices" */
+export type Invoices_Min_Order_By = {
+  board_id?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  due_date?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoice_date?: InputMaybe<Order_By>;
+  /** Human-readable invoice number */
+  invoice_number?: InputMaybe<Order_By>;
+  notes?: InputMaybe<Order_By>;
+  status?: InputMaybe<Order_By>;
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "invoices" */
@@ -4085,6 +4164,14 @@ export type Invoices_Stddev_Fields = {
   total?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev() on columns of table "invoices" */
+export type Invoices_Stddev_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_pop on columns */
 export type Invoices_Stddev_Pop_Fields = {
   __typename?: 'invoices_stddev_pop_fields';
@@ -4094,6 +4181,14 @@ export type Invoices_Stddev_Pop_Fields = {
   total?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by stddev_pop() on columns of table "invoices" */
+export type Invoices_Stddev_Pop_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
 /** aggregate stddev_samp on columns */
 export type Invoices_Stddev_Samp_Fields = {
   __typename?: 'invoices_stddev_samp_fields';
@@ -4101,6 +4196,14 @@ export type Invoices_Stddev_Samp_Fields = {
   tax_amount?: Maybe<Scalars['Float']['output']>;
   tax_rate?: Maybe<Scalars['Float']['output']>;
   total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "invoices" */
+export type Invoices_Stddev_Samp_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
 };
 
 /** Streaming cursor of the table "invoices" */
@@ -4141,6 +4244,14 @@ export type Invoices_Sum_Fields = {
   tax_amount?: Maybe<Scalars['numeric']['output']>;
   tax_rate?: Maybe<Scalars['numeric']['output']>;
   total?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** order by sum() on columns of table "invoices" */
+export type Invoices_Sum_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
 };
 
 /** update columns of table "invoices" */
@@ -4207,6 +4318,14 @@ export type Invoices_Var_Pop_Fields = {
   total?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_pop() on columns of table "invoices" */
+export type Invoices_Var_Pop_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
 /** aggregate var_samp on columns */
 export type Invoices_Var_Samp_Fields = {
   __typename?: 'invoices_var_samp_fields';
@@ -4216,6 +4335,14 @@ export type Invoices_Var_Samp_Fields = {
   total?: Maybe<Scalars['Float']['output']>;
 };
 
+/** order by var_samp() on columns of table "invoices" */
+export type Invoices_Var_Samp_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
+};
+
 /** aggregate variance on columns */
 export type Invoices_Variance_Fields = {
   __typename?: 'invoices_variance_fields';
@@ -4223,6 +4350,14 @@ export type Invoices_Variance_Fields = {
   tax_amount?: Maybe<Scalars['Float']['output']>;
   tax_rate?: Maybe<Scalars['Float']['output']>;
   total?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "invoices" */
+export type Invoices_Variance_Order_By = {
+  subtotal?: InputMaybe<Order_By>;
+  tax_amount?: InputMaybe<Order_By>;
+  tax_rate?: InputMaybe<Order_By>;
+  total?: InputMaybe<Order_By>;
 };
 
 export type Jsonb_Cast_Exp = {
@@ -5477,6 +5612,10 @@ export type Mutation_Root = {
   delete_uploads?: Maybe<Uploads_Mutation_Response>;
   /** delete single row from the table: "uploads" */
   delete_uploads_by_pk?: Maybe<Uploads>;
+  /** delete data from the table: "url_shortcuts" */
+  delete_url_shortcuts?: Maybe<Url_Shortcuts_Mutation_Response>;
+  /** delete single row from the table: "url_shortcuts" */
+  delete_url_shortcuts_by_pk?: Maybe<Url_Shortcuts>;
   /** delete data from the table: "users" */
   delete_users?: Maybe<Users_Mutation_Response>;
   /** delete single row from the table: "users" */
@@ -5597,6 +5736,10 @@ export type Mutation_Root = {
   insert_uploads?: Maybe<Uploads_Mutation_Response>;
   /** insert a single row into the table: "uploads" */
   insert_uploads_one?: Maybe<Uploads>;
+  /** insert data into the table: "url_shortcuts" */
+  insert_url_shortcuts?: Maybe<Url_Shortcuts_Mutation_Response>;
+  /** insert a single row into the table: "url_shortcuts" */
+  insert_url_shortcuts_one?: Maybe<Url_Shortcuts>;
   /** insert data into the table: "users" */
   insert_users?: Maybe<Users_Mutation_Response>;
   /** insert a single row into the table: "users" */
@@ -5773,6 +5916,12 @@ export type Mutation_Root = {
   update_uploads_by_pk?: Maybe<Uploads>;
   /** update multiples rows of table: "uploads" */
   update_uploads_many?: Maybe<Array<Maybe<Uploads_Mutation_Response>>>;
+  /** update data of the table: "url_shortcuts" */
+  update_url_shortcuts?: Maybe<Url_Shortcuts_Mutation_Response>;
+  /** update single row of the table: "url_shortcuts" */
+  update_url_shortcuts_by_pk?: Maybe<Url_Shortcuts>;
+  /** update multiples rows of table: "url_shortcuts" */
+  update_url_shortcuts_many?: Maybe<Array<Maybe<Url_Shortcuts_Mutation_Response>>>;
   /** update data of the table: "users" */
   update_users?: Maybe<Users_Mutation_Response>;
   /** update single row of the table: "users" */
@@ -6122,6 +6271,18 @@ export type Mutation_RootDelete_UploadsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Uploads_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Url_ShortcutsArgs = {
+  where: Url_Shortcuts_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Url_Shortcuts_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -6540,6 +6701,20 @@ export type Mutation_RootInsert_UploadsArgs = {
 export type Mutation_RootInsert_Uploads_OneArgs = {
   object: Uploads_Insert_Input;
   on_conflict?: InputMaybe<Uploads_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Url_ShortcutsArgs = {
+  objects: Array<Url_Shortcuts_Insert_Input>;
+  on_conflict?: InputMaybe<Url_Shortcuts_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Url_Shortcuts_OneArgs = {
+  object: Url_Shortcuts_Insert_Input;
+  on_conflict?: InputMaybe<Url_Shortcuts_On_Conflict>;
 };
 
 
@@ -7198,6 +7373,28 @@ export type Mutation_RootUpdate_Uploads_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Uploads_ManyArgs = {
   updates: Array<Uploads_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Url_ShortcutsArgs = {
+  _inc?: InputMaybe<Url_Shortcuts_Inc_Input>;
+  _set?: InputMaybe<Url_Shortcuts_Set_Input>;
+  where: Url_Shortcuts_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Url_Shortcuts_By_PkArgs = {
+  _inc?: InputMaybe<Url_Shortcuts_Inc_Input>;
+  _set?: InputMaybe<Url_Shortcuts_Set_Input>;
+  pk_columns: Url_Shortcuts_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Url_Shortcuts_ManyArgs = {
+  updates: Array<Url_Shortcuts_Updates>;
 };
 
 
@@ -8576,6 +8773,17 @@ export type Podcasts_Aggregate = {
   nodes: Array<Podcasts>;
 };
 
+export type Podcasts_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Podcasts_Aggregate_Bool_Exp_Count>;
+};
+
+export type Podcasts_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Podcasts_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Podcasts_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
 /** aggregate fields of "podcasts" */
 export type Podcasts_Aggregate_Fields = {
   __typename?: 'podcasts_aggregate_fields';
@@ -8589,6 +8797,20 @@ export type Podcasts_Aggregate_Fields = {
 export type Podcasts_Aggregate_FieldsCountArgs = {
   columns?: InputMaybe<Array<Podcasts_Select_Column>>;
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "podcasts" */
+export type Podcasts_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Podcasts_Max_Order_By>;
+  min?: InputMaybe<Podcasts_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "podcasts" */
+export type Podcasts_Arr_Rel_Insert_Input = {
+  data: Array<Podcasts_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Podcasts_On_Conflict>;
 };
 
 /** Boolean expression to filter rows from the table "podcasts". All fields are combined with a logical 'AND'. */
@@ -8642,6 +8864,19 @@ export type Podcasts_Max_Fields = {
   user_id?: Maybe<Scalars['uuid']['output']>;
 };
 
+/** order by max() on columns of table "podcasts" */
+export type Podcasts_Max_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  date?: InputMaybe<Order_By>;
+  description?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  podcast_name?: InputMaybe<Order_By>;
+  title?: InputMaybe<Order_By>;
+  transcription_md?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
 /** aggregate min on columns */
 export type Podcasts_Min_Fields = {
   __typename?: 'podcasts_min_fields';
@@ -8654,6 +8889,19 @@ export type Podcasts_Min_Fields = {
   transcription_md?: Maybe<Scalars['String']['output']>;
   url?: Maybe<Scalars['String']['output']>;
   user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "podcasts" */
+export type Podcasts_Min_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  date?: InputMaybe<Order_By>;
+  description?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  podcast_name?: InputMaybe<Order_By>;
+  title?: InputMaybe<Order_By>;
+  transcription_md?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
 };
 
 /** response of any mutation on the table "podcasts" */
@@ -8862,9 +9110,9 @@ export type Query_Root = {
   note_uploads_aggregate: Note_Uploads_Aggregate;
   /** fetch data from the table: "note_uploads" using primary key columns */
   note_uploads_by_pk?: Maybe<Note_Uploads>;
-  /** fetch data from the table: "notes" */
+  /** An array relationship */
   notes: Array<Notes>;
-  /** fetch aggregated fields from the table: "notes" */
+  /** An aggregate relationship */
   notes_aggregate: Notes_Aggregate;
   /** fetch data from the table: "notes" using primary key columns */
   notes_by_pk?: Maybe<Notes>;
@@ -8880,9 +9128,9 @@ export type Query_Root = {
   penon_aggregate: Penon_Aggregate;
   /** fetch data from the table: "penon" using primary key columns */
   penon_by_pk?: Maybe<Penon>;
-  /** fetch data from the table: "podcasts" */
+  /** An array relationship */
   podcasts: Array<Podcasts>;
-  /** fetch aggregated fields from the table: "podcasts" */
+  /** An aggregate relationship */
   podcasts_aggregate: Podcasts_Aggregate;
   /** fetch data from the table: "podcasts" using primary key columns */
   podcasts_by_pk?: Maybe<Podcasts>;
@@ -8898,9 +9146,9 @@ export type Query_Root = {
   todo_labels_aggregate: Todo_Labels_Aggregate;
   /** fetch data from the table: "todo_labels" using primary key columns */
   todo_labels_by_pk?: Maybe<Todo_Labels>;
-  /** fetch data from the table: "todo_subscribers" */
+  /** An array relationship */
   todo_subscribers: Array<Todo_Subscribers>;
-  /** fetch aggregated fields from the table: "todo_subscribers" */
+  /** An aggregate relationship */
   todo_subscribers_aggregate: Todo_Subscribers_Aggregate;
   /** fetch data from the table: "todo_subscribers" using primary key columns */
   todo_subscribers_by_pk?: Maybe<Todo_Subscribers>;
@@ -8922,9 +9170,9 @@ export type Query_Root = {
   tracker_categories_aggregate: Tracker_Categories_Aggregate;
   /** fetch data from the table: "tracker_categories" using primary key columns */
   tracker_categories_by_pk?: Maybe<Tracker_Categories>;
-  /** fetch data from the table: "tracker_category_apps" */
+  /** An array relationship */
   tracker_category_apps: Array<Tracker_Category_Apps>;
-  /** fetch aggregated fields from the table: "tracker_category_apps" */
+  /** An aggregate relationship */
   tracker_category_apps_aggregate: Tracker_Category_Apps_Aggregate;
   /** fetch data from the table: "tracker_category_apps" using primary key columns */
   tracker_category_apps_by_pk?: Maybe<Tracker_Category_Apps>;
@@ -8954,6 +9202,12 @@ export type Query_Root = {
   uploads_aggregate: Uploads_Aggregate;
   /** fetch data from the table: "uploads" using primary key columns */
   uploads_by_pk?: Maybe<Uploads>;
+  /** An array relationship */
+  url_shortcuts: Array<Url_Shortcuts>;
+  /** An aggregate relationship */
+  url_shortcuts_aggregate: Url_Shortcuts_Aggregate;
+  /** fetch data from the table: "url_shortcuts" using primary key columns */
+  url_shortcuts_by_pk?: Maybe<Url_Shortcuts>;
   /** fetch data from the table: "users" */
   users: Array<Users>;
   /** fetch aggregated fields from the table: "users" */
@@ -9651,6 +9905,29 @@ export type Query_RootUploads_By_PkArgs = {
 };
 
 
+export type Query_RootUrl_ShortcutsArgs = {
+  distinct_on?: InputMaybe<Array<Url_Shortcuts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Url_Shortcuts_Order_By>>;
+  where?: InputMaybe<Url_Shortcuts_Bool_Exp>;
+};
+
+
+export type Query_RootUrl_Shortcuts_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Url_Shortcuts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Url_Shortcuts_Order_By>>;
+  where?: InputMaybe<Url_Shortcuts_Bool_Exp>;
+};
+
+
+export type Query_RootUrl_Shortcuts_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
 export type Query_RootUsersArgs = {
   distinct_on?: InputMaybe<Array<Users_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10045,9 +10322,9 @@ export type Subscription_Root = {
   note_uploads_by_pk?: Maybe<Note_Uploads>;
   /** fetch data from the table in a streaming manner: "note_uploads" */
   note_uploads_stream: Array<Note_Uploads>;
-  /** fetch data from the table: "notes" */
+  /** An array relationship */
   notes: Array<Notes>;
-  /** fetch aggregated fields from the table: "notes" */
+  /** An aggregate relationship */
   notes_aggregate: Notes_Aggregate;
   /** fetch data from the table: "notes" using primary key columns */
   notes_by_pk?: Maybe<Notes>;
@@ -10069,9 +10346,9 @@ export type Subscription_Root = {
   penon_by_pk?: Maybe<Penon>;
   /** fetch data from the table in a streaming manner: "penon" */
   penon_stream: Array<Penon>;
-  /** fetch data from the table: "podcasts" */
+  /** An array relationship */
   podcasts: Array<Podcasts>;
-  /** fetch aggregated fields from the table: "podcasts" */
+  /** An aggregate relationship */
   podcasts_aggregate: Podcasts_Aggregate;
   /** fetch data from the table: "podcasts" using primary key columns */
   podcasts_by_pk?: Maybe<Podcasts>;
@@ -10093,9 +10370,9 @@ export type Subscription_Root = {
   todo_labels_by_pk?: Maybe<Todo_Labels>;
   /** fetch data from the table in a streaming manner: "todo_labels" */
   todo_labels_stream: Array<Todo_Labels>;
-  /** fetch data from the table: "todo_subscribers" */
+  /** An array relationship */
   todo_subscribers: Array<Todo_Subscribers>;
-  /** fetch aggregated fields from the table: "todo_subscribers" */
+  /** An aggregate relationship */
   todo_subscribers_aggregate: Todo_Subscribers_Aggregate;
   /** fetch data from the table: "todo_subscribers" using primary key columns */
   todo_subscribers_by_pk?: Maybe<Todo_Subscribers>;
@@ -10125,9 +10402,9 @@ export type Subscription_Root = {
   tracker_categories_by_pk?: Maybe<Tracker_Categories>;
   /** fetch data from the table in a streaming manner: "tracker_categories" */
   tracker_categories_stream: Array<Tracker_Categories>;
-  /** fetch data from the table: "tracker_category_apps" */
+  /** An array relationship */
   tracker_category_apps: Array<Tracker_Category_Apps>;
-  /** fetch aggregated fields from the table: "tracker_category_apps" */
+  /** An aggregate relationship */
   tracker_category_apps_aggregate: Tracker_Category_Apps_Aggregate;
   /** fetch data from the table: "tracker_category_apps" using primary key columns */
   tracker_category_apps_by_pk?: Maybe<Tracker_Category_Apps>;
@@ -10169,6 +10446,14 @@ export type Subscription_Root = {
   uploads_by_pk?: Maybe<Uploads>;
   /** fetch data from the table in a streaming manner: "uploads" */
   uploads_stream: Array<Uploads>;
+  /** An array relationship */
+  url_shortcuts: Array<Url_Shortcuts>;
+  /** An aggregate relationship */
+  url_shortcuts_aggregate: Url_Shortcuts_Aggregate;
+  /** fetch data from the table: "url_shortcuts" using primary key columns */
+  url_shortcuts_by_pk?: Maybe<Url_Shortcuts>;
+  /** fetch data from the table in a streaming manner: "url_shortcuts" */
+  url_shortcuts_stream: Array<Url_Shortcuts>;
   /** fetch data from the table: "users" */
   users: Array<Users>;
   /** fetch aggregated fields from the table: "users" */
@@ -11077,6 +11362,36 @@ export type Subscription_RootUploads_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Uploads_Stream_Cursor_Input>>;
   where?: InputMaybe<Uploads_Bool_Exp>;
+};
+
+
+export type Subscription_RootUrl_ShortcutsArgs = {
+  distinct_on?: InputMaybe<Array<Url_Shortcuts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Url_Shortcuts_Order_By>>;
+  where?: InputMaybe<Url_Shortcuts_Bool_Exp>;
+};
+
+
+export type Subscription_RootUrl_Shortcuts_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Url_Shortcuts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Url_Shortcuts_Order_By>>;
+  where?: InputMaybe<Url_Shortcuts_Bool_Exp>;
+};
+
+
+export type Subscription_RootUrl_Shortcuts_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootUrl_Shortcuts_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Url_Shortcuts_Stream_Cursor_Input>>;
+  where?: InputMaybe<Url_Shortcuts_Bool_Exp>;
 };
 
 
@@ -14868,6 +15183,365 @@ export type Uploads_Updates = {
   where: Uploads_Bool_Exp;
 };
 
+/** columns and relationships of "url_shortcuts" */
+export type Url_Shortcuts = {
+  __typename?: 'url_shortcuts';
+  alias: Scalars['String']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  id: Scalars['uuid']['output'];
+  target_url: Scalars['String']['output'];
+  updated_at: Scalars['timestamptz']['output'];
+  /** An object relationship */
+  user: Users;
+  user_id: Scalars['uuid']['output'];
+  visit_count: Scalars['Int']['output'];
+};
+
+/** aggregated selection of "url_shortcuts" */
+export type Url_Shortcuts_Aggregate = {
+  __typename?: 'url_shortcuts_aggregate';
+  aggregate?: Maybe<Url_Shortcuts_Aggregate_Fields>;
+  nodes: Array<Url_Shortcuts>;
+};
+
+export type Url_Shortcuts_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Url_Shortcuts_Aggregate_Bool_Exp_Count>;
+};
+
+export type Url_Shortcuts_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Url_Shortcuts_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Url_Shortcuts_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "url_shortcuts" */
+export type Url_Shortcuts_Aggregate_Fields = {
+  __typename?: 'url_shortcuts_aggregate_fields';
+  avg?: Maybe<Url_Shortcuts_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Url_Shortcuts_Max_Fields>;
+  min?: Maybe<Url_Shortcuts_Min_Fields>;
+  stddev?: Maybe<Url_Shortcuts_Stddev_Fields>;
+  stddev_pop?: Maybe<Url_Shortcuts_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Url_Shortcuts_Stddev_Samp_Fields>;
+  sum?: Maybe<Url_Shortcuts_Sum_Fields>;
+  var_pop?: Maybe<Url_Shortcuts_Var_Pop_Fields>;
+  var_samp?: Maybe<Url_Shortcuts_Var_Samp_Fields>;
+  variance?: Maybe<Url_Shortcuts_Variance_Fields>;
+};
+
+
+/** aggregate fields of "url_shortcuts" */
+export type Url_Shortcuts_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Url_Shortcuts_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "url_shortcuts" */
+export type Url_Shortcuts_Aggregate_Order_By = {
+  avg?: InputMaybe<Url_Shortcuts_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Url_Shortcuts_Max_Order_By>;
+  min?: InputMaybe<Url_Shortcuts_Min_Order_By>;
+  stddev?: InputMaybe<Url_Shortcuts_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Url_Shortcuts_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Url_Shortcuts_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Url_Shortcuts_Sum_Order_By>;
+  var_pop?: InputMaybe<Url_Shortcuts_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Url_Shortcuts_Var_Samp_Order_By>;
+  variance?: InputMaybe<Url_Shortcuts_Variance_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "url_shortcuts" */
+export type Url_Shortcuts_Arr_Rel_Insert_Input = {
+  data: Array<Url_Shortcuts_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Url_Shortcuts_On_Conflict>;
+};
+
+/** aggregate avg on columns */
+export type Url_Shortcuts_Avg_Fields = {
+  __typename?: 'url_shortcuts_avg_fields';
+  visit_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "url_shortcuts" */
+export type Url_Shortcuts_Avg_Order_By = {
+  visit_count?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "url_shortcuts". All fields are combined with a logical 'AND'. */
+export type Url_Shortcuts_Bool_Exp = {
+  _and?: InputMaybe<Array<Url_Shortcuts_Bool_Exp>>;
+  _not?: InputMaybe<Url_Shortcuts_Bool_Exp>;
+  _or?: InputMaybe<Array<Url_Shortcuts_Bool_Exp>>;
+  alias?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  target_url?: InputMaybe<String_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+  visit_count?: InputMaybe<Int_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "url_shortcuts" */
+export enum Url_Shortcuts_Constraint {
+  /** unique or primary key constraint on columns "alias" */
+  UrlShortcutsAliasKey = 'url_shortcuts_alias_key',
+  /** unique or primary key constraint on columns "id" */
+  UrlShortcutsPkey = 'url_shortcuts_pkey'
+}
+
+/** input type for incrementing numeric columns in table "url_shortcuts" */
+export type Url_Shortcuts_Inc_Input = {
+  visit_count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** input type for inserting data into table "url_shortcuts" */
+export type Url_Shortcuts_Insert_Input = {
+  alias?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  target_url?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+  visit_count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** aggregate max on columns */
+export type Url_Shortcuts_Max_Fields = {
+  __typename?: 'url_shortcuts_max_fields';
+  alias?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  target_url?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+  visit_count?: Maybe<Scalars['Int']['output']>;
+};
+
+/** order by max() on columns of table "url_shortcuts" */
+export type Url_Shortcuts_Max_Order_By = {
+  alias?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  target_url?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  visit_count?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Url_Shortcuts_Min_Fields = {
+  __typename?: 'url_shortcuts_min_fields';
+  alias?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  target_url?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+  visit_count?: Maybe<Scalars['Int']['output']>;
+};
+
+/** order by min() on columns of table "url_shortcuts" */
+export type Url_Shortcuts_Min_Order_By = {
+  alias?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  target_url?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  visit_count?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "url_shortcuts" */
+export type Url_Shortcuts_Mutation_Response = {
+  __typename?: 'url_shortcuts_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Url_Shortcuts>;
+};
+
+/** on_conflict condition type for table "url_shortcuts" */
+export type Url_Shortcuts_On_Conflict = {
+  constraint: Url_Shortcuts_Constraint;
+  update_columns?: Array<Url_Shortcuts_Update_Column>;
+  where?: InputMaybe<Url_Shortcuts_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "url_shortcuts". */
+export type Url_Shortcuts_Order_By = {
+  alias?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  target_url?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  visit_count?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: url_shortcuts */
+export type Url_Shortcuts_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "url_shortcuts" */
+export enum Url_Shortcuts_Select_Column {
+  /** column name */
+  Alias = 'alias',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  TargetUrl = 'target_url',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id',
+  /** column name */
+  VisitCount = 'visit_count'
+}
+
+/** input type for updating data in table "url_shortcuts" */
+export type Url_Shortcuts_Set_Input = {
+  alias?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  target_url?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+  visit_count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Url_Shortcuts_Stddev_Fields = {
+  __typename?: 'url_shortcuts_stddev_fields';
+  visit_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev() on columns of table "url_shortcuts" */
+export type Url_Shortcuts_Stddev_Order_By = {
+  visit_count?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Url_Shortcuts_Stddev_Pop_Fields = {
+  __typename?: 'url_shortcuts_stddev_pop_fields';
+  visit_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_pop() on columns of table "url_shortcuts" */
+export type Url_Shortcuts_Stddev_Pop_Order_By = {
+  visit_count?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Url_Shortcuts_Stddev_Samp_Fields = {
+  __typename?: 'url_shortcuts_stddev_samp_fields';
+  visit_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "url_shortcuts" */
+export type Url_Shortcuts_Stddev_Samp_Order_By = {
+  visit_count?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "url_shortcuts" */
+export type Url_Shortcuts_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Url_Shortcuts_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Url_Shortcuts_Stream_Cursor_Value_Input = {
+  alias?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  target_url?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+  visit_count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Url_Shortcuts_Sum_Fields = {
+  __typename?: 'url_shortcuts_sum_fields';
+  visit_count?: Maybe<Scalars['Int']['output']>;
+};
+
+/** order by sum() on columns of table "url_shortcuts" */
+export type Url_Shortcuts_Sum_Order_By = {
+  visit_count?: InputMaybe<Order_By>;
+};
+
+/** update columns of table "url_shortcuts" */
+export enum Url_Shortcuts_Update_Column {
+  /** column name */
+  Alias = 'alias',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  TargetUrl = 'target_url',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id',
+  /** column name */
+  VisitCount = 'visit_count'
+}
+
+export type Url_Shortcuts_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Url_Shortcuts_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Url_Shortcuts_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Url_Shortcuts_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Url_Shortcuts_Var_Pop_Fields = {
+  __typename?: 'url_shortcuts_var_pop_fields';
+  visit_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_pop() on columns of table "url_shortcuts" */
+export type Url_Shortcuts_Var_Pop_Order_By = {
+  visit_count?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Url_Shortcuts_Var_Samp_Fields = {
+  __typename?: 'url_shortcuts_var_samp_fields';
+  visit_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_samp() on columns of table "url_shortcuts" */
+export type Url_Shortcuts_Var_Samp_Order_By = {
+  visit_count?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Url_Shortcuts_Variance_Fields = {
+  __typename?: 'url_shortcuts_variance_fields';
+  visit_count?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "url_shortcuts" */
+export type Url_Shortcuts_Variance_Order_By = {
+  visit_count?: InputMaybe<Order_By>;
+};
+
 /** columns and relationships of "users" */
 export type Users = {
   __typename?: 'users';
@@ -14901,6 +15575,10 @@ export type Users = {
   email?: Maybe<Scalars['String']['output']>;
   emailVerified?: Maybe<Scalars['timestamptz']['output']>;
   /** An array relationship */
+  expense_splits: Array<Expense_Splits>;
+  /** An aggregate relationship */
+  expense_splits_aggregate: Expense_Splits_Aggregate;
+  /** An array relationship */
   expenses: Array<Expenses>;
   /** An aggregate relationship */
   expenses_aggregate: Expenses_Aggregate;
@@ -14908,6 +15586,10 @@ export type Users = {
   image?: Maybe<Scalars['String']['output']>;
   /** Invoice from details: company_name, code, vat, address, contact_details */
   invoice_from_details?: Maybe<Scalars['jsonb']['output']>;
+  /** fetch data from the table: "invoices" */
+  invoices: Array<Invoices>;
+  /** fetch aggregated fields from the table: "invoices" */
+  invoices_aggregate: Invoices_Aggregate;
   locale: Scalars['String']['output'];
   /** An array relationship */
   logs: Array<Logs>;
@@ -14915,15 +15597,27 @@ export type Users = {
   logs_aggregate: Logs_Aggregate;
   name?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
+  notes: Array<Notes>;
+  /** An aggregate relationship */
+  notes_aggregate: Notes_Aggregate;
+  /** An array relationship */
   notifications: Array<Notifications>;
   /** An aggregate relationship */
   notifications_aggregate: Notifications_Aggregate;
   password?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
+  podcasts: Array<Podcasts>;
+  /** An aggregate relationship */
+  podcasts_aggregate: Podcasts_Aggregate;
+  /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
   sessions_aggregate: Sessions_Aggregate;
   settings: Scalars['jsonb']['output'];
+  /** An array relationship */
+  todo_subscribers: Array<Todo_Subscribers>;
+  /** An aggregate relationship */
+  todo_subscribers_aggregate: Todo_Subscribers_Aggregate;
   /** An array relationship */
   todos: Array<Todos>;
   /** An array relationship */
@@ -14941,10 +15635,18 @@ export type Users = {
   /** An aggregate relationship */
   tracker_categories_aggregate: Tracker_Categories_Aggregate;
   /** An array relationship */
+  tracker_category_apps: Array<Tracker_Category_Apps>;
+  /** An aggregate relationship */
+  tracker_category_apps_aggregate: Tracker_Category_Apps_Aggregate;
+  /** An array relationship */
   tracker_sessions: Array<Tracker_Sessions>;
   /** An aggregate relationship */
   tracker_sessions_aggregate: Tracker_Sessions_Aggregate;
   updated_at: Scalars['timestamptz']['output'];
+  /** An array relationship */
+  url_shortcuts: Array<Url_Shortcuts>;
+  /** An aggregate relationship */
+  url_shortcuts_aggregate: Url_Shortcuts_Aggregate;
   username: Scalars['String']['output'];
 };
 
@@ -15076,6 +15778,26 @@ export type UsersDefault_LabelsArgs = {
 
 
 /** columns and relationships of "users" */
+export type UsersExpense_SplitsArgs = {
+  distinct_on?: InputMaybe<Array<Expense_Splits_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expense_Splits_Order_By>>;
+  where?: InputMaybe<Expense_Splits_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersExpense_Splits_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Expense_Splits_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Expense_Splits_Order_By>>;
+  where?: InputMaybe<Expense_Splits_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
 export type UsersExpensesArgs = {
   distinct_on?: InputMaybe<Array<Expenses_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -15102,6 +15824,26 @@ export type UsersInvoice_From_DetailsArgs = {
 
 
 /** columns and relationships of "users" */
+export type UsersInvoicesArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersInvoices_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
 export type UsersLogsArgs = {
   distinct_on?: InputMaybe<Array<Logs_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -15122,6 +15864,26 @@ export type UsersLogs_AggregateArgs = {
 
 
 /** columns and relationships of "users" */
+export type UsersNotesArgs = {
+  distinct_on?: InputMaybe<Array<Notes_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notes_Order_By>>;
+  where?: InputMaybe<Notes_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersNotes_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Notes_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notes_Order_By>>;
+  where?: InputMaybe<Notes_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
 export type UsersNotificationsArgs = {
   distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -15138,6 +15900,26 @@ export type UsersNotifications_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Notifications_Order_By>>;
   where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersPodcastsArgs = {
+  distinct_on?: InputMaybe<Array<Podcasts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Podcasts_Order_By>>;
+  where?: InputMaybe<Podcasts_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersPodcasts_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Podcasts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Podcasts_Order_By>>;
+  where?: InputMaybe<Podcasts_Bool_Exp>;
 };
 
 
@@ -15164,6 +15946,26 @@ export type UsersSessions_AggregateArgs = {
 /** columns and relationships of "users" */
 export type UsersSettingsArgs = {
   path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersTodo_SubscribersArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Subscribers_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Subscribers_Order_By>>;
+  where?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersTodo_Subscribers_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Subscribers_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Subscribers_Order_By>>;
+  where?: InputMaybe<Todo_Subscribers_Bool_Exp>;
 };
 
 
@@ -15248,6 +16050,26 @@ export type UsersTracker_Categories_AggregateArgs = {
 
 
 /** columns and relationships of "users" */
+export type UsersTracker_Category_AppsArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Category_Apps_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Category_Apps_Order_By>>;
+  where?: InputMaybe<Tracker_Category_Apps_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersTracker_Category_Apps_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Tracker_Category_Apps_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Tracker_Category_Apps_Order_By>>;
+  where?: InputMaybe<Tracker_Category_Apps_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
 export type UsersTracker_SessionsArgs = {
   distinct_on?: InputMaybe<Array<Tracker_Sessions_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -15264,6 +16086,26 @@ export type UsersTracker_Sessions_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Tracker_Sessions_Order_By>>;
   where?: InputMaybe<Tracker_Sessions_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersUrl_ShortcutsArgs = {
+  distinct_on?: InputMaybe<Array<Url_Shortcuts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Url_Shortcuts_Order_By>>;
+  where?: InputMaybe<Url_Shortcuts_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersUrl_Shortcuts_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Url_Shortcuts_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Url_Shortcuts_Order_By>>;
+  where?: InputMaybe<Url_Shortcuts_Bool_Exp>;
 };
 
 /** aggregated selection of "users" */
@@ -15318,21 +16160,31 @@ export type Users_Bool_Exp = {
   default_labels?: InputMaybe<Jsonb_Comparison_Exp>;
   email?: InputMaybe<String_Comparison_Exp>;
   emailVerified?: InputMaybe<Timestamptz_Comparison_Exp>;
+  expense_splits?: InputMaybe<Expense_Splits_Bool_Exp>;
+  expense_splits_aggregate?: InputMaybe<Expense_Splits_Aggregate_Bool_Exp>;
   expenses?: InputMaybe<Expenses_Bool_Exp>;
   expenses_aggregate?: InputMaybe<Expenses_Aggregate_Bool_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   image?: InputMaybe<String_Comparison_Exp>;
   invoice_from_details?: InputMaybe<Jsonb_Comparison_Exp>;
+  invoices?: InputMaybe<Invoices_Bool_Exp>;
+  invoices_aggregate?: InputMaybe<Invoices_Aggregate_Bool_Exp>;
   locale?: InputMaybe<String_Comparison_Exp>;
   logs?: InputMaybe<Logs_Bool_Exp>;
   logs_aggregate?: InputMaybe<Logs_Aggregate_Bool_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
+  notes?: InputMaybe<Notes_Bool_Exp>;
+  notes_aggregate?: InputMaybe<Notes_Aggregate_Bool_Exp>;
   notifications?: InputMaybe<Notifications_Bool_Exp>;
   notifications_aggregate?: InputMaybe<Notifications_Aggregate_Bool_Exp>;
   password?: InputMaybe<String_Comparison_Exp>;
+  podcasts?: InputMaybe<Podcasts_Bool_Exp>;
+  podcasts_aggregate?: InputMaybe<Podcasts_Aggregate_Bool_Exp>;
   sessions?: InputMaybe<Sessions_Bool_Exp>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Bool_Exp>;
   settings?: InputMaybe<Jsonb_Comparison_Exp>;
+  todo_subscribers?: InputMaybe<Todo_Subscribers_Bool_Exp>;
+  todo_subscribers_aggregate?: InputMaybe<Todo_Subscribers_Aggregate_Bool_Exp>;
   todos?: InputMaybe<Todos_Bool_Exp>;
   todosByAssignedTo?: InputMaybe<Todos_Bool_Exp>;
   todosByAssignedTo_aggregate?: InputMaybe<Todos_Aggregate_Bool_Exp>;
@@ -15341,9 +16193,13 @@ export type Users_Bool_Exp = {
   tracker_apps_aggregate?: InputMaybe<Tracker_Apps_Aggregate_Bool_Exp>;
   tracker_categories?: InputMaybe<Tracker_Categories_Bool_Exp>;
   tracker_categories_aggregate?: InputMaybe<Tracker_Categories_Aggregate_Bool_Exp>;
+  tracker_category_apps?: InputMaybe<Tracker_Category_Apps_Bool_Exp>;
+  tracker_category_apps_aggregate?: InputMaybe<Tracker_Category_Apps_Aggregate_Bool_Exp>;
   tracker_sessions?: InputMaybe<Tracker_Sessions_Bool_Exp>;
   tracker_sessions_aggregate?: InputMaybe<Tracker_Sessions_Aggregate_Bool_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  url_shortcuts?: InputMaybe<Url_Shortcuts_Bool_Exp>;
+  url_shortcuts_aggregate?: InputMaybe<Url_Shortcuts_Aggregate_Bool_Exp>;
   username?: InputMaybe<String_Comparison_Exp>;
 };
 
@@ -15394,24 +16250,31 @@ export type Users_Insert_Input = {
   default_labels?: InputMaybe<Scalars['jsonb']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailVerified?: InputMaybe<Scalars['timestamptz']['input']>;
+  expense_splits?: InputMaybe<Expense_Splits_Arr_Rel_Insert_Input>;
   expenses?: InputMaybe<Expenses_Arr_Rel_Insert_Input>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
   /** Invoice from details: company_name, code, vat, address, contact_details */
   invoice_from_details?: InputMaybe<Scalars['jsonb']['input']>;
+  invoices?: InputMaybe<Invoices_Arr_Rel_Insert_Input>;
   locale?: InputMaybe<Scalars['String']['input']>;
   logs?: InputMaybe<Logs_Arr_Rel_Insert_Input>;
   name?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Notes_Arr_Rel_Insert_Input>;
   notifications?: InputMaybe<Notifications_Arr_Rel_Insert_Input>;
   password?: InputMaybe<Scalars['String']['input']>;
+  podcasts?: InputMaybe<Podcasts_Arr_Rel_Insert_Input>;
   sessions?: InputMaybe<Sessions_Arr_Rel_Insert_Input>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
+  todo_subscribers?: InputMaybe<Todo_Subscribers_Arr_Rel_Insert_Input>;
   todos?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
   todosByAssignedTo?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
   tracker_apps?: InputMaybe<Tracker_Apps_Arr_Rel_Insert_Input>;
   tracker_categories?: InputMaybe<Tracker_Categories_Arr_Rel_Insert_Input>;
+  tracker_category_apps?: InputMaybe<Tracker_Category_Apps_Arr_Rel_Insert_Input>;
   tracker_sessions?: InputMaybe<Tracker_Sessions_Arr_Rel_Insert_Input>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  url_shortcuts?: InputMaybe<Url_Shortcuts_Arr_Rel_Insert_Input>;
   username?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -15481,23 +16344,30 @@ export type Users_Order_By = {
   default_labels?: InputMaybe<Order_By>;
   email?: InputMaybe<Order_By>;
   emailVerified?: InputMaybe<Order_By>;
+  expense_splits_aggregate?: InputMaybe<Expense_Splits_Aggregate_Order_By>;
   expenses_aggregate?: InputMaybe<Expenses_Aggregate_Order_By>;
   id?: InputMaybe<Order_By>;
   image?: InputMaybe<Order_By>;
   invoice_from_details?: InputMaybe<Order_By>;
+  invoices_aggregate?: InputMaybe<Invoices_Aggregate_Order_By>;
   locale?: InputMaybe<Order_By>;
   logs_aggregate?: InputMaybe<Logs_Aggregate_Order_By>;
   name?: InputMaybe<Order_By>;
+  notes_aggregate?: InputMaybe<Notes_Aggregate_Order_By>;
   notifications_aggregate?: InputMaybe<Notifications_Aggregate_Order_By>;
   password?: InputMaybe<Order_By>;
+  podcasts_aggregate?: InputMaybe<Podcasts_Aggregate_Order_By>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Order_By>;
   settings?: InputMaybe<Order_By>;
+  todo_subscribers_aggregate?: InputMaybe<Todo_Subscribers_Aggregate_Order_By>;
   todosByAssignedTo_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
   todos_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
   tracker_apps_aggregate?: InputMaybe<Tracker_Apps_Aggregate_Order_By>;
   tracker_categories_aggregate?: InputMaybe<Tracker_Categories_Aggregate_Order_By>;
+  tracker_category_apps_aggregate?: InputMaybe<Tracker_Category_Apps_Aggregate_Order_By>;
   tracker_sessions_aggregate?: InputMaybe<Tracker_Sessions_Aggregate_Order_By>;
   updated_at?: InputMaybe<Order_By>;
+  url_shortcuts_aggregate?: InputMaybe<Url_Shortcuts_Aggregate_Order_By>;
   username?: InputMaybe<Order_By>;
 };
 
@@ -16416,6 +17286,47 @@ export type UpdatePodcastMutationVariables = Exact<{
 
 export type UpdatePodcastMutation = { __typename?: 'mutation_root', update_podcasts_by_pk?: { __typename?: 'podcasts', id: string, podcast_name: string, title?: string | null, description?: string | null, date?: string | null } | null };
 
+export type UrlShortcutFieldsFragment = { __typename?: 'url_shortcuts', id: string, user_id: string, alias: string, target_url: string, visit_count: number, created_at: string, updated_at: string };
+
+export type GetUrlShortcutsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUrlShortcutsQuery = { __typename?: 'query_root', url_shortcuts: Array<{ __typename?: 'url_shortcuts', id: string, user_id: string, alias: string, target_url: string, visit_count: number, created_at: string, updated_at: string }> };
+
+export type GetUrlShortcutByAliasQueryVariables = Exact<{
+  alias: Scalars['String']['input'];
+}>;
+
+
+export type GetUrlShortcutByAliasQuery = { __typename?: 'query_root', url_shortcuts: Array<{ __typename?: 'url_shortcuts', alias: string, target_url: string }> };
+
+export type CreateUrlShortcutMutationVariables = Exact<{
+  object: Url_Shortcuts_Insert_Input;
+}>;
+
+
+export type CreateUrlShortcutMutation = { __typename?: 'mutation_root', insert_url_shortcuts_one?: { __typename?: 'url_shortcuts', id: string, user_id: string, alias: string, target_url: string, visit_count: number, created_at: string, updated_at: string } | null };
+
+export type UpdateUrlShortcutMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  _set: Url_Shortcuts_Set_Input;
+}>;
+
+
+export type UpdateUrlShortcutMutation = { __typename?: 'mutation_root', update_url_shortcuts_by_pk?: { __typename?: 'url_shortcuts', id: string, user_id: string, alias: string, target_url: string, visit_count: number, created_at: string, updated_at: string } | null };
+
+export type DeleteUrlShortcutMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type DeleteUrlShortcutMutation = { __typename?: 'mutation_root', delete_url_shortcuts_by_pk?: { __typename?: 'url_shortcuts', id: string } | null };
+
+export type GetAllUserExpensesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllUserExpensesQuery = { __typename?: 'query_root', expenses: Array<{ __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -16874,6 +17785,17 @@ export const ExpenseFieldsFragmentDoc = new TypedDocumentString(`
     email
   }
 }`, {"fragmentName":"ExpenseFields"}) as unknown as TypedDocumentString<ExpenseFieldsFragment, unknown>;
+export const UrlShortcutFieldsFragmentDoc = new TypedDocumentString(`
+    fragment UrlShortcutFields on url_shortcuts {
+  id
+  user_id
+  alias
+  target_url
+  visit_count
+  created_at
+  updated_at
+}
+    `, {"fragmentName":"UrlShortcutFields"}) as unknown as TypedDocumentString<UrlShortcutFieldsFragment, unknown>;
 export const GetTodosDocument = new TypedDocumentString(`
     query GetTodos($where: todos_bool_exp = {}, $order_by: [todos_order_by!] = {sort_order: asc, due_on: desc, updated_at: desc}, $limit: Int = 100, $offset: Int = 0) {
   todos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
@@ -18767,3 +19689,107 @@ export const UpdatePodcastDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<UpdatePodcastMutation, UpdatePodcastMutationVariables>;
+export const GetUrlShortcutsDocument = new TypedDocumentString(`
+    query GetUrlShortcuts {
+  url_shortcuts(order_by: {created_at: desc}) {
+    ...UrlShortcutFields
+  }
+}
+    fragment UrlShortcutFields on url_shortcuts {
+  id
+  user_id
+  alias
+  target_url
+  visit_count
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<GetUrlShortcutsQuery, GetUrlShortcutsQueryVariables>;
+export const GetUrlShortcutByAliasDocument = new TypedDocumentString(`
+    query GetUrlShortcutByAlias($alias: String!) {
+  url_shortcuts(where: {alias: {_eq: $alias}}, limit: 1) {
+    alias
+    target_url
+  }
+}
+    `) as unknown as TypedDocumentString<GetUrlShortcutByAliasQuery, GetUrlShortcutByAliasQueryVariables>;
+export const CreateUrlShortcutDocument = new TypedDocumentString(`
+    mutation CreateUrlShortcut($object: url_shortcuts_insert_input!) {
+  insert_url_shortcuts_one(object: $object) {
+    ...UrlShortcutFields
+  }
+}
+    fragment UrlShortcutFields on url_shortcuts {
+  id
+  user_id
+  alias
+  target_url
+  visit_count
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<CreateUrlShortcutMutation, CreateUrlShortcutMutationVariables>;
+export const UpdateUrlShortcutDocument = new TypedDocumentString(`
+    mutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {
+  update_url_shortcuts_by_pk(pk_columns: {id: $id}, _set: $_set) {
+    ...UrlShortcutFields
+  }
+}
+    fragment UrlShortcutFields on url_shortcuts {
+  id
+  user_id
+  alias
+  target_url
+  visit_count
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<UpdateUrlShortcutMutation, UpdateUrlShortcutMutationVariables>;
+export const DeleteUrlShortcutDocument = new TypedDocumentString(`
+    mutation DeleteUrlShortcut($id: uuid!) {
+  delete_url_shortcuts_by_pk(id: $id) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteUrlShortcutMutation, DeleteUrlShortcutMutationVariables>;
+export const GetAllUserExpensesDocument = new TypedDocumentString(`
+    query GetAllUserExpenses {
+  expenses(where: {deleted_at: {_is_null: true}}, order_by: {created_at: desc}) {
+    ...ExpenseFields
+  }
+}
+    fragment ExpenseSplitFields on expense_splits {
+  id
+  user_id
+  amount
+  expense_id
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}
+fragment ExpenseFields on expenses {
+  id
+  amount
+  description
+  created_by
+  board_id
+  created_at
+  updated_at
+  deleted_at
+  created {
+    id
+    name
+    username
+    image
+    email
+  }
+  expense_splits {
+    ...ExpenseSplitFields
+  }
+  board {
+    id
+    name
+    alias
+  }
+}`) as unknown as TypedDocumentString<GetAllUserExpensesQuery, GetAllUserExpensesQueryVariables>;

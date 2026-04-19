@@ -1311,11 +1311,11 @@ export const UPDATE_PODCAST = graphql(`
   mutation UpdatePodcast($id: uuid!, $podcast_name: String, $title: String, $description: String, $date: date) {
     update_podcasts_by_pk(
       pk_columns: { id: $id },
-      _set: { 
-        podcast_name: $podcast_name, 
-        title: $title, 
-        description: $description, 
-        date: $date 
+      _set: {
+        podcast_name: $podcast_name,
+        title: $title,
+        description: $description,
+        date: $date
       }
     ) {
       id
@@ -1323,6 +1323,74 @@ export const UPDATE_PODCAST = graphql(`
       title
       description
       date
+    }
+  }
+`);
+
+// ========== URL Shortcuts ==========
+
+export const URL_SHORTCUT_FRAGMENT = graphql(`
+  fragment UrlShortcutFields on url_shortcuts {
+    id
+    user_id
+    alias
+    target_url
+    visit_count
+    created_at
+    updated_at
+  }
+`);
+
+export const GET_URL_SHORTCUTS = graphql(`
+  query GetUrlShortcuts {
+    url_shortcuts(order_by: { created_at: desc }) {
+      ...UrlShortcutFields
+    }
+  }
+`);
+
+export const GET_URL_SHORTCUT_BY_ALIAS = graphql(`
+  query GetUrlShortcutByAlias($alias: String!) {
+    url_shortcuts(where: { alias: { _eq: $alias } }, limit: 1) {
+      alias
+      target_url
+    }
+  }
+`);
+
+export const CREATE_URL_SHORTCUT = graphql(`
+  mutation CreateUrlShortcut($object: url_shortcuts_insert_input!) {
+    insert_url_shortcuts_one(object: $object) {
+      ...UrlShortcutFields
+    }
+  }
+`);
+
+export const UPDATE_URL_SHORTCUT = graphql(`
+  mutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {
+    update_url_shortcuts_by_pk(pk_columns: { id: $id }, _set: $_set) {
+      ...UrlShortcutFields
+    }
+  }
+`);
+
+export const DELETE_URL_SHORTCUT = graphql(`
+  mutation DeleteUrlShortcut($id: uuid!) {
+    delete_url_shortcuts_by_pk(id: $id) {
+      id
+    }
+  }
+`);
+
+// ========== Splitwise (cross-board expense aggregation) ==========
+
+export const GET_ALL_USER_EXPENSES = graphql(`
+  query GetAllUserExpenses {
+    expenses(
+      where: { deleted_at: { _is_null: true } }
+      order_by: { created_at: desc }
+    ) {
+      ...ExpenseFields
     }
   }
 `);

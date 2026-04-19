@@ -749,6 +749,44 @@
     "select_at_least_one": "Please select at least one person to split with",
     "enter_valid_amount": "Please enter a valid amount"
   },
+  "menu": {
+    "open": "Open menu",
+    "shortener": "URL Shortener",
+    "splitwise": "Splitwise",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "shortener": {
+    "title": "URL Shortener",
+    "description": "Create short links you can share. Anyone with the link is forwarded to the target URL.",
+    "createButton": "Create",
+    "creating": "Creating...",
+    "aliasLabel": "Alias",
+    "aliasPlaceholder": "leave empty for random",
+    "targetLabel": "Target URL",
+    "targetPlaceholder": "https://example.com",
+    "randomizeButton": "Randomize",
+    "deleteConfirmTitle": "Delete shortcut",
+    "deleteConfirm": "Are you sure you want to delete this shortcut?",
+    "emptyState": "You don't have any shortcuts yet. Create your first one above.",
+    "visits": "visits",
+    "copyLink": "Copy link",
+    "copied": "Link copied",
+    "createdSuccess": "Shortcut created",
+    "deletedSuccess": "Shortcut deleted",
+    "errorReserved": "This alias is reserved. Please pick another one.",
+    "errorInvalidChars": "Alias may only contain letters, digits, '.', '_', or '-'.",
+    "errorEmpty": "Please enter an alias or click Randomize.",
+    "errorTargetRequired": "Target URL is required.",
+    "errorAliasTaken": "Alias is already taken."
+  },
+  "splitwise": {
+    "title": "Splitwise",
+    "description": "Aggregated expenses across all of your boards.",
+    "emptyState": "No expenses yet across any of your boards.",
+    "allBoards": "All boards",
+    "loading": "Loading expenses..."
+  },
   "podcasts": {
     "title": "Podcasts",
     "add_transcribe": "Add / transcribe podcast",
