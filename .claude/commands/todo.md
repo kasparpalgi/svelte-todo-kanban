@@ -1,0 +1,1 @@
+See from the `.claude/todo` folder the todo task with the number provided and do that task. Do planning and log your actions inside that same todo file.

@@ -9,6 +9,7 @@ export async function getTopBoardPath(
 	fetch: typeof globalThis.fetch
 ): Promise<string | null> {
 	try {
+		const userId = session?.user?.id;
 		const lastBoardAlias = session?.user?.settings?.lastBoardAlias;
 
 		// Fetch user locale and last board in parallel
@@ -43,23 +44,50 @@ export async function getTopBoardPath(
 			}
 		}
 
-		const data: GetBoardsQuery = await request(
+		// Fallback: land on a board the user actually owns or is a member of.
+		// Never fall back to arbitrary public boards — the boards select permission
+		// exposes every `is_public` board to all users, so an unfiltered query sent
+		// new users (and fresh devices with no cached lastBoardAlias) to another
+		// user's public board (e.g. "Ftwbihs's board"). See task 153.
+		if (!userId) {
+			return null;
+		}
+
+		const toBoardPath = (boards?: GetBoardsQuery['boards']): string | null => {
+			const board = boards?.[0];
+			if (board?.user?.username && board.alias) {
+				return `/${userLocale}/${board.user.username}/${board.alias}`;
+			}
+			return null;
+		};
+
+		// 1. The user's own boards.
+		const ownData: GetBoardsQuery = await request(
 			GET_BOARDS,
 			{
+				where: { user_id: { _eq: userId } },
 				order_by: [{ sort_order: 'asc' }, { name: 'asc' }],
 				limit: 1
 			},
 			undefined,
 			fetch
 		);
+		const ownPath = toBoardPath(ownData.boards);
+		if (ownPath) return ownPath;
 
-		if (data.boards && data.boards.length > 0) {
-			const board = data.boards[0];
-
-			if (board.user?.username && board.alias) {
-				return `/${userLocale}/${board.user.username}/${board.alias}`;
-			}
-		}
+		// 2. Boards the user is a member of.
+		const memberData: GetBoardsQuery = await request(
+			GET_BOARDS,
+			{
+				where: { board_members: { user_id: { _eq: userId } } },
+				order_by: [{ sort_order: 'asc' }, { name: 'asc' }],
+				limit: 1
+			},
+			undefined,
+			fetch
+		);
+		const memberPath = toBoardPath(memberData.boards);
+		if (memberPath) return memberPath;
 
 		return null;
 	} catch (error) {

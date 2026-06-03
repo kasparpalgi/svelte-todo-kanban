@@ -1,0 +1,69 @@
+table:
+  name: url_shortcuts
+  schema: public
+object_relationships:
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+insert_permissions:
+  - role: user
+    permission:
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+      set:
+        user_id: x-hasura-User-Id
+      columns:
+        - visit_count
+        - alias
+        - target_url
+        - created_at
+        - updated_at
+        - id
+        - user_id
+    comment: ""
+select_permissions:
+  - role: anonymous
+    permission:
+      columns:
+        - visit_count
+        - alias
+        - target_url
+        - created_at
+        - updated_at
+        - id
+        - user_id
+      filter: {}
+    comment: ""
+  - role: user
+    permission:
+      columns:
+        - visit_count
+        - alias
+        - target_url
+        - created_at
+        - updated_at
+        - id
+        - user_id
+      filter: {}
+    comment: ""
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - alias
+        - target_url
+        - updated_at
+        - visit_count
+      filter: {}
+      check:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
+delete_permissions:
+  - role: user
+    permission:
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+    comment: ""
