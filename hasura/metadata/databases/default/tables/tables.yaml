@@ -28,5 +28,6 @@
 - "!include public_tracker_keywords.yaml"
 - "!include public_tracker_sessions.yaml"
 - "!include public_uploads.yaml"
+- "!include public_url_shortcuts.yaml"
 - "!include public_users.yaml"
 - "!include public_verification_tokens.yaml"

@@ -44,12 +44,26 @@ array_relationships:
         table:
           name: comments
           schema: public
+  - name: expense_splits
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: expense_splits
+          schema: public
   - name: expenses
     using:
       foreign_key_constraint_on:
         column: created_by
         table:
           name: expenses
+          schema: public
+  - name: invoices
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: invoices
           schema: public
   - name: logs
     using:
@@ -58,6 +72,13 @@ array_relationships:
         table:
           name: logs
           schema: public
+  - name: notes
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: notes
+          schema: public
   - name: notifications
     using:
       foreign_key_constraint_on:
@@ -65,12 +86,26 @@ array_relationships:
         table:
           name: notifications
           schema: public
+  - name: podcasts
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: podcasts
+          schema: public
   - name: sessions
     using:
       foreign_key_constraint_on:
         column: userId
         table:
           name: sessions
+          schema: public
+  - name: todo_subscribers
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: todo_subscribers
           schema: public
   - name: todos
     using:
@@ -100,12 +135,26 @@ array_relationships:
         table:
           name: tracker_categories
           schema: public
+  - name: tracker_category_apps
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: tracker_category_apps
+          schema: public
   - name: tracker_sessions
     using:
       foreign_key_constraint_on:
         column: user_id
         table:
           name: tracker_sessions
+          schema: public
+  - name: url_shortcuts
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: url_shortcuts
           schema: public
 insert_permissions:
   - role: user
