@@ -4,13 +4,13 @@ Modern Kanban ToDo app built with SvelteKit, Hasura GraphQL, and PostgreSQL. Two
 
 ![Kanban board synced with GitHub issues](docs/screenshot.png)
 
-> [Try it free at todozz.eu](https://todozz.eu) · no install required.
+> [Try it free at todzz.eu](https://todzz.eu) · no install required.
 
 ## Use it
 
 Three ways to run it:
 
-1. **Free cloud** — [todozz.eu](https://todozz.eu). Sign in and start; nothing to install.
+1. **Free cloud** — [todzz.eu](https://todzz.eu). Sign in and start; nothing to install.
 2. **Self-host** — clone this repo and follow *Quick Start* below (Docker + Hasura + PostgreSQL). Free and yours.
 3. **Fork it** — MIT-licensed; fork, rebrand, or build on top of it.
 
