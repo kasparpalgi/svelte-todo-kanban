@@ -1,6 +1,30 @@
-# Svelte ToDo app (Kanban) | 
+# ToDzz — GitHub-integrated Kanban board
 
-Modern Kanban ToDo app built with SvelteKit, Hasura GraphQL, and PostgreSQL.
+Modern Kanban ToDo app built with SvelteKit, Hasura GraphQL, and PostgreSQL. Two-way sync with GitHub issues — a free, self-hostable **Trello/Jira alternative** for dev teams and their clients.
+
+![Kanban board synced with GitHub issues](docs/screenshot.png)
+
+> [Try it free at todozz.eu](https://todozz.eu) · no install required.
+
+## Use it
+
+Three ways to run it:
+
+1. **Free cloud** — [todozz.eu](https://todozz.eu). Sign in and start; nothing to install.
+2. **Self-host** — clone this repo and follow *Quick Start* below (Docker + Hasura + PostgreSQL). Free and yours.
+3. **Fork it** — MIT-licensed; fork, rebrand, or build on top of it.
+
+Prefer someone else to set it up? Managed self-host setup is ~£80 one-off (server ~£3/month) — see [e-stonia.co.uk](https://e-stonia.co.uk).
+
+## Features
+
+- Two-way sync with GitHub issues (comments included)
+- Voice + AI note taking (dictate, AI corrects/enhances; research mode)
+- Google Calendar integration
+- Multilingual with AI translation
+- Multi-user collaboration
+- File uploads, rich-text editing, subtasks
+- SvelteKit + TypeScript + Tailwind front end; Hasura GraphQL + PostgreSQL back end; Auth.js auth
 
 ## Quick Start
 
@@ -446,8 +470,13 @@ claude mcp add <server-name> -- <command>
 
 ## License
 
-[Your License Here]
+MIT © Kaspar L. Palgi / Code New Ltd. See [LICENSE](LICENSE).
 
 ## Support
 
 For issues or questions, please open an issue on GitHub.
+
+---
+
+Built by [Kaspar L. Palgi](https://e-stonia.co.uk) — SvelteKit, Hasura & AI development
+at Estonian rates. Book a free 2-hour consultation at [e-stonia.co.uk](https://e-stonia.co.uk).
