@@ -139,6 +139,15 @@
 				return;
 			}
 
+			// Non-blocking plan pass for long voice content
+			const savedContent = validatedData.content || '';
+			if (savedContent && !savedContent.includes('<!-- planned -->')) {
+				const plainLen = savedContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().length;
+				if (plainLen >= 300) {
+					runPlanPass(todo.id, savedContent, validatedData.title || '');
+				}
+			}
+
 			// Add to GCalendar if checkbox & cal. connected
 			if (
 				result.success &&
@@ -261,6 +270,23 @@
 			const editorInstance = get(editor);
 			// Insert AI task result at cursor position
 			editorInstance.commands.insertContent(result);
+		}
+	}
+
+	async function runPlanPass(todoId: string, content: string, title: string) {
+		try {
+			const res = await fetch('/api/ai/plan', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ content, title })
+			});
+			if (!res.ok) return;
+			const data = await res.json();
+			if (data.changed) {
+				todosStore.updateTodo(todoId, { content: data.content });
+			}
+		} catch {
+			// Non-blocking: silently ignore plan pass errors
 		}
 	}
 
