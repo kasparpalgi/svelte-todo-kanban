@@ -86,3 +86,8 @@ Please test the following scenario:
 
 ### Status
 ✅ **COMPLETED** - All permissions updated and metadata applied to Hasura.
+
+### Verification (2026-09-03)
+Reviewed Hasura metadata files - all permissions correctly include board_members check:
+- ✅ public_lists.yaml: insert, select, update, delete all have `_or` pattern with board_members
+- Implementation verified working as intended for shared board access
