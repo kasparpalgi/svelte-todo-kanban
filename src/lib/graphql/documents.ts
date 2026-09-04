@@ -20,6 +20,7 @@ export const TODO_FRAGMENT = graphql(`
 		github_issue_id
 		github_synced_at
 		github_url
+		task_file_path
 		min_hours
 		max_hours
 		actual_hours
@@ -326,6 +327,15 @@ export const DELETE_TODOS = graphql(`
 	mutation DeleteTodos($where: todos_bool_exp!) {
 		delete_todos(where: $where) {
 			affected_rows
+		}
+	}
+`);
+
+export const UPDATE_TASK_FILE_PATH = graphql(`
+	mutation UpdateTaskFilePath($id: uuid!, $path: String) {
+		update_todos_by_pk(pk_columns: { id: $id }, _set: { task_file_path: $path }) {
+			id
+			task_file_path
 		}
 	}
 `);
