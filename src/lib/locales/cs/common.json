@@ -140,6 +140,8 @@
     "board_help_text": "Desky pomáhají organizovat seznamy do různých projektů nebo kategorií.",
     "tasks_count": "úkolů",
     "by_user": "od",
+    "agent_list": "Seznam pro agenta:",
+    "agent_list_none": "žádný",
     "enable_hour_tracking": "Povolit sledování hodin",
     "settings_updated": "Nastavení desky aktualizováno",
     "mobile_add": "Rychlé přidání na mobilu (pro přidání na domovskou obrazovku)"

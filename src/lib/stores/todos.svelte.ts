@@ -727,6 +727,16 @@ function createTodosStore() {
 					console.error('[TodosStore.updateTodo] Failed to log activity:', error);
 				}
 
+				// Card moved: the server decides whether this list is the board's agent list
+				// and, if so, writes NNN-…-TODO.md into the connected repo.
+				if (updates.list_id !== undefined && originalTodo.list?.id !== updates.list_id) {
+					fetch('/api/github/write-task-file', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ todoId: id })
+					}).catch((err) => console.error('Failed to write task file:', err));
+				}
+
 				// Sync to GitHub if todo is linked to a GitHub issue
 				if ((updatedTodo as any).github_issue_number && (updatedTodo as any).github_issue_id) {
 					syncTodoToGithub(updatedTodo, updates, originalTodo).catch((err) => {

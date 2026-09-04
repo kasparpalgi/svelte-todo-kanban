@@ -140,6 +140,8 @@
     "board_help_text": "Projektidide alla kuuluvad erinevad Kanban tulbad või listid või nö. ülesande staatused või kategooriad, mille alla kuuluvad ülesanded.",
     "tasks_count": "ülesannet",
     "by_user": "kasutajalt",
+    "agent_list": "Agendi nimekiri:",
+    "agent_list_none": "puudub",
     "enable_hour_tracking": "Luba tundide jälgimine",
     "settings_updated": "Projekti seaded on uuendatud",
     "mobile_add": "Mobiili kiirlisamine (link avaekraanile lisamiseks)"

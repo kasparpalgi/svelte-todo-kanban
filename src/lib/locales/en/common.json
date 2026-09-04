@@ -140,6 +140,8 @@
     "board_help_text": "Boards help you organize your lists into different projects or categories.",
     "tasks_count": "tasks",
     "by_user": "by",
+    "agent_list": "Agent list:",
+    "agent_list_none": "none",
     "enable_hour_tracking": "Enable hour tracking",
     "settings_updated": "Board settings updated",
     "mobile_add": "Mobile quick add (for adding to homescreen)"

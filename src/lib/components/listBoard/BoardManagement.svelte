@@ -242,6 +242,24 @@
 		}
 	}
 
+	const boardLists = (boardId: string) => listsStore.lists.filter((l) => l.board_id === boardId);
+
+	/** Which list means "ready for the agent". Stored by id — list names are free text. */
+	async function handleUpdateAgentList(boardId: string, listId: string) {
+		const board = listsStore.boards.find((b) => b.id === boardId);
+		if (!board) return;
+
+		const result = await listsStore.updateBoard(boardId, {
+			settings: { ...board.settings, agent_list_id: listId || null }
+		});
+
+		if (result.success) {
+			displayMessage($t('board.settings_updated'), 1500, true);
+		} else {
+			displayMessage(result.message);
+		}
+	}
+
 	async function handleUpdateBoardSettings(boardId: string, enable: boolean) {
 		const board = listsStore.boards.find((b) => b.id === boardId);
 		if (!board) return;
@@ -374,6 +392,20 @@
 														<img src={githubLogo} alt="GitHub" class="h-4 w-4" />
 														{formatGithubRepo(board.github)}
 													</span>
+													<label class="flex items-center gap-1 text-xs text-muted-foreground">
+														{$t('board.agent_list')}
+														<select
+															class="rounded border bg-background px-1 py-0.5"
+															value={board.settings?.agent_list_id ?? ''}
+															onchange={(e) =>
+																handleUpdateAgentList(board.id, e.currentTarget.value)}
+														>
+															<option value="">{$t('board.agent_list_none')}</option>
+															{#each boardLists(board.id) as list (list.id)}
+																<option value={list.id}>{list.name}</option>
+															{/each}
+														</select>
+													</label>
 												{/if}
 											</div>
 										{/if}
