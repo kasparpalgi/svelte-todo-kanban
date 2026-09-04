@@ -12,8 +12,11 @@ import {
 	GET_TODO_BY_GITHUB_ISSUE,
 	GET_COMMENT_BY_GITHUB_ID,
 	GET_USER_BY_GITHUB_USERNAME,
-	CREATE_ACTIVITY_LOG
+	CREATE_ACTIVITY_LOG,
+	GET_TODO_BY_ID,
+	GET_BOARD_BY_REPO
 } from '$lib/graphql/documents';
+import { getGithubToken, githubRequest } from '$lib/server/github';
 
 /**
  * GitHub Webhook Endpoint
@@ -126,10 +129,10 @@ async function handleIssueEvent(event: GitHubIssueEvent): Promise<void> {
 	const { action, issue } = event;
 
 	// Find the todo associated with this GitHub issue
-	const data = await serverRequest<
-		{ todos: Array<any> },
-		{ githubIssueId: number }
-	>(GET_TODO_BY_GITHUB_ISSUE, { githubIssueId: issue.id });
+	const data = await serverRequest<{ todos: Array<any> }, { githubIssueId: number }>(
+		GET_TODO_BY_GITHUB_ISSUE,
+		{ githubIssueId: issue.id }
+	);
 
 	const todo = data?.todos?.[0];
 
@@ -211,10 +214,10 @@ async function findUserByGithubUsername(
 ): Promise<string | null> {
 	try {
 		// Try to find user by GitHub username in settings
-		const userData = await serverRequest<
-			{ users: Array<any> },
-			{ githubUsername: string }
-		>(GET_USER_BY_GITHUB_USERNAME, { githubUsername });
+		const userData = await serverRequest<{ users: Array<any> }, { githubUsername: string }>(
+			GET_USER_BY_GITHUB_USERNAME,
+			{ githubUsername }
+		);
 
 		if (userData?.users?.length > 0) {
 			return userData.users[0].id;
@@ -244,10 +247,10 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 	const { action, comment, issue } = event;
 
 	// First, find the todo this comment belongs to
-	const todoData = await serverRequest<
-		{ todos: Array<any> },
-		{ githubIssueId: number }
-	>(GET_TODO_BY_GITHUB_ISSUE, { githubIssueId: issue.id });
+	const todoData = await serverRequest<{ todos: Array<any> }, { githubIssueId: number }>(
+		GET_TODO_BY_GITHUB_ISSUE,
+		{ githubIssueId: issue.id }
+	);
 
 	const todo = todoData?.todos?.[0];
 
@@ -272,10 +275,10 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 
 				if (userId) {
 					// Determine if this is a fallback user (board owner) vs actual mapped user
-					const userData = await serverRequest<
-						{ users: Array<any> },
-						{ githubUsername: string }
-					>(GET_USER_BY_GITHUB_USERNAME, { githubUsername: comment.user.login });
+					const userData = await serverRequest<{ users: Array<any> }, { githubUsername: string }>(
+						GET_USER_BY_GITHUB_USERNAME,
+						{ githubUsername: comment.user.login }
+					);
 
 					const isActualUser = userData?.users?.length > 0;
 
@@ -309,8 +312,7 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 									todo_id: todo.id,
 									action_type: 'commented',
 									new_value:
-										comment.body.substring(0, 200) +
-										(comment.body.length > 200 ? '...' : ''),
+										comment.body.substring(0, 200) + (comment.body.length > 200 ? '...' : ''),
 									metadata: {
 										source: 'github',
 										github_comment_id: comment.id,
@@ -369,10 +371,10 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 
 		case 'deleted':
 			// Find and delete comment
-			const deleteData = await serverRequest<
-				{ comments: Array<any> },
-				{ githubCommentId: number }
-			>(GET_COMMENT_BY_GITHUB_ID, { githubCommentId: comment.id });
+			const deleteData = await serverRequest<{ comments: Array<any> }, { githubCommentId: number }>(
+				GET_COMMENT_BY_GITHUB_ID,
+				{ githubCommentId: comment.id }
+			);
 
 			const commentToDelete = deleteData?.comments?.[0];
 
@@ -434,6 +436,118 @@ function extractIssueNumbers(message: string): number[] {
  * Handle push events from GitHub
  * Logs commits that reference issues in the activity log
  */
+/** Returns rename pairs for task files in a commit (TODO → DONE). */
+function findTaskFileRenames(commit: GitHubPushEvent['commits'][number]) {
+	const results: { number: string; todoFile: string; doneFile: string }[] = [];
+	for (const removed of commit.removed) {
+		const m = /doc\/todo\/(\d{3})-.*-TODO\.md$/i.exec(removed);
+		if (!m) continue;
+		const added = commit.added.find((f) =>
+			new RegExp(`doc/todo/${m[1]}-.*-DONE\\.md$`, 'i').test(f)
+		);
+		if (added) results.push({ number: m[1], todoFile: removed, doneFile: added });
+	}
+	return results;
+}
+
+/** Move the card to Review and post a comment when a DONE file is pushed. */
+async function handleTaskFileDone(
+	rename: { number: string; doneFile: string },
+	commit: GitHubPushEvent['commits'][number],
+	repository: GitHubPushEvent['repository']
+): Promise<void> {
+	// Find the board owner and their token
+	const boardData = await serverRequest<
+		{ boards: Array<{ id: string; user_id: string; lists: Array<{ id: string; name: string }> }> },
+		{ fullName: string }
+	>(GET_BOARD_BY_REPO, { fullName: repository.full_name });
+
+	const board = boardData?.boards?.[0];
+	if (!board) {
+		console.log(`[016] No board found for repo ${repository.full_name}`);
+		return;
+	}
+
+	const token = await getGithubToken(board.user_id);
+
+	// Fetch DONE file to extract card ID
+	let cardId: string | null = null;
+	if (token) {
+		try {
+			const fileResp = await githubRequest<{ content: string }>(
+				`/repos/${repository.full_name}/contents/${rename.doneFile}?ref=${commit.id}`,
+				token
+			);
+			const content = Buffer.from(fileResp.content, 'base64').toString('utf-8');
+			const match = /From Kanban card `([0-9a-f-]+)`/.exec(content);
+			cardId = match?.[1] ?? null;
+		} catch (err) {
+			console.log(`[016] Could not fetch DONE file content: ${(err as Error).message}`);
+		}
+	}
+
+	if (!cardId) {
+		console.log(`[016] Card ID not found in DONE file ${rename.doneFile}, skipping`);
+		return;
+	}
+
+	// Load the todo
+	const todoData = await serverRequest(GET_TODO_BY_ID, { id: cardId });
+	const todo = todoData?.todos_by_pk;
+	if (!todo) {
+		console.log(`[016] Todo ${cardId} not found`);
+		return;
+	}
+
+	const lists: Array<{ id: string; name: string }> = todo.list?.board?.lists ?? board.lists;
+	const currentList = lists.find((l: { id: string }) => l.id === todo.list_id);
+
+	// Idempotency: skip if already past TODO
+	if (currentList && !/todo/i.test(currentList.name)) {
+		console.log(`[016] Card ${cardId} already in "${currentList.name}", skipping`);
+		return;
+	}
+
+	const reviewList = lists.find((l: { name: string }) => /review/i.test(l.name));
+	const ownerId: string = todo.list?.board?.user_id ?? board.user_id;
+
+	if (reviewList) {
+		await serverRequest(UPDATE_TODOS, {
+			where: { id: { _eq: cardId } },
+			_set: { list_id: reviewList.id }
+		});
+		console.log(`[016] Moved card ${cardId} to "${reviewList.name}"`);
+	} else {
+		console.log(`[016] No Review list on board, skipping move`);
+	}
+
+	const shortSha = commit.id.substring(0, 7);
+	await serverRequest(CREATE_COMMENT, {
+		objects: [
+			{
+				todo_id: cardId,
+				user_id: ownerId,
+				content: `✅ **Task complete** — [\`${shortSha}\`](${commit.url})\n\n\`${rename.doneFile}\``
+			}
+		]
+	});
+	console.log(`[016] Posted completion comment on card ${cardId}`);
+
+	// Close linked GitHub issue
+	if (todo.github_issue_number && token) {
+		try {
+			await githubRequest(
+				`/repos/${repository.full_name}/issues/${todo.github_issue_number}`,
+				token,
+				{ method: 'PATCH', body: JSON.stringify({ state: 'closed' }) }
+			);
+			console.log(`[016] Closed GitHub issue #${todo.github_issue_number}`);
+		} catch (err) {
+			console.error(`[016] Failed to close GitHub issue: ${(err as Error).message}`);
+		}
+	}
+}
+
 async function handlePushEvent(event: GitHubPushEvent): Promise<void> {
 	const { commits, repository, ref } = event;
 
@@ -456,7 +570,9 @@ async function handlePushEvent(event: GitHubPushEvent): Promise<void> {
 			continue; // Skip commits that don't reference any issues
 		}
 
-		console.log(`Commit ${commit.id.substring(0, 7)} references issues: ${issueNumbers.join(', ')}`);
+		console.log(
+			`Commit ${commit.id.substring(0, 7)} references issues: ${issueNumbers.join(', ')}`
+		);
 
 		// For each issue number, find the corresponding todo and log activity
 		for (const issueNumber of issueNumbers) {
@@ -529,6 +645,16 @@ async function handlePushEvent(event: GitHubPushEvent): Promise<void> {
 			} catch (error) {
 				console.error(`Error processing commit ${commit.id} for issue #${issueNumber}:`, error);
 			}
+		}
+	}
+
+	// Task-file rename loop: DONE file → move card to Review
+	for (const commit of commits) {
+		const renames = findTaskFileRenames(commit);
+		for (const rename of renames) {
+			await handleTaskFileDone(rename, commit, repository).catch((err: Error) =>
+				console.error(`[016] ${rename.doneFile}: ${err.message}`)
+			);
 		}
 	}
 }

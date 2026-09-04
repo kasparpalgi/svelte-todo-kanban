@@ -17141,6 +17141,13 @@ export type CreateActivityLogMutationVariables = Exact<{
 
 export type CreateActivityLogMutation = { __typename?: 'mutation_root', insert_activity_logs_one?: { __typename?: 'activity_logs', id: string, user_id?: string | null, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } } | null };
 
+export type GetTodoByIdQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetTodoByIdQuery = { __typename?: 'query_root', todos_by_pk?: { __typename?: 'todos', id: string, title: string, list_id?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_url?: string | null, list?: { __typename?: 'lists', board?: { __typename?: 'boards', id: string, user_id: string, github?: string | null, lists: Array<{ __typename?: 'lists', id: string, name: string }> } | null } | null } | null };
+
 export type SubscribeToTodoMutationVariables = Exact<{
   todo_id: Scalars['uuid']['input'];
   user_id: Scalars['uuid']['input'];
@@ -19317,6 +19324,29 @@ export const CreateActivityLogDocument = new TypedDocumentString(`
     }
   }
 }`) as unknown as TypedDocumentString<CreateActivityLogMutation, CreateActivityLogMutationVariables>;
+export const GetTodoByIdDocument = new TypedDocumentString(`
+    query GetTodoById($id: uuid!) {
+  todos_by_pk(id: $id) {
+    id
+    title
+    list_id
+    github_issue_number
+    github_issue_id
+    github_url
+    list {
+      board {
+        id
+        user_id
+        github
+        lists(order_by: {sort_order: asc}) {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetTodoByIdQuery, GetTodoByIdQueryVariables>;
 export const SubscribeToTodoDocument = new TypedDocumentString(`
     mutation SubscribeToTodo($todo_id: uuid!, $user_id: uuid!) {
   insert_todo_subscribers_one(object: {todo_id: $todo_id, user_id: $user_id}) {

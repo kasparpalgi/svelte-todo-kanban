@@ -664,9 +664,7 @@ export const GET_MY_INVITATIONS = graphql(`
 				_and: [
 					{ status: { _eq: "pending" } }
 					{ expires_at: { _gt: "now()" } }
-					{
-						_or: [{ invitee_email: { _eq: $email } }, { invitee_username: { _eq: $username } }]
-					}
+					{ _or: [{ invitee_email: { _eq: $email } }, { invitee_username: { _eq: $username } }] }
 				]
 			}
 			order_by: { created_at: desc }
@@ -766,7 +764,10 @@ export const GET_COMMENT_BY_GITHUB_ID = graphql(`
 
 export const GET_USER_BY_GITHUB_USERNAME = graphql(`
 	query GetUserByGithubUsername($githubUsername: String!) {
-		users(where: { settings: { _contains: { tokens: { github: { username: $githubUsername } } } } }, limit: 1) {
+		users(
+			where: { settings: { _contains: { tokens: { github: { username: $githubUsername } } } } }
+			limit: 1
+		) {
 			id
 			username
 			settings
@@ -789,12 +790,7 @@ export const CREATE_LOG = graphql(`
 `);
 
 export const GET_LOGS = graphql(`
-	query GetLogs(
-		$where: logs_bool_exp
-		$order_by: [logs_order_by!]
-		$limit: Int
-		$offset: Int
-	) {
+	query GetLogs($where: logs_bool_exp, $order_by: [logs_order_by!], $limit: Int, $offset: Int) {
 		logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
 			id
 			timestamp
@@ -965,6 +961,46 @@ export const CREATE_ACTIVITY_LOG = graphql(`
 	}
 `);
 
+// ========== Task file webhook queries ==========
+
+export const GET_TODO_BY_ID = graphql(`
+	query GetTodoById($id: uuid!) {
+		todos_by_pk(id: $id) {
+			id
+			title
+			list_id
+			github_issue_number
+			github_issue_id
+			github_url
+			list {
+				board {
+					id
+					user_id
+					github
+					lists(order_by: { sort_order: asc }) {
+						id
+						name
+					}
+				}
+			}
+		}
+	}
+`);
+
+// Raw string — github is jsonb but typed as String in generated schema, so _contains fails codegen
+export const GET_BOARD_BY_REPO = `
+	query GetBoardByRepo($fullName: String!) {
+		boards(where: { github: { _contains: { full_name: $fullName } } }, limit: 1) {
+			id
+			user_id
+			lists(order_by: { sort_order: asc }) {
+				id
+				name
+			}
+		}
+	}
+`;
+
 // ========== Todo Subscribers ==========
 
 export const SUBSCRIBE_TO_TODO = graphql(`
@@ -1087,12 +1123,7 @@ export const GET_TRACKER_SESSIONS = graphql(`
 		$order_by: [tracker_sessions_order_by!]
 		$where: tracker_sessions_bool_exp
 	) {
-		tracker_sessions(
-			limit: $limit
-			offset: $offset
-			order_by: $order_by
-			where: $where
-		) {
+		tracker_sessions(limit: $limit, offset: $offset, order_by: $order_by, where: $where) {
 			...TrackerSessionFields
 		}
 		tracker_sessions_aggregate(where: $where) {
@@ -1113,12 +1144,7 @@ export const GET_TRACKER_KEYWORDS = graphql(`
 		$order_by: [tracker_keywords_order_by!]
 		$where: tracker_keywords_bool_exp
 	) {
-		tracker_keywords(
-			limit: $limit
-			offset: $offset
-			order_by: $order_by
-			where: $where
-		) {
+		tracker_keywords(limit: $limit, offset: $offset, order_by: $order_by, where: $where) {
 			...TrackerKeywordFields
 		}
 	}
@@ -1131,12 +1157,7 @@ export const GET_TRACKER_CATEGORIES = graphql(`
 		$order_by: [tracker_categories_order_by!]
 		$where: tracker_categories_bool_exp
 	) {
-		tracker_categories(
-			limit: $limit
-			offset: $offset
-			order_by: $order_by
-			where: $where
-		) {
+		tracker_categories(limit: $limit, offset: $offset, order_by: $order_by, where: $where) {
 			id
 			name
 			parent_category {
@@ -1231,177 +1252,177 @@ export const DELETE_EXPENSE = graphql(`
 `);
 
 export const Penon = graphql(`
-  query Penon($where: penon_bool_exp = {}, $order_by: [penon_order_by!] = {timestamp: desc}, $limit: Int = 5000, $offset: Int = 0) {
-    penon(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
-      id
-      temp
-      humidity
-      soil
-      timestamp
-    }
-  }
+	query Penon(
+		$where: penon_bool_exp = {}
+		$order_by: [penon_order_by!] = { timestamp: desc }
+		$limit: Int = 5000
+		$offset: Int = 0
+	) {
+		penon(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
+			id
+			temp
+			humidity
+			soil
+			timestamp
+		}
+	}
 `);
 
 export const InsertPenon = graphql(`
-  mutation InsertPenon($objects: [penon_insert_input!]!) {
-    insert_penon(objects: $objects) {
-      affected_rows
-    }
-  }
+	mutation InsertPenon($objects: [penon_insert_input!]!) {
+		insert_penon(objects: $objects) {
+			affected_rows
+		}
+	}
 `);
 
 // ========== Podcasts ==========
 
 export const GET_PODCASTS = graphql(`
-  query GetPodcasts {
-    podcasts(limit: 5000, order_by: { created_at: desc }) {
-      id
-      podcast_name
-      url
-      title
-      description
-      date
-      transcription_md
-      created_at
-      user {
-        id
-        username
-      }
-    }
-  }
+	query GetPodcasts {
+		podcasts(limit: 5000, order_by: { created_at: desc }) {
+			id
+			podcast_name
+			url
+			title
+			description
+			date
+			transcription_md
+			created_at
+			user {
+				id
+				username
+			}
+		}
+	}
 `);
 
 export const INSERT_PODCAST = graphql(`
-  mutation InsertPodcast($object: podcasts_insert_input!) {
-    insert_podcasts_one(object: $object) {
-      id
-      podcast_name
-      url
-      title
-      description
-      date
-      transcription_md
-      created_at
-      user {
-        id
-        username
-      }
-    }
-  }
+	mutation InsertPodcast($object: podcasts_insert_input!) {
+		insert_podcasts_one(object: $object) {
+			id
+			podcast_name
+			url
+			title
+			description
+			date
+			transcription_md
+			created_at
+			user {
+				id
+				username
+			}
+		}
+	}
 `);
 
 export const UPDATE_PODCAST_TRANSCRIPTION = graphql(`
-  mutation UpdatePodcastTranscription($id: uuid!, $transcription_md: String!) {
-    update_podcasts_by_pk(pk_columns: { id: $id }, _set: { transcription_md: $transcription_md }) {
-      id
-      transcription_md
-    }
-  }
+	mutation UpdatePodcastTranscription($id: uuid!, $transcription_md: String!) {
+		update_podcasts_by_pk(pk_columns: { id: $id }, _set: { transcription_md: $transcription_md }) {
+			id
+			transcription_md
+		}
+	}
 `);
 
 export const DELETE_PODCAST = graphql(`
-  mutation DeletePodcast($id: uuid!) {
-    delete_podcasts_by_pk(id: $id) {
-      id
-    }
-  }
+	mutation DeletePodcast($id: uuid!) {
+		delete_podcasts_by_pk(id: $id) {
+			id
+		}
+	}
 `);
 
 export const UPDATE_PODCAST = graphql(`
-  mutation UpdatePodcast($id: uuid!, $podcast_name: String, $title: String, $description: String, $date: date) {
-    update_podcasts_by_pk(
-      pk_columns: { id: $id },
-      _set: {
-        podcast_name: $podcast_name,
-        title: $title,
-        description: $description,
-        date: $date
-      }
-    ) {
-      id
-      podcast_name
-      title
-      description
-      date
-    }
-  }
+	mutation UpdatePodcast(
+		$id: uuid!
+		$podcast_name: String
+		$title: String
+		$description: String
+		$date: date
+	) {
+		update_podcasts_by_pk(
+			pk_columns: { id: $id }
+			_set: { podcast_name: $podcast_name, title: $title, description: $description, date: $date }
+		) {
+			id
+			podcast_name
+			title
+			description
+			date
+		}
+	}
 `);
 
 // ========== URL Shortcuts ==========
 
 export const URL_SHORTCUT_FRAGMENT = graphql(`
-  fragment UrlShortcutFields on url_shortcuts {
-    id
-    user_id
-    alias
-    target_url
-    visit_count
-    created_at
-    updated_at
-  }
+	fragment UrlShortcutFields on url_shortcuts {
+		id
+		user_id
+		alias
+		target_url
+		visit_count
+		created_at
+		updated_at
+	}
 `);
 
 export const GET_URL_SHORTCUTS = graphql(`
-  query GetUrlShortcuts {
-    url_shortcuts(order_by: { created_at: desc }) {
-      ...UrlShortcutFields
-    }
-  }
+	query GetUrlShortcuts {
+		url_shortcuts(order_by: { created_at: desc }) {
+			...UrlShortcutFields
+		}
+	}
 `);
 
 export const GET_URL_SHORTCUT_BY_ALIAS = graphql(`
-  query GetUrlShortcutByAlias($alias: String!) {
-    url_shortcuts(where: { alias: { _eq: $alias } }, limit: 1) {
-      alias
-      target_url
-    }
-  }
+	query GetUrlShortcutByAlias($alias: String!) {
+		url_shortcuts(where: { alias: { _eq: $alias } }, limit: 1) {
+			alias
+			target_url
+		}
+	}
 `);
 
 export const CREATE_URL_SHORTCUT = graphql(`
-  mutation CreateUrlShortcut($object: url_shortcuts_insert_input!) {
-    insert_url_shortcuts_one(object: $object) {
-      ...UrlShortcutFields
-    }
-  }
+	mutation CreateUrlShortcut($object: url_shortcuts_insert_input!) {
+		insert_url_shortcuts_one(object: $object) {
+			...UrlShortcutFields
+		}
+	}
 `);
 
 export const UPDATE_URL_SHORTCUT = graphql(`
-  mutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {
-    update_url_shortcuts_by_pk(pk_columns: { id: $id }, _set: $_set) {
-      ...UrlShortcutFields
-    }
-  }
+	mutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {
+		update_url_shortcuts_by_pk(pk_columns: { id: $id }, _set: $_set) {
+			...UrlShortcutFields
+		}
+	}
 `);
 
 export const DELETE_URL_SHORTCUT = graphql(`
-  mutation DeleteUrlShortcut($id: uuid!) {
-    delete_url_shortcuts_by_pk(id: $id) {
-      id
-    }
-  }
+	mutation DeleteUrlShortcut($id: uuid!) {
+		delete_url_shortcuts_by_pk(id: $id) {
+			id
+		}
+	}
 `);
 
 export const INCREMENT_URL_SHORTCUT_VISITS = graphql(`
-  mutation IncrementUrlShortcutVisits($alias: String!) {
-    update_url_shortcuts(
-      where: { alias: { _eq: $alias } }
-      _inc: { visit_count: 1 }
-    ) {
-      affected_rows
-    }
-  }
+	mutation IncrementUrlShortcutVisits($alias: String!) {
+		update_url_shortcuts(where: { alias: { _eq: $alias } }, _inc: { visit_count: 1 }) {
+			affected_rows
+		}
+	}
 `);
 
 // ========== Splitwise (cross-board expense aggregation) ==========
 
 export const GET_ALL_USER_EXPENSES = graphql(`
-  query GetAllUserExpenses {
-    expenses(
-      where: { deleted_at: { _is_null: true } }
-      order_by: { created_at: desc }
-    ) {
-      ...ExpenseFields
-    }
-  }
+	query GetAllUserExpenses {
+		expenses(where: { deleted_at: { _is_null: true } }, order_by: { created_at: desc }) {
+			...ExpenseFields
+		}
+	}
 `);
