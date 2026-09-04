@@ -46,6 +46,14 @@ describe('runWithLabel', () => {
 	it('honours a tier named on the card', () => {
 		expect(runWithLabel('Run with: opus\nredesign auth')).toBe('Opus 5 / high');
 	});
+
+	it('recognises fable from explicit Run with:', () => {
+		expect(runWithLabel('Run with: fable\nhard task')).toBe('Fable 5 / high');
+	});
+
+	it('picks up a bare model name like "Fable 5. High."', () => {
+		expect(runWithLabel('Fable 5. High.\nrefactor everything')).toBe('Fable 5 / high');
+	});
 });
 
 describe('buildTaskFile', () => {

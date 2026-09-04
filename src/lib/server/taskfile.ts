@@ -46,14 +46,17 @@ export function toText(content?: string | null): string {
 }
 
 const TIERS: Record<string, string> = {
+	fable: 'Fable 5 / high',
 	opus: 'Opus 5 / high',
 	sonnet: 'Sonnet 5 / medium',
 	haiku: 'Haiku 4.5 / low'
 };
 
-/** The card may name its own tier ("Run with: opus"); otherwise assume a normal feature. */
+/** The card may name its own tier ("Run with: opus" or just "Fable 5"); otherwise assume a normal feature. */
 export function runWithLabel(text: string): string {
-	const named = /run with:\s*(opus|sonnet|haiku)/i.exec(text || '');
+	const explicit = /run with:\s*(fable|opus|sonnet|haiku)/i.exec(text || '');
+	if (explicit) return TIERS[explicit[1].toLowerCase()];
+	const named = /\b(fable|opus|sonnet|haiku)\b/i.exec(text || '');
 	return named ? TIERS[named[1].toLowerCase()] : TIERS.sonnet;
 }
 
