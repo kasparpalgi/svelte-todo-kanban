@@ -1,6 +1,13 @@
 /** @file src/lib/server/__tests__/taskfile.test.ts */
 import { describe, it, expect } from 'vitest';
-import { buildTaskFile, camelName, nextNumber, runWithLabel, toText } from '../taskfile';
+import {
+	buildDraftFile,
+	buildTaskFile,
+	camelName,
+	nextNumber,
+	runWithLabel,
+	toText
+} from '../taskfile';
 
 describe('camelName', () => {
 	it('camel-cases the first four words', () => {
@@ -43,16 +50,44 @@ describe('runWithLabel', () => {
 		expect(runWithLabel('add a button')).toBe('Sonnet 5 / medium');
 	});
 
-	it('honours a tier named on the card', () => {
-		expect(runWithLabel('Run with: opus\nredesign auth')).toBe('Opus 5 / high');
+	it('honours opus from explicit Run with:', () => {
+		expect(runWithLabel('Run with: opus\nredesign auth')).toBe('Opus 5 / hard');
 	});
 
-	it('recognises fable from explicit Run with:', () => {
-		expect(runWithLabel('Run with: fable\nhard task')).toBe('Fable 5 / high');
+	it('honours opus 5 from explicit Run with:', () => {
+		expect(runWithLabel('Run with: opus 5\nhard task')).toBe('Opus 5 / hard');
 	});
 
-	it('picks up a bare model name like "Fable 5. High."', () => {
-		expect(runWithLabel('Fable 5. High.\nrefactor everything')).toBe('Fable 5 / high');
+	it('honours opus 4.8 from explicit Run with:', () => {
+		expect(runWithLabel('Run with: opus 4.8\nmedium hard task')).toBe('Opus 4.8 / high');
+	});
+
+	it('honours sonnet 4.6 from explicit Run with:', () => {
+		expect(runWithLabel('Run with: sonnet 4.6\nsimple task')).toBe('Sonnet 4.6 / low');
+	});
+
+	it('picks up a bare model name "Opus 4.8"', () => {
+		expect(runWithLabel('Opus 4.8\nrefactor everything')).toBe('Opus 4.8 / high');
+	});
+
+	it('picks up a bare "haiku"', () => {
+		expect(runWithLabel('haiku\nadd a label')).toBe('Haiku 4.5 / low');
+	});
+});
+
+describe('buildDraftFile', () => {
+	it('produces a draft without the agent-list trailer', () => {
+		const file = buildDraftFile({ id: 'abc', title: 'Ship it', content: '<p>Do <b>this</b></p>' });
+		expect(file).toContain('> Run with: Sonnet 5 / medium');
+		expect(file).toContain('# Ship it');
+		expect(file).toContain('[NEVER REMOVE]');
+		expect(file).toContain('Do this');
+		expect(file).not.toContain('agent list');
+		expect(file).not.toContain('<p>');
+	});
+
+	it('uses a placeholder when the card has no description yet', () => {
+		expect(buildDraftFile({ id: 'abc', title: 'Ship it' })).toContain('_(no description yet)_');
 	});
 });
 

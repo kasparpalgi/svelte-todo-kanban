@@ -91,6 +91,7 @@ insert_permissions:
         - min_hours
         - priority
         - sort_order
+        - task_file_path
         - title
         - updated_at
         - user_id
@@ -118,6 +119,7 @@ select_permissions:
         - min_hours
         - priority
         - sort_order
+        - task_file_path
         - title
         - updated_at
         - user_id
@@ -169,6 +171,7 @@ update_permissions:
         - min_hours
         - priority
         - sort_order
+        - task_file_path
         - title
         - updated_at
         - user_id

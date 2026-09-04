@@ -1,7 +1,7 @@
 {
 	"name": "svelte-todo-kanban",
 	"private": true,
-	"version": "0.11.0",
+	"version": "0.12.0",
 	"type": "module",
 	"scripts": {
 		"generate": "graphql-codegen --require dotenv/config && node fix-imports.cjs",

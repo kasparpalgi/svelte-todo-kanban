@@ -179,7 +179,7 @@ function createTodosStore() {
 				}
 
 				// Merge with existing todos
-				const existingIds = new Set(state.todos.map(t => t.id));
+				const existingIds = new Set(state.todos.map((t) => t.id));
 				const newTodos = todos.filter((t: any) => !existingIds.has(t.id));
 
 				if (newTodos.length > 0) {
@@ -193,7 +193,7 @@ function createTodosStore() {
 				}
 
 				// Small delay to avoid blocking the UI
-				await new Promise(resolve => setTimeout(resolve, 50));
+				await new Promise((resolve) => setTimeout(resolve, 50));
 			}
 
 			// Now load completed todos
@@ -210,13 +210,12 @@ function createTodosStore() {
 			});
 
 			const completedTodos = completedData.todos || [];
-			const existingIds = new Set(state.todos.map(t => t.id));
+			const existingIds = new Set(state.todos.map((t) => t.id));
 			const newCompletedTodos = completedTodos.filter((t: any) => !existingIds.has(t.id));
 
 			if (newCompletedTodos.length > 0) {
 				state.todos = [...state.todos, ...newCompletedTodos];
 			}
-
 		} catch (error) {
 			// Non-blocking: log error but don't fail
 			console.error('Load remaining todos error:', error);
@@ -240,7 +239,7 @@ function createTodosStore() {
 
 			if (fullTodo) {
 				// Update the todo in state with full details
-				const index = state.todos.findIndex(t => t.id === todoId);
+				const index = state.todos.findIndex((t) => t.id === todoId);
 				if (index !== -1) {
 					state.todos[index] = fullTodo;
 				} else {
@@ -270,7 +269,7 @@ function createTodosStore() {
 			return; // Board not connected or todo not linked to issue
 		}
 
-		const githubData = 
+		const githubData =
 			typeof (todo.list.board as any).github === 'string'
 				? JSON.parse((todo.list.board as any).github)
 				: (todo.list.board as any).github;
@@ -465,6 +464,16 @@ function createTodosStore() {
 					console.error('[TodosStore.addTodo] Failed to log activity:', error);
 				}
 
+				// Write draft task file if board has a connected GitHub repo
+				const boardGithub = (newTodo as any).list?.board?.github;
+				if (boardGithub && newTodo.id) {
+					fetch('/api/github/write-draft-file', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ todoId: newTodo.id })
+					}).catch((err) => console.error('Failed to write draft file:', err));
+				}
+
 				// Create GitHub issue if requested
 				if (createGithubIssue && newTodo.id) {
 					try {
@@ -635,7 +644,10 @@ function createTodosStore() {
 								}
 							};
 						}
-					} else if (updates.assigned_to !== undefined && originalTodo.assigned_to !== updates.assigned_to) {
+					} else if (
+						updates.assigned_to !== undefined &&
+						originalTodo.assigned_to !== updates.assigned_to
+					) {
 						// Assignee changed (and values are different)
 						actionType = updates.assigned_to ? 'assigned' : 'unassigned';
 						fieldName = 'assigned_to';
@@ -675,8 +687,10 @@ function createTodosStore() {
 					} else if (
 						(updates.min_hours !== undefined && originalTodo.min_hours !== updates.min_hours) ||
 						(updates.max_hours !== undefined && originalTodo.max_hours !== updates.max_hours) ||
-						(updates.actual_hours !== undefined && originalTodo.actual_hours !== updates.actual_hours) ||
-						(updates.comment_hours !== undefined && originalTodo.comment_hours !== updates.comment_hours)
+						(updates.actual_hours !== undefined &&
+							originalTodo.actual_hours !== updates.actual_hours) ||
+						(updates.comment_hours !== undefined &&
+							originalTodo.comment_hours !== updates.comment_hours)
 					) {
 						// Time tracking hours changed
 						actionType = 'hours_changed';
@@ -692,11 +706,17 @@ function createTodosStore() {
 							},
 							actual_hours: {
 								old: originalTodo.actual_hours,
-								new: updates.actual_hours !== undefined ? updates.actual_hours : originalTodo.actual_hours
+								new:
+									updates.actual_hours !== undefined
+										? updates.actual_hours
+										: originalTodo.actual_hours
 							},
 							comment_hours: {
 								old: originalTodo.comment_hours,
-								new: updates.comment_hours !== undefined ? updates.comment_hours : originalTodo.comment_hours
+								new:
+									updates.comment_hours !== undefined
+										? updates.comment_hours
+										: originalTodo.comment_hours
 							}
 						};
 						// Create a summary for display
@@ -728,13 +748,26 @@ function createTodosStore() {
 				}
 
 				// Card moved: the server decides whether this list is the board's agent list
-				// and, if so, writes NNN-…-TODO.md into the connected repo.
+				// and, if so, renames the draft NNN-slug.md → NNN-slug-TODO.md.
 				if (updates.list_id !== undefined && originalTodo.list?.id !== updates.list_id) {
 					fetch('/api/github/write-task-file', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({ todoId: id })
 					}).catch((err) => console.error('Failed to write task file:', err));
+				}
+
+				// Content changed: update the draft file so the prompt stays current.
+				if (
+					updates.content !== undefined &&
+					originalTodo.content !== updates.content &&
+					(updatedTodo as any).task_file_path
+				) {
+					fetch('/api/github/update-task-file', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ todoId: id })
+					}).catch((err) => console.error('Failed to update task file:', err));
 				}
 
 				// Sync to GitHub if todo is linked to a GitHub issue
@@ -907,7 +940,8 @@ function createTodosStore() {
 				// Close GitHub issue if this todo was linked to one
 				if (githubIssueNumber && githubIssueId && boardGithub) {
 					try {
-						const githubData = typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
+						const githubData =
+							typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
 						const { owner, repo } = githubData as { owner: string; repo: string };
 
 						await fetch('/api/github/delete-issue', {

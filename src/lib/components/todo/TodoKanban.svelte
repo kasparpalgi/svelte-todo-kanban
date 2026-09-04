@@ -336,20 +336,10 @@
 		}
 	}
 
-	function handleGlobalMouseMove(e: MouseEvent) {
-		if (draggedTodo) {
-			handleAutoScroll(e.clientX);
-		}
+	function handleGlobalPointerMove(e: PointerEvent) {
+		if (!draggedTodo) return;
+		handleAutoScroll(e.clientX);
 		updateDropTarget(e.clientX, e.clientY);
-	}
-
-	function handleGlobalTouchMove(e: TouchEvent) {
-		if (!draggedTodo || e.touches.length === 0) return;
-		const touch = e.touches[0];
-		if (draggedTodo) {
-			handleAutoScroll(touch.clientX);
-		}
-		updateDropTarget(touch.clientX, touch.clientY);
 	}
 
 	function resetDragState() {
@@ -361,14 +351,14 @@
 		}
 	}
 
-	function handleGlobalTouchEnd(e: TouchEvent) {
+	function handleGlobalPointerUp() {
 		stopAutoScroll();
 		setTimeout(() => {
 			resetDragState();
 		}, 50);
 	}
 
-	function handleGlobalTouchCancel(e: TouchEvent) {
+	function handleGlobalPointerCancel() {
 		resetDragState();
 	}
 
@@ -416,10 +406,9 @@
 </script>
 
 <svelte:window
-	onmousemove={handleGlobalMouseMove}
-	ontouchmove={handleGlobalTouchMove}
-	ontouchend={handleGlobalTouchEnd}
-	ontouchcancel={handleGlobalTouchCancel}
+	onpointermove={handleGlobalPointerMove}
+	onpointerup={handleGlobalPointerUp}
+	onpointercancel={handleGlobalPointerCancel}
 />
 
 <div class="w-full" in:scale>
