@@ -38,4 +38,6 @@ _From Kanban card `4698ab60-e5db-4fb4-a017-be7b0a85bfe5`, moved to the agent lis
 - `npm test`: server/unit vitest project passes (140/140). The `client` vitest project and Playwright e2e can't run in this environment — Playwright's Chromium binary isn't installed here (pre-existing, unrelated to this change). Recommend the user do a real device/browser touch test before merging, since true touch input can't be exercised non-interactively here.
 - Left `@neodrag/svelte` dependency and its other usages (`CardImageManager.svelte`, `NoteItem.svelte`, `NoteImageManager.svelte`) untouched — unrelated features, out of scope.
 
-## Status: implementation complete, awaiting manual mobile verification by user.
+## Status: merged
+
+- Verified 2026-09-04: PR #159 already merged into `main` (merge commit `68510a8`). Working tree clean, no outstanding changes. `TodoItem.svelte` uses the new `DragHandle.svelte` (pointer events), `neodrag` removed from the card. Nothing further to do for this task; manual mobile verification by the user is still recommended but code changes are complete and live.
