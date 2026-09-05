@@ -617,7 +617,8 @@
       "content_updated": "Aktualizován obsah \"{{title}}\"",
       "hours_changed": "{{oldValue}} u \"{{title}}\"",
       "image_added": "Přidán obrázek k \"{{title}}\"",
-      "image_removed": "Odstraněn obrázek z \"{{title}}\""
+      "image_removed": "Odstraněn obrázek z \"{{title}}\"",
+      "github_commit": "Nový commit u \"{{title}}\""
     }
   },
   "email": {

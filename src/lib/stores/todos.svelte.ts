@@ -299,6 +299,11 @@ function createTodosStore() {
 			}
 		}
 
+		// Priority changed → relabel the issue
+		if (updates.priority !== undefined && updates.priority !== originalTodo.priority) {
+			githubUpdates.priority = updates.priority;
+		}
+
 		// Only sync if there are changes
 		if (Object.keys(githubUpdates).length === 0) {
 			return;

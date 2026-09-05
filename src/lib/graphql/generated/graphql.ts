@@ -17078,14 +17078,22 @@ export type GetTodoByGithubIssueQueryVariables = Exact<{
 }>;
 
 
-export type GetTodoByGithubIssueQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, completed_at?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, github?: string | null } | null } | null }> };
+export type GetTodoByGithubIssueQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, completed_at?: string | null, priority?: string | null, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, user_id: string, github?: string | null } | null } | null }> };
+
+export type GetActivityLogByCommitShaQueryVariables = Exact<{
+  todoId: Scalars['uuid']['input'];
+  commitSha: Scalars['jsonb']['input'];
+}>;
+
+
+export type GetActivityLogByCommitShaQuery = { __typename?: 'query_root', activity_logs: Array<{ __typename?: 'activity_logs', id: string }> };
 
 export type GetCommentByGithubIdQueryVariables = Exact<{
   githubCommentId: Scalars['bigint']['input'];
 }>;
 
 
-export type GetCommentByGithubIdQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, github_comment_id?: number | null }> };
+export type GetCommentByGithubIdQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, github_comment_id?: number | null }> };
 
 export type GetUserByGithubUsernameQueryVariables = Exact<{
   githubUsername: Scalars['String']['input'];
@@ -19068,6 +19076,8 @@ export const GetTodoByGithubIssueDocument = new TypedDocumentString(`
     title
     content
     completed_at
+    priority
+    assigned_to
     github_issue_number
     github_issue_id
     github_synced_at
@@ -19075,18 +19085,30 @@ export const GetTodoByGithubIssueDocument = new TypedDocumentString(`
       id
       board {
         id
+        user_id
         github
       }
     }
   }
 }
     `) as unknown as TypedDocumentString<GetTodoByGithubIssueQuery, GetTodoByGithubIssueQueryVariables>;
+export const GetActivityLogByCommitShaDocument = new TypedDocumentString(`
+    query GetActivityLogByCommitSha($todoId: uuid!, $commitSha: jsonb!) {
+  activity_logs(
+    where: {todo_id: {_eq: $todoId}, changes: {_contains: $commitSha}}
+    limit: 1
+  ) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<GetActivityLogByCommitShaQuery, GetActivityLogByCommitShaQueryVariables>;
 export const GetCommentByGithubIdDocument = new TypedDocumentString(`
     query GetCommentByGithubId($githubCommentId: bigint!) {
   comments(where: {github_comment_id: {_eq: $githubCommentId}}, limit: 1) {
     id
     content
     todo_id
+    user_id
     github_comment_id
   }
 }

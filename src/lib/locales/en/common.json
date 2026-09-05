@@ -677,7 +677,8 @@
       "content_updated": "Updated content of \"{{title}}\"",
       "hours_changed": "{{oldValue}} in \"{{title}}\"",
       "image_added": "Added an image in \"{{title}}\"",
-      "image_removed": "Removed an image from \"{{title}}\""
+      "image_removed": "Removed an image from \"{{title}}\"",
+      "github_commit": "New commit on \"{{title}}\""
     }
   },
   "ai": {

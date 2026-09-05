@@ -14,7 +14,8 @@
 		Calendar,
 		MoveRight,
 		Clock,
-		FileText
+		FileText,
+		GitCommit
 	} from 'lucide-svelte';
 	import { formatDistanceToNow } from 'date-fns';
 	import { enUS, et, cs } from 'date-fns/locale';
@@ -60,6 +61,8 @@
 				return FileText;
 			case 'hours_changed':
 				return Clock;
+			case 'github_commit':
+				return GitCommit;
 			default:
 				return Edit;
 		}
@@ -85,6 +88,8 @@
 				return 'text-yellow-600 dark:text-yellow-400';
 			case 'hours_changed':
 				return 'text-teal-600 dark:text-teal-400';
+			case 'github_commit':
+				return 'text-slate-600 dark:text-slate-400';
 			default:
 				return 'text-gray-600 dark:text-gray-400';
 		}
@@ -106,6 +111,11 @@
 		// For comments, show comment preview if available
 		if (log.action_type === 'commented' && log.new_value) {
 			return $t(descKey, { title: todoTitle }) + ': "' + log.new_value + '"';
+		}
+
+		// For GitHub commits, show the commit author/message summary
+		if (log.action_type === 'github_commit' && log.new_value) {
+			return $t(descKey, { title: todoTitle }) + ': ' + log.new_value;
 		}
 
 		// For comment edits, show old/new if available
@@ -187,7 +197,7 @@
 		{#each logs as log (log.id)}
 			{@const Icon = getActionIcon(log.action_type)}
 			<div
-				class="group flex items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50 cursor-pointer"
+				class="group flex cursor-pointer items-start gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-muted/50"
 				onclick={() => handleActivityClick(log)}
 				role="button"
 				tabindex="0"
@@ -212,7 +222,7 @@
 										class="h-5 w-5 rounded-full"
 									/>
 								{/if}
-								<span class="font-medium text-sm">
+								<span class="text-sm font-medium">
 									{log.user?.name || log.user?.username || 'Unknown user'}
 								</span>
 							</div>
@@ -221,7 +231,8 @@
 							</p>
 							{#if log.todo?.list?.name}
 								<p class="mt-0.5 text-xs text-muted-foreground">
-									{$t('todo.in')} {log.todo.list.name}
+									{$t('todo.in')}
+									{log.todo.list.name}
 								</p>
 							{/if}
 						</div>
@@ -249,7 +260,7 @@
 				<h3 class="text-lg font-semibold">Activity Details</h3>
 				<button
 					onclick={() => (selectedActivity = null)}
-					class="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+					class="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -271,12 +282,13 @@
 
 			<!-- Content -->
 			<div class="flex-1 overflow-y-auto p-4">
-
 				<!-- Action Type -->
 				<div class="mb-4">
 					<div class="flex items-center gap-2">
 						<Icon class="h-6 w-6 {getActionColor(selectedActivity.action_type)}" />
-						<span class="text-lg font-medium capitalize">{selectedActivity.action_type.replace(/_/g, ' ')}</span>
+						<span class="text-lg font-medium capitalize"
+							>{selectedActivity.action_type.replace(/_/g, ' ')}</span
+						>
 					</div>
 				</div>
 
@@ -354,7 +366,11 @@
 					<div class="mb-4">
 						<p class="mb-2 text-xs font-medium text-muted-foreground">Additional Details</p>
 						<div class="rounded-lg bg-muted p-3">
-							<pre class="whitespace-pre-wrap text-xs">{JSON.stringify(selectedActivity.changes, null, 2)}</pre>
+							<pre class="text-xs whitespace-pre-wrap">{JSON.stringify(
+									selectedActivity.changes,
+									null,
+									2
+								)}</pre>
 						</div>
 					</div>
 				{/if}
@@ -376,9 +392,7 @@
 						Go to Task
 					</button>
 				{:else}
-					<p class="text-center text-sm text-muted-foreground">
-						Task no longer available
-					</p>
+					<p class="text-center text-sm text-muted-foreground">Task no longer available</p>
 				{/if}
 			</div>
 		</div>

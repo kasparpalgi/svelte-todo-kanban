@@ -13,6 +13,8 @@ import {
 	GET_COMMENT_BY_GITHUB_ID,
 	GET_USER_BY_GITHUB_USERNAME,
 	CREATE_ACTIVITY_LOG,
+	CREATE_NOTIFICATION,
+	GET_ACTIVITY_LOG_BY_COMMIT_SHA,
 	GET_TODO_BY_ID,
 	GET_BOARD_BY_REPO
 } from '$lib/graphql/documents';
@@ -25,9 +27,13 @@ import { getGithubToken, githubRequest } from '$lib/server/github';
  * Implements signature verification for security.
  *
  * Supported events:
- * - issues: edited, closed, reopened, deleted
+ * - issues: edited, closed, reopened, deleted, labeled/unlabeled (priority: high|medium|low)
  * - issue_comment: created, edited, deleted
  * - push: commits pushed to main/master branches (logs commits that reference issues)
+ *
+ * Every action creates an in-app notification for the todo's assignee (or board owner)
+ * and, where relevant, an activity log entry attributed to the mapped app user. Comments
+ * and commits are deduplicated so webhook redeliveries don't create duplicate records.
  */
 
 interface GitHubIssueEvent {
@@ -42,6 +48,12 @@ interface GitHubIssueEvent {
 		closed_at: string | null;
 		updated_at: string;
 	};
+	label?: {
+		name: string;
+	};
+	sender?: {
+		login: string;
+	};
 	repository: {
 		full_name: string;
 		owner: {
@@ -49,6 +61,12 @@ interface GitHubIssueEvent {
 		};
 		name: string;
 	};
+}
+
+/** Maps a GitHub "priority: high|medium|low" label name to our priority value. */
+function parsePriorityLabel(labelName: string): 'low' | 'medium' | 'high' | null {
+	const match = /^priority:\s*(low|medium|high)$/i.exec(labelName.trim());
+	return match ? (match[1].toLowerCase() as 'low' | 'medium' | 'high') : null;
 }
 
 interface GitHubCommentEvent {
@@ -126,7 +144,7 @@ function verifySignature(payload: string, signature: string | null): boolean {
  * Handle issue events from GitHub
  */
 async function handleIssueEvent(event: GitHubIssueEvent): Promise<void> {
-	const { action, issue } = event;
+	const { action, issue, label, sender } = event;
 
 	// Find the todo associated with this GitHub issue
 	const data = await serverRequest<{ todos: Array<any> }, { githubIssueId: number }>(
@@ -144,8 +162,15 @@ async function handleIssueEvent(event: GitHubIssueEvent): Promise<void> {
 
 	console.log(`Processing GitHub issue event: ${action} for todo ${todo.id}`);
 
+	// Who triggered this on GitHub, mapped to an app user if possible (used for activity
+	// log attribution and to avoid self-notifying).
+	const actorUserId = sender?.login
+		? await findUserByGithubUsername(sender.login, todo)
+		: (todo.list?.board?.user_id ?? null);
+	const logUserId: string | undefined = actorUserId ?? todo.list?.board?.user_id ?? undefined;
+
 	switch (action) {
-		case 'edited':
+		case 'edited': {
 			// Update todo title and content if changed
 			const updates: any = {};
 			if (issue.title !== todo.title) {
@@ -162,8 +187,35 @@ async function handleIssueEvent(event: GitHubIssueEvent): Promise<void> {
 					_set: updates
 				});
 				console.log(`Updated todo ${todo.id} from GitHub edit`);
+
+				if (logUserId) {
+					const titleChanged = updates.title !== undefined;
+					try {
+						await serverRequest(CREATE_ACTIVITY_LOG, {
+							log: {
+								todo_id: todo.id,
+								user_id: logUserId,
+								action_type: titleChanged ? 'title_changed' : 'content_updated',
+								field_name: titleChanged ? 'title' : 'content',
+								old_value: titleChanged ? todo.title : 'Content updated',
+								new_value: titleChanged ? updates.title : 'Content updated',
+								changes: { source: 'github', github_issue_number: issue.number }
+							}
+						});
+					} catch (error) {
+						console.error('Failed to log activity for GitHub issue edit:', error);
+					}
+				}
+
+				await notifyUser(
+					todo,
+					'edited',
+					actorUserId,
+					`Issue #${issue.number} was edited on GitHub`
+				);
 			}
 			break;
+		}
 
 		case 'closed':
 			// Mark todo as completed
@@ -176,6 +228,21 @@ async function handleIssueEvent(event: GitHubIssueEvent): Promise<void> {
 					}
 				});
 				console.log(`Marked todo ${todo.id} as completed from GitHub close`);
+
+				if (logUserId) {
+					try {
+						await serverRequest(CREATE_ACTIVITY_LOG, {
+							log: {
+								todo_id: todo.id,
+								user_id: logUserId,
+								action_type: 'completed',
+								changes: { source: 'github', github_issue_number: issue.number }
+							}
+						});
+					} catch (error) {
+						console.error('Failed to log activity for GitHub issue close:', error);
+					}
+				}
 			}
 			break;
 
@@ -190,8 +257,76 @@ async function handleIssueEvent(event: GitHubIssueEvent): Promise<void> {
 					}
 				});
 				console.log(`Reopened todo ${todo.id} from GitHub reopen`);
+
+				if (logUserId) {
+					try {
+						await serverRequest(CREATE_ACTIVITY_LOG, {
+							log: {
+								todo_id: todo.id,
+								user_id: logUserId,
+								action_type: 'uncompleted',
+								changes: { source: 'github', github_issue_number: issue.number }
+							}
+						});
+					} catch (error) {
+						console.error('Failed to log activity for GitHub issue reopen:', error);
+					}
+				}
 			}
 			break;
+
+		case 'labeled':
+		case 'unlabeled': {
+			// Priority label added/removed → sync todos.priority
+			const priorityFromLabel = label ? parsePriorityLabel(label.name) : null;
+			if (!priorityFromLabel) {
+				console.log(`Ignoring non-priority label "${label?.name}" on issue #${issue.number}`);
+				break;
+			}
+
+			const newPriority = action === 'labeled' ? priorityFromLabel : null;
+
+			if (todo.priority === newPriority) {
+				// Already in sync (or this label removal doesn't match the current priority)
+				break;
+			}
+			if (action === 'unlabeled' && todo.priority !== priorityFromLabel) {
+				// A different priority label was removed than the one currently set, ignore
+				break;
+			}
+
+			await serverRequest(UPDATE_TODOS, {
+				where: { id: { _eq: todo.id } },
+				_set: { priority: newPriority, github_synced_at: new Date().toISOString() }
+			});
+			console.log(`Synced todo ${todo.id} priority to "${newPriority}" from GitHub label`);
+
+			if (logUserId) {
+				try {
+					await serverRequest(CREATE_ACTIVITY_LOG, {
+						log: {
+							todo_id: todo.id,
+							user_id: logUserId,
+							action_type: 'priority_changed',
+							field_name: 'priority',
+							old_value: todo.priority || 'none',
+							new_value: newPriority || 'none',
+							changes: { source: 'github', github_issue_number: issue.number }
+						}
+					});
+				} catch (error) {
+					console.error('Failed to log activity for GitHub priority label change:', error);
+				}
+			}
+
+			await notifyUser(
+				todo,
+				'priority_changed',
+				actorUserId,
+				`Priority changed to ${newPriority || 'none'} on GitHub`
+			);
+			break;
+		}
 
 		case 'deleted':
 			// Optionally handle issue deletion
@@ -237,6 +372,39 @@ async function findUserByGithubUsername(
 	} catch (error) {
 		console.error('Error finding user by GitHub username:', error);
 		return null;
+	}
+}
+
+/**
+ * Notify the todo's assignee (or board owner as fallback) about an action that came in
+ * from GitHub. Never notifies the user who triggered the action themselves.
+ */
+async function notifyUser(
+	todo: any,
+	type: 'commented' | 'comment_edited' | 'comment_removed' | 'edited' | 'priority_changed',
+	triggeredByUserId: string | null,
+	content: string,
+	relatedCommentId?: string
+): Promise<void> {
+	const targetUserId: string | undefined = todo?.assigned_to || todo?.list?.board?.user_id;
+
+	if (!targetUserId || targetUserId === triggeredByUserId) {
+		return;
+	}
+
+	try {
+		await serverRequest(CREATE_NOTIFICATION, {
+			notification: {
+				user_id: targetUserId,
+				todo_id: todo.id,
+				type,
+				triggered_by_user_id: triggeredByUserId,
+				related_comment_id: relatedCommentId,
+				content
+			}
+		});
+	} catch (error) {
+		console.error(`Failed to create ${type} notification for todo ${todo.id}:`, error);
 	}
 }
 
@@ -300,9 +468,10 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 						]
 					});
 
-					if (result?.insert_comments?.returning?.[0]) {
+					const newComment = result?.insert_comments?.returning?.[0];
+					if (newComment) {
 						console.log(
-							`Created comment ${result.insert_comments.returning[0].id} from GitHub comment ${comment.id} (${isActualUser ? 'mapped user' : 'fallback to board owner'})`
+							`Created comment ${newComment.id} from GitHub comment ${comment.id} (${isActualUser ? 'mapped user' : 'fallback to board owner'})`
 						);
 
 						// Log activity
@@ -310,10 +479,11 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 							await serverRequest(CREATE_ACTIVITY_LOG, {
 								log: {
 									todo_id: todo.id,
+									user_id: userId,
 									action_type: 'commented',
 									new_value:
 										comment.body.substring(0, 200) + (comment.body.length > 200 ? '...' : ''),
-									metadata: {
+									changes: {
 										source: 'github',
 										github_comment_id: comment.id,
 										github_user: comment.user.login,
@@ -324,6 +494,14 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 						} catch (error) {
 							console.error('Failed to log activity for GitHub comment creation:', error);
 						}
+
+						await notifyUser(
+							todo,
+							'commented',
+							isActualUser ? userId : null,
+							`${comment.user.login} commented on GitHub: "${comment.body.substring(0, 100)}${comment.body.length > 100 ? '...' : ''}"`,
+							newComment.id
+						);
 					}
 				} else {
 					console.log(`Could not create comment: user mapping failed for ${comment.user.login}`);
@@ -341,6 +519,8 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 			const existingComment = commentData?.comments?.[0];
 
 			if (existingComment && existingComment.content !== comment.body) {
+				const editorUserId = await findUserByGithubUsername(comment.user.login, todo);
+
 				await serverRequest(UPDATE_COMMENT, {
 					where: { id: { _eq: existingComment.id } },
 					_set: {
@@ -351,21 +531,33 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 				console.log(`Updated comment ${existingComment.id} from GitHub edit`);
 
 				// Log activity
-				try {
-					await serverRequest(CREATE_ACTIVITY_LOG, {
-						log: {
-							todo_id: todo.id,
-							action_type: 'comment_edited',
-							old_value:
-								existingComment.content.substring(0, 200) +
-								(existingComment.content.length > 200 ? '...' : ''),
-							new_value: comment.body.substring(0, 200) + (comment.body.length > 200 ? '...' : ''),
-							metadata: { source: 'github', github_comment_id: comment.id }
-						}
-					});
-				} catch (error) {
-					console.error('Failed to log activity for GitHub comment edit:', error);
+				if (editorUserId) {
+					try {
+						await serverRequest(CREATE_ACTIVITY_LOG, {
+							log: {
+								todo_id: todo.id,
+								user_id: editorUserId,
+								action_type: 'comment_edited',
+								old_value:
+									existingComment.content.substring(0, 200) +
+									(existingComment.content.length > 200 ? '...' : ''),
+								new_value:
+									comment.body.substring(0, 200) + (comment.body.length > 200 ? '...' : ''),
+								changes: { source: 'github', github_comment_id: comment.id }
+							}
+						});
+					} catch (error) {
+						console.error('Failed to log activity for GitHub comment edit:', error);
+					}
 				}
+
+				await notifyUser(
+					todo,
+					'comment_edited',
+					editorUserId,
+					`${comment.user.login} edited a comment on GitHub`,
+					existingComment.id
+				);
 			}
 			break;
 
@@ -379,18 +571,31 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 			const commentToDelete = deleteData?.comments?.[0];
 
 			if (commentToDelete) {
+				const deleterUserId =
+					(await findUserByGithubUsername(comment.user.login, todo)) ?? commentToDelete.user_id;
+
 				// Log activity BEFORE deletion
-				try {
-					await serverRequest(CREATE_ACTIVITY_LOG, {
-						log: {
-							todo_id: todo.id,
-							action_type: 'comment_deleted',
-							metadata: { source: 'github', github_comment_id: comment.id }
-						}
-					});
-				} catch (error) {
-					console.error('Failed to log activity for GitHub comment deletion:', error);
+				if (deleterUserId) {
+					try {
+						await serverRequest(CREATE_ACTIVITY_LOG, {
+							log: {
+								todo_id: todo.id,
+								user_id: deleterUserId,
+								action_type: 'comment_deleted',
+								changes: { source: 'github', github_comment_id: comment.id }
+							}
+						});
+					} catch (error) {
+						console.error('Failed to log activity for GitHub comment deletion:', error);
+					}
 				}
+
+				await notifyUser(
+					todo,
+					'comment_removed',
+					deleterUserId ?? null,
+					`${comment.user.login} deleted a comment on GitHub`
+				);
 
 				// Delete the comment
 				await serverRequest(DELETE_COMMENT, {
@@ -580,16 +785,16 @@ async function handlePushEvent(event: GitHubPushEvent): Promise<void> {
 				// Find todos for this repository with this issue number
 				const todoData = await serverRequest<
 					{ todos: Array<any> },
-					{ issueNumber: number; repoFullName: string }
+					{ issueNumber: number; owner: string; repo: string }
 				>(
 					`
-						query GetTodoByIssueNumber($issueNumber: bigint!, $repoFullName: String!) {
+						query GetTodoByIssueNumber($issueNumber: bigint!, $owner: String!, $repo: String!) {
 							todos(
 								where: {
 									github_issue_number: { _eq: $issueNumber }
 									list: {
 										board: {
-											github: { _contains: { owner: "${repository.owner.login}", repo: "${repository.name}" } }
+											github: { _contains: { owner: $owner, repo: $repo } }
 										}
 									}
 								}
@@ -601,42 +806,66 @@ async function handlePushEvent(event: GitHubPushEvent): Promise<void> {
 								list {
 									board {
 										id
+										user_id
 										github
 									}
 								}
 							}
 						}
 					`,
-					{ issueNumber, repoFullName: repository.full_name }
+					{ issueNumber, owner: repository.owner.login, repo: repository.name }
 				);
 
 				const todo = todoData?.todos?.[0];
 
 				if (todo) {
+					// Dedup: GitHub may redeliver the same push event, don't double-log the commit
+					const existingLog = await serverRequest<{ activity_logs: Array<any> }, any>(
+						GET_ACTIVITY_LOG_BY_COMMIT_SHA,
+						{ todoId: todo.id, commitSha: { commit_sha: commit.id } }
+					);
+
+					if (existingLog?.activity_logs?.length > 0) {
+						console.log(
+							`Commit ${commit.id.substring(0, 7)} already logged for todo ${todo.id}, skipping`
+						);
+						continue;
+					}
+
 					// Log commit activity
 					const commitShortId = commit.id.substring(0, 7);
 					const commitFirstLine = commit.message.split('\n')[0];
 					const commitAuthor = commit.author.username || commit.author.name;
+					const authorUserId =
+						(commit.author.username
+							? await findUserByGithubUsername(commit.author.username, todo)
+							: null) ?? todo.list?.board?.user_id;
 
-					await serverRequest(CREATE_ACTIVITY_LOG, {
-						log: {
-							todo_id: todo.id,
-							action_type: 'github_commit',
-							new_value: `${commitAuthor}: ${commitFirstLine}`,
-							metadata: {
-								source: 'github',
-								commit_sha: commit.id,
-								commit_short_sha: commitShortId,
-								commit_url: commit.url,
-								commit_author: commitAuthor,
-								commit_message: commit.message,
-								branch: branch,
-								files_changed: commit.added.length + commit.modified.length + commit.removed.length
+					if (authorUserId) {
+						await serverRequest(CREATE_ACTIVITY_LOG, {
+							log: {
+								todo_id: todo.id,
+								user_id: authorUserId,
+								action_type: 'github_commit',
+								new_value: `${commitAuthor}: ${commitFirstLine}`,
+								changes: {
+									source: 'github',
+									commit_sha: commit.id,
+									commit_short_sha: commitShortId,
+									commit_url: commit.url,
+									commit_author: commitAuthor,
+									commit_message: commit.message,
+									branch: branch,
+									files_changed:
+										commit.added.length + commit.modified.length + commit.removed.length
+								}
 							}
-						}
-					});
+						});
 
-					console.log(`Logged commit ${commitShortId} to todo ${todo.id} (issue #${issueNumber})`);
+						console.log(
+							`Logged commit ${commitShortId} to todo ${todo.id} (issue #${issueNumber})`
+						);
+					}
 				} else {
 					console.log(
 						`Issue #${issueNumber} not found in ${repository.full_name} - skipping commit ${commit.id.substring(0, 7)}`

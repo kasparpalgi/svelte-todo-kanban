@@ -14,6 +14,7 @@ interface UpdateIssueInput {
 	title?: string;
 	body?: string | null;
 	state?: 'open' | 'closed';
+	priority?: 'low' | 'medium' | 'high' | null;
 }
 
 interface GitHubIssueUpdateResponse {
@@ -24,6 +25,16 @@ interface GitHubIssueUpdateResponse {
 	state: string;
 }
 
+interface GitHubIssueResponse {
+	labels: Array<{ name: string } | string>;
+}
+
+const PRIORITY_LABEL_PATTERN = /^priority:\s*(low|medium|high)$/i;
+
+function priorityLabel(priority: 'low' | 'medium' | 'high'): string {
+	return `priority: ${priority}`;
+}
+
 export const PATCH: RequestHandler = async ({ request: req, locals }) => {
 	const session = await locals.auth();
 
@@ -32,8 +43,16 @@ export const PATCH: RequestHandler = async ({ request: req, locals }) => {
 	}
 
 	try {
-		const { todoId, githubIssueNumber, owner, repo, title, body, state }: UpdateIssueInput =
-			await req.json();
+		const {
+			todoId,
+			githubIssueNumber,
+			owner,
+			repo,
+			title,
+			body,
+			state,
+			priority
+		}: UpdateIssueInput = await req.json();
 
 		if (!todoId || !githubIssueNumber || !owner || !repo) {
 			throw error(400, 'Missing required parameters');
@@ -51,6 +70,19 @@ export const PATCH: RequestHandler = async ({ request: req, locals }) => {
 		if (title !== undefined) updatePayload.title = title;
 		if (body !== undefined) updatePayload.body = body || '';
 		if (state !== undefined) updatePayload.state = state;
+
+		if (priority !== undefined) {
+			// Replace whatever "priority: *" label is on the issue with the new one,
+			// keeping every other label untouched.
+			const currentIssue = await githubRequest<GitHubIssueResponse>(
+				`/repos/${owner}/${repo}/issues/${githubIssueNumber}`,
+				githubToken
+			);
+			const otherLabels = (currentIssue.labels || [])
+				.map((l) => (typeof l === 'string' ? l : l.name))
+				.filter((name) => !PRIORITY_LABEL_PATTERN.test(name));
+			updatePayload.labels = priority ? [...otherLabels, priorityLabel(priority)] : otherLabels;
+		}
 
 		// Update issue on GitHub
 		const issue = await githubRequest<GitHubIssueUpdateResponse>(

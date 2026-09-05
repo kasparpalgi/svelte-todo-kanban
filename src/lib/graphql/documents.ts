@@ -747,6 +747,8 @@ export const GET_TODO_BY_GITHUB_ISSUE = graphql(`
 			title
 			content
 			completed_at
+			priority
+			assigned_to
 			github_issue_number
 			github_issue_id
 			github_synced_at
@@ -754,9 +756,21 @@ export const GET_TODO_BY_GITHUB_ISSUE = graphql(`
 				id
 				board {
 					id
+					user_id
 					github
 				}
 			}
+		}
+	}
+`);
+
+export const GET_ACTIVITY_LOG_BY_COMMIT_SHA = graphql(`
+	query GetActivityLogByCommitSha($todoId: uuid!, $commitSha: jsonb!) {
+		activity_logs(
+			where: { todo_id: { _eq: $todoId }, changes: { _contains: $commitSha } }
+			limit: 1
+		) {
+			id
 		}
 	}
 `);
@@ -767,6 +781,7 @@ export const GET_COMMENT_BY_GITHUB_ID = graphql(`
 			id
 			content
 			todo_id
+			user_id
 			github_comment_id
 		}
 	}

@@ -677,7 +677,8 @@
       "content_updated": "Uuendas \"{{title}}\" sisu",
       "hours_changed": "{{oldValue}} \"{{title}}\" juures",
       "image_added": "Lisas pildi \"{{title}}\" juurde",
-      "image_removed": "Eemaldas pildi \"{{title}}\" juurest"
+      "image_removed": "Eemaldas pildi \"{{title}}\" juurest",
+      "github_commit": "Uus commit \"{{title}}\" juures"
     }
   },
   "ai": {
