@@ -450,6 +450,9 @@
     "add_hours_comment": "Přidat komentář k hodinám →",
     "pick_date": "Nastavit termín dokončení",
     "add_to_google_calendar": "Přidat do Google Calendar",
+    "unsaved_changes": "Neuložené změny",
+    "all_changes_saved": "Vše uloženo",
+    "auto_saving": "Ukládání…",
     "calendar_event_failed": "Nepodařilo se přidat do Google Calendar",
     "include_time": "Zahrnout čas"
   },

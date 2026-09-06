@@ -450,6 +450,9 @@
     "add_hours_comment": "Comment hours →",
     "pick_date": "Set Due Date",
     "add_to_google_calendar": "Add to Google Calendar",
+    "unsaved_changes": "Unsaved changes",
+    "all_changes_saved": "All changes saved",
+    "auto_saving": "Saving…",
     "calendar_event_failed": "Failed to add to Google Calendar",
     "include_time": "Include time"
   },

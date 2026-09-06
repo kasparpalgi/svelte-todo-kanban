@@ -1,5 +1,6 @@
 <!-- @file src/lib/components/todo/CardDetailView.svelte -->
 <script lang="ts">
+	import { onMount, onDestroy } from 'svelte';
 	import { get } from 'svelte/store';
 	import { t } from '$lib/i18n';
 	import { z } from 'zod';
@@ -68,6 +69,73 @@
 	let editor: Readable<Editor> | null = $state(null);
 	let imageManager = $state<CardImageManager>();
 
+	let hasUnsavedChanges = $state(false);
+	let fieldsInitialized = $state(false);
+	let lastFieldSnapshot = '';
+	let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null;
+	let editorAutoSaveAttached = false;
+	let editorUnsubscribe: (() => void) | null = null;
+
+	function fieldSnapshot() {
+		return JSON.stringify({
+			title: editData.title,
+			due_on: editData.due_on,
+			has_time: editData.has_time,
+			priority: editData.priority,
+			min_hours: editData.min_hours,
+			max_hours: editData.max_hours,
+			actual_hours: editData.actual_hours,
+			comment_hours: editData.comment_hours
+		});
+	}
+
+	function markDirtyAndScheduleAutoSave(delay = 1500) {
+		hasUnsavedChanges = true;
+		if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+		autoSaveTimeout = setTimeout(() => {
+			saveTodo({ isAuto: true });
+		}, delay);
+	}
+
+	// Wait a tick so the due-date derivation effect below settles before we
+	// start comparing snapshots, otherwise its initial write looks like a
+	// user edit and triggers a spurious auto-save right after opening the card.
+	onMount(() => {
+		const timeout = setTimeout(() => {
+			lastFieldSnapshot = fieldSnapshot();
+			fieldsInitialized = true;
+		}, 0);
+		return () => clearTimeout(timeout);
+	});
+
+	$effect(() => {
+		const snapshot = fieldSnapshot();
+		if (!fieldsInitialized) return;
+		if (snapshot !== lastFieldSnapshot) {
+			lastFieldSnapshot = snapshot;
+			markDirtyAndScheduleAutoSave();
+		}
+	});
+
+	$effect(() => {
+		if (!editor || editorAutoSaveAttached) return;
+		editorAutoSaveAttached = true;
+		editorUnsubscribe = editor.subscribe((editorInstance) => {
+			if (!editorInstance) return;
+			editorInstance.off('update', handleEditorAutoSaveUpdate);
+			editorInstance.on('update', handleEditorAutoSaveUpdate);
+		});
+	});
+
+	function handleEditorAutoSaveUpdate() {
+		markDirtyAndScheduleAutoSave();
+	}
+
+	onDestroy(() => {
+		if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+		if (editorUnsubscribe) editorUnsubscribe();
+	});
+
 	// Update editData.due_on and has_time when date or time changes
 	$effect(() => {
 		if (selectedDate) {
@@ -104,10 +172,23 @@
 		}
 	});
 
-	async function saveTodo() {
-		if (isSubmitting || !todo || !editor) {
+	async function saveTodo(options: { isAuto?: boolean } = {}) {
+		const { isAuto = false } = options;
+
+		if (isSubmitting) {
+			// Another save is already in flight; retry shortly instead of dropping the change.
+			if (isAuto) markDirtyAndScheduleAutoSave(300);
+			return;
+		}
+
+		if (!todo || !editor) {
 			console.warn('CardDetailView: saveTodo() aborted due to guard conditions.');
 			return;
+		}
+
+		if (autoSaveTimeout) {
+			clearTimeout(autoSaveTimeout);
+			autoSaveTimeout = null;
 		}
 
 		try {
@@ -139,17 +220,24 @@
 				return;
 			}
 
-			// Non-blocking plan pass for long voice content
+			hasUnsavedChanges = false;
+
+			// Non-blocking plan pass for long voice content (explicit saves only)
 			const savedContent = validatedData.content || '';
-			if (savedContent && !savedContent.includes('<!-- planned -->')) {
-				const plainLen = savedContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().length;
+			if (!isAuto && savedContent && !savedContent.includes('<!-- planned -->')) {
+				const plainLen = savedContent
+					.replace(/<[^>]*>/g, ' ')
+					.replace(/\s+/g, ' ')
+					.trim().length;
 				if (plainLen >= 300) {
 					runPlanPass(todo.id, savedContent, validatedData.title || '');
 				}
 			}
 
-			// Add to GCalendar if checkbox & cal. connected
+			// Add to GCalendar if checkbox & cal. connected (explicit saves only, to avoid
+			// creating duplicate events every time an auto-save fires)
 			if (
+				!isAuto &&
 				result.success &&
 				addToGoogleCalendar &&
 				hasCalendarConnected &&
@@ -183,7 +271,9 @@
 				}
 			}
 
-			const newImages = imageManager?.getNewImages() || [];
+			// New image uploads happen on explicit save only, to avoid re-uploading
+			// mid-typing every time an auto-save fires.
+			const newImages = isAuto ? [] : imageManager?.getNewImages() || [];
 			if (newImages.length > 0 && todo) {
 				try {
 					const uploadPromises = newImages.map(async (img) => {
@@ -206,11 +296,13 @@
 					displayMessage($t('card.card_saved_upload_failed'));
 					console.error('Upload error:', error);
 				}
-			} else {
+			} else if (!isAuto) {
 				displayMessage($t('card.card_updated'), 1500, true);
 			}
 
-			setTimeout(() => onClose(), 300);
+			if (!isAuto) {
+				setTimeout(() => onClose(), 300);
+			}
 		} catch (error) {
 			console.error('CardDetailView: An error occurred in saveTodo():', error);
 			if (error instanceof z.ZodError) {
@@ -224,6 +316,17 @@
 		} finally {
 			isSubmitting = false;
 		}
+	}
+
+	async function handleClose() {
+		if (autoSaveTimeout) {
+			clearTimeout(autoSaveTimeout);
+			autoSaveTimeout = null;
+		}
+		if (hasUnsavedChanges && !isSubmitting) {
+			await saveTodo({ isAuto: true });
+		}
+		onClose();
 	}
 
 	async function deleteTodo() {
@@ -306,13 +409,27 @@
 	<Button
 		variant="ghost"
 		size="sm"
-		onclick={onClose}
+		onclick={handleClose}
 		class="absolute top-2 right-2 z-10 h-7 w-7 p-0"
 	>
 		<X class="h-3.5 w-3.5" />
 	</Button>
 
 	<CardHeader class="pr-12 pb-4">
+		<div class="mb-3 flex flex-wrap items-start justify-between gap-2">
+			<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
+				{#if isSubmitting}
+					<span class="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500"></span>
+					{$t('card.auto_saving') || 'Saving…'}
+				{:else if hasUnsavedChanges}
+					<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+					{$t('card.unsaved_changes') || 'Unsaved changes'}
+				{:else}
+					<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+					{$t('card.all_changes_saved') || 'All changes saved'}
+				{/if}
+			</div>
+		</div>
 		<div class="mb-3 flex flex-wrap items-start justify-between gap-2">
 			<div class="flex flex-1 flex-wrap items-center gap-2">
 				{#if todo.list}
@@ -359,9 +476,7 @@
 			<Label class="mb-2">{$t('card.description_label')}</Label>
 			<div class="space-y-2">
 				<RichTextEditor bind:editor content={todo.content || ''} />
-				<div
-					class="flex items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2"
-				>
+				<div class="flex items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2">
 					<VoiceInput
 						onTranscript={handleContentVoice}
 						onError={handleVoiceError}
@@ -502,7 +617,7 @@
 			</Button>
 
 			<div class="flex gap-2">
-				<Button variant="outline" onclick={onClose}>
+				<Button variant="outline" onclick={handleClose}>
 					{$t('common.close')}
 				</Button>
 				<Button onclick={saveTodo} disabled={isSubmitting} size="sm">

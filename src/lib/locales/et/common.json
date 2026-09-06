@@ -450,6 +450,9 @@
     "add_hours_comment": "Kommenteeri töötunde →",
     "pick_date": "Lisa tähtaeg",
     "add_to_google_calendar": "Lisa Google kalendrisse",
+    "unsaved_changes": "Salvestamata muudatused",
+    "all_changes_saved": "Kõik muudatused salvestatud",
+    "auto_saving": "Salvestamine…",
     "calendar_event_failed": "Google kalendrisse lisamine ebaõnnestus",
     "include_time": "Lisa kellaaeg"
   },
