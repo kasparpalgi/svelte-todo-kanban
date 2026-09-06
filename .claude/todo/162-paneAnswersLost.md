@@ -53,6 +53,13 @@ with rather than followed:
 Consider whether step 2 should be capped (one nudge, not a conversation) so a confused
 agent cannot spend the whole `taskMinutes` budget talking to itself.
 
+## Note on execution
+
+No `-TODO` suffix on this filename, deliberately — the same guard task 027 used. Its files
+live in `klarity-claude-kit`, not in this repo, and it rewrites the very runner that would
+be executing it. `findPending()` ignores a file without the suffix, so run it by hand with
+`/todo 162` from a checkout of `klarity-claude-kit`.
+
 ## Files
 
 `klarity-claude-kit/plugins/dev-kit/runner/src/herdr.js` — the wait/close lifecycle
