@@ -118,3 +118,12 @@ when it writes the file — task-014 already lives in *this* repo as `taskfile.t
 `write-task-file`, so that half is done; only the runner's own log-line format
 (`classify.js`, in `klarity-claude-kit`) is untouched, since it's unaffected by this task —
 it just prints whatever label preceded it.
+
+## Follow-up — 2026-09-06
+
+Re-opened via `/todo 161`. Found the implementation already committed (`e03678a`) and the
+working tree clean — all schema/GraphQL/UI/server/test work described above was already done
+in a prior session, just left with the `-TODO` suffix. Verified `agent_model`/`agent_effort`
+are present in `taskfile.ts` and the migration exists on disk; re-ran
+`taskfile.test.ts` (23/23 pass). Renamed the file to `-DONE` to match this repo's convention
+(no further code changes needed).
