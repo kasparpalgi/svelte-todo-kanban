@@ -11,8 +11,23 @@ export const todoEditSchema = z.object({
 	max_hours: z.number().positive().nullable().optional(),
 	actual_hours: z.number().positive().nullable().optional(),
 	comment_hours: z.string().max(10000).optional(),
-	agent_model: z.enum(['fable', 'opus', 'sonnet', 'haiku']).nullable().optional(),
-	agent_effort: z.enum(['low', 'medium', 'high']).nullable().optional()
+	agent_model: z
+		.enum([
+			'fable',
+			'opus',
+			'sonnet',
+			'haiku',
+			'fable-5.1',
+			'opus-5',
+			'opus-4.8',
+			'opus-4.6',
+			'sonnet-5',
+			'sonnet-4.6',
+			'haiku-4.5'
+		])
+		.nullable()
+		.optional(),
+	agent_effort: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).nullable().optional()
 });
 
 export function formatDate(dateString: string, lang: string): string {
