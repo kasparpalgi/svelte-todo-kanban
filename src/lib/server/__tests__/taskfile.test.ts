@@ -51,19 +51,19 @@ describe('runWithLabel', () => {
 	});
 
 	it('honours opus from explicit Run with:', () => {
-		expect(runWithLabel('Run with: opus\nredesign auth')).toBe('Opus 5 / hard');
+		expect(runWithLabel('Run with: opus\nredesign auth')).toBe('Opus 5 / high');
 	});
 
 	it('honours opus 5 from explicit Run with:', () => {
-		expect(runWithLabel('Run with: opus 5\nhard task')).toBe('Opus 5 / hard');
+		expect(runWithLabel('Run with: opus 5\nhard task')).toBe('Opus 5 / high');
 	});
 
 	it('honours opus 4.8 from explicit Run with:', () => {
 		expect(runWithLabel('Run with: opus 4.8\nmedium hard task')).toBe('Opus 4.8 / high');
 	});
 
-	it('honours sonnet 4.6 from explicit Run with:', () => {
-		expect(runWithLabel('Run with: sonnet 4.6\nsimple task')).toBe('Sonnet 4.6 / low');
+	it('honours sonnet 4.6, with the family default effort', () => {
+		expect(runWithLabel('Run with: sonnet 4.6\nsimple task')).toBe('Sonnet 4.6 / medium');
 	});
 
 	it('picks up a bare model name "Opus 4.8"', () => {
@@ -72,6 +72,14 @@ describe('runWithLabel', () => {
 
 	it('picks up a bare "haiku"', () => {
 		expect(runWithLabel('haiku\nadd a label')).toBe('Haiku 4.5 / low');
+	});
+
+	it('honours an effort written after the slash', () => {
+		expect(runWithLabel('Run with: opus 4.8 / xhigh\nhard task')).toBe('Opus 4.8 / xhigh');
+	});
+
+	it('prefers an explicit Run with: over a model named earlier in prose', () => {
+		expect(runWithLabel('rewrite the sonnet parser\nRun with: opus')).toBe('Opus 5 / high');
 	});
 });
 
@@ -98,7 +106,7 @@ describe('buildDraftFile', () => {
 
 	it('honours a hand-typed Run with line in the card body (back-compat)', () => {
 		const file = buildDraftFile({ id: 'abc', title: 'Ship it', content: 'Run with: opus\ndo it' });
-		expect(file).toContain('> Run with: Opus 5 / hard');
+		expect(file).toContain('> Run with: Opus 5 / high');
 	});
 
 	it('prefers the agent_model/agent_effort fields over card prose', () => {

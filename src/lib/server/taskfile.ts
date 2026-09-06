@@ -45,47 +45,51 @@ export function toText(content?: string | null): string {
 		.trim();
 }
 
-const TIERS: Record<string, string> = {
-	opus5: 'Opus 5 / hard',
-	opus48: 'Opus 4.8 / high',
-	opus: 'Opus 5 / hard',
-	sonnet5: 'Sonnet 5 / medium',
-	sonnet46: 'Sonnet 4.6 / low',
-	sonnet: 'Sonnet 5 / medium',
-	haiku: 'Haiku 4.5 / low'
+/**
+ * A tier label is `<Name> <version> / <effort>` — the runner pins that exact model
+ * id, so the version is not decoration. `latest` is what a bare family name means.
+ */
+const FAMILIES: Record<string, { name: string; latest: string; effort: string }> = {
+	fable: { name: 'Fable', latest: '5.1', effort: 'high' },
+	opus: { name: 'Opus', latest: '5', effort: 'high' },
+	sonnet: { name: 'Sonnet', latest: '5', effort: 'medium' },
+	haiku: { name: 'Haiku', latest: '4.5', effort: 'low' }
 };
 
-/** Looks for a hand-typed tier in card prose ("Run with: opus" or a bare "Sonnet 4.6"). Null when nothing is named. */
+const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
+
+function label(family: string, version?: string | null, effort?: string | null): string | null {
+	const f = FAMILIES[family];
+	if (!f) return null;
+	const e = effort && EFFORTS.includes(effort.toLowerCase()) ? effort.toLowerCase() : f.effort;
+	return `${f.name} ${version || f.latest} / ${e}`;
+}
+
+const NAMED = /\b(fable|opus|sonnet|haiku)\b[ \t]*(\d+(?:\.\d+)?)?[ \t]*(?:\/[ \t]*(\w+))?/i;
+const PREFIXED = new RegExp(`run with:[ \\t]*${NAMED.source}`, 'i');
+
+/** Looks for a hand-typed tier in card prose ("Run with: opus 4.8 / xhigh" or a bare "Sonnet 4.6"). Null when nothing is named. */
 export function detectRunWith(text: string): string | null {
-	const explicit =
-		/run with:\s*(opus\s*5|opus\s*4\.8|opus|sonnet\s*5|sonnet\s*4\.6|sonnet|haiku)/i.exec(
-			text || ''
-		);
-	if (explicit) {
-		const key = explicit[1].toLowerCase().replace(/\s/g, '').replace('.', '');
-		return TIERS[key] ?? null;
-	}
-	const named = /\b(opus\s*5|opus\s*4\.8|opus|sonnet\s*5|sonnet\s*4\.6|sonnet|haiku)\b/i.exec(
-		text || ''
-	);
-	if (named) {
-		const key = named[1].toLowerCase().replace(/\s/g, '').replace('.', '');
-		return TIERS[key] ?? null;
+	for (const re of [PREFIXED, NAMED]) {
+		const m = re.exec(text || '');
+		if (m) return label(m[1].toLowerCase(), m[2], m[3]);
 	}
 	return null;
 }
 
 /** The card may name its own tier ("Run with: opus" or "Sonnet 4.6"); otherwise assume a normal feature. */
 export function runWithLabel(text: string): string {
-	return detectRunWith(text) ?? TIERS.sonnet;
+	return detectRunWith(text) ?? (label('sonnet') as string);
 }
 
-const MODEL_NAMES: Record<string, string> = {
-	fable: 'Fable 5.1',
-	opus: 'Opus 5',
-	sonnet: 'Sonnet 5',
-	haiku: 'Haiku 4.5'
-};
+/**
+ * `agent_model` is a family, optionally version-pinned: `sonnet`, `sonnet-4.6`,
+ * `opus-4.8`. An unpinned family means that family's latest.
+ */
+function fieldLabel(model: string, effort?: string | null): string | null {
+	const [family, version] = model.toLowerCase().split(/[-@]/, 2);
+	return label(family, version, effort);
+}
 
 export interface TaskCard {
 	id: string;
@@ -102,9 +106,8 @@ export interface TaskCard {
  * picks the tier itself.
  */
 function resolveRunWith(card: TaskCard, body: string): string | null {
-	const modelName = card.agent_model ? MODEL_NAMES[card.agent_model] : undefined;
-	if (modelName) return `${modelName} / ${card.agent_effort || 'medium'}`;
-	return detectRunWith(`${card.title}\n${body}`);
+	const field = card.agent_model ? fieldLabel(card.agent_model, card.agent_effort) : null;
+	return field ?? detectRunWith(`${card.title}\n${body}`);
 }
 
 /** Highest NNN already used in the folder, plus one, zero-padded. */
