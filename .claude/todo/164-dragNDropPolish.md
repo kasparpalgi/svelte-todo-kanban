@@ -48,3 +48,7 @@ _Original card requirement (from Kanban card `951ba857-ccf1-4cfa-9e97-cb85420071
 ## Log
 
 _Not started — filed as a followup by task 163._
+
+----
+
+Manual test results: on computer pretty nice
