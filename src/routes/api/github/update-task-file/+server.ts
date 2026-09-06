@@ -11,6 +11,8 @@ const GET_TODO_FOR_UPDATE = `
 			id
 			title
 			content
+			agent_model
+			agent_effort
 			task_file_path
 			list {
 				board {

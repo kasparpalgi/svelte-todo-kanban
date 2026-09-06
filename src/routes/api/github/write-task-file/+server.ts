@@ -13,6 +13,8 @@ const GET_TODO_FOR_TASK_FILE = `
 			id
 			title
 			content
+			agent_model
+			agent_effort
 			github_issue_number
 			task_file_path
 			list {
