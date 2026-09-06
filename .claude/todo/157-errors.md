@@ -1,4 +1,4 @@
-> Run with: Sonnet 5 / medium
+> Run with: Sonnet 4.6 / low
 
 # Errors
 
@@ -6,4 +6,5 @@
 
 [NEVER REMOVE]
 
-_(no description yet)_
+Sonnet 4.6 / Medium
+FIX: npm run check in svelte-todo-kanban reports 19 pre-existing errors (missing marked, d3-scale and similar deps) in files
