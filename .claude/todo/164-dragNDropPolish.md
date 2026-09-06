@@ -51,4 +51,4 @@ _Not started — filed as a followup by task 163._
 
 ----
 
-Manual test results: on computer pretty nice already but on mobile when I tap and hold the card it slighly goes tilt indicating it is droppable now bit now when I start sliding finder eg. to left then the 
+Manual test results: on computer pretty nice already but on mobile when I tap and hold the card it slighly goes tilt indicating it is droppable now bit now when I start sliding finder eg. to left then the card remains where it is and I start scolling to the left.
