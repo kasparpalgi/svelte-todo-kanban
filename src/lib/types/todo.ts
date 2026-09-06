@@ -72,12 +72,6 @@ export type CardDetailViewProps = {
 	onClose: () => void;
 };
 
-export type DragHandleProps = {
-	attributes: Record<string, any>;
-	listeners: Record<string, any>;
-	isVisible?: boolean;
-};
-
 export type KanbanColumnProps = {
 	list: { id: string; name: string; board?: { github?: string } };
 	todos: TodoFieldsFragment[];

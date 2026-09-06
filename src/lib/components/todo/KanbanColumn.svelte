@@ -295,7 +295,12 @@
 						}}
 					/>
 				{:else if !showQuickAdd}
-					<div class="py-8 text-center text-xs text-muted-foreground">
+					{@const isEmptyDropTarget = dropTarget?.listId === list.id}
+					<div
+						class="rounded-md py-8 text-center text-xs text-muted-foreground transition-colors {isEmptyDropTarget
+							? 'bg-primary/5 ring-2 ring-primary/40'
+							: ''}"
+					>
 						<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
 						{#if list.id !== 'inbox'}
 							<Button
