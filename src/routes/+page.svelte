@@ -1,7 +1,37 @@
 <!-- @file src/routes/+page.svelte -->
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { CheckCircle2, Github, Calendar, Users, FileText, Zap, Shield } from 'lucide-svelte';
+	import {
+		CheckCircle2,
+		Github,
+		Calendar,
+		Users,
+		FileText,
+		Zap,
+		Shield,
+		Mic,
+		Puzzle,
+		NotebookPen,
+		Bot
+	} from 'lucide-svelte';
+
+	const capture = [
+		{
+			icon: Mic,
+			title: 'Voice input',
+			description: 'Dictate a card or a note from your phone browser — no app, no keyboard'
+		},
+		{
+			icon: Puzzle,
+			title: 'Browser extension',
+			description: 'Save any web page to a board as a note, with an AI summary attached'
+		},
+		{
+			icon: NotebookPen,
+			title: 'AI note taking',
+			description: 'AI cleans up what you dictated, or researches the topic for you'
+		}
+	];
 
 	const features = [
 		{
@@ -215,13 +245,43 @@
 		</div>
 	</section>
 
+	<!-- Capture & Agentic Development -->
+	<section class="container mx-auto px-4 py-16">
+		<h2 class="mb-4 text-center text-3xl font-bold md:text-4xl">Capture It Anywhere</h2>
+		<p class="mb-12 text-center text-lg text-muted-foreground">
+			Ideas turn up when you are nowhere near your desk. Get them onto the board anyway.
+		</p>
+		<div class="mx-auto mb-12 grid max-w-5xl gap-8 md:grid-cols-3">
+			{#each capture as item (item.title)}
+				<div class="rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+					<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+						<item.icon class="h-6 w-6 text-primary" />
+					</div>
+					<h3 class="mb-2 text-xl font-semibold">{item.title}</h3>
+					<p class="text-muted-foreground">{item.description}</p>
+				</div>
+			{/each}
+		</div>
+		<div class="mx-auto max-w-3xl rounded-lg border bg-card p-8 text-center shadow-lg">
+			<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+				<Bot class="h-6 w-6 text-primary" />
+			</div>
+			<h3 class="mb-4 text-2xl font-semibold md:text-3xl">And it can write the code, too</h3>
+			<p class="mb-6 text-lg text-muted-foreground">
+				Connect a board to a GitHub repo and a card becomes a task file. Move it to TODO and an AI
+				agent runs it on your own machine, then moves the card to Review with the results attached.
+			</p>
+			<Button href="/workflow" size="lg" class="text-lg">See how the loop works</Button>
+		</div>
+	</section>
+
 	<!-- All Features -->
 	<section class="bg-muted/30 py-16">
 		<div class="container mx-auto px-4">
 			<h2 class="mb-12 text-center text-3xl font-bold md:text-4xl">All Features</h2>
 			<div class="mx-auto max-w-4xl">
 				<div class="grid gap-4 md:grid-cols-2">
-					{#each ['Kanban and list view', 'Multilingual support', 'Drag & drop tasks', 'Fully integrated with GitHub', 'PWA mobile app', 'Time tracking & estimates', 'Voice + AI note taking', 'Google Calendar integration', 'Multi-user collaboration', 'Comments (synced with GitHub)', 'File uploads', 'Rich text editing', 'Priorities & due dates', 'Keyboard shortcuts', 'Label management', 'Private/public boards', 'Vote for new features', 'Data export'] as feature}
+					{#each ['Kanban and list view', 'Multilingual support', 'Drag & drop tasks', 'Fully integrated with GitHub', 'PWA mobile app', 'Time tracking & estimates', 'Voice + AI note taking', 'Browser extension to save web pages', 'Agentic coding with Claude Code', 'Google Calendar integration', 'Multi-user collaboration', 'Comments (synced with GitHub)', 'File uploads', 'Rich text editing', 'Priorities & due dates', 'Keyboard shortcuts', 'Label management', 'Private/public boards', 'Vote for new features', 'Data export'] as feature}
 						<div class="flex items-start gap-3">
 							<CheckCircle2 class="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
 							<span class="text-muted-foreground">{feature}</span>
