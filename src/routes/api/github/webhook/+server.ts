@@ -653,7 +653,7 @@ async function handleTaskFileDone(
 	const boardData = await serverRequest<
 		{ boards: Array<{ id: string; user_id: string; lists: Array<{ id: string; name: string }> }> },
 		{ fullName: string }
-	>(GET_BOARD_BY_REPO, { fullName: repository.full_name });
+	>(GET_BOARD_BY_REPO, { fullName: `%${repository.full_name}%` });
 
 	const board = boardData?.boards?.[0];
 	if (!board) {
@@ -773,18 +773,14 @@ async function handlePushEvent(event: GitHubPushEvent): Promise<void> {
 				// Find todos for this repository with this issue number
 				const todoData = await serverRequest<
 					{ todos: Array<any> },
-					{ issueNumber: number; owner: string; repo: string }
+					{ issueNumber: number; repo: string }
 				>(
 					`
-						query GetTodoByIssueNumber($issueNumber: bigint!, $owner: String!, $repo: String!) {
+						query GetTodoByIssueNumber($issueNumber: bigint!, $repo: String!) {
 							todos(
 								where: {
 									github_issue_number: { _eq: $issueNumber }
-									list: {
-										board: {
-											github: { _contains: { owner: $owner, repo: $repo } }
-										}
-									}
+									list: { board: { github: { _ilike: $repo } } }
 								}
 								limit: 1
 							) {
@@ -801,7 +797,7 @@ async function handlePushEvent(event: GitHubPushEvent): Promise<void> {
 							}
 						}
 					`,
-					{ issueNumber, owner: repository.owner.login, repo: repository.name }
+					{ issueNumber, repo: `%${repository.full_name}%` }
 				);
 
 				const todo = todoData?.todos?.[0];

@@ -1014,10 +1014,12 @@ export const GET_TODO_BY_ID = graphql(`
 	}
 `);
 
-// Raw string — github is jsonb but typed as String in generated schema, so _contains fails codegen
+// Raw string, kept out of codegen. `github` is a *text* column holding JSON, not
+// jsonb — `_contains` is a runtime error on it, so match the full_name as a substring.
+// Pass $fullName already wrapped in %…%.
 export const GET_BOARD_BY_REPO = `
 	query GetBoardByRepo($fullName: String!) {
-		boards(where: { github: { _contains: { full_name: $fullName } } }, limit: 1) {
+		boards(where: { github: { _ilike: $fullName } }, limit: 1) {
 			id
 			user_id
 			lists(order_by: { sort_order: asc }) {
