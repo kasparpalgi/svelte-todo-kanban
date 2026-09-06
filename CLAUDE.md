@@ -119,7 +119,9 @@ export const myStore = createStore();
 
 ## Key Rules
 
-- **Branch naming**: start with task file name — `git checkout -b 039-featureName`
+- **Branch**: commit straight to `main`. The kanban runner pulls and pushes `main`;
+  a task branch stalls the card until someone merges it by hand. Branch only when a
+  human asked you to, and name it after the task file — `039-featureName`.
 - **Mutations**: always return `{ success: boolean, message: string, data? }`
 - **Browser guard**: `if (!browser) return;` before any client-side API call
 - **Optimistic updates**: always include rollback on error
