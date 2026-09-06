@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
 import { GET_BOARDS, CREATE_TODO } from '$lib/graphql/documents';
-import { loggingStore } from '$lib/stores/logging.svelte';
+import { serverLog } from '$lib/server/log';
 import type { GetBoardsQuery } from '$lib/graphql/generated/graphql';
 
 interface GitHubIssue {
@@ -114,7 +114,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 		const imported = result.insert_todos?.returning?.length || 0;
 
-		loggingStore.info('GithubImport', 'Successfully imported GitHub issues', {
+		serverLog.info('GithubImport', 'Successfully imported GitHub issues', {
 			boardId,
 			listId: targetListId,
 			owner,
@@ -132,7 +132,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	} catch (err: any) {
 		console.error('[import-issues] Error:', err);
 
-		loggingStore.error('GithubImport', 'Failed to import GitHub issues', {
+		serverLog.error('GithubImport', 'Failed to import GitHub issues', {
 			error: err.message,
 			userId: session?.user?.id
 		});

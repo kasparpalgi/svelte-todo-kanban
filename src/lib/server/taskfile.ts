@@ -153,3 +153,32 @@ export function buildTaskFile(card: TaskCard): string {
 		''
 	].join('\n');
 }
+
+/** A repo keeps its task files in either `doc/todo/` or `.claude/todo/`. */
+const TODO_DIR = '(?:doc|\\.claude)/todo';
+
+export interface TaskFileRename {
+	number: string;
+	todoFile: string;
+	doneFile: string;
+}
+
+/**
+ * A pushed commit that removes `NNN-slug-TODO.md` and adds `NNN-slug-DONE.md` is the
+ * agent reporting the task finished — that pair moves the card to Review.
+ */
+export function findTaskFileRenames(commit: {
+	added: string[];
+	removed: string[];
+}): TaskFileRename[] {
+	const results: TaskFileRename[] = [];
+	for (const removed of commit.removed) {
+		const m = new RegExp(`${TODO_DIR}/(\\d{3})-.*-TODO\\.md$`, 'i').exec(removed);
+		if (!m) continue;
+		const added = commit.added.find((f) =>
+			new RegExp(`${TODO_DIR}/${m[1]}-.*-DONE\\.md$`, 'i').test(f)
+		);
+		if (added) results.push({ number: m[1], todoFile: removed, doneFile: added });
+	}
+	return results;
+}

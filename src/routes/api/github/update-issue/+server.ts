@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
 import { UPDATE_TODOS } from '$lib/graphql/documents';
-import { loggingStore } from '$lib/stores/logging.svelte';
+import { serverLog } from '$lib/server/log';
 
 interface UpdateIssueInput {
 	todoId: string;
@@ -102,7 +102,7 @@ export const PATCH: RequestHandler = async ({ request: req, locals }) => {
 			}
 		});
 
-		loggingStore.info('GithubSync', 'Updated GitHub issue from todo', {
+		serverLog.info('GithubSync', 'Updated GitHub issue from todo', {
 			todoId,
 			issueNumber: issue.number,
 			issueUrl: issue.html_url,
@@ -120,7 +120,7 @@ export const PATCH: RequestHandler = async ({ request: req, locals }) => {
 	} catch (err: any) {
 		console.error('[update-issue] Error:', err);
 
-		loggingStore.error('GithubSync', 'Failed to update GitHub issue', {
+		serverLog.error('GithubSync', 'Failed to update GitHub issue', {
 			error: err.message,
 			userId: session?.user?.id
 		});

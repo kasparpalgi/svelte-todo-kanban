@@ -4,6 +4,7 @@ import {
 	buildDraftFile,
 	buildTaskFile,
 	camelName,
+	findTaskFileRenames,
 	nextNumber,
 	runWithLabel,
 	toText
@@ -150,5 +151,37 @@ describe('buildTaskFile', () => {
 			agent_effort: 'low'
 		});
 		expect(file).toContain('> Run with: Haiku 4.5 / low');
+	});
+});
+
+describe('findTaskFileRenames', () => {
+	it('pairs a TODO removal with the DONE file in .claude/todo', () => {
+		expect(
+			findTaskFileRenames({
+				removed: ['.claude/todo/157-errors-TODO.md'],
+				added: ['.claude/todo/157-errors-DONE.md']
+			})
+		).toEqual([
+			{
+				number: '157',
+				todoFile: '.claude/todo/157-errors-TODO.md',
+				doneFile: '.claude/todo/157-errors-DONE.md'
+			}
+		]);
+	});
+
+	it('still pairs files in doc/todo', () => {
+		expect(
+			findTaskFileRenames({
+				removed: ['doc/todo/031-fix-TODO.md'],
+				added: ['doc/todo/031-fix-DONE.md']
+			})
+		).toHaveLength(1);
+	});
+
+	it('ignores a removal with no matching DONE file', () => {
+		expect(
+			findTaskFileRenames({ removed: ['.claude/todo/160-dragNDropCrap-TODO.md'], added: [] })
+		).toEqual([]);
 	});
 });

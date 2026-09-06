@@ -5,7 +5,7 @@ import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
 import { CREATE_COMMENT } from '$lib/graphql/documents';
 import { buildTaskFile, camelName, nextNumber } from '$lib/server/taskfile';
-import { loggingStore } from '$lib/stores/logging.svelte';
+import { serverLog } from '$lib/server/log';
 
 const GET_TODO_FOR_TASK_FILE = `
 	query GetTodoForTaskFile($todoId: uuid!) {
@@ -52,6 +52,21 @@ async function taskDir(repo: string, token: string) {
 	const dotClaude = await listDir(repo, '.claude/todo', token);
 	if (dotClaude) return { dir: '.claude/todo', names: dotClaude };
 	return { dir: 'doc/todo', names: (await listDir(repo, 'doc/todo', token)) ?? [] };
+}
+
+/**
+ * `task_file_path` is never cleared, so it outlives the file it names — deleted by hand,
+ * or renamed to `-DONE.md` by the agent. Trusting it made a re-move to the agent list a
+ * silent no-op. Confirm the file is really there before reusing the path.
+ */
+async function fileExists(repo: string, path: string, token: string): Promise<boolean> {
+	try {
+		await githubRequest(`/repos/${repo}/contents/${path}`, token);
+		return true;
+	} catch (err: any) {
+		if (err.message?.includes('(404)')) return false;
+		throw err;
+	}
 }
 
 async function commentOnCard(todoId: string, userId: string, content: string) {
@@ -115,7 +130,10 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	if (!board || board.settings?.agent_list_id !== todo.list.id) {
 		return json({ skipped: 'not the agent list' });
 	}
-	if (!board.github) return json({ skipped: 'board not connected to a repo' });
+	if (!board.github) {
+		serverLog.warn('TaskFile', 'Board has no repo connected', { todoId });
+		return json({ skipped: 'board not connected to a repo' });
+	}
 
 	const gh = typeof board.github === 'string' ? JSON.parse(board.github) : board.github;
 	const repo = `${gh.owner}/${gh.repo}`;
@@ -125,15 +143,30 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		if (!token) throw new Error('GitHub not connected. Reconnect it in settings.');
 
 		let path = '';
+		const known: string | null = todo.task_file_path ?? null;
+		const existing = known && (await fileExists(repo, known, token)) ? known : null;
 
-		if (todo.task_file_path && !todo.task_file_path.endsWith('-TODO.md')) {
+		if (known && !existing) {
+			serverLog.warn('TaskFile', 'Card points at a file that is gone — writing a fresh one', {
+				todoId,
+				repo,
+				stalePath: known
+			});
+		}
+
+		if (existing && !existing.endsWith('-TODO.md')) {
 			// Rename the existing draft → -TODO.md
-			path = await renameDraftToTodo(repo, todo.task_file_path, token, todoId);
-		} else if (todo.task_file_path?.endsWith('-TODO.md')) {
+			path = await renameDraftToTodo(repo, existing, token, todoId);
+		} else if (existing) {
 			// Already a TODO file — nothing to do
-			return json({ skipped: 'already a TODO file', path: todo.task_file_path });
+			serverLog.info('TaskFile', 'Task file already waiting for the agent', {
+				todoId,
+				repo,
+				path: existing
+			});
+			return json({ skipped: 'already a TODO file', path: existing });
 		} else {
-			// Fallback: no draft exists — create fresh TODO file
+			// No usable file — create a fresh TODO file
 			const body = buildTaskFile(todo);
 			const bytes = new TextEncoder().encode(body);
 			let binary = '';
@@ -162,11 +195,11 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		const issue = todo.github_issue_number ? ` (issue #${todo.github_issue_number})` : '';
 		await commentOnCard(todoId, userId, `Task file ready: ${path}${issue}`);
 
-		loggingStore.info('TaskFile', 'Task file ready in GitHub', { todoId, repo, path });
+		serverLog.info('TaskFile', 'Task file ready in GitHub', { todoId, repo, path });
 		return json({ success: true, path });
 	} catch (err: any) {
 		await commentOnCard(todoId, userId, `Could not write the task file to ${repo}: ${err.message}`);
-		loggingStore.error('TaskFile', 'Failed to write task file', {
+		serverLog.error('TaskFile', 'Failed to write task file', {
 			todoId,
 			repo,
 			error: err.message

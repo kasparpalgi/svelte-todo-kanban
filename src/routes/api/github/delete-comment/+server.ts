@@ -2,7 +2,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
-import { loggingStore } from '$lib/stores/logging.svelte';
+import { serverLog } from '$lib/server/log';
 
 interface DeleteCommentInput {
 	commentId: string;
@@ -41,7 +41,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			}
 		);
 
-		loggingStore.info('GithubSync', 'Deleted GitHub comment', {
+		serverLog.info('GithubSync', 'Deleted GitHub comment', {
 			commentId,
 			githubCommentId,
 			owner,
@@ -55,7 +55,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	} catch (err: any) {
 		console.error('[delete-comment] Error:', err);
 
-		loggingStore.error('GithubSync', 'Failed to delete GitHub comment', {
+		serverLog.error('GithubSync', 'Failed to delete GitHub comment', {
 			error: err.message,
 			userId: session?.user?.id
 		});

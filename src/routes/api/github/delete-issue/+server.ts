@@ -2,7 +2,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
-import { loggingStore } from '$lib/stores/logging.svelte';
+import { serverLog } from '$lib/server/log';
 
 interface DeleteIssueInput {
 	todoId: string;
@@ -46,7 +46,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			}
 		);
 
-		loggingStore.info('GithubSync', 'Closed GitHub issue on todo deletion', {
+		serverLog.info('GithubSync', 'Closed GitHub issue on todo deletion', {
 			todoId,
 			issueNumber: githubIssueNumber,
 			owner,
@@ -60,7 +60,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	} catch (err: any) {
 		console.error('[delete-issue] Error:', err);
 
-		loggingStore.error('GithubSync', 'Failed to close GitHub issue', {
+		serverLog.error('GithubSync', 'Failed to close GitHub issue', {
 			error: err.message,
 			userId: session?.user?.id
 		});

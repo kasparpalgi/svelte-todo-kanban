@@ -19,6 +19,7 @@ import {
 	GET_BOARD_BY_REPO
 } from '$lib/graphql/documents';
 import { getGithubToken, githubRequest } from '$lib/server/github';
+import { findTaskFileRenames } from '$lib/server/taskfile';
 
 /**
  * GitHub Webhook Endpoint
@@ -641,19 +642,6 @@ function extractIssueNumbers(message: string): number[] {
  * Handle push events from GitHub
  * Logs commits that reference issues in the activity log
  */
-/** Returns rename pairs for task files in a commit (TODO → DONE). */
-function findTaskFileRenames(commit: GitHubPushEvent['commits'][number]) {
-	const results: { number: string; todoFile: string; doneFile: string }[] = [];
-	for (const removed of commit.removed) {
-		const m = /doc\/todo\/(\d{3})-.*-TODO\.md$/i.exec(removed);
-		if (!m) continue;
-		const added = commit.added.find((f) =>
-			new RegExp(`doc/todo/${m[1]}-.*-DONE\\.md$`, 'i').test(f)
-		);
-		if (added) results.push({ number: m[1], todoFile: removed, doneFile: added });
-	}
-	return results;
-}
 
 /** Move the card to Review and post a comment when a DONE file is pushed. */
 async function handleTaskFileDone(

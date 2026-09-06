@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
 import { UPDATE_COMMENT } from '$lib/graphql/documents';
-import { loggingStore } from '$lib/stores/logging.svelte';
+import { serverLog } from '$lib/server/log';
 
 interface CreateCommentInput {
 	commentId: string;
@@ -63,7 +63,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			}
 		});
 
-		loggingStore.info('GithubSync', 'Created GitHub comment', {
+		serverLog.info('GithubSync', 'Created GitHub comment', {
 			commentId,
 			todoId,
 			githubCommentId: comment.id,
@@ -80,7 +80,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	} catch (err: any) {
 		console.error('[create-comment] Error:', err);
 
-		loggingStore.error('GithubSync', 'Failed to create GitHub comment', {
+		serverLog.error('GithubSync', 'Failed to create GitHub comment', {
 			error: err.message,
 			userId: session?.user?.id
 		});

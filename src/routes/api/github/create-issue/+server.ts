@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
 import { GET_BOARDS, UPDATE_TODOS } from '$lib/graphql/documents';
-import { loggingStore } from '$lib/stores/logging.svelte';
+import { serverLog } from '$lib/server/log';
 import type { GetBoardsQuery } from '$lib/graphql/generated/graphql';
 
 interface CreateIssueInput {
@@ -134,7 +134,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			}
 		});
 
-		loggingStore.info('GithubSync', 'Created GitHub issue from todo', {
+		serverLog.info('GithubSync', 'Created GitHub issue from todo', {
 			todoId,
 			issueNumber: issue.number,
 			issueUrl: issue.html_url,
@@ -151,7 +151,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	} catch (err: any) {
 		console.error('[create-issue] Error:', err);
 
-		loggingStore.error('GithubSync', 'Failed to create GitHub issue', {
+		serverLog.error('GithubSync', 'Failed to create GitHub issue', {
 			error: err.message,
 			userId: session?.user?.id
 		});
