@@ -32,6 +32,7 @@
 		dropTarget,
 		onDragStart,
 		onDragEnd,
+		onMoveCard,
 		onDelete
 	}: KanbanColumnProps = $props();
 
@@ -255,6 +256,7 @@
 							listId={list.id}
 							{onDragStart}
 							{onDragEnd}
+							{onMoveCard}
 							{onDelete}
 						/>
 					{/each}

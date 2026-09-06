@@ -12,6 +12,7 @@
 	import { formatDateWithFuture } from '$lib/utils/dateTime.svelte';
 	import { shortenText } from '$lib/utils/shortenText';
 	import { stripHtml } from '$lib/utils/stripHtml';
+	import { createCardDrag } from '$lib/utils/cardDrag.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
@@ -38,6 +39,7 @@
 		showDropAbove = false,
 		onDragStart,
 		onDragEnd,
+		onMoveCard,
 		onDelete
 	}: TodoItemProps = $props();
 
@@ -89,21 +91,16 @@
 	let showUnsavedChangesConfirm = $state(false);
 	let showStartEditConfirm = $state(false);
 	let pendingAction = $state<(() => void) | null>(null);
-	let cardEl = $state<HTMLElement>();
 	let cardLinkEl = $state<HTMLAnchorElement>();
-	let isDraggingLocal = $state(false);
-	let dragOffsetX = $state(0);
-	let dragOffsetY = $state(0);
-	let activePointerId: number | null = null;
-	let dragStartX = 0;
-	let dragStartY = 0;
-	let dragActivated = false;
-	let suppressNextClick = false;
-	let longPressTimer: ReturnType<typeof setTimeout> | null = null;
 
-	const DRAG_DISTANCE_THRESHOLD = 6;
-	const TOUCH_HOLD_DELAY = 180;
-	const TOUCH_MOVE_TOLERANCE = 10;
+	const drag = createCardDrag({
+		onStart: () => onDragStart(todo),
+		onEnd: () => {
+			if (!isEditing) onDragEnd();
+		},
+		isDisabled: () => isEditing,
+		getCardLink: () => cardLinkEl
+	});
 
 	$effect(() => {
 		if (!isEditing) {
@@ -151,93 +148,6 @@
 			editingTodo.setUnsaved(localHasUnsavedChanges);
 		}
 	});
-
-	function isInteractiveTarget(target: HTMLElement): boolean {
-		if (target.closest('button, [role="button"], input, textarea, select')) return true;
-		const link = target.closest('a[href]');
-		if (link && link !== cardLinkEl) return true;
-		return false;
-	}
-
-	function activateDrag(event: PointerEvent) {
-		dragActivated = true;
-		isDraggingLocal = true;
-		cardEl?.setPointerCapture(event.pointerId);
-		document.body.style.userSelect = 'none';
-		onDragStart(todo);
-	}
-
-	function handleCardPointerDown(event: PointerEvent) {
-		if (isEditing || event.button === 2) return;
-		if (isInteractiveTarget(event.target as HTMLElement)) return;
-
-		dragActivated = false;
-		activePointerId = event.pointerId;
-		dragStartX = event.clientX;
-		dragStartY = event.clientY;
-		dragOffsetX = 0;
-		dragOffsetY = 0;
-
-		if (event.pointerType !== 'mouse') {
-			longPressTimer = setTimeout(() => {
-				longPressTimer = null;
-				if (activePointerId === event.pointerId) activateDrag(event);
-			}, TOUCH_HOLD_DELAY);
-		}
-	}
-
-	function handleCardPointerMove(event: PointerEvent) {
-		if (event.pointerId !== activePointerId) return;
-		const dx = event.clientX - dragStartX;
-		const dy = event.clientY - dragStartY;
-
-		if (!dragActivated) {
-			if (event.pointerType === 'mouse') {
-				if (Math.hypot(dx, dy) > DRAG_DISTANCE_THRESHOLD) {
-					activateDrag(event);
-				} else {
-					return;
-				}
-			} else {
-				if (Math.hypot(dx, dy) > TOUCH_MOVE_TOLERANCE) {
-					if (longPressTimer) {
-						clearTimeout(longPressTimer);
-						longPressTimer = null;
-					}
-					activePointerId = null;
-				}
-				return;
-			}
-		}
-
-		event.preventDefault();
-		dragOffsetX = dx;
-		dragOffsetY = dy;
-	}
-
-	function endLocalDrag(event: PointerEvent) {
-		if (event.pointerId !== activePointerId) return;
-		if (longPressTimer) {
-			clearTimeout(longPressTimer);
-			longPressTimer = null;
-		}
-
-		const wasDragging = dragActivated;
-		if (wasDragging && cardEl?.hasPointerCapture(event.pointerId)) {
-			cardEl.releasePointerCapture(event.pointerId);
-		}
-		activePointerId = null;
-		isDraggingLocal = false;
-		dragOffsetX = 0;
-		dragOffsetY = 0;
-		dragActivated = false;
-		document.body.style.userSelect = '';
-
-		if (wasDragging) {
-			suppressNextClick = true;
-			if (!isEditing) onDragEnd();
-		}
-	}
 
 	function startEdit() {
 		if (editingTodo.id && editingTodo.id !== todo.id && editingTodo.hasUnsavedChanges) {
@@ -478,8 +388,7 @@
 	}
 
 	function handleCardClick(event: MouseEvent) {
-		if (suppressNextClick) {
-			suppressNextClick = false;
+		if (drag.consumeClickSuppression()) {
 			event.preventDefault();
 			return;
 		}
@@ -490,9 +399,26 @@
 		}
 		goto(`/${lang}/${username}/${boardAlias}?card=${todo.alias}`);
 	}
+
+	const MOVE_KEYS: Record<string, 'up' | 'down' | 'left' | 'right'> = {
+		ArrowUp: 'up',
+		ArrowDown: 'down',
+		ArrowLeft: 'left',
+		ArrowRight: 'right'
+	};
+
+	// Non-pointer path for reordering: Ctrl/Cmd + arrow keys on the focused card.
+	function handleCardKeydown(event: KeyboardEvent) {
+		if (!onMoveCard || isEditing) return;
+		if (!(event.ctrlKey || event.metaKey) || event.altKey || event.shiftKey) return;
+		const direction = MOVE_KEYS[event.key];
+		if (!direction) return;
+		event.preventDefault();
+		onMoveCard(todo, direction);
+	}
 </script>
 
-<div class="relative {isDragging || isDraggingLocal ? 'z-50' : ''}">
+<div class="relative {isDragging || drag.dragging ? 'z-50' : ''}">
 	{#if showDropAbove}
 		<div
 			class="absolute right-0 left-0 z-50 h-0.5 bg-primary shadow-lg shadow-primary/50"
@@ -500,21 +426,27 @@
 		></div>
 	{/if}
 
+	{#if drag.dragging}
+		<!-- Trello-style gap left behind by the card that is following the pointer -->
+		<div
+			aria-hidden="true"
+			class="pointer-events-none absolute inset-0 mt-2 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5"
+		></div>
+	{/if}
+
 	<div
-		bind:this={cardEl}
 		data-todo-id={todo.id}
-		class="mt-2 transition-transform {isDragging || isDraggingLocal
-			? 'opacity-50'
-			: ''} {isDraggingLocal ? 'scale-[1.03] rotate-1 cursor-grabbing' : 'cursor-grab'}"
-		style={isDraggingLocal
-			? `pointer-events: none !important; translate: ${dragOffsetX}px ${dragOffsetY}px;`
+		class="mt-2 {drag.dragging
+			? 'scale-[1.03] rotate-2 cursor-grabbing transition-none'
 			: isDragging
-				? 'pointer-events: none !important;'
-				: ''}
-		onpointerdown={handleCardPointerDown}
-		onpointermove={handleCardPointerMove}
-		onpointerup={endLocalDrag}
-		onpointercancel={endLocalDrag}
+				? 'opacity-50 transition-transform'
+				: 'cursor-grab transition-transform'}"
+		style="-webkit-touch-callout: none;{drag.dragging
+			? ` touch-action: none; pointer-events: none !important; will-change: transform; translate: ${drag.offsetX}px ${drag.offsetY}px;`
+			: isDragging
+				? ' pointer-events: none !important;'
+				: ''}"
+		{@attach drag.attach}
 	>
 		{#if !isEditing}
 			<a
@@ -523,11 +455,15 @@
 				data-sveltekit-preload-data="hover"
 				data-sveltekit-noscroll
 				class="block"
+				aria-keyshortcuts={onMoveCard
+					? 'Control+ArrowUp Control+ArrowDown Control+ArrowLeft Control+ArrowRight'
+					: undefined}
 				onclick={handleCardClick}
+				onkeydown={handleCardKeydown}
 			>
 				<Card
-					class="relative transition-all duration-200 {isDraggingLocal
-						? 'shadow-2xl'
+					class="relative transition-shadow duration-200 {drag.dragging
+						? 'shadow-2xl ring-2 ring-primary/40'
 						: 'hover:shadow-md'}"
 					onmouseenter={handleMouseEnter}
 					onmouseleave={handleMouseLeave}
@@ -568,6 +504,9 @@
 							</button>
 
 							<div class="min-w-0 flex-1 pr-8">
+								{#if onMoveCard}
+									<span class="sr-only">{$t('todo.move_card_keyboard_hint')}</span>
+								{/if}
 								<h3
 									class="text-sm leading-tight font-medium {todo.completed_at
 										? 'text-muted-foreground line-through'

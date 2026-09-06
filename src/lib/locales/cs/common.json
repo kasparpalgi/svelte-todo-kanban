@@ -294,6 +294,8 @@
     "list": "Seznam",
     "kanban": "Kanban",
     "drop_tasks_here": "Přetáhněte úkoly sem",
+    "move_card_keyboard_hint": "Stisknutím Control nebo Command se šipkami přesunete tuto kartu mezi pozicemi a seznamy",
+    "card_moved_to": "Přesunuto do {{list}}",
     "due": "Termín",
     "everything": "Všechno",
     "confirm_delete": "Opravdu chcete smazat tento úkol?",

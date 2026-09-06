@@ -294,6 +294,8 @@
     "list": "List",
     "kanban": "Kanban",
     "drop_tasks_here": "Lohista ülesanded siia",
+    "move_card_keyboard_hint": "Kaardi liigutamiseks positsioonide ja nimekirjade vahel vajuta Control või Command koos nooleklahvidega",
+    "card_moved_to": "Liigutatud nimekirja {{list}}",
     "due": "Tähtaeg",
     "everything": "Kõik",
     "confirm_delete": "Kas oled kindel, et soovid selle ülesande kustutada?",

@@ -18,7 +18,9 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Plus, RefreshCw, ChevronDown, AlertTriangle } from 'lucide-svelte';
 	import KanbanColumn from './KanbanColumn.svelte';
+	import { autoScrollIntent, type ScrollIntent } from '$lib/utils/cardDrag';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { CardMoveDirection } from '$lib/types/todo';
 
 	let draggedTodo = $state<TodoFieldsFragment | null>(null);
 	let dropTarget = $state<{
@@ -29,7 +31,12 @@
 	let completedItemsToShow = $state(10);
 	const completedItemsInitially = 10;
 	let scrollContainer: HTMLElement;
-	let scrollInterval: ReturnType<typeof setInterval> | null = null;
+	let autoScrollFrame: number | null = null;
+	let autoScrollX: ScrollIntent = 0;
+	let autoScrollY: ScrollIntent = 0;
+
+	const AUTO_SCROLL_HOT_ZONE = 72;
+	const AUTO_SCROLL_SPEED = 14;
 
 	$effect(() => {
 		if (!listsStore.initialized) {
@@ -136,41 +143,46 @@
 	}
 
 	function stopAutoScroll() {
-		if (scrollInterval) {
-			clearInterval(scrollInterval);
-			scrollInterval = null;
+		autoScrollX = 0;
+		autoScrollY = 0;
+		if (autoScrollFrame !== null) {
+			cancelAnimationFrame(autoScrollFrame);
+			autoScrollFrame = null;
 		}
 	}
 
-	function startAutoScroll(direction: 'left' | 'right') {
-		stopAutoScroll();
-		const scrollSpeed = 15;
-		scrollInterval = setInterval(() => {
-			if (scrollContainer) {
-				if (direction === 'left') {
-					scrollContainer.scrollLeft -= scrollSpeed;
-				} else {
-					scrollContainer.scrollLeft += scrollSpeed;
-				}
-			}
-		}, 20);
+	function runAutoScroll() {
+		autoScrollFrame = null;
+		if (!draggedTodo || (!autoScrollX && !autoScrollY)) return;
+
+		if (autoScrollX && scrollContainer) {
+			scrollContainer.scrollLeft += autoScrollX * AUTO_SCROLL_SPEED;
+		}
+		if (autoScrollY) {
+			window.scrollBy(0, autoScrollY * AUTO_SCROLL_SPEED);
+		}
+		autoScrollFrame = requestAnimationFrame(runAutoScroll);
 	}
 
-	function handleAutoScroll(clientX: number) {
+	/**
+	 * Native panning is suppressed while a touch drag is in flight, so the board and the page
+	 * have to scroll themselves once the pointer reaches an edge — otherwise a card can never
+	 * be dropped on an off-screen list.
+	 */
+	function handleAutoScroll(clientX: number, clientY: number) {
 		if (!scrollContainer || !draggedTodo) {
 			stopAutoScroll();
 			return;
 		}
 
 		const rect = scrollContainer.getBoundingClientRect();
-		const hotZoneWidth = 60; // 60px from the edge
+		autoScrollX = autoScrollIntent(clientX, rect.left, rect.right, AUTO_SCROLL_HOT_ZONE);
+		autoScrollY = autoScrollIntent(clientY, 0, window.innerHeight, AUTO_SCROLL_HOT_ZONE);
 
-		if (clientX > rect.right - hotZoneWidth) {
-			startAutoScroll('right');
-		} else if (clientX < rect.left + hotZoneWidth) {
-			startAutoScroll('left');
-		} else {
+		if (!autoScrollX && !autoScrollY) {
 			stopAutoScroll();
+		} else if (autoScrollFrame === null) {
+			autoScrollFrame = requestAnimationFrame(runAutoScroll);
 		}
 	}
 
@@ -338,7 +350,7 @@
 
 	function handleGlobalPointerMove(e: PointerEvent) {
 		if (!draggedTodo) return;
-		handleAutoScroll(e.clientX);
+		handleAutoScroll(e.clientX, e.clientY);
 		updateDropTarget(e.clientX, e.clientY);
 	}
 
@@ -360,6 +372,62 @@
 
 	function handleGlobalPointerCancel() {
 		resetDragState();
+	}
+
+	function focusCardAfterMove(todoId: string) {
+		requestAnimationFrame(() => {
+			document.querySelector<HTMLElement>(`[data-todo-id="${todoId}"] a[href]`)?.focus();
+		});
+	}
+
+	/** Keyboard alternative to dragging — Ctrl/Cmd + arrows on a focused card. */
+	async function handleMoveCard(todo: TodoFieldsFragment, direction: CardMoveDirection) {
+		const groups = kanbanLists();
+		const sourceListId = todo.list?.id || 'inbox';
+		const sourceIndex = groups.findIndex((g) => g.list.id === sourceListId);
+		if (sourceIndex === -1) return;
+
+		const sourceTodos = groups[sourceIndex].todos;
+		const currentIndex = sourceTodos.findIndex((t) => t.id === todo.id);
+		if (currentIndex === -1) return;
+
+		if (direction === 'up' || direction === 'down') {
+			const targetIndex = currentIndex + (direction === 'up' ? -1 : 1);
+			if (targetIndex < 0 || targetIndex >= sourceTodos.length) return;
+
+			const reordered = [...sourceTodos];
+			const [moved] = reordered.splice(currentIndex, 1);
+			reordered.splice(targetIndex, 0, moved);
+
+			focusCardAfterMove(todo.id);
+			await Promise.all(
+				reordered.map((t, index) => todosStore.updateTodo(t.id, { sort_order: index + 1 }))
+			).catch((err) => console.error('Failed to reorder:', err));
+			return;
+		}
+
+		const targetGroup = groups[sourceIndex + (direction === 'left' ? -1 : 1)];
+		if (!targetGroup) return;
+
+		const targetListId = targetGroup.list.id === 'inbox' ? null : targetGroup.list.id;
+		const remaining = sourceTodos.filter((t) => t.id !== todo.id);
+		const targetTodos = [...targetGroup.todos];
+		targetTodos.splice(Math.min(currentIndex, targetTodos.length), 0, todo);
+
+		focusCardAfterMove(todo.id);
+		await Promise.all([
+			...remaining.map((t, index) => todosStore.updateTodo(t.id, { sort_order: index + 1 })),
+			...targetTodos.map((t, index) =>
+				todosStore.updateTodo(
+					t.id,
+					t.id === todo.id
+						? { sort_order: index + 1, list_id: targetListId }
+						: { sort_order: index + 1 }
+				)
+			)
+		]).catch((err) => console.error('Failed to move card:', err));
+
+		displayMessage($t('todo.card_moved_to', { list: targetGroup.list.name }), 1500, true);
 	}
 
 	async function handleDelete(todoId: string) {
@@ -469,6 +537,7 @@
 						{dropTarget}
 						onDragStart={handleDragStart}
 						onDragEnd={handleDragEnd}
+						onMoveCard={handleMoveCard}
 						onDelete={handleDelete}
 					/>
 					{#if stats.count > 0 || stats.actual > 0}

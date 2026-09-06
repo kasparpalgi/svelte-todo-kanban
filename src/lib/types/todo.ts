@@ -37,6 +37,9 @@ export interface CanbanColumnProps {
 	isHighlighted?: boolean;
 }
 
+/** Keyboard reordering directions: up/down within a list, left/right across lists. */
+export type CardMoveDirection = 'up' | 'down' | 'left' | 'right';
+
 export interface TodoItemProps {
 	todo: TodoFieldsFragment;
 	draggedTodo: TodoFieldsFragment | null;
@@ -45,6 +48,7 @@ export interface TodoItemProps {
 	listId: string;
 	onDragStart: (todo: TodoFieldsFragment) => void;
 	onDragEnd: () => void;
+	onMoveCard?: (todo: TodoFieldsFragment, direction: CardMoveDirection) => void;
 	onDelete: (todoId: string) => void;
 }
 
@@ -83,6 +87,7 @@ export type KanbanColumnProps = {
 	} | null;
 	onDragStart: (todo: TodoFieldsFragment) => void;
 	onDragEnd: () => void;
+	onMoveCard?: (todo: TodoFieldsFragment, direction: CardMoveDirection) => void;
 	onDelete: (todoId: string) => void;
 };
 

@@ -294,6 +294,8 @@
     "list": "List",
     "kanban": "Kanban",
     "drop_tasks_here": "Drop tasks here",
+    "move_card_keyboard_hint": "Press Control or Command with the arrow keys to move this card between positions and lists",
+    "card_moved_to": "Moved to {{list}}",
     "due": "Due",
     "everything": "Everything",
     "confirm_delete": "Are you sure you want to delete this task?",
