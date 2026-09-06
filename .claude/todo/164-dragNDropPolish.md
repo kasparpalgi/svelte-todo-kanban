@@ -45,9 +45,54 @@ _Original card requirement (from Kanban card `951ba857-ccf1-4cfa-9e97-cb85420071
    cache mismatch is fixed (`npx playwright install`) — flagged as a pre-existing environment
    gap in both task 161 and 163's logs, not fixed by either.
 
-## Log
+## Plan
 
-_Not started — filed as a followup by task 163._
+**Primary bug (from the manual test below): touch drag activates but the finger scrolls the
+board instead of moving the card.**
+
+Root cause: nothing ever stops the browser's native pan gesture. `handleCardPointerMove`
+calls `event.preventDefault()` on the *pointermove*, which does not cancel scrolling —
+for touch, scrolling is cancelled only by `preventDefault()` on a **cancelable, non-passive
+`touchmove`**. As soon as the finger moves, the compositor starts panning and Chrome fires
+`pointercancel`, which runs `endLocalDrag` → the card snaps back and the board scrolls.
+
+Two extra traps to avoid:
+- The non-passive `touchmove` listener must be registered **before** `touchstart` (at mount),
+  not when the long-press fires. Chrome decides at touchstart whether the region can be
+  scrolled on the compositor fast path; a listener added mid-gesture gets `cancelable=false`
+  touchmoves and its `preventDefault()` is ignored.
+- Svelte's `ontouchmove` attribute may be registered passive, so the listener has to be
+  attached manually with `{ passive: false }`.
+
+### Steps
+
+1. **Extract the pointer/drag logic out of `TodoItem.svelte`** (732 lines, way over the
+   200–300 rule) into `src/lib/utils/cardDrag.svelte.ts` — a `createCardDrag()` factory
+   used via a Svelte 5 `{@attach}`. Pure activation helpers go in `src/lib/utils/cardDrag.ts`
+   so they are unit-testable in the node (`server`) vitest project.
+2. **Fix the touch scroll bug** in that factory:
+   - permanent non-passive `touchmove` listener that `preventDefault()`s while a drag is active,
+   - `touch-action: none` on the card while dragging,
+   - `contextmenu` suppressed while dragging (Android long-press selection/callout),
+   - `-webkit-touch-callout: none` + `user-select: none` during drag.
+3. **Drag ghost / placeholder** (item 2): stop dimming the moving card — render it at full
+   opacity, tilted, with a big shadow, and draw a dashed placeholder in the gap it left.
+4. **Auto-scroll while dragging** (needed now that native scrolling is blocked): keep the
+   horizontal board auto-scroll but move it to `requestAnimationFrame`, and add **vertical
+   window auto-scroll**, otherwise a touch drag can no longer reach off-screen lists/cards.
+5. **Keyboard reordering** (item 4): `Ctrl/Cmd + Arrow` on a focused card — up/down reorders
+   within the list, left/right moves it to the adjacent list. New `onMoveCard` callback
+   threaded `TodoKanban` → `KanbanColumn` → `TodoItem`, with i18n'd sr-only hint.
+6. **Touch constants** (item 3): keep the long-press at 180 ms but raise the pre-activation
+   move tolerance so a scroll started from a card is not mistaken for a drag, and drop the
+   mouse threshold logic into the tested pure helpers.
+7. Tests + `npm run check` + server vitest; try `npx playwright install` for item 6.
+
+Deliberately **not** doing item 5 (swap in a DnD library). The hand-rolled system is only
+broken in one identifiable place (native scroll not cancelled); a library swap would be a
+much larger, riskier change and `@neodrag/svelte` is a free-drag lib, not a sortable one.
+
+## Log
 
 ----
 
