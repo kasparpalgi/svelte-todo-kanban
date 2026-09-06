@@ -1,6 +1,6 @@
 > Run with: Sonnet 5 / medium
 
-# Errors
+# Ftwbihs's board
 
 ## Original Requirement
 
