@@ -1,7 +1,1 @@
-# Landing page
-
-## Original Requirement
-
-[NEVER REMOVE]
-
-_(no description yet)_
+At src/routes main page there's landing page of telling what this does.
