@@ -32,7 +32,7 @@
 	import type { Readable } from 'svelte/store';
 	import type { Editor } from 'svelte-tiptap';
 	import type { DateValue } from '@internationalized/date';
-	import type { CardDetailViewProps, Priority } from '$lib/types/todo';
+	import type { CardDetailViewProps, Priority, AgentModel, AgentEffort } from '$lib/types/todo';
 
 	let { todo, lang, onClose }: CardDetailViewProps = $props();
 
@@ -49,7 +49,9 @@
 		min_hours: todo.min_hours ?? null,
 		max_hours: todo.max_hours ?? null,
 		actual_hours: todo.actual_hours ?? null,
-		comment_hours: todo.comment_hours || ''
+		comment_hours: todo.comment_hours || '',
+		agent_model: (todo.agent_model as AgentModel | null) ?? null,
+		agent_effort: (todo.agent_effort as AgentEffort | null) ?? null
 	});
 
 	let selectedDate = $state<DateValue | undefined>(
@@ -85,7 +87,9 @@
 			min_hours: editData.min_hours,
 			max_hours: editData.max_hours,
 			actual_hours: editData.actual_hours,
-			comment_hours: editData.comment_hours
+			comment_hours: editData.comment_hours,
+			agent_model: editData.agent_model,
+			agent_effort: editData.agent_effort
 		});
 	}
 
@@ -211,7 +215,9 @@
 				min_hours: validatedData.min_hours,
 				max_hours: validatedData.max_hours,
 				actual_hours: validatedData.actual_hours,
-				comment_hours: validatedData.comment_hours
+				comment_hours: validatedData.comment_hours,
+				agent_model: validatedData.agent_model || null,
+				agent_effort: validatedData.agent_effort || null
 			});
 
 			if (!result.success) {
@@ -584,6 +590,39 @@
 					<option value="low">{$t('card.priority_low')}</option>
 					<option value="medium">{$t('card.priority_medium')}</option>
 					<option value="high">{$t('card.priority_high')}</option>
+				</select>
+			</div>
+
+			<div>
+				<Label for="agent-model" class="mb-2 flex items-center gap-2">
+					{$t('card.agent_model_label')}
+				</Label>
+				<select
+					id="agent-model"
+					bind:value={editData.agent_model}
+					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+				>
+					<option value={null}>{$t('card.agent_model_auto')}</option>
+					<option value="fable">{$t('card.agent_model_fable')}</option>
+					<option value="opus">{$t('card.agent_model_opus')}</option>
+					<option value="sonnet">{$t('card.agent_model_sonnet')}</option>
+					<option value="haiku">{$t('card.agent_model_haiku')}</option>
+				</select>
+			</div>
+
+			<div>
+				<Label for="agent-effort" class="mb-2 flex items-center gap-2">
+					{$t('card.agent_effort_label')}
+				</Label>
+				<select
+					id="agent-effort"
+					bind:value={editData.agent_effort}
+					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+				>
+					<option value={null}>{$t('card.agent_model_auto')}</option>
+					<option value="low">{$t('card.agent_effort_low')}</option>
+					<option value="medium">{$t('card.agent_effort_medium')}</option>
+					<option value="high">{$t('card.agent_effort_high')}</option>
 				</select>
 			</div>
 		</div>

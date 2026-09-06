@@ -551,6 +551,8 @@ function createTodosStore() {
 				| 'max_hours'
 				| 'actual_hours'
 				| 'comment_hours'
+				| 'agent_model'
+				| 'agent_effort'
 			> & {
 				list_id?: string | null;
 				assigned_to?: string | null;

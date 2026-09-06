@@ -73,6 +73,8 @@ insert_permissions:
         user_id: x-hasura-User-Id
       columns:
         - actual_hours
+        - agent_effort
+        - agent_model
         - alias
         - assigned_to
         - comment_hours
@@ -101,6 +103,8 @@ select_permissions:
     permission:
       columns:
         - actual_hours
+        - agent_effort
+        - agent_model
         - alias
         - assigned_to
         - comment_hours
@@ -155,6 +159,8 @@ update_permissions:
     permission:
       columns:
         - actual_hours
+        - agent_effort
+        - agent_model
         - alias
         - assigned_to
         - comment_hours

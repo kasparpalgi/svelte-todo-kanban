@@ -55,30 +55,56 @@ const TIERS: Record<string, string> = {
 	haiku: 'Haiku 4.5 / low'
 };
 
-/** The card may name its own tier ("Run with: opus" or "Sonnet 4.6"); otherwise assume a normal feature. */
-export function runWithLabel(text: string): string {
+/** Looks for a hand-typed tier in card prose ("Run with: opus" or a bare "Sonnet 4.6"). Null when nothing is named. */
+export function detectRunWith(text: string): string | null {
 	const explicit =
 		/run with:\s*(opus\s*5|opus\s*4\.8|opus|sonnet\s*5|sonnet\s*4\.6|sonnet|haiku)/i.exec(
 			text || ''
 		);
 	if (explicit) {
 		const key = explicit[1].toLowerCase().replace(/\s/g, '').replace('.', '');
-		return TIERS[key] ?? TIERS.sonnet;
+		return TIERS[key] ?? null;
 	}
 	const named = /\b(opus\s*5|opus\s*4\.8|opus|sonnet\s*5|sonnet\s*4\.6|sonnet|haiku)\b/i.exec(
 		text || ''
 	);
 	if (named) {
 		const key = named[1].toLowerCase().replace(/\s/g, '').replace('.', '');
-		return TIERS[key] ?? TIERS.sonnet;
+		return TIERS[key] ?? null;
 	}
-	return TIERS.sonnet;
+	return null;
 }
+
+/** The card may name its own tier ("Run with: opus" or "Sonnet 4.6"); otherwise assume a normal feature. */
+export function runWithLabel(text: string): string {
+	return detectRunWith(text) ?? TIERS.sonnet;
+}
+
+const MODEL_NAMES: Record<string, string> = {
+	fable: 'Fable 5.1',
+	opus: 'Opus 5',
+	sonnet: 'Sonnet 5',
+	haiku: 'Haiku 4.5'
+};
 
 export interface TaskCard {
 	id: string;
 	title: string;
 	content?: string | null;
+	agent_model?: string | null;
+	agent_effort?: string | null;
+}
+
+/**
+ * The `agent_model`/`agent_effort` card fields win when set. Otherwise fall back to a
+ * hand-typed "Run with:" line in the card's own text (older cards, before the fields
+ * existed). Null means the card is on *auto* — omit the line so the runner's classifier
+ * picks the tier itself.
+ */
+function resolveRunWith(card: TaskCard, body: string): string | null {
+	const modelName = card.agent_model ? MODEL_NAMES[card.agent_model] : undefined;
+	if (modelName) return `${modelName} / ${card.agent_effort || 'medium'}`;
+	return detectRunWith(`${card.title}\n${body}`);
 }
 
 /** Highest NNN already used in the folder, plus one, zero-padded. */
@@ -92,9 +118,9 @@ export function nextNumber(filenames: string[]): string {
 /** Draft file written at card creation — no `-TODO` suffix, no "moved to agent list" note. */
 export function buildDraftFile(card: TaskCard): string {
 	const body = toText(card.content);
+	const runWith = resolveRunWith(card, body);
 	return [
-		`> Run with: ${runWithLabel(`${card.title}\n${body}`)}`,
-		'',
+		...(runWith ? [`> Run with: ${runWith}`, ''] : []),
 		`# ${card.title}`,
 		'',
 		'## Original Requirement',
@@ -109,9 +135,9 @@ export function buildDraftFile(card: TaskCard): string {
 /** Full task file written when a card reaches the agent list (or as fallback). */
 export function buildTaskFile(card: TaskCard): string {
 	const body = toText(card.content);
+	const runWith = resolveRunWith(card, body);
 	return [
-		`> Run with: ${runWithLabel(`${card.title}\n${body}`)}`,
-		'',
+		...(runWith ? [`> Run with: ${runWith}`, ''] : []),
 		`# ${card.title}`,
 		'',
 		'## Original Requirement',

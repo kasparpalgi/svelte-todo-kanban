@@ -3,6 +3,9 @@ import type { TodoImage } from './imageUpload';
 
 export type Priority = 'low' | 'medium' | 'high';
 
+export type AgentModel = 'fable' | 'opus' | 'sonnet' | 'haiku';
+export type AgentEffort = 'low' | 'medium' | 'high';
+
 export interface TodosState {
 	todos: TodoFieldsFragment[];
 	loading: boolean;

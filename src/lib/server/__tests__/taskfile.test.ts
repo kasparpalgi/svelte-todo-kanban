@@ -78,7 +78,7 @@ describe('runWithLabel', () => {
 describe('buildDraftFile', () => {
 	it('produces a draft without the agent-list trailer', () => {
 		const file = buildDraftFile({ id: 'abc', title: 'Ship it', content: '<p>Do <b>this</b></p>' });
-		expect(file).toContain('> Run with: Sonnet 5 / medium');
+		expect(file).not.toContain('> Run with:');
 		expect(file).toContain('# Ship it');
 		expect(file).toContain('[NEVER REMOVE]');
 		expect(file).toContain('Do this');
@@ -89,12 +89,39 @@ describe('buildDraftFile', () => {
 	it('uses a placeholder when the card has no description yet', () => {
 		expect(buildDraftFile({ id: 'abc', title: 'Ship it' })).toContain('_(no description yet)_');
 	});
+
+	it('omits the Run with line when the card is on auto', () => {
+		expect(buildDraftFile({ id: 'abc', title: 'Ship it', content: 'add a button' })).not.toContain(
+			'> Run with:'
+		);
+	});
+
+	it('honours a hand-typed Run with line in the card body (back-compat)', () => {
+		const file = buildDraftFile({ id: 'abc', title: 'Ship it', content: 'Run with: opus\ndo it' });
+		expect(file).toContain('> Run with: Opus 5 / hard');
+	});
+
+	it('prefers the agent_model/agent_effort fields over card prose', () => {
+		const file = buildDraftFile({
+			id: 'abc',
+			title: 'Ship it',
+			content: 'Run with: opus\ndo it',
+			agent_model: 'haiku',
+			agent_effort: 'low'
+		});
+		expect(file).toContain('> Run with: Haiku 4.5 / low');
+	});
+
+	it('defaults effort to medium when only a model field is set', () => {
+		const file = buildDraftFile({ id: 'abc', title: 'Ship it', agent_model: 'sonnet' });
+		expect(file).toContain('> Run with: Sonnet 5 / medium');
+	});
 });
 
 describe('buildTaskFile', () => {
 	it('keeps the original requirement readable, not HTML', () => {
 		const file = buildTaskFile({ id: 'abc', title: 'Ship it', content: '<p>Do <b>this</b></p>' });
-		expect(file).toContain('> Run with: Sonnet 5 / medium');
+		expect(file).not.toContain('> Run with:');
 		expect(file).toContain('# Ship it');
 		expect(file).toContain('[NEVER REMOVE]');
 		expect(file).toContain('Do this');
@@ -105,5 +132,15 @@ describe('buildTaskFile', () => {
 		expect(buildTaskFile({ id: 'abc', title: 'Ship it' })).toContain(
 			'_(no description on the card)_'
 		);
+	});
+
+	it('writes the field-based tier when the card names a model', () => {
+		const file = buildTaskFile({
+			id: 'abc',
+			title: 'Ship it',
+			agent_model: 'haiku',
+			agent_effort: 'low'
+		});
+		expect(file).toContain('> Run with: Haiku 4.5 / low');
 	});
 });

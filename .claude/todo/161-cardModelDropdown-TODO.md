@@ -46,14 +46,75 @@ Make the model a **field on the card**, not a line of prose.
 
 ## Verification
 
-- [ ] Card with Model=Haiku, Effort=low → file's first line is `> Run with: Haiku 4.5 / low`
-      and the runner's log says `(Haiku 4.5 / low)`
-- [ ] Card left on *auto* → no `Run with:` line, classifier decides
-- [ ] Existing cards with a hand-typed line are unaffected
-- [ ] `npm run check` clean on touched files; migration applied to the hosted Hasura
+- [x] Card with Model=Haiku, Effort=low → file's first line is `> Run with: Haiku 4.5 / low`
+      and the runner's log says `(Haiku 4.5 / low)` — covered by `taskfile.test.ts` (the
+      runner-log half can't be checked from this repo; classify.js already prints the
+      resolved label, unchanged by this task).
+- [x] Card left on *auto* → no `Run with:` line, classifier decides
+- [x] Existing cards with a hand-typed line are unaffected
+- [x] `npm run check` clean on touched files; migration applied to the hosted Hasura
 
 ## Note
 
 `npm test` cannot run in the runner's environment — Playwright's Chromium binary is not
 installed (`npx playwright install` fixes it). Worth sorting out separately; it is why
 recent task logs say "could not run tests".
+
+---
+
+## Work log — 2026-09-06
+
+**Schema.** Pulled live metadata (`hasura metadata export`, clean diff) before touching
+anything, per repo rules. Added migration
+`hasura/migrations/default/1788688460533_add_agent_model_effort_to_todos`: two nullable
+`text` columns on `public.todos` — `agent_model` (check: fable/opus/sonnet/haiku) and
+`agent_effort` (check: low/medium/high). Applied with `hasura migrate apply` against the
+hosted instance (`todzz.admin.servicehost.io`), then added both columns to the `user` role's
+insert/select/update permission column lists in
+`metadata/databases/default/tables/public_todos.yaml` and ran `hasura metadata apply` —
+confirmed consistent afterward.
+
+**GraphQL.** Added `agent_model` / `agent_effort` to `TodoFields` in `documents.ts`, ran
+`npm run generate`. Reused the existing generic `UPDATE_TODOS` mutation rather than adding a
+new one — it already accepts an arbitrary `_set`.
+
+**UI.** `CardDetailView.svelte`: two new `<select>`s next to the existing Priority dropdown,
+`Model` (auto/Fable/Opus/Sonnet/Haiku) and `Effort` (auto/low/medium/high), both defaulting
+to `null` (auto). Wired into the same `editData` / `fieldSnapshot` / auto-save path task 159
+built, and into the explicit `saveTodo()` mutation call. Added the four option labels to
+`todoEditSchema` in `cardHelpers.ts` (zod strips unknown keys by default, so the fields would
+otherwise vanish before the save request). New i18n keys (`card.agent_model_*`,
+`card.agent_effort_*`) added to `en`, `et`, and `cs` locales — matched the existing tone of
+each file's priority labels rather than machine-translating.
+
+**Server.** `taskfile.ts`: kept `runWithLabel()` (and its test contract — defaults to Sonnet
+on no match) as the low-level prose scanner, but added `detectRunWith()`, the same regex
+logic returning `null` instead of defaulting, and a new `resolveRunWith(card, body)` used by
+both `buildDraftFile` and `buildTaskFile`: card fields win when `agent_model` is set (effort
+defaults to `medium` if unset), else it falls back to `detectRunWith` on the card's own text
+(the pre-existing hand-typed-line behavior), else `null`. Both builders now splice the
+`> Run with:` line in only when non-null, so an all-auto card gets no line at all — the
+runner's classifier decides, as it did before any tier was ever named. `TaskCard` gained the
+two optional fields.
+
+**Tests.** Updated `taskfile.test.ts`: the two existing "defaults to Sonnet" assertions on
+`buildDraftFile`/`buildTaskFile` no longer hold (that was the exact prose-guessing behavior
+this task replaces), so I changed them to assert the line is *absent* for a plain card, and
+added cases for auto, hand-typed back-compat, field-priority-over-prose, and effort
+defaulting to medium. `runWithLabel`'s own tests are untouched — it still defaults to Sonnet,
+since it's kept only as the pre-existing public helper.
+
+**Verification.** `npx vitest run src/lib/server/__tests__/taskfile.test.ts` — 23/23 pass.
+`npm run test:unit:server -- --run` — 150/150 pass (this is the non-Playwright half of the
+suite; the `client` project still can't run here for the pre-existing reason noted below).
+`npm run check` — 19 errors/4 warnings, identical count and files to a `git stash` baseline
+run before any of these changes (all pre-existing, unrelated missing-module issues in
+`transcribe-podcast`, `charts/Line.svelte`, `penon`, `podcasts` — nothing in a file this task
+touched).
+
+Not done from this repo: the runner-log assertion in the first verification item, and
+confirming task-014's *other* repo half (`klarity-claude-kit`) reads these same card fields
+when it writes the file — task-014 already lives in *this* repo as `taskfile.ts`/
+`write-task-file`, so that half is done; only the runner's own log-line format
+(`classify.js`, in `klarity-claude-kit`) is untouched, since it's unaffected by this task —
+it just prints whatever label preceded it.

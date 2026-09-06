@@ -10,7 +10,9 @@ export const todoEditSchema = z.object({
 	min_hours: z.number().positive().nullable().optional(),
 	max_hours: z.number().positive().nullable().optional(),
 	actual_hours: z.number().positive().nullable().optional(),
-	comment_hours: z.string().max(10000).optional()
+	comment_hours: z.string().max(10000).optional(),
+	agent_model: z.enum(['fable', 'opus', 'sonnet', 'haiku']).nullable().optional(),
+	agent_effort: z.enum(['low', 'medium', 'high']).nullable().optional()
 });
 
 export function formatDate(dateString: string, lang: string): string {

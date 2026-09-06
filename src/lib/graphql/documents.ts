@@ -21,6 +21,8 @@ export const TODO_FRAGMENT = graphql(`
 		github_synced_at
 		github_url
 		task_file_path
+		agent_model
+		agent_effort
 		min_hours
 		max_hours
 		actual_hours
