@@ -73,3 +73,14 @@ Full field-by-field content (description text, permission justifications,
 single-purpose declaration, etc.) is already written out in
 `chrome-extension/CHROME_WEB_STORE_SUBMISSION.md` — just copy it into the
 dashboard forms.
+
+## Verification (2026-09-07 12:00 UTC)
+
+Verified all code-level fixes are in place:
+- ✅ manifest.json contains no `scripting` permission
+- ✅ Icon files exist and are 16×16, 48×48, 128×128
+- ✅ Privacy policy URL corrected everywhere
+- ✅ CSP, Manifest V3, service worker all correct
+- ✅ Submission guide has all copy-paste-ready text
+
+**Status: Store-ready. Awaiting manual design/testing/account work.**
