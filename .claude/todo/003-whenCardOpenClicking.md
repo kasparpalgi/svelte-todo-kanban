@@ -1,3 +1,5 @@
+> Run with: Haiku 4.5 / low
+
 # When card open, clicking outside doesn't close it
 
 ## Original Requirement
