@@ -182,7 +182,7 @@
 		</div>
 		<div class="mt-8 text-center">
 			<Button
-				href="https://github.com/kasparpalgi/klarity-claude-kit/blob/main/plugins/dev-kit/runner/README.md"
+				href="https://github.com/kasparpalgi/klarity-claude-kit/blob/main/plugins/dev-kit/runner/README.md#connect-a-new-project"
 				variant="outline"
 				size="lg"
 				class="text-lg"
