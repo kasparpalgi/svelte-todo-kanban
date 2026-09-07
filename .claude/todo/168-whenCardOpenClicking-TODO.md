@@ -1,0 +1,13 @@
+> Run with: Haiku 4.5 / low
+
+# When card open, clicking outside doesn't close it
+
+## Original Requirement
+
+[NEVER REMOVE]
+
+_(no description yet)_
+
+_From Kanban card `3da49257-557b-48a5-999c-a1a2f979c177`._
+
+_GitHub issue #168 — end the commit subject with `(#168)`._
