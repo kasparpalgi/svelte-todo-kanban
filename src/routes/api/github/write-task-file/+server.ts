@@ -4,7 +4,14 @@ import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
 import { CREATE_COMMENT } from '$lib/graphql/documents';
-import { buildTaskFile, camelName, nextNumber, todoPathFor } from '$lib/server/taskfile';
+import {
+	buildTaskFile,
+	camelName,
+	ensureFooter,
+	nextNumber,
+	todoPathFor
+} from '$lib/server/taskfile';
+import type { TaskCard } from '$lib/server/taskfile';
 import { serverLog } from '$lib/server/log';
 
 const GET_TODO_FOR_TASK_FILE = `
@@ -77,16 +84,19 @@ async function commentOnCard(todoId: string, userId: string, content: string) {
 	}).catch((err) => console.error('[write-task-file] comment failed:', err));
 }
 
+/** GitHub wants base64, and the body is UTF-8 markdown. */
+const encode = (body: string) => Buffer.from(body, 'utf8').toString('base64');
+
 /** Rename a draft file (no -TODO) to a TODO file by delete + create. */
 async function renameDraftToTodo(
 	repo: string,
 	draftPath: string,
 	token: string,
-	issueNumber: number | null,
+	card: TaskCard,
 	ref: string
 ): Promise<string> {
 	// Derive the TODO path: insert -TODO before the final .md, renumbering to the issue
-	const todoPath = todoPathFor(draftPath, issueNumber);
+	const todoPath = todoPathFor(draftPath, card.github_issue_number);
 
 	// Get the current content + SHA of the draft
 	const fileInfo = await githubRequest<{ content: string; sha: string }>(
@@ -94,12 +104,16 @@ async function renameDraftToTodo(
 		token
 	);
 
-	// Create the TODO file with the same content
+	// The draft keeps every word it has, but it may predate the card/issue footers the
+	// runner needs to close the loop — add whichever of them is missing.
+	const body = Buffer.from(fileInfo.content, 'base64').toString('utf8');
+
+	// Create the TODO file with the draft's content
 	await githubRequest(`/repos/${repo}/contents/${todoPath}`, token, {
 		method: 'PUT',
 		body: JSON.stringify({
 			message: `docs(todo): ${todoPath} from Kanban${ref}`,
-			content: fileInfo.content.replace(/\n/g, '') // GitHub returns base64 with newlines
+			content: encode(ensureFooter(body, card))
 		})
 	});
 
@@ -162,7 +176,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 		if (existing && !existing.endsWith('-TODO.md')) {
 			// Rename the existing draft → -TODO.md
-			path = await renameDraftToTodo(repo, existing, token, issueNumber, ref);
+			path = await renameDraftToTodo(repo, existing, token, todo, ref);
 		} else if (existing) {
 			// Already a TODO file — nothing to do
 			serverLog.info('TaskFile', 'Task file already waiting for the agent', {
@@ -173,11 +187,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			return json({ skipped: 'already a TODO file', path: existing });
 		} else {
 			// No usable file — create a fresh TODO file
-			const body = buildTaskFile(todo);
-			const bytes = new TextEncoder().encode(body);
-			let binary = '';
-			for (const b of bytes) binary += String.fromCharCode(b);
-			const content = btoa(binary);
+			const content = encode(buildTaskFile(todo));
 			const slug = camelName(todo.title);
 
 			for (let attempt = 0; ; attempt++) {

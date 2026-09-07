@@ -4,6 +4,7 @@ import {
 	buildDraftFile,
 	buildTaskFile,
 	camelName,
+	ensureFooter,
 	findTaskFileRenames,
 	nextNumber,
 	runWithLabel,
@@ -124,6 +125,12 @@ describe('buildDraftFile', () => {
 		expect(buildDraftFile({ id: 'abc', title: 'Ship it' })).toContain('_(no description yet)_');
 	});
 
+	it('names the card so the runner can close the loop', () => {
+		expect(buildDraftFile({ id: 'a1b2c3d4-0000-4000-8000-000000000000', title: 'x' })).toContain(
+			'_From Kanban card `a1b2c3d4-0000-4000-8000-000000000000`._'
+		);
+	});
+
 	it('omits the Run with line when the card is on auto', () => {
 		expect(buildDraftFile({ id: 'abc', title: 'Ship it', content: 'add a button' })).not.toContain(
 			'> Run with:'
@@ -186,6 +193,28 @@ describe('buildTaskFile', () => {
 			agent_effort: 'low'
 		});
 		expect(file).toContain('> Run with: Haiku 4.5 / low');
+	});
+});
+
+describe('ensureFooter', () => {
+	const CARD = { id: 'a1b2c3d4-0000-4000-8000-000000000000', title: 'x', github_issue_number: 2 };
+
+	it('adds the card and issue lines a draft was written without', () => {
+		const out = ensureFooter('# Fix errors\n\nnpm run check is red.\n', CARD);
+		expect(out).toContain(`_From Kanban card \`${CARD.id}\`, moved to the agent list._`);
+		expect(out).toContain('_GitHub issue #2');
+		expect(out).toContain('npm run check is red.');
+	});
+
+	it('leaves a file that already has both alone', () => {
+		const body = ensureFooter('# Fix errors\n', CARD);
+		expect(ensureFooter(body, CARD)).toBe(body);
+	});
+
+	it('adds nothing but the card line when there is no issue', () => {
+		const out = ensureFooter('# Fix errors\n', { ...CARD, github_issue_number: null });
+		expect(out).toContain('_From Kanban card');
+		expect(out).not.toContain('_GitHub issue');
 	});
 });
 

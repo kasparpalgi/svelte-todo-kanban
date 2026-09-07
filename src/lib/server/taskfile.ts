@@ -141,8 +141,16 @@ export function todoPathFor(draftPath: string, issueNumber?: number | null): str
 }
 
 /**
+ * The line the runner reads to find the card again when the task is done. Without it a
+ * finished task has nowhere to report: "no card id in 002-fixErrors-DONE.md".
+ */
+const cardLine = (card: TaskCard, moved: boolean) =>
+	`_From Kanban card \`${card.id}\`${moved ? ', moved to the agent list' : ''}._`;
+
+/**
  * Naming the issue in the file is what makes the agent end its commit subject with
- * `(#165)` — GitHub then links the commit onto the issue.
+ * `(#165)` — GitHub then links the commit onto the issue — and is what lets the runner
+ * close the issue afterwards. The runner never guesses an issue number from the filename.
  */
 function issueLine(card: TaskCard): string[] {
 	const n = card.github_issue_number;
@@ -163,6 +171,8 @@ export function buildDraftFile(card: TaskCard): string {
 		'',
 		body || '_(no description yet)_',
 		'',
+		cardLine(card, false),
+		'',
 		...issueLine(card)
 	].join('\n');
 }
@@ -181,10 +191,23 @@ export function buildTaskFile(card: TaskCard): string {
 		'',
 		body || '_(no description on the card)_',
 		'',
-		`_From Kanban card \`${card.id}\`, moved to the agent list._`,
+		cardLine(card, true),
 		'',
 		...issueLine(card)
 	].join('\n');
+}
+
+/**
+ * A draft written before its card had these footers — every draft until now — becomes a
+ * task file with no card id and no issue number, and the run that finishes it has nothing
+ * to close. The draft's own text is never touched; the missing lines are appended.
+ */
+export function ensureFooter(body: string, card: TaskCard): string {
+	const add: string[] = [];
+	if (!new RegExp(`^_From Kanban card \`${card.id}\``, 'm').test(body))
+		add.push(cardLine(card, true), '');
+	if (card.github_issue_number && !/^_GitHub issue #/m.test(body)) add.push(...issueLine(card));
+	return add.length ? `${body.replace(/\s+$/, '')}\n\n${add.join('\n')}` : body;
 }
 
 /** A repo keeps its task files in either `doc/todo/` or `.claude/todo/`. */
