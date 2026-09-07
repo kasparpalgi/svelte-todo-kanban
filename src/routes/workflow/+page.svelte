@@ -97,7 +97,7 @@
 	<header class="container mx-auto px-4 py-16 md:py-24">
 		<div class="mx-auto max-w-4xl text-center">
 			<a
-				href="/"
+				href="https://todzz.eu/"
 				class="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary hover:underline"
 			>
 				<ArrowLeft class="h-4 w-4" /> Back to ToDzz
@@ -182,7 +182,7 @@
 		</div>
 		<div class="mt-8 text-center">
 			<Button
-				href="https://github.com/kasparpalgi/svelte-todo-kanban"
+				href="https://github.com/kasparpalgi/klarity-claude-kit/blob/main/plugins/dev-kit/runner/README.md"
 				variant="outline"
 				size="lg"
 				class="text-lg"
@@ -209,7 +209,7 @@
 	<!-- Footer -->
 	<footer class="border-t bg-muted/30 py-8">
 		<div class="container mx-auto px-4 text-center text-sm text-muted-foreground">
-			<a href="/" class="hover:text-primary hover:underline">Back to ToDzz</a>
+			<a href="https://todzz.eu/" class="hover:text-primary hover:underline">Back to ToDzz</a>
 		</div>
 	</footer>
 </div>
