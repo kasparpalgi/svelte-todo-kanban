@@ -4,4 +4,4 @@
 
 [NEVER REMOVE]
 
-Archive boards and be able to
+Archive boards and be able to see archived boards. Also,
