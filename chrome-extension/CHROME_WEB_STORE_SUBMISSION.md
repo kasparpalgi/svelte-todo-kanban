@@ -88,10 +88,10 @@ PRIVACY:
 • Only accesses pages when you click the extension icon
 • Communicates only with todzz.eu servers
 • No data collection or third-party sharing
-• View our privacy policy at www.todzz.eu/privacy
+• View our privacy policy at www.todzz.eu/terms?privacy
 
 SUPPORT:
-For questions or issues, contact support@todzz.eu or visit www.todzz.eu/help
+For questions or issues, contact support@todzz.eu
 ```
 
 ### 4. Privacy Information (Required)
@@ -102,9 +102,9 @@ For questions or issues, contact support@todzz.eu or visit www.todzz.eu/help
 #### Permission Justifications
 - **activeTab**: Required to extract page content when user clicks extension icon
 - **storage**: Required to store user authentication token and preferences
-- **scripting**: Required to inject content script for page data extraction
 - **alarms**: Required for token refresh mechanism
 - **host_permissions (todzz.eu)**: Required to communicate with ToDzz GraphQL API and authentication endpoints
+- **content_scripts (`<all_urls>`)**: The content script is passive — it only responds to an explicit "extract page data" message from the popup/background script (triggered by the user clicking the extension icon) or a `postMessage` from a todzz.eu origin during sign-in. It runs on all pages because the user may want to save any page they're viewing, but it does not read or transmit page data unless the user actively initiates a save.
 
 #### Data Usage
 - **User Authentication**: JWT token stored locally to authenticate with ToDzz API
@@ -113,7 +113,7 @@ For questions or issues, contact support@todzz.eu or visit www.todzz.eu/help
 - **No Third-Party Data Sharing**: All data sent only to todzz.eu servers
 
 #### Privacy Policy URL
-Provide a link to your privacy policy (e.g., https://www.todzz.eu/privacy)
+Provide a link to your privacy policy: https://www.todzz.eu/terms?privacy
 
 ### 5. Distribution Settings
 
@@ -130,24 +130,26 @@ Provide a link to your privacy policy (e.g., https://www.todzz.eu/privacy)
 - [x] No remotely hosted code (all logic must be in package)
 - [x] Service worker instead of background page
 - [x] Content Security Policy compliant
-- [ ] Icons created (16x16, 48x48, 128x128)
-- [ ] Extension tested in Chrome
-- [ ] No console errors or warnings
-- [ ] All features working correctly
+- [x] No unnecessary permissions (removed unused `scripting` permission — content script is statically declared, not injected)
+- [x] Icons correctly sized (16x16, 48x48, 128x128 — regenerated from `static/pwa-512x512.png`; were previously 64x64/64x64/192x192, mismatched with their declared sizes)
+- [x] No `localhost` / dev URLs in shipped manifest or CSP (production build only reaches this via the `devMode` toggle stored in `chrome.storage`, which defaults to off — see Manual Testing below)
+- [ ] Extension tested in Chrome on a clean profile (manual step — see below)
+- [ ] No console errors or warnings (manual step)
+- [ ] All features working correctly (manual step)
 
 ### Store Assets
-- [ ] 128x128 icon created
-- [ ] Small promotional tile (440x280) created
-- [ ] Screenshots (1-5) created
-- [ ] Marquee tile (1400x560) created (optional)
+- [x] 128x128 icon created
+- [ ] Small promotional tile (440x280) — needs design, not code-generatable
+- [ ] Screenshots (1-5) — capture from a real signed-in session
+- [ ] Marquee tile (1400x560) — optional
 
 ### Documentation
-- [ ] Privacy policy published
-- [ ] Support email/contact method set up
-- [ ] Description written
-- [ ] Summary written
-- [ ] Single purpose declared
-- [ ] Permission justifications documented
+- [x] Privacy policy published — live at https://www.todzz.eu/terms?privacy (fixed: doc previously pointed to the non-existent `/privacy` path)
+- [x] Support email/contact method set up — support@todzz.eu
+- [x] Description written
+- [x] Summary written
+- [x] Single purpose declared
+- [x] Permission justifications documented
 
 ### Testing
 - [ ] Test on clean Chrome profile
