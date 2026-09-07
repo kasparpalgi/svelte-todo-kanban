@@ -27,3 +27,13 @@ _GitHub issue #168 — end the commit subject with `(#168)`._
 2. Debug the click handler behavior
 3. Fix the backdrop click detection
 4. Test and commit
+
+---
+
+## Log
+
+### Initial Analysis
+- CardModal has backdrop div (line 83-96) with `onclick={handleBackdropClick}`
+- Inner card div (line 98-110) has `onclick={(e) => e.stopPropagation()}`
+- The condition `event.target === event.currentTarget` looks correct
+- Need to test if clicks on backdrop actually close the modal
