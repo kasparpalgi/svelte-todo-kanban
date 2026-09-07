@@ -97,6 +97,7 @@ export interface TaskCard {
 	content?: string | null;
 	agent_model?: string | null;
 	agent_effort?: string | null;
+	github_issue_number?: number | null;
 }
 
 /**
@@ -110,12 +111,42 @@ function resolveRunWith(card: TaskCard, body: string): string | null {
 	return field ?? detectRunWith(`${card.title}\n${body}`);
 }
 
-/** Highest NNN already used in the folder, plus one, zero-padded. */
-export function nextNumber(filenames: string[]): string {
-	const used = filenames
-		.map((f) => Number.parseInt(f.slice(0, 3), 10))
-		.filter((n) => Number.isInteger(n));
-	return String(Math.max(0, ...used) + 1).padStart(3, '0');
+/** The leading NNN of a task filename, or NaN. Issue numbers outgrow three digits. */
+const numberOf = (filename: string) => Number.parseInt(/^(\d+)-/.exec(filename)?.[1] ?? '', 10);
+
+/** Zero-padded to the three digits every existing file uses; wider numbers keep their width. */
+const pad = (n: number) => String(n).padStart(3, '0');
+
+/**
+ * The GitHub issue number *is* the task number, so `#165` becomes `165-slug-TODO.md`
+ * and every commit that names `#165` shows up on the issue. Falls back to highest+1
+ * when the card has no issue, or when something already claimed that number.
+ */
+export function nextNumber(filenames: string[], issueNumber?: number | null): string {
+	const used = filenames.map(numberOf).filter((n) => Number.isInteger(n));
+	if (issueNumber && !used.includes(issueNumber)) return pad(issueNumber);
+	return pad(Math.max(0, ...used) + 1);
+}
+
+/**
+ * The `-TODO.md` path a draft becomes when its card reaches the agent list. A draft
+ * written before its issue existed carries the wrong number; renumber it now, while
+ * the file is being rewritten anyway.
+ */
+export function todoPathFor(draftPath: string, issueNumber?: number | null): string {
+	const todoPath = draftPath.replace(/\.md$/, '-TODO.md');
+	if (!issueNumber) return todoPath;
+	const cut = todoPath.lastIndexOf('/') + 1;
+	return todoPath.slice(0, cut) + todoPath.slice(cut).replace(/^\d+-/, `${pad(issueNumber)}-`);
+}
+
+/**
+ * Naming the issue in the file is what makes the agent end its commit subject with
+ * `(#165)` — GitHub then links the commit onto the issue.
+ */
+function issueLine(card: TaskCard): string[] {
+	const n = card.github_issue_number;
+	return n ? [`_GitHub issue #${n} — end the commit subject with \`(#${n})\`._`, ''] : [];
 }
 
 /** Draft file written at card creation — no `-TODO` suffix, no "moved to agent list" note. */
@@ -131,7 +162,8 @@ export function buildDraftFile(card: TaskCard): string {
 		'[NEVER REMOVE]',
 		'',
 		body || '_(no description yet)_',
-		''
+		'',
+		...issueLine(card)
 	].join('\n');
 }
 
@@ -150,7 +182,8 @@ export function buildTaskFile(card: TaskCard): string {
 		body || '_(no description on the card)_',
 		'',
 		`_From Kanban card \`${card.id}\`, moved to the agent list._`,
-		''
+		'',
+		...issueLine(card)
 	].join('\n');
 }
 
@@ -164,8 +197,9 @@ export interface TaskFileRename {
 }
 
 /**
- * A pushed commit that removes `NNN-slug-TODO.md` and adds `NNN-slug-DONE.md` is the
- * agent reporting the task finished — that pair moves the card to Review.
+ * A pushed commit that removes `NNN-slug-TODO.md` and adds `NNN-slug-DONE.md` — or
+ * `-BLOCKED.md`, the agent finishing its half and handing the rest to a human — is the
+ * agent reporting the task over. Either pair moves the card to Review.
  */
 export function findTaskFileRenames(commit: {
 	added: string[];
@@ -173,10 +207,10 @@ export function findTaskFileRenames(commit: {
 }): TaskFileRename[] {
 	const results: TaskFileRename[] = [];
 	for (const removed of commit.removed) {
-		const m = new RegExp(`${TODO_DIR}/(\\d{3})-.*-TODO\\.md$`, 'i').exec(removed);
+		const m = new RegExp(`${TODO_DIR}/(\\d{3,})-.*-TODO\\.md$`, 'i').exec(removed);
 		if (!m) continue;
 		const added = commit.added.find((f) =>
-			new RegExp(`${TODO_DIR}/${m[1]}-.*-DONE\\.md$`, 'i').test(f)
+			new RegExp(`${TODO_DIR}/${m[1]}-.*-(DONE|BLOCKED)\\.md$`, 'i').test(f)
 		);
 		if (added) results.push({ number: m[1], todoFile: removed, doneFile: added });
 	}

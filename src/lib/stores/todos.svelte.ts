@@ -469,16 +469,6 @@ function createTodosStore() {
 					console.error('[TodosStore.addTodo] Failed to log activity:', error);
 				}
 
-				// Write draft task file if board has a connected GitHub repo
-				const boardGithub = (newTodo as any).list?.board?.github;
-				if (boardGithub && newTodo.id) {
-					fetch('/api/github/write-draft-file', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ todoId: newTodo.id })
-					}).catch((err) => console.error('Failed to write draft file:', err));
-				}
-
 				// Create GitHub issue if requested
 				if (createGithubIssue && newTodo.id) {
 					try {
@@ -514,6 +504,17 @@ function createTodosStore() {
 						// Non-blocking: log error but don't fail todo creation
 						console.error('Error creating GitHub issue:', githubError);
 					}
+				}
+
+				// Written last, and only once the issue exists: the issue number is the task
+				// file's number, so a draft created first would be numbered wrong.
+				const boardGithub = (newTodo as any).list?.board?.github;
+				if (boardGithub && newTodo.id) {
+					fetch('/api/github/write-draft-file', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ todoId: newTodo.id })
+					}).catch((err) => console.error('Failed to write draft file:', err));
 				}
 
 				return {

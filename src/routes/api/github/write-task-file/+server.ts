@@ -4,7 +4,7 @@ import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
 import { CREATE_COMMENT } from '$lib/graphql/documents';
-import { buildTaskFile, camelName, nextNumber } from '$lib/server/taskfile';
+import { buildTaskFile, camelName, nextNumber, todoPathFor } from '$lib/server/taskfile';
 import { serverLog } from '$lib/server/log';
 
 const GET_TODO_FOR_TASK_FILE = `
@@ -82,10 +82,11 @@ async function renameDraftToTodo(
 	repo: string,
 	draftPath: string,
 	token: string,
-	todoId: string
+	issueNumber: number | null,
+	ref: string
 ): Promise<string> {
-	// Derive the TODO path: insert -TODO before the final .md
-	const todoPath = draftPath.replace(/\.md$/, '-TODO.md');
+	// Derive the TODO path: insert -TODO before the final .md, renumbering to the issue
+	const todoPath = todoPathFor(draftPath, issueNumber);
 
 	// Get the current content + SHA of the draft
 	const fileInfo = await githubRequest<{ content: string; sha: string }>(
@@ -97,7 +98,7 @@ async function renameDraftToTodo(
 	await githubRequest(`/repos/${repo}/contents/${todoPath}`, token, {
 		method: 'PUT',
 		body: JSON.stringify({
-			message: `docs(todo): ${todoPath} from Kanban`,
+			message: `docs(todo): ${todoPath} from Kanban${ref}`,
 			content: fileInfo.content.replace(/\n/g, '') // GitHub returns base64 with newlines
 		})
 	});
@@ -106,7 +107,7 @@ async function renameDraftToTodo(
 	await githubRequest(`/repos/${repo}/contents/${draftPath}`, token, {
 		method: 'DELETE',
 		body: JSON.stringify({
-			message: `docs(todo): replace ${draftPath} with ${todoPath}`,
+			message: `docs(todo): replace ${draftPath} with ${todoPath}${ref}`,
 			sha: fileInfo.sha
 		})
 	});
@@ -145,6 +146,9 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		if (!token) throw new Error('GitHub not connected. Reconnect it in settings.');
 
 		let path = '';
+		const issueNumber: number | null = todo.github_issue_number ?? null;
+		// Trailing `(#165)` in the subject is what makes GitHub show the commit on the issue.
+		const ref = issueNumber ? ` (#${issueNumber})` : '';
 		const known: string | null = todo.task_file_path ?? null;
 		const existing = known && (await fileExists(repo, known, token)) ? known : null;
 
@@ -158,7 +162,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 		if (existing && !existing.endsWith('-TODO.md')) {
 			// Rename the existing draft → -TODO.md
-			path = await renameDraftToTodo(repo, existing, token, todoId);
+			path = await renameDraftToTodo(repo, existing, token, issueNumber, ref);
 		} else if (existing) {
 			// Already a TODO file — nothing to do
 			serverLog.info('TaskFile', 'Task file already waiting for the agent', {
@@ -178,11 +182,11 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 			for (let attempt = 0; ; attempt++) {
 				const { dir, names } = await taskDir(repo, token);
-				path = `${dir}/${nextNumber(names)}-${slug}-TODO.md`;
+				path = `${dir}/${nextNumber(names, attempt ? null : issueNumber)}-${slug}-TODO.md`;
 				try {
 					await githubRequest(`/repos/${repo}/contents/${path}`, token, {
 						method: 'PUT',
-						body: JSON.stringify({ message: `docs(todo): ${path} from Kanban`, content })
+						body: JSON.stringify({ message: `docs(todo): ${path} from Kanban${ref}`, content })
 					});
 					break;
 				} catch (err: any) {
@@ -194,8 +198,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 		await serverRequest(UPDATE_TASK_FILE_PATH, { id: todoId, path });
 
-		const issue = todo.github_issue_number ? ` (issue #${todo.github_issue_number})` : '';
-		await commentOnCard(todoId, userId, `Task file ready: ${path}${issue}`);
+		await commentOnCard(todoId, userId, `Task file ready: ${path}${ref}`);
 
 		serverLog.info('TaskFile', 'Task file ready in GitHub', { todoId, repo, path });
 		return json({ success: true, path });

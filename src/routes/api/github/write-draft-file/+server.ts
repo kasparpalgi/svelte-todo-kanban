@@ -13,6 +13,7 @@ const GET_TODO_FOR_DRAFT = `
 			content
 			agent_model
 			agent_effort
+			github_issue_number
 			task_file_path
 			list {
 				board {
@@ -82,15 +83,17 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		for (const b of bytes) binary += String.fromCharCode(b);
 		const content = btoa(binary);
 		const slug = camelName(todo.title);
+		const issueNumber: number | null = todo.github_issue_number ?? null;
+		const ref = issueNumber ? ` (#${issueNumber})` : '';
 
 		let path = '';
 		for (let attempt = 0; ; attempt++) {
 			const { dir, names } = await taskDir(repo, token);
-			path = `${dir}/${nextNumber(names)}-${slug}.md`;
+			path = `${dir}/${nextNumber(names, attempt ? null : issueNumber)}-${slug}.md`;
 			try {
 				await githubRequest(`/repos/${repo}/contents/${path}`, token, {
 					method: 'PUT',
-					body: JSON.stringify({ message: `docs(todo): draft ${path}`, content })
+					body: JSON.stringify({ message: `docs(todo): draft ${path}${ref}`, content })
 				});
 				break;
 			} catch (err: any) {

@@ -7,7 +7,8 @@ import {
 	findTaskFileRenames,
 	nextNumber,
 	runWithLabel,
-	toText
+	toText,
+	todoPathFor
 } from '../taskfile';
 
 describe('camelName', () => {
@@ -43,6 +44,30 @@ describe('nextNumber', () => {
 
 	it('takes one past the highest number, ignoring other files', () => {
 		expect(nextNumber(['001-a-DONE.md', '014-b-TODO.md', 'README.md'])).toBe('015');
+	});
+
+	it('uses the GitHub issue number when the card has one', () => {
+		expect(nextNumber(['166-x-DONE.md'], 165)).toBe('165');
+	});
+
+	it('keeps four-digit issue numbers whole', () => {
+		expect(nextNumber([], 1042)).toBe('1042');
+	});
+
+	it('falls back to highest+1 when the issue number is already taken', () => {
+		expect(nextNumber(['165-other-DONE.md', '166-x-TODO.md'], 165)).toBe('167');
+	});
+});
+
+describe('todoPathFor', () => {
+	it('renumbers a draft to its issue number', () => {
+		expect(todoPathFor('.claude/todo/167-chromeExt.md', 165)).toBe(
+			'.claude/todo/165-chromeExt-TODO.md'
+		);
+	});
+
+	it('only adds -TODO when the card has no issue', () => {
+		expect(todoPathFor('doc/todo/033-thing.md', null)).toBe('doc/todo/033-thing-TODO.md');
 	});
 });
 
@@ -137,6 +162,16 @@ describe('buildTaskFile', () => {
 		expect(file).not.toContain('<p>');
 	});
 
+	it('names the issue so the agent can reference it in the commit', () => {
+		const file = buildTaskFile({ id: 'abc', title: 'Ship it', github_issue_number: 165 });
+		expect(file).toContain('GitHub issue #165');
+		expect(file).toContain('(#165)');
+	});
+
+	it('says nothing about an issue when the card has none', () => {
+		expect(buildTaskFile({ id: 'abc', title: 'Ship it' })).not.toContain('GitHub issue');
+	});
+
 	it('says so when the card has no description', () => {
 		expect(buildTaskFile({ id: 'abc', title: 'Ship it' })).toContain(
 			'_(no description on the card)_'
@@ -175,6 +210,15 @@ describe('findTaskFileRenames', () => {
 			findTaskFileRenames({
 				removed: ['doc/todo/031-fix-TODO.md'],
 				added: ['doc/todo/031-fix-DONE.md']
+			})
+		).toHaveLength(1);
+	});
+
+	it('treats a -BLOCKED rename as the task being over too', () => {
+		expect(
+			findTaskFileRenames({
+				removed: ['.claude/todo/165-chromeExt-TODO.md'],
+				added: ['.claude/todo/165-chromeExt-BLOCKED.md']
 			})
 		).toHaveLength(1);
 	});

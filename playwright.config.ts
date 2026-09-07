@@ -13,7 +13,9 @@ export default defineConfig({
 
 	use: {
 		baseURL: 'http://localhost:4173/en',
-		trace: 'on-first-retry'
+		trace: 'on-first-retry',
+		// The Google Chrome already installed, not a second copy in the Playwright cache.
+		channel: 'chrome'
 	},
 
 	projects: [
