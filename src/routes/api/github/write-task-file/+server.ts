@@ -8,6 +8,7 @@ import {
 	buildTaskFile,
 	camelName,
 	ensureFooter,
+	ensureRunWith,
 	nextNumber,
 	todoPathFor
 } from '$lib/server/taskfile';
@@ -104,8 +105,10 @@ async function renameDraftToTodo(
 		token
 	);
 
-	// The draft keeps every word it has, but it may predate the card/issue footers the
-	// runner needs to close the loop — add whichever of them is missing.
+	// The draft keeps every word it has, but it froze its `> Run with:` line at creation time
+	// (usually before the model dropdown was touched) and may predate the card/issue footers the
+	// runner needs — reconcile the model line with the card's now-set field, then add any missing
+	// footer.
 	const body = Buffer.from(fileInfo.content, 'base64').toString('utf8');
 
 	// Create the TODO file with the draft's content
@@ -113,7 +116,7 @@ async function renameDraftToTodo(
 		method: 'PUT',
 		body: JSON.stringify({
 			message: `docs(todo): ${todoPath} from Kanban${ref}`,
-			content: encode(ensureFooter(body, card))
+			content: encode(ensureFooter(ensureRunWith(body, card), card))
 		})
 	});
 

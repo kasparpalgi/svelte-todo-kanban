@@ -126,6 +126,20 @@ describe('POST /api/github/write-task-file', () => {
 		});
 	});
 
+	it('injects the model line when renaming a draft frozen before the dropdown was set', async () => {
+		// The draft was written at card creation, before a model was picked — no Run with line.
+		const draft = Buffer.from(
+			"# Drag'n'drop crap\n\nRefactor it properly.\n\n_From Kanban card `card-1`._\n",
+			'utf-8'
+		).toString('base64');
+		githubRequest.mockResolvedValue({ content: draft, sha: 'abc' });
+
+		await call({ task_file_path: '.claude/todo/163-dragNDropCrap.md' });
+
+		// The card's dropdown (opus-5 / high) must win over the stale draft.
+		expect(writtenFile()?.body).toContain('> Run with: Opus 5 / high');
+	});
+
 	it('does nothing when the list is not the board agent list', async () => {
 		const res = await call({
 			list: { ...CARD.list, board: { ...CARD.list.board, settings: { agent_list_id: 'other' } } }

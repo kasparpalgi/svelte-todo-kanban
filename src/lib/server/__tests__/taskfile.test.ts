@@ -5,6 +5,7 @@ import {
 	buildTaskFile,
 	camelName,
 	ensureFooter,
+	ensureRunWith,
 	findTaskFileRenames,
 	nextNumber,
 	runWithLabel,
@@ -215,6 +216,31 @@ describe('ensureFooter', () => {
 		const out = ensureFooter('# Fix errors\n', { ...CARD, github_issue_number: null });
 		expect(out).toContain('_From Kanban card');
 		expect(out).not.toContain('_GitHub issue');
+	});
+});
+
+describe('ensureRunWith', () => {
+	it('injects the model line a draft was frozen without (chose Opus, ran Sonnet bug)', () => {
+		const body = '# Fix errors\n\nnpm run check is red.\n';
+		const out = ensureRunWith(body, { id: 'abc', title: 'x', agent_model: 'opus-5' });
+		expect(out).toBe('> Run with: Opus 5 / high\n\n# Fix errors\n\nnpm run check is red.\n');
+	});
+
+	it('overwrites a stale draft line when the field disagrees', () => {
+		const body = '> Run with: Sonnet 5 / medium\n\n# Fix errors\n';
+		const out = ensureRunWith(body, {
+			id: 'abc',
+			title: 'x',
+			agent_model: 'opus-5',
+			agent_effort: 'xhigh'
+		});
+		expect(out).toBe('> Run with: Opus 5 / xhigh\n\n# Fix errors\n');
+		expect(out).not.toContain('Sonnet');
+	});
+
+	it('leaves an auto card (no field) untouched for the classifier', () => {
+		const body = '# Fix errors\n';
+		expect(ensureRunWith(body, { id: 'abc', title: 'x' })).toBe(body);
 	});
 });
 

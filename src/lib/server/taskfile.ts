@@ -111,6 +111,24 @@ function resolveRunWith(card: TaskCard, body: string): string | null {
 	return field ?? detectRunWith(`${card.title}\n${body}`);
 }
 
+/**
+ * A draft freezes its `> Run with:` line at card-creation time — usually before the model
+ * dropdown is ever touched. When the card later reaches the agent list with an `agent_model`
+ * field set, that field must win, or the frozen draft body ships with a stale line (or none at
+ * all) and the runner falls back to auto — the "chose Opus, ran Sonnet" bug. Only an explicit
+ * field reconciles the line; an auto card (no field) keeps whatever the body already has and
+ * lets the runner's classifier decide.
+ */
+export function ensureRunWith(body: string, card: TaskCard): string {
+	if (!card.agent_model) return body;
+	const wanted = fieldLabel(card.agent_model, card.agent_effort);
+	if (!wanted) return body;
+	const line = `> Run with: ${wanted}`;
+	const existing = /^> Run with:.*$/m;
+	if (existing.test(body)) return body.replace(existing, line);
+	return `${line}\n\n${body.replace(/^\s+/, '')}`;
+}
+
 /** The leading NNN of a task filename, or NaN. Issue numbers outgrow three digits. */
 const numberOf = (filename: string) => Number.parseInt(/^(\d+)-/.exec(filename)?.[1] ?? '', 10);
 
