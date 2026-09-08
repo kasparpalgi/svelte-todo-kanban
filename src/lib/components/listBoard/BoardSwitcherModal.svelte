@@ -27,7 +27,6 @@
 		const lang = getEffectiveLocale(page.params.lang, userStore.user?.locale);
 
 		if (board && board.user?.username && board.alias) {
-			// eslint-disable-next-line svelte/no-navigation-without-resolve
 			goto(resolve(`/${lang}/${board.user.username}/${board.alias}`));
 		}
 
