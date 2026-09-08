@@ -144,7 +144,18 @@
     "agent_list_none": "žádný",
     "enable_hour_tracking": "Povolit sledování hodin",
     "settings_updated": "Nastavení desky aktualizováno",
-    "mobile_add": "Rychlé přidání na mobilu (pro přidání na domovskou obrazovku)"
+    "mobile_add": "Rychlé přidání na mobilu (pro přidání na domovskou obrazovku)",
+    "switch_board": "Přepnout desku",
+    "active_boards": "Aktivní desky",
+    "archived_boards": "Archivované desky",
+    "no_archived_boards": "Žádné archivované desky",
+    "archive_board": "Archivovat",
+    "archive_board_confirm": "Archivovat \"{{boardName}}\"? Později ji můžete obnovit z Archivovaných desek.",
+    "restore_board": "Obnovit",
+    "board_archived": "Deska archivována",
+    "board_restored": "Deska obnovena",
+    "failed_archive": "Archivace desky se nezdařila",
+    "failed_restore": "Obnovení desky se nezdařilo"
   },
   "members": {
     "board_members": "Členové desky",

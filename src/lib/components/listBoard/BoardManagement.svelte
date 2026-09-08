@@ -32,7 +32,9 @@
 		Users,
 		Globe,
 		ChevronUp,
-		ChevronDown
+		ChevronDown,
+		Archive,
+		RotateCcw
 	} from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -84,6 +86,7 @@
 
 	$effect(() => {
 		listsStore.loadBoards();
+		listsStore.loadArchivedBoards();
 	});
 
 	const todoCountByBoard = $derived(() => {
@@ -141,6 +144,28 @@
 			displayMessage($t('board.board_deleted'), 1500, true);
 		} else {
 			displayMessage(result.message);
+		}
+	}
+
+	async function handleArchiveBoard(id: string, boardName: string) {
+		if (!confirm($t('board.archive_board_confirm').replace('{{boardName}}', boardName))) return;
+
+		const result = await listsStore.archiveBoard(id);
+
+		if (result.success) {
+			displayMessage($t('board.board_archived'), 1500, true);
+		} else {
+			displayMessage(result.message || $t('board.failed_archive'));
+		}
+	}
+
+	async function handleRestoreBoard(id: string) {
+		const result = await listsStore.restoreBoard(id);
+
+		if (result.success) {
+			displayMessage($t('board.board_restored'), 1500, true);
+		} else {
+			displayMessage(result.message || $t('board.failed_restore'));
 		}
 	}
 
@@ -461,6 +486,10 @@
 													</Label>
 												</div>
 												<DropdownMenuSeparator />
+												<DropdownMenuItem onclick={() => handleArchiveBoard(board.id, board.name)}>
+													<Archive class="mr-2 h-3 w-3" />
+													{$t('board.archive_board')}
+												</DropdownMenuItem>
 												<DropdownMenuItem
 													onclick={() => handleDeleteBoard(board.id, board.name)}
 													class="text-red-600"
@@ -539,6 +568,27 @@
 					{/if}
 				</CardContent>
 			</Card>
+
+			{#if listsStore.archivedBoards.length > 0}
+				<Card class="mt-4">
+					<CardHeader class="flex flex-row items-center gap-2 space-y-0 pb-4">
+						<Archive class="h-5 w-5" />
+						<CardTitle class="text-lg">{$t('board.archived_boards')}</CardTitle>
+						<Badge variant="secondary">{listsStore.archivedBoards.length}</Badge>
+					</CardHeader>
+					<CardContent class="space-y-2">
+						{#each listsStore.sortedArchivedBoards as board (board.id)}
+							<div class="flex items-center gap-2 rounded border p-2 opacity-80">
+								<span class="flex-1 font-medium">{board.name}</span>
+								<Button variant="outline" size="sm" onclick={() => handleRestoreBoard(board.id)}>
+									<RotateCcw class="mr-1 h-3 w-3" />
+									{$t('board.restore_board')}
+								</Button>
+							</div>
+						{/each}
+					</CardContent>
+				</Card>
+			{/if}
 		</div>
 	</div>
 {/if}

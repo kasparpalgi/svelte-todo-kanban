@@ -29,6 +29,7 @@ import { displayMessage } from './errorSuccess.svelte';
 function createListsStore() {
 	let lists = $state<ListFieldsFragment[]>([]);
 	let boards = $state<BoardFieldsFragment[]>([]);
+	let archivedBoards = $state<BoardFieldsFragment[]>([]);
 	let selectedBoard = $state<BoardFieldsFragment | null>(null);
 	let loading = $state(false);
 	let error = $state<string | null>(null);
@@ -40,6 +41,12 @@ function createListsStore() {
 
 	const sortedBoards = $derived(
 		[...boards].sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999))
+	);
+
+	const sortedArchivedBoards = $derived(
+		[...archivedBoards].sort(
+			(a, b) => new Date(b.archived_at || 0).getTime() - new Date(a.archived_at || 0).getTime()
+		)
 	);
 
 	async function loadLists(): Promise<ListFieldsFragment[]> {
@@ -76,7 +83,7 @@ function createListsStore() {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
 
 			const data: GetBoardsQuery = await request(GET_BOARDS, {
-				where: {},
+				where: { archived_at: { _is_null: true } },
 				order_by: [{ sort_order: Order_By.Asc }, { name: Order_By.Asc }]
 			});
 
@@ -263,7 +270,13 @@ function createListsStore() {
 		updates: Partial<
 			Pick<
 				BoardFieldsFragment,
-				'name' | 'sort_order' | 'github' | 'is_public' | 'allow_public_comments' | 'settings'
+				| 'name'
+				| 'sort_order'
+				| 'github'
+				| 'is_public'
+				| 'allow_public_comments'
+				| 'settings'
+				| 'archived_at'
 			>
 		>
 	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
@@ -340,6 +353,98 @@ function createListsStore() {
 		}
 	}
 
+	async function loadArchivedBoards(): Promise<BoardFieldsFragment[]> {
+		if (!browser) return [];
+
+		try {
+			const { Order_By } = await import('$lib/graphql/generated/graphql');
+
+			const data: GetBoardsQuery = await request(GET_BOARDS, {
+				where: { archived_at: { _is_null: false } },
+				order_by: [{ name: Order_By.Asc }]
+			});
+
+			archivedBoards = data.boards || [];
+			return archivedBoards;
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Error loading archived boards';
+			console.error('Load archived boards error:', err);
+			displayMessage(message);
+			return [];
+		}
+	}
+
+	async function archiveBoard(id: string): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		const boardIndex = boards.findIndex((b) => b.id === id);
+		const board = boardIndex !== -1 ? boards[boardIndex] : null;
+		if (!board) return { success: false, message: 'Board not found' };
+
+		boards = boards.filter((b) => b.id !== id);
+		const archivedBoard = { ...board, archived_at: new Date().toISOString() };
+		archivedBoards = [...archivedBoards, archivedBoard];
+		if (selectedBoard?.id === id) selectedBoard = null;
+
+		try {
+			const data: UpdateBoardMutation = await request(UPDATE_BOARD, {
+				where: { id: { _eq: id } },
+				_set: { archived_at: archivedBoard.archived_at }
+			});
+
+			const updatedBoard = data.update_boards?.returning?.[0];
+			if (updatedBoard) {
+				archivedBoards = archivedBoards.map((b) => (b.id === id ? updatedBoard : b));
+				return { success: true, message: 'Board archived successfully', data: updatedBoard };
+			}
+
+			boards = [...boards, board];
+			archivedBoards = archivedBoards.filter((b) => b.id !== id);
+			return { success: false, message: 'Failed to archive board' };
+		} catch (err) {
+			boards = [...boards, board];
+			archivedBoards = archivedBoards.filter((b) => b.id !== id);
+			const message = err instanceof Error ? err.message : 'Error archiving board';
+			console.error('Archive board error:', err);
+			return { success: false, message };
+		}
+	}
+
+	async function restoreBoard(id: string): Promise<ListBoardStoreResult<BoardFieldsFragment>> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		const boardIndex = archivedBoards.findIndex((b) => b.id === id);
+		const board = boardIndex !== -1 ? archivedBoards[boardIndex] : null;
+		if (!board) return { success: false, message: 'Board not found' };
+
+		archivedBoards = archivedBoards.filter((b) => b.id !== id);
+		const restoredBoard = { ...board, archived_at: null };
+		boards = [...boards, restoredBoard];
+
+		try {
+			const data: UpdateBoardMutation = await request(UPDATE_BOARD, {
+				where: { id: { _eq: id } },
+				_set: { archived_at: null }
+			});
+
+			const updatedBoard = data.update_boards?.returning?.[0];
+			if (updatedBoard) {
+				boards = boards.map((b) => (b.id === id ? updatedBoard : b));
+				return { success: true, message: 'Board restored successfully', data: updatedBoard };
+			}
+
+			boards = boards.filter((b) => b.id !== id);
+			archivedBoards = [...archivedBoards, board];
+			return { success: false, message: 'Failed to restore board' };
+		} catch (err) {
+			boards = boards.filter((b) => b.id !== id);
+			archivedBoards = [...archivedBoards, board];
+			const message = err instanceof Error ? err.message : 'Error restoring board';
+			console.error('Restore board error:', err);
+			return { success: false, message };
+		}
+	}
+
 	async function setSelectedBoard(board: BoardFieldsFragment | null) {
 		selectedBoard = board;
 		if (browser) {
@@ -375,6 +480,7 @@ function createListsStore() {
 	function reset() {
 		lists = [];
 		boards = [];
+		archivedBoards = [];
 		selectedBoard = null;
 		loading = false;
 		error = null;
@@ -388,11 +494,17 @@ function createListsStore() {
 		get boards() {
 			return boards;
 		},
+		get archivedBoards() {
+			return archivedBoards;
+		},
 		get sortedLists() {
 			return sortedLists;
 		},
 		get sortedBoards() {
 			return sortedBoards;
+		},
+		get sortedArchivedBoards() {
+			return sortedArchivedBoards;
 		},
 		get selectedBoard() {
 			return selectedBoard;
@@ -409,6 +521,7 @@ function createListsStore() {
 
 		loadLists,
 		loadBoards,
+		loadArchivedBoards,
 		createList,
 		updateList,
 		deleteList,
@@ -416,6 +529,8 @@ function createListsStore() {
 		updateBoard,
 		updateBoardVisibility,
 		deleteBoard,
+		archiveBoard,
+		restoreBoard,
 		setSelectedBoard,
 		clearError,
 		reset

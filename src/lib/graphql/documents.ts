@@ -148,6 +148,7 @@ export const BOARD_FRAGMENT = graphql(`
 		is_public
 		allow_public_comments
 		settings
+		archived_at
 		created_at
 		updated_at
 		labels {

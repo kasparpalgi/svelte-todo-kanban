@@ -75,6 +75,7 @@ select_permissions:
       columns:
         - alias
         - allow_public_comments
+        - archived_at
         - created_at
         - github
         - id
@@ -106,6 +107,7 @@ update_permissions:
       columns:
         - alias
         - allow_public_comments
+        - archived_at
         - github
         - is_public
         - name

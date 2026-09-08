@@ -1548,6 +1548,8 @@ export type Boards = {
   alias: Scalars['String']['output'];
   /** When true and is_public=true, non-members can comment on todos */
   allow_public_comments: Scalars['Boolean']['output'];
+  /** Timestamp when the board was archived; null means the board is active */
+  archived_at?: Maybe<Scalars['timestamptz']['output']>;
   /** An array relationship */
   board_invitations: Array<Board_Invitations>;
   /** An aggregate relationship */
@@ -1824,6 +1826,7 @@ export type Boards_Bool_Exp = {
   _or?: InputMaybe<Array<Boards_Bool_Exp>>;
   alias?: InputMaybe<String_Comparison_Exp>;
   allow_public_comments?: InputMaybe<Boolean_Comparison_Exp>;
+  archived_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   board_invitations?: InputMaybe<Board_Invitations_Bool_Exp>;
   board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Bool_Exp>;
   board_members?: InputMaybe<Board_Members_Bool_Exp>;
@@ -1888,6 +1891,8 @@ export type Boards_Insert_Input = {
   alias?: InputMaybe<Scalars['String']['input']>;
   /** When true and is_public=true, non-members can comment on todos */
   allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Timestamp when the board was archived; null means the board is active */
+  archived_at?: InputMaybe<Scalars['timestamptz']['input']>;
   board_invitations?: InputMaybe<Board_Invitations_Arr_Rel_Insert_Input>;
   board_members?: InputMaybe<Board_Members_Arr_Rel_Insert_Input>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -1913,6 +1918,8 @@ export type Boards_Insert_Input = {
 export type Boards_Max_Fields = {
   __typename?: 'boards_max_fields';
   alias?: Maybe<Scalars['String']['output']>;
+  /** Timestamp when the board was archived; null means the board is active */
+  archived_at?: Maybe<Scalars['timestamptz']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   github?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
@@ -1925,6 +1932,8 @@ export type Boards_Max_Fields = {
 /** order by max() on columns of table "boards" */
 export type Boards_Max_Order_By = {
   alias?: InputMaybe<Order_By>;
+  /** Timestamp when the board was archived; null means the board is active */
+  archived_at?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   github?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
@@ -1938,6 +1947,8 @@ export type Boards_Max_Order_By = {
 export type Boards_Min_Fields = {
   __typename?: 'boards_min_fields';
   alias?: Maybe<Scalars['String']['output']>;
+  /** Timestamp when the board was archived; null means the board is active */
+  archived_at?: Maybe<Scalars['timestamptz']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   github?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
@@ -1950,6 +1961,8 @@ export type Boards_Min_Fields = {
 /** order by min() on columns of table "boards" */
 export type Boards_Min_Order_By = {
   alias?: InputMaybe<Order_By>;
+  /** Timestamp when the board was archived; null means the board is active */
+  archived_at?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   github?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
@@ -1986,6 +1999,7 @@ export type Boards_On_Conflict = {
 export type Boards_Order_By = {
   alias?: InputMaybe<Order_By>;
   allow_public_comments?: InputMaybe<Order_By>;
+  archived_at?: InputMaybe<Order_By>;
   board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Order_By>;
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Order_By>;
   created_at?: InputMaybe<Order_By>;
@@ -2023,6 +2037,8 @@ export enum Boards_Select_Column {
   Alias = 'alias',
   /** column name */
   AllowPublicComments = 'allow_public_comments',
+  /** column name */
+  ArchivedAt = 'archived_at',
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
@@ -2066,6 +2082,8 @@ export type Boards_Set_Input = {
   alias?: InputMaybe<Scalars['String']['input']>;
   /** When true and is_public=true, non-members can comment on todos */
   allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Timestamp when the board was archived; null means the board is active */
+  archived_at?: InputMaybe<Scalars['timestamptz']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
   customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
@@ -2126,6 +2144,8 @@ export type Boards_Stream_Cursor_Value_Input = {
   alias?: InputMaybe<Scalars['String']['input']>;
   /** When true and is_public=true, non-members can comment on todos */
   allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Timestamp when the board was archived; null means the board is active */
+  archived_at?: InputMaybe<Scalars['timestamptz']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
   customer_invoice_details?: InputMaybe<Scalars['jsonb']['input']>;
@@ -2157,6 +2177,8 @@ export enum Boards_Update_Column {
   Alias = 'alias',
   /** column name */
   AllowPublicComments = 'allow_public_comments',
+  /** column name */
+  ArchivedAt = 'archived_at',
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
@@ -16741,7 +16763,7 @@ export type BoardMemberFieldsFragment = { __typename?: 'board_members', id: stri
 
 export type BoardInvitationFieldsFragment = { __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token?: string | null, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } };
 
-export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> };
+export type BoardFieldsFragment = { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, archived_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> };
 
 export type CommentFieldsFragment = { __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } };
 
@@ -16779,7 +16801,7 @@ export type GetBoardsQueryVariables = Exact<{
 }>;
 
 
-export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> };
+export type GetBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, archived_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> };
 
 export type GetNotesQueryVariables = Exact<{
   where?: InputMaybe<Notes_Bool_Exp>;
@@ -16855,7 +16877,7 @@ export type CreateBoardMutationVariables = Exact<{
 }>;
 
 
-export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> } | null };
+export type CreateBoardMutation = { __typename?: 'mutation_root', insert_boards?: { __typename?: 'boards_mutation_response', returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, archived_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> } | null };
 
 export type UpdateBoardMutationVariables = Exact<{
   where: Boards_Bool_Exp;
@@ -16863,7 +16885,7 @@ export type UpdateBoardMutationVariables = Exact<{
 }>;
 
 
-export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> } | null };
+export type UpdateBoardMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, is_public: boolean, allow_public_comments: boolean, settings: any, archived_at?: string | null, created_at: string, updated_at: string, labels: Array<{ __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null }>, user: { __typename?: 'users', id: string, username: string, email?: string | null }, board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> }> } | null };
 
 export type DeleteBoardMutationVariables = Exact<{
   where: Boards_Bool_Exp;
@@ -17623,6 +17645,7 @@ export const BoardFieldsFragmentDoc = new TypedDocumentString(`
   is_public
   allow_public_comments
   settings
+  archived_at
   created_at
   updated_at
   labels {
@@ -18032,6 +18055,7 @@ fragment BoardFields on boards {
   is_public
   allow_public_comments
   settings
+  archived_at
   created_at
   updated_at
   labels {
@@ -18433,6 +18457,7 @@ fragment BoardFields on boards {
   is_public
   allow_public_comments
   settings
+  archived_at
   created_at
   updated_at
   labels {
@@ -18489,6 +18514,7 @@ fragment BoardFields on boards {
   is_public
   allow_public_comments
   settings
+  archived_at
   created_at
   updated_at
   labels {

@@ -144,7 +144,18 @@
     "agent_list_none": "none",
     "enable_hour_tracking": "Enable hour tracking",
     "settings_updated": "Board settings updated",
-    "mobile_add": "Mobile quick add (for adding to homescreen)"
+    "mobile_add": "Mobile quick add (for adding to homescreen)",
+    "switch_board": "Switch Board",
+    "active_boards": "Active Boards",
+    "archived_boards": "Archived Boards",
+    "no_archived_boards": "No archived boards",
+    "archive_board": "Archive",
+    "archive_board_confirm": "Archive \"{{boardName}}\"? You can restore it later from Archived Boards.",
+    "restore_board": "Restore",
+    "board_archived": "Board archived",
+    "board_restored": "Board restored",
+    "failed_archive": "Failed to archive board",
+    "failed_restore": "Failed to restore board"
   },
   "members": {
     "board_members": "Board Members",
