@@ -48,7 +48,11 @@ _GitHub issue #133 — end the commit subject with `(#133)`._
 
 ## Progress Log
 
-- [ ] Phase 1: DB migrations + Hasura metadata
-- [ ] Phase 2: GraphQL + stores
-- [ ] Phase 3: UI components + routes
-- [ ] Phase 4: QA
+- [x] Phase 1: DB migrations + Hasura metadata — 4 migrations applied, metadata updated
+- [x] Phase 2: GraphQL + stores — clients.svelte.ts, invoicing.svelte.ts
+- [x] Phase 3: UI components + routes — ClientsManagement, CreateInvoiceDialog, InvoiceCard, /invoices route, UserMenu link
+- [x] Phase 4: QA — npm run check passes (pre-existing errors only), committed to main
+
+## Result
+
+Commit: 9c05505
