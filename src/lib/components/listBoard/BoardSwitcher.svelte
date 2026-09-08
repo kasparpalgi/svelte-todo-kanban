@@ -37,7 +37,7 @@
 		const lang = getEffectiveLocale(page.params.lang, userStore.user?.locale);
 
 		if (board && board.user?.username && board.alias) {
-			goto(`/${lang}/${board.user.username}/${board.alias}`);
+			goto(`https://todzz.eu/${lang}/${board.user.username}/${board.alias}`);
 		}
 
 		listsStore.setSelectedBoard(board);
@@ -102,7 +102,7 @@
 		onkeydown={(e) => e.key === 'Escape' && closeSwitcher()}
 	>
 		<div
-			class="flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-background shadow-lg"
+			class="flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-background shadow-2xl mt-60"
 			onclick={(e) => e.stopPropagation()}
 			tabindex="0"
 			role="button"
