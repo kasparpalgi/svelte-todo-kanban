@@ -39,6 +39,8 @@
 	let editingList = $state<{ id: string; name: string } | null>(null);
 	let editingListName = $state('');
 	let newListName = $state('');
+	let draggedListId = $state<string | null>(null);
+	let dragOverListId = $state<string | null>(null);
 
 	$effect(() => {
 		if (!listsStore.initialized) {
@@ -124,6 +126,47 @@
 		} else if (event.key === 'Escape') {
 			cancelEdit();
 		}
+	}
+
+	function handleListDragStart(event: DragEvent, id: string) {
+		draggedListId = id;
+		event.dataTransfer?.setData('text/plain', id);
+		if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+	}
+
+	function handleListDragOver(event: DragEvent, id: string) {
+		event.preventDefault();
+		if (!draggedListId || draggedListId === id) return;
+		dragOverListId = id;
+	}
+
+	function handleListDragLeave(id: string) {
+		if (dragOverListId === id) dragOverListId = null;
+	}
+
+	async function handleListDrop(event: DragEvent, targetId: string) {
+		event.preventDefault();
+		const sourceId = draggedListId;
+		draggedListId = null;
+		dragOverListId = null;
+		if (!sourceId || sourceId === targetId) return;
+
+		const current = [...filteredLists];
+		const fromIndex = current.findIndex((l) => l.id === sourceId);
+		const toIndex = current.findIndex((l) => l.id === targetId);
+		if (fromIndex === -1 || toIndex === -1) return;
+
+		const [moved] = current.splice(fromIndex, 1);
+		current.splice(toIndex, 0, moved);
+
+		await Promise.all(
+			current.map((list, index) => listsStore.updateList(list.id, { sort_order: index + 1 }))
+		).catch((err) => console.error('Failed to update list order:', err));
+	}
+
+	function handleListDragEnd() {
+		draggedListId = null;
+		dragOverListId = null;
 	}
 
 	function closeModal() {
@@ -223,8 +266,22 @@
 						</div>
 					{:else}
 						{#each filteredLists as list (list.id)}
-							<div class="flex items-center gap-2 rounded border p-2">
-								<GripVertical class="h-4 w-4 text-muted-foreground" />
+							<div
+								class="flex items-center gap-2 rounded border p-2 transition-colors {dragOverListId ===
+								list.id
+									? 'border-primary bg-primary/5'
+									: ''} {draggedListId === list.id ? 'opacity-50' : ''}"
+								draggable="true"
+								ondragstart={(e) => handleListDragStart(e, list.id)}
+								ondragover={(e) => handleListDragOver(e, list.id)}
+								ondragleave={() => handleListDragLeave(list.id)}
+								ondrop={(e) => handleListDrop(e, list.id)}
+								ondragend={handleListDragEnd}
+								role="listitem"
+							>
+								<GripVertical
+									class="h-4 w-4 flex-shrink-0 cursor-grab text-muted-foreground active:cursor-grabbing"
+								/>
 
 								{#if editingList?.id === list.id}
 									<Input
