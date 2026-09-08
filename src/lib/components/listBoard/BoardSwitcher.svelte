@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { getEffectiveLocale } from '$lib/constants/locale';
 	import { Button } from '$lib/components/ui/button';
@@ -37,7 +38,7 @@
 		const lang = getEffectiveLocale(page.params.lang, userStore.user?.locale);
 
 		if (board && board.user?.username && board.alias) {
-			goto(`https://todzz.eu/${lang}/${board.user.username}/${board.alias}`);
+			goto(resolve(`/${lang}/${board.user.username}/${board.alias}`));
 		}
 
 		listsStore.setSelectedBoard(board);
