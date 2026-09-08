@@ -16,7 +16,7 @@
 		DropdownMenuSeparator
 	} from '$lib/components/ui/dropdown-menu';
 	import { Sheet, SheetContent, SheetTrigger } from '$lib/components/ui/sheet';
-	import { Link2, LogOut, Menu, Settings, Wallet } from 'lucide-svelte';
+	import { Link2, LogOut, Menu, Settings, Wallet, FileText } from 'lucide-svelte';
 	import BoardSwitcher from '$lib/components/listBoard/BoardSwitcher.svelte';
 
 	let mobileOpen = $state(false);
@@ -53,9 +53,19 @@
 		return '/splitwise';
 	}
 
+	function invoicesPath(): string {
+		const board = listsStore.selectedBoard;
+		const username = board?.user?.username;
+		if (board?.alias && username) {
+			return `/${username}/${board.alias}/invoices`;
+		}
+		return '/settings';
+	}
+
 	const menuItems = $derived([
 		{ label: $t('menu.shortener'), icon: Link2, path: '/shortener' },
 		{ label: $t('menu.splitwise'), icon: Wallet, path: splitwisePath() },
+		{ label: $t('menu.invoices'), icon: FileText, path: invoicesPath() },
 		{ label: $t('menu.settings'), icon: Settings, path: '/settings' }
 	]);
 </script>
@@ -101,7 +111,7 @@
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent class="w-64" align="end">
-					<div class="pb-2 pt-1">
+					<div class="pt-1 pb-2">
 						{@render userHeader()}
 					</div>
 					{#each menuItems as item (item.path)}

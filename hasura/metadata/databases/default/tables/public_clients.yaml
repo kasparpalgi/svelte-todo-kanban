@@ -1,23 +1,24 @@
 table:
-  name: invoices
+  name: clients
   schema: public
 object_relationships:
-  - name: board
-    using:
-      foreign_key_constraint_on: board_id
-  - name: client
-    using:
-      foreign_key_constraint_on: client_id
   - name: user
     using:
       foreign_key_constraint_on: user_id
 array_relationships:
-  - name: items
+  - name: boards
     using:
       foreign_key_constraint_on:
-        column: invoice_id
+        column: client_id
         table:
-          name: invoice_items
+          name: boards
+          schema: public
+  - name: invoices
+    using:
+      foreign_key_constraint_on:
+        column: client_id
+        table:
+          name: invoices
           schema: public
 insert_permissions:
   - role: user
@@ -28,41 +29,37 @@ insert_permissions:
       set:
         user_id: x-hasura-User-Id
       columns:
-        - board_id
-        - client_id
+        - address
+        - company_name
         - created_at
         - currency
-        - due_date
-        - hourly_rate
+        - default_rate
+        - email
         - id
-        - invoice_number
-        - issued_date
+        - name
         - notes
-        - status
-        - total_amount
-        - total_hours
+        - phone
         - updated_at
         - user_id
+        - vat_number
     comment: ""
 select_permissions:
   - role: user
     permission:
       columns:
-        - board_id
-        - client_id
+        - address
+        - company_name
         - created_at
         - currency
-        - due_date
-        - hourly_rate
+        - default_rate
+        - email
         - id
-        - invoice_number
-        - issued_date
+        - name
         - notes
-        - status
-        - total_amount
-        - total_hours
+        - phone
         - updated_at
         - user_id
+        - vat_number
       filter:
         user_id:
           _eq: X-Hasura-User-Id
@@ -71,16 +68,16 @@ update_permissions:
   - role: user
     permission:
       columns:
+        - address
+        - company_name
         - currency
-        - due_date
-        - hourly_rate
-        - invoice_number
-        - issued_date
+        - default_rate
+        - email
+        - name
         - notes
-        - status
-        - total_amount
-        - total_hours
+        - phone
         - updated_at
+        - vat_number
       filter:
         user_id:
           _eq: X-Hasura-User-Id

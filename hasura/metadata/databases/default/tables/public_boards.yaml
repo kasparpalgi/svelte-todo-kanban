@@ -2,6 +2,9 @@ table:
   name: boards
   schema: public
 object_relationships:
+  - name: client
+    using:
+      foreign_key_constraint_on: client_id
   - name: user
     using:
       foreign_key_constraint_on: user_id
@@ -48,6 +51,13 @@ array_relationships:
         table:
           name: tracker_keywords
           schema: public
+  - name: invoices
+    using:
+      foreign_key_constraint_on:
+        column: board_id
+        table:
+          name: invoices
+          schema: public
 insert_permissions:
   - role: user
     permission:
@@ -76,6 +86,7 @@ select_permissions:
         - alias
         - allow_public_comments
         - archived_at
+        - client_id
         - created_at
         - github
         - id
@@ -108,6 +119,7 @@ update_permissions:
         - alias
         - allow_public_comments
         - archived_at
+        - client_id
         - github
         - is_public
         - name

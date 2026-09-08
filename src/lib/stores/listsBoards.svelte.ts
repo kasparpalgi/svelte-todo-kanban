@@ -277,6 +277,7 @@ function createListsStore() {
 				| 'allow_public_comments'
 				| 'settings'
 				| 'archived_at'
+				| 'client_id'
 			>
 		>
 	): Promise<ListBoardStoreResult<BoardFieldsFragment>> {

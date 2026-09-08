@@ -149,6 +149,7 @@ export const BOARD_FRAGMENT = graphql(`
 		allow_public_comments
 		settings
 		archived_at
+		client_id
 		created_at
 		updated_at
 		labels {
@@ -161,6 +162,14 @@ export const BOARD_FRAGMENT = graphql(`
 		}
 		board_members {
 			...BoardMemberFields
+		}
+		client {
+			id
+			name
+			company_name
+			email
+			currency
+			default_rate
 		}
 	}
 `);
@@ -1453,6 +1462,170 @@ export const GET_ALL_USER_EXPENSES = graphql(`
 	query GetAllUserExpenses {
 		expenses(where: { deleted_at: { _is_null: true } }, order_by: { created_at: desc }) {
 			...ExpenseFields
+		}
+	}
+`);
+
+// ========== Clients ==========
+
+export const CLIENT_FRAGMENT = graphql(`
+	fragment ClientFields on clients {
+		id
+		user_id
+		name
+		company_name
+		email
+		phone
+		address
+		vat_number
+		currency
+		default_rate
+		notes
+		created_at
+		updated_at
+	}
+`);
+
+export const GET_CLIENTS = graphql(`
+	query GetClients {
+		clients(order_by: { name: asc }) {
+			...ClientFields
+		}
+	}
+`);
+
+export const CREATE_CLIENT = graphql(`
+	mutation CreateClient($object: clients_insert_input!) {
+		insert_clients_one(object: $object) {
+			...ClientFields
+		}
+	}
+`);
+
+export const UPDATE_CLIENT = graphql(`
+	mutation UpdateClient($id: uuid!, $_set: clients_set_input!) {
+		update_clients_by_pk(pk_columns: { id: $id }, _set: $_set) {
+			...ClientFields
+		}
+	}
+`);
+
+export const DELETE_CLIENT = graphql(`
+	mutation DeleteClient($id: uuid!) {
+		delete_clients_by_pk(id: $id) {
+			id
+		}
+	}
+`);
+
+// ========== Invoices ==========
+
+export const INVOICE_ITEM_FRAGMENT = graphql(`
+	fragment InvoiceItemFields on invoice_items {
+		id
+		invoice_id
+		todo_id
+		title
+		hours
+		hourly_rate
+		amount
+		created_at
+	}
+`);
+
+export const INVOICE_FRAGMENT = graphql(`
+	fragment InvoiceFields on invoices {
+		id
+		user_id
+		client_id
+		board_id
+		invoice_number
+		issued_date
+		due_date
+		currency
+		hourly_rate
+		total_hours
+		total_amount
+		notes
+		status
+		created_at
+		updated_at
+		client {
+			...ClientFields
+		}
+		items {
+			...InvoiceItemFields
+		}
+	}
+`);
+
+export const GET_BOARD_INVOICES = graphql(`
+	query GetBoardInvoices($board_id: uuid!) {
+		invoices(where: { board_id: { _eq: $board_id } }, order_by: { created_at: desc }) {
+			...InvoiceFields
+		}
+	}
+`);
+
+export const GET_ALL_INVOICES = graphql(`
+	query GetAllInvoices {
+		invoices(order_by: { created_at: desc }) {
+			...InvoiceFields
+		}
+	}
+`);
+
+export const CREATE_INVOICE_WITH_ITEMS = graphql(`
+	mutation CreateInvoiceWithItems(
+		$invoice: invoices_insert_input!
+		$items: [invoice_items_insert_input!]!
+	) {
+		insert_invoices_one(object: $invoice) {
+			...InvoiceFields
+		}
+		insert_invoice_items(objects: $items) {
+			returning {
+				...InvoiceItemFields
+			}
+		}
+	}
+`);
+
+export const UPDATE_INVOICE_STATUS = graphql(`
+	mutation UpdateInvoiceStatus($id: uuid!, $status: String!) {
+		update_invoices_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {
+			id
+			status
+		}
+	}
+`);
+
+export const DELETE_INVOICE = graphql(`
+	mutation DeleteInvoice($id: uuid!) {
+		delete_invoice_items(where: { invoice_id: { _eq: $id } }) {
+			affected_rows
+		}
+		delete_invoices_by_pk(id: $id) {
+			id
+		}
+	}
+`);
+
+export const GET_TODOS_FOR_INVOICING = graphql(`
+	query GetTodosForInvoicing($list_ids: [uuid!]!) {
+		todos(
+			where: { list_id: { _in: $list_ids }, actual_hours: { _gt: 0 } }
+			order_by: { sort_order: asc }
+		) {
+			id
+			title
+			actual_hours
+			list_id
+			completed_at
+			list {
+				id
+				name
+			}
 		}
 	}
 `);

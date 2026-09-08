@@ -45,6 +45,8 @@
 	import BoardMembers from './BoardMembers.svelte';
 	import BoardVisibilitySettings from './BoardVisibilitySettings.svelte';
 	import githubLogo from '$lib/assets/github.svg';
+	import { clientsStore } from '$lib/stores/clients.svelte';
+	import { Building2 } from 'lucide-svelte';
 
 	let showBoardDialog = $state(false);
 	let editingBoard = $state<{ id: string; name: string; github?: string | null } | null>(null);
@@ -87,6 +89,7 @@
 	$effect(() => {
 		listsStore.loadBoards();
 		listsStore.loadArchivedBoards();
+		clientsStore.loadClients();
 	});
 
 	const todoCountByBoard = $derived(() => {
@@ -280,6 +283,15 @@
 
 		if (result.success) {
 			displayMessage($t('board.settings_updated'), 1500, true);
+		} else {
+			displayMessage(result.message);
+		}
+	}
+
+	async function handleAssignClient(boardId: string, clientId: string | null) {
+		const result = await listsStore.updateBoard(boardId, { client_id: clientId });
+		if (result.success) {
+			displayMessage($t('board.client_assigned'), 1500, true);
 		} else {
 			displayMessage(result.message);
 		}
@@ -485,6 +497,27 @@
 														<span>{$t('board.enable_hour_tracking')}</span>
 													</Label>
 												</div>
+												{#if clientsStore.clients.length > 0}
+													<div class="px-2 py-1.5 text-sm">
+														<label class="flex flex-col gap-1">
+															<span class="flex items-center gap-1 text-xs text-muted-foreground">
+																<Building2 class="h-3 w-3" />
+																{$t('board.client')}
+															</span>
+															<select
+																class="rounded border bg-background px-1 py-0.5 text-xs"
+																value={board.client_id ?? ''}
+																onchange={(e) =>
+																	handleAssignClient(board.id, e.currentTarget.value || null)}
+															>
+																<option value="">{$t('board.no_client')}</option>
+																{#each clientsStore.clients as client (client.id)}
+																	<option value={client.id}>{client.name}</option>
+																{/each}
+															</select>
+														</label>
+													</div>
+												{/if}
 												<DropdownMenuSeparator />
 												<DropdownMenuItem onclick={() => handleArchiveBoard(board.id, board.name)}>
 													<Archive class="mr-2 h-3 w-3" />

@@ -26,6 +26,7 @@
 	import GoogleCalendarIntegration from '$lib/components/settings/GoogleCalendarIntegration.svelte';
 	import SpeechToTextIntegration from '$lib/components/settings/SpeechToTextIntegration.svelte';
 	import DevMode from '$lib/components/DevMode.svelte';
+	import ClientsManagement from '$lib/components/invoicing/ClientsManagement.svelte';
 
 	let user = $derived(userStore.user);
 	let initialized = $state(false);
@@ -341,6 +342,8 @@
 			<GithubIntegration />
 
 			<GoogleCalendarIntegration />
+
+			<ClientsManagement />
 
 			<div class="flex items-center justify-between">
 				<Button
