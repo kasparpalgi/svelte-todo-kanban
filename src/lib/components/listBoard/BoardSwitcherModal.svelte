@@ -74,7 +74,7 @@
 </script>
 
 <div
-	class="fixed inset-0 z-[60] flex items-start justify-center bg-black/50 p-2 pt-[4.5rem]"
+	class="fixed inset-0 z-[60] flex items-start justify-center bg-black/70 p-2 pt-[4.5rem]"
 	onclick={close}
 	role="button"
 	tabindex="0"
