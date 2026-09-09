@@ -4,7 +4,7 @@
 
 [NEVER REMOVE]
 
-New board switcher was implemented but the top part of it not visible. How to see it? Added to the outer div `mt-36` and in localhost looks good and also Vercel deploy looks green but live Hetzner maybe not deployed?
+New board switcher was implemented but the top part of it not visible. How to see it? Added to the outer div `mt-36` and in localhost looks good and also Vercel deploy looks green but live Hetzner maybe not deployed? Hetzner is the
 
 Also, invoices functionality was implemented. Where can I see it?
 
