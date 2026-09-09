@@ -39,3 +39,14 @@ _GitHub issue #171 — end the commit subject with `(#171)`._
 - [x] Fixed `invoices/+page.svelte`: changed `$app/stores` → `$app/state`
 - [x] TypeScript check passed
 - [x] Committed
+
+### Round 2 — modal still clipped (root cause: `backdrop-filter`)
+
+**Root cause**: `BoardSwitcherModal` was rendered inside `<header>` (via `BoardSwitcher → UserMenu → nav → header`). The header has `backdrop-blur` (`backdrop-filter: blur(...)`), which in CSS creates a new containing block for `fixed`-position descendants. This clamped the `fixed inset-0` backdrop to the 68px header height instead of the full viewport.
+
+- [x] Moved modal rendering to `[lang]/+layout.svelte` (outside `<header>`) using `actionState.showBoardSwitcher` flag
+- [x] `BoardSwitcher.svelte` now just sets `actionState.showBoardSwitcher = true` (no inline modal)
+- [x] Modal positioned with `items-start pt-[4.5rem]` — appears just below header with ~15px gap
+- [x] Increased backdrop from `bg-black/50` → `bg-black/70` for dark mode visibility
+- [x] Commits: bb1707f, 012d061, 82f270e
+- [x] Confirmed working in browser as test@e-stonia.co.uk
