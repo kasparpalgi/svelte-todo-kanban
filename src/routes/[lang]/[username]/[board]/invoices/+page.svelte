@@ -1,7 +1,7 @@
 <script lang="ts">
 	/** @file src/routes/[lang]/[username]/[board]/invoices/+page.svelte */
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n';
 	import { Button } from '$lib/components/ui/button';
@@ -29,7 +29,7 @@
 	const hasClients = $derived(clientsStore.clients.length > 0);
 
 	function handleBack() {
-		goto(`/${$page.params.lang}/${$page.params.username}/${$page.params.board}`);
+		goto(`/${page.params.lang}/${page.params.username}/${page.params.board}`);
 	}
 </script>
 
@@ -56,7 +56,7 @@
 	{#if !hasClients}
 		<div class="rounded-lg border p-6 text-center">
 			<p class="mb-2 text-muted-foreground">{$t('invoicing.no_clients_hint')}</p>
-			<Button variant="outline" onclick={() => goto(`/${$page.params.lang}/settings`)}>
+			<Button variant="outline" onclick={() => goto(`/${page.params.lang}/settings`)}>
 				{$t('invoicing.go_to_settings')}
 			</Button>
 		</div>

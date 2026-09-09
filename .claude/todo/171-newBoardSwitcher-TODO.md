@@ -13,3 +13,29 @@ Also, invoices functionality was implemented. Where can I see it?
 _From Kanban card `74165cb6-d463-41c2-ab80-b4b2295244ad`._
 
 _GitHub issue #171 — end the commit subject with `(#171)`._
+
+---
+
+## Analysis
+
+### Board Switcher
+
+- `BoardSwitcherModal.svelte` backdrop: `fixed inset-0` with NO z-index
+- The `[lang]/+layout.svelte` header has `sticky top-0 z-50`
+- Without a z-index the modal renders BEHIND the header → header covers top of modal
+- Workaround `mt-36` shifts the inner div down so it's fully below the header (~144px)
+- Proper fix: add `z-[60]` to backdrop div + remove `mt-36` from inner div
+
+### Invoices
+
+- Page route: `src/routes/[lang]/[username]/[board]/invoices/+page.svelte`
+- Access via UserMenu → Invoices menu item (FileText icon) – only when a board is selected
+- URL pattern: `/{lang}/{username}/{boardAlias}/invoices`
+- Bug: `import { page } from '$app/stores'` (Svelte 4) should be `$app/state` (Svelte 5)
+
+## Action Log
+
+- [x] Fixed `BoardSwitcherModal.svelte`: added `z-[60]` + semi-transparent backdrop to outer div, removed `mt-36` from inner div
+- [x] Fixed `invoices/+page.svelte`: changed `$app/stores` → `$app/state`
+- [x] TypeScript check passed
+- [x] Committed

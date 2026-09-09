@@ -74,7 +74,7 @@
 </script>
 
 <div
-	class="fixed inset-0 flex items-center justify-center p-2"
+	class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-2"
 	onclick={close}
 	role="button"
 	tabindex="0"
@@ -83,7 +83,7 @@
 	<div
 		in:scale={{ duration: 200, start: 0.5 }}
 		out:scale={{ duration: 200, start: 0.5 }}
-		class="mt-36 flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-background shadow-2xl"
+		class="flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-background shadow-2xl"
 		onclick={(e) => e.stopPropagation()}
 		tabindex="0"
 		role="button"
