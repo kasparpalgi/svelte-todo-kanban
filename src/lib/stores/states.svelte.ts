@@ -7,6 +7,7 @@ export let actionState = $state({
 	edit: '',
 	viewMode: 'kanban',
 	showFilters: false,
+	showBoardSwitcher: false,
 
 	tBoard() {
 		const translate = get(t) as TranslationFunction;
