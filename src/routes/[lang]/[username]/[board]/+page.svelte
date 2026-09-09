@@ -62,8 +62,8 @@
 	// This prevents old board content from flashing before the spinner appears.
 	const isSwitchingBoards = $derived(
 		todosStore.initialized &&
-		listsStore.selectedBoard !== null &&
-		todosStore.currentBoardId !== listsStore.selectedBoard?.id
+			listsStore.selectedBoard !== null &&
+			todosStore.currentBoardId !== listsStore.selectedBoard?.id
 	);
 	const isNotMember: boolean = $derived.by(() => {
 		const board = listsStore.selectedBoard;
@@ -107,7 +107,8 @@
 				const notMember = !isMember && !isOwner;
 
 				// Check if we need to load todos (first load or board changed)
-				const needsToLoadTodos = !notMember && (!todosStore.initialized || todosStore.currentBoardId !== board.id);
+				const needsToLoadTodos =
+					!notMember && (!todosStore.initialized || todosStore.currentBoardId !== board.id);
 
 				if (needsToLoadTodos) {
 					// Load initial todos (top 50 with minimal data)
@@ -128,7 +129,20 @@
 		}
 	}
 
-	onMount(async () => {
+	// Silently re-fetch the current board's data so changes made by other
+	// users/tabs/devices show up without a manual page refresh.
+	async function refreshBoardInBackground() {
+		if (!data?.session || !listsStore.selectedBoard || document.hidden) return;
+
+		const boardId = listsStore.selectedBoard.id;
+		await Promise.all([
+			todosStore.refreshBoardTodos(boardId),
+			listsStore.loadLists(),
+			listsStore.loadBoards()
+		]);
+	}
+
+	onMount(() => {
 		// Load view mode preference
 		const saved = localStorage.getItem('todo-view-mode');
 		if (saved === 'list' || saved === 'kanban') {
@@ -136,7 +150,27 @@
 		}
 
 		// Load initial board
-		await loadBoardData(boardAlias);
+		loadBoardData(boardAlias).catch((e) => console.error('[BoardPage] initial load error:', e));
+
+		// Poll for changes made elsewhere every 30s, and refresh immediately
+		// whenever the tab regains focus/visibility.
+		const pollInterval = setInterval(() => {
+			refreshBoardInBackground().catch((e) => console.error('[BoardPage] poll refresh error:', e));
+		}, 30000);
+
+		const handleVisibilityChange = () => {
+			if (!document.hidden) {
+				refreshBoardInBackground().catch((e) =>
+					console.error('[BoardPage] visibility refresh error:', e)
+				);
+			}
+		};
+		document.addEventListener('visibilitychange', handleVisibilityChange);
+
+		return () => {
+			clearInterval(pollInterval);
+			document.removeEventListener('visibilitychange', handleVisibilityChange);
+		};
 	});
 
 	// React to board alias changes (when switching boards)
@@ -149,7 +183,9 @@
 
 	$effect(() => {
 		if (isNotMember) {
-			invitationsStore.loadMyInvitations().catch((e) => console.error('[BoardPage] loadMyInvitations error:', e));
+			invitationsStore
+				.loadMyInvitations()
+				.catch((e) => console.error('[BoardPage] loadMyInvitations error:', e));
 		}
 	});
 
@@ -203,9 +239,7 @@
 		// Only handle if not typing in an input field
 		const target = event.target as HTMLElement;
 		const isInputField =
-			target.tagName === 'INPUT' ||
-			target.tagName === 'TEXTAREA' ||
-			target.isContentEditable;
+			target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 
 		if (isInputField) return;
 
@@ -276,9 +310,7 @@
 	<!-- Bot view - show minimal content, OG tags are already rendered above -->
 	<div class="py-12 text-center">
 		<h1 class="mb-4 text-2xl font-bold">ToDzz</h1>
-		<p class="text-muted-foreground">
-			Sign in to view this board
-		</p>
+		<p class="text-muted-foreground">Sign in to view this board</p>
 	</div>
 {:else if loading || isSwitchingBoards}
 	<div class="flex items-center justify-center py-12">
@@ -510,5 +542,4 @@
 			boardName={listsStore.selectedBoard.name}
 		/>
 	{/if}
-
 {/if}

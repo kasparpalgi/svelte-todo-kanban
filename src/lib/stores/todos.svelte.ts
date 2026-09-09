@@ -905,6 +905,54 @@ function createTodosStore() {
 		}
 	}
 
+	/**
+	 * Silently re-fetch all todos for a board without touching `loading`,
+	 * so polling doesn't flash the loading spinner. Used to pick up changes
+	 * made by other users/tabs without requiring a manual page refresh.
+	 */
+	async function refreshBoardTodos(boardId: string): Promise<void> {
+		if (!browser) return;
+
+		try {
+			const { Order_By } = await import('$lib/graphql/generated/graphql');
+
+			const activeWhere: any = {
+				completed_at: { _is_null: true },
+				list: { board_id: { _eq: boardId } }
+			};
+			const completedWhere: any = {
+				completed_at: { _is_null: false },
+				list: { board_id: { _eq: boardId } }
+			};
+
+			const [activeData, completedData]: [GetTodosQuery, GetTodosQuery] = await Promise.all([
+				request(GET_TODOS, {
+					where: activeWhere,
+					order_by: [
+						{ sort_order: Order_By.Asc },
+						{ due_on: Order_By.Desc },
+						{ updated_at: Order_By.Desc }
+					],
+					limit: 1000,
+					offset: 0
+				}),
+				request(GET_TODOS, {
+					where: completedWhere,
+					order_by: [{ completed_at: Order_By.Desc }],
+					limit: 200,
+					offset: 0
+				})
+			]);
+
+			// Board may have changed while this request was in flight
+			if (state.currentBoardId !== boardId) return;
+
+			state.todos = [...(activeData.todos || []), ...(completedData.todos || [])];
+		} catch (error) {
+			console.error('Refresh board todos error:', error);
+		}
+	}
+
 	async function toggleTodo(id: string): Promise<StoreResult> {
 		const todo = state.todos.find((t) => t.id === id);
 		if (!todo) return { success: false, message: 'Todo not found' };
@@ -1186,6 +1234,7 @@ function createTodosStore() {
 		createUpload,
 		deleteUpload,
 		refreshTodo,
+		refreshBoardTodos,
 		subscribeToTodo,
 		unsubscribeFromTodo,
 		getTodoSubscribers,
