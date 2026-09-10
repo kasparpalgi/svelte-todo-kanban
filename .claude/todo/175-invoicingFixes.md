@@ -16,6 +16,6 @@
 
 - All invoice settings bring uder invoices page not general settings.
 
-- When adding customer,
+- When adding customer to invoice then shall be able to also tie that customer with Todzz user and
 
 _From Kanban card `231d2019-83bd-4c02-9551-b3f56f72a28b`._
