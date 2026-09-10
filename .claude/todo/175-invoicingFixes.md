@@ -16,6 +16,6 @@
 
 - All invoice settings bring uder invoices page not general settings.
 
-- When adding customer to invoice then shall be able to also tie that invoice customer with
+- When adding customer to invoice then shall be able to also tie that invoice customer with todzz user and with one or more board.
 
 _From Kanban card `231d2019-83bd-4c02-9551-b3f56f72a28b`._
