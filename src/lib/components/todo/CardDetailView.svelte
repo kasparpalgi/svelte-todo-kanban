@@ -19,7 +19,7 @@
 	import { Calendar as CalendarPrimitive } from '$lib/components/ui/calendar';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
 	import { Checkbox } from '$lib/components/ui/checkbox';
-	import { X, Calendar as CalendarIcon, Tag, Clock } from 'lucide-svelte';
+	import { X, Calendar as CalendarIcon, Tag, Clock, ExternalLink } from 'lucide-svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
 	import VoiceInput from '$lib/components/todo/VoiceInput.svelte';
 	import AITaskButton from '$lib/components/todo/AITaskButton.svelte';
@@ -39,6 +39,11 @@
 	let addToGoogleCalendar = $state(false);
 	const user = $derived(userStore.user);
 	const hasCalendarConnected = $derived(!!user?.settings?.tokens?.google_calendar?.encrypted);
+	const taskFileUrl = $derived(
+		todo.task_file_path && todo.list?.board?.github
+			? `https://github.com/${todo.list.board.github}/blob/main/${todo.task_file_path}`
+			: null
+	);
 	let dueDateTime = $state<Date | null>(todo.due_on ? new Date(todo.due_on) : null);
 
 	let editData = $state({
@@ -422,6 +427,20 @@
 	</Button>
 
 	<CardHeader class="pr-12 pb-4">
+		{#if taskFileUrl}
+			<a
+				href={taskFileUrl}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="mb-3 flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300 dark:hover:bg-amber-950/50"
+			>
+				<ExternalLink class="h-3.5 w-3.5 shrink-0" />
+				<span class="truncate">{todo.task_file_path}</span>
+				<span class="ml-auto shrink-0 opacity-70">
+					{$t('card.task_file_notice') || 'Edits now go to the file, not this card'}
+				</span>
+			</a>
+		{/if}
 		<div class="mb-3 flex flex-wrap items-start justify-between gap-2">
 			<div class="flex items-center gap-1.5 text-xs text-muted-foreground">
 				{#if isSubmitting}
