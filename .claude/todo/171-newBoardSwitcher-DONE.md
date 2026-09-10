@@ -50,3 +50,7 @@ _GitHub issue #171 — end the commit subject with `(#171)`._
 - [x] Increased backdrop from `bg-black/50` → `bg-black/70` for dark mode visibility
 - [x] Commits: bb1707f, 012d061, 82f270e
 - [x] Confirmed working in browser as test@e-stonia.co.uk
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean with nothing left to commit — see the `.log` beside this file for the full session.
