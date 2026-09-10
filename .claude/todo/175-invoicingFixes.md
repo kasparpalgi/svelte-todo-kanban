@@ -10,6 +10,8 @@
 
 - Invoice due set by default 5 days
 
-- Make it possible to add invoice
+- Make it possible to add invoice custom fields
+
+-
 
 _From Kanban card `231d2019-83bd-4c02-9551-b3f56f72a28b`._
