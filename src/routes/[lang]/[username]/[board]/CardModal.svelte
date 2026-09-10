@@ -11,7 +11,8 @@
 	import CardDetailView from '$lib/components/todo/CardDetailView.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
-	let { cardAlias, lang, onClose }: { cardAlias: string; lang: string; onClose: () => void } = $props();
+	let { cardAlias, lang, onClose }: { cardAlias: string; lang: string; onClose: () => void } =
+		$props();
 
 	let todo = $state<TodoFieldsFragment | null>(null);
 	let loading = $state(true);
@@ -55,7 +56,8 @@
 	}
 
 	function handleBackdropClick(event: MouseEvent) {
-		if (event.target === event.currentTarget) {
+		const target = event.target as HTMLElement;
+		if (!target.closest('[data-card-modal]')) {
 			closeModal();
 		}
 	}
