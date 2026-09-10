@@ -56,3 +56,7 @@ _GitHub issue #133 — end the commit subject with `(#133)`._
 ## Result
 
 Commit: 9c05505
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean with nothing left to commit — see the `.log` beside this file for the full session.
