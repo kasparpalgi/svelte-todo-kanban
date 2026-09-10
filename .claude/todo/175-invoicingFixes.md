@@ -12,6 +12,6 @@
 
 - Make it possible to add invoice custom fields
 
-- Under settings shall be possible to also add my company name, address, etc from who the invoice is and I may have multiple companies from where I invoice. Some
+- Under settings shall be possible to also add my company name, address, etc from who the invoice is and I may have multiple companies from where I invoice. Some may be VAT registered, some not so also set vat rate (default 0) for each company. All invoice settings bring uder invoices page not general settings.
 
 _From Kanban card `231d2019-83bd-4c02-9551-b3f56f72a28b`._
