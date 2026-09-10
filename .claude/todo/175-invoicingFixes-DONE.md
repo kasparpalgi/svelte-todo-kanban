@@ -85,3 +85,7 @@ _GitHub issue #175 — end the commit subject with `(#175)`._
 - [x] 6. Invoice companies — `invoice_companies` table (migration 1796000001000); full CRUD store + `InvoiceCompaniesManagement.svelte`; company selector in invoice dialog; `company_id` on invoices
 - [x] 7. Move settings to invoices page — `ClientsManagement` removed from general settings; new `InvoiceSettings.svelte` tab panel (clients + companies) accessible via ⚙ button on invoices page; "go to settings" button now opens inline settings
 - [x] 8. Customer-user linking — `linked_user_id` added to `clients` table (migration 1796000001000); user dropdown in `ClientsManagement` form
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
