@@ -1472,6 +1472,7 @@ export const CLIENT_FRAGMENT = graphql(`
 	fragment ClientFields on clients {
 		id
 		user_id
+		linked_user_id
 		name
 		company_name
 		email
@@ -1520,6 +1521,52 @@ export const DELETE_CLIENT = graphql(`
 
 // ========== Invoices ==========
 
+export const INVOICE_COMPANY_FRAGMENT = graphql(`
+	fragment InvoiceCompanyFields on invoice_companies {
+		id
+		user_id
+		name
+		address
+		vat_number
+		vat_rate
+		is_default
+		created_at
+		updated_at
+	}
+`);
+
+export const GET_INVOICE_COMPANIES = graphql(`
+	query GetInvoiceCompanies {
+		invoice_companies(order_by: [{ is_default: desc }, { name: asc }]) {
+			...InvoiceCompanyFields
+		}
+	}
+`);
+
+export const CREATE_INVOICE_COMPANY = graphql(`
+	mutation CreateInvoiceCompany($object: invoice_companies_insert_input!) {
+		insert_invoice_companies_one(object: $object) {
+			...InvoiceCompanyFields
+		}
+	}
+`);
+
+export const UPDATE_INVOICE_COMPANY = graphql(`
+	mutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {
+		update_invoice_companies_by_pk(pk_columns: { id: $id }, _set: $_set) {
+			...InvoiceCompanyFields
+		}
+	}
+`);
+
+export const DELETE_INVOICE_COMPANY = graphql(`
+	mutation DeleteInvoiceCompany($id: uuid!) {
+		delete_invoice_companies_by_pk(id: $id) {
+			id
+		}
+	}
+`);
+
 export const INVOICE_ITEM_FRAGMENT = graphql(`
 	fragment InvoiceItemFields on invoice_items {
 		id
@@ -1539,6 +1586,7 @@ export const INVOICE_FRAGMENT = graphql(`
 		user_id
 		client_id
 		board_id
+		company_id
 		invoice_number
 		issued_date
 		due_date
@@ -1546,12 +1594,16 @@ export const INVOICE_FRAGMENT = graphql(`
 		hourly_rate
 		total_hours
 		total_amount
+		custom_fields
 		notes
 		status
 		created_at
 		updated_at
 		client {
 			...ClientFields
+		}
+		company {
+			...InvoiceCompanyFields
 		}
 		items {
 			...InvoiceItemFields
@@ -1576,16 +1628,18 @@ export const GET_ALL_INVOICES = graphql(`
 `);
 
 export const CREATE_INVOICE_WITH_ITEMS = graphql(`
-	mutation CreateInvoiceWithItems(
-		$invoice: invoices_insert_input!
-		$items: [invoice_items_insert_input!]!
-	) {
+	mutation CreateInvoiceWithItems($invoice: invoices_insert_input!) {
 		insert_invoices_one(object: $invoice) {
 			...InvoiceFields
 		}
-		insert_invoice_items(objects: $items) {
-			returning {
-				...InvoiceItemFields
+	}
+`);
+
+export const GET_INVOICES_ISSUED_TODAY = graphql(`
+	query GetInvoicesIssuedToday($today: date!) {
+		invoices_aggregate(where: { issued_date: { _eq: $today } }) {
+			aggregate {
+				count
 			}
 		}
 	}

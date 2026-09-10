@@ -8,6 +8,9 @@ object_relationships:
   - name: client
     using:
       foreign_key_constraint_on: client_id
+  - name: company
+    using:
+      foreign_key_constraint_on: company_id
   - name: user
     using:
       foreign_key_constraint_on: user_id
@@ -30,8 +33,10 @@ insert_permissions:
       columns:
         - board_id
         - client_id
+        - company_id
         - created_at
         - currency
+        - custom_fields
         - due_date
         - hourly_rate
         - id
@@ -50,8 +55,10 @@ select_permissions:
       columns:
         - board_id
         - client_id
+        - company_id
         - created_at
         - currency
+        - custom_fields
         - due_date
         - hourly_rate
         - id
@@ -71,7 +78,9 @@ update_permissions:
   - role: user
     permission:
       columns:
+        - company_id
         - currency
+        - custom_fields
         - due_date
         - hourly_rate
         - invoice_number

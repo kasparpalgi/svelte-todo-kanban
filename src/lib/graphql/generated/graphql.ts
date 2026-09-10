@@ -2318,6 +2318,9 @@ export type Clients = {
   invoices: Array<Invoices>;
   /** An aggregate relationship */
   invoices_aggregate: Invoices_Aggregate;
+  /** An object relationship */
+  linked_user?: Maybe<Users>;
+  linked_user_id?: Maybe<Scalars['uuid']['output']>;
   name: Scalars['String']['output'];
   notes?: Maybe<Scalars['String']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
@@ -2420,6 +2423,8 @@ export type Clients_Bool_Exp = {
   id?: InputMaybe<Uuid_Comparison_Exp>;
   invoices?: InputMaybe<Invoices_Bool_Exp>;
   invoices_aggregate?: InputMaybe<Invoices_Aggregate_Bool_Exp>;
+  linked_user?: InputMaybe<Users_Bool_Exp>;
+  linked_user_id?: InputMaybe<Uuid_Comparison_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
   notes?: InputMaybe<String_Comparison_Exp>;
   phone?: InputMaybe<String_Comparison_Exp>;
@@ -2451,6 +2456,8 @@ export type Clients_Insert_Input = {
   email?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   invoices?: InputMaybe<Invoices_Arr_Rel_Insert_Input>;
+  linked_user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  linked_user_id?: InputMaybe<Scalars['uuid']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
@@ -2470,6 +2477,7 @@ export type Clients_Max_Fields = {
   default_rate?: Maybe<Scalars['numeric']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
+  linked_user_id?: Maybe<Scalars['uuid']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
@@ -2488,6 +2496,7 @@ export type Clients_Min_Fields = {
   default_rate?: Maybe<Scalars['numeric']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
+  linked_user_id?: Maybe<Scalars['uuid']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
@@ -2530,6 +2539,8 @@ export type Clients_Order_By = {
   email?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   invoices_aggregate?: InputMaybe<Invoices_Aggregate_Order_By>;
+  linked_user?: InputMaybe<Users_Order_By>;
+  linked_user_id?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
   notes?: InputMaybe<Order_By>;
   phone?: InputMaybe<Order_By>;
@@ -2561,6 +2572,8 @@ export enum Clients_Select_Column {
   /** column name */
   Id = 'id',
   /** column name */
+  LinkedUserId = 'linked_user_id',
+  /** column name */
   Name = 'name',
   /** column name */
   Notes = 'notes',
@@ -2583,6 +2596,7 @@ export type Clients_Set_Input = {
   default_rate?: InputMaybe<Scalars['numeric']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  linked_user_id?: InputMaybe<Scalars['uuid']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
@@ -2626,6 +2640,7 @@ export type Clients_Stream_Cursor_Value_Input = {
   default_rate?: InputMaybe<Scalars['numeric']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
+  linked_user_id?: InputMaybe<Scalars['uuid']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
@@ -2656,6 +2671,8 @@ export enum Clients_Update_Column {
   Email = 'email',
   /** column name */
   Id = 'id',
+  /** column name */
+  LinkedUserId = 'linked_user_id',
   /** column name */
   Name = 'name',
   /** column name */
@@ -3893,6 +3910,325 @@ export type Expenses_Variance_Order_By = {
   amount?: InputMaybe<Order_By>;
 };
 
+/** columns and relationships of "invoice_companies" */
+export type Invoice_Companies = {
+  __typename?: 'invoice_companies';
+  address?: Maybe<Scalars['String']['output']>;
+  created_at: Scalars['timestamptz']['output'];
+  id: Scalars['uuid']['output'];
+  /** An array relationship */
+  invoices: Array<Invoices>;
+  /** An aggregate relationship */
+  invoices_aggregate: Invoices_Aggregate;
+  is_default: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  updated_at: Scalars['timestamptz']['output'];
+  /** An object relationship */
+  user: Users;
+  user_id: Scalars['uuid']['output'];
+  vat_number?: Maybe<Scalars['String']['output']>;
+  vat_rate: Scalars['numeric']['output'];
+};
+
+
+/** columns and relationships of "invoice_companies" */
+export type Invoice_CompaniesInvoicesArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+
+/** columns and relationships of "invoice_companies" */
+export type Invoice_CompaniesInvoices_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoices_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoices_Order_By>>;
+  where?: InputMaybe<Invoices_Bool_Exp>;
+};
+
+/** aggregated selection of "invoice_companies" */
+export type Invoice_Companies_Aggregate = {
+  __typename?: 'invoice_companies_aggregate';
+  aggregate?: Maybe<Invoice_Companies_Aggregate_Fields>;
+  nodes: Array<Invoice_Companies>;
+};
+
+/** aggregate fields of "invoice_companies" */
+export type Invoice_Companies_Aggregate_Fields = {
+  __typename?: 'invoice_companies_aggregate_fields';
+  avg?: Maybe<Invoice_Companies_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Invoice_Companies_Max_Fields>;
+  min?: Maybe<Invoice_Companies_Min_Fields>;
+  stddev?: Maybe<Invoice_Companies_Stddev_Fields>;
+  stddev_pop?: Maybe<Invoice_Companies_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Invoice_Companies_Stddev_Samp_Fields>;
+  sum?: Maybe<Invoice_Companies_Sum_Fields>;
+  var_pop?: Maybe<Invoice_Companies_Var_Pop_Fields>;
+  var_samp?: Maybe<Invoice_Companies_Var_Samp_Fields>;
+  variance?: Maybe<Invoice_Companies_Variance_Fields>;
+};
+
+
+/** aggregate fields of "invoice_companies" */
+export type Invoice_Companies_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Invoice_Companies_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Invoice_Companies_Avg_Fields = {
+  __typename?: 'invoice_companies_avg_fields';
+  vat_rate?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "invoice_companies". All fields are combined with a logical 'AND'. */
+export type Invoice_Companies_Bool_Exp = {
+  _and?: InputMaybe<Array<Invoice_Companies_Bool_Exp>>;
+  _not?: InputMaybe<Invoice_Companies_Bool_Exp>;
+  _or?: InputMaybe<Array<Invoice_Companies_Bool_Exp>>;
+  address?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  invoices?: InputMaybe<Invoices_Bool_Exp>;
+  invoices_aggregate?: InputMaybe<Invoices_Aggregate_Bool_Exp>;
+  is_default?: InputMaybe<Boolean_Comparison_Exp>;
+  name?: InputMaybe<String_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+  vat_number?: InputMaybe<String_Comparison_Exp>;
+  vat_rate?: InputMaybe<Numeric_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "invoice_companies" */
+export enum Invoice_Companies_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  InvoiceCompaniesPkey = 'invoice_companies_pkey'
+}
+
+/** input type for incrementing numeric columns in table "invoice_companies" */
+export type Invoice_Companies_Inc_Input = {
+  vat_rate?: InputMaybe<Scalars['numeric']['input']>;
+};
+
+/** input type for inserting data into table "invoice_companies" */
+export type Invoice_Companies_Insert_Input = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  invoices?: InputMaybe<Invoices_Arr_Rel_Insert_Input>;
+  is_default?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+  vat_number?: InputMaybe<Scalars['String']['input']>;
+  vat_rate?: InputMaybe<Scalars['numeric']['input']>;
+};
+
+/** aggregate max on columns */
+export type Invoice_Companies_Max_Fields = {
+  __typename?: 'invoice_companies_max_fields';
+  address?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+  vat_number?: Maybe<Scalars['String']['output']>;
+  vat_rate?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** aggregate min on columns */
+export type Invoice_Companies_Min_Fields = {
+  __typename?: 'invoice_companies_min_fields';
+  address?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+  vat_number?: Maybe<Scalars['String']['output']>;
+  vat_rate?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** response of any mutation on the table "invoice_companies" */
+export type Invoice_Companies_Mutation_Response = {
+  __typename?: 'invoice_companies_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Invoice_Companies>;
+};
+
+/** input type for inserting object relation for remote table "invoice_companies" */
+export type Invoice_Companies_Obj_Rel_Insert_Input = {
+  data: Invoice_Companies_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Invoice_Companies_On_Conflict>;
+};
+
+/** on_conflict condition type for table "invoice_companies" */
+export type Invoice_Companies_On_Conflict = {
+  constraint: Invoice_Companies_Constraint;
+  update_columns?: Array<Invoice_Companies_Update_Column>;
+  where?: InputMaybe<Invoice_Companies_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "invoice_companies". */
+export type Invoice_Companies_Order_By = {
+  address?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  invoices_aggregate?: InputMaybe<Invoices_Aggregate_Order_By>;
+  is_default?: InputMaybe<Order_By>;
+  name?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+  vat_number?: InputMaybe<Order_By>;
+  vat_rate?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: invoice_companies */
+export type Invoice_Companies_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "invoice_companies" */
+export enum Invoice_Companies_Select_Column {
+  /** column name */
+  Address = 'address',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  IsDefault = 'is_default',
+  /** column name */
+  Name = 'name',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id',
+  /** column name */
+  VatNumber = 'vat_number',
+  /** column name */
+  VatRate = 'vat_rate'
+}
+
+/** input type for updating data in table "invoice_companies" */
+export type Invoice_Companies_Set_Input = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  is_default?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+  vat_number?: InputMaybe<Scalars['String']['input']>;
+  vat_rate?: InputMaybe<Scalars['numeric']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Invoice_Companies_Stddev_Fields = {
+  __typename?: 'invoice_companies_stddev_fields';
+  vat_rate?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Invoice_Companies_Stddev_Pop_Fields = {
+  __typename?: 'invoice_companies_stddev_pop_fields';
+  vat_rate?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Invoice_Companies_Stddev_Samp_Fields = {
+  __typename?: 'invoice_companies_stddev_samp_fields';
+  vat_rate?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "invoice_companies" */
+export type Invoice_Companies_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Invoice_Companies_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Invoice_Companies_Stream_Cursor_Value_Input = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  is_default?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+  vat_number?: InputMaybe<Scalars['String']['input']>;
+  vat_rate?: InputMaybe<Scalars['numeric']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Invoice_Companies_Sum_Fields = {
+  __typename?: 'invoice_companies_sum_fields';
+  vat_rate?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** update columns of table "invoice_companies" */
+export enum Invoice_Companies_Update_Column {
+  /** column name */
+  Address = 'address',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  IsDefault = 'is_default',
+  /** column name */
+  Name = 'name',
+  /** column name */
+  UpdatedAt = 'updated_at',
+  /** column name */
+  UserId = 'user_id',
+  /** column name */
+  VatNumber = 'vat_number',
+  /** column name */
+  VatRate = 'vat_rate'
+}
+
+export type Invoice_Companies_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Invoice_Companies_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Invoice_Companies_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Invoice_Companies_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Invoice_Companies_Var_Pop_Fields = {
+  __typename?: 'invoice_companies_var_pop_fields';
+  vat_rate?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Invoice_Companies_Var_Samp_Fields = {
+  __typename?: 'invoice_companies_var_samp_fields';
+  vat_rate?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Invoice_Companies_Variance_Fields = {
+  __typename?: 'invoice_companies_variance_fields';
+  vat_rate?: Maybe<Scalars['Float']['output']>;
+};
+
 /** columns and relationships of "invoice_items" */
 export type Invoice_Items = {
   __typename?: 'invoice_items';
@@ -4312,8 +4648,12 @@ export type Invoices = {
   /** An object relationship */
   client: Clients;
   client_id: Scalars['uuid']['output'];
+  /** An object relationship */
+  company?: Maybe<Invoice_Companies>;
+  company_id?: Maybe<Scalars['uuid']['output']>;
   created_at: Scalars['timestamptz']['output'];
   currency: Scalars['String']['output'];
+  custom_fields: Scalars['jsonb']['output'];
   due_date?: Maybe<Scalars['date']['output']>;
   hourly_rate: Scalars['numeric']['output'];
   id: Scalars['uuid']['output'];
@@ -4331,6 +4671,12 @@ export type Invoices = {
   /** An object relationship */
   user: Users;
   user_id: Scalars['uuid']['output'];
+};
+
+
+/** columns and relationships of "invoices" */
+export type InvoicesCustom_FieldsArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -4409,6 +4755,11 @@ export type Invoices_Aggregate_Order_By = {
   variance?: InputMaybe<Invoices_Variance_Order_By>;
 };
 
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type Invoices_Append_Input = {
+  custom_fields?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
 /** input type for inserting array relation for remote table "invoices" */
 export type Invoices_Arr_Rel_Insert_Input = {
   data: Array<Invoices_Insert_Input>;
@@ -4440,8 +4791,11 @@ export type Invoices_Bool_Exp = {
   board_id?: InputMaybe<Uuid_Comparison_Exp>;
   client?: InputMaybe<Clients_Bool_Exp>;
   client_id?: InputMaybe<Uuid_Comparison_Exp>;
+  company?: InputMaybe<Invoice_Companies_Bool_Exp>;
+  company_id?: InputMaybe<Uuid_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   currency?: InputMaybe<String_Comparison_Exp>;
+  custom_fields?: InputMaybe<Jsonb_Comparison_Exp>;
   due_date?: InputMaybe<Date_Comparison_Exp>;
   hourly_rate?: InputMaybe<Numeric_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
@@ -4466,6 +4820,21 @@ export enum Invoices_Constraint {
   InvoicesPkey = 'invoices_pkey'
 }
 
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type Invoices_Delete_At_Path_Input = {
+  custom_fields?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type Invoices_Delete_Elem_Input = {
+  custom_fields?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type Invoices_Delete_Key_Input = {
+  custom_fields?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** input type for incrementing numeric columns in table "invoices" */
 export type Invoices_Inc_Input = {
   hourly_rate?: InputMaybe<Scalars['numeric']['input']>;
@@ -4479,8 +4848,11 @@ export type Invoices_Insert_Input = {
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   client?: InputMaybe<Clients_Obj_Rel_Insert_Input>;
   client_id?: InputMaybe<Scalars['uuid']['input']>;
+  company?: InputMaybe<Invoice_Companies_Obj_Rel_Insert_Input>;
+  company_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   currency?: InputMaybe<Scalars['String']['input']>;
+  custom_fields?: InputMaybe<Scalars['jsonb']['input']>;
   due_date?: InputMaybe<Scalars['date']['input']>;
   hourly_rate?: InputMaybe<Scalars['numeric']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
@@ -4501,6 +4873,7 @@ export type Invoices_Max_Fields = {
   __typename?: 'invoices_max_fields';
   board_id?: Maybe<Scalars['uuid']['output']>;
   client_id?: Maybe<Scalars['uuid']['output']>;
+  company_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   currency?: Maybe<Scalars['String']['output']>;
   due_date?: Maybe<Scalars['date']['output']>;
@@ -4520,6 +4893,7 @@ export type Invoices_Max_Fields = {
 export type Invoices_Max_Order_By = {
   board_id?: InputMaybe<Order_By>;
   client_id?: InputMaybe<Order_By>;
+  company_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   currency?: InputMaybe<Order_By>;
   due_date?: InputMaybe<Order_By>;
@@ -4540,6 +4914,7 @@ export type Invoices_Min_Fields = {
   __typename?: 'invoices_min_fields';
   board_id?: Maybe<Scalars['uuid']['output']>;
   client_id?: Maybe<Scalars['uuid']['output']>;
+  company_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   currency?: Maybe<Scalars['String']['output']>;
   due_date?: Maybe<Scalars['date']['output']>;
@@ -4559,6 +4934,7 @@ export type Invoices_Min_Fields = {
 export type Invoices_Min_Order_By = {
   board_id?: InputMaybe<Order_By>;
   client_id?: InputMaybe<Order_By>;
+  company_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   currency?: InputMaybe<Order_By>;
   due_date?: InputMaybe<Order_By>;
@@ -4603,8 +4979,11 @@ export type Invoices_Order_By = {
   board_id?: InputMaybe<Order_By>;
   client?: InputMaybe<Clients_Order_By>;
   client_id?: InputMaybe<Order_By>;
+  company?: InputMaybe<Invoice_Companies_Order_By>;
+  company_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   currency?: InputMaybe<Order_By>;
+  custom_fields?: InputMaybe<Order_By>;
   due_date?: InputMaybe<Order_By>;
   hourly_rate?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
@@ -4625,6 +5004,11 @@ export type Invoices_Pk_Columns_Input = {
   id: Scalars['uuid']['input'];
 };
 
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type Invoices_Prepend_Input = {
+  custom_fields?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
 /** select columns of table "invoices" */
 export enum Invoices_Select_Column {
   /** column name */
@@ -4632,9 +5016,13 @@ export enum Invoices_Select_Column {
   /** column name */
   ClientId = 'client_id',
   /** column name */
+  CompanyId = 'company_id',
+  /** column name */
   CreatedAt = 'created_at',
   /** column name */
   Currency = 'currency',
+  /** column name */
+  CustomFields = 'custom_fields',
   /** column name */
   DueDate = 'due_date',
   /** column name */
@@ -4663,8 +5051,10 @@ export enum Invoices_Select_Column {
 export type Invoices_Set_Input = {
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   client_id?: InputMaybe<Scalars['uuid']['input']>;
+  company_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   currency?: InputMaybe<Scalars['String']['input']>;
+  custom_fields?: InputMaybe<Scalars['jsonb']['input']>;
   due_date?: InputMaybe<Scalars['date']['input']>;
   hourly_rate?: InputMaybe<Scalars['numeric']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
@@ -4735,8 +5125,10 @@ export type Invoices_Stream_Cursor_Input = {
 export type Invoices_Stream_Cursor_Value_Input = {
   board_id?: InputMaybe<Scalars['uuid']['input']>;
   client_id?: InputMaybe<Scalars['uuid']['input']>;
+  company_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   currency?: InputMaybe<Scalars['String']['input']>;
+  custom_fields?: InputMaybe<Scalars['jsonb']['input']>;
   due_date?: InputMaybe<Scalars['date']['input']>;
   hourly_rate?: InputMaybe<Scalars['numeric']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
@@ -4772,9 +5164,13 @@ export enum Invoices_Update_Column {
   /** column name */
   ClientId = 'client_id',
   /** column name */
+  CompanyId = 'company_id',
+  /** column name */
   CreatedAt = 'created_at',
   /** column name */
   Currency = 'currency',
+  /** column name */
+  CustomFields = 'custom_fields',
   /** column name */
   DueDate = 'due_date',
   /** column name */
@@ -4800,8 +5196,18 @@ export enum Invoices_Update_Column {
 }
 
 export type Invoices_Updates = {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: InputMaybe<Invoices_Append_Input>;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _delete_at_path?: InputMaybe<Invoices_Delete_At_Path_Input>;
+  /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+  _delete_elem?: InputMaybe<Invoices_Delete_Elem_Input>;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _delete_key?: InputMaybe<Invoices_Delete_Key_Input>;
   /** increments the numeric columns with given value of the filtered values */
   _inc?: InputMaybe<Invoices_Inc_Input>;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: InputMaybe<Invoices_Prepend_Input>;
   /** sets the columns of the filtered rows to the given values */
   _set?: InputMaybe<Invoices_Set_Input>;
   /** filter the rows which have to be updated */
@@ -6029,6 +6435,10 @@ export type Mutation_Root = {
   delete_expenses?: Maybe<Expenses_Mutation_Response>;
   /** delete single row from the table: "expenses" */
   delete_expenses_by_pk?: Maybe<Expenses>;
+  /** delete data from the table: "invoice_companies" */
+  delete_invoice_companies?: Maybe<Invoice_Companies_Mutation_Response>;
+  /** delete single row from the table: "invoice_companies" */
+  delete_invoice_companies_by_pk?: Maybe<Invoice_Companies>;
   /** delete data from the table: "invoice_items" */
   delete_invoice_items?: Maybe<Invoice_Items_Mutation_Response>;
   /** delete single row from the table: "invoice_items" */
@@ -6157,6 +6567,10 @@ export type Mutation_Root = {
   insert_expenses?: Maybe<Expenses_Mutation_Response>;
   /** insert a single row into the table: "expenses" */
   insert_expenses_one?: Maybe<Expenses>;
+  /** insert data into the table: "invoice_companies" */
+  insert_invoice_companies?: Maybe<Invoice_Companies_Mutation_Response>;
+  /** insert a single row into the table: "invoice_companies" */
+  insert_invoice_companies_one?: Maybe<Invoice_Companies>;
   /** insert data into the table: "invoice_items" */
   insert_invoice_items?: Maybe<Invoice_Items_Mutation_Response>;
   /** insert a single row into the table: "invoice_items" */
@@ -6303,6 +6717,12 @@ export type Mutation_Root = {
   update_expenses_by_pk?: Maybe<Expenses>;
   /** update multiples rows of table: "expenses" */
   update_expenses_many?: Maybe<Array<Maybe<Expenses_Mutation_Response>>>;
+  /** update data of the table: "invoice_companies" */
+  update_invoice_companies?: Maybe<Invoice_Companies_Mutation_Response>;
+  /** update single row of the table: "invoice_companies" */
+  update_invoice_companies_by_pk?: Maybe<Invoice_Companies>;
+  /** update multiples rows of table: "invoice_companies" */
+  update_invoice_companies_many?: Maybe<Array<Maybe<Invoice_Companies_Mutation_Response>>>;
   /** update data of the table: "invoice_items" */
   update_invoice_items?: Maybe<Invoice_Items_Mutation_Response>;
   /** update single row of the table: "invoice_items" */
@@ -6548,6 +6968,18 @@ export type Mutation_RootDelete_ExpensesArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Expenses_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Invoice_CompaniesArgs = {
+  where: Invoice_Companies_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Invoice_Companies_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -6954,6 +7386,20 @@ export type Mutation_RootInsert_ExpensesArgs = {
 export type Mutation_RootInsert_Expenses_OneArgs = {
   object: Expenses_Insert_Input;
   on_conflict?: InputMaybe<Expenses_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Invoice_CompaniesArgs = {
+  objects: Array<Invoice_Companies_Insert_Input>;
+  on_conflict?: InputMaybe<Invoice_Companies_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Invoice_Companies_OneArgs = {
+  object: Invoice_Companies_Insert_Input;
+  on_conflict?: InputMaybe<Invoice_Companies_On_Conflict>;
 };
 
 
@@ -7492,6 +7938,28 @@ export type Mutation_RootUpdate_Expenses_ManyArgs = {
 
 
 /** mutation root */
+export type Mutation_RootUpdate_Invoice_CompaniesArgs = {
+  _inc?: InputMaybe<Invoice_Companies_Inc_Input>;
+  _set?: InputMaybe<Invoice_Companies_Set_Input>;
+  where: Invoice_Companies_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoice_Companies_By_PkArgs = {
+  _inc?: InputMaybe<Invoice_Companies_Inc_Input>;
+  _set?: InputMaybe<Invoice_Companies_Set_Input>;
+  pk_columns: Invoice_Companies_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Invoice_Companies_ManyArgs = {
+  updates: Array<Invoice_Companies_Updates>;
+};
+
+
+/** mutation root */
 export type Mutation_RootUpdate_Invoice_ItemsArgs = {
   _inc?: InputMaybe<Invoice_Items_Inc_Input>;
   _set?: InputMaybe<Invoice_Items_Set_Input>;
@@ -7515,7 +7983,12 @@ export type Mutation_RootUpdate_Invoice_Items_ManyArgs = {
 
 /** mutation root */
 export type Mutation_RootUpdate_InvoicesArgs = {
+  _append?: InputMaybe<Invoices_Append_Input>;
+  _delete_at_path?: InputMaybe<Invoices_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Invoices_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Invoices_Delete_Key_Input>;
   _inc?: InputMaybe<Invoices_Inc_Input>;
+  _prepend?: InputMaybe<Invoices_Prepend_Input>;
   _set?: InputMaybe<Invoices_Set_Input>;
   where: Invoices_Bool_Exp;
 };
@@ -7523,7 +7996,12 @@ export type Mutation_RootUpdate_InvoicesArgs = {
 
 /** mutation root */
 export type Mutation_RootUpdate_Invoices_By_PkArgs = {
+  _append?: InputMaybe<Invoices_Append_Input>;
+  _delete_at_path?: InputMaybe<Invoices_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Invoices_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Invoices_Delete_Key_Input>;
   _inc?: InputMaybe<Invoices_Inc_Input>;
+  _prepend?: InputMaybe<Invoices_Prepend_Input>;
   _set?: InputMaybe<Invoices_Set_Input>;
   pk_columns: Invoices_Pk_Columns_Input;
 };
@@ -9625,6 +10103,12 @@ export type Query_Root = {
   expenses_aggregate: Expenses_Aggregate;
   /** fetch data from the table: "expenses" using primary key columns */
   expenses_by_pk?: Maybe<Expenses>;
+  /** fetch data from the table: "invoice_companies" */
+  invoice_companies: Array<Invoice_Companies>;
+  /** fetch aggregated fields from the table: "invoice_companies" */
+  invoice_companies_aggregate: Invoice_Companies_Aggregate;
+  /** fetch data from the table: "invoice_companies" using primary key columns */
+  invoice_companies_by_pk?: Maybe<Invoice_Companies>;
   /** fetch data from the table: "invoice_items" */
   invoice_items: Array<Invoice_Items>;
   /** fetch aggregated fields from the table: "invoice_items" */
@@ -9977,6 +10461,29 @@ export type Query_RootExpenses_AggregateArgs = {
 
 
 export type Query_RootExpenses_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootInvoice_CompaniesArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Companies_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Companies_Order_By>>;
+  where?: InputMaybe<Invoice_Companies_Bool_Exp>;
+};
+
+
+export type Query_RootInvoice_Companies_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Companies_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Companies_Order_By>>;
+  where?: InputMaybe<Invoice_Companies_Bool_Exp>;
+};
+
+
+export type Query_RootInvoice_Companies_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -10856,6 +11363,14 @@ export type Subscription_Root = {
   expenses_by_pk?: Maybe<Expenses>;
   /** fetch data from the table in a streaming manner: "expenses" */
   expenses_stream: Array<Expenses>;
+  /** fetch data from the table: "invoice_companies" */
+  invoice_companies: Array<Invoice_Companies>;
+  /** fetch aggregated fields from the table: "invoice_companies" */
+  invoice_companies_aggregate: Invoice_Companies_Aggregate;
+  /** fetch data from the table: "invoice_companies" using primary key columns */
+  invoice_companies_by_pk?: Maybe<Invoice_Companies>;
+  /** fetch data from the table in a streaming manner: "invoice_companies" */
+  invoice_companies_stream: Array<Invoice_Companies>;
   /** fetch data from the table: "invoice_items" */
   invoice_items: Array<Invoice_Items>;
   /** fetch aggregated fields from the table: "invoice_items" */
@@ -11322,6 +11837,36 @@ export type Subscription_RootExpenses_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Expenses_Stream_Cursor_Input>>;
   where?: InputMaybe<Expenses_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoice_CompaniesArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Companies_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Companies_Order_By>>;
+  where?: InputMaybe<Invoice_Companies_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoice_Companies_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Invoice_Companies_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Invoice_Companies_Order_By>>;
+  where?: InputMaybe<Invoice_Companies_Bool_Exp>;
+};
+
+
+export type Subscription_RootInvoice_Companies_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootInvoice_Companies_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Invoice_Companies_Stream_Cursor_Input>>;
+  where?: InputMaybe<Invoice_Companies_Bool_Exp>;
 };
 
 
@@ -18019,19 +18564,19 @@ export type GetAllUserExpensesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetAllUserExpensesQuery = { __typename?: 'query_root', expenses: Array<{ __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
 
-export type ClientFieldsFragment = { __typename?: 'clients', id: string, user_id: string, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string };
+export type ClientFieldsFragment = { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string };
 
 export type GetClientsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetClientsQuery = { __typename?: 'query_root', clients: Array<{ __typename?: 'clients', id: string, user_id: string, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }> };
+export type GetClientsQuery = { __typename?: 'query_root', clients: Array<{ __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }> };
 
 export type CreateClientMutationVariables = Exact<{
   object: Clients_Insert_Input;
 }>;
 
 
-export type CreateClientMutation = { __typename?: 'mutation_root', insert_clients_one?: { __typename?: 'clients', id: string, user_id: string, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string } | null };
+export type CreateClientMutation = { __typename?: 'mutation_root', insert_clients_one?: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string } | null };
 
 export type UpdateClientMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
@@ -18039,7 +18584,7 @@ export type UpdateClientMutationVariables = Exact<{
 }>;
 
 
-export type UpdateClientMutation = { __typename?: 'mutation_root', update_clients_by_pk?: { __typename?: 'clients', id: string, user_id: string, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string } | null };
+export type UpdateClientMutation = { __typename?: 'mutation_root', update_clients_by_pk?: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string } | null };
 
 export type DeleteClientMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
@@ -18048,29 +18593,64 @@ export type DeleteClientMutationVariables = Exact<{
 
 export type DeleteClientMutation = { __typename?: 'mutation_root', delete_clients_by_pk?: { __typename?: 'clients', id: string } | null };
 
+export type InvoiceCompanyFieldsFragment = { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string };
+
+export type GetInvoiceCompaniesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetInvoiceCompaniesQuery = { __typename?: 'query_root', invoice_companies: Array<{ __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string }> };
+
+export type CreateInvoiceCompanyMutationVariables = Exact<{
+  object: Invoice_Companies_Insert_Input;
+}>;
+
+
+export type CreateInvoiceCompanyMutation = { __typename?: 'mutation_root', insert_invoice_companies_one?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null };
+
+export type UpdateInvoiceCompanyMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  _set: Invoice_Companies_Set_Input;
+}>;
+
+
+export type UpdateInvoiceCompanyMutation = { __typename?: 'mutation_root', update_invoice_companies_by_pk?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null };
+
+export type DeleteInvoiceCompanyMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type DeleteInvoiceCompanyMutation = { __typename?: 'mutation_root', delete_invoice_companies_by_pk?: { __typename?: 'invoice_companies', id: string } | null };
+
 export type InvoiceItemFieldsFragment = { __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string };
 
-export type InvoiceFieldsFragment = { __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> };
+export type InvoiceFieldsFragment = { __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> };
 
 export type GetBoardInvoicesQueryVariables = Exact<{
   board_id: Scalars['uuid']['input'];
 }>;
 
 
-export type GetBoardInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> }> };
+export type GetBoardInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> }> };
 
 export type GetAllInvoicesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> }> };
+export type GetAllInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> }> };
 
 export type CreateInvoiceWithItemsMutationVariables = Exact<{
   invoice: Invoices_Insert_Input;
-  items: Array<Invoice_Items_Insert_Input> | Invoice_Items_Insert_Input;
 }>;
 
 
-export type CreateInvoiceWithItemsMutation = { __typename?: 'mutation_root', insert_invoices_one?: { __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> } | null, insert_invoice_items?: { __typename?: 'invoice_items_mutation_response', returning: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> } | null };
+export type CreateInvoiceWithItemsMutation = { __typename?: 'mutation_root', insert_invoices_one?: { __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> } | null };
+
+export type GetInvoicesIssuedTodayQueryVariables = Exact<{
+  today: Scalars['date']['input'];
+}>;
+
+
+export type GetInvoicesIssuedTodayQuery = { __typename?: 'query_root', invoices_aggregate: { __typename?: 'invoices_aggregate', aggregate?: { __typename?: 'invoices_aggregate_fields', count: number } | null } };
 
 export type UpdateInvoiceStatusMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
@@ -18580,6 +19160,7 @@ export const ClientFieldsFragmentDoc = new TypedDocumentString(`
     fragment ClientFields on clients {
   id
   user_id
+  linked_user_id
   name
   company_name
   email
@@ -18593,6 +19174,19 @@ export const ClientFieldsFragmentDoc = new TypedDocumentString(`
   updated_at
 }
     `, {"fragmentName":"ClientFields"}) as unknown as TypedDocumentString<ClientFieldsFragment, unknown>;
+export const InvoiceCompanyFieldsFragmentDoc = new TypedDocumentString(`
+    fragment InvoiceCompanyFields on invoice_companies {
+  id
+  user_id
+  name
+  address
+  vat_number
+  vat_rate
+  is_default
+  created_at
+  updated_at
+}
+    `, {"fragmentName":"InvoiceCompanyFields"}) as unknown as TypedDocumentString<InvoiceCompanyFieldsFragment, unknown>;
 export const InvoiceItemFieldsFragmentDoc = new TypedDocumentString(`
     fragment InvoiceItemFields on invoice_items {
   id
@@ -18611,6 +19205,7 @@ export const InvoiceFieldsFragmentDoc = new TypedDocumentString(`
   user_id
   client_id
   board_id
+  company_id
   invoice_number
   issued_date
   due_date
@@ -18618,12 +19213,16 @@ export const InvoiceFieldsFragmentDoc = new TypedDocumentString(`
   hourly_rate
   total_hours
   total_amount
+  custom_fields
   notes
   status
   created_at
   updated_at
   client {
     ...ClientFields
+  }
+  company {
+    ...InvoiceCompanyFields
   }
   items {
     ...InvoiceItemFields
@@ -18632,6 +19231,7 @@ export const InvoiceFieldsFragmentDoc = new TypedDocumentString(`
     fragment ClientFields on clients {
   id
   user_id
+  linked_user_id
   name
   company_name
   email
@@ -18641,6 +19241,17 @@ export const InvoiceFieldsFragmentDoc = new TypedDocumentString(`
   currency
   default_rate
   notes
+  created_at
+  updated_at
+}
+fragment InvoiceCompanyFields on invoice_companies {
+  id
+  user_id
+  name
+  address
+  vat_number
+  vat_rate
+  is_default
   created_at
   updated_at
 }
@@ -20751,6 +21362,7 @@ export const GetClientsDocument = new TypedDocumentString(`
     fragment ClientFields on clients {
   id
   user_id
+  linked_user_id
   name
   company_name
   email
@@ -20772,6 +21384,7 @@ export const CreateClientDocument = new TypedDocumentString(`
     fragment ClientFields on clients {
   id
   user_id
+  linked_user_id
   name
   company_name
   email
@@ -20793,6 +21406,7 @@ export const UpdateClientDocument = new TypedDocumentString(`
     fragment ClientFields on clients {
   id
   user_id
+  linked_user_id
   name
   company_name
   email
@@ -20812,6 +21426,64 @@ export const DeleteClientDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteClientMutation, DeleteClientMutationVariables>;
+export const GetInvoiceCompaniesDocument = new TypedDocumentString(`
+    query GetInvoiceCompanies {
+  invoice_companies(order_by: [{is_default: desc}, {name: asc}]) {
+    ...InvoiceCompanyFields
+  }
+}
+    fragment InvoiceCompanyFields on invoice_companies {
+  id
+  user_id
+  name
+  address
+  vat_number
+  vat_rate
+  is_default
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<GetInvoiceCompaniesQuery, GetInvoiceCompaniesQueryVariables>;
+export const CreateInvoiceCompanyDocument = new TypedDocumentString(`
+    mutation CreateInvoiceCompany($object: invoice_companies_insert_input!) {
+  insert_invoice_companies_one(object: $object) {
+    ...InvoiceCompanyFields
+  }
+}
+    fragment InvoiceCompanyFields on invoice_companies {
+  id
+  user_id
+  name
+  address
+  vat_number
+  vat_rate
+  is_default
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<CreateInvoiceCompanyMutation, CreateInvoiceCompanyMutationVariables>;
+export const UpdateInvoiceCompanyDocument = new TypedDocumentString(`
+    mutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {
+  update_invoice_companies_by_pk(pk_columns: {id: $id}, _set: $_set) {
+    ...InvoiceCompanyFields
+  }
+}
+    fragment InvoiceCompanyFields on invoice_companies {
+  id
+  user_id
+  name
+  address
+  vat_number
+  vat_rate
+  is_default
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<UpdateInvoiceCompanyMutation, UpdateInvoiceCompanyMutationVariables>;
+export const DeleteInvoiceCompanyDocument = new TypedDocumentString(`
+    mutation DeleteInvoiceCompany($id: uuid!) {
+  delete_invoice_companies_by_pk(id: $id) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteInvoiceCompanyMutation, DeleteInvoiceCompanyMutationVariables>;
 export const GetBoardInvoicesDocument = new TypedDocumentString(`
     query GetBoardInvoices($board_id: uuid!) {
   invoices(where: {board_id: {_eq: $board_id}}, order_by: {created_at: desc}) {
@@ -20821,6 +21493,7 @@ export const GetBoardInvoicesDocument = new TypedDocumentString(`
     fragment ClientFields on clients {
   id
   user_id
+  linked_user_id
   name
   company_name
   email
@@ -20830,6 +21503,17 @@ export const GetBoardInvoicesDocument = new TypedDocumentString(`
   currency
   default_rate
   notes
+  created_at
+  updated_at
+}
+fragment InvoiceCompanyFields on invoice_companies {
+  id
+  user_id
+  name
+  address
+  vat_number
+  vat_rate
+  is_default
   created_at
   updated_at
 }
@@ -20848,6 +21532,7 @@ fragment InvoiceFields on invoices {
   user_id
   client_id
   board_id
+  company_id
   invoice_number
   issued_date
   due_date
@@ -20855,12 +21540,16 @@ fragment InvoiceFields on invoices {
   hourly_rate
   total_hours
   total_amount
+  custom_fields
   notes
   status
   created_at
   updated_at
   client {
     ...ClientFields
+  }
+  company {
+    ...InvoiceCompanyFields
   }
   items {
     ...InvoiceItemFields
@@ -20875,6 +21564,7 @@ export const GetAllInvoicesDocument = new TypedDocumentString(`
     fragment ClientFields on clients {
   id
   user_id
+  linked_user_id
   name
   company_name
   email
@@ -20884,6 +21574,17 @@ export const GetAllInvoicesDocument = new TypedDocumentString(`
   currency
   default_rate
   notes
+  created_at
+  updated_at
+}
+fragment InvoiceCompanyFields on invoice_companies {
+  id
+  user_id
+  name
+  address
+  vat_number
+  vat_rate
+  is_default
   created_at
   updated_at
 }
@@ -20902,6 +21603,7 @@ fragment InvoiceFields on invoices {
   user_id
   client_id
   board_id
+  company_id
   invoice_number
   issued_date
   due_date
@@ -20909,31 +21611,31 @@ fragment InvoiceFields on invoices {
   hourly_rate
   total_hours
   total_amount
+  custom_fields
   notes
   status
   created_at
   updated_at
   client {
     ...ClientFields
+  }
+  company {
+    ...InvoiceCompanyFields
   }
   items {
     ...InvoiceItemFields
   }
 }`) as unknown as TypedDocumentString<GetAllInvoicesQuery, GetAllInvoicesQueryVariables>;
 export const CreateInvoiceWithItemsDocument = new TypedDocumentString(`
-    mutation CreateInvoiceWithItems($invoice: invoices_insert_input!, $items: [invoice_items_insert_input!]!) {
+    mutation CreateInvoiceWithItems($invoice: invoices_insert_input!) {
   insert_invoices_one(object: $invoice) {
     ...InvoiceFields
-  }
-  insert_invoice_items(objects: $items) {
-    returning {
-      ...InvoiceItemFields
-    }
   }
 }
     fragment ClientFields on clients {
   id
   user_id
+  linked_user_id
   name
   company_name
   email
@@ -20943,6 +21645,17 @@ export const CreateInvoiceWithItemsDocument = new TypedDocumentString(`
   currency
   default_rate
   notes
+  created_at
+  updated_at
+}
+fragment InvoiceCompanyFields on invoice_companies {
+  id
+  user_id
+  name
+  address
+  vat_number
+  vat_rate
+  is_default
   created_at
   updated_at
 }
@@ -20961,6 +21674,7 @@ fragment InvoiceFields on invoices {
   user_id
   client_id
   board_id
+  company_id
   invoice_number
   issued_date
   due_date
@@ -20968,6 +21682,7 @@ fragment InvoiceFields on invoices {
   hourly_rate
   total_hours
   total_amount
+  custom_fields
   notes
   status
   created_at
@@ -20975,10 +21690,22 @@ fragment InvoiceFields on invoices {
   client {
     ...ClientFields
   }
+  company {
+    ...InvoiceCompanyFields
+  }
   items {
     ...InvoiceItemFields
   }
 }`) as unknown as TypedDocumentString<CreateInvoiceWithItemsMutation, CreateInvoiceWithItemsMutationVariables>;
+export const GetInvoicesIssuedTodayDocument = new TypedDocumentString(`
+    query GetInvoicesIssuedToday($today: date!) {
+  invoices_aggregate(where: {issued_date: {_eq: $today}}) {
+    aggregate {
+      count
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetInvoicesIssuedTodayQuery, GetInvoicesIssuedTodayQueryVariables>;
 export const UpdateInvoiceStatusDocument = new TypedDocumentString(`
     mutation UpdateInvoiceStatus($id: uuid!, $status: String!) {
   update_invoices_by_pk(pk_columns: {id: $id}, _set: {status: $status}) {

@@ -181,6 +181,8 @@
     "currency": "Currency",
     "default_rate": "Default hourly rate",
     "notes": "Notes",
+    "linked_user": "Link to app user",
+    "no_linked_user": "None",
     "created": "Client created",
     "updated": "Client updated",
     "deleted": "Client deleted",
@@ -223,6 +225,10 @@
     "step_select_todos": "Select tasks to invoice",
     "step_invoice_details": "Invoice details",
     "step_confirm": "Review and create",
+    "custom_fields": "Custom fields",
+    "add_field": "Add field",
+    "field_label": "Label",
+    "field_value": "Value",
     "status": {
       "draft": "Draft",
       "sent": "Sent",
@@ -949,5 +955,30 @@
     "progress_polishing": "Polishing with AI...",
     "progress_chunks_found": "Audio split into {{count}} parts",
     "progress_part_n_of_m": "Transcribing part {{current}} of {{total}}..."
+  },
+  "invoice_companies": {
+    "title": "My Companies",
+    "description": "Companies you invoice from — name, address and VAT details",
+    "add": "Add company",
+    "edit": "Edit company",
+    "empty": "No companies yet. Add a company to appear as the sender on invoices.",
+    "name": "Company name",
+    "name_placeholder": "e.g. Acme OÜ",
+    "name_required": "Company name is required",
+    "address": "Address",
+    "vat_number": "VAT / Reg. No.",
+    "vat_id": "VAT",
+    "vat_rate": "VAT rate",
+    "set_as_default": "Set as default sender",
+    "default": "Default",
+    "created": "Company created",
+    "updated": "Company updated",
+    "deleted": "Company deleted",
+    "delete_confirm": "Delete company \"{{name}}\"?"
+  },
+  "invoicing_settings": {
+    "title": "Invoice settings",
+    "clients_tab": "Clients",
+    "companies_tab": "My companies"
   }
 }

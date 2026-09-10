@@ -1,25 +1,15 @@
 table:
-  name: clients
+  name: invoice_companies
   schema: public
 object_relationships:
   - name: user
     using:
       foreign_key_constraint_on: user_id
-  - name: linked_user
-    using:
-      foreign_key_constraint_on: linked_user_id
 array_relationships:
-  - name: boards
-    using:
-      foreign_key_constraint_on:
-        column: client_id
-        table:
-          name: boards
-          schema: public
   - name: invoices
     using:
       foreign_key_constraint_on:
-        column: client_id
+        column: company_id
         table:
           name: invoices
           schema: public
@@ -33,38 +23,28 @@ insert_permissions:
         user_id: x-hasura-User-Id
       columns:
         - address
-        - company_name
         - created_at
-        - currency
-        - default_rate
-        - email
         - id
-        - linked_user_id
+        - is_default
         - name
-        - notes
-        - phone
         - updated_at
         - user_id
         - vat_number
+        - vat_rate
     comment: ""
 select_permissions:
   - role: user
     permission:
       columns:
         - address
-        - company_name
         - created_at
-        - currency
-        - default_rate
-        - email
         - id
-        - linked_user_id
+        - is_default
         - name
-        - notes
-        - phone
         - updated_at
         - user_id
         - vat_number
+        - vat_rate
       filter:
         user_id:
           _eq: X-Hasura-User-Id
@@ -74,16 +54,11 @@ update_permissions:
     permission:
       columns:
         - address
-        - company_name
-        - currency
-        - default_rate
-        - email
-        - linked_user_id
+        - is_default
         - name
-        - notes
-        - phone
         - updated_at
         - vat_number
+        - vat_rate
       filter:
         user_id:
           _eq: X-Hasura-User-Id

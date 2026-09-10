@@ -753,5 +753,30 @@
     "progress_polishing": "Vylepšování pomocí AI...",
     "progress_chunks_found": "Audio bylo rozděleno na {{count}} částí",
     "progress_part_n_of_m": "Přepisuji část {{current}} z {{total}}..."
+  },
+  "invoice_companies": {
+    "title": "Moje společnosti",
+    "description": "Společnosti, ze kterých vystavujete faktury",
+    "add": "Přidat společnost",
+    "edit": "Upravit společnost",
+    "empty": "Zatím žádné společnosti.",
+    "name": "Název společnosti",
+    "name_placeholder": "např. Acme s.r.o.",
+    "name_required": "Název společnosti je povinný",
+    "address": "Adresa",
+    "vat_number": "DIČ / IČ",
+    "vat_id": "DPH",
+    "vat_rate": "Sazba DPH",
+    "set_as_default": "Nastavit jako výchozí",
+    "default": "Výchozí",
+    "created": "Společnost vytvořena",
+    "updated": "Společnost aktualizována",
+    "deleted": "Společnost smazána",
+    "delete_confirm": "Smazat společnost \"{{name}}\"?"
+  },
+  "invoicing_settings": {
+    "title": "Nastavení faktur",
+    "clients_tab": "Klienti",
+    "companies_tab": "Moje společnosti"
   }
 }

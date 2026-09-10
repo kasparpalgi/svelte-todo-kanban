@@ -5,11 +5,12 @@
 	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n';
 	import { Button } from '$lib/components/ui/button';
-	import { ArrowLeft, Plus, FileText } from 'lucide-svelte';
+	import { ArrowLeft, Plus, FileText, Settings2 } from 'lucide-svelte';
 	import { invoicingStore } from '$lib/stores/invoicing.svelte';
 	import { clientsStore } from '$lib/stores/clients.svelte';
 	import InvoiceCard from '$lib/components/invoicing/InvoiceCard.svelte';
 	import CreateInvoiceDialog from '$lib/components/invoicing/CreateInvoiceDialog.svelte';
+	import InvoiceSettings from '$lib/components/invoicing/InvoiceSettings.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -18,6 +19,7 @@
 	const lists = data.lists;
 
 	let createOpen = $state(false);
+	let showSettings = $state(false);
 
 	onMount(() => {
 		invoicingStore.loadBoardInvoices(board.id);
@@ -47,16 +49,25 @@
 				<p class="text-sm text-muted-foreground">{board.name}</p>
 			</div>
 		</div>
-		<Button onclick={() => (createOpen = true)} disabled={!hasClients}>
-			<Plus class="mr-1 h-4 w-4" />
-			{$t('invoicing.new_invoice')}
-		</Button>
+		<div class="flex gap-2">
+			<Button variant="outline" size="icon" onclick={() => (showSettings = !showSettings)}>
+				<Settings2 class="h-4 w-4" />
+			</Button>
+			<Button onclick={() => (createOpen = true)} disabled={!hasClients}>
+				<Plus class="mr-1 h-4 w-4" />
+				{$t('invoicing.new_invoice')}
+			</Button>
+		</div>
 	</div>
 
-	{#if !hasClients}
+	{#if showSettings}
+		<div class="mb-6">
+			<InvoiceSettings />
+		</div>
+	{:else if !hasClients}
 		<div class="rounded-lg border p-6 text-center">
 			<p class="mb-2 text-muted-foreground">{$t('invoicing.no_clients_hint')}</p>
-			<Button variant="outline" onclick={() => goto(`/${page.params.lang}/settings`)}>
+			<Button variant="outline" onclick={() => (showSettings = true)}>
 				{$t('invoicing.go_to_settings')}
 			</Button>
 		</div>
@@ -79,4 +90,9 @@
 	{/if}
 </div>
 
-<CreateInvoiceDialog bind:open={createOpen} boardId={board.id} {lists} />
+<CreateInvoiceDialog
+	bind:open={createOpen}
+	boardId={board.id}
+	{lists}
+	lang={page.params.lang ?? 'en'}
+/>

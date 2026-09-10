@@ -8,14 +8,16 @@ import {
 	CREATE_INVOICE_WITH_ITEMS,
 	UPDATE_INVOICE_STATUS,
 	DELETE_INVOICE,
-	GET_TODOS_FOR_INVOICING
+	GET_TODOS_FOR_INVOICING,
+	GET_INVOICES_ISSUED_TODAY
 } from '$lib/graphql/documents';
 import type {
 	GetBoardInvoicesQuery,
 	GetAllInvoicesQuery,
 	CreateInvoiceWithItemsMutation,
 	InvoiceFieldsFragment,
-	GetTodosForInvoicingQuery
+	GetTodosForInvoicingQuery,
+	GetInvoicesIssuedTodayQuery
 } from '$lib/graphql/generated/graphql';
 import { displayMessage } from './errorSuccess.svelte';
 
@@ -83,15 +85,34 @@ function createInvoicingStore() {
 		}
 	}
 
+	async function getNextInvoiceNumber(): Promise<string> {
+		if (!browser) return '';
+		const today = new Date().toISOString().split('T')[0];
+		try {
+			const data: GetInvoicesIssuedTodayQuery = await request(GET_INVOICES_ISSUED_TODAY, {
+				today
+			});
+			const count = data.invoices_aggregate?.aggregate?.count ?? 0;
+			const yy = String(new Date().getFullYear()).slice(2);
+			const mm = String(new Date().getMonth() + 1).padStart(2, '0');
+			const dd = String(new Date().getDate()).padStart(2, '0');
+			return `${yy}${mm}${dd}${count + 1}`;
+		} catch {
+			return '';
+		}
+	}
+
 	async function createInvoice(params: {
 		boardId: string;
 		clientId: string;
+		companyId?: string;
 		invoiceNumber: string;
 		issuedDate: string;
 		dueDate?: string;
 		currency: string;
 		hourlyRate: number;
 		notes?: string;
+		customFields?: { label: string; value: string }[];
 		selectedTodoIds: string[];
 		todos: InvoiceTodo[];
 	}) {
@@ -104,6 +125,7 @@ function createInvoicingStore() {
 				invoice: {
 					board_id: params.boardId,
 					client_id: params.clientId,
+					company_id: params.companyId || null,
 					invoice_number: params.invoiceNumber,
 					issued_date: params.issuedDate,
 					due_date: params.dueDate || null,
@@ -112,15 +134,18 @@ function createInvoicingStore() {
 					total_hours: totalHours,
 					total_amount: totalAmount,
 					notes: params.notes || null,
-					status: 'draft'
-				},
-				items: selectedTodos.map((todo) => ({
-					todo_id: todo.id,
-					title: todo.title,
-					hours: todo.actual_hours || 0,
-					hourly_rate: params.hourlyRate,
-					amount: (todo.actual_hours || 0) * params.hourlyRate
-				}))
+					custom_fields: params.customFields?.length ? params.customFields : [],
+					status: 'draft',
+					items: {
+						data: selectedTodos.map((todo) => ({
+							todo_id: todo.id,
+							title: todo.title,
+							hours: todo.actual_hours || 0,
+							hourly_rate: params.hourlyRate,
+							amount: (todo.actual_hours || 0) * params.hourlyRate
+						}))
+					}
+				}
 			});
 
 			const invoice = data.insert_invoices_one;
@@ -184,6 +209,7 @@ function createInvoicingStore() {
 		loadBoardInvoices,
 		loadAllInvoices,
 		loadTodosForInvoicing,
+		getNextInvoiceNumber,
 		createInvoice,
 		updateInvoiceStatus,
 		deleteInvoice

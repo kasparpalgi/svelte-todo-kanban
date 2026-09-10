@@ -114,16 +114,22 @@ type Documents = {
     "\n\tmutation DeleteUrlShortcut($id: uuid!) {\n\t\tdelete_url_shortcuts_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteUrlShortcutDocument,
     "\n\tmutation IncrementUrlShortcutVisits($alias: String!) {\n\t\tupdate_url_shortcuts(where: { alias: { _eq: $alias } }, _inc: { visit_count: 1 }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.IncrementUrlShortcutVisitsDocument,
     "\n\tquery GetAllUserExpenses {\n\t\texpenses(where: { deleted_at: { _is_null: true } }, order_by: { created_at: desc }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": typeof types.GetAllUserExpensesDocument,
-    "\n\tfragment ClientFields on clients {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\tcompany_name\n\t\temail\n\t\tphone\n\t\taddress\n\t\tvat_number\n\t\tcurrency\n\t\tdefault_rate\n\t\tnotes\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.ClientFieldsFragmentDoc,
+    "\n\tfragment ClientFields on clients {\n\t\tid\n\t\tuser_id\n\t\tlinked_user_id\n\t\tname\n\t\tcompany_name\n\t\temail\n\t\tphone\n\t\taddress\n\t\tvat_number\n\t\tcurrency\n\t\tdefault_rate\n\t\tnotes\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.ClientFieldsFragmentDoc,
     "\n\tquery GetClients {\n\t\tclients(order_by: { name: asc }) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": typeof types.GetClientsDocument,
     "\n\tmutation CreateClient($object: clients_insert_input!) {\n\t\tinsert_clients_one(object: $object) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": typeof types.CreateClientDocument,
     "\n\tmutation UpdateClient($id: uuid!, $_set: clients_set_input!) {\n\t\tupdate_clients_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": typeof types.UpdateClientDocument,
     "\n\tmutation DeleteClient($id: uuid!) {\n\t\tdelete_clients_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteClientDocument,
+    "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.InvoiceCompanyFieldsFragmentDoc,
+    "\n\tquery GetInvoiceCompanies {\n\t\tinvoice_companies(order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": typeof types.GetInvoiceCompaniesDocument,
+    "\n\tmutation CreateInvoiceCompany($object: invoice_companies_insert_input!) {\n\t\tinsert_invoice_companies_one(object: $object) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": typeof types.CreateInvoiceCompanyDocument,
+    "\n\tmutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": typeof types.UpdateInvoiceCompanyDocument,
+    "\n\tmutation DeleteInvoiceCompany($id: uuid!) {\n\t\tdelete_invoice_companies_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteInvoiceCompanyDocument,
     "\n\tfragment InvoiceItemFields on invoice_items {\n\t\tid\n\t\tinvoice_id\n\t\ttodo_id\n\t\ttitle\n\t\thours\n\t\thourly_rate\n\t\tamount\n\t\tcreated_at\n\t}\n": typeof types.InvoiceItemFieldsFragmentDoc,
-    "\n\tfragment InvoiceFields on invoices {\n\t\tid\n\t\tuser_id\n\t\tclient_id\n\t\tboard_id\n\t\tinvoice_number\n\t\tissued_date\n\t\tdue_date\n\t\tcurrency\n\t\thourly_rate\n\t\ttotal_hours\n\t\ttotal_amount\n\t\tnotes\n\t\tstatus\n\t\tcreated_at\n\t\tupdated_at\n\t\tclient {\n\t\t\t...ClientFields\n\t\t}\n\t\titems {\n\t\t\t...InvoiceItemFields\n\t\t}\n\t}\n": typeof types.InvoiceFieldsFragmentDoc,
+    "\n\tfragment InvoiceFields on invoices {\n\t\tid\n\t\tuser_id\n\t\tclient_id\n\t\tboard_id\n\t\tcompany_id\n\t\tinvoice_number\n\t\tissued_date\n\t\tdue_date\n\t\tcurrency\n\t\thourly_rate\n\t\ttotal_hours\n\t\ttotal_amount\n\t\tcustom_fields\n\t\tnotes\n\t\tstatus\n\t\tcreated_at\n\t\tupdated_at\n\t\tclient {\n\t\t\t...ClientFields\n\t\t}\n\t\tcompany {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t\titems {\n\t\t\t...InvoiceItemFields\n\t\t}\n\t}\n": typeof types.InvoiceFieldsFragmentDoc,
     "\n\tquery GetBoardInvoices($board_id: uuid!) {\n\t\tinvoices(where: { board_id: { _eq: $board_id } }, order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": typeof types.GetBoardInvoicesDocument,
     "\n\tquery GetAllInvoices {\n\t\tinvoices(order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": typeof types.GetAllInvoicesDocument,
-    "\n\tmutation CreateInvoiceWithItems(\n\t\t$invoice: invoices_insert_input!\n\t\t$items: [invoice_items_insert_input!]!\n\t) {\n\t\tinsert_invoices_one(object: $invoice) {\n\t\t\t...InvoiceFields\n\t\t}\n\t\tinsert_invoice_items(objects: $items) {\n\t\t\treturning {\n\t\t\t\t...InvoiceItemFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateInvoiceWithItemsDocument,
+    "\n\tmutation CreateInvoiceWithItems($invoice: invoices_insert_input!) {\n\t\tinsert_invoices_one(object: $invoice) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": typeof types.CreateInvoiceWithItemsDocument,
+    "\n\tquery GetInvoicesIssuedToday($today: date!) {\n\t\tinvoices_aggregate(where: { issued_date: { _eq: $today } }) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetInvoicesIssuedTodayDocument,
     "\n\tmutation UpdateInvoiceStatus($id: uuid!, $status: String!) {\n\t\tupdate_invoices_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {\n\t\t\tid\n\t\t\tstatus\n\t\t}\n\t}\n": typeof types.UpdateInvoiceStatusDocument,
     "\n\tmutation DeleteInvoice($id: uuid!) {\n\t\tdelete_invoice_items(where: { invoice_id: { _eq: $id } }) {\n\t\t\taffected_rows\n\t\t}\n\t\tdelete_invoices_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteInvoiceDocument,
     "\n\tquery GetTodosForInvoicing($list_ids: [uuid!]!) {\n\t\ttodos(\n\t\t\twhere: { list_id: { _in: $list_ids }, actual_hours: { _gt: 0 } }\n\t\t\torder_by: { sort_order: asc }\n\t\t) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetTodosForInvoicingDocument,
@@ -228,16 +234,22 @@ const documents: Documents = {
     "\n\tmutation DeleteUrlShortcut($id: uuid!) {\n\t\tdelete_url_shortcuts_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteUrlShortcutDocument,
     "\n\tmutation IncrementUrlShortcutVisits($alias: String!) {\n\t\tupdate_url_shortcuts(where: { alias: { _eq: $alias } }, _inc: { visit_count: 1 }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.IncrementUrlShortcutVisitsDocument,
     "\n\tquery GetAllUserExpenses {\n\t\texpenses(where: { deleted_at: { _is_null: true } }, order_by: { created_at: desc }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": types.GetAllUserExpensesDocument,
-    "\n\tfragment ClientFields on clients {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\tcompany_name\n\t\temail\n\t\tphone\n\t\taddress\n\t\tvat_number\n\t\tcurrency\n\t\tdefault_rate\n\t\tnotes\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.ClientFieldsFragmentDoc,
+    "\n\tfragment ClientFields on clients {\n\t\tid\n\t\tuser_id\n\t\tlinked_user_id\n\t\tname\n\t\tcompany_name\n\t\temail\n\t\tphone\n\t\taddress\n\t\tvat_number\n\t\tcurrency\n\t\tdefault_rate\n\t\tnotes\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.ClientFieldsFragmentDoc,
     "\n\tquery GetClients {\n\t\tclients(order_by: { name: asc }) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": types.GetClientsDocument,
     "\n\tmutation CreateClient($object: clients_insert_input!) {\n\t\tinsert_clients_one(object: $object) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": types.CreateClientDocument,
     "\n\tmutation UpdateClient($id: uuid!, $_set: clients_set_input!) {\n\t\tupdate_clients_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": types.UpdateClientDocument,
     "\n\tmutation DeleteClient($id: uuid!) {\n\t\tdelete_clients_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteClientDocument,
+    "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.InvoiceCompanyFieldsFragmentDoc,
+    "\n\tquery GetInvoiceCompanies {\n\t\tinvoice_companies(order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": types.GetInvoiceCompaniesDocument,
+    "\n\tmutation CreateInvoiceCompany($object: invoice_companies_insert_input!) {\n\t\tinsert_invoice_companies_one(object: $object) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": types.CreateInvoiceCompanyDocument,
+    "\n\tmutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": types.UpdateInvoiceCompanyDocument,
+    "\n\tmutation DeleteInvoiceCompany($id: uuid!) {\n\t\tdelete_invoice_companies_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteInvoiceCompanyDocument,
     "\n\tfragment InvoiceItemFields on invoice_items {\n\t\tid\n\t\tinvoice_id\n\t\ttodo_id\n\t\ttitle\n\t\thours\n\t\thourly_rate\n\t\tamount\n\t\tcreated_at\n\t}\n": types.InvoiceItemFieldsFragmentDoc,
-    "\n\tfragment InvoiceFields on invoices {\n\t\tid\n\t\tuser_id\n\t\tclient_id\n\t\tboard_id\n\t\tinvoice_number\n\t\tissued_date\n\t\tdue_date\n\t\tcurrency\n\t\thourly_rate\n\t\ttotal_hours\n\t\ttotal_amount\n\t\tnotes\n\t\tstatus\n\t\tcreated_at\n\t\tupdated_at\n\t\tclient {\n\t\t\t...ClientFields\n\t\t}\n\t\titems {\n\t\t\t...InvoiceItemFields\n\t\t}\n\t}\n": types.InvoiceFieldsFragmentDoc,
+    "\n\tfragment InvoiceFields on invoices {\n\t\tid\n\t\tuser_id\n\t\tclient_id\n\t\tboard_id\n\t\tcompany_id\n\t\tinvoice_number\n\t\tissued_date\n\t\tdue_date\n\t\tcurrency\n\t\thourly_rate\n\t\ttotal_hours\n\t\ttotal_amount\n\t\tcustom_fields\n\t\tnotes\n\t\tstatus\n\t\tcreated_at\n\t\tupdated_at\n\t\tclient {\n\t\t\t...ClientFields\n\t\t}\n\t\tcompany {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t\titems {\n\t\t\t...InvoiceItemFields\n\t\t}\n\t}\n": types.InvoiceFieldsFragmentDoc,
     "\n\tquery GetBoardInvoices($board_id: uuid!) {\n\t\tinvoices(where: { board_id: { _eq: $board_id } }, order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": types.GetBoardInvoicesDocument,
     "\n\tquery GetAllInvoices {\n\t\tinvoices(order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": types.GetAllInvoicesDocument,
-    "\n\tmutation CreateInvoiceWithItems(\n\t\t$invoice: invoices_insert_input!\n\t\t$items: [invoice_items_insert_input!]!\n\t) {\n\t\tinsert_invoices_one(object: $invoice) {\n\t\t\t...InvoiceFields\n\t\t}\n\t\tinsert_invoice_items(objects: $items) {\n\t\t\treturning {\n\t\t\t\t...InvoiceItemFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateInvoiceWithItemsDocument,
+    "\n\tmutation CreateInvoiceWithItems($invoice: invoices_insert_input!) {\n\t\tinsert_invoices_one(object: $invoice) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": types.CreateInvoiceWithItemsDocument,
+    "\n\tquery GetInvoicesIssuedToday($today: date!) {\n\t\tinvoices_aggregate(where: { issued_date: { _eq: $today } }) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": types.GetInvoicesIssuedTodayDocument,
     "\n\tmutation UpdateInvoiceStatus($id: uuid!, $status: String!) {\n\t\tupdate_invoices_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {\n\t\t\tid\n\t\t\tstatus\n\t\t}\n\t}\n": types.UpdateInvoiceStatusDocument,
     "\n\tmutation DeleteInvoice($id: uuid!) {\n\t\tdelete_invoice_items(where: { invoice_id: { _eq: $id } }) {\n\t\t\taffected_rows\n\t\t}\n\t\tdelete_invoices_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteInvoiceDocument,
     "\n\tquery GetTodosForInvoicing($list_ids: [uuid!]!) {\n\t\ttodos(\n\t\t\twhere: { list_id: { _in: $list_ids }, actual_hours: { _gt: 0 } }\n\t\t\torder_by: { sort_order: asc }\n\t\t) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": types.GetTodosForInvoicingDocument,
@@ -642,7 +654,7 @@ export function graphql(source: "\n\tquery GetAllUserExpenses {\n\t\texpenses(wh
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tfragment ClientFields on clients {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\tcompany_name\n\t\temail\n\t\tphone\n\t\taddress\n\t\tvat_number\n\t\tcurrency\n\t\tdefault_rate\n\t\tnotes\n\t\tcreated_at\n\t\tupdated_at\n\t}\n"): typeof import('./graphql').ClientFieldsFragmentDoc;
+export function graphql(source: "\n\tfragment ClientFields on clients {\n\t\tid\n\t\tuser_id\n\t\tlinked_user_id\n\t\tname\n\t\tcompany_name\n\t\temail\n\t\tphone\n\t\taddress\n\t\tvat_number\n\t\tcurrency\n\t\tdefault_rate\n\t\tnotes\n\t\tcreated_at\n\t\tupdated_at\n\t}\n"): typeof import('./graphql').ClientFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -662,11 +674,31 @@ export function graphql(source: "\n\tmutation DeleteClient($id: uuid!) {\n\t\tde
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n"): typeof import('./graphql').InvoiceCompanyFieldsFragmentDoc;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetInvoiceCompanies {\n\t\tinvoice_companies(order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetInvoiceCompaniesDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation CreateInvoiceCompany($object: invoice_companies_insert_input!) {\n\t\tinsert_invoice_companies_one(object: $object) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n"): typeof import('./graphql').CreateInvoiceCompanyDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateInvoiceCompanyDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation DeleteInvoiceCompany($id: uuid!) {\n\t\tdelete_invoice_companies_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteInvoiceCompanyDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n\tfragment InvoiceItemFields on invoice_items {\n\t\tid\n\t\tinvoice_id\n\t\ttodo_id\n\t\ttitle\n\t\thours\n\t\thourly_rate\n\t\tamount\n\t\tcreated_at\n\t}\n"): typeof import('./graphql').InvoiceItemFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tfragment InvoiceFields on invoices {\n\t\tid\n\t\tuser_id\n\t\tclient_id\n\t\tboard_id\n\t\tinvoice_number\n\t\tissued_date\n\t\tdue_date\n\t\tcurrency\n\t\thourly_rate\n\t\ttotal_hours\n\t\ttotal_amount\n\t\tnotes\n\t\tstatus\n\t\tcreated_at\n\t\tupdated_at\n\t\tclient {\n\t\t\t...ClientFields\n\t\t}\n\t\titems {\n\t\t\t...InvoiceItemFields\n\t\t}\n\t}\n"): typeof import('./graphql').InvoiceFieldsFragmentDoc;
+export function graphql(source: "\n\tfragment InvoiceFields on invoices {\n\t\tid\n\t\tuser_id\n\t\tclient_id\n\t\tboard_id\n\t\tcompany_id\n\t\tinvoice_number\n\t\tissued_date\n\t\tdue_date\n\t\tcurrency\n\t\thourly_rate\n\t\ttotal_hours\n\t\ttotal_amount\n\t\tcustom_fields\n\t\tnotes\n\t\tstatus\n\t\tcreated_at\n\t\tupdated_at\n\t\tclient {\n\t\t\t...ClientFields\n\t\t}\n\t\tcompany {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t\titems {\n\t\t\t...InvoiceItemFields\n\t\t}\n\t}\n"): typeof import('./graphql').InvoiceFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -678,7 +710,11 @@ export function graphql(source: "\n\tquery GetAllInvoices {\n\t\tinvoices(order_
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation CreateInvoiceWithItems(\n\t\t$invoice: invoices_insert_input!\n\t\t$items: [invoice_items_insert_input!]!\n\t) {\n\t\tinsert_invoices_one(object: $invoice) {\n\t\t\t...InvoiceFields\n\t\t}\n\t\tinsert_invoice_items(objects: $items) {\n\t\t\treturning {\n\t\t\t\t...InvoiceItemFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').CreateInvoiceWithItemsDocument;
+export function graphql(source: "\n\tmutation CreateInvoiceWithItems($invoice: invoices_insert_input!) {\n\t\tinsert_invoices_one(object: $invoice) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n"): typeof import('./graphql').CreateInvoiceWithItemsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetInvoicesIssuedToday($today: date!) {\n\t\tinvoices_aggregate(where: { issued_date: { _eq: $today } }) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetInvoicesIssuedTodayDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

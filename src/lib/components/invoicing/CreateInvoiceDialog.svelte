@@ -3,11 +3,16 @@
 	import { t } from '$lib/i18n';
 	import { invoicingStore } from '$lib/stores/invoicing.svelte';
 	import { clientsStore } from '$lib/stores/clients.svelte';
+	import { invoiceCompaniesStore } from '$lib/stores/invoiceCompanies.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { formatLocaleDate } from '$lib/utils/dateTime.svelte';
+	import { parseDate } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Checkbox } from '$lib/components/ui/checkbox';
+	import { Calendar as CalendarPrimitive } from '$lib/components/ui/calendar';
+	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
 	import {
 		Dialog,
 		DialogContent,
@@ -16,16 +21,20 @@
 		DialogFooter,
 		DialogDescription
 	} from '$lib/components/ui/dialog';
+	import { Calendar as CalendarIcon, Plus, X } from 'lucide-svelte';
+	import { cn } from '$lib/utils';
 	import type { ListFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { DateValue } from '@internationalized/date';
 
 	interface Props {
 		open: boolean;
 		boardId: string;
 		lists: ListFieldsFragment[];
+		lang: string;
 		onCreated?: (invoiceId: string) => void;
 	}
 
-	let { open = $bindable(), boardId, lists, onCreated }: Props = $props();
+	let { open = $bindable(), boardId, lists, lang = 'en', onCreated }: Props = $props();
 
 	type Step = 'select-lists' | 'select-todos' | 'invoice-details' | 'confirm';
 
@@ -33,19 +42,56 @@
 	let selectedListIds = $state<string[]>([]);
 	let selectedTodoIds = $state<string[]>([]);
 	let saving = $state(false);
+	let issuedDatePickerOpen = $state(false);
+	let dueDatePickerOpen = $state(false);
 
 	const todosForInvoicing = $derived(invoicingStore.todosForInvoicing);
 	const clients = $derived(clientsStore.clients);
+	const companies = $derived(invoiceCompaniesStore.companies);
+
+	type CustomField = { label: string; value: string };
+
+	function todayISODate() {
+		return new Date().toISOString().split('T')[0];
+	}
+
+	function addDays(isoDate: string, days: number): string {
+		const d = new Date(isoDate);
+		d.setDate(d.getDate() + days);
+		return d.toISOString().split('T')[0];
+	}
+
+	function isoToDateValue(iso: string): DateValue | undefined {
+		try {
+			return parseDate(iso);
+		} catch {
+			return undefined;
+		}
+	}
 
 	let form = $state({
 		clientId: '',
+		companyId: '',
 		invoiceNumber: '',
-		issuedDate: new Date().toISOString().split('T')[0],
-		dueDate: '',
+		issuedDate: todayISODate(),
+		dueDate: addDays(todayISODate(), 5),
 		currency: 'EUR',
 		hourlyRate: '',
 		notes: ''
 	});
+
+	let customFields = $state<CustomField[]>([]);
+
+	function addCustomField() {
+		customFields = [...customFields, { label: '', value: '' }];
+	}
+
+	function removeCustomField(i: number) {
+		customFields = customFields.filter((_, idx) => idx !== i);
+	}
+
+	let selectedIssuedDate = $state<DateValue | undefined>(isoToDateValue(form.issuedDate));
+	let selectedDueDate = $state<DateValue | undefined>(isoToDateValue(form.dueDate));
 
 	const totalHours = $derived(
 		todosForInvoicing
@@ -61,6 +107,13 @@
 		if (open && clients.length > 0 && !form.clientId) {
 			form.clientId = clients[0].id;
 		}
+		if (open && companies.length > 0 && !form.companyId) {
+			const def = companies.find((c) => c.is_default);
+			form.companyId = def?.id || companies[0].id;
+		}
+		if (open && companies.length === 0) {
+			invoiceCompaniesStore.loadCompanies();
+		}
 	});
 
 	$effect(() => {
@@ -69,6 +122,18 @@
 		}
 		if (selectedClient?.currency) {
 			form.currency = selectedClient.currency;
+		}
+	});
+
+	$effect(() => {
+		if (selectedIssuedDate) {
+			form.issuedDate = `${selectedIssuedDate.year}-${String(selectedIssuedDate.month).padStart(2, '0')}-${String(selectedIssuedDate.day).padStart(2, '0')}`;
+		}
+	});
+
+	$effect(() => {
+		if (selectedDueDate) {
+			form.dueDate = `${selectedDueDate.year}-${String(selectedDueDate.month).padStart(2, '0')}-${String(selectedDueDate.day).padStart(2, '0')}`;
 		}
 	});
 
@@ -100,6 +165,11 @@
 			return;
 		}
 		step = 'invoice-details';
+		if (!form.invoiceNumber) {
+			invoicingStore.getNextInvoiceNumber().then((num) => {
+				if (num && !form.invoiceNumber) form.invoiceNumber = num;
+			});
+		}
 	}
 
 	function goToConfirm() {
@@ -123,12 +193,14 @@
 		const result = await invoicingStore.createInvoice({
 			boardId,
 			clientId: form.clientId,
+			companyId: form.companyId || undefined,
 			invoiceNumber: form.invoiceNumber.trim(),
 			issuedDate: form.issuedDate,
 			dueDate: form.dueDate || undefined,
 			currency: form.currency,
 			hourlyRate: parseFloat(form.hourlyRate),
 			notes: form.notes.trim() || undefined,
+			customFields: customFields.filter((f) => f.label.trim()),
 			selectedTodoIds,
 			todos: todosForInvoicing
 		});
@@ -146,15 +218,21 @@
 		step = 'select-lists';
 		selectedListIds = [];
 		selectedTodoIds = [];
+		customFields = [];
+		const today = todayISODate();
+		const def = companies.find((c) => c.is_default);
 		form = {
 			clientId: clients[0]?.id || '',
+			companyId: def?.id || companies[0]?.id || '',
 			invoiceNumber: '',
-			issuedDate: new Date().toISOString().split('T')[0],
-			dueDate: '',
+			issuedDate: today,
+			dueDate: addDays(today, 5),
 			currency: 'EUR',
 			hourlyRate: '',
 			notes: ''
 		};
+		selectedIssuedDate = isoToDateValue(form.issuedDate);
+		selectedDueDate = isoToDateValue(form.dueDate);
 	}
 
 	const todosByList = $derived(
@@ -246,23 +324,37 @@
 			</DialogFooter>
 		{:else if step === 'invoice-details'}
 			<div class="grid gap-4 py-2">
-				<div class="grid gap-1.5">
-					<Label>{$t('invoicing.client')}</Label>
-					<select
-						class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-						bind:value={form.clientId}
-					>
-						{#each clients as client (client.id)}
-							<option value={client.id}
-								>{client.name}{client.company_name ? ` — ${client.company_name}` : ''}</option
-							>
-						{/each}
-					</select>
+				<div class="grid grid-cols-2 gap-3">
+					<div class="grid gap-1.5">
+						<Label>{$t('invoicing.client')}</Label>
+						<select
+							class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+							bind:value={form.clientId}
+						>
+							{#each clients as client (client.id)}
+								<option value={client.id}
+									>{client.name}{client.company_name ? ` — ${client.company_name}` : ''}</option
+								>
+							{/each}
+						</select>
+					</div>
+					<div class="grid gap-1.5">
+						<Label>{$t('invoice_companies.title')}</Label>
+						<select
+							class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+							bind:value={form.companyId}
+						>
+							<option value="">—</option>
+							{#each companies as company (company.id)}
+								<option value={company.id}>{company.name}</option>
+							{/each}
+						</select>
+					</div>
 				</div>
 				<div class="grid grid-cols-2 gap-3">
 					<div class="grid gap-1.5">
 						<Label for="inv-number">{$t('invoicing.invoice_number')} *</Label>
-						<Input id="inv-number" bind:value={form.invoiceNumber} placeholder="INV-001" />
+						<Input id="inv-number" bind:value={form.invoiceNumber} placeholder="2609101" />
 					</div>
 					<div class="grid gap-1.5">
 						<Label for="inv-currency">{$t('clients.currency')}</Label>
@@ -271,12 +363,78 @@
 				</div>
 				<div class="grid grid-cols-2 gap-3">
 					<div class="grid gap-1.5">
-						<Label for="issued-date">{$t('invoicing.issued_date')}</Label>
-						<Input id="issued-date" type="date" bind:value={form.issuedDate} />
+						<Label>{$t('invoicing.issued_date')}</Label>
+						<Popover bind:open={issuedDatePickerOpen}>
+							<PopoverTrigger>
+								<Button
+									variant="outline"
+									class={cn(
+										'w-full justify-start text-left font-normal',
+										!selectedIssuedDate && 'text-muted-foreground'
+									)}
+								>
+									<CalendarIcon class="mr-2 h-4 w-4" />
+									{selectedIssuedDate
+										? formatLocaleDate(
+												new Date(
+													selectedIssuedDate.year,
+													selectedIssuedDate.month - 1,
+													selectedIssuedDate.day
+												),
+												lang
+											)
+										: $t('card.pick_date')}
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent class="w-auto p-0" align="start">
+								<CalendarPrimitive
+									type="single"
+									value={selectedIssuedDate}
+									locale={lang}
+									onValueChange={(date: DateValue | undefined) => {
+										selectedIssuedDate = date;
+										issuedDatePickerOpen = false;
+									}}
+								/>
+							</PopoverContent>
+						</Popover>
 					</div>
 					<div class="grid gap-1.5">
-						<Label for="due-date">{$t('invoicing.due_date')}</Label>
-						<Input id="due-date" type="date" bind:value={form.dueDate} />
+						<Label>{$t('invoicing.due_date')}</Label>
+						<Popover bind:open={dueDatePickerOpen}>
+							<PopoverTrigger>
+								<Button
+									variant="outline"
+									class={cn(
+										'w-full justify-start text-left font-normal',
+										!selectedDueDate && 'text-muted-foreground'
+									)}
+								>
+									<CalendarIcon class="mr-2 h-4 w-4" />
+									{selectedDueDate
+										? formatLocaleDate(
+												new Date(
+													selectedDueDate.year,
+													selectedDueDate.month - 1,
+													selectedDueDate.day
+												),
+												lang
+											)
+										: $t('card.pick_date')}
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent class="w-auto p-0" align="start">
+								<CalendarPrimitive
+									type="single"
+									value={selectedDueDate}
+									locale={lang}
+									onValueChange={(date: DateValue | undefined) => {
+										selectedDueDate = date;
+										dueDatePickerOpen = false;
+									}}
+								/>
+							</PopoverContent>
+						</Popover>
 					</div>
 				</div>
 				<div class="grid gap-1.5">
@@ -294,6 +452,37 @@
 					<Label for="inv-notes">{$t('invoicing.notes')}</Label>
 					<Input id="inv-notes" bind:value={form.notes} />
 				</div>
+				<div class="grid gap-2">
+					<div class="flex items-center justify-between">
+						<Label>{$t('invoicing.custom_fields')}</Label>
+						<Button variant="ghost" size="sm" onclick={addCustomField} class="h-7 gap-1 text-xs">
+							<Plus class="h-3.5 w-3.5" />
+							{$t('invoicing.add_field')}
+						</Button>
+					</div>
+					{#each customFields as field, i (i)}
+						<div class="flex gap-2">
+							<Input
+								bind:value={field.label}
+								placeholder={$t('invoicing.field_label')}
+								class="w-2/5"
+							/>
+							<Input
+								bind:value={field.value}
+								placeholder={$t('invoicing.field_value')}
+								class="flex-1"
+							/>
+							<Button
+								variant="ghost"
+								size="icon"
+								class="h-9 w-9 shrink-0"
+								onclick={() => removeCustomField(i)}
+							>
+								<X class="h-4 w-4" />
+							</Button>
+						</div>
+					{/each}
+				</div>
 			</div>
 			<DialogFooter>
 				<Button variant="outline" onclick={() => (step = 'select-todos')}
@@ -309,9 +498,27 @@
 						<span class="font-medium">{$t('invoicing.invoice_number')}:</span>
 						{form.invoiceNumber}
 					</p>
-					<p><span class="font-medium">{$t('invoicing.issued_date')}:</span> {form.issuedDate}</p>
-					{#if form.dueDate}
-						<p><span class="font-medium">{$t('invoicing.due_date')}:</span> {form.dueDate}</p>
+					<p>
+						<span class="font-medium">{$t('invoicing.issued_date')}:</span>
+						{selectedIssuedDate
+							? formatLocaleDate(
+									new Date(
+										selectedIssuedDate.year,
+										selectedIssuedDate.month - 1,
+										selectedIssuedDate.day
+									),
+									lang
+								)
+							: form.issuedDate}
+					</p>
+					{#if selectedDueDate}
+						<p>
+							<span class="font-medium">{$t('invoicing.due_date')}:</span>
+							{formatLocaleDate(
+								new Date(selectedDueDate.year, selectedDueDate.month - 1, selectedDueDate.day),
+								lang
+							)}
+						</p>
 					{/if}
 					<p>
 						<span class="font-medium">{$t('invoicing.hourly_rate')}:</span>

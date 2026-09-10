@@ -28,3 +28,60 @@ TekDok | ToDzz
 _From Kanban card `231d2019-83bd-4c02-9551-b3f56f72a28b`._
 
 _GitHub issue #175 — end the commit subject with `(#175)`._
+
+---
+
+## Plan
+
+### 1. Bug Fix: Nested insert for invoice items (CRITICAL)
+- Change `CREATE_INVOICE_WITH_ITEMS` mutation to nested insert via `items` relationship
+- Remove `$items` param; embed `items: { data: [...] }` inside invoice insert input
+- Update `invoicingStore.createInvoice` to send items nested in invoice object
+- Run `npm run generate`
+
+### 2. Invoice number YYMMDDS default
+- Add `GET_INVOICES_ISSUED_TODAY` aggregate query
+- Add `getNextInvoiceNumber()` to `invoicingStore`
+- Auto-populate `form.invoiceNumber` when reaching `invoice-details` step
+
+### 3. Due date default +5 days
+- Compute `dueDate = issuedDate + 5 days` when entering `invoice-details` step
+
+### 4. EU date format + calendar picker
+- Replace `<Input type="date">` with CalendarPrimitive + Popover (same as card due date)
+- Use `formatLocaleDate` for display; get `lang` from page params
+
+### 5. Custom invoice fields
+- Add `custom_fields` jsonb column to `invoices` table (Hasura migration)
+- Update Hasura permissions metadata
+- Add UI to add/remove custom fields in invoice form and view
+
+### 6. Invoice companies (sender)
+- Create `invoice_companies` migration: id, user_id, name, address, vat_number, vat_rate, is_default
+- Add `company_id` FK to `invoices` table
+- Create `InvoiceCompaniesManagement.svelte` + store methods
+- Add GraphQL queries/mutations + run generate
+
+### 7. Move invoice settings to invoices page
+- Remove `ClientsManagement` from general settings page
+- Add invoices settings section on invoices page (manage clients + companies)
+- Update "go_to_settings" link/text
+
+### 8. Customer-user linking
+- Add `linked_user_id` to `clients` table (migration)
+- Add `client_boards` junction table (client_id, board_id)
+- Update `ClientsManagement` form with user search + board selection
+- Update GraphQL queries
+
+---
+
+## Log
+
+- [x] 1. Bug fix: nested insert — `CREATE_INVOICE_WITH_ITEMS` now uses `items: { data: [...] }` nested in invoice; removed separate `insert_invoice_items`
+- [x] 2. Invoice number YYMMDDS — `getNextInvoiceNumber()` queries `invoices_aggregate` for today's date; auto-fills when entering invoice-details step
+- [x] 3. Due date +5 days default — `form.dueDate = addDays(issuedDate, 5)` on init and reset
+- [x] 4. EU date format + calendar picker — replaced `<Input type="date">` with `CalendarPrimitive` + `Popover` + `formatLocaleDate`; takes `lang` prop
+- [x] 5. Custom invoice fields — `custom_fields` jsonb added to `invoices` table (migration 1796000000000); UI with add/remove key-value pairs in dialog
+- [x] 6. Invoice companies — `invoice_companies` table (migration 1796000001000); full CRUD store + `InvoiceCompaniesManagement.svelte`; company selector in invoice dialog; `company_id` on invoices
+- [x] 7. Move settings to invoices page — `ClientsManagement` removed from general settings; new `InvoiceSettings.svelte` tab panel (clients + companies) accessible via ⚙ button on invoices page; "go to settings" button now opens inline settings
+- [x] 8. Customer-user linking — `linked_user_id` added to `clients` table (migration 1796000001000); user dropdown in `ClientsManagement` form

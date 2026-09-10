@@ -4,6 +4,8 @@
 	import { t } from '$lib/i18n';
 	import { clientsStore } from '$lib/stores/clients.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { request } from '$lib/graphql/client';
+	import { GET_USERS } from '$lib/graphql/documents';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -22,7 +24,7 @@
 		DialogFooter
 	} from '$lib/components/ui/dialog';
 	import { Plus, Pencil, Trash2, Building2 } from 'lucide-svelte';
-	import type { ClientFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { ClientFieldsFragment, GetUsersQuery } from '$lib/graphql/generated/graphql';
 
 	const clients = $derived(clientsStore.clients);
 	const loading = $derived(clientsStore.loading);
@@ -30,6 +32,7 @@
 	let dialogOpen = $state(false);
 	let editingClient = $state<ClientFieldsFragment | null>(null);
 	let saving = $state(false);
+	let users = $state<GetUsersQuery['users']>([]);
 
 	let form = $state({
 		name: '',
@@ -40,11 +43,21 @@
 		vat_number: '',
 		currency: 'EUR',
 		default_rate: '',
+		linked_user_id: '',
 		notes: ''
 	});
 
-	onMount(() => {
+	onMount(async () => {
 		clientsStore.loadClients();
+		try {
+			const data: GetUsersQuery = await request(GET_USERS, {
+				order_by: [{ name: 'asc' as const }],
+				limit: 200
+			});
+			users = data.users || [];
+		} catch {
+			// non-critical
+		}
 	});
 
 	function openCreate() {
@@ -58,6 +71,7 @@
 			vat_number: '',
 			currency: 'EUR',
 			default_rate: '',
+			linked_user_id: '',
 			notes: ''
 		};
 		dialogOpen = true;
@@ -74,6 +88,7 @@
 			vat_number: client.vat_number || '',
 			currency: client.currency,
 			default_rate: client.default_rate?.toString() || '',
+			linked_user_id: client.linked_user_id || '',
 			notes: client.notes || ''
 		};
 		dialogOpen = true;
@@ -95,6 +110,7 @@
 			vat_number: form.vat_number.trim() || null,
 			currency: form.currency || 'EUR',
 			default_rate: form.default_rate ? parseFloat(form.default_rate) : null,
+			linked_user_id: form.linked_user_id || null,
 			notes: form.notes.trim() || null
 		};
 
@@ -239,6 +255,21 @@
 					placeholder="0.00"
 				/>
 			</div>
+			{#if users.length > 0}
+				<div class="grid gap-1.5">
+					<Label for="linked-user">{$t('clients.linked_user')}</Label>
+					<select
+						id="linked-user"
+						class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+						bind:value={form.linked_user_id}
+					>
+						<option value="">— {$t('clients.no_linked_user')} —</option>
+						{#each users as user (user.id)}
+							<option value={user.id}>{user.name || user.email || user.id}</option>
+						{/each}
+					</select>
+				</div>
+			{/if}
 			<div class="grid gap-1.5">
 				<Label for="client-notes">{$t('clients.notes')}</Label>
 				<Input id="client-notes" bind:value={form.notes} />
