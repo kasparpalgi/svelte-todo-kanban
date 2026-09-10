@@ -19,7 +19,7 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
-	import { User, Moon, Sun, Layers, List, Save, Brain, ChartColumn, LogOut } from 'lucide-svelte';
+	import { User, Moon, Sun, Save, Brain, ChartColumn, LogOut } from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { clearAllStorage } from '$lib/utils/localStorage';
 	import GithubIntegration from '$lib/components/settings/GithubIntegration.svelte';
@@ -38,7 +38,6 @@
 		image: '',
 		locale: DEFAULT_LOCALE,
 		darkMode: false,
-		viewMode: 'kanban' as 'kanban' | 'list',
 		aiModel: 'gpt-5-mini',
 		autoAICorrect: false
 	});
@@ -55,7 +54,6 @@
 			dark_mode: formData.darkMode,
 			settings: {
 				...(user.settings || {}),
-				viewMode: formData.viewMode,
 				ai_model: formData.aiModel,
 				auto_ai_correct: formData.autoAICorrect
 			}
@@ -96,18 +94,6 @@
 		}
 	}
 
-	async function toggleViewMode() {
-		if (!user?.id) return;
-
-		const newViewMode = formData.viewMode === 'kanban' ? 'list' : 'kanban';
-		formData.viewMode = newViewMode;
-		const result = await userStore.updateViewPreference(user.id, newViewMode);
-
-		if (!result.success) {
-			formData.viewMode = formData.viewMode === 'kanban' ? 'list' : 'kanban';
-		}
-	}
-
 	async function toggleAutoAICorrect() {
 		if (!user?.id) return;
 
@@ -142,7 +128,6 @@
 			formData.image = user.image || '';
 			formData.locale = user.locale || DEFAULT_LOCALE;
 			formData.darkMode = user.dark_mode || false;
-			formData.viewMode = user.settings?.viewMode || 'kanban';
 			formData.aiModel = user.settings?.ai_model || 'gpt-5-mini';
 			formData.autoAICorrect = user.settings?.auto_ai_correct || false;
 			initialized = true;
@@ -301,38 +286,6 @@
 							onCheckedChange={toggleDarkMode}
 							disabled={userStore.loading}
 						/>
-					</div>
-
-					<div class="flex items-center justify-between">
-						<div class="space-y-0.5">
-							<Label class="flex items-center gap-2">
-								{#if formData.viewMode === 'kanban'}
-									<Layers class="h-4 w-4" />
-								{:else}
-									<List class="h-4 w-4" />
-								{/if}
-								{$t('settings.appearance.view_mode')}
-							</Label>
-							<p class="text-sm text-muted-foreground">
-								{$t('settings.appearance.view_mode_description')}
-							</p>
-						</div>
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							onclick={toggleViewMode}
-							disabled={userStore.loading}
-							class="flex items-center gap-2"
-						>
-							{#if formData.viewMode === 'kanban'}
-								<Layers class="h-4 w-4" />
-								{$t('settings.appearance.kanban_view')}
-							{:else}
-								<List class="h-4 w-4" />
-								{$t('settings.appearance.list_view')}
-							{/if}
-						</Button>
 					</div>
 				</CardContent>
 			</Card>

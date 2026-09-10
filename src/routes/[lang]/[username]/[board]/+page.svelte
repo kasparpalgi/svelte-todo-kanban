@@ -19,18 +19,7 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import {
-		Plus,
-		X,
-		List,
-		LayoutGrid,
-		Settings,
-		Funnel,
-		ArrowRight,
-		Github,
-		Bell
-	} from 'lucide-svelte';
-	import TodoList from '$lib/components/todo/TodoList.svelte';
+	import { Plus, X, Settings, Funnel, ArrowRight, Github, Bell } from 'lucide-svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
 	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
@@ -46,7 +35,6 @@
 
 	const openCardId = $derived(page.url.searchParams.get('card'));
 	let newTodoTitle: string = $state('');
-	let viewMode: 'list' | 'kanban' = $state('kanban');
 	let boardNotFound: boolean = $state(false);
 	let loading: boolean = $state(false);
 	let showImportDialog: boolean = $state(false);
@@ -143,12 +131,6 @@
 	}
 
 	onMount(() => {
-		// Load view mode preference
-		const saved = localStorage.getItem('todo-view-mode');
-		if (saved === 'list' || saved === 'kanban') {
-			viewMode = saved;
-		}
-
 		// Load initial board
 		loadBoardData(boardAlias).catch((e) => console.error('[BoardPage] initial load error:', e));
 
@@ -187,10 +169,6 @@
 				.loadMyInvitations()
 				.catch((e) => console.error('[BoardPage] loadMyInvitations error:', e));
 		}
-	});
-
-	$effect(() => {
-		localStorage.setItem('todo-view-mode', viewMode);
 	});
 
 	async function handleAddTodo() {
@@ -364,33 +342,13 @@
 					{listsStore.selectedBoard?.name}
 				</h1>
 				<div class="flex items-center gap-4">
-					<div class="flex items-center gap-2 rounded-lg border p-1">
-						<Button
-							variant={viewMode === 'list' ? 'default' : 'ghost'}
-							size="sm"
-							onclick={() => (viewMode = 'list')}
-							class="h-8"
-						>
-							<List class="mr-2 h-4 w-4" />
-							<span class="hidden md:block">{$t('todo.list')}</span>
-						</Button>
-						<Button
-							variant={viewMode === 'kanban' ? 'default' : 'ghost'}
-							size="sm"
-							onclick={() => (viewMode = 'kanban')}
-							class="h-8"
-						>
-							<LayoutGrid class="mr-2 h-4 w-4" />
-							<span class="hidden md:block">{$t('todo.kanban')}</span>
-						</Button>
-					</div>
 					<Button
 						variant="outline"
 						size="sm"
 						onclick={() => (actionState.edit = 'showListManagement')}
 					>
 						<Settings class="mr-2 h-4 w-4" />
-						<span class="hidden md:block">{viewMode === 'kanban' ? 'Lists' : 'Categories'}</span>
+						<span class="hidden md:block">Lists</span>
 					</Button>
 					<Button
 						variant={actionState.showFilters ? 'default' : 'outline'}
@@ -423,45 +381,6 @@
 		</div>
 
 		<div class="transition-all duration-300 {actionState.showFilters ? 'pr-80' : ''}">
-			{#if viewMode === 'list'}
-				<div class="mb-3 px-4">
-					<Card>
-						<CardHeader>
-							<CardTitle class="text-lg">{$t('todo.add_new_task')}</CardTitle>
-							<CardDescription>{$t('todo.what_accomplish')}</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<div class="space-y-3">
-								<div class="flex gap-3">
-									<Input
-										type="text"
-										placeholder={$t('todo.enter_task_title')}
-										bind:value={newTodoTitle}
-										onkeydown={handleKeydown}
-										class="flex-1"
-									/>
-									<Button onclick={handleAddTodo} disabled={!newTodoTitle.trim()} class="px-6">
-										<Plus class="mr-2 h-4 w-4" />
-										{$t('todo.add')}
-									</Button>
-								</div>
-								{#if listsStore.selectedBoard?.github}
-									<label class="flex cursor-pointer items-center gap-2 text-sm">
-										<input
-											type="checkbox"
-											bind:checked={skipGithubIssue}
-											class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-										/>
-										<Github class="h-3.5 w-3.5" />
-										<span>{$t('todo.do_not_create_github_issue')}</span>
-									</label>
-								{/if}
-							</div>
-						</CardContent>
-					</Card>
-				</div>
-			{/if}
-
 			{#if todosStore.loading}
 				<div class="flex items-center justify-center py-12">
 					<div
@@ -474,10 +393,6 @@
 					<Button onclick={() => todosStore.loadTodos()} variant="outline"
 						>{$t('todo.load_todos')}</Button
 					>
-				</div>
-			{:else if viewMode === 'list'}
-				<div class="px-4">
-					<TodoList />
 				</div>
 			{:else}
 				<TodoKanban />

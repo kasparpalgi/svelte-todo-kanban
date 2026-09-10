@@ -5,25 +5,24 @@ import type { TranslationFunction } from 'sveltekit-i18n';
 
 export let actionState = $state({
 	edit: '',
-	viewMode: 'kanban',
 	showFilters: false,
 	showBoardSwitcher: false,
 
 	tBoard() {
 		const translate = get(t) as TranslationFunction;
-		return this.viewMode === 'list' ? translate('board.project') : translate('board.board');
+		return translate('board.board');
 	},
 	tBoards() {
 		const translate = get(t) as TranslationFunction;
-		return this.viewMode === 'list' ? translate('board.projects') : translate('board.boards');
+		return translate('board.boards');
 	},
 	tList() {
 		const translate = get(t) as TranslationFunction;
-		return this.viewMode === 'list' ? translate('board.category') : translate('board.list');
+		return translate('board.list');
 	},
 	tLists() {
 		const translate = get(t) as TranslationFunction;
-		return this.viewMode === 'list' ? translate('board.categories') : translate('board.lists');
+		return translate('board.lists');
 	}
 });
 

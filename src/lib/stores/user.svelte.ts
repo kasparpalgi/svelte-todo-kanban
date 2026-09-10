@@ -16,7 +16,6 @@ function createUserStore() {
 	});
 
 	const user = $derived(() => state.cachedUser);
-	const viewMode = $derived(() => user()?.settings?.viewMode || 'kanban');
 	const isDarkMode = $derived(() => user()?.dark_mode || false);
 	const userLocale = $derived(() => user()?.locale || DEFAULT_LOCALE);
 
@@ -68,10 +67,6 @@ function createUserStore() {
 
 	async function initializeAppState(dbUser: any) {
 		const { actionState } = await import('$lib/stores/states.svelte');
-
-		if (dbUser.settings?.viewMode) {
-			actionState.viewMode = dbUser.settings.viewMode;
-		}
 
 		if (browser) {
 			const isDark = dbUser.dark_mode || false;
@@ -172,23 +167,6 @@ function createUserStore() {
 		}
 	}
 
-	async function updateViewPreference(userId: string, viewMode: 'kanban' | 'list') {
-		const { actionState } = await import('$lib/stores/states.svelte');
-		const currentUser = user();
-		const currentSettings = currentUser?.settings || {};
-		const newSettings = { ...currentSettings, viewMode };
-		const originalViewMode = actionState.viewMode;
-		actionState.viewMode = viewMode;
-
-		const result = await updateUser(userId, { settings: newSettings });
-
-		if (!result.success) {
-			actionState.viewMode = originalViewMode;
-		}
-
-		return result;
-	}
-
 	async function toggleDarkMode(userId: string) {
 		const currentUser = user();
 		const newDarkMode = !currentUser?.dark_mode;
@@ -226,9 +204,6 @@ function createUserStore() {
 		get user() {
 			return user();
 		},
-		get viewMode() {
-			return viewMode();
-		},
 		get isDarkMode() {
 			return isDarkMode();
 		},
@@ -243,7 +218,6 @@ function createUserStore() {
 		},
 		initializeUser,
 		updateUser,
-		updateViewPreference,
 		toggleDarkMode,
 		reset,
 		clearLogoutFlag
