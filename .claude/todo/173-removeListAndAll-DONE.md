@@ -61,3 +61,7 @@ _GitHub issue #173 — end the commit subject with `(#173)`._
 
 ## Done! 🎉
 All list view code has been removed. Only Kanban view remains.
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
