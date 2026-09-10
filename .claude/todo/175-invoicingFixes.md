@@ -10,6 +10,6 @@
 
 - Invoice due set by default 5 days
 
--
+- Let
 
 _From Kanban card `231d2019-83bd-4c02-9551-b3f56f72a28b`._
