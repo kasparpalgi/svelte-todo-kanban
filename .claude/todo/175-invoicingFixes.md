@@ -4,6 +4,6 @@
 
 [NEVER REMOVE]
 
-Invoice number default to YYMMDDS (Y-year, M
+Invoice number default to YYMMDDS (Y-year, M-month
 
 _From Kanban card `231d2019-83bd-4c02-9551-b3f56f72a28b`._
