@@ -58,3 +58,14 @@ _Note: a prior session attempted this task but its file edits were never committ
 - Board switcher reworked per the original request: wide, mid-screen modal instead of a scrollable dropdown, with "Manage Boards" relocated to the top-right and a dedicated "Archived Boards" tab supporting restore.
 - `BoardManagement.svelte` also supports archiving owned boards and restoring from its own "Archived Boards" section.
 - Known follow-up: a live manual click-through and the full browser-mode test project remain unverified in this session due to the sandbox's Playwright browser download issue — worth a quick manual smoke test.
+
+## Session 2 (2026-09-11) — closing out
+
+- Re-opened this task expecting to redo the work described above, but `git status` was clean and a grep of the codebase showed the archive feature (store methods, `BoardSwitcherModal.svelte`, `BoardManagement.svelte` archive/restore UI, `archived_at` migration + Hasura permissions, i18n keys in en/et/cs) is **already present on `main`**.
+- `git log` confirms it shipped via `502c8af feat(boards): add board archiving with restore and rework switcher UI (#167)`, followed by several polish commits (`5aa0317`, `211520b`, `197a61a`, `9dc8e3c`, `2d922b0`, `bb1707f`, `012d061`, `82f270e` — the last few fixing the switcher's z-index/positioning under GitHub issue #171). So the session-1 work above did get committed after all, just not reflected back into this task log at the time.
+- Re-verified rather than re-implementing:
+  - `npm run check`: 10 pre-existing errors, none in archive-related files (all in unrelated `og-image`/`og-screenshot` routes, `todos.svelte.ts`, and pre-existing test fixture typing) — same profile as noted in session 1.
+  - `npx vitest run --project=server src/lib/stores/__tests__/listsBoards`: `listsBoards-archive.test.ts` — 5/5 passing.
+  - i18n keys (`archived_boards`, `no_archived_boards`, etc.) confirmed present in `en/common.json`, `et/common.json`, `cs/common.json`.
+  - Attempted a manual browser smoke test via claude-in-chrome against the running dev server (`localhost:5173`, confirmed serving 200 via curl) but the extension couldn't render either `localhost:5173` or `127.0.0.1:5173` (repeated "Frame with ID 0 is showing error page") — an environment/tooling issue unrelated to the app code, not pursued further given the feature is already live and tested.
+- No code changes made this session — nothing to commit. Task is functionally complete on `main`.
