@@ -41,3 +41,7 @@ Follow the existing `enable_hour_tracking` board-setting pattern:
 - `vitest --project=server --run`: 201/201 tests pass. Client-project vitest run fails
   pre-existing (missing Playwright browser binary — environment issue, unrelated).
 - Status: DONE.
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
