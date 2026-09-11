@@ -88,8 +88,30 @@ codegen — the `settings` jsonb column already exists and is `any`-typed.
   container. Persisted in `board.settings`, merged non-destructively, optimistic via store.
 - Known issues: none from this change. Pre-existing repo-wide type errors remain untouched.
 
+## Follow-up fix (mobile white stripes) — 2026-09-11
+User reported: with a board background set, white stripes appeared on the left/right
+below the main menu on mobile. Cause: the parent `<main class="w-full px-4">` adds 16px
+side padding, so the board container's background only filled inside that padding.
+Fix in `[board]/+page.svelte`: board container is now `relative -mx-4 min-h-screen px-4`
+(`-mx-4` cancels main's `px-4` so the background is full-bleed; `px-4` restores a
+consistent gutter); the header block dropped its own `px-4` (→ `py-6`) to avoid a doubled
+gutter.
+
+## Browser verification (mobile, 390px) — 2026-09-11
+Installed Playwright Chromium (build 1228, arm64) and logged in via the Test Login
+provider. NOTE: this env's app points at a shared/production Hasura, so no board data was
+created (an initial create attempt failed on a FK check — nothing written; all further
+write attempts avoided). Verified the layout fix DB-free by injecting the exact shipped
+container markup into the real authenticated page's `<main>` (real compiled Tailwind) and
+measuring:
+- main padding 16px L/R; container left=0, right=390, width=390 = full viewport → **no
+  side stripes**, background fills edge-to-edge.
+- header content still at 16px from the edge → **gutter preserved**.
+Screenshot captured confirming the tinted section spans edge-to-edge on mobile.
+
 ## Log
 - Explored board store/components/route; confirmed `settings` jsonb is the right home.
 - Implemented constants module, customizer dialog, and wired all three display surfaces + i18n.
 - Added unit tests (10, all green). `npm run check` clean vs baseline; server tests 211 green.
-- Browser verification not possible (extension offline, no local Chromium).
+- Follow-up: fixed mobile white-stripe bug (full-bleed container) and verified in Chromium
+  on a 390px mobile viewport (screenshot). Did not write to the shared/production DB.

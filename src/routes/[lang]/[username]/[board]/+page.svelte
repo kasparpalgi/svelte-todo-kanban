@@ -337,12 +337,14 @@
 		</Card>
 	</div>
 {:else}
+	<!-- -mx-4 cancels the parent <main>'s px-4 so a board background fills edge-to-edge;
+	     px-4 here restores a consistent gutter for the header and columns. -->
 	<div
-		class="relative min-h-screen w-full"
+		class="relative -mx-4 min-h-screen px-4"
 		data-board-container
 		style={boardCustom.backgroundStyle ? `background: ${boardCustom.backgroundStyle};` : ''}
 	>
-		<div class="px-4 py-6">
+		<div class="py-6">
 			<div class="mb-6 flex items-center justify-between">
 				<h1 class="hidden items-center gap-2 text-3xl font-bold tracking-tight md:flex">
 					{#if boardCustom.icon}
