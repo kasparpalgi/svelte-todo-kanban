@@ -12,6 +12,7 @@ declare global {
 		}
 		interface PageData {
 			session?: Session;
+			isAdmin?: boolean;
 		}
 		interface Window {
 			SpeechRecognition: typeof SpeechRecognition;

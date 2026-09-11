@@ -16,6 +16,11 @@ export default defineConfig({
 			scope: '/',
 			base: '/',
 			selfDestroying: false,
+			strategies: 'injectManifest',
+			filename: 'service-worker.ts',
+			injectManifest: {
+				globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}']
+			},
 			manifest: {
 				short_name: 'ToDzz',
 				name: 'ToDzz',
@@ -44,13 +49,6 @@ export default defineConfig({
 					}
 				]
 			},
-			workbox: {
-				globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}'],
-				cleanupOutdatedCaches: true,
-				clientsClaim: true,
-				skipWaiting: true,
-				navigateFallback: null
-			},
 			devOptions: {
 				enabled: false,
 				suppressWarnings: true,
@@ -65,12 +63,13 @@ export default defineConfig({
 			allow: ['..']
 		}
 	},
-	  ssr: {
-	    noExternal: process.env.NODE_ENV === 'production' ? [] : undefined
-	  },
-	  build: {
-	    target: 'es2015'
-	  },	optimizeDeps: {
+	ssr: {
+		noExternal: process.env.NODE_ENV === 'production' ? [] : undefined
+	},
+	build: {
+		target: 'es2015'
+	},
+	optimizeDeps: {
 		exclude: ['puppeteer', 'puppeteer-extra', 'puppeteer-extra-plugin-stealth', '@sveltejs/kit'] // TODO: try to optimise '@sveltejs/kit' for better performance or it was breaking?
 	},
 	test: {

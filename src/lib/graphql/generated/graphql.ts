@@ -6483,6 +6483,10 @@ export type Mutation_Root = {
   delete_logs?: Maybe<Logs_Mutation_Response>;
   /** delete single row from the table: "logs" */
   delete_logs_by_pk?: Maybe<Logs>;
+  /** delete data from the table: "news" */
+  delete_news?: Maybe<News_Mutation_Response>;
+  /** delete single row from the table: "news" */
+  delete_news_by_pk?: Maybe<News>;
   /** delete data from the table: "note_uploads" */
   delete_note_uploads?: Maybe<Note_Uploads_Mutation_Response>;
   /** delete single row from the table: "note_uploads" */
@@ -6503,6 +6507,10 @@ export type Mutation_Root = {
   delete_podcasts?: Maybe<Podcasts_Mutation_Response>;
   /** delete single row from the table: "podcasts" */
   delete_podcasts_by_pk?: Maybe<Podcasts>;
+  /** delete data from the table: "push_subscriptions" */
+  delete_push_subscriptions?: Maybe<Push_Subscriptions_Mutation_Response>;
+  /** delete single row from the table: "push_subscriptions" */
+  delete_push_subscriptions_by_pk?: Maybe<Push_Subscriptions>;
   /** delete data from the table: "sessions" */
   delete_sessions?: Maybe<Sessions_Mutation_Response>;
   /** delete single row from the table: "sessions" */
@@ -6615,6 +6623,10 @@ export type Mutation_Root = {
   insert_logs?: Maybe<Logs_Mutation_Response>;
   /** insert a single row into the table: "logs" */
   insert_logs_one?: Maybe<Logs>;
+  /** insert data into the table: "news" */
+  insert_news?: Maybe<News_Mutation_Response>;
+  /** insert a single row into the table: "news" */
+  insert_news_one?: Maybe<News>;
   /** insert data into the table: "note_uploads" */
   insert_note_uploads?: Maybe<Note_Uploads_Mutation_Response>;
   /** insert a single row into the table: "note_uploads" */
@@ -6635,6 +6647,10 @@ export type Mutation_Root = {
   insert_podcasts?: Maybe<Podcasts_Mutation_Response>;
   /** insert a single row into the table: "podcasts" */
   insert_podcasts_one?: Maybe<Podcasts>;
+  /** insert data into the table: "push_subscriptions" */
+  insert_push_subscriptions?: Maybe<Push_Subscriptions_Mutation_Response>;
+  /** insert a single row into the table: "push_subscriptions" */
+  insert_push_subscriptions_one?: Maybe<Push_Subscriptions>;
   /** insert data into the table: "sessions" */
   insert_sessions?: Maybe<Sessions_Mutation_Response>;
   /** insert a single row into the table: "sessions" */
@@ -6777,6 +6793,12 @@ export type Mutation_Root = {
   update_logs_by_pk?: Maybe<Logs>;
   /** update multiples rows of table: "logs" */
   update_logs_many?: Maybe<Array<Maybe<Logs_Mutation_Response>>>;
+  /** update data of the table: "news" */
+  update_news?: Maybe<News_Mutation_Response>;
+  /** update single row of the table: "news" */
+  update_news_by_pk?: Maybe<News>;
+  /** update multiples rows of table: "news" */
+  update_news_many?: Maybe<Array<Maybe<News_Mutation_Response>>>;
   /** update data of the table: "note_uploads" */
   update_note_uploads?: Maybe<Note_Uploads_Mutation_Response>;
   /** update single row of the table: "note_uploads" */
@@ -6807,6 +6829,12 @@ export type Mutation_Root = {
   update_podcasts_by_pk?: Maybe<Podcasts>;
   /** update multiples rows of table: "podcasts" */
   update_podcasts_many?: Maybe<Array<Maybe<Podcasts_Mutation_Response>>>;
+  /** update data of the table: "push_subscriptions" */
+  update_push_subscriptions?: Maybe<Push_Subscriptions_Mutation_Response>;
+  /** update single row of the table: "push_subscriptions" */
+  update_push_subscriptions_by_pk?: Maybe<Push_Subscriptions>;
+  /** update multiples rows of table: "push_subscriptions" */
+  update_push_subscriptions_many?: Maybe<Array<Maybe<Push_Subscriptions_Mutation_Response>>>;
   /** update data of the table: "sessions" */
   update_sessions?: Maybe<Sessions_Mutation_Response>;
   /** update single row of the table: "sessions" */
@@ -7069,6 +7097,18 @@ export type Mutation_RootDelete_Logs_By_PkArgs = {
 
 
 /** mutation root */
+export type Mutation_RootDelete_NewsArgs = {
+  where: News_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_News_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
 export type Mutation_RootDelete_Note_UploadsArgs = {
   where: Note_Uploads_Bool_Exp;
 };
@@ -7124,6 +7164,18 @@ export type Mutation_RootDelete_PodcastsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Podcasts_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Push_SubscriptionsArgs = {
+  where: Push_Subscriptions_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Push_Subscriptions_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -7498,6 +7550,20 @@ export type Mutation_RootInsert_Logs_OneArgs = {
 
 
 /** mutation root */
+export type Mutation_RootInsert_NewsArgs = {
+  objects: Array<News_Insert_Input>;
+  on_conflict?: InputMaybe<News_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_News_OneArgs = {
+  object: News_Insert_Input;
+  on_conflict?: InputMaybe<News_On_Conflict>;
+};
+
+
+/** mutation root */
 export type Mutation_RootInsert_Note_UploadsArgs = {
   objects: Array<Note_Uploads_Insert_Input>;
   on_conflict?: InputMaybe<Note_Uploads_On_Conflict>;
@@ -7564,6 +7630,20 @@ export type Mutation_RootInsert_PodcastsArgs = {
 export type Mutation_RootInsert_Podcasts_OneArgs = {
   object: Podcasts_Insert_Input;
   on_conflict?: InputMaybe<Podcasts_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Push_SubscriptionsArgs = {
+  objects: Array<Push_Subscriptions_Insert_Input>;
+  on_conflict?: InputMaybe<Push_Subscriptions_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Push_Subscriptions_OneArgs = {
+  object: Push_Subscriptions_Insert_Input;
+  on_conflict?: InputMaybe<Push_Subscriptions_On_Conflict>;
 };
 
 
@@ -8112,6 +8192,26 @@ export type Mutation_RootUpdate_Logs_ManyArgs = {
 
 
 /** mutation root */
+export type Mutation_RootUpdate_NewsArgs = {
+  _set?: InputMaybe<News_Set_Input>;
+  where: News_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_News_By_PkArgs = {
+  _set?: InputMaybe<News_Set_Input>;
+  pk_columns: News_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_News_ManyArgs = {
+  updates: Array<News_Updates>;
+};
+
+
+/** mutation root */
 export type Mutation_RootUpdate_Note_UploadsArgs = {
   _set?: InputMaybe<Note_Uploads_Set_Input>;
   where: Note_Uploads_Bool_Exp;
@@ -8212,6 +8312,26 @@ export type Mutation_RootUpdate_Podcasts_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Podcasts_ManyArgs = {
   updates: Array<Podcasts_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Push_SubscriptionsArgs = {
+  _set?: InputMaybe<Push_Subscriptions_Set_Input>;
+  where: Push_Subscriptions_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Push_Subscriptions_By_PkArgs = {
+  _set?: InputMaybe<Push_Subscriptions_Set_Input>;
+  pk_columns: Push_Subscriptions_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Push_Subscriptions_ManyArgs = {
+  updates: Array<Push_Subscriptions_Updates>;
 };
 
 
@@ -8492,6 +8612,228 @@ export type Mutation_RootUpdate_Verification_Tokens_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Verification_Tokens_ManyArgs = {
   updates: Array<Verification_Tokens_Updates>;
+};
+
+/** News items broadcast by admins (from ADMIN_EMAILS) to all users */
+export type News = {
+  __typename?: 'news';
+  body: Scalars['String']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  created_by?: Maybe<Scalars['uuid']['output']>;
+  /** An object relationship */
+  created_by_user?: Maybe<Users>;
+  id: Scalars['uuid']['output'];
+  /** An array relationship */
+  notifications: Array<Notifications>;
+  /** An aggregate relationship */
+  notifications_aggregate: Notifications_Aggregate;
+  title: Scalars['String']['output'];
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+
+/** News items broadcast by admins (from ADMIN_EMAILS) to all users */
+export type NewsNotificationsArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+
+/** News items broadcast by admins (from ADMIN_EMAILS) to all users */
+export type NewsNotifications_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Notifications_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Notifications_Order_By>>;
+  where?: InputMaybe<Notifications_Bool_Exp>;
+};
+
+/** aggregated selection of "news" */
+export type News_Aggregate = {
+  __typename?: 'news_aggregate';
+  aggregate?: Maybe<News_Aggregate_Fields>;
+  nodes: Array<News>;
+};
+
+/** aggregate fields of "news" */
+export type News_Aggregate_Fields = {
+  __typename?: 'news_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<News_Max_Fields>;
+  min?: Maybe<News_Min_Fields>;
+};
+
+
+/** aggregate fields of "news" */
+export type News_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<News_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Boolean expression to filter rows from the table "news". All fields are combined with a logical 'AND'. */
+export type News_Bool_Exp = {
+  _and?: InputMaybe<Array<News_Bool_Exp>>;
+  _not?: InputMaybe<News_Bool_Exp>;
+  _or?: InputMaybe<Array<News_Bool_Exp>>;
+  body?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  created_by?: InputMaybe<Uuid_Comparison_Exp>;
+  created_by_user?: InputMaybe<Users_Bool_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  notifications?: InputMaybe<Notifications_Bool_Exp>;
+  notifications_aggregate?: InputMaybe<Notifications_Aggregate_Bool_Exp>;
+  title?: InputMaybe<String_Comparison_Exp>;
+  url?: InputMaybe<String_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "news" */
+export enum News_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  NewsPkey = 'news_pkey'
+}
+
+/** input type for inserting data into table "news" */
+export type News_Insert_Input = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  created_by?: InputMaybe<Scalars['uuid']['input']>;
+  created_by_user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  notifications?: InputMaybe<Notifications_Arr_Rel_Insert_Input>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate max on columns */
+export type News_Max_Fields = {
+  __typename?: 'news_max_fields';
+  body?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  created_by?: Maybe<Scalars['uuid']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+/** aggregate min on columns */
+export type News_Min_Fields = {
+  __typename?: 'news_min_fields';
+  body?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  created_by?: Maybe<Scalars['uuid']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+  url?: Maybe<Scalars['String']['output']>;
+};
+
+/** response of any mutation on the table "news" */
+export type News_Mutation_Response = {
+  __typename?: 'news_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<News>;
+};
+
+/** input type for inserting object relation for remote table "news" */
+export type News_Obj_Rel_Insert_Input = {
+  data: News_Insert_Input;
+  /** upsert condition */
+  on_conflict?: InputMaybe<News_On_Conflict>;
+};
+
+/** on_conflict condition type for table "news" */
+export type News_On_Conflict = {
+  constraint: News_Constraint;
+  update_columns?: Array<News_Update_Column>;
+  where?: InputMaybe<News_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "news". */
+export type News_Order_By = {
+  body?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  created_by?: InputMaybe<Order_By>;
+  created_by_user?: InputMaybe<Users_Order_By>;
+  id?: InputMaybe<Order_By>;
+  notifications_aggregate?: InputMaybe<Notifications_Aggregate_Order_By>;
+  title?: InputMaybe<Order_By>;
+  url?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: news */
+export type News_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "news" */
+export enum News_Select_Column {
+  /** column name */
+  Body = 'body',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  CreatedBy = 'created_by',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Title = 'title',
+  /** column name */
+  Url = 'url'
+}
+
+/** input type for updating data in table "news" */
+export type News_Set_Input = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  created_by?: InputMaybe<Scalars['uuid']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Streaming cursor of the table "news" */
+export type News_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: News_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type News_Stream_Cursor_Value_Input = {
+  body?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  created_by?: InputMaybe<Scalars['uuid']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** update columns of table "news" */
+export enum News_Update_Column {
+  /** column name */
+  Body = 'body',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  CreatedBy = 'created_by',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Title = 'title',
+  /** column name */
+  Url = 'url'
+}
+
+export type News_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<News_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: News_Bool_Exp;
 };
 
 /** columns and relationships of "note_uploads" */
@@ -9188,10 +9530,13 @@ export type Notifications = {
   id: Scalars['uuid']['output'];
   /** Whether user has read this notification */
   is_read: Scalars['Boolean']['output'];
-  related_comment_id?: Maybe<Scalars['uuid']['output']>;
   /** An object relationship */
-  todo: Todos;
-  todo_id: Scalars['uuid']['output'];
+  news?: Maybe<News>;
+  related_comment_id?: Maybe<Scalars['uuid']['output']>;
+  related_news_id?: Maybe<Scalars['uuid']['output']>;
+  /** An object relationship */
+  todo?: Maybe<Todos>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
   /** An object relationship */
   triggered_by_user?: Maybe<Users>;
   triggered_by_user_id?: Maybe<Scalars['uuid']['output']>;
@@ -9276,7 +9621,9 @@ export type Notifications_Bool_Exp = {
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   is_read?: InputMaybe<Boolean_Comparison_Exp>;
+  news?: InputMaybe<News_Bool_Exp>;
   related_comment_id?: InputMaybe<Uuid_Comparison_Exp>;
+  related_news_id?: InputMaybe<Uuid_Comparison_Exp>;
   todo?: InputMaybe<Todos_Bool_Exp>;
   todo_id?: InputMaybe<Uuid_Comparison_Exp>;
   triggered_by_user?: InputMaybe<Users_Bool_Exp>;
@@ -9301,7 +9648,9 @@ export type Notifications_Insert_Input = {
   id?: InputMaybe<Scalars['uuid']['input']>;
   /** Whether user has read this notification */
   is_read?: InputMaybe<Scalars['Boolean']['input']>;
+  news?: InputMaybe<News_Obj_Rel_Insert_Input>;
   related_comment_id?: InputMaybe<Scalars['uuid']['input']>;
+  related_news_id?: InputMaybe<Scalars['uuid']['input']>;
   todo?: InputMaybe<Todos_Obj_Rel_Insert_Input>;
   todo_id?: InputMaybe<Scalars['uuid']['input']>;
   triggered_by_user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
@@ -9320,6 +9669,7 @@ export type Notifications_Max_Fields = {
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   related_comment_id?: Maybe<Scalars['uuid']['output']>;
+  related_news_id?: Maybe<Scalars['uuid']['output']>;
   todo_id?: Maybe<Scalars['uuid']['output']>;
   triggered_by_user_id?: Maybe<Scalars['uuid']['output']>;
   /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
@@ -9334,6 +9684,7 @@ export type Notifications_Max_Order_By = {
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   related_comment_id?: InputMaybe<Order_By>;
+  related_news_id?: InputMaybe<Order_By>;
   todo_id?: InputMaybe<Order_By>;
   triggered_by_user_id?: InputMaybe<Order_By>;
   /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
@@ -9349,6 +9700,7 @@ export type Notifications_Min_Fields = {
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   related_comment_id?: Maybe<Scalars['uuid']['output']>;
+  related_news_id?: Maybe<Scalars['uuid']['output']>;
   todo_id?: Maybe<Scalars['uuid']['output']>;
   triggered_by_user_id?: Maybe<Scalars['uuid']['output']>;
   /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
@@ -9363,6 +9715,7 @@ export type Notifications_Min_Order_By = {
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   related_comment_id?: InputMaybe<Order_By>;
+  related_news_id?: InputMaybe<Order_By>;
   todo_id?: InputMaybe<Order_By>;
   triggered_by_user_id?: InputMaybe<Order_By>;
   /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
@@ -9394,7 +9747,9 @@ export type Notifications_Order_By = {
   created_at?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   is_read?: InputMaybe<Order_By>;
+  news?: InputMaybe<News_Order_By>;
   related_comment_id?: InputMaybe<Order_By>;
+  related_news_id?: InputMaybe<Order_By>;
   todo?: InputMaybe<Todos_Order_By>;
   todo_id?: InputMaybe<Order_By>;
   triggered_by_user?: InputMaybe<Users_Order_By>;
@@ -9422,6 +9777,8 @@ export enum Notifications_Select_Column {
   IsRead = 'is_read',
   /** column name */
   RelatedCommentId = 'related_comment_id',
+  /** column name */
+  RelatedNewsId = 'related_news_id',
   /** column name */
   TodoId = 'todo_id',
   /** column name */
@@ -9454,6 +9811,7 @@ export type Notifications_Set_Input = {
   /** Whether user has read this notification */
   is_read?: InputMaybe<Scalars['Boolean']['input']>;
   related_comment_id?: InputMaybe<Scalars['uuid']['input']>;
+  related_news_id?: InputMaybe<Scalars['uuid']['input']>;
   todo_id?: InputMaybe<Scalars['uuid']['input']>;
   triggered_by_user_id?: InputMaybe<Scalars['uuid']['input']>;
   /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
@@ -9478,6 +9836,7 @@ export type Notifications_Stream_Cursor_Value_Input = {
   /** Whether user has read this notification */
   is_read?: InputMaybe<Scalars['Boolean']['input']>;
   related_comment_id?: InputMaybe<Scalars['uuid']['input']>;
+  related_news_id?: InputMaybe<Scalars['uuid']['input']>;
   todo_id?: InputMaybe<Scalars['uuid']['input']>;
   triggered_by_user_id?: InputMaybe<Scalars['uuid']['input']>;
   /** Type of notification: assigned, commented, edited, image_added, image_removed, comment_edited, comment_removed, priority_changed */
@@ -9498,6 +9857,8 @@ export enum Notifications_Update_Column {
   IsRead = 'is_read',
   /** column name */
   RelatedCommentId = 'related_comment_id',
+  /** column name */
+  RelatedNewsId = 'related_news_id',
   /** column name */
   TodoId = 'todo_id',
   /** column name */
@@ -10071,6 +10432,195 @@ export type Podcasts_Updates = {
   where: Podcasts_Bool_Exp;
 };
 
+/** Web Push (VAPID) subscriptions per user/device */
+export type Push_Subscriptions = {
+  __typename?: 'push_subscriptions';
+  auth: Scalars['String']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  endpoint: Scalars['String']['output'];
+  id: Scalars['uuid']['output'];
+  p256dh: Scalars['String']['output'];
+  /** An object relationship */
+  user: Users;
+  user_id: Scalars['uuid']['output'];
+};
+
+/** aggregated selection of "push_subscriptions" */
+export type Push_Subscriptions_Aggregate = {
+  __typename?: 'push_subscriptions_aggregate';
+  aggregate?: Maybe<Push_Subscriptions_Aggregate_Fields>;
+  nodes: Array<Push_Subscriptions>;
+};
+
+/** aggregate fields of "push_subscriptions" */
+export type Push_Subscriptions_Aggregate_Fields = {
+  __typename?: 'push_subscriptions_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Push_Subscriptions_Max_Fields>;
+  min?: Maybe<Push_Subscriptions_Min_Fields>;
+};
+
+
+/** aggregate fields of "push_subscriptions" */
+export type Push_Subscriptions_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Push_Subscriptions_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Boolean expression to filter rows from the table "push_subscriptions". All fields are combined with a logical 'AND'. */
+export type Push_Subscriptions_Bool_Exp = {
+  _and?: InputMaybe<Array<Push_Subscriptions_Bool_Exp>>;
+  _not?: InputMaybe<Push_Subscriptions_Bool_Exp>;
+  _or?: InputMaybe<Array<Push_Subscriptions_Bool_Exp>>;
+  auth?: InputMaybe<String_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  endpoint?: InputMaybe<String_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  p256dh?: InputMaybe<String_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "push_subscriptions" */
+export enum Push_Subscriptions_Constraint {
+  /** unique or primary key constraint on columns "endpoint" */
+  PushSubscriptionsEndpointKey = 'push_subscriptions_endpoint_key',
+  /** unique or primary key constraint on columns "id" */
+  PushSubscriptionsPkey = 'push_subscriptions_pkey'
+}
+
+/** input type for inserting data into table "push_subscriptions" */
+export type Push_Subscriptions_Insert_Input = {
+  auth?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  endpoint?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  p256dh?: InputMaybe<Scalars['String']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Push_Subscriptions_Max_Fields = {
+  __typename?: 'push_subscriptions_max_fields';
+  auth?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  endpoint?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  p256dh?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** aggregate min on columns */
+export type Push_Subscriptions_Min_Fields = {
+  __typename?: 'push_subscriptions_min_fields';
+  auth?: Maybe<Scalars['String']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  endpoint?: Maybe<Scalars['String']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  p256dh?: Maybe<Scalars['String']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** response of any mutation on the table "push_subscriptions" */
+export type Push_Subscriptions_Mutation_Response = {
+  __typename?: 'push_subscriptions_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Push_Subscriptions>;
+};
+
+/** on_conflict condition type for table "push_subscriptions" */
+export type Push_Subscriptions_On_Conflict = {
+  constraint: Push_Subscriptions_Constraint;
+  update_columns?: Array<Push_Subscriptions_Update_Column>;
+  where?: InputMaybe<Push_Subscriptions_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "push_subscriptions". */
+export type Push_Subscriptions_Order_By = {
+  auth?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  endpoint?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  p256dh?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: push_subscriptions */
+export type Push_Subscriptions_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "push_subscriptions" */
+export enum Push_Subscriptions_Select_Column {
+  /** column name */
+  Auth = 'auth',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Endpoint = 'endpoint',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  P256dh = 'p256dh',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "push_subscriptions" */
+export type Push_Subscriptions_Set_Input = {
+  auth?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  endpoint?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  p256dh?: InputMaybe<Scalars['String']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** Streaming cursor of the table "push_subscriptions" */
+export type Push_Subscriptions_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Push_Subscriptions_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Push_Subscriptions_Stream_Cursor_Value_Input = {
+  auth?: InputMaybe<Scalars['String']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  endpoint?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  p256dh?: InputMaybe<Scalars['String']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** update columns of table "push_subscriptions" */
+export enum Push_Subscriptions_Update_Column {
+  /** column name */
+  Auth = 'auth',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  Endpoint = 'endpoint',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  P256dh = 'p256dh',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Push_Subscriptions_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Push_Subscriptions_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Push_Subscriptions_Bool_Exp;
+};
+
 export type Query_Root = {
   __typename?: 'query_root';
   /** An array relationship */
@@ -10163,6 +10713,12 @@ export type Query_Root = {
   logs_aggregate: Logs_Aggregate;
   /** fetch data from the table: "logs" using primary key columns */
   logs_by_pk?: Maybe<Logs>;
+  /** fetch data from the table: "news" */
+  news: Array<News>;
+  /** fetch aggregated fields from the table: "news" */
+  news_aggregate: News_Aggregate;
+  /** fetch data from the table: "news" using primary key columns */
+  news_by_pk?: Maybe<News>;
   /** An array relationship */
   note_uploads: Array<Note_Uploads>;
   /** An aggregate relationship */
@@ -10193,6 +10749,12 @@ export type Query_Root = {
   podcasts_aggregate: Podcasts_Aggregate;
   /** fetch data from the table: "podcasts" using primary key columns */
   podcasts_by_pk?: Maybe<Podcasts>;
+  /** fetch data from the table: "push_subscriptions" */
+  push_subscriptions: Array<Push_Subscriptions>;
+  /** fetch aggregated fields from the table: "push_subscriptions" */
+  push_subscriptions_aggregate: Push_Subscriptions_Aggregate;
+  /** fetch data from the table: "push_subscriptions" using primary key columns */
+  push_subscriptions_by_pk?: Maybe<Push_Subscriptions>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -10627,6 +11189,29 @@ export type Query_RootLogs_By_PkArgs = {
 };
 
 
+export type Query_RootNewsArgs = {
+  distinct_on?: InputMaybe<Array<News_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<News_Order_By>>;
+  where?: InputMaybe<News_Bool_Exp>;
+};
+
+
+export type Query_RootNews_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<News_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<News_Order_By>>;
+  where?: InputMaybe<News_Bool_Exp>;
+};
+
+
+export type Query_RootNews_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
 export type Query_RootNote_UploadsArgs = {
   distinct_on?: InputMaybe<Array<Note_Uploads_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -10738,6 +11323,29 @@ export type Query_RootPodcasts_AggregateArgs = {
 
 
 export type Query_RootPodcasts_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootPush_SubscriptionsArgs = {
+  distinct_on?: InputMaybe<Array<Push_Subscriptions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Push_Subscriptions_Order_By>>;
+  where?: InputMaybe<Push_Subscriptions_Bool_Exp>;
+};
+
+
+export type Query_RootPush_Subscriptions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Push_Subscriptions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Push_Subscriptions_Order_By>>;
+  where?: InputMaybe<Push_Subscriptions_Bool_Exp>;
+};
+
+
+export type Query_RootPush_Subscriptions_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -11435,6 +12043,14 @@ export type Subscription_Root = {
   logs_by_pk?: Maybe<Logs>;
   /** fetch data from the table in a streaming manner: "logs" */
   logs_stream: Array<Logs>;
+  /** fetch data from the table: "news" */
+  news: Array<News>;
+  /** fetch aggregated fields from the table: "news" */
+  news_aggregate: News_Aggregate;
+  /** fetch data from the table: "news" using primary key columns */
+  news_by_pk?: Maybe<News>;
+  /** fetch data from the table in a streaming manner: "news" */
+  news_stream: Array<News>;
   /** An array relationship */
   note_uploads: Array<Note_Uploads>;
   /** An aggregate relationship */
@@ -11475,6 +12091,14 @@ export type Subscription_Root = {
   podcasts_by_pk?: Maybe<Podcasts>;
   /** fetch data from the table in a streaming manner: "podcasts" */
   podcasts_stream: Array<Podcasts>;
+  /** fetch data from the table: "push_subscriptions" */
+  push_subscriptions: Array<Push_Subscriptions>;
+  /** fetch aggregated fields from the table: "push_subscriptions" */
+  push_subscriptions_aggregate: Push_Subscriptions_Aggregate;
+  /** fetch data from the table: "push_subscriptions" using primary key columns */
+  push_subscriptions_by_pk?: Maybe<Push_Subscriptions>;
+  /** fetch data from the table in a streaming manner: "push_subscriptions" */
+  push_subscriptions_stream: Array<Push_Subscriptions>;
   /** An array relationship */
   sessions: Array<Sessions>;
   /** An aggregate relationship */
@@ -12044,6 +12668,36 @@ export type Subscription_RootLogs_StreamArgs = {
 };
 
 
+export type Subscription_RootNewsArgs = {
+  distinct_on?: InputMaybe<Array<News_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<News_Order_By>>;
+  where?: InputMaybe<News_Bool_Exp>;
+};
+
+
+export type Subscription_RootNews_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<News_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<News_Order_By>>;
+  where?: InputMaybe<News_Bool_Exp>;
+};
+
+
+export type Subscription_RootNews_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootNews_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<News_Stream_Cursor_Input>>;
+  where?: InputMaybe<News_Bool_Exp>;
+};
+
+
 export type Subscription_RootNote_UploadsArgs = {
   distinct_on?: InputMaybe<Array<Note_Uploads_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -12191,6 +12845,36 @@ export type Subscription_RootPodcasts_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Podcasts_Stream_Cursor_Input>>;
   where?: InputMaybe<Podcasts_Bool_Exp>;
+};
+
+
+export type Subscription_RootPush_SubscriptionsArgs = {
+  distinct_on?: InputMaybe<Array<Push_Subscriptions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Push_Subscriptions_Order_By>>;
+  where?: InputMaybe<Push_Subscriptions_Bool_Exp>;
+};
+
+
+export type Subscription_RootPush_Subscriptions_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Push_Subscriptions_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Push_Subscriptions_Order_By>>;
+  where?: InputMaybe<Push_Subscriptions_Bool_Exp>;
+};
+
+
+export type Subscription_RootPush_Subscriptions_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootPush_Subscriptions_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Push_Subscriptions_Stream_Cursor_Input>>;
+  where?: InputMaybe<Push_Subscriptions_Bool_Exp>;
 };
 
 
@@ -18328,7 +19012,7 @@ export type GetLogsQueryVariables = Exact<{
 
 export type GetLogsQuery = { __typename?: 'query_root', logs: Array<{ __typename?: 'logs', id: string, timestamp: string, level: string, component: string, message: string, data?: any | null, user_id?: string | null, session_id?: string | null, url?: string | null, created_at: string }>, logs_aggregate: { __typename?: 'logs_aggregate', aggregate?: { __typename?: 'logs_aggregate_fields', count: number } | null } };
 
-export type NotificationFieldsFragment = { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } };
+export type NotificationFieldsFragment = { __typename?: 'notifications', id: string, user_id: string, todo_id?: string | null, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo?: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } | null, news?: { __typename?: 'news', id: string, title: string, body: string, url?: string | null } | null };
 
 export type GetNotificationsQueryVariables = Exact<{
   where?: InputMaybe<Notifications_Bool_Exp>;
@@ -18338,14 +19022,14 @@ export type GetNotificationsQueryVariables = Exact<{
 }>;
 
 
-export type GetNotificationsQuery = { __typename?: 'query_root', notifications: Array<{ __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } }>, notifications_aggregate: { __typename?: 'notifications_aggregate', aggregate?: { __typename?: 'notifications_aggregate_fields', count: number } | null } };
+export type GetNotificationsQuery = { __typename?: 'query_root', notifications: Array<{ __typename?: 'notifications', id: string, user_id: string, todo_id?: string | null, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo?: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } | null, news?: { __typename?: 'news', id: string, title: string, body: string, url?: string | null } | null }>, notifications_aggregate: { __typename?: 'notifications_aggregate', aggregate?: { __typename?: 'notifications_aggregate_fields', count: number } | null } };
 
 export type CreateNotificationMutationVariables = Exact<{
   notification: Notifications_Insert_Input;
 }>;
 
 
-export type CreateNotificationMutation = { __typename?: 'mutation_root', insert_notifications_one?: { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } } | null };
+export type CreateNotificationMutation = { __typename?: 'mutation_root', insert_notifications_one?: { __typename?: 'notifications', id: string, user_id: string, todo_id?: string | null, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo?: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } | null, news?: { __typename?: 'news', id: string, title: string, body: string, url?: string | null } | null } | null };
 
 export type UpdateNotificationMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
@@ -18353,7 +19037,7 @@ export type UpdateNotificationMutationVariables = Exact<{
 }>;
 
 
-export type UpdateNotificationMutation = { __typename?: 'mutation_root', update_notifications_by_pk?: { __typename?: 'notifications', id: string, user_id: string, todo_id: string, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } } | null };
+export type UpdateNotificationMutation = { __typename?: 'mutation_root', update_notifications_by_pk?: { __typename?: 'notifications', id: string, user_id: string, todo_id?: string | null, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo?: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } | null, news?: { __typename?: 'news', id: string, title: string, body: string, url?: string | null } | null } | null };
 
 export type MarkNotificationsAsReadMutationVariables = Exact<{
   notification_ids: Array<Scalars['uuid']['input']> | Scalars['uuid']['input'];
@@ -18368,6 +19052,20 @@ export type DeleteNotificationMutationVariables = Exact<{
 
 
 export type DeleteNotificationMutation = { __typename?: 'mutation_root', delete_notifications_by_pk?: { __typename?: 'notifications', id: string } | null };
+
+export type CreatePushSubscriptionMutationVariables = Exact<{
+  subscription: Push_Subscriptions_Insert_Input;
+}>;
+
+
+export type CreatePushSubscriptionMutation = { __typename?: 'mutation_root', insert_push_subscriptions_one?: { __typename?: 'push_subscriptions', id: string, endpoint: string } | null };
+
+export type DeletePushSubscriptionMutationVariables = Exact<{
+  endpoint: Scalars['String']['input'];
+}>;
+
+
+export type DeletePushSubscriptionMutation = { __typename?: 'mutation_root', delete_push_subscriptions?: { __typename?: 'push_subscriptions_mutation_response', affected_rows: number } | null };
 
 export type ActivityLogFieldsFragment = { __typename?: 'activity_logs', id: string, user_id?: string | null, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } };
 
@@ -19041,6 +19739,12 @@ export const NotificationFieldsFragmentDoc = new TypedDocumentString(`
         }
       }
     }
+  }
+  news {
+    id
+    title
+    body
+    url
   }
 }
     `, {"fragmentName":"NotificationFields"}) as unknown as TypedDocumentString<NotificationFieldsFragment, unknown>;
@@ -20686,6 +21390,12 @@ export const GetNotificationsDocument = new TypedDocumentString(`
       }
     }
   }
+  news {
+    id
+    title
+    body
+    url
+  }
 }`) as unknown as TypedDocumentString<GetNotificationsQuery, GetNotificationsQueryVariables>;
 export const CreateNotificationDocument = new TypedDocumentString(`
     mutation CreateNotification($notification: notifications_insert_input!) {
@@ -20725,6 +21435,12 @@ export const CreateNotificationDocument = new TypedDocumentString(`
         }
       }
     }
+  }
+  news {
+    id
+    title
+    body
+    url
   }
 }`) as unknown as TypedDocumentString<CreateNotificationMutation, CreateNotificationMutationVariables>;
 export const UpdateNotificationDocument = new TypedDocumentString(`
@@ -20766,6 +21482,12 @@ export const UpdateNotificationDocument = new TypedDocumentString(`
       }
     }
   }
+  news {
+    id
+    title
+    body
+    url
+  }
 }`) as unknown as TypedDocumentString<UpdateNotificationMutation, UpdateNotificationMutationVariables>;
 export const MarkNotificationsAsReadDocument = new TypedDocumentString(`
     mutation MarkNotificationsAsRead($notification_ids: [uuid!]!) {
@@ -20784,6 +21506,24 @@ export const DeleteNotificationDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteNotificationMutation, DeleteNotificationMutationVariables>;
+export const CreatePushSubscriptionDocument = new TypedDocumentString(`
+    mutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {
+  insert_push_subscriptions_one(
+    object: $subscription
+    on_conflict: {constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth]}
+  ) {
+    id
+    endpoint
+  }
+}
+    `) as unknown as TypedDocumentString<CreatePushSubscriptionMutation, CreatePushSubscriptionMutationVariables>;
+export const DeletePushSubscriptionDocument = new TypedDocumentString(`
+    mutation DeletePushSubscription($endpoint: String!) {
+  delete_push_subscriptions(where: {endpoint: {_eq: $endpoint}}) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<DeletePushSubscriptionMutation, DeletePushSubscriptionMutationVariables>;
 export const GetActivityLogsDocument = new TypedDocumentString(`
     query GetActivityLogs($where: activity_logs_bool_exp, $order_by: [activity_logs_order_by!], $limit: Int, $offset: Int) {
   activity_logs(

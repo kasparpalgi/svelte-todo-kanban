@@ -250,7 +250,7 @@
     "add_field": "Lisa väli",
     "field_label": "Silt",
     "field_value": "Väärtus",
-    "step_select_lists":"Vali nimekirjad",
+    "step_select_lists": "Vali nimekirjad",
     "step_select_todos": "Vali arveldatavad ülesanded",
     "step_invoice_details": "Arve andmed",
     "step_confirm": "Ülevaade ja loomine",
@@ -685,6 +685,26 @@
       "save": "Salvesta kõneseaded",
       "saved": "Kõneseaded salvestatud",
       "save_failed": "Kõneseadete salvestamine ebaõnnestus"
+    },
+    "push": {
+      "title": "Push-teavitused",
+      "description": "Saad süsteemitasandi heliga teavituse ka siis, kui rakendus pole avatud",
+      "enable": "Luba push-teavitused",
+      "enable_description": "Sind teavitatakse uudistest selles seadmes",
+      "blocked": "Teavitused on brauseri seadetes blokeeritud"
+    },
+    "news": {
+      "title": "Saada uudis",
+      "description": "Saadab push-teavituse ja rakendusesisese uudise kõigile kasutajatele (ainult adminile)",
+      "news_title": "Pealkiri",
+      "news_title_placeholder": "Mis on uut",
+      "body": "Sõnum",
+      "body_placeholder": "Uudise üksikasjad...",
+      "url": "Link (valikuline)",
+      "send": "Saada kõigile kasutajatele",
+      "sending": "Saatmine...",
+      "sent": "Uudis saadetud kõigile kasutajatele",
+      "send_failed": "Uudise saatmine ebaõnnestus"
     }
   },
   "notifications": {

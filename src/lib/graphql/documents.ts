@@ -883,6 +883,12 @@ export const NOTIFICATION_FRAGMENT = graphql(`
 				}
 			}
 		}
+		news {
+			id
+			title
+			body
+			url
+		}
 	}
 `);
 
@@ -932,6 +938,28 @@ export const DELETE_NOTIFICATION = graphql(`
 	mutation DeleteNotification($id: uuid!) {
 		delete_notifications_by_pk(id: $id) {
 			id
+		}
+	}
+`);
+
+// ========== Push Subscriptions ==========
+
+export const CREATE_PUSH_SUBSCRIPTION = graphql(`
+	mutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {
+		insert_push_subscriptions_one(
+			object: $subscription
+			on_conflict: { constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth] }
+		) {
+			id
+			endpoint
+		}
+	}
+`);
+
+export const DELETE_PUSH_SUBSCRIPTION = graphql(`
+	mutation DeletePushSubscription($endpoint: String!) {
+		delete_push_subscriptions(where: { endpoint: { _eq: $endpoint } }) {
+			affected_rows
 		}
 	}
 `);

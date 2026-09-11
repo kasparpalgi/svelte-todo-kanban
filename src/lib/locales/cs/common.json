@@ -606,6 +606,26 @@
       "save": "Uložit nastavení řeči",
       "saved": "Nastavení řeči uloženo",
       "save_failed": "Uložení nastavení řeči se nezdařilo"
+    },
+    "push": {
+      "title": "Push notifikace",
+      "description": "Dostávejte upozornění na úrovni systému se zvukem, i když aplikace není otevřená",
+      "enable": "Povolit push notifikace",
+      "enable_description": "Na tomto zařízení budete upozorněni na novinky",
+      "blocked": "Notifikace jsou v nastavení prohlížeče zablokovány"
+    },
+    "news": {
+      "title": "Rozeslat novinku",
+      "description": "Odešle push notifikaci a novinku v aplikaci všem uživatelům (pouze pro adminy)",
+      "news_title": "Nadpis",
+      "news_title_placeholder": "Co je nového",
+      "body": "Zpráva",
+      "body_placeholder": "Podrobnosti o novince...",
+      "url": "Odkaz (nepovinné)",
+      "send": "Odeslat všem uživatelům",
+      "sending": "Odesílání...",
+      "sent": "Novinka byla odeslána všem uživatelům",
+      "send_failed": "Odeslání novinky se nezdařilo"
     }
   },
   "notifications": {

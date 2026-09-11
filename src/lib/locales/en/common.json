@@ -685,6 +685,26 @@
       "save": "Save Speech Settings",
       "saved": "Speech settings saved",
       "save_failed": "Failed to save speech settings"
+    },
+    "push": {
+      "title": "Push Notifications",
+      "description": "Get an OS-level notification, with sound, even when the app isn't open",
+      "enable": "Enable push notifications",
+      "enable_description": "You'll be notified about news broadcasts on this device",
+      "blocked": "Notifications are blocked in your browser settings"
+    },
+    "news": {
+      "title": "Broadcast News",
+      "description": "Send a push notification and in-app news item to every user (admin only)",
+      "news_title": "Title",
+      "news_title_placeholder": "What's new",
+      "body": "Message",
+      "body_placeholder": "Details about the update...",
+      "url": "Link (optional)",
+      "send": "Send to all users",
+      "sending": "Sending...",
+      "sent": "News sent to all users",
+      "send_failed": "Failed to send news"
     }
   },
   "notifications": {

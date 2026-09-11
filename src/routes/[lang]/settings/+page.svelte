@@ -2,6 +2,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import PushNotificationSettings from '$lib/components/settings/PushNotificationSettings.svelte';
+	import AdminNewsPanel from '$lib/components/settings/AdminNewsPanel.svelte';
 	import { t } from '$lib/i18n';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
@@ -288,6 +290,12 @@
 					</div>
 				</CardContent>
 			</Card>
+
+			<PushNotificationSettings />
+
+			{#if page.data.isAdmin}
+				<AdminNewsPanel />
+			{/if}
 
 			<SpeechToTextIntegration />
 

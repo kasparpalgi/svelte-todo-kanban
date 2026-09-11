@@ -6,6 +6,7 @@ import { publicRequest } from '$lib/graphql/client';
 import { serverRequest } from '$lib/graphql/server-client';
 import { GET_URL_SHORTCUT_BY_ALIAS, INCREMENT_URL_SHORTCUT_VISITS } from '$lib/graphql/documents';
 import { RESERVED_ALIASES, normalizeTargetUrl } from '$lib/utils/shortcutAlias';
+import { isAdminEmail } from '$lib/server/admin';
 
 const KNOWN_LANGUAGES = new Set(['en', 'cs', 'et']);
 
@@ -74,6 +75,7 @@ export const load: LayoutServerLoad = async (event) => {
 	}
 
 	return {
-		session
+		session,
+		isAdmin: isAdminEmail(session?.user?.email)
 	};
 };

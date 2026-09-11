@@ -5,6 +5,9 @@ object_relationships:
   - name: comment
     using:
       foreign_key_constraint_on: related_comment_id
+  - name: news
+    using:
+      foreign_key_constraint_on: related_news_id
   - name: todo
     using:
       foreign_key_constraint_on: todo_id
@@ -24,6 +27,7 @@ insert_permissions:
         - id
         - is_read
         - related_comment_id
+        - related_news_id
         - todo_id
         - triggered_by_user_id
         - type
@@ -39,6 +43,7 @@ select_permissions:
         - id
         - is_read
         - related_comment_id
+        - related_news_id
         - todo_id
         - triggered_by_user_id
         - type
