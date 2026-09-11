@@ -4,6 +4,6 @@
 
 [NEVER REMOVE]
 
-Add
+Add iban and swift
 
 _From Kanban card `e1f6a17f-6940-4916-a46f-3c63ee1d08be`._
