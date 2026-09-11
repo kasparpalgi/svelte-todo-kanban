@@ -969,6 +969,8 @@
     "vat_number": "KM / Reg. nr.",
     "vat_id": "KM",
     "vat_rate": "KM-määr",
+    "iban": "IBAN",
+    "swift": "SWIFT / BIC",
     "set_as_default": "Määra vaikimisi saatjaks",
     "default": "Vaikimisi",
     "created": "Ettevõte loodud",

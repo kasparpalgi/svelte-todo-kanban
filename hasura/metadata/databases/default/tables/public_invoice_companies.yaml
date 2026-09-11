@@ -24,9 +24,11 @@ insert_permissions:
       columns:
         - address
         - created_at
+        - iban
         - id
         - is_default
         - name
+        - swift
         - updated_at
         - user_id
         - vat_number
@@ -38,9 +40,11 @@ select_permissions:
       columns:
         - address
         - created_at
+        - iban
         - id
         - is_default
         - name
+        - swift
         - updated_at
         - user_id
         - vat_number
@@ -54,8 +58,10 @@ update_permissions:
     permission:
       columns:
         - address
+        - iban
         - is_default
         - name
+        - swift
         - updated_at
         - vat_number
         - vat_rate

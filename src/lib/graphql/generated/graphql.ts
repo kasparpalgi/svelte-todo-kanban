@@ -3915,6 +3915,7 @@ export type Invoice_Companies = {
   __typename?: 'invoice_companies';
   address?: Maybe<Scalars['String']['output']>;
   created_at: Scalars['timestamptz']['output'];
+  iban?: Maybe<Scalars['String']['output']>;
   id: Scalars['uuid']['output'];
   /** An array relationship */
   invoices: Array<Invoices>;
@@ -3922,6 +3923,7 @@ export type Invoice_Companies = {
   invoices_aggregate: Invoices_Aggregate;
   is_default: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+  swift?: Maybe<Scalars['String']['output']>;
   updated_at: Scalars['timestamptz']['output'];
   /** An object relationship */
   user: Users;
@@ -3993,11 +3995,13 @@ export type Invoice_Companies_Bool_Exp = {
   _or?: InputMaybe<Array<Invoice_Companies_Bool_Exp>>;
   address?: InputMaybe<String_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  iban?: InputMaybe<String_Comparison_Exp>;
   id?: InputMaybe<Uuid_Comparison_Exp>;
   invoices?: InputMaybe<Invoices_Bool_Exp>;
   invoices_aggregate?: InputMaybe<Invoices_Aggregate_Bool_Exp>;
   is_default?: InputMaybe<Boolean_Comparison_Exp>;
   name?: InputMaybe<String_Comparison_Exp>;
+  swift?: InputMaybe<String_Comparison_Exp>;
   updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   user?: InputMaybe<Users_Bool_Exp>;
   user_id?: InputMaybe<Uuid_Comparison_Exp>;
@@ -4020,10 +4024,12 @@ export type Invoice_Companies_Inc_Input = {
 export type Invoice_Companies_Insert_Input = {
   address?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  iban?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   invoices?: InputMaybe<Invoices_Arr_Rel_Insert_Input>;
   is_default?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  swift?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
   user_id?: InputMaybe<Scalars['uuid']['input']>;
@@ -4036,8 +4042,10 @@ export type Invoice_Companies_Max_Fields = {
   __typename?: 'invoice_companies_max_fields';
   address?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
+  iban?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  swift?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
   user_id?: Maybe<Scalars['uuid']['output']>;
   vat_number?: Maybe<Scalars['String']['output']>;
@@ -4049,8 +4057,10 @@ export type Invoice_Companies_Min_Fields = {
   __typename?: 'invoice_companies_min_fields';
   address?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
+  iban?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['uuid']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  swift?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
   user_id?: Maybe<Scalars['uuid']['output']>;
   vat_number?: Maybe<Scalars['String']['output']>;
@@ -4084,10 +4094,12 @@ export type Invoice_Companies_On_Conflict = {
 export type Invoice_Companies_Order_By = {
   address?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
+  iban?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   invoices_aggregate?: InputMaybe<Invoices_Aggregate_Order_By>;
   is_default?: InputMaybe<Order_By>;
   name?: InputMaybe<Order_By>;
+  swift?: InputMaybe<Order_By>;
   updated_at?: InputMaybe<Order_By>;
   user?: InputMaybe<Users_Order_By>;
   user_id?: InputMaybe<Order_By>;
@@ -4107,11 +4119,15 @@ export enum Invoice_Companies_Select_Column {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
+  Iban = 'iban',
+  /** column name */
   Id = 'id',
   /** column name */
   IsDefault = 'is_default',
   /** column name */
   Name = 'name',
+  /** column name */
+  Swift = 'swift',
   /** column name */
   UpdatedAt = 'updated_at',
   /** column name */
@@ -4126,9 +4142,11 @@ export enum Invoice_Companies_Select_Column {
 export type Invoice_Companies_Set_Input = {
   address?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  iban?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   is_default?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  swift?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   user_id?: InputMaybe<Scalars['uuid']['input']>;
   vat_number?: InputMaybe<Scalars['String']['input']>;
@@ -4165,9 +4183,11 @@ export type Invoice_Companies_Stream_Cursor_Input = {
 export type Invoice_Companies_Stream_Cursor_Value_Input = {
   address?: InputMaybe<Scalars['String']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  iban?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['uuid']['input']>;
   is_default?: InputMaybe<Scalars['Boolean']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  swift?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   user_id?: InputMaybe<Scalars['uuid']['input']>;
   vat_number?: InputMaybe<Scalars['String']['input']>;
@@ -4187,11 +4207,15 @@ export enum Invoice_Companies_Update_Column {
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
+  Iban = 'iban',
+  /** column name */
   Id = 'id',
   /** column name */
   IsDefault = 'is_default',
   /** column name */
   Name = 'name',
+  /** column name */
+  Swift = 'swift',
   /** column name */
   UpdatedAt = 'updated_at',
   /** column name */
@@ -18593,19 +18617,19 @@ export type DeleteClientMutationVariables = Exact<{
 
 export type DeleteClientMutation = { __typename?: 'mutation_root', delete_clients_by_pk?: { __typename?: 'clients', id: string } | null };
 
-export type InvoiceCompanyFieldsFragment = { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string };
+export type InvoiceCompanyFieldsFragment = { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string };
 
 export type GetInvoiceCompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetInvoiceCompaniesQuery = { __typename?: 'query_root', invoice_companies: Array<{ __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string }> };
+export type GetInvoiceCompaniesQuery = { __typename?: 'query_root', invoice_companies: Array<{ __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string }> };
 
 export type CreateInvoiceCompanyMutationVariables = Exact<{
   object: Invoice_Companies_Insert_Input;
 }>;
 
 
-export type CreateInvoiceCompanyMutation = { __typename?: 'mutation_root', insert_invoice_companies_one?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null };
+export type CreateInvoiceCompanyMutation = { __typename?: 'mutation_root', insert_invoice_companies_one?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string } | null };
 
 export type UpdateInvoiceCompanyMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
@@ -18613,7 +18637,7 @@ export type UpdateInvoiceCompanyMutationVariables = Exact<{
 }>;
 
 
-export type UpdateInvoiceCompanyMutation = { __typename?: 'mutation_root', update_invoice_companies_by_pk?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null };
+export type UpdateInvoiceCompanyMutation = { __typename?: 'mutation_root', update_invoice_companies_by_pk?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string } | null };
 
 export type DeleteInvoiceCompanyMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
@@ -18624,26 +18648,26 @@ export type DeleteInvoiceCompanyMutation = { __typename?: 'mutation_root', delet
 
 export type InvoiceItemFieldsFragment = { __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string };
 
-export type InvoiceFieldsFragment = { __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> };
+export type InvoiceFieldsFragment = { __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> };
 
 export type GetBoardInvoicesQueryVariables = Exact<{
   board_id: Scalars['uuid']['input'];
 }>;
 
 
-export type GetBoardInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> }> };
+export type GetBoardInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> }> };
 
 export type GetAllInvoicesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> }> };
+export type GetAllInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> }> };
 
 export type CreateInvoiceWithItemsMutationVariables = Exact<{
   invoice: Invoices_Insert_Input;
 }>;
 
 
-export type CreateInvoiceWithItemsMutation = { __typename?: 'mutation_root', insert_invoices_one?: { __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> } | null };
+export type CreateInvoiceWithItemsMutation = { __typename?: 'mutation_root', insert_invoices_one?: { __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> } | null };
 
 export type GetInvoicesIssuedTodayQueryVariables = Exact<{
   today: Scalars['date']['input'];
@@ -19182,6 +19206,8 @@ export const InvoiceCompanyFieldsFragmentDoc = new TypedDocumentString(`
   address
   vat_number
   vat_rate
+  iban
+  swift
   is_default
   created_at
   updated_at
@@ -19251,6 +19277,8 @@ fragment InvoiceCompanyFields on invoice_companies {
   address
   vat_number
   vat_rate
+  iban
+  swift
   is_default
   created_at
   updated_at
@@ -21439,6 +21467,8 @@ export const GetInvoiceCompaniesDocument = new TypedDocumentString(`
   address
   vat_number
   vat_rate
+  iban
+  swift
   is_default
   created_at
   updated_at
@@ -21456,6 +21486,8 @@ export const CreateInvoiceCompanyDocument = new TypedDocumentString(`
   address
   vat_number
   vat_rate
+  iban
+  swift
   is_default
   created_at
   updated_at
@@ -21473,6 +21505,8 @@ export const UpdateInvoiceCompanyDocument = new TypedDocumentString(`
   address
   vat_number
   vat_rate
+  iban
+  swift
   is_default
   created_at
   updated_at
@@ -21513,6 +21547,8 @@ fragment InvoiceCompanyFields on invoice_companies {
   address
   vat_number
   vat_rate
+  iban
+  swift
   is_default
   created_at
   updated_at
@@ -21584,6 +21620,8 @@ fragment InvoiceCompanyFields on invoice_companies {
   address
   vat_number
   vat_rate
+  iban
+  swift
   is_default
   created_at
   updated_at
@@ -21655,6 +21693,8 @@ fragment InvoiceCompanyFields on invoice_companies {
   address
   vat_number
   vat_rate
+  iban
+  swift
   is_default
   created_at
   updated_at

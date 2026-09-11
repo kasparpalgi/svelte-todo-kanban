@@ -767,6 +767,8 @@
     "vat_number": "DIČ / IČ",
     "vat_id": "DPH",
     "vat_rate": "Sazba DPH",
+    "iban": "IBAN",
+    "swift": "SWIFT / BIC",
     "set_as_default": "Nastavit jako výchozí",
     "default": "Výchozí",
     "created": "Společnost vytvořena",

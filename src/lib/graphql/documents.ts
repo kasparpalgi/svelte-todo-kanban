@@ -1529,6 +1529,8 @@ export const INVOICE_COMPANY_FRAGMENT = graphql(`
 		address
 		vat_number
 		vat_rate
+		iban
+		swift
 		is_default
 		created_at
 		updated_at

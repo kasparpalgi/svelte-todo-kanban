@@ -119,7 +119,7 @@ type Documents = {
     "\n\tmutation CreateClient($object: clients_insert_input!) {\n\t\tinsert_clients_one(object: $object) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": typeof types.CreateClientDocument,
     "\n\tmutation UpdateClient($id: uuid!, $_set: clients_set_input!) {\n\t\tupdate_clients_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": typeof types.UpdateClientDocument,
     "\n\tmutation DeleteClient($id: uuid!) {\n\t\tdelete_clients_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteClientDocument,
-    "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.InvoiceCompanyFieldsFragmentDoc,
+    "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tiban\n\t\tswift\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.InvoiceCompanyFieldsFragmentDoc,
     "\n\tquery GetInvoiceCompanies {\n\t\tinvoice_companies(order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": typeof types.GetInvoiceCompaniesDocument,
     "\n\tmutation CreateInvoiceCompany($object: invoice_companies_insert_input!) {\n\t\tinsert_invoice_companies_one(object: $object) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": typeof types.CreateInvoiceCompanyDocument,
     "\n\tmutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": typeof types.UpdateInvoiceCompanyDocument,
@@ -239,7 +239,7 @@ const documents: Documents = {
     "\n\tmutation CreateClient($object: clients_insert_input!) {\n\t\tinsert_clients_one(object: $object) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": types.CreateClientDocument,
     "\n\tmutation UpdateClient($id: uuid!, $_set: clients_set_input!) {\n\t\tupdate_clients_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": types.UpdateClientDocument,
     "\n\tmutation DeleteClient($id: uuid!) {\n\t\tdelete_clients_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteClientDocument,
-    "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.InvoiceCompanyFieldsFragmentDoc,
+    "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tiban\n\t\tswift\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.InvoiceCompanyFieldsFragmentDoc,
     "\n\tquery GetInvoiceCompanies {\n\t\tinvoice_companies(order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": types.GetInvoiceCompaniesDocument,
     "\n\tmutation CreateInvoiceCompany($object: invoice_companies_insert_input!) {\n\t\tinsert_invoice_companies_one(object: $object) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": types.CreateInvoiceCompanyDocument,
     "\n\tmutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": types.UpdateInvoiceCompanyDocument,
@@ -674,7 +674,7 @@ export function graphql(source: "\n\tmutation DeleteClient($id: uuid!) {\n\t\tde
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n"): typeof import('./graphql').InvoiceCompanyFieldsFragmentDoc;
+export function graphql(source: "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tiban\n\t\tswift\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n"): typeof import('./graphql').InvoiceCompanyFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

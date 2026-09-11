@@ -37,6 +37,8 @@
 		address: '',
 		vat_number: '',
 		vat_rate: '0',
+		iban: '',
+		swift: '',
 		is_default: false
 	});
 
@@ -46,7 +48,15 @@
 
 	function openCreate() {
 		editingCompany = null;
-		form = { name: '', address: '', vat_number: '', vat_rate: '0', is_default: false };
+		form = {
+			name: '',
+			address: '',
+			vat_number: '',
+			vat_rate: '0',
+			iban: '',
+			swift: '',
+			is_default: false
+		};
 		dialogOpen = true;
 	}
 
@@ -57,6 +67,8 @@
 			address: company.address || '',
 			vat_number: company.vat_number || '',
 			vat_rate: String(company.vat_rate ?? 0),
+			iban: company.iban || '',
+			swift: company.swift || '',
 			is_default: company.is_default
 		};
 		dialogOpen = true;
@@ -73,6 +85,8 @@
 			address: form.address.trim() || null,
 			vat_number: form.vat_number.trim() || null,
 			vat_rate: parseFloat(form.vat_rate) || 0,
+			iban: form.iban.trim() || null,
+			swift: form.swift.trim() || null,
 			is_default: form.is_default
 		};
 
@@ -146,6 +160,16 @@
 									<span>VAT: {company.vat_rate}%</span>
 								{/if}
 							</div>
+							{#if company.iban || company.swift}
+								<div class="mt-1 flex gap-3 text-xs text-muted-foreground">
+									{#if company.iban}
+										<span>{$t('invoice_companies.iban')}: {company.iban}</span>
+									{/if}
+									{#if company.swift}
+										<span>{$t('invoice_companies.swift')}: {company.swift}</span>
+									{/if}
+								</div>
+							{/if}
 						</div>
 						<div class="ml-2 flex gap-1">
 							<Button variant="ghost" size="icon" class="h-7 w-7" onclick={() => openEdit(company)}>
@@ -203,6 +227,16 @@
 						bind:value={form.vat_rate}
 						placeholder="0"
 					/>
+				</div>
+			</div>
+			<div class="grid grid-cols-2 gap-3">
+				<div class="grid gap-1.5">
+					<Label for="co-iban">{$t('invoice_companies.iban')}</Label>
+					<Input id="co-iban" bind:value={form.iban} placeholder="EE00 0000 0000 0000 0000" />
+				</div>
+				<div class="grid gap-1.5">
+					<Label for="co-swift">{$t('invoice_companies.swift')}</Label>
+					<Input id="co-swift" bind:value={form.swift} placeholder="XXXXXXXX" />
 				</div>
 			</div>
 			<label class="flex cursor-pointer items-center gap-2">
