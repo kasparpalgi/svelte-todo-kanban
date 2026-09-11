@@ -146,6 +146,7 @@
     "agent_list": "Agent list:",
     "agent_list_none": "none",
     "enable_hour_tracking": "Enable hour tracking",
+    "enable_model_effort": "Enable model/effort selection",
     "settings_updated": "Board settings updated",
     "mobile_add": "Mobile quick add (for adding to homescreen)",
     "switch_board": "Switch Board",

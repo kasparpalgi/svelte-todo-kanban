@@ -313,6 +313,23 @@
 			displayMessage(result.message);
 		}
 	}
+
+	async function handleUpdateModelEffortSetting(boardId: string, enable: boolean) {
+		const board = listsStore.boards.find((b) => b.id === boardId);
+		if (!board) return;
+
+		const newSettings = { ...board.settings, enable_model_effort: enable };
+
+		const result = await listsStore.updateBoard(boardId, {
+			settings: newSettings
+		});
+
+		if (result.success) {
+			displayMessage($t('board.settings_updated'), 1500, true);
+		} else {
+			displayMessage(result.message);
+		}
+	}
 </script>
 
 {#if actionState.edit === 'showBoardManagement'}
@@ -495,6 +512,23 @@
 																)}
 														/>
 														<span>{$t('board.enable_hour_tracking')}</span>
+													</Label>
+												</div>
+												<div class="px-2 py-1.5 text-sm">
+													<Label
+														for="model-effort-switch-{board.id}"
+														class="flex cursor-pointer items-center gap-2"
+													>
+														<Switch
+															id="model-effort-switch-{board.id}"
+															checked={board.settings?.enable_model_effort ?? true}
+															onCheckedChange={() =>
+																handleUpdateModelEffortSetting(
+																	board.id,
+																	!(board.settings?.enable_model_effort ?? true)
+																)}
+														/>
+														<span>{$t('board.enable_model_effort')}</span>
 													</Label>
 												</div>
 												{#if clientsStore.clients.length > 0}

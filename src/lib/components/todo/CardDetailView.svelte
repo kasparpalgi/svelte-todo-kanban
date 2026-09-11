@@ -612,43 +612,45 @@
 				</select>
 			</div>
 
-			<div>
-				<Label for="agent-model" class="mb-2 flex items-center gap-2">
-					{$t('card.agent_model_label')}
-				</Label>
-				<select
-					id="agent-model"
-					bind:value={editData.agent_model}
-					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-				>
-					<option value={null}>{$t('card.agent_model_auto')}</option>
-					<option value="fable-5.1">{$t('card.agent_model_fable_5_1')}</option>
-					<option value="opus-5">{$t('card.agent_model_opus_5')}</option>
-					<option value="opus-4.8">{$t('card.agent_model_opus_4_8')}</option>
-					<option value="opus-4.6">{$t('card.agent_model_opus_4_6')}</option>
-					<option value="sonnet-5">{$t('card.agent_model_sonnet_5')}</option>
-					<option value="sonnet-4.6">{$t('card.agent_model_sonnet_4_6')}</option>
-					<option value="haiku-4.5">{$t('card.agent_model_haiku_4_5')}</option>
-				</select>
-			</div>
+			{#if todo.list?.board?.settings?.enable_model_effort ?? true}
+				<div>
+					<Label for="agent-model" class="mb-2 flex items-center gap-2">
+						{$t('card.agent_model_label')}
+					</Label>
+					<select
+						id="agent-model"
+						bind:value={editData.agent_model}
+						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+					>
+						<option value={null}>{$t('card.agent_model_auto')}</option>
+						<option value="fable-5.1">{$t('card.agent_model_fable_5_1')}</option>
+						<option value="opus-5">{$t('card.agent_model_opus_5')}</option>
+						<option value="opus-4.8">{$t('card.agent_model_opus_4_8')}</option>
+						<option value="opus-4.6">{$t('card.agent_model_opus_4_6')}</option>
+						<option value="sonnet-5">{$t('card.agent_model_sonnet_5')}</option>
+						<option value="sonnet-4.6">{$t('card.agent_model_sonnet_4_6')}</option>
+						<option value="haiku-4.5">{$t('card.agent_model_haiku_4_5')}</option>
+					</select>
+				</div>
 
-			<div>
-				<Label for="agent-effort" class="mb-2 flex items-center gap-2">
-					{$t('card.agent_effort_label')}
-				</Label>
-				<select
-					id="agent-effort"
-					bind:value={editData.agent_effort}
-					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-				>
-					<option value={null}>{$t('card.agent_model_auto')}</option>
-					<option value="low">{$t('card.agent_effort_low')}</option>
-					<option value="medium">{$t('card.agent_effort_medium')}</option>
-					<option value="high">{$t('card.agent_effort_high')}</option>
-					<option value="xhigh">{$t('card.agent_effort_xhigh')}</option>
-					<option value="max">{$t('card.agent_effort_max')}</option>
-				</select>
-			</div>
+				<div>
+					<Label for="agent-effort" class="mb-2 flex items-center gap-2">
+						{$t('card.agent_effort_label')}
+					</Label>
+					<select
+						id="agent-effort"
+						bind:value={editData.agent_effort}
+						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+					>
+						<option value={null}>{$t('card.agent_model_auto')}</option>
+						<option value="low">{$t('card.agent_effort_low')}</option>
+						<option value="medium">{$t('card.agent_effort_medium')}</option>
+						<option value="high">{$t('card.agent_effort_high')}</option>
+						<option value="xhigh">{$t('card.agent_effort_xhigh')}</option>
+						<option value="max">{$t('card.agent_effort_max')}</option>
+					</select>
+				</div>
+			{/if}
 		</div>
 
 		{#if todo.list?.board?.settings?.enable_hour_tracking}

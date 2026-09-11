@@ -146,6 +146,7 @@
     "agent_list": "Agendi nimekiri:",
     "agent_list_none": "puudub",
     "enable_hour_tracking": "Luba tundide jälgimine",
+    "enable_model_effort": "Luba mudeli/tasemevaliku",
     "settings_updated": "Projekti seaded on uuendatud",
     "mobile_add": "Mobiili kiirlisamine (link avaekraanile lisamiseks)",
     "switch_board": "Vaheta tahvlit",
