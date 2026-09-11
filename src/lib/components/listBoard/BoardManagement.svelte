@@ -44,6 +44,9 @@
 	import GithubRepoSelector from './GithubRepoSelector.svelte';
 	import BoardMembers from './BoardMembers.svelte';
 	import BoardVisibilitySettings from './BoardVisibilitySettings.svelte';
+	import BoardCustomizer from './BoardCustomizer.svelte';
+	import { getBoardCustomization } from '$lib/constants/boardCustomization';
+	import { Palette } from 'lucide-svelte';
 	import githubLogo from '$lib/assets/github.svg';
 	import { clientsStore } from '$lib/stores/clients.svelte';
 	import { Building2 } from 'lucide-svelte';
@@ -59,6 +62,8 @@
 	let selectedBoardForMembers = $state<any>(null);
 	let showVisibilityDialog = $state(false);
 	let selectedBoardForVisibility = $state<any>(null);
+	let showCustomizeDialog = $state(false);
+	let selectedBoardForCustomize = $state<any>(null);
 
 	const hasGithubConnected = $derived(userStore.hasGithubConnected);
 	const currentUser = $derived(userStore.user);
@@ -224,6 +229,11 @@
 	function openVisibilityDialog(board: any) {
 		selectedBoardForVisibility = board;
 		showVisibilityDialog = true;
+	}
+
+	function openCustomizeDialog(board: any) {
+		selectedBoardForCustomize = board;
+		showCustomizeDialog = true;
 	}
 
 	async function moveBoardUp(boardId: string) {
@@ -440,7 +450,16 @@
 											/>
 										{:else}
 											<div class="flex flex-1 flex-col gap-1">
-												<span class="font-medium">{board.name}</span>
+												<span class="flex items-center gap-1.5 font-medium">
+													{#if getBoardCustomization(board).icon}
+														<span aria-hidden="true">{getBoardCustomization(board).icon}</span>
+													{/if}
+													<span
+														style={getBoardCustomization(board).color
+															? `color: ${getBoardCustomization(board).color};`
+															: ''}>{board.name}</span
+													>
+												</span>
 												{#if formatGithubRepo(board.github)}
 													<span class="flex items-center gap-1 text-xs text-muted-foreground">
 														<img src={githubLogo} alt="GitHub" class="h-4 w-4" />
@@ -487,6 +506,10 @@
 												<DropdownMenuItem onclick={() => openVisibilityDialog(board)}>
 													<Globe class="mr-2 h-3 w-3" />
 													{$t('board.sharing_visibility')}
+												</DropdownMenuItem>
+												<DropdownMenuItem onclick={() => openCustomizeDialog(board)}>
+													<Palette class="mr-2 h-3 w-3" />
+													{$t('board.customize_board')}
 												</DropdownMenuItem>
 												{#if hasGithubConnected}
 													<DropdownMenuItem onclick={() => openGithubSelector(board)}>
@@ -687,6 +710,17 @@
 		onClose={() => {
 			showVisibilityDialog = false;
 			selectedBoardForVisibility = null;
+		}}
+	/>
+{/if}
+
+{#if showCustomizeDialog && selectedBoardForCustomize}
+	<BoardCustomizer
+		board={selectedBoardForCustomize}
+		bind:open={showCustomizeDialog}
+		onClose={() => {
+			showCustomizeDialog = false;
+			selectedBoardForCustomize = null;
 		}}
 	/>
 {/if}

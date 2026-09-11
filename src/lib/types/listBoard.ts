@@ -55,6 +55,12 @@ export interface VisibilityProps {
 	onClose: () => void;
 }
 
+export interface CustomizeProps {
+	board: BoardFieldsFragment;
+	open: boolean;
+	onClose: () => void;
+}
+
 export interface BoardMembersState {
 	members: BoardMemberFieldsFragment[];
 	invitations: BoardInvitationFieldsFragment[];

@@ -10,6 +10,7 @@
 	import { userStore } from '$lib/stores/user.svelte';
 	import { invitationsStore } from '$lib/stores/invitations.svelte';
 	import { getEffectiveLocale } from '$lib/constants/locale';
+	import { getBoardCustomization } from '$lib/constants/boardCustomization';
 	import {
 		Card,
 		CardContent,
@@ -45,6 +46,7 @@
 	const username: string = $derived(page.params.username || '');
 	const boardAlias: string = $derived(page.params.board || '');
 	const lang: string = $derived(getEffectiveLocale(page.params.lang, userStore.user?.locale));
+	const boardCustom = $derived(getBoardCustomization(listsStore.selectedBoard));
 
 	// True when the selected board has changed but todos haven't loaded for it yet.
 	// This prevents old board content from flashing before the spinner appears.
@@ -335,11 +337,20 @@
 		</Card>
 	</div>
 {:else}
-	<div class="relative w-full" data-board-container>
+	<div
+		class="relative min-h-screen w-full"
+		data-board-container
+		style={boardCustom.backgroundStyle ? `background: ${boardCustom.backgroundStyle};` : ''}
+	>
 		<div class="px-4 py-6">
 			<div class="mb-6 flex items-center justify-between">
-				<h1 class="hidden text-3xl font-bold tracking-tight md:block">
-					{listsStore.selectedBoard?.name}
+				<h1 class="hidden items-center gap-2 text-3xl font-bold tracking-tight md:flex">
+					{#if boardCustom.icon}
+						<span aria-hidden="true">{boardCustom.icon}</span>
+					{/if}
+					<span style={boardCustom.color ? `color: ${boardCustom.color};` : ''}
+						>{listsStore.selectedBoard?.name}</span
+					>
 				</h1>
 				<div class="flex items-center gap-4">
 					<Button

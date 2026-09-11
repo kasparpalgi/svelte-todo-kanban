@@ -12,6 +12,7 @@
 	import { actionState } from '$lib/stores/states.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
+	import { getBoardCustomization } from '$lib/constants/boardCustomization';
 	import { scale } from 'svelte/transition';
 
 	let { close } = $props<{ close: () => void }>();
@@ -123,9 +124,15 @@
 		<div class="grid grid-cols-1 gap-3 overflow-y-auto p-4 sm:grid-cols-2">
 			{#if activeTab === 'active'}
 				{#each filteredBoards as board (board.id)}
+					{@const custom = getBoardCustomization(board)}
 					<button
 						type="button"
 						onclick={() => selectBoard(board)}
+						style={custom.backgroundStyle
+							? `background: ${custom.backgroundStyle};`
+							: custom.color
+								? `border-left: 3px solid ${custom.color};`
+								: ''}
 						class="flex flex-col gap-2 rounded-lg border p-3 text-left transition-colors hover:bg-accent {listsStore
 							.selectedBoard?.id === board.id
 							? 'border-primary bg-accent'
@@ -133,7 +140,12 @@
 					>
 						<div class="flex w-full items-center justify-between">
 							<div class="flex items-center gap-2">
-								<span class="font-medium">{board.name}</span>
+								{#if custom.icon}
+									<span aria-hidden="true">{custom.icon}</span>
+								{/if}
+								<span class="font-medium" style={custom.color ? `color: ${custom.color};` : ''}
+									>{board.name}</span
+								>
 								{#if board.is_public}
 									<Globe class="h-3 w-3 text-muted-foreground" />
 								{/if}
