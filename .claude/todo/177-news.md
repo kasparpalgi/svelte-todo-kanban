@@ -4,6 +4,6 @@
 
 [NEVER REMOVE]
 
-Make it possible from .env ADMIN users to send push to all users
+Make it possible from .env ADMIN users to send push to all users notification with a news
 
 _From Kanban card `cdde76ee-152a-456b-a451-9cdaf36f7d61`._
