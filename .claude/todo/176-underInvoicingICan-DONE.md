@@ -29,3 +29,7 @@ _GitHub issue #176 — end the commit subject with `(#176)`._
 - Added `invoice_companies.iban` / `invoice_companies.swift` i18n keys to en/et/cs locales.
 - Verified: `npm run check` shows only pre-existing unrelated errors/warnings (og-image routes, todos store, a11y warnings) — no new errors from this change. `npx vitest run --project=server` — 201 tests passed (no invoicing store tests existed to update). E2E/browser projects can't run in this sandbox (Playwright browsers not installed, pre-existing).
 - Task complete.
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
