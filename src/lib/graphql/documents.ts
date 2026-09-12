@@ -775,6 +775,9 @@ export const GET_TODO_BY_GITHUB_ISSUE = graphql(`
 			github_issue_number
 			github_issue_id
 			github_synced_at
+			assignees {
+				user_id
+			}
 			list {
 				id
 				board {

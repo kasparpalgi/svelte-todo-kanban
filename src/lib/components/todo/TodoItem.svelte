@@ -572,6 +572,36 @@
 						</div>
 
 						<div class="absolute right-3 bottom-2 flex items-center gap-2 text-xs text-gray-400">
+							{#if todo.assignees && todo.assignees.length > 0}
+								<div class="flex items-center">
+									<div class="flex -space-x-1.5">
+										{#each todo.assignees.slice(0, 3) as assignment (assignment.user_id)}
+											{@const u = assignment.assignee}
+											{#if u.image}
+												<img
+													src={u.image}
+													alt={u.name || u.username}
+													title={u.name || u.username}
+													class="h-4 w-4 rounded-full border border-background"
+												/>
+											{:else}
+												<div
+													class="flex h-4 w-4 items-center justify-center rounded-full border border-background bg-muted"
+													title={u.name || u.username}
+												>
+													<span class="text-[8px] text-muted-foreground">
+														{(u.name || u.username)?.[0]?.toUpperCase()}
+													</span>
+												</div>
+											{/if}
+										{/each}
+									</div>
+									{#if todo.assignees.length > 3}
+										<span class="ml-1 text-[10px]">+{todo.assignees.length - 3}</span>
+									{/if}
+								</div>
+							{/if}
+
 							{#if todo.labels && todo.labels.length > 0}
 								<div class="flex items-center gap-0.5">
 									{#each todo.labels as label (label.label.id)}

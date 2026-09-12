@@ -19325,7 +19325,7 @@ export type GetTodoByGithubIssueQueryVariables = Exact<{
 }>;
 
 
-export type GetTodoByGithubIssueQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, completed_at?: string | null, priority?: string | null, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, user_id: string, github?: string | null } | null } | null }> };
+export type GetTodoByGithubIssueQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, content?: string | null, completed_at?: string | null, priority?: string | null, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string }>, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, user_id: string, github?: string | null } | null } | null }> };
 
 export type GetActivityLogByCommitShaQueryVariables = Exact<{
   todoId: Scalars['uuid']['input'];
@@ -21679,6 +21679,9 @@ export const GetTodoByGithubIssueDocument = new TypedDocumentString(`
     github_issue_number
     github_issue_id
     github_synced_at
+    assignees {
+      user_id
+    }
     list {
       id
       board {

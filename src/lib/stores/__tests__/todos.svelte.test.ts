@@ -206,6 +206,28 @@ describe('TodosStore', () => {
 			expect(request).not.toHaveBeenCalled();
 		});
 
+		it('adds a second assignee without changing the existing primary', async () => {
+			const a1 = assignment('u1');
+			const todo = createMockTodo({ id: '1', assigned_to: 'u1', assignees: [a1] });
+			(todosStore as unknown as { setTodosForTesting: (t: unknown[]) => void }).setTodosForTesting([
+				todo
+			]);
+
+			const { request } = await import('$lib/graphql/client');
+			const a2 = assignment('u2');
+			vi.mocked(request)
+				.mockResolvedValueOnce({ insert_todo_assignees_one: a2 })
+				.mockResolvedValueOnce({ insert_activity_logs_one: { id: 'log-1' } }); // activity log
+
+			const result = await todosStore.assignUser('1', 'u2');
+
+			expect(result.success).toBe(true);
+			// Promotion (UPDATE_TODOS) is skipped since the todo already had a primary.
+			expect(request).toHaveBeenCalledTimes(2);
+			expect(todosStore.todos[0].assigned_to).toBe('u1');
+			expect(todosStore.todos[0].assignees.map((a) => a.user_id)).toEqual(['u1', 'u2']);
+		});
+
 		it('unassigns the primary and promotes a remaining assignee', async () => {
 			const a1 = assignment('u1');
 			const a2 = assignment('u2');

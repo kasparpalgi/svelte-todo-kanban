@@ -377,8 +377,10 @@ async function findUserByGithubUsername(
 }
 
 /**
- * Notify the todo's assignee (or board owner as fallback) about an action that came in
- * from GitHub. Never notifies the user who triggered the action themselves.
+ * Notify every assignee of the todo (or the board owner as fallback when there are no
+ * assignees) about an action that came in from GitHub. Never notifies the user who
+ * triggered the action themselves. Matches the dedupe pattern used for in-app comment
+ * notifications (see `comments.svelte.ts`'s `addComment`).
  */
 async function notifyUser(
 	todo: any,
@@ -387,25 +389,34 @@ async function notifyUser(
 	content: string,
 	relatedCommentId?: string
 ): Promise<void> {
-	const targetUserId: string | undefined = todo?.assigned_to || todo?.list?.board?.user_id;
+	const assigneeIds: string[] = (todo?.assignees ?? [])
+		.map((assignment: { user_id: string }) => assignment.user_id)
+		.filter(Boolean);
 
-	if (!targetUserId || targetUserId === triggeredByUserId) {
-		return;
-	}
+	const targetUserIds = new Set<string>(
+		assigneeIds.length > 0
+			? assigneeIds
+			: todo?.list?.board?.user_id
+				? [todo.list.board.user_id]
+				: []
+	);
+	targetUserIds.delete(triggeredByUserId ?? '');
 
-	try {
-		await serverRequest(CREATE_NOTIFICATION, {
-			notification: {
-				user_id: targetUserId,
-				todo_id: todo.id,
-				type,
-				triggered_by_user_id: triggeredByUserId,
-				related_comment_id: relatedCommentId,
-				content
-			}
-		});
-	} catch (error) {
-		console.error(`Failed to create ${type} notification for todo ${todo.id}:`, error);
+	for (const targetUserId of targetUserIds) {
+		try {
+			await serverRequest(CREATE_NOTIFICATION, {
+				notification: {
+					user_id: targetUserId,
+					todo_id: todo.id,
+					type,
+					triggered_by_user_id: triggeredByUserId,
+					related_comment_id: relatedCommentId,
+					content
+				}
+			});
+		} catch (error) {
+			console.error(`Failed to create ${type} notification for todo ${todo.id}:`, error);
+		}
 	}
 }
 
