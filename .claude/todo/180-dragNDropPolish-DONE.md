@@ -36,3 +36,7 @@ Deliberately NOT adding a persistent `touch-action: none` on the card (would kil
 **Still the user's call (open items carried from the plan):** #1 real-device verification of the new behavior on an actual phone (the whole reason this bug was reported), #3 tuning `TOUCH_HOLD_DELAY`/`TOUCH_MOVE_TOLERANCE` against real touch feel, #6 the e2e/Playwright environment gap.
 
 _From Kanban card `24253f66-8888-4e9f-8a48-2f88cce1badf`, moved to the agent list._
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
