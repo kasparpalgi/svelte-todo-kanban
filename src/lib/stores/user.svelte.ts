@@ -1,6 +1,6 @@
 /** @file src/lib/stores/user.svelte.ts */
 import { browser } from '$app/environment';
-import { request, clearTokenCache } from '$lib/graphql/client';
+import { request, clearTokenCache, ensureTokenForUser } from '$lib/graphql/client';
 import { GET_USERS, UPDATE_USER } from '$lib/graphql/documents';
 import { DEFAULT_LOCALE } from '$lib/constants/locale';
 import { displayMessage } from './errorSuccess.svelte';
@@ -29,6 +29,11 @@ function createUserStore() {
 		}
 
 		state.loading = true;
+
+		// Discard a cached JWT minted for a different user id before making any
+		// request — otherwise Hasura's update-permission check rejects mutations
+		// for the current session with a stale, hard-to-diagnose permission error.
+		ensureTokenForUser(sessionUser.id);
 
 		try {
 			const data = (await request(GET_USERS, {

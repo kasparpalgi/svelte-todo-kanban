@@ -55,23 +55,17 @@
 		return board.user?.id === currentUser.id;
 	}
 
-	function isMember(board: any) {
-		const currentUser = userStore.user;
-		if (!currentUser) return false;
-		return board.board_members?.some((m: any) => m.user_id === currentUser.id);
-	}
-
-	function canSeeBoard(board: any) {
-		return isOwner(board) || isMember(board);
-	}
-
 	function getMemberCount(board: any) {
 		if (!board.board_members) return 0;
 		return board.board_members.filter((m: any) => m.role !== 'owner').length;
 	}
 
-	const filteredBoards = $derived(listsStore.sortedBoards.filter(canSeeBoard));
-	const filteredArchivedBoards = $derived(listsStore.sortedArchivedBoards.filter(canSeeBoard));
+	// listsStore.boards is already scoped server-side to boards the user owns, is a
+	// member of, is invited to, or that are public (see the `boards` select
+	// permission) — re-filtering here by isOwner/isMember dropped public and
+	// invited-but-not-yet-member boards from the switcher.
+	const filteredBoards = $derived(listsStore.sortedBoards);
+	const filteredArchivedBoards = $derived(listsStore.sortedArchivedBoards);
 </script>
 
 <div

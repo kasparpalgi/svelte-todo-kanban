@@ -14,12 +14,37 @@ let _cachedToken: string | null = null;
 let _tokenExpiresAt = 0;
 let _tokenFetchPromise: Promise<string | null> | null = null;
 
-function getTokenExpiry(token: string): number {
+function decodeTokenPayload(token: string): any | null {
 	try {
-		const payload = JSON.parse(atob(token.split('.')[1]));
-		return payload.exp * 1000;
+		return JSON.parse(atob(token.split('.')[1]));
 	} catch {
-		return Date.now() + 23 * 60 * 60 * 1000;
+		return null;
+	}
+}
+
+function getTokenExpiry(token: string): number {
+	const payload = decodeTokenPayload(token);
+	return payload ? payload.exp * 1000 : Date.now() + 23 * 60 * 60 * 1000;
+}
+
+function getTokenUserId(token: string): string | null {
+	const payload = decodeTokenPayload(token);
+	return payload?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id'] ?? payload?.sub ?? null;
+}
+
+/**
+ * A cached JWT can outlive the account it was minted for (shared browser profile,
+ * sign-out/sign-in as a different user, synced Chrome profile). Hasura's update
+ * permission `check` compares the row being written to the token's
+ * x-hasura-user-id, so a stale token for a different user fails every mutation
+ * with a permission-check error even though the UI shows the new user as signed in.
+ */
+export function ensureTokenForUser(userId: string | null | undefined) {
+	if (!userId) return;
+
+	const cached = _cachedToken ?? getPersistedToken()?.token ?? null;
+	if (cached && getTokenUserId(cached) !== userId) {
+		clearTokenCache();
 	}
 }
 
