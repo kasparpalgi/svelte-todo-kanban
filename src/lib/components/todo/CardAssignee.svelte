@@ -1,12 +1,15 @@
 <!-- @file src/lib/components/todo/CardAssignee.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n';
 	import { notificationStore } from '$lib/stores/notifications.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { boardMembersStore } from '$lib/stores/boardMembers.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
+	import { actionState } from '$lib/stores/states.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		DropdownMenu,
@@ -14,9 +17,10 @@
 		DropdownMenuTrigger,
 		DropdownMenuLabel,
 		DropdownMenuSeparator,
-		DropdownMenuCheckboxItem
+		DropdownMenuCheckboxItem,
+		DropdownMenuItem
 	} from '$lib/components/ui/dropdown-menu';
-	import { Users } from 'lucide-svelte';
+	import { Users, UserPlus } from 'lucide-svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
 	let { todo }: { todo: TodoFieldsFragment } = $props();
@@ -33,6 +37,21 @@
 			await boardMembersStore.loadMembers(todo.list.board.id);
 		}
 	});
+
+	/**
+	 * Open the board-management modal so members can be invited/managed.
+	 * Closes the card detail dialog first (drop the `?card=` param) so the
+	 * management modal isn't stuck behind the card dialog's overlay.
+	 */
+	function openBoardManagement() {
+		isOpen = false;
+		if (page.url.searchParams.has('card')) {
+			const url = new URL(page.url);
+			url.searchParams.delete('card');
+			goto(url.pathname + url.search);
+		}
+		actionState.edit = 'showBoardManagement';
+	}
 
 	async function toggleAssignee(userId: string) {
 		if (!todo.id) return;
@@ -101,8 +120,9 @@
 			</Button>
 		</DropdownMenuTrigger>
 
-		<DropdownMenuContent align="start" class="w-56">
+		<DropdownMenuContent align="start" class="w-64">
 			<DropdownMenuLabel>{$t('todo.assign_to')}:</DropdownMenuLabel>
+			<p class="px-2 pb-1 text-xs text-muted-foreground">{$t('todo.assign_hint')}</p>
 			<DropdownMenuSeparator />
 
 			{#if members.length === 0}
@@ -141,6 +161,12 @@
 					{/each}
 				</div>
 			{/if}
+
+			<DropdownMenuSeparator />
+			<DropdownMenuItem onclick={openBoardManagement}>
+				<UserPlus class="mr-2 h-4 w-4" />
+				{$t('board.manage_members')}
+			</DropdownMenuItem>
 		</DropdownMenuContent>
 	</DropdownMenu>
 </div>

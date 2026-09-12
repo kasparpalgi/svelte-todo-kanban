@@ -400,6 +400,7 @@
     "keyboard_hint_save": "<kbd>Ctrl+Enter</kbd> pro uložení",
     "remove_image_description": "Opravdu chcete odebrat tento obrázek? Tuto akci nelze vrátit zpět.",
     "assign_to": "Přiřadit",
+    "assign_hint": "Vyberte jednoho nebo více členů tabule",
     "assigned_success": "Uživatel přiřazen",
     "unassigned": "nepřiřazeno",
     "subscribers": "Odběratelé",

@@ -479,6 +479,7 @@
     "keyboard_hint_save": "<kbd>Ctrl+Enter</kbd> to save",
     "remove_image_description": "Are you sure you want to remove this image? This action cannot be undone.",
     "assign_to": "Assign to",
+    "assign_hint": "Select one or more board members",
     "assigned_success": "User assigned",
     "unassigned": "unassigned",
     "subscribers": "Subscribers",
