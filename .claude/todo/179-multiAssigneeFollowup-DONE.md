@@ -74,3 +74,7 @@ Items 1 and 3 implemented and verified (unit tests + typecheck, modulo pre-exist
 unrelated errors). Item 2 (webhook fan-out) implemented; live GitHub webhook delivery
 untested here (no ngrok/webhook environment available) but logic mirrors the already-tested
 comment fan-out pattern.
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
