@@ -124,21 +124,16 @@ export function createCardDrag(options: CardDragOptions) {
 
 	function handlePointerMove(event: PointerEvent) {
 		if (event.pointerId !== activePointerId) return;
-		const dx = event.clientX - startX;
-		const dy = event.clientY - startY;
 
 		if (!activated) {
-			if (pointerKind(event.pointerType) === 'mouse') {
-				if (!shouldActivateMouseDrag(dx, dy)) return;
-				activate(event.pointerId);
-			} else {
-				// Finger moved before the hold fired — that is a scroll, not a drag.
-				if (shouldCancelTouchHold(dx, dy)) {
-					clearHoldTimer();
-					activePointerId = null;
-				}
-				return;
-			}
+			// Touch activation and the scroll-vs-drag decision live entirely in the non-passive
+			// `touchmove` listener — it is the only place that can actually cancel a pan. A
+			// `pointermove` cannot, so there is nothing useful to do here for a finger yet.
+			if (pointerKind(event.pointerType) !== 'mouse') return;
+			const dx = event.clientX - startX;
+			const dy = event.clientY - startY;
+			if (!shouldActivateMouseDrag(dx, dy)) return;
+			activate(event.pointerId);
 		}
 
 		event.preventDefault();
@@ -171,11 +166,50 @@ export function createCardDrag(options: CardDragOptions) {
 	}
 
 	/**
-	 * The whole point of this listener: while a touch drag is committed, cancel the pan
-	 * gesture so the board stops scrolling out from under the card.
+	 * The single owner of the touch gesture. Registered non-passive at mount so its
+	 * `preventDefault()` can actually cancel the browser's pan — the only thing that stops a
+	 * touch from scrolling.
+	 *
+	 * The trap the earlier version fell into: it only prevented moves *after* the long-press
+	 * committed. A finger is never perfectly still during the 180 ms hold, and those few pixels
+	 * of drift arrived as un-prevented touchmoves; with `touch-action: auto` the compositor
+	 * started panning from them, every touchmove after that came in `cancelable === false`, and
+	 * the drag could never take the gesture back — the board scrolled and the card snapped home.
+	 *
+	 * So we swallow the *pending* moves too, right up until the finger travels far enough to be a
+	 * clear scroll — at which point we abandon the pending drag and stop preventing, handing the
+	 * gesture back to native scrolling (only the first few pixels are ever held back).
 	 */
 	function handleTouchMove(event: TouchEvent) {
-		if (!activated) return;
+		if (activated) {
+			if (event.cancelable) event.preventDefault();
+			// Drive the offset straight from the touch so the card tracks the finger even if the
+			// derived `pointermove` is throttled or missing on this device.
+			if (event.touches.length === 1) {
+				lastClientX = event.touches[0].clientX;
+				lastClientY = event.touches[0].clientY;
+				updateOffset();
+			}
+			return;
+		}
+
+		// Not tracking a touch, or a multi-finger gesture (leave pinch-zoom to the browser).
+		if (activePointerId === null || event.touches.length !== 1) return;
+
+		const touch = event.touches[0];
+		const dx = touch.clientX - startX;
+		const dy = touch.clientY - startY;
+
+		// Travelled far enough to be a scroll, not a hold-to-drag: give up on the pending drag and
+		// let the browser pan from here on.
+		if (shouldCancelTouchHold(dx, dy)) {
+			clearHoldTimer();
+			activePointerId = null;
+			return;
+		}
+
+		// Still inside the hold tolerance while the timer runs: swallow the drift so the compositor
+		// cannot start a pan behind our back and leave us with non-cancelable moves.
 		if (event.cancelable) event.preventDefault();
 	}
 
