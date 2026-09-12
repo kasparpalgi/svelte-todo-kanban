@@ -34,6 +34,17 @@ export const TODO_FRAGMENT = graphql(`
 			image
 			email
 		}
+		assignees {
+			user_id
+			created_at
+			assignee {
+				id
+				name
+				username
+				image
+				email
+			}
+		}
 		labels {
 			label {
 				...LabelFields
@@ -1090,6 +1101,35 @@ export const SUBSCRIBE_TO_TODO = graphql(`
 export const UNSUBSCRIBE_FROM_TODO = graphql(`
 	mutation UnsubscribeFromTodo($todo_id: uuid!, $user_id: uuid!) {
 		delete_todo_subscribers_by_pk(todo_id: $todo_id, user_id: $user_id) {
+			todo_id
+			user_id
+		}
+	}
+`);
+
+export const ASSIGN_USER_TO_TODO = graphql(`
+	mutation AssignUserToTodo($todo_id: uuid!, $user_id: uuid!) {
+		insert_todo_assignees_one(
+			object: { todo_id: $todo_id, user_id: $user_id }
+			on_conflict: { constraint: todo_assignees_pkey, update_columns: [] }
+		) {
+			todo_id
+			user_id
+			created_at
+			assignee {
+				id
+				name
+				username
+				image
+				email
+			}
+		}
+	}
+`);
+
+export const UNASSIGN_USER_FROM_TODO = graphql(`
+	mutation UnassignUserFromTodo($todo_id: uuid!, $user_id: uuid!) {
+		delete_todo_assignees_by_pk(todo_id: $todo_id, user_id: $user_id) {
 			todo_id
 			user_id
 		}

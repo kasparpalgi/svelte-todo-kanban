@@ -6515,6 +6515,10 @@ export type Mutation_Root = {
   delete_sessions?: Maybe<Sessions_Mutation_Response>;
   /** delete single row from the table: "sessions" */
   delete_sessions_by_pk?: Maybe<Sessions>;
+  /** delete data from the table: "todo_assignees" */
+  delete_todo_assignees?: Maybe<Todo_Assignees_Mutation_Response>;
+  /** delete single row from the table: "todo_assignees" */
+  delete_todo_assignees_by_pk?: Maybe<Todo_Assignees>;
   /** delete data from the table: "todo_labels" */
   delete_todo_labels?: Maybe<Todo_Labels_Mutation_Response>;
   /** delete single row from the table: "todo_labels" */
@@ -6655,6 +6659,10 @@ export type Mutation_Root = {
   insert_sessions?: Maybe<Sessions_Mutation_Response>;
   /** insert a single row into the table: "sessions" */
   insert_sessions_one?: Maybe<Sessions>;
+  /** insert data into the table: "todo_assignees" */
+  insert_todo_assignees?: Maybe<Todo_Assignees_Mutation_Response>;
+  /** insert a single row into the table: "todo_assignees" */
+  insert_todo_assignees_one?: Maybe<Todo_Assignees>;
   /** insert data into the table: "todo_labels" */
   insert_todo_labels?: Maybe<Todo_Labels_Mutation_Response>;
   /** insert a single row into the table: "todo_labels" */
@@ -6841,6 +6849,12 @@ export type Mutation_Root = {
   update_sessions_by_pk?: Maybe<Sessions>;
   /** update multiples rows of table: "sessions" */
   update_sessions_many?: Maybe<Array<Maybe<Sessions_Mutation_Response>>>;
+  /** update data of the table: "todo_assignees" */
+  update_todo_assignees?: Maybe<Todo_Assignees_Mutation_Response>;
+  /** update single row of the table: "todo_assignees" */
+  update_todo_assignees_by_pk?: Maybe<Todo_Assignees>;
+  /** update multiples rows of table: "todo_assignees" */
+  update_todo_assignees_many?: Maybe<Array<Maybe<Todo_Assignees_Mutation_Response>>>;
   /** update data of the table: "todo_labels" */
   update_todo_labels?: Maybe<Todo_Labels_Mutation_Response>;
   /** update single row of the table: "todo_labels" */
@@ -7189,6 +7203,19 @@ export type Mutation_RootDelete_SessionsArgs = {
 /** mutation root */
 export type Mutation_RootDelete_Sessions_By_PkArgs = {
   id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Todo_AssigneesArgs = {
+  where: Todo_Assignees_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Todo_Assignees_By_PkArgs = {
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
 };
 
 
@@ -7658,6 +7685,20 @@ export type Mutation_RootInsert_SessionsArgs = {
 export type Mutation_RootInsert_Sessions_OneArgs = {
   object: Sessions_Insert_Input;
   on_conflict?: InputMaybe<Sessions_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Todo_AssigneesArgs = {
+  objects: Array<Todo_Assignees_Insert_Input>;
+  on_conflict?: InputMaybe<Todo_Assignees_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Todo_Assignees_OneArgs = {
+  object: Todo_Assignees_Insert_Input;
+  on_conflict?: InputMaybe<Todo_Assignees_On_Conflict>;
 };
 
 
@@ -8352,6 +8393,26 @@ export type Mutation_RootUpdate_Sessions_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Sessions_ManyArgs = {
   updates: Array<Sessions_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Todo_AssigneesArgs = {
+  _set?: InputMaybe<Todo_Assignees_Set_Input>;
+  where: Todo_Assignees_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Todo_Assignees_By_PkArgs = {
+  _set?: InputMaybe<Todo_Assignees_Set_Input>;
+  pk_columns: Todo_Assignees_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Todo_Assignees_ManyArgs = {
+  updates: Array<Todo_Assignees_Updates>;
 };
 
 
@@ -10761,6 +10822,12 @@ export type Query_Root = {
   sessions_aggregate: Sessions_Aggregate;
   /** fetch data from the table: "sessions" using primary key columns */
   sessions_by_pk?: Maybe<Sessions>;
+  /** fetch data from the table: "todo_assignees" */
+  todo_assignees: Array<Todo_Assignees>;
+  /** fetch aggregated fields from the table: "todo_assignees" */
+  todo_assignees_aggregate: Todo_Assignees_Aggregate;
+  /** fetch data from the table: "todo_assignees" using primary key columns */
+  todo_assignees_by_pk?: Maybe<Todo_Assignees>;
   /** An array relationship */
   todo_labels: Array<Todo_Labels>;
   /** An aggregate relationship */
@@ -11370,6 +11437,30 @@ export type Query_RootSessions_AggregateArgs = {
 
 export type Query_RootSessions_By_PkArgs = {
   id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootTodo_AssigneesArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Assignees_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Assignees_Order_By>>;
+  where?: InputMaybe<Todo_Assignees_Bool_Exp>;
+};
+
+
+export type Query_RootTodo_Assignees_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Assignees_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Assignees_Order_By>>;
+  where?: InputMaybe<Todo_Assignees_Bool_Exp>;
+};
+
+
+export type Query_RootTodo_Assignees_By_PkArgs = {
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
 };
 
 
@@ -12107,6 +12198,14 @@ export type Subscription_Root = {
   sessions_by_pk?: Maybe<Sessions>;
   /** fetch data from the table in a streaming manner: "sessions" */
   sessions_stream: Array<Sessions>;
+  /** fetch data from the table: "todo_assignees" */
+  todo_assignees: Array<Todo_Assignees>;
+  /** fetch aggregated fields from the table: "todo_assignees" */
+  todo_assignees_aggregate: Todo_Assignees_Aggregate;
+  /** fetch data from the table: "todo_assignees" using primary key columns */
+  todo_assignees_by_pk?: Maybe<Todo_Assignees>;
+  /** fetch data from the table in a streaming manner: "todo_assignees" */
+  todo_assignees_stream: Array<Todo_Assignees>;
   /** An array relationship */
   todo_labels: Array<Todo_Labels>;
   /** An aggregate relationship */
@@ -12908,6 +13007,37 @@ export type Subscription_RootSessions_StreamArgs = {
 };
 
 
+export type Subscription_RootTodo_AssigneesArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Assignees_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Assignees_Order_By>>;
+  where?: InputMaybe<Todo_Assignees_Bool_Exp>;
+};
+
+
+export type Subscription_RootTodo_Assignees_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Assignees_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Assignees_Order_By>>;
+  where?: InputMaybe<Todo_Assignees_Bool_Exp>;
+};
+
+
+export type Subscription_RootTodo_Assignees_By_PkArgs = {
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootTodo_Assignees_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Todo_Assignees_Stream_Cursor_Input>>;
+  where?: InputMaybe<Todo_Assignees_Bool_Exp>;
+};
+
+
 export type Subscription_RootTodo_LabelsArgs = {
   distinct_on?: InputMaybe<Array<Todo_Labels_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -13333,6 +13463,202 @@ export type Timestamptz_Comparison_Exp = {
   _nin?: InputMaybe<Array<Scalars['timestamptz']['input']>>;
 };
 
+/** Users assigned to todos (many-to-many). todos.assigned_to holds the primary assignee. */
+export type Todo_Assignees = {
+  __typename?: 'todo_assignees';
+  /** An object relationship */
+  assignee: Users;
+  created_at: Scalars['timestamptz']['output'];
+  /** An object relationship */
+  todo: Todos;
+  todo_id: Scalars['uuid']['output'];
+  user_id: Scalars['uuid']['output'];
+};
+
+/** aggregated selection of "todo_assignees" */
+export type Todo_Assignees_Aggregate = {
+  __typename?: 'todo_assignees_aggregate';
+  aggregate?: Maybe<Todo_Assignees_Aggregate_Fields>;
+  nodes: Array<Todo_Assignees>;
+};
+
+export type Todo_Assignees_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Todo_Assignees_Aggregate_Bool_Exp_Count>;
+};
+
+export type Todo_Assignees_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Todo_Assignees_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Todo_Assignees_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "todo_assignees" */
+export type Todo_Assignees_Aggregate_Fields = {
+  __typename?: 'todo_assignees_aggregate_fields';
+  count: Scalars['Int']['output'];
+  max?: Maybe<Todo_Assignees_Max_Fields>;
+  min?: Maybe<Todo_Assignees_Min_Fields>;
+};
+
+
+/** aggregate fields of "todo_assignees" */
+export type Todo_Assignees_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Todo_Assignees_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "todo_assignees" */
+export type Todo_Assignees_Aggregate_Order_By = {
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Todo_Assignees_Max_Order_By>;
+  min?: InputMaybe<Todo_Assignees_Min_Order_By>;
+};
+
+/** input type for inserting array relation for remote table "todo_assignees" */
+export type Todo_Assignees_Arr_Rel_Insert_Input = {
+  data: Array<Todo_Assignees_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Todo_Assignees_On_Conflict>;
+};
+
+/** Boolean expression to filter rows from the table "todo_assignees". All fields are combined with a logical 'AND'. */
+export type Todo_Assignees_Bool_Exp = {
+  _and?: InputMaybe<Array<Todo_Assignees_Bool_Exp>>;
+  _not?: InputMaybe<Todo_Assignees_Bool_Exp>;
+  _or?: InputMaybe<Array<Todo_Assignees_Bool_Exp>>;
+  assignee?: InputMaybe<Users_Bool_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  todo?: InputMaybe<Todos_Bool_Exp>;
+  todo_id?: InputMaybe<Uuid_Comparison_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "todo_assignees" */
+export enum Todo_Assignees_Constraint {
+  /** unique or primary key constraint on columns "user_id", "todo_id" */
+  TodoAssigneesPkey = 'todo_assignees_pkey'
+}
+
+/** input type for inserting data into table "todo_assignees" */
+export type Todo_Assignees_Insert_Input = {
+  assignee?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  todo?: InputMaybe<Todos_Obj_Rel_Insert_Input>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Todo_Assignees_Max_Fields = {
+  __typename?: 'todo_assignees_max_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by max() on columns of table "todo_assignees" */
+export type Todo_Assignees_Max_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Todo_Assignees_Min_Fields = {
+  __typename?: 'todo_assignees_min_fields';
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "todo_assignees" */
+export type Todo_Assignees_Min_Order_By = {
+  created_at?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "todo_assignees" */
+export type Todo_Assignees_Mutation_Response = {
+  __typename?: 'todo_assignees_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Todo_Assignees>;
+};
+
+/** on_conflict condition type for table "todo_assignees" */
+export type Todo_Assignees_On_Conflict = {
+  constraint: Todo_Assignees_Constraint;
+  update_columns?: Array<Todo_Assignees_Update_Column>;
+  where?: InputMaybe<Todo_Assignees_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "todo_assignees". */
+export type Todo_Assignees_Order_By = {
+  assignee?: InputMaybe<Users_Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  todo?: InputMaybe<Todos_Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: todo_assignees */
+export type Todo_Assignees_Pk_Columns_Input = {
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
+};
+
+/** select columns of table "todo_assignees" */
+export enum Todo_Assignees_Select_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "todo_assignees" */
+export type Todo_Assignees_Set_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** Streaming cursor of the table "todo_assignees" */
+export type Todo_Assignees_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Todo_Assignees_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Todo_Assignees_Stream_Cursor_Value_Input = {
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** update columns of table "todo_assignees" */
+export enum Todo_Assignees_Update_Column {
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Todo_Assignees_Updates = {
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Todo_Assignees_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Todo_Assignees_Bool_Exp;
+};
+
 /** columns and relationships of "todo_labels" */
 export type Todo_Labels = {
   __typename?: 'todo_labels';
@@ -13740,6 +14066,10 @@ export type Todos = {
   assigned_to?: Maybe<Scalars['uuid']['output']>;
   /** An object relationship */
   assignee?: Maybe<Users>;
+  /** An array relationship */
+  assignees: Array<Todo_Assignees>;
+  /** An aggregate relationship */
+  assignees_aggregate: Todo_Assignees_Aggregate;
   comment_hours?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
   comments: Array<Comments>;
@@ -13811,6 +14141,26 @@ export type TodosActivity_Logs_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Activity_Logs_Order_By>>;
   where?: InputMaybe<Activity_Logs_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosAssigneesArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Assignees_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Assignees_Order_By>>;
+  where?: InputMaybe<Todo_Assignees_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosAssignees_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Todo_Assignees_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Todo_Assignees_Order_By>>;
+  where?: InputMaybe<Todo_Assignees_Bool_Exp>;
 };
 
 
@@ -14034,6 +14384,8 @@ export type Todos_Bool_Exp = {
   alias?: InputMaybe<String_Comparison_Exp>;
   assigned_to?: InputMaybe<Uuid_Comparison_Exp>;
   assignee?: InputMaybe<Users_Bool_Exp>;
+  assignees?: InputMaybe<Todo_Assignees_Bool_Exp>;
+  assignees_aggregate?: InputMaybe<Todo_Assignees_Aggregate_Bool_Exp>;
   comment_hours?: InputMaybe<String_Comparison_Exp>;
   comments?: InputMaybe<Comments_Bool_Exp>;
   comments_aggregate?: InputMaybe<Comments_Aggregate_Bool_Exp>;
@@ -14101,6 +14453,7 @@ export type Todos_Insert_Input = {
   /** User this todo is assigned to (null if unassigned) */
   assigned_to?: InputMaybe<Scalars['uuid']['input']>;
   assignee?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  assignees?: InputMaybe<Todo_Assignees_Arr_Rel_Insert_Input>;
   comment_hours?: InputMaybe<Scalars['String']['input']>;
   comments?: InputMaybe<Comments_Arr_Rel_Insert_Input>;
   completed_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -14315,6 +14668,7 @@ export type Todos_Order_By = {
   alias?: InputMaybe<Order_By>;
   assigned_to?: InputMaybe<Order_By>;
   assignee?: InputMaybe<Users_Order_By>;
+  assignees_aggregate?: InputMaybe<Todo_Assignees_Aggregate_Order_By>;
   comment_hours?: InputMaybe<Order_By>;
   comments_aggregate?: InputMaybe<Comments_Aggregate_Order_By>;
   completed_at?: InputMaybe<Order_By>;
@@ -18598,7 +18952,7 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null };
 
@@ -18624,7 +18978,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -18668,7 +19022,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -18676,7 +19030,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -19109,6 +19463,22 @@ export type UnsubscribeFromTodoMutationVariables = Exact<{
 
 export type UnsubscribeFromTodoMutation = { __typename?: 'mutation_root', delete_todo_subscribers_by_pk?: { __typename?: 'todo_subscribers', todo_id: string, user_id: string } | null };
 
+export type AssignUserToTodoMutationVariables = Exact<{
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
+}>;
+
+
+export type AssignUserToTodoMutation = { __typename?: 'mutation_root', insert_todo_assignees_one?: { __typename?: 'todo_assignees', todo_id: string, user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } } | null };
+
+export type UnassignUserFromTodoMutationVariables = Exact<{
+  todo_id: Scalars['uuid']['input'];
+  user_id: Scalars['uuid']['input'];
+}>;
+
+
+export type UnassignUserFromTodoMutation = { __typename?: 'mutation_root', delete_todo_assignees_by_pk?: { __typename?: 'todo_assignees', todo_id: string, user_id: string } | null };
+
 export type GetTodoSubscribersQueryVariables = Exact<{
   todo_id: Scalars['uuid']['input'];
 }>;
@@ -19476,6 +19846,17 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
     username
     image
     email
+  }
+  assignees {
+    user_id
+    created_at
+    assignee {
+      id
+      name
+      username
+      image
+      email
+    }
   }
   labels {
     label {
@@ -20035,6 +20416,17 @@ export const GetTodosDocument = new TypedDocumentString(`
     image
     email
   }
+  assignees {
+    user_id
+    created_at
+    assignee {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
   labels {
     label {
       ...LabelFields
@@ -20291,6 +20683,17 @@ export const CreateTodoDocument = new TypedDocumentString(`
     image
     email
   }
+  assignees {
+    user_id
+    created_at
+    assignee {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
   labels {
     label {
       ...LabelFields
@@ -20395,6 +20798,17 @@ export const UpdateTodosDocument = new TypedDocumentString(`
     username
     image
     email
+  }
+  assignees {
+    user_id
+    created_at
+    assignee {
+      id
+      name
+      username
+      image
+      email
+    }
   }
   labels {
     label {
@@ -21655,6 +22069,33 @@ export const UnsubscribeFromTodoDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<UnsubscribeFromTodoMutation, UnsubscribeFromTodoMutationVariables>;
+export const AssignUserToTodoDocument = new TypedDocumentString(`
+    mutation AssignUserToTodo($todo_id: uuid!, $user_id: uuid!) {
+  insert_todo_assignees_one(
+    object: {todo_id: $todo_id, user_id: $user_id}
+    on_conflict: {constraint: todo_assignees_pkey, update_columns: []}
+  ) {
+    todo_id
+    user_id
+    created_at
+    assignee {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<AssignUserToTodoMutation, AssignUserToTodoMutationVariables>;
+export const UnassignUserFromTodoDocument = new TypedDocumentString(`
+    mutation UnassignUserFromTodo($todo_id: uuid!, $user_id: uuid!) {
+  delete_todo_assignees_by_pk(todo_id: $todo_id, user_id: $user_id) {
+    todo_id
+    user_id
+  }
+}
+    `) as unknown as TypedDocumentString<UnassignUserFromTodoMutation, UnassignUserFromTodoMutationVariables>;
 export const GetTodoSubscribersDocument = new TypedDocumentString(`
     query GetTodoSubscribers($todo_id: uuid!) {
   todo_subscribers(where: {todo_id: {_eq: $todo_id}}) {

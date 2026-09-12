@@ -16,7 +16,7 @@
 		DropdownMenuSeparator,
 		DropdownMenuCheckboxItem
 	} from '$lib/components/ui/dropdown-menu';
-	import { User } from 'lucide-svelte';
+	import { Users } from 'lucide-svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
 	let { todo }: { todo: TodoFieldsFragment } = $props();
@@ -24,7 +24,9 @@
 
 	const user = $derived(userStore.user);
 	const members = $derived(boardMembersStore.members);
-	const assignee = $derived(todo.assignee);
+	const assignees = $derived(todo.assignees || []);
+	const assigneeIds = $derived(new Set(assignees.map((a) => a.user_id)));
+	const assigneeCount = $derived(assignees.length);
 
 	onMount(async () => {
 		if (todo.list?.board?.id) {
@@ -32,21 +34,23 @@
 		}
 	});
 
-	async function assignUser(memberId: string | null) {
+	async function toggleAssignee(userId: string) {
 		if (!todo.id) return;
 
-		const result = await todosStore.updateTodo(todo.id, {
-			assigned_to: memberId
-		});
+		const isAssigned = assigneeIds.has(userId);
+
+		const result = isAssigned
+			? await todosStore.unassignUser(todo.id, userId)
+			: await todosStore.assignUser(todo.id, userId);
 
 		if (result.success) {
-			displayMessage(`User ${memberId ? 'assigned' : $t('unassigned')}`, 1500, true);
-			isOpen = false;
+			displayMessage(isAssigned ? $t('unassigned') : $t('todo.assigned_success'), 1500, true);
 
-			if (memberId && user?.id) {
+			// Notify a newly-assigned user (never the person doing the assigning).
+			if (!isAssigned && user?.id && userId !== user.id) {
 				try {
 					await notificationStore.createNotification({
-						user_id: memberId,
+						user_id: userId,
 						todo_id: todo.id,
 						type: 'assigned',
 						triggered_by_user_id: user.id,
@@ -65,56 +69,78 @@
 <div class="flex items-center gap-2">
 	<DropdownMenu bind:open={isOpen}>
 		<DropdownMenuTrigger>
-			<Button
-				variant="outline"
-				size="sm"
-				class="gap-2"
-			>
-				<User class="h-4 w-4" />
-				{#if assignee}
-					<span class="text-xs">{assignee.name || assignee.username}</span>
+			<Button variant="outline" size="sm" class="gap-2" title={$t('todo.assign_to')}>
+				<Users class="h-4 w-4" />
+				{#if assigneeCount > 0}
+					<div class="flex -space-x-2">
+						{#each assignees.slice(0, 3) as assignment (assignment.user_id)}
+							{@const u = assignment.assignee}
+							{#if u.image}
+								<img
+									src={u.image}
+									alt={u.name || u.username}
+									class="h-5 w-5 rounded-full border border-background"
+								/>
+							{:else}
+								<div
+									class="flex h-5 w-5 items-center justify-center rounded-full border border-background bg-muted"
+								>
+									<span class="text-[10px] text-muted-foreground">
+										{(u.name || u.username)?.[0]?.toUpperCase()}
+									</span>
+								</div>
+							{/if}
+						{/each}
+					</div>
+					{#if assigneeCount > 3}
+						<span class="text-xs text-muted-foreground">+{assigneeCount - 3}</span>
+					{/if}
 				{:else}
 					<span class="text-xs text-muted-foreground">{$t('unassigned')}</span>
 				{/if}
 			</Button>
 		</DropdownMenuTrigger>
 
-		<DropdownMenuContent align="start" class="w-48">
+		<DropdownMenuContent align="start" class="w-56">
 			<DropdownMenuLabel>{$t('todo.assign_to')}:</DropdownMenuLabel>
 			<DropdownMenuSeparator />
 
-			<DropdownMenuCheckboxItem
-				checked={!assignee}
-				onCheckedChange={() => assignUser(null)}
-			>
-				<span class="text-sm">{$t('unassigned')}</span>
-			</DropdownMenuCheckboxItem>
-
-			{#each members as member (member.id)}
-				<DropdownMenuCheckboxItem
-					checked={assignee?.id === member.user.id}
-					onCheckedChange={() => assignUser(member.user.id)}
-				>
-					<div class="flex items-center gap-2">
-						{#if member.user.image}
-							<img
-								src={member.user.image}
-								alt={member.user.name || member.user.username}
-								class="h-5 w-5 rounded-full"
-							/>
-						{:else}
-							<div class="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
-								<span class="text-xs text-muted-foreground">
-									{(member.user.name || member.user.username)?.[0]?.toUpperCase()}
+			{#if members.length === 0}
+				<div class="px-2 py-3 text-sm text-muted-foreground">
+					{$t('todo.no_board_members')}
+				</div>
+			{:else}
+				<div class="max-h-64 overflow-y-auto">
+					{#each members as member (member.id)}
+						<DropdownMenuCheckboxItem
+							checked={assigneeIds.has(member.user.id)}
+							onCheckedChange={() => toggleAssignee(member.user.id)}
+						>
+							<div class="flex items-center gap-2">
+								{#if member.user.image}
+									<img
+										src={member.user.image}
+										alt={member.user.name || member.user.username}
+										class="h-5 w-5 rounded-full"
+									/>
+								{:else}
+									<div class="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
+										<span class="text-xs text-muted-foreground">
+											{(member.user.name || member.user.username)?.[0]?.toUpperCase()}
+										</span>
+									</div>
+								{/if}
+								<span class="text-sm">
+									{member.user.name || member.user.username}
+									{#if member.user.id === user?.id}
+										<span class="text-xs text-muted-foreground">({$t('todo.you')})</span>
+									{/if}
 								</span>
 							</div>
-						{/if}
-						<span class="text-sm">
-							{member.user.name || member.user.username}
-						</span>
-					</div>
-				</DropdownMenuCheckboxItem>
-			{/each}
+						</DropdownMenuCheckboxItem>
+					{/each}
+				</div>
+			{/if}
 		</DropdownMenuContent>
 	</DropdownMenu>
 </div>

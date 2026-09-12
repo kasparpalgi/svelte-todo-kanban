@@ -10,7 +10,9 @@ import {
 	CREATE_ACTIVITY_LOG,
 	SUBSCRIBE_TO_TODO,
 	UNSUBSCRIBE_FROM_TODO,
-	GET_TODO_SUBSCRIBERS
+	GET_TODO_SUBSCRIBERS,
+	ASSIGN_USER_TO_TODO,
+	UNASSIGN_USER_FROM_TODO
 } from '$lib/graphql/documents';
 import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
@@ -400,6 +402,21 @@ function createTodosStore() {
 							email: us.user.email ?? null
 						}
 					: null,
+				assignees: us.user
+					? [
+							{
+								user_id: us.user.id,
+								created_at: now,
+								assignee: {
+									id: us.user.id,
+									name: us.user.name ?? null,
+									username: us.user.username ?? '',
+									image: us.user.image ?? null,
+									email: us.user.email ?? null
+								}
+							}
+						]
+					: [],
 				labels: [],
 				comments: [],
 				uploads: [],
@@ -467,6 +484,30 @@ function createTodosStore() {
 				} catch (error) {
 					// Non-blocking: log error but don't fail todo creation
 					console.error('[TodosStore.addTodo] Failed to log activity:', error);
+				}
+
+				// Persist the creator as an assignee. `assigned_to` (set above) is the primary
+				// assignee; `todo_assignees` holds the complete set, so mirror it here.
+				if (us.user?.id && newTodo.id) {
+					try {
+						const asg: any = await request(ASSIGN_USER_TO_TODO, {
+							todo_id: newTodo.id,
+							user_id: us.user.id
+						});
+						const row = asg.insert_todo_assignees_one;
+						if (row) {
+							const i = state.todos.findIndex((t) => t.id === newTodo.id);
+							if (i !== -1) {
+								state.todos[i] = {
+									...state.todos[i],
+									assignees: [row]
+								} as TodoFieldsFragment;
+							}
+						}
+					} catch (error) {
+						// Non-blocking: log error but don't fail todo creation
+						console.error('[TodosStore.addTodo] Failed to persist creator assignee:', error);
+					}
 				}
 
 				// Create GitHub issue if requested
@@ -1059,6 +1100,142 @@ function createTodosStore() {
 		}
 	}
 
+	/**
+	 * Assign a user to a todo (multi-assignee). Inserts a todo_assignees row.
+	 * Keeps `assigned_to` (the primary assignee) in sync: the first assignee added
+	 * to an unassigned todo becomes the primary.
+	 */
+	async function assignUser(todoId: string, userId: string): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		const idx = state.todos.findIndex((t) => t.id === todoId);
+		if (idx === -1) return { success: false, message: 'Todo not found' };
+
+		const current = state.todos[idx];
+		if ((current.assignees || []).some((a) => a.user_id === userId)) {
+			return { success: true, message: 'Already assigned' };
+		}
+
+		try {
+			const data: any = await request(ASSIGN_USER_TO_TODO, {
+				todo_id: todoId,
+				user_id: userId
+			});
+			const row = data.insert_todo_assignees_one;
+			if (!row) return { success: false, message: 'Failed to assign user' };
+
+			const latest = state.todos[idx];
+			const newAssignees = [...(latest.assignees || []), row];
+
+			// Promote to primary when the todo had no assignee yet.
+			if (!latest.assigned_to) {
+				const upd: UpdateTodosMutation = await request(UPDATE_TODOS, {
+					where: { id: { _eq: todoId } },
+					_set: { assigned_to: userId }
+				});
+				const updated = upd.update_todos?.returning?.[0];
+				state.todos[idx] = (updated ??
+					({
+						...latest,
+						assignees: newAssignees,
+						assigned_to: userId,
+						assignee: row.assignee
+					} as any)) as TodoFieldsFragment;
+			} else {
+				state.todos[idx] = { ...latest, assignees: newAssignees } as TodoFieldsFragment;
+			}
+
+			// Log activity: user assigned
+			try {
+				await request(CREATE_ACTIVITY_LOG, {
+					log: {
+						todo_id: todoId,
+						action_type: 'assigned',
+						field_name: 'assigned_to',
+						new_value: userId,
+						changes: { assignee_id: userId }
+					}
+				});
+			} catch (error) {
+				console.error('[TodosStore.assignUser] Failed to log activity:', error);
+			}
+
+			return { success: true, message: 'User assigned', data: row };
+		} catch (error) {
+			console.error('Assign user error:', error);
+			return {
+				success: false,
+				message: error instanceof Error ? error.message : 'Failed to assign user'
+			};
+		}
+	}
+
+	/**
+	 * Unassign a user from a todo. Deletes the todo_assignees row and, if the removed
+	 * user was the primary (`assigned_to`), promotes a remaining assignee (or clears it).
+	 */
+	async function unassignUser(todoId: string, userId: string): Promise<StoreResult> {
+		if (!browser) return { success: false, message: 'Not in browser' };
+
+		const idx = state.todos.findIndex((t) => t.id === todoId);
+		if (idx === -1) return { success: false, message: 'Todo not found' };
+
+		try {
+			const data: any = await request(UNASSIGN_USER_FROM_TODO, {
+				todo_id: todoId,
+				user_id: userId
+			});
+			if (!data.delete_todo_assignees_by_pk) {
+				return { success: false, message: 'Failed to unassign user' };
+			}
+
+			const latest = state.todos[idx];
+			const remaining = (latest.assignees || []).filter((a) => a.user_id !== userId);
+
+			// If we removed the primary assignee, promote the first remaining one (or clear).
+			if (latest.assigned_to === userId) {
+				const newPrimary = remaining[0]?.user_id ?? null;
+				const upd: UpdateTodosMutation = await request(UPDATE_TODOS, {
+					where: { id: { _eq: todoId } },
+					_set: { assigned_to: newPrimary }
+				});
+				const updated = upd.update_todos?.returning?.[0];
+				state.todos[idx] = (updated ??
+					({
+						...latest,
+						assignees: remaining,
+						assigned_to: newPrimary,
+						assignee: remaining[0]?.assignee ?? null
+					} as any)) as TodoFieldsFragment;
+			} else {
+				state.todos[idx] = { ...latest, assignees: remaining } as TodoFieldsFragment;
+			}
+
+			// Log activity: user unassigned
+			try {
+				await request(CREATE_ACTIVITY_LOG, {
+					log: {
+						todo_id: todoId,
+						action_type: 'unassigned',
+						field_name: 'assigned_to',
+						old_value: userId,
+						changes: { assignee_id: userId }
+					}
+				});
+			} catch (error) {
+				console.error('[TodosStore.unassignUser] Failed to log activity:', error);
+			}
+
+			return { success: true, message: 'User unassigned' };
+		} catch (error) {
+			console.error('Unassign user error:', error);
+			return {
+				success: false,
+				message: error instanceof Error ? error.message : 'Failed to unassign user'
+			};
+		}
+	}
+
 	async function subscribeToTodo(todoId: string, userId: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
@@ -1235,6 +1412,8 @@ function createTodosStore() {
 		deleteUpload,
 		refreshTodo,
 		refreshBoardTodos,
+		assignUser,
+		unassignUser,
 		subscribeToTodo,
 		unsubscribeFromTodo,
 		getTodoSubscribers,

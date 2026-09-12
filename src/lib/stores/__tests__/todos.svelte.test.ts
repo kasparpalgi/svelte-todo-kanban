@@ -38,6 +38,7 @@ const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFields
 	uploads: [],
 	labels: [],
 	comments: [],
+	assignees: [],
 	__typename: 'todos',
 	...overrides
 });
@@ -148,6 +149,84 @@ describe('TodosStore', () => {
 			const result = await todosStore.toggleTodo('1');
 
 			expect(result.success).toBe(true);
+		});
+	});
+
+	describe('assignUser / unassignUser (multi-assignee)', () => {
+		const assignment = (userId: string) => ({
+			user_id: userId,
+			created_at: '2025-01-01T00:00:00Z',
+			assignee: {
+				id: userId,
+				name: userId,
+				username: userId,
+				image: null,
+				email: null,
+				__typename: 'users' as const
+			},
+			__typename: 'todo_assignees' as const
+		});
+
+		it('assigns a user and promotes them to primary when the todo had none', async () => {
+			const todo = createMockTodo({ id: '1', assigned_to: null, assignees: [] });
+			(todosStore as unknown as { setTodosForTesting: (t: unknown[]) => void }).setTodosForTesting([
+				todo
+			]);
+
+			const { request } = await import('$lib/graphql/client');
+			const row = assignment('u1');
+			vi.mocked(request)
+				.mockResolvedValueOnce({ insert_todo_assignees_one: row })
+				.mockResolvedValueOnce({
+					update_todos: { returning: [{ ...todo, assigned_to: 'u1', assignees: [row] }] }
+				})
+				.mockResolvedValueOnce({ insert_activity_logs_one: { id: 'log-1' } }); // activity log
+
+			const result = await todosStore.assignUser('1', 'u1');
+
+			expect(result.success).toBe(true);
+			expect(todosStore.todos[0].assignees.map((a) => a.user_id)).toContain('u1');
+			expect(todosStore.todos[0].assigned_to).toBe('u1');
+		});
+
+		it('is a no-op (no request) when the user is already assigned', async () => {
+			const todo = createMockTodo({
+				id: '1',
+				assigned_to: 'u1',
+				assignees: [assignment('u1')]
+			});
+			(todosStore as unknown as { setTodosForTesting: (t: unknown[]) => void }).setTodosForTesting([
+				todo
+			]);
+
+			const { request } = await import('$lib/graphql/client');
+			const result = await todosStore.assignUser('1', 'u1');
+
+			expect(result.success).toBe(true);
+			expect(request).not.toHaveBeenCalled();
+		});
+
+		it('unassigns the primary and promotes a remaining assignee', async () => {
+			const a1 = assignment('u1');
+			const a2 = assignment('u2');
+			const todo = createMockTodo({ id: '1', assigned_to: 'u1', assignees: [a1, a2] });
+			(todosStore as unknown as { setTodosForTesting: (t: unknown[]) => void }).setTodosForTesting([
+				todo
+			]);
+
+			const { request } = await import('$lib/graphql/client');
+			vi.mocked(request)
+				.mockResolvedValueOnce({ delete_todo_assignees_by_pk: { todo_id: '1', user_id: 'u1' } })
+				.mockResolvedValueOnce({
+					update_todos: { returning: [{ ...todo, assigned_to: 'u2', assignees: [a2] }] }
+				})
+				.mockResolvedValueOnce({ insert_activity_logs_one: { id: 'log-1' } }); // activity log
+
+			const result = await todosStore.unassignUser('1', 'u1');
+
+			expect(result.success).toBe(true);
+			expect(todosStore.todos[0].assigned_to).toBe('u2');
+			expect(todosStore.todos[0].assignees.map((a) => a.user_id)).toEqual(['u2']);
 		});
 	});
 });

@@ -44,6 +44,7 @@ const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFields
 	uploads: [],
 	labels: [],
 	comments: [],
+	assignees: [],
 	__typename: 'todos',
 	...overrides
 });
@@ -141,22 +142,23 @@ describe('TodoFilteringStore', () => {
 		const mockTodos: TodoFieldsFragment[] = [
 			createMockTodo({
 				id: '1',
-				                title: 'Active Todo',
-				                completed_at: null,
-				                list: {
-				                    id: 'list1',
-				                    name: 'Work',
-				                    sort_order: 1,
-				                    board: {
-				                        id: 'board1',
-				                        name: 'Main Board',
-				                        alias: 'main-board',
-				                        sort_order: 1,
-				                        settings: {},
-				                        __typename: 'boards'
-				                    },
-				                    __typename: 'lists'
-				                }			}),
+				title: 'Active Todo',
+				completed_at: null,
+				list: {
+					id: 'list1',
+					name: 'Work',
+					sort_order: 1,
+					board: {
+						id: 'board1',
+						name: 'Main Board',
+						alias: 'main-board',
+						sort_order: 1,
+						settings: {},
+						__typename: 'boards'
+					},
+					__typename: 'lists'
+				}
+			}),
 			createMockTodo({
 				id: '2',
 				title: 'Completed Todo',
@@ -179,22 +181,23 @@ describe('TodoFilteringStore', () => {
 			createMockTodo({
 				id: '3',
 				title: 'Overdue Todo',
-				                due_on: '2024-12-01T00:00:00Z',
-				                completed_at: null,
-				                list: {
-				                    id: 'list1',
-				                    name: 'Work',
-				                    sort_order: 1,
-				                    board: {
-				                        id: 'board1',
-				                        name: 'Main Board',
-				                        alias: 'main-board',
-				                        sort_order: 1,
-				                        settings: {},
-				                        __typename: 'boards'
-				                    },
-				                    __typename: 'lists'
-				                }			}),
+				due_on: '2024-12-01T00:00:00Z',
+				completed_at: null,
+				list: {
+					id: 'list1',
+					name: 'Work',
+					sort_order: 1,
+					board: {
+						id: 'board1',
+						name: 'Main Board',
+						alias: 'main-board',
+						sort_order: 1,
+						settings: {},
+						__typename: 'boards'
+					},
+					__typename: 'lists'
+				}
+			}),
 			createMockTodo({
 				id: '4',
 				title: 'High Priority Task',
@@ -380,6 +383,46 @@ describe('TodoFilteringStore', () => {
 			const sorted = todoFilteringStore.sortTodos(unsortedTodos);
 
 			expect(sorted.map((t: TodoFieldsFragment) => t.id)).toEqual(['1', '3', '2']);
+		});
+	});
+
+	describe('Assignment Filter (multi-assignee)', () => {
+		const assignment = (userId: string) => ({
+			user_id: userId,
+			created_at: '2025-01-01T00:00:00Z',
+			assignee: {
+				id: userId,
+				name: userId,
+				username: userId,
+				image: null,
+				email: null,
+				__typename: 'users' as const
+			},
+			__typename: 'todo_assignees' as const
+		});
+
+		const todos = [
+			createMockTodo({ id: 'a', assignees: [assignment('u1')] }),
+			createMockTodo({ id: 'b', assignees: [assignment('u1'), assignment('u2')] }),
+			createMockTodo({ id: 'c', assignees: [] })
+		];
+
+		it('assignedToMe matches todos where the current user is any assignee', () => {
+			todoFilteringStore.setFilter('assignedToMe', true);
+			const filtered = todoFilteringStore.filterTodos(todos, 'u2');
+			expect(filtered.map((t) => t.id)).toEqual(['b']);
+		});
+
+		it('assignedTo matches a specific assignee among many', () => {
+			todoFilteringStore.setFilter('assignedTo', 'u1');
+			const filtered = todoFilteringStore.filterTodos(todos, 'u1');
+			expect(filtered.map((t) => t.id).sort()).toEqual(['a', 'b']);
+		});
+
+		it('assignedTo === null matches only unassigned todos', () => {
+			todoFilteringStore.setFilter('assignedTo', null);
+			const filtered = todoFilteringStore.filterTodos(todos);
+			expect(filtered.map((t) => t.id)).toEqual(['c']);
 		});
 	});
 

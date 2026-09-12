@@ -135,7 +135,7 @@ function createCommentsStore() {
 			const newComment = data.insert_comments?.returning?.[0];
 			if (newComment) {
 				state.comments = [newComment, ...state.comments];
-			state.totalCount += 1;
+				state.totalCount += 1;
 
 				// Log activity: comment created
 				try {
@@ -143,7 +143,8 @@ function createCommentsStore() {
 						log: {
 							todo_id: todoId,
 							action_type: 'commented',
-							new_value: content.trim().substring(0, 200) + (content.trim().length > 200 ? '...' : '')
+							new_value:
+								content.trim().substring(0, 200) + (content.trim().length > 200 ? '...' : '')
 						}
 					});
 				} catch (error) {
@@ -152,39 +153,47 @@ function createCommentsStore() {
 				}
 
 				const currentUser = userStore.user;
+				const commentPreview = `"${content.trim().substring(0, 50)}${content.trim().length > 50 ? '...' : ''}"`;
 
-				// Create notification for assigned user
-				if (currentUser && todo?.assigned_to && todo.assigned_to !== currentUser.id) {
-					try {
-						await request(CREATE_NOTIFICATION, {
-							notification: {
-								user_id: todo.assigned_to,
-								todo_id: todoId,
-								type: 'commented',
-								triggered_by_user_id: currentUser.id,
-								related_comment_id: newComment.id,
-								content: `"${content.trim().substring(0, 50)}${content.trim().length > 50 ? '...' : ''}"`
-							}
-						}) as CreateNotificationMutation;
-					} catch (notificationError) {
-						// Non-blocking: log error but don't fail comment creation
-						console.error('[CommentsStore.addComment] Failed to create notification:', notificationError);
+				// Track everyone we've already notified so nobody gets duplicate notifications.
+				const notifiedUsers = new Set<string>();
+				if (currentUser) notifiedUsers.add(currentUser.id);
+
+				// Notify every assignee (a todo can have multiple), excluding the author.
+				if (currentUser && todo?.assignees) {
+					for (const assignment of todo.assignees) {
+						const assigneeId = (assignment as any).user_id;
+						if (notifiedUsers.has(assigneeId)) continue;
+						notifiedUsers.add(assigneeId);
+						try {
+							(await request(CREATE_NOTIFICATION, {
+								notification: {
+									user_id: assigneeId,
+									todo_id: todoId,
+									type: 'commented',
+									triggered_by_user_id: currentUser.id,
+									related_comment_id: newComment.id,
+									content: commentPreview
+								}
+							})) as CreateNotificationMutation;
+						} catch (notificationError) {
+							// Non-blocking: log error but don't fail comment creation
+							console.error(
+								'[CommentsStore.addComment] Failed to create notification:',
+								notificationError
+							);
+						}
 					}
 				}
 
-				// Create notifications for all subscribers (excluding the comment author and assigned user)
+				// Create notifications for all subscribers (excluding the comment author and assignees)
 				if (currentUser && todo?.subscribers) {
-					const notifiedUsers = new Set([currentUser.id]);
-					if (todo.assigned_to) {
-						notifiedUsers.add(todo.assigned_to); // Already notified above
-					}
-
 					for (const subscription of todo.subscribers) {
 						const subscriberId = (subscription as any).user_id;
 						if (!notifiedUsers.has(subscriberId)) {
 							notifiedUsers.add(subscriberId);
 							try {
-								await request(CREATE_NOTIFICATION, {
+								(await request(CREATE_NOTIFICATION, {
 									notification: {
 										user_id: subscriberId,
 										todo_id: todoId,
@@ -193,10 +202,13 @@ function createCommentsStore() {
 										related_comment_id: newComment.id,
 										content: `"${content.trim().substring(0, 50)}${content.trim().length > 50 ? '...' : ''}"`
 									}
-								}) as CreateNotificationMutation;
+								})) as CreateNotificationMutation;
 							} catch (notificationError) {
 								// Non-blocking: log error but don't fail comment creation
-								console.error('[CommentsStore.addComment] Failed to create notification for subscriber:', notificationError);
+								console.error(
+									'[CommentsStore.addComment] Failed to create notification for subscriber:',
+									notificationError
+								);
 							}
 						}
 					}
@@ -209,7 +221,8 @@ function createCommentsStore() {
 
 				if (githubIssueNumber && githubIssueId && boardGithub) {
 					try {
-						const githubData = typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
+						const githubData =
+							typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
 						const { owner, repo } = githubData as { owner: string; repo: string };
 
 						fetch('/api/github/create-comment', {
@@ -275,8 +288,11 @@ function createCommentsStore() {
 
 				// Log activity: comment edited
 				try {
-					const oldContent = originalComment.content.substring(0, 200) + (originalComment.content.length > 200 ? '...' : '');
-					const newContent = content.trim().substring(0, 200) + (content.trim().length > 200 ? '...' : '');
+					const oldContent =
+						originalComment.content.substring(0, 200) +
+						(originalComment.content.length > 200 ? '...' : '');
+					const newContent =
+						content.trim().substring(0, 200) + (content.trim().length > 200 ? '...' : '');
 					await request(CREATE_ACTIVITY_LOG, {
 						log: {
 							todo_id: updatedComment.todo_id,
@@ -346,7 +362,8 @@ function createCommentsStore() {
 
 				if (githubCommentId && boardGithub) {
 					try {
-						const githubData = typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
+						const githubData =
+							typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
 						const { owner, repo } = githubData as { owner: string; repo: string };
 
 						fetch('/api/github/delete-comment', {

@@ -21,6 +21,7 @@
 - "!include public_podcasts.yaml"
 - "!include public_push_subscriptions.yaml"
 - "!include public_sessions.yaml"
+- "!include public_todo_assignees.yaml"
 - "!include public_todo_labels.yaml"
 - "!include public_todo_subscribers.yaml"
 - "!include public_todos.yaml"

@@ -27,10 +27,9 @@
 	const subscriberIds = $derived(new Set(subscribers.map((s: any) => s.user_id)));
 	const subscriberCount = $derived(subscribers.length);
 
-	// Filter out the assigned user from available members (they're already notified as assignee)
-	const availableMembers = $derived(
-		members.filter(member => member.user.id !== todo.assigned_to)
-	);
+	// Filter out assigned users from available members (they're already notified as assignees)
+	const assigneeIds = $derived(new Set((todo.assignees || []).map((a) => a.user_id)));
+	const availableMembers = $derived(members.filter((member) => !assigneeIds.has(member.user.id)));
 
 	onMount(async () => {
 		if (todo.list?.board?.id) {
@@ -65,7 +64,7 @@
 			<Button
 				variant="outline"
 				size="sm"
-				class="gap-2 h-8 px-2"
+				class="h-8 gap-2 px-2"
 				title={$t('todo.manage_subscribers')}
 			>
 				<Bell class="h-4 w-4" />
@@ -101,7 +100,7 @@
 										class="h-5 w-5 rounded-full"
 									/>
 								{:else}
-									<div class="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
+									<div class="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
 										<span class="text-xs text-muted-foreground">
 											{(member.user.name || member.user.username)?.[0]?.toUpperCase()}
 										</span>
