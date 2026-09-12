@@ -31,9 +31,12 @@ Deliberately NOT adding a persistent `touch-action: none` on the card (would kil
 - `src/lib/utils/__tests__/cardDrag.svelte.test.ts` — NEW real-chromium browser test (runs in the `client` vitest project). Dispatches real `pointerdown`/`touchmove` events and asserts the four preventDefault invariants: drift swallowed, clear scroll released + abandoned, drag-after-hold prevented, multi-touch ignored. 4/4 pass.
 - `npx vitest run` → 283/283 unit tests pass across both `server` and `client` projects.
 - `npm run check` → the 10 errors it reports are all pre-existing and in untouched files (`todos.svelte.ts`, the `og-image`/`og-screenshot` server routes' `Buffer`/`BodyInit` typing, store test fixtures); `cardDrag.svelte.ts` and the new test are clean.
-- `npm run test:e2e` NOT run: needs `.env.test` secrets + a full build/preview + authenticated setup against a live backend — the same pre-existing environment gap flagged in tasks 161 and 163, not something this session can stand up. Item 6 remains open for that reason.
+**E2e (follow-up: the user asked for e2e/golden coverage and supplied a test login):**
+- Root-caused the e2e "environment gap" from tasks 161/163: `e2e/auth.setup.ts` looked for a "Sign in with Test Login" provider the current signin UI no longer renders, so setup failed and every authenticated spec was skipped. Rewrote it to sign in through the real **Password provider** using `TEST_USER_EMAIL`/`TEST_USER_PASSWORD` from `.env.test` (gitignored — credentials never committed). This repairs the whole authenticated suite, not just this test.
+- New `e2e/todo-drag-reorder.spec.ts`: on the test account's board it creates a uniquely-named list + 3 cards, then asserts **Ctrl+ArrowDown keyboard reorder** and **mouse-drag-to-top** both reorder the cards; deletes the temp list on teardown. Verified against the real build+preview harness: **3 passed** (setup + both reorder tests, ~42s).
+- Also verified by hand in a live browser (dev server, signed in as the test user): long-press-tilt, keyboard reorder and mouse drag all behave correctly.
 
-**Still the user's call (open items carried from the plan):** #1 real-device verification of the new behavior on an actual phone (the whole reason this bug was reported), #3 tuning `TOUCH_HOLD_DELAY`/`TOUCH_MOVE_TOLERANCE` against real touch feel, #6 the e2e/Playwright environment gap.
+**Still the user's call:** #1 real-device verification on an actual phone (the touch-scroll fix's device feel — e2e/desktop can't reproduce the compositor pan race), #3 tuning `TOUCH_HOLD_DELAY`/`TOUCH_MOVE_TOLERANCE` against real touch feel. Item #6 (e2e/Playwright environment gap) is now **resolved**.
 
 _From Kanban card `24253f66-8888-4e9f-8a48-2f88cce1badf`, moved to the agent list._
 
