@@ -11,7 +11,7 @@
 	import { getEffectiveLocale } from '$lib/constants/locale';
 	import { formatDateWithFuture } from '$lib/utils/dateTime.svelte';
 	import { shortenText } from '$lib/utils/shortenText';
-	import { stripHtml } from '$lib/utils/stripHtml';
+	import { toPlainText } from '$lib/utils/markdown';
 	import { createCardDrag } from '$lib/utils/cardDrag.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent } from '$lib/components/ui/card';
@@ -521,7 +521,7 @@
 											? 'line-through'
 											: ''}"
 									>
-										{shortenText(stripHtml(todo.content))}
+										{shortenText(toPlainText(todo.content))}
 									</p>
 								{/if}
 

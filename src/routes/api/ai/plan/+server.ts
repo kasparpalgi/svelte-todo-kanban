@@ -1,14 +1,12 @@
 /** @file src/routes/api/ai/plan/+server.ts */
 import { OPENAI_API_KEY } from '$env/static/private';
 import { json } from '@sveltejs/kit';
+import { toPlainText } from '$lib/utils/markdown';
 import type { RequestHandler } from './$types';
 
 const PLAN_THRESHOLD = 300;
+/** An HTML comment is also a comment in Markdown — it stays invisible in both formats. */
 const PLANNED_MARKER = '<!-- planned -->';
-
-function htmlToText(html: string): string {
-	return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-}
 
 export const POST: RequestHandler = async ({ request }) => {
 	const { content, title, model = 'gpt-5-mini' } = await request.json();
@@ -26,7 +24,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ changed: false, content });
 	}
 
-	const plainText = htmlToText(content);
+	const plainText = toPlainText(content);
 
 	// Length gate — short cards don't need planning
 	if (plainText.length < PLAN_THRESHOLD) {
@@ -43,7 +41,7 @@ Voice note:
 ${plainText}
 """
 
-Return ONLY the task description formatted with HTML tags (<p>, <strong>, <ul>, <li>, <h2>, <h3>). No markdown. No explanation. No meta-commentary about what you did.`;
+Return ONLY the task description formatted as Markdown (paragraphs, **bold**, *italic*, \`-\` bullet lists, \`##\`/\`###\` headings). No HTML. No code fence around the whole answer. No explanation. No meta-commentary about what you did.`;
 
 	try {
 		const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -65,14 +63,14 @@ Return ONLY the task description formatted with HTML tags (<p>, <strong>, <ul>, 
 		}
 
 		const data = await response.json();
-		const structuredHtml = data.choices[0]?.message?.content?.trim() || '';
+		const structuredMarkdown = data.choices[0]?.message?.content?.trim() || '';
 
-		if (!structuredHtml) {
+		if (!structuredMarkdown) {
 			return json({ changed: false, content });
 		}
 
-		const rawNoteHtml = `<h2>Raw voice note</h2><p>${plainText}</p>`;
-		const plannedContent = `${PLANNED_MARKER}\n${structuredHtml}\n${rawNoteHtml}`;
+		const rawNote = `## Raw voice note\n\n${plainText}`;
+		const plannedContent = `${PLANNED_MARKER}\n\n${structuredMarkdown}\n\n${rawNote}`;
 
 		return json({ changed: true, content: plannedContent });
 	} catch (error) {

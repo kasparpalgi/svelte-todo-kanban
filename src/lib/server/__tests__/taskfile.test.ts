@@ -28,10 +28,19 @@ describe('toText', () => {
 		expect(toText('just a voice dump')).toBe('just a voice dump');
 	});
 
-	it('turns editor HTML into markdown-ish text', () => {
+	it('turns legacy editor HTML into markdown-ish text', () => {
 		expect(toText('<p>Hello &amp; welcome</p><ul><li>one</li><li>two</li></ul>')).toBe(
 			'Hello & welcome\n\n- one\n- two'
 		);
+	});
+
+	it('passes markdown bodies through verbatim', () => {
+		const md = '## Ship it\n\n- [ ] one\n- [x] two\n\n```ts\nconst a = 1;\n```';
+		expect(toText(md)).toBe(md);
+	});
+
+	it('keeps inline HTML inside a markdown body', () => {
+		expect(toText('press <kbd>Ctrl</kbd> to save')).toBe('press <kbd>Ctrl</kbd> to save');
 	});
 
 	it('handles an empty body', () => {

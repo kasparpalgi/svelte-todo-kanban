@@ -12,6 +12,7 @@
 	import { notesStore } from '$lib/stores/notes.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { t } from '$lib/i18n';
+	import { getEditorMarkdown } from '$lib/utils/markdown';
 	import type { Editor } from 'svelte-tiptap';
 	import type { Readable } from 'svelte/store';
 
@@ -91,7 +92,7 @@
 			if (editorStore) {
 				const editor = get(editorStore);
 				if (editor) {
-					const currentContent = editor.getHTML();
+					const currentContent = getEditorMarkdown(editor);
 
 					if (currentContent !== editorContent) {
 						isSettingContent = true;
@@ -141,7 +142,7 @@
 
 				// Set initial content if we have a note and editorContent
 				if (note && editorContent && currentNoteId === note.id) {
-					const currentContent = editor.getHTML();
+					const currentContent = getEditorMarkdown(editor);
 
 					if (currentContent !== editorContent) {
 						isSettingContent = true;
@@ -190,7 +191,7 @@
 
 		// Get current editor content without subscribing
 		const editor = get(editorStore);
-		const content = editor ? editor.getHTML() : '';
+		const content = getEditorMarkdown(editor);
 
 		const updates: { title?: string; content?: string } = {};
 

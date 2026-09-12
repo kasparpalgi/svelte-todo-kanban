@@ -13,6 +13,7 @@
 	import VoiceInput from './VoiceInput.svelte';
 	import AITaskButton from './AITaskButton.svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
+	import { getEditorMarkdown } from '$lib/utils/markdown';
 	import type { TodoEditProps } from '$lib/types/todo';
 	import type { Readable } from 'svelte/store';
 	import type { Editor } from 'svelte-tiptap';
@@ -119,7 +120,7 @@
 
 	function handleSave() {
 		if (editor) {
-			editData.content = get(editor).getHTML();
+			editData.content = getEditorMarkdown(get(editor));
 		}
 		onSave();
 	}

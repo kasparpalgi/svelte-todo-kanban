@@ -21,6 +21,7 @@
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { X, Calendar as CalendarIcon, Tag, Clock, ExternalLink } from 'lucide-svelte';
 	import RichTextEditor from '$lib/components/editor/RichTextEditor.svelte';
+	import { getEditorMarkdown } from '$lib/utils/markdown';
 	import VoiceInput from '$lib/components/todo/VoiceInput.svelte';
 	import AITaskButton from '$lib/components/todo/AITaskButton.svelte';
 	import CardLabelManager from '$lib/components/todo/CardLabelManager.svelte';
@@ -201,7 +202,7 @@
 		}
 
 		try {
-			const content = get(editor).getHTML();
+			const content = getEditorMarkdown(get(editor));
 
 			const validatedData = todoEditSchema.parse({
 				...editData,

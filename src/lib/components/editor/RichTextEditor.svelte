@@ -3,10 +3,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { get } from 'svelte/store';
 	import { createEditor, Editor } from 'svelte-tiptap';
-	import StarterKit from '@tiptap/starter-kit';
-	import Link from '@tiptap/extension-link';
-	import TaskList from '@tiptap/extension-task-list';
-	import TaskItem from '@tiptap/extension-task-item';
+	import { createEditorExtensions } from './extensions';
 	import EditorToolbar from './EditorToolbar.svelte';
 	import type { Readable } from 'svelte/store';
 
@@ -26,44 +23,7 @@
 		if (element) {
 			editorStore = createEditor({
 				element: element,
-				extensions: [
-					StarterKit.configure({
-						link: false
-					}),
-					Link.configure({
-						openOnClick: true,
-						HTMLAttributes: {
-							class: 'text-blue-600 underline hover:text-blue-800 cursor-pointer',
-							target: '_blank',
-							rel: 'noopener noreferrer'
-						}
-					}).extend({
-						addKeyboardShortcuts() {
-							return {
-								'Mod-k': () => {
-									const previousUrl = this.editor.getAttributes('link').href;
-									const url = window.prompt('Enter URL:', previousUrl);
-
-									if (url === null) {
-										return true;
-									}
-
-									if (url === '') {
-										this.editor.chain().focus().extendMarkRange('link').unsetLink().run();
-										return true;
-									}
-
-									this.editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-									return true;
-								}
-							};
-						}
-					}),
-					TaskList,
-					TaskItem.configure({
-						nested: true
-					})
-				],
+				extensions: createEditorExtensions(),
 				content: content || '',
 				editorProps: {
 					attributes: {

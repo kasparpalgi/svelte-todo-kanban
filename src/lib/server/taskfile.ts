@@ -1,5 +1,6 @@
 /** @file src/lib/server/taskfile.ts */
 /** Turn a Kanban card into the body of `doc/todo/NNN-name-TODO.md`. */
+import { isHtmlContent } from '$lib/utils/markdown';
 
 /** "Fix the login redirect" -> "fixTheLoginRedirect" */
 export function camelName(title: string): string {
@@ -30,11 +31,11 @@ const ENTITIES: Record<string, string> = {
 };
 
 /**
- * The card editor stores bodies as HTML; task files are markdown. Plain-text cards
- * (voice input, pasted checklists) contain no tags and pass through untouched.
+ * The card editor stores bodies as markdown, so task files get them verbatim. Cards written
+ * before that switch still hold editor HTML — those get flattened to markdown-ish text here.
  */
 export function toText(content?: string | null): string {
-	if (!content || !/<[a-z/]/i.test(content)) return (content ?? '').trim();
+	if (!isHtmlContent(content)) return (content ?? '').trim();
 	return content
 		.replace(/<li\b[^>]*>/gi, '\n- ')
 		.replace(/<(br|\/p|\/h[1-6]|\/ul|\/ol|\/div)\b[^>]*>/gi, '\n')

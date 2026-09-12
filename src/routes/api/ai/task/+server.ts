@@ -3,6 +3,7 @@ import { OPENAI_API_KEY } from '$env/static/private';
 import { json } from '@sveltejs/kit';
 import { aiModels } from '$lib/settings/aiModels';
 import { calculateCost } from '$lib/utils/aiCostUtils';
+import { toPlainText } from '$lib/utils/markdown';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -28,8 +29,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			contextInfo += `\n\nDocument/Card Title: "${title}"`;
 		}
 		if (content) {
-			// Strip HTML tags for cleaner context
-			const cleanContent = content.replace(/<[^>]*>/g, '').trim();
+			// Flatten Markdown (or legacy HTML) to prose for cleaner context
+			const cleanContent = toPlainText(content);
 			const contentPreview =
 				cleanContent.length > 1000 ? cleanContent.slice(0, 1000) + '...' : cleanContent;
 			contextInfo += `\n\nCurrent Content:\n${contentPreview}`;
@@ -42,17 +43,15 @@ ${contextInfo}
 
 Please complete this task thoughtfully. If it involves research or external information, clearly state that you're providing suggestions based on your knowledge (not live internet access).
 
-IMPORTANT: Format your response using HTML tags for proper display in a rich text editor. Use these tags:
-- <p> for paragraphs
-- <strong> for bold text
-- <em> for italic text
-- <ul> and <li> for unordered lists
-- <ol> and <li> for ordered lists
-- <h2>, <h3> for headings
-- <table>, <tr>, <th>, <td> for tables (if needed)
-- <br> for line breaks
+IMPORTANT: Format your response as Markdown — it is inserted into a Markdown-backed rich text editor. Use:
+- blank lines between paragraphs
+- **bold** and *italic*
+- \`-\` for bulleted lists, \`1.\` for numbered lists
+- \`- [ ]\` for checklists
+- \`##\` / \`###\` for headings
+- \`[text](url)\` for links and \`\`\`lang fences for code
 
-Do NOT use markdown. Use HTML only. Your response should be well-formatted and ready to be inserted into the document.`;
+Do NOT use HTML tags. Do NOT wrap the whole answer in a code fence. Your response should be well-formatted and ready to be inserted into the document.`;
 
 		const response = await fetch('https://api.openai.com/v1/chat/completions', {
 			method: 'POST',
