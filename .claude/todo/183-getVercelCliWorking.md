@@ -4,6 +4,6 @@
 
 [NEVER REMOVE]
 
-And see the latest deployment failures and
+And see the latest deployment failures and if latest all green then that's it, otherwise fix the
 
 _From Kanban card `f611fa0d-c326-4818-8fab-f4d236fdc7c3`._
