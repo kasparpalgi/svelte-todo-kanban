@@ -10,4 +10,6 @@ I see JSON: Hetkel ühendatud:
 
 And below when I click enable webhook button then I get: GITHUB_WEBHOOK_SECRET not configured
 
+Instruct the end user how to create and add it or if it is global for all users and they need to set it to environment variables then instruct me.
+
 _From Kanban card `dd3cd1fb-f2e6-4be7-b4ef-4e2299a8c284`._
