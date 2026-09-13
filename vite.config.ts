@@ -6,24 +6,18 @@ import devtoolsJson from 'vite-plugin-devtools-json';
 import tailwindcss from '@tailwindcss/vite';
 
 // Compiles service-worker.ts into .svelte-kit/output/client/service-worker.js
-// during the SSR writeBundle phase. On Linux (Vercel), Vite 7 initialises both
-// environments concurrently; the client environment's emptyOutDir clears client/
-// before any build runs, so a prebuild script is wiped too early. By creating the
-// file inside SSR writeBundle (after all outDir clearing, before SSR closeBundle)
-// we guarantee @vite-pwa/sveltekit:build's SSR closeBundle always finds it.
-// The client closeBundle's buildSW step overwrites it with the correctly-manifested
-// version anyway, so this placeholder only needs to contain self.__WB_MANIFEST.
+// during buildStart, before either client or SSR builds initialize. On Linux
+// (Vercel), Vite 7 runs client and SSR builds concurrently, and the client's
+// emptyOutDir clears .svelte-kit/output/client/ before we can build anything.
+// Using buildStart ensures the file exists before Vite initializes either
+// environment. The @vite-pwa/sveltekit:build plugin reads this file during its
+// closeBundle hook, so it must exist before that point.
 function buildSwBeforePwa(): Plugin {
-	let viteConfig: ResolvedConfig;
 	return {
 		name: 'build-sw-before-pwa',
 		apply: 'build',
 		enforce: 'pre',
-		configResolved(config) {
-			viteConfig = config;
-		},
-		async writeBundle() {
-			if (!viteConfig?.build?.ssr) return;
+		async buildStart() {
 			const [{ mkdirSync }, { build: esbuild }] = await Promise.all([
 				import('fs'),
 				import('esbuild')
