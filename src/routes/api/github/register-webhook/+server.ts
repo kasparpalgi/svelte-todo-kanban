@@ -62,7 +62,10 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 	// Validate environment configuration
 	if (!env.GITHUB_WEBHOOK_SECRET) {
-		throw error(500, 'GITHUB_WEBHOOK_SECRET not configured');
+		throw error(
+			500,
+			'Webhook feature not configured on this server. Add GITHUB_WEBHOOK_SECRET to your .env file (generate with: openssl rand -hex 32).'
+		);
 	}
 
 	if (!env.PUBLIC_APP_URL) {
@@ -84,9 +87,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		);
 
 		const webhookUrl = `${env.PUBLIC_APP_URL}/api/github/webhook`;
-		const existingWebhook = existingWebhooks.find(
-			(hook) => hook.config?.url === webhookUrl
-		);
+		const existingWebhook = existingWebhooks.find((hook) => hook.config?.url === webhookUrl);
 
 		if (existingWebhook) {
 			return json({
@@ -169,11 +170,9 @@ export const DELETE: RequestHandler = async ({ request: req, locals }) => {
 	}
 
 	try {
-		await githubRequest(
-			`/repos/${owner}/${repo}/hooks/${webhookId}`,
-			githubToken,
-			{ method: 'DELETE' }
-		);
+		await githubRequest(`/repos/${owner}/${repo}/hooks/${webhookId}`, githubToken, {
+			method: 'DELETE'
+		});
 
 		return json({
 			success: true,
@@ -220,9 +219,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		);
 
 		const webhookUrl = `${env.PUBLIC_APP_URL}/api/github/webhook`;
-		const ourWebhook = webhooks.find(
-			(hook) => hook.config?.url === webhookUrl
-		);
+		const ourWebhook = webhooks.find((hook) => hook.config?.url === webhookUrl);
 
 		if (ourWebhook) {
 			return json({

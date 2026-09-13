@@ -30,6 +30,7 @@
 	});
 
 	let actionLoading = $state(false);
+	let serverNotConfigured = $state(false);
 
 	/**
 	 * Check current webhook status
@@ -37,9 +38,7 @@
 	async function checkWebhookStatus() {
 		webhookStatus.loading = true;
 		try {
-			const response = await fetch(
-				`/api/github/register-webhook?owner=${owner}&repo=${repo}`
-			);
+			const response = await fetch(`/api/github/register-webhook?owner=${owner}&repo=${repo}`);
 
 			if (!response.ok) {
 				throw new Error('Failed to check webhook status');
@@ -72,13 +71,21 @@
 			const data = await response.json();
 
 			if (!response.ok) {
+				if (response.status === 500 && data.message?.includes('GITHUB_WEBHOOK_SECRET')) {
+					serverNotConfigured = true;
+					return;
+				}
 				throw new Error(data.message || 'Failed to register webhook');
 			}
 
 			if (data.alreadyExists) {
 				displayMessage('Webhook already registered', 3000, true);
 			} else {
-				displayMessage('Webhook registered successfully! Real-time sync is now active.', 5000, true);
+				displayMessage(
+					'Webhook registered successfully! Real-time sync is now active.',
+					5000,
+					true
+				);
 			}
 
 			// Refresh status
@@ -148,13 +155,33 @@
 
 		<div class="flex-1 space-y-3">
 			<div>
-				<h3 class="font-semibold text-sm">Real-Time Sync</h3>
-				<p class="text-xs text-muted-foreground mt-1">
+				<h3 class="text-sm font-semibold">Real-Time Sync</h3>
+				<p class="mt-1 text-xs text-muted-foreground">
 					Enable webhooks to automatically sync changes from GitHub to your board.
 				</p>
 			</div>
 
-			{#if webhookStatus.loading}
+			{#if serverNotConfigured}
+				<div class="space-y-2">
+					<div class="flex items-center gap-2 text-sm">
+						<XCircle class="h-4 w-4 text-amber-500" />
+						<span class="font-medium text-amber-600 dark:text-amber-400">Server not configured</span
+						>
+					</div>
+					<p class="text-xs text-muted-foreground">
+						Webhooks require <code class="rounded bg-muted px-1 font-mono"
+							>GITHUB_WEBHOOK_SECRET</code
+						>
+						to be set in your server's <code class="rounded bg-muted px-1 font-mono">.env</code> file.
+						Generate one with:
+					</p>
+					<pre class="rounded bg-muted px-2 py-1 font-mono text-xs">openssl rand -hex 32</pre>
+					<p class="text-xs text-muted-foreground">
+						This is a single global secret shared by all boards — set it once on the server, not per
+						user.
+					</p>
+				</div>
+			{:else if webhookStatus.loading}
 				<div class="flex items-center gap-2 text-sm text-muted-foreground">
 					<Loader2 class="h-4 w-4 animate-spin" />
 					<span>Checking webhook status...</span>
@@ -163,7 +190,7 @@
 				<div class="space-y-2">
 					<div class="flex items-center gap-2 text-sm">
 						<CheckCircle class="h-4 w-4 text-green-600" />
-						<span class="text-green-600 font-medium">Webhook Active</span>
+						<span class="font-medium text-green-600">Webhook Active</span>
 					</div>
 
 					{#if webhookStatus.events}
@@ -186,7 +213,7 @@
 						class="mt-2"
 					>
 						{#if actionLoading}
-							<Loader2 class="h-3 w-3 mr-2 animate-spin" />
+							<Loader2 class="mr-2 h-3 w-3 animate-spin" />
 						{/if}
 						Disable Webhook
 					</Button>
@@ -210,7 +237,7 @@
 						class="mt-2"
 					>
 						{#if actionLoading}
-							<Loader2 class="h-3 w-3 mr-2 animate-spin" />
+							<Loader2 class="mr-2 h-3 w-3 animate-spin" />
 						{/if}
 						Enable Webhook
 					</Button>
