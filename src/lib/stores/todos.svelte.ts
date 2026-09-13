@@ -28,6 +28,7 @@ import type {
 import type { StoreResult, TodosState } from '$lib/types/todo';
 import { todoFilteringStore } from './todoFiltering.svelte';
 import { listsStore } from './listsBoards.svelte';
+import { loggingStore } from './logging.svelte';
 
 function createTodosStore() {
 	const state = $state<TodosState>({
@@ -1064,6 +1065,10 @@ function createTodosStore() {
 				return { success: true, message: 'Todo deleted successfully' };
 			}
 
+			loggingStore.warn('TodosStore', 'Delete returned no row', {
+				todoId: id,
+				affectedRows: data.delete_todos?.affected_rows
+			});
 			return { success: false, message: 'Failed to delete todo' };
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error deleting todo';
