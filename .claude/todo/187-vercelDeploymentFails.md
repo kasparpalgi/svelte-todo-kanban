@@ -47,6 +47,6 @@ error during build:
 Error: Command "npm run build" exited with 1
 
 ---
-Remember to use Vercel CLI that is now logged in and
+Remember to use Vercel CLI that is now logged in and installed.
 
 _From Kanban card `25854e2c-730a-4254-97e0-e61600fc28c9`._
