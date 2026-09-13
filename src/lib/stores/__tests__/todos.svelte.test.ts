@@ -3,6 +3,10 @@ import { todosStore } from '../todos.svelte';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 
+vi.mock('../user.svelte', () => ({
+	userStore: { user: { id: 'user-1', name: 'Test', username: 'test', email: 'test@example.com' } }
+}));
+
 vi.mock('$env/static/public', () => ({
 	PUBLIC_API_ENDPOINT: 'http://localhost:8080/v1/graphql',
 	PUBLIC_API_ENDPOINT_DEV: 'http://localhost:8080/v1/graphql',
@@ -97,6 +101,70 @@ describe('TodosStore', () => {
 			expect(result.success).toBe(false);
 			expect(result.message).toBe('API Error');
 			expect(todosStore.todos).toHaveLength(0);
+		});
+
+		it('writes draft file when createGithubIssue=true and board has GitHub', async () => {
+			const fetchSpy = vi.fn().mockResolvedValue({ ok: true });
+			vi.stubGlobal('fetch', fetchSpy);
+
+			const todoWithGithub = createMockTodo({
+				id: 'gh-1',
+				title: 'GitHub Todo',
+				list: {
+					id: 'list-1',
+					name: 'Backlog',
+					board: {
+						id: 'board-1',
+						name: 'My Board',
+						alias: 'my-board',
+						github: JSON.stringify({ owner: 'acme', repo: 'app' })
+					} as any
+				} as any
+			});
+
+			const { request } = await import('$lib/graphql/client');
+			vi.mocked(request).mockResolvedValue({ insert_todos: { returning: [todoWithGithub] } });
+
+			await todosStore.addTodo('GitHub Todo', undefined, 'list-1', true, true);
+
+			const draftCalls = fetchSpy.mock.calls.filter(([url]) =>
+				String(url).includes('write-draft-file')
+			);
+			expect(draftCalls).toHaveLength(1);
+
+			vi.unstubAllGlobals();
+		});
+
+		it('skips draft file when createGithubIssue=false (user opted out)', async () => {
+			const fetchSpy = vi.fn().mockResolvedValue({ ok: true });
+			vi.stubGlobal('fetch', fetchSpy);
+
+			const todoWithGithub = createMockTodo({
+				id: 'gh-2',
+				title: 'No GitHub Todo',
+				list: {
+					id: 'list-1',
+					name: 'Backlog',
+					board: {
+						id: 'board-1',
+						name: 'My Board',
+						alias: 'my-board',
+						github: JSON.stringify({ owner: 'acme', repo: 'app' })
+					} as any
+				} as any
+			});
+
+			const { request } = await import('$lib/graphql/client');
+			vi.mocked(request).mockResolvedValue({ insert_todos: { returning: [todoWithGithub] } });
+
+			await todosStore.addTodo('No GitHub Todo', undefined, 'list-1', true, false);
+
+			const draftCalls = fetchSpy.mock.calls.filter(([url]) =>
+				String(url).includes('write-draft-file')
+			);
+			expect(draftCalls).toHaveLength(0);
+
+			vi.unstubAllGlobals();
 		});
 	});
 

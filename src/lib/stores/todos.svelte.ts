@@ -550,8 +550,9 @@ function createTodosStore() {
 
 				// Written last, and only once the issue exists: the issue number is the task
 				// file's number, so a draft created first would be numbered wrong.
+				// Only write draft file if GitHub integration is enabled AND the user didn't opt out.
 				const boardGithub = (newTodo as any).list?.board?.github;
-				if (boardGithub && newTodo.id) {
+				if (createGithubIssue && boardGithub && newTodo.id) {
 					fetch('/api/github/write-draft-file', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
