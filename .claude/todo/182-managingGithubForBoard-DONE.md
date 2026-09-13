@@ -36,3 +36,7 @@ The error is thrown in `src/routes/api/github/register-webhook/+server.ts:64` an
 
 - Investigated: global server env var, same for all users/boards
 - Implementing: .env.example + better error UX
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
