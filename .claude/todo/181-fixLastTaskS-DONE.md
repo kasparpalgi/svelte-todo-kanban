@@ -35,3 +35,7 @@ _GitHub issue #181 — end the commit subject with `(#181)`._
 - Given CLAUDE.md's guidance to check with the user before hard-to-reverse/shared-system changes, and that
   this is a prod build-config change with an unexplained prior revert, asking the user how to proceed before
   touching `svelte.config.js` rather than guessing.
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
