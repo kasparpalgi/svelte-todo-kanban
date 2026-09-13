@@ -49,3 +49,7 @@ Error occurs in `workbox-build/build/inject-manifest.js` when PWA plugin tries t
 _From Kanban card `25854e2c-730a-4254-97e0-e61600fc28c9`._
 
 _GitHub issue #187 — end the commit subject with `(#187)`._
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
