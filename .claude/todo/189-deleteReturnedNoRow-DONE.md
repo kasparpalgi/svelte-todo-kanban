@@ -46,3 +46,7 @@ The logging will now capture cases where a delete returns no rows, helping ident
 - Data inconsistencies
 
 Commit: `4c94fdd` — fix(todos): log when delete returns no rows (#189)
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean with nothing left to commit — see the `.log` beside this file for the full session.
