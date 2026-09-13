@@ -9,6 +9,6 @@ When I click it takes me to https://github.com/%7B%22owner%22:%22kasparpalgi%22,
 
 Also, what that card.task_file_noticetext means? Remove if nonsense and otherwise make it make a sense.
 
-Also, the file
+Also, the file link is
 
 _From Kanban card `6f843ce1-2561-413e-b144-061e166ea9ec`._
