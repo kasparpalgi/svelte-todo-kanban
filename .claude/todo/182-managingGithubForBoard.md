@@ -4,6 +4,8 @@
 
 [NEVER REMOVE]
 
-I see JSON:
+I see JSON: Hetkel ühendatud:
+
+{"owner":"life-effect","repo":"life-effect-front","full_name":"life-effect/life-effect-front"}
 
 _From Kanban card `dd3cd1fb-f2e6-4be7-b4ef-4e2299a8c284`._
