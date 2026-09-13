@@ -33,4 +33,16 @@ _GitHub issue #189 — end the commit subject with `(#189)`._
 
 ## Implementation
 
-Logging the "delete returned no row" scenario to help catch inconsistencies.
+✅ **COMPLETED**
+
+Changes made:
+1. Imported `loggingStore` in `src/lib/stores/todos.svelte.ts`
+2. Added `loggingStore.warn()` call when `delete_todos.affected_rows` is 0
+3. Logs component name, message, and context (todoId, affectedRows)
+
+The logging will now capture cases where a delete returns no rows, helping identify:
+- Attempts to delete already-deleted todos
+- Race conditions
+- Data inconsistencies
+
+Commit: `4c94fdd` — fix(todos): log when delete returns no rows (#189)
