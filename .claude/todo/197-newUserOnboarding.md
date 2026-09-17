@@ -4,6 +4,6 @@
 
 [NEVER REMOVE]
 
-Invited new user to the board and the email
+Invited new user to the board and the email arrived is terrible looking. MAke a nice HTML email.
 
 _From Kanban card `177e4d61-e1df-4609-916c-b03cf6195dfe`._
