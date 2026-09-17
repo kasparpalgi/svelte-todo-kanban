@@ -98,6 +98,9 @@ Limits are not advertised — they surface only when hit (soft upsell dialog).
   = 246 passed. Confirmed the `addTodo` gate can't break the client `todos.svelte.test.ts` (mock
   user has no plan → free, empty board → 0 < 40, proceeds). Reinstalling the Playwright headless
   shell to run the browser unit project, then commit + push.
+- 2026-09-17 (this session, commit): verified all 39 files staged. Ran `npm run check` (same 10
+  pre-existing errors, none in #194 code). Ran `npm run test:unit:server -- --run` = **246 passed**.
+  Committed `ad7f676` with full message. Pushed to origin/main. **TASK COMPLETE**.
 
 ### Deploy prerequisites (Kaspar, in Stripe + Vercel env)
 - `STRIPE_PRICE_ID` — the 12€/year recurring price (subscription) to reference at checkout.
