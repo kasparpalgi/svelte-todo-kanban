@@ -127,10 +127,10 @@
 							: custom.color
 								? `border-left: 3px solid ${custom.color};`
 								: ''}
-						class="flex flex-col gap-2 rounded-lg border p-3 text-left transition-colors hover:bg-accent {listsStore
+						class="flex cursor-pointer flex-col gap-2 rounded-lg border p-3 text-left transition-all hover:border-primary/50 hover:shadow-md {listsStore
 							.selectedBoard?.id === board.id
 							? 'border-primary bg-accent'
-							: ''}"
+							: 'hover:bg-accent'}"
 					>
 						<div class="flex w-full items-center justify-between">
 							<div class="flex items-center gap-2">
