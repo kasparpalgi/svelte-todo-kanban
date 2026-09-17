@@ -44,344 +44,365 @@ const pageUrlLink = document.getElementById('page-url-link');
  * Initialize the popup
  */
 async function init() {
-  try {
-    // Show loading state
-    showLoading();
+	try {
+		// Show loading state only during the fast, local auth check
+		showLoading();
 
-    // Check authentication
-    let isAuth = await isAuthenticated();
+		// Check authentication (reads from local storage - near instant)
+		let isAuth = await isAuthenticated();
 
-    if (!isAuth) {
-      showAuthRequired();
-      return;
-    }
+		if (!isAuth) {
+			showAuthRequired();
+			return;
+		}
 
-    // Load boards first (critical)
-    boards = await loadBoards();
+		// Reveal the form IMMEDIATELY so the popup feels instant. The board list and
+		// page data are fetched in the background below, each showing its own inline
+		// loader (the board <select> already reads "Loading boards..." from popup.html).
+		showMainContent();
 
-    // Try to load page data (optional - may fail on some pages)
-    try {
-      pageData = await loadPageData();
-      displayPageData();
-    } catch (error) {
-      // Silent fail - this is expected on chrome://, about:, and other restricted pages
-      // Set default page data (await the async operation)
-      await new Promise((resolve) => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0]) {
-            pageData = {
-              title: tabs[0].title || 'Untitled Page',
-              url: tabs[0].url || '',
-              description: '',
-              image: null,
-              images: [],
-              content: ''
-            };
-            displayPageData();
-          }
-          resolve();
-        });
-      });
-    }
+		// Local preference read - fast, keep it ahead of the network work
+		await loadPreferences();
 
-    // Populate board selector
-    populateBoardSelector();
+		// Fetch page data and boards concurrently in the background; neither blocks
+		// the form from being visible, and each updates its section when it resolves.
+		initPageData();
+		initBoards();
+	} catch (error) {
+		console.error('Init error:', error);
+		showError('Failed to initialize: ' + error.message);
+	}
+}
 
-    // Load last selected board
-    await loadLastBoard();
+/**
+ * Load page data in the background and render it when ready.
+ * Falls back to basic tab info on restricted pages (chrome://, about:, etc.).
+ */
+async function initPageData() {
+	try {
+		pageData = await loadPageData();
+		displayPageData();
+	} catch (error) {
+		// Silent fail - expected on chrome://, about:, and other restricted pages
+		await new Promise((resolve) => {
+			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+				if (tabs[0]) {
+					pageData = {
+						title: tabs[0].title || 'Untitled Page',
+						url: tabs[0].url || '',
+						description: '',
+						image: null,
+						images: [],
+						content: ''
+					};
+					displayPageData();
+				}
+				resolve();
+			});
+		});
+	}
+}
 
-    // Load user preferences
-    await loadPreferences();
-
-    // Show main content
-    showMainContent();
-  } catch (error) {
-    console.error('Init error:', error);
-    showError('Failed to initialize: ' + error.message);
-  }
+/**
+ * Load the user's boards in the background, then populate the selector.
+ * The <select> shows "Loading boards..." until this resolves.
+ */
+async function initBoards() {
+	try {
+		boards = await loadBoards();
+		populateBoardSelector();
+		await loadLastBoard();
+	} catch (error) {
+		console.error('Init boards error:', error);
+		boardSelect.innerHTML = '';
+		const option = document.createElement('option');
+		option.value = '';
+		option.textContent = 'Failed to load boards';
+		boardSelect.appendChild(option);
+		showError('Failed to load boards: ' + error.message);
+	}
 }
 
 /**
  * Load page data from content script
  */
 async function loadPageData() {
-  return new Promise((resolve, reject) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (!tabs[0]) {
-        reject(new Error('No active tab found'));
-        return;
-      }
+	return new Promise((resolve, reject) => {
+		chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+			if (!tabs[0]) {
+				reject(new Error('No active tab found'));
+				return;
+			}
 
-      chrome.tabs.sendMessage(
-        tabs[0].id,
-        { type: 'EXTRACT_PAGE_DATA' },
-        (response) => {
-          if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError.message));
-            return;
-          }
+			chrome.tabs.sendMessage(tabs[0].id, { type: 'EXTRACT_PAGE_DATA' }, (response) => {
+				if (chrome.runtime.lastError) {
+					reject(new Error(chrome.runtime.lastError.message));
+					return;
+				}
 
-          if (!response) {
-            reject(new Error('No response from content script'));
-            return;
-          }
+				if (!response) {
+					reject(new Error('No response from content script'));
+					return;
+				}
 
-          resolve(response);
-        }
-      );
-    });
-  });
+				resolve(response);
+			});
+		});
+	});
 }
 
 /**
  * Load user's boards
  */
 async function loadBoards() {
-  try {
-    const boardsList = await getBoards();
-    return boardsList;
-  } catch (error) {
-    console.error('Load boards error:', error);
-    throw new Error('Failed to load boards');
-  }
+	try {
+		const boardsList = await getBoards();
+		return boardsList;
+	} catch (error) {
+		console.error('Load boards error:', error);
+		throw new Error('Failed to load boards');
+	}
 }
 
 /**
  * Display page data in the UI
  */
 function displayPageData() {
-  if (!pageData) return;
+	if (!pageData) return;
 
-  // Set page URL link
-  pageUrlLink.href = pageData.url;
-  pageUrlLink.textContent = pageData.url;
+	// Set page URL link
+	pageUrlLink.href = pageData.url;
+	pageUrlLink.textContent = pageData.url;
 
-  // Set editable title
-  titleInput.value = pageData.title || 'Untitled Page';
+	// Set editable title
+	titleInput.value = pageData.title || 'Untitled Page';
 
-  // Set editable description
-  descriptionInput.value = pageData.description || '';
+	// Set editable description
+	descriptionInput.value = pageData.description || '';
 
-  // Set up image picker if images are available
-  availableImages = pageData.images || [];
-  selectedImageUrl = pageData.image || null;
+	// Set up image picker if images are available
+	availableImages = pageData.images || [];
+	selectedImageUrl = pageData.image || null;
 
-  if (availableImages.length > 0 || selectedImageUrl) {
-    displayImagePicker();
-  }
+	if (availableImages.length > 0 || selectedImageUrl) {
+		displayImagePicker();
+	}
 }
 
 /**
  * Display image picker with thumbnails
  */
 function displayImagePicker() {
-  // Show image picker group
-  imagePickerGroup.classList.remove('hidden');
+	// Show image picker group
+	imagePickerGroup.classList.remove('hidden');
 
-  // Clear existing images
-  imagePicker.innerHTML = '';
+	// Clear existing images
+	imagePicker.innerHTML = '';
 
-  // Combine OG image with extracted images
-  const allImages = [];
-  if (selectedImageUrl && !availableImages.includes(selectedImageUrl)) {
-    allImages.push(selectedImageUrl);
-  }
-  allImages.push(...availableImages);
+	// Combine OG image with extracted images
+	const allImages = [];
+	if (selectedImageUrl && !availableImages.includes(selectedImageUrl)) {
+		allImages.push(selectedImageUrl);
+	}
+	allImages.push(...availableImages);
 
-  // Remove duplicates
-  const uniqueImages = [...new Set(allImages)];
+	// Remove duplicates
+	const uniqueImages = [...new Set(allImages)];
 
-  // Limit to 6 images (including "No image" option)
-  const imagesToShow = uniqueImages.slice(0, 5);
+	// Limit to 6 images (including "No image" option)
+	const imagesToShow = uniqueImages.slice(0, 5);
 
-  // Add "No image" option
-  const noneOption = document.createElement('div');
-  noneOption.className = 'image-option' + (!selectedImageUrl ? ' selected' : '');
-  noneOption.onclick = () => selectImage(null);
-  const noneInner = document.createElement('div');
-  noneInner.className = 'image-option-inner image-option-none';
-  noneInner.textContent = 'No Image';
-  noneOption.appendChild(noneInner);
-  imagePicker.appendChild(noneOption);
+	// Add "No image" option
+	const noneOption = document.createElement('div');
+	noneOption.className = 'image-option' + (!selectedImageUrl ? ' selected' : '');
+	noneOption.onclick = () => selectImage(null);
+	const noneInner = document.createElement('div');
+	noneInner.className = 'image-option-inner image-option-none';
+	noneInner.textContent = 'No Image';
+	noneOption.appendChild(noneInner);
+	imagePicker.appendChild(noneOption);
 
-  // Add image options
-  imagesToShow.forEach((imageUrl, index) => {
-    const option = document.createElement('div');
-    option.className = 'image-option' + (imageUrl === selectedImageUrl ? ' selected' : '');
-    option.onclick = () => selectImage(imageUrl);
+	// Add image options
+	imagesToShow.forEach((imageUrl, index) => {
+		const option = document.createElement('div');
+		option.className = 'image-option' + (imageUrl === selectedImageUrl ? ' selected' : '');
+		option.onclick = () => selectImage(imageUrl);
 
-    const inner = document.createElement('div');
-    inner.className = 'image-option-inner';
-    inner.style.backgroundImage = `url('${imageUrl}')`;
+		const inner = document.createElement('div');
+		inner.className = 'image-option-inner';
+		inner.style.backgroundImage = `url('${imageUrl}')`;
 
-    option.appendChild(inner);
-    imagePicker.appendChild(option);
-  });
+		option.appendChild(inner);
+		imagePicker.appendChild(option);
+	});
 }
 
 /**
  * Select an image from the picker
  */
 function selectImage(imageUrl) {
-  selectedImageUrl = imageUrl;
+	selectedImageUrl = imageUrl;
 
-  // Update UI
-  const options = imagePicker.querySelectorAll('.image-option');
-  options.forEach((option, index) => {
-    if (index === 0 && imageUrl === null) {
-      // "No image" option selected
-      option.classList.add('selected');
-    } else if (index > 0 && option.querySelector('.image-option-inner').style.backgroundImage.includes(imageUrl)) {
-      option.classList.add('selected');
-    } else {
-      option.classList.remove('selected');
-    }
-  });
+	// Update UI
+	const options = imagePicker.querySelectorAll('.image-option');
+	options.forEach((option, index) => {
+		if (index === 0 && imageUrl === null) {
+			// "No image" option selected
+			option.classList.add('selected');
+		} else if (
+			index > 0 &&
+			option.querySelector('.image-option-inner').style.backgroundImage.includes(imageUrl)
+		) {
+			option.classList.add('selected');
+		} else {
+			option.classList.remove('selected');
+		}
+	});
 }
 
 /**
  * Populate board selector dropdown
  */
 function populateBoardSelector() {
-  // Clear existing options
-  boardSelect.innerHTML = '';
+	// Clear existing options
+	boardSelect.innerHTML = '';
 
-  if (boards.length === 0) {
-    const option = document.createElement('option');
-    option.value = '';
-    option.textContent = 'No boards found';
-    boardSelect.appendChild(option);
-    return;
-  }
+	if (boards.length === 0) {
+		const option = document.createElement('option');
+		option.value = '';
+		option.textContent = 'No boards found';
+		boardSelect.appendChild(option);
+		return;
+	}
 
-  // Add boards as options
-  boards.forEach((board) => {
-    const option = document.createElement('option');
-    option.value = board.id;
-    option.textContent = board.name;
-    boardSelect.appendChild(option);
-  });
+	// Add boards as options
+	boards.forEach((board) => {
+		const option = document.createElement('option');
+		option.value = board.id;
+		option.textContent = board.name;
+		boardSelect.appendChild(option);
+	});
 }
 
 /**
  * Load last selected board
  */
 async function loadLastBoard() {
-  const lastBoardId = await getLastBoard();
+	const lastBoardId = await getLastBoard();
 
-  if (lastBoardId && boards.some(b => b.id === lastBoardId)) {
-    boardSelect.value = lastBoardId;
-    selectedBoardId = lastBoardId;
-  } else if (boards.length > 0) {
-    // Default to first board
-    boardSelect.value = boards[0].id;
-    selectedBoardId = boards[0].id;
-  }
+	if (lastBoardId && boards.some((b) => b.id === lastBoardId)) {
+		boardSelect.value = lastBoardId;
+		selectedBoardId = lastBoardId;
+	} else if (boards.length > 0) {
+		// Default to first board
+		boardSelect.value = boards[0].id;
+		selectedBoardId = boards[0].id;
+	}
 }
 
 /**
  * Load user preferences
  */
 async function loadPreferences() {
-  const prefs = await getPreferences();
+	const prefs = await getPreferences();
 
-  // Set AI model
-  if (prefs.aiModel) {
-    aiModelSelect.value = prefs.aiModel;
-  }
+	// Set AI model
+	if (prefs.aiModel) {
+		aiModelSelect.value = prefs.aiModel;
+	}
 
-  // Set auto AI correct (not used in extension, but load for consistency)
-  if (prefs.autoAiCorrect) {
-    aiSummarizeCheckbox.checked = true;
-    aiModelGroup.classList.remove('hidden');
-  }
+	// Set auto AI correct (not used in extension, but load for consistency)
+	if (prefs.autoAiCorrect) {
+		aiSummarizeCheckbox.checked = true;
+		aiModelGroup.classList.remove('hidden');
+	}
 }
 
 /**
  * Handle board selection change
  */
 function handleBoardChange() {
-  selectedBoardId = boardSelect.value;
+	selectedBoardId = boardSelect.value;
 
-  // Save to storage
-  if (selectedBoardId) {
-    setLastBoard(selectedBoardId);
-  }
+	// Save to storage
+	if (selectedBoardId) {
+		setLastBoard(selectedBoardId);
+	}
 }
 
 /**
  * Handle AI summarize checkbox change
  */
 function handleAiSummarizeChange() {
-  if (aiSummarizeCheckbox.checked) {
-    // Show AI sections
-    aiModelGroup.classList.remove('hidden');
-    aiSummaryGroup.classList.remove('hidden');
-    generateAiBtn.classList.remove('hidden');
+	if (aiSummarizeCheckbox.checked) {
+		// Show AI sections
+		aiModelGroup.classList.remove('hidden');
+		aiSummaryGroup.classList.remove('hidden');
+		generateAiBtn.classList.remove('hidden');
 
-    // If we already have a summary, show it
-    if (aiSummary) {
-      aiSummaryInput.value = aiSummary;
-      aiSummaryInput.disabled = false;
-    } else {
-      aiSummaryInput.value = '';
-      aiSummaryInput.placeholder = 'Click \'Generate Summary\' to create AI summary...';
-      aiSummaryInput.disabled = false;
-    }
-  } else {
-    // Hide AI sections
-    aiModelGroup.classList.add('hidden');
-    aiSummaryGroup.classList.add('hidden');
-    generateAiBtn.classList.add('hidden');
-  }
+		// If we already have a summary, show it
+		if (aiSummary) {
+			aiSummaryInput.value = aiSummary;
+			aiSummaryInput.disabled = false;
+		} else {
+			aiSummaryInput.value = '';
+			aiSummaryInput.placeholder = "Click 'Generate Summary' to create AI summary...";
+			aiSummaryInput.disabled = false;
+		}
+	} else {
+		// Hide AI sections
+		aiModelGroup.classList.add('hidden');
+		aiSummaryGroup.classList.add('hidden');
+		generateAiBtn.classList.add('hidden');
+	}
 }
 
 /**
  * Handle Generate AI Summary button click
  */
 async function handleGenerateAi() {
-  // Check if we have page content for AI processing
-  if (!pageData || !pageData.content || pageData.content.trim().length === 0) {
-    aiSummaryInput.value = 'No page content available for AI summary.';
-    showError('No page content available for AI summary');
-    return;
-  }
+	// Check if we have page content for AI processing
+	if (!pageData || !pageData.content || pageData.content.trim().length === 0) {
+		aiSummaryInput.value = 'No page content available for AI summary.';
+		showError('No page content available for AI summary');
+		return;
+	}
 
-  if (aiProcessing) {
-    return; // Already generating
-  }
+	if (aiProcessing) {
+		return; // Already generating
+	}
 
-  try {
-    // Show loading state
-    aiProcessing = true;
-    generateAiText.classList.add('hidden');
-    generateAiLoading.classList.remove('hidden');
-    generateAiBtn.disabled = true;
-    aiSummaryInput.value = 'Generating AI summary...';
-    aiSummaryInput.disabled = true;
+	try {
+		// Show loading state
+		aiProcessing = true;
+		generateAiText.classList.add('hidden');
+		generateAiLoading.classList.remove('hidden');
+		generateAiBtn.disabled = true;
+		aiSummaryInput.value = 'Generating AI summary...';
+		aiSummaryInput.disabled = true;
 
-    // Generate summary
-    const summary = await getAiSummary(pageData.content);
+		// Generate summary
+		const summary = await getAiSummary(pageData.content);
 
-    // Update UI with summary
-    aiSummary = summary;
-    aiSummaryInput.value = summary;
-    aiSummaryInput.disabled = false;
+		// Update UI with summary
+		aiSummary = summary;
+		aiSummaryInput.value = summary;
+		aiSummaryInput.disabled = false;
 
-    showSuccess('AI summary generated successfully!');
-  } catch (error) {
-    console.error('AI summary error:', error);
-    aiSummaryInput.value = '';
-    aiSummaryInput.placeholder = 'Failed to generate summary. Try again.';
-    aiSummary = null;
-    aiSummaryInput.disabled = false;
-    showError('Failed to generate AI summary: ' + error.message);
-  } finally {
-    aiProcessing = false;
-    generateAiText.classList.remove('hidden');
-    generateAiLoading.classList.add('hidden');
-    generateAiBtn.disabled = false;
-  }
+		showSuccess('AI summary generated successfully!');
+	} catch (error) {
+		console.error('AI summary error:', error);
+		aiSummaryInput.value = '';
+		aiSummaryInput.placeholder = 'Failed to generate summary. Try again.';
+		aiSummary = null;
+		aiSummaryInput.disabled = false;
+		showError('Failed to generate AI summary: ' + error.message);
+	} finally {
+		aiProcessing = false;
+		generateAiText.classList.remove('hidden');
+		generateAiLoading.classList.add('hidden');
+		generateAiBtn.disabled = false;
+	}
 }
 
 /**
@@ -389,204 +410,207 @@ async function handleGenerateAi() {
  * Implements optimistic save - creates note immediately, AI processing happens in background
  */
 async function handleSave() {
-  try {
-    // Validate
-    if (!selectedBoardId) {
-      showError('Please select a board');
-      return;
-    }
+	try {
+		// Validate
+		if (!selectedBoardId) {
+			showError('Please select a board');
+			return;
+		}
 
-    if (!pageData) {
-      showError('No page data available');
-      return;
-    }
+		if (!pageData) {
+			showError('No page data available');
+			return;
+		}
 
-    // Show loading
-    setLoading(true);
-    hideStatusMessage();
+		// Show loading
+		setLoading(true);
+		hideStatusMessage();
 
-    // Get user-edited values
-    const noteTitle = titleInput.value.trim() || 'Untitled Page';
-    const noteDescription = descriptionInput.value.trim();
-    const userComment = commentInput.value.trim();
+		// Get user-edited values
+		const noteTitle = titleInput.value.trim() || 'Untitled Page';
+		const noteDescription = descriptionInput.value.trim();
+		const userComment = commentInput.value.trim();
 
-    // Build content
-    let content = '';
+		// Build content
+		let content = '';
 
-    // 1. URL at the very top (as requested)
-    content += `<p><a href="${pageData.url}" target="_blank">${pageData.url}</a></p>\n\n`;
+		// 1. URL at the very top (as requested)
+		content += `<p><a href="${pageData.url}" target="_blank">${pageData.url}</a></p>\n\n`;
 
-    // 2. AI Summary or Description (without "AI Summary" title as requested)
-    if (aiSummarizeCheckbox.checked && aiSummary) {
-      // Use the AI summary from the editable textarea (user may have edited it)
-      const editedSummary = aiSummaryInput.value.trim();
-      if (editedSummary &&
-          editedSummary !== 'Generating AI summary...' &&
-          editedSummary !== 'Failed to generate summary. Description will be used instead.' &&
-          editedSummary !== 'No page content available for AI summary. Description will be used instead.') {
-        content += `<p>${editedSummary}</p>\n\n`;
-      } else if (noteDescription) {
-        content += `<p>${noteDescription}</p>\n\n`;
-      }
-    } else if (noteDescription) {
-      content += `<p>${noteDescription}</p>\n\n`;
-    }
+		// 2. AI Summary or Description (without "AI Summary" title as requested)
+		if (aiSummarizeCheckbox.checked && aiSummary) {
+			// Use the AI summary from the editable textarea (user may have edited it)
+			const editedSummary = aiSummaryInput.value.trim();
+			if (
+				editedSummary &&
+				editedSummary !== 'Generating AI summary...' &&
+				editedSummary !== 'Failed to generate summary. Description will be used instead.' &&
+				editedSummary !==
+					'No page content available for AI summary. Description will be used instead.'
+			) {
+				content += `<p>${editedSummary}</p>\n\n`;
+			} else if (noteDescription) {
+				content += `<p>${noteDescription}</p>\n\n`;
+			}
+		} else if (noteDescription) {
+			content += `<p>${noteDescription}</p>\n\n`;
+		}
 
-    // 3. User notes/comment (if provided)
-    if (userComment) {
-      content += `<p><strong>Notes:</strong></p>\n<p>${userComment}</p>\n\n`;
-    }
+		// 3. User notes/comment (if provided)
+		if (userComment) {
+			content += `<p><strong>Notes:</strong></p>\n<p>${userComment}</p>\n\n`;
+		}
 
-    // Create note data
-    const noteData = {
-      board_id: selectedBoardId,
-      title: noteTitle,
-      content: content,
-      cover_image_url: selectedImageUrl || null
-    };
+		// Create note data
+		const noteData = {
+			board_id: selectedBoardId,
+			title: noteTitle,
+			content: content,
+			cover_image_url: selectedImageUrl || null
+		};
 
-    // OPTIMISTIC SAVE: Create note immediately
-    const createdNote = await createNote(noteData);
+		// OPTIMISTIC SAVE: Create note immediately
+		const createdNote = await createNote(noteData);
 
-    // Success!
-    showSuccess('Note saved successfully!');
+		// Success!
+		showSuccess('Note saved successfully!');
 
-    // If AI summarize is checked but AI is still processing, continue in background
-    if (aiSummarizeCheckbox.checked && aiProcessing) {
-      // Note: We could update the note later when AI finishes, but for now
-      // we just save what we have. The user can see the AI summary in the textarea
-      // and edit the note later if needed.
-    }
+		// If AI summarize is checked but AI is still processing, continue in background
+		if (aiSummarizeCheckbox.checked && aiProcessing) {
+			// Note: We could update the note later when AI finishes, but for now
+			// we just save what we have. The user can see the AI summary in the textarea
+			// and edit the note later if needed.
+		}
 
-    // Close popup after 1.5 seconds
-    setTimeout(() => {
-      window.close();
-    }, 1500);
-  } catch (error) {
-    console.error('Save error:', error);
-    showError('Failed to save note: ' + error.message);
-  } finally {
-    setLoading(false);
-  }
+		// Close popup after 1.5 seconds
+		setTimeout(() => {
+			window.close();
+		}, 1500);
+	} catch (error) {
+		console.error('Save error:', error);
+		showError('Failed to save note: ' + error.message);
+	} finally {
+		setLoading(false);
+	}
 }
 
 /**
  * Get AI summary of content
  */
 async function getAiSummary(content) {
-  const apiUrl = await getApiUrl();
-  const model = aiModelSelect.value || 'gpt-5-mini';
+	const apiUrl = await getApiUrl();
+	const model = aiModelSelect.value || 'gpt-5-mini';
 
-  const response = await fetch(`${apiUrl}/api/ai`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      text: content,
-      type: 'summarize',
-      model: model
-    })
-  });
+	const response = await fetch(`${apiUrl}/api/ai`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			text: content,
+			type: 'summarize',
+			model: model
+		})
+	});
 
-  if (!response.ok) {
-    throw new Error('AI summarization failed');
-  }
+	if (!response.ok) {
+		throw new Error('AI summarization failed');
+	}
 
-  const data = await response.json();
+	const data = await response.json();
 
-  if (!data.success) {
-    throw new Error(data.message || 'AI summarization failed');
-  }
+	if (!data.success) {
+		throw new Error(data.message || 'AI summarization failed');
+	}
 
-  return data.corrected || content;
+	return data.corrected || content;
 }
 
 /**
  * Helper function to get API URL
  */
 async function getApiUrl() {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(['devMode'], (result) => {
-      resolve(result.devMode ? 'http://localhost:5173' : 'https://www.todzz.eu');
-    });
-  });
+	return new Promise((resolve) => {
+		chrome.storage.local.get(['devMode'], (result) => {
+			resolve(result.devMode ? 'http://localhost:5173' : 'https://www.todzz.eu');
+		});
+	});
 }
 
 /**
  * Handle cancel button click
  */
 function handleCancel() {
-  window.close();
+	window.close();
 }
 
 /**
  * Handle sign in button click
  */
 async function handleSignIn() {
-  await openAuthFlow();
-  showInfo('Authentication page opened. After signing in, this popup will automatically update.');
+	await openAuthFlow();
+	showInfo('Authentication page opened. After signing in, this popup will automatically update.');
 }
 
 /**
  * Set loading state
  */
 function setLoading(loading) {
-  saveBtn.disabled = loading;
+	saveBtn.disabled = loading;
 
-  if (loading) {
-    saveBtnText.classList.add('hidden');
-    saveBtnLoading.classList.remove('hidden');
-  } else {
-    saveBtnText.classList.remove('hidden');
-    saveBtnLoading.classList.add('hidden');
-  }
+	if (loading) {
+		saveBtnText.classList.add('hidden');
+		saveBtnLoading.classList.remove('hidden');
+	} else {
+		saveBtnText.classList.remove('hidden');
+		saveBtnLoading.classList.add('hidden');
+	}
 }
 
 /**
  * Show/hide UI states
  */
 function showLoading() {
-  loadingState.classList.remove('hidden');
-  authRequired.classList.add('hidden');
-  mainContent.classList.add('hidden');
+	loadingState.classList.remove('hidden');
+	authRequired.classList.add('hidden');
+	mainContent.classList.add('hidden');
 }
 
 function showAuthRequired() {
-  loadingState.classList.add('hidden');
-  authRequired.classList.remove('hidden');
-  mainContent.classList.add('hidden');
+	loadingState.classList.add('hidden');
+	authRequired.classList.remove('hidden');
+	mainContent.classList.add('hidden');
 }
 
 function showMainContent() {
-  loadingState.classList.add('hidden');
-  authRequired.classList.add('hidden');
-  mainContent.classList.remove('hidden');
+	loadingState.classList.add('hidden');
+	authRequired.classList.add('hidden');
+	mainContent.classList.remove('hidden');
 }
 
 /**
  * Show status messages
  */
 function showSuccess(message) {
-  statusMessage.textContent = message;
-  statusMessage.className = 'status-message success';
-  statusMessage.classList.remove('hidden');
+	statusMessage.textContent = message;
+	statusMessage.className = 'status-message success';
+	statusMessage.classList.remove('hidden');
 }
 
 function showError(message) {
-  statusMessage.textContent = message;
-  statusMessage.className = 'status-message error';
-  statusMessage.classList.remove('hidden');
+	statusMessage.textContent = message;
+	statusMessage.className = 'status-message error';
+	statusMessage.classList.remove('hidden');
 }
 
 function showInfo(message) {
-  statusMessage.textContent = message;
-  statusMessage.className = 'status-message info';
-  statusMessage.classList.remove('hidden');
+	statusMessage.textContent = message;
+	statusMessage.className = 'status-message info';
+	statusMessage.classList.remove('hidden');
 }
 
 function hideStatusMessage() {
-  statusMessage.classList.add('hidden');
+	statusMessage.classList.add('hidden');
 }
 
 /**
@@ -601,10 +625,10 @@ signInBtn.addEventListener('click', handleSignIn);
 
 // Listen for auth complete message from background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'AUTH_COMPLETE') {
-    // Reinitialize the popup now that we have auth
-    init();
-  }
+	if (request.type === 'AUTH_COMPLETE') {
+		// Reinitialize the popup now that we have auth
+		init();
+	}
 });
 
 // Initialize on load
