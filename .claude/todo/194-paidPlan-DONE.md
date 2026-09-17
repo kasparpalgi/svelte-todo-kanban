@@ -108,3 +108,7 @@ Limits are not advertised — they surface only when hit (soft upsell dialog).
   (events: `checkout.session.completed`, `customer.subscription.{created,updated,deleted}`).
 - `STRIPE_API_KEY` already in `.env`. Both new vars are read via `$env/dynamic/private`, so a
   missing value does not break the build — checkout/webhook return 503 until configured.
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean with nothing left to commit — see the `.log` beside this file for the full session.
