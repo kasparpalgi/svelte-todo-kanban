@@ -1,0 +1,17 @@
+table:
+  name: claude_model_pricing
+  schema: public
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - model
+        - input_per_mtok
+        - output_per_mtok
+        - cache_write_per_mtok
+        - cache_read_per_mtok
+        - currency
+        - source
+        - updated_at
+      filter: {}
+    comment: ""

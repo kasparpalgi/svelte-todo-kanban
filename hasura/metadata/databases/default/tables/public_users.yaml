@@ -37,6 +37,13 @@ array_relationships:
         table:
           name: boards
           schema: public
+  - name: claude_usages
+    using:
+      foreign_key_constraint_on:
+        column: user_id
+        table:
+          name: claude_usage
+          schema: public
   - name: comments
     using:
       foreign_key_constraint_on:
@@ -200,6 +207,9 @@ select_permissions:
         - id
         - plan
         - plan_expires_at
+        - claude_plan
+        - claude_plan_monthly
+        - claude_plan_currency
       filter: {}
     comment: ""
 update_permissions:
@@ -216,6 +226,9 @@ update_permissions:
         - settings
         - updated_at
         - username
+        - claude_plan
+        - claude_plan_monthly
+        - claude_plan_currency
       filter:
         id:
           _eq: X-Hasura-User-Id

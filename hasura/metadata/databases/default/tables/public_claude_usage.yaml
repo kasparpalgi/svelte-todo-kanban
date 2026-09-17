@@ -1,0 +1,42 @@
+table:
+  name: claude_usage
+  schema: public
+object_relationships:
+  - name: todo
+    using:
+      foreign_key_constraint_on: todo_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+select_permissions:
+  - role: user
+    permission:
+      columns:
+        - id
+        - session_id
+        - todo_id
+        - user_id
+        - repo
+        - model
+        - input_tokens
+        - output_tokens
+        - cache_read_tokens
+        - cache_write_tokens
+        - usage_by_model
+        - cost_usd
+        - started_at
+        - ended_at
+        - created_at
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
+      allow_aggregations: true
+      query_root_fields:
+        - select
+        - select_aggregate
+        - select_by_pk
+      subscription_root_fields:
+        - select
+        - select_aggregate
+        - select_by_pk
+    comment: ""

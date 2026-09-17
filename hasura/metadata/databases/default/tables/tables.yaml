@@ -4,6 +4,8 @@
 - "!include public_board_invitations.yaml"
 - "!include public_board_members.yaml"
 - "!include public_boards.yaml"
+- "!include public_claude_model_pricing.yaml"
+- "!include public_claude_usage.yaml"
 - "!include public_comments.yaml"
 - "!include public_expense_splits.yaml"
 - "!include public_expenses.yaml"
