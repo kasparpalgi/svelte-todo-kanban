@@ -10,6 +10,6 @@ Also the free plan shall not have more than 7 boards but don't advertise that. T
 
 Upload no more than 10 items but can add own Cloudfare R2 API key.
 
-Paid plan 1.€/month via STRIPE.
+Paid plan 12€/month via STRIPE.
 
 _From Kanban card `6dcff53c-56ee-4e8d-8816-fc399231d02d`._
