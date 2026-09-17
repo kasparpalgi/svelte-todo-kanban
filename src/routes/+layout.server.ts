@@ -39,20 +39,26 @@ export const load: LayoutServerLoad = async (event) => {
 		if (topBoardPath) {
 			throw redirect(302, topBoardPath);
 		} else {
-			// Fetch user's current locale from database to avoid using stale session data
+			// Fetch user's current locale from database to avoid using stale session data.
+			// Wrapped so a stale/invalid session (e.g. a cookie for a deleted user whose
+			// token endpoint now returns 401) can't 500 the landing redirect.
 			let locale = DEFAULT_LOCALE;
 			if (session.user?.id) {
-				const userData = (await request(
-					GET_USERS,
-					{
-						where: { id: { _eq: session.user.id } },
-						limit: 1
-					},
-					undefined,
-					fetch
-				)) as any;
+				try {
+					const userData = (await request(
+						GET_USERS,
+						{
+							where: { id: { _eq: session.user.id } },
+							limit: 1
+						},
+						undefined,
+						fetch
+					)) as any;
 
-				locale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
+					locale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
+				} catch (err) {
+					console.error('[layout.server] locale lookup failed, using default:', err);
+				}
 			}
 			throw redirect(302, `/${locale}`);
 		}

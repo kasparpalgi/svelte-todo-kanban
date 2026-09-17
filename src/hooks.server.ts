@@ -49,6 +49,11 @@ const providers: Provider[] = [
 	Google({
 		clientId: AUTH_GOOGLE_ID,
 		clientSecret: AUTH_GOOGLE_SECRET,
+		// Google verifies email ownership, so linking by email is safe here: a Google
+		// sign-in whose email already belongs to a user links to that user instead of
+		// creating a second account or crashing on the `users_email_key` unique
+		// constraint. Prevents duplicate users for the same email address (#195).
+		allowDangerousEmailAccountLinking: true,
 		authorization: {
 			params: {
 				scope:
