@@ -6,7 +6,25 @@ import { serverLog } from '$lib/server/log';
 
 export { isAdminEmail } from '$lib/server/admin';
 
-webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+// Configure VAPID lazily on first use rather than at import time. Doing it at the
+// top level runs during SvelteKit's build-time `analyse` step, where an absent or
+// malformed VAPID key throws and fails the whole build. Initializing on demand lets
+// a bad config degrade push notifications at runtime instead of breaking the deploy.
+let vapidConfigured: boolean | null = null;
+
+function ensureVapid(): boolean {
+	if (vapidConfigured !== null) return vapidConfigured;
+	try {
+		webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+		vapidConfigured = true;
+	} catch (error: any) {
+		serverLog.error('push', 'Invalid VAPID configuration; push disabled', {
+			message: error?.message
+		});
+		vapidConfigured = false;
+	}
+	return vapidConfigured;
+}
 
 export interface PushSubscriptionRow {
 	id: string;
@@ -20,6 +38,8 @@ export async function sendPushToAll(
 	subscriptions: PushSubscriptionRow[],
 	payload: { title: string; body: string; url?: string | null }
 ) {
+	if (!ensureVapid()) return;
+
 	const deadEndpoints: string[] = [];
 
 	await Promise.all(
