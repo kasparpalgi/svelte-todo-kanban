@@ -21,6 +21,8 @@
 	import { autoScrollIntent, type ScrollIntent } from '$lib/utils/cardDrag';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { CardMoveDirection } from '$lib/types/todo';
+	import { claudeUsageStore } from '$lib/stores/claudeUsage.svelte';
+	import { effectiveRatio, formatUsd, formatPlanCurrency } from '$lib/utils/claudeCost';
 
 	let draggedTodo = $state<TodoFieldsFragment | null>(null);
 	let dropTarget = $state<{
@@ -52,6 +54,15 @@
 	});
 
 	const user = $derived(userStore.user);
+
+	$effect(() => {
+		if (user?.id && user.claude_plan) claudeUsageStore.loadMonthCost(user.id);
+	});
+
+	const monthCost = $derived(user?.id ? claudeUsageStore.monthCost(user.id) : null);
+	const planRatio = $derived(
+		effectiveRatio(user?.claude_plan, user?.claude_plan_monthly, monthCost)
+	);
 
 	let kanbanLists = $derived(() => {
 		const todosByListId = todoFilteringStore.getTodosByList(todosStore.todos, user?.id);
@@ -481,6 +492,22 @@
 
 <div class="w-full" in:scale>
 	<div class="px-6 pt-6 pb-2">
+		{#if user?.claude_plan && user.claude_plan_monthly}
+			<p class="mb-2 text-xs text-muted-foreground">
+				{#if planRatio !== null}
+					{$t('todo.claude_ratio.known', {
+						monthly: formatPlanCurrency(user.claude_plan_monthly, user.claude_plan_currency),
+						list: formatUsd(monthCost || 0),
+						percent: (planRatio * 100).toFixed(0)
+					})}
+				{:else}
+					{$t('todo.claude_ratio.pending', {
+						monthly: formatPlanCurrency(user.claude_plan_monthly, user.claude_plan_currency)
+					})}
+				{/if}
+			</p>
+		{/if}
+
 		{#if getFilterSummary()}
 			<div class="mb-4 rounded-md bg-muted/50 p-3">
 				<p class="text-sm text-muted-foreground">
@@ -522,6 +549,10 @@
 					},
 					{ min: 0, max: 0, avg: 0, count: 0, actual: 0, missingData: false }
 				)}
+				{@const listCost = todos.reduce(
+					(sum, todo) => sum + (todo.claude_usages_aggregate?.aggregate?.sum?.cost_usd ?? 0),
+					0
+				)}
 				<div class="w-80 flex-shrink-0">
 					<KanbanColumn
 						list={{
@@ -557,6 +588,11 @@
 									<AlertTriangle class="inline h-3 w-3 text-red-500" />
 								</span>
 							{/if}
+						</div>
+					{/if}
+					{#if listCost > 0}
+						<div class="-mt-1 text-center text-xs text-gray-400" title="Total Claude usage cost">
+							{formatUsd(listCost)}
 						</div>
 					{/if}
 				</div>

@@ -29,6 +29,7 @@
 	} from 'lucide-svelte';
 	import githubLogo from '$lib/assets/github.svg';
 	import TodoEditForm from './TodoEditForm.svelte';
+	import CardCostBadge from './CardCostBadge.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { TodoImage } from '$lib/types/imageUpload';
@@ -639,6 +640,8 @@
 										{/if}
 									</span>
 								{/if}
+
+								<CardCostBadge {todo} />
 							</div>
 						</div>
 					</CardContent>

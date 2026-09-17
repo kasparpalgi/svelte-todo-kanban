@@ -469,7 +469,11 @@
     "no_members_to_subscribe": "Žádní členové k odběru (přiřazený uživatel již dostává oznámení)",
     "you": "vy",
     "subscribers_count": "{{count}} odběratel obdrží oznámení",
-    "subscribers_count_plural": "{{count}} odběratelé obdrží oznámení"
+    "subscribers_count_plural": "{{count}} odběratelé obdrží oznámení",
+    "claude_ratio": {
+      "known": "Zaplaceno {{monthly}}/měsíc → efektivně {{percent}} % ceníkové ceny ({{list}} tento měsíc)",
+      "pending": "Zaplaceno {{monthly}}/měsíc — efektivní poměr se určí podle využití v tomto období"
+    }
   },
   "notes": {
     "title": "Poznámky",
@@ -687,6 +691,20 @@
       "sending": "Odesílání...",
       "sent": "Novinka byla odeslána všem uživatelům",
       "send_failed": "Odeslání novinky se nezdařilo"
+    },
+    "claude_usage": {
+      "title": "Využití Claude a plán",
+      "description": "Nastavte svůj Claude plán a uvidíte efektivní cenu vedle ceníkové ceny u každé karty.",
+      "plan_label": "Plán",
+      "plan_none": "Žádný",
+      "plan_api": "API (platba za použití)",
+      "plan_pro": "Pro",
+      "plan_max5x": "Max 5x",
+      "plan_max20x": "Max 20x",
+      "monthly_label": "Měsíční částka",
+      "currency_label": "Měna",
+      "save": "Uložit plán",
+      "saved": "Claude plán aktualizován"
     }
   },
   "notifications": {

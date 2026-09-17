@@ -2300,6 +2300,883 @@ export type Boards_Variance_Order_By = {
   sort_order?: InputMaybe<Order_By>;
 };
 
+/** columns and relationships of "claude_model_pricing" */
+export type Claude_Model_Pricing = {
+  __typename?: 'claude_model_pricing';
+  cache_read_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  currency: Scalars['String']['output'];
+  input_per_mtok: Scalars['numeric']['output'];
+  model: Scalars['String']['output'];
+  output_per_mtok: Scalars['numeric']['output'];
+  source?: Maybe<Scalars['String']['output']>;
+  updated_at: Scalars['timestamptz']['output'];
+};
+
+/** aggregated selection of "claude_model_pricing" */
+export type Claude_Model_Pricing_Aggregate = {
+  __typename?: 'claude_model_pricing_aggregate';
+  aggregate?: Maybe<Claude_Model_Pricing_Aggregate_Fields>;
+  nodes: Array<Claude_Model_Pricing>;
+};
+
+/** aggregate fields of "claude_model_pricing" */
+export type Claude_Model_Pricing_Aggregate_Fields = {
+  __typename?: 'claude_model_pricing_aggregate_fields';
+  avg?: Maybe<Claude_Model_Pricing_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Claude_Model_Pricing_Max_Fields>;
+  min?: Maybe<Claude_Model_Pricing_Min_Fields>;
+  stddev?: Maybe<Claude_Model_Pricing_Stddev_Fields>;
+  stddev_pop?: Maybe<Claude_Model_Pricing_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Claude_Model_Pricing_Stddev_Samp_Fields>;
+  sum?: Maybe<Claude_Model_Pricing_Sum_Fields>;
+  var_pop?: Maybe<Claude_Model_Pricing_Var_Pop_Fields>;
+  var_samp?: Maybe<Claude_Model_Pricing_Var_Samp_Fields>;
+  variance?: Maybe<Claude_Model_Pricing_Variance_Fields>;
+};
+
+
+/** aggregate fields of "claude_model_pricing" */
+export type Claude_Model_Pricing_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Claude_Model_Pricing_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** aggregate avg on columns */
+export type Claude_Model_Pricing_Avg_Fields = {
+  __typename?: 'claude_model_pricing_avg_fields';
+  cache_read_per_mtok?: Maybe<Scalars['Float']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['Float']['output']>;
+  input_per_mtok?: Maybe<Scalars['Float']['output']>;
+  output_per_mtok?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Boolean expression to filter rows from the table "claude_model_pricing". All fields are combined with a logical 'AND'. */
+export type Claude_Model_Pricing_Bool_Exp = {
+  _and?: InputMaybe<Array<Claude_Model_Pricing_Bool_Exp>>;
+  _not?: InputMaybe<Claude_Model_Pricing_Bool_Exp>;
+  _or?: InputMaybe<Array<Claude_Model_Pricing_Bool_Exp>>;
+  cache_read_per_mtok?: InputMaybe<Numeric_Comparison_Exp>;
+  cache_write_per_mtok?: InputMaybe<Numeric_Comparison_Exp>;
+  currency?: InputMaybe<String_Comparison_Exp>;
+  input_per_mtok?: InputMaybe<Numeric_Comparison_Exp>;
+  model?: InputMaybe<String_Comparison_Exp>;
+  output_per_mtok?: InputMaybe<Numeric_Comparison_Exp>;
+  source?: InputMaybe<String_Comparison_Exp>;
+  updated_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "claude_model_pricing" */
+export enum Claude_Model_Pricing_Constraint {
+  /** unique or primary key constraint on columns "model" */
+  ClaudeModelPricingPkey = 'claude_model_pricing_pkey'
+}
+
+/** input type for incrementing numeric columns in table "claude_model_pricing" */
+export type Claude_Model_Pricing_Inc_Input = {
+  cache_read_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  cache_write_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  input_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  output_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+};
+
+/** input type for inserting data into table "claude_model_pricing" */
+export type Claude_Model_Pricing_Insert_Input = {
+  cache_read_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  cache_write_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  input_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  output_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  source?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate max on columns */
+export type Claude_Model_Pricing_Max_Fields = {
+  __typename?: 'claude_model_pricing_max_fields';
+  cache_read_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  currency?: Maybe<Scalars['String']['output']>;
+  input_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  model?: Maybe<Scalars['String']['output']>;
+  output_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  source?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** aggregate min on columns */
+export type Claude_Model_Pricing_Min_Fields = {
+  __typename?: 'claude_model_pricing_min_fields';
+  cache_read_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  currency?: Maybe<Scalars['String']['output']>;
+  input_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  model?: Maybe<Scalars['String']['output']>;
+  output_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  source?: Maybe<Scalars['String']['output']>;
+  updated_at?: Maybe<Scalars['timestamptz']['output']>;
+};
+
+/** response of any mutation on the table "claude_model_pricing" */
+export type Claude_Model_Pricing_Mutation_Response = {
+  __typename?: 'claude_model_pricing_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Claude_Model_Pricing>;
+};
+
+/** on_conflict condition type for table "claude_model_pricing" */
+export type Claude_Model_Pricing_On_Conflict = {
+  constraint: Claude_Model_Pricing_Constraint;
+  update_columns?: Array<Claude_Model_Pricing_Update_Column>;
+  where?: InputMaybe<Claude_Model_Pricing_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "claude_model_pricing". */
+export type Claude_Model_Pricing_Order_By = {
+  cache_read_per_mtok?: InputMaybe<Order_By>;
+  cache_write_per_mtok?: InputMaybe<Order_By>;
+  currency?: InputMaybe<Order_By>;
+  input_per_mtok?: InputMaybe<Order_By>;
+  model?: InputMaybe<Order_By>;
+  output_per_mtok?: InputMaybe<Order_By>;
+  source?: InputMaybe<Order_By>;
+  updated_at?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: claude_model_pricing */
+export type Claude_Model_Pricing_Pk_Columns_Input = {
+  model: Scalars['String']['input'];
+};
+
+/** select columns of table "claude_model_pricing" */
+export enum Claude_Model_Pricing_Select_Column {
+  /** column name */
+  CacheReadPerMtok = 'cache_read_per_mtok',
+  /** column name */
+  CacheWritePerMtok = 'cache_write_per_mtok',
+  /** column name */
+  Currency = 'currency',
+  /** column name */
+  InputPerMtok = 'input_per_mtok',
+  /** column name */
+  Model = 'model',
+  /** column name */
+  OutputPerMtok = 'output_per_mtok',
+  /** column name */
+  Source = 'source',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+/** input type for updating data in table "claude_model_pricing" */
+export type Claude_Model_Pricing_Set_Input = {
+  cache_read_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  cache_write_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  input_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  output_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  source?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Claude_Model_Pricing_Stddev_Fields = {
+  __typename?: 'claude_model_pricing_stddev_fields';
+  cache_read_per_mtok?: Maybe<Scalars['Float']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['Float']['output']>;
+  input_per_mtok?: Maybe<Scalars['Float']['output']>;
+  output_per_mtok?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Claude_Model_Pricing_Stddev_Pop_Fields = {
+  __typename?: 'claude_model_pricing_stddev_pop_fields';
+  cache_read_per_mtok?: Maybe<Scalars['Float']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['Float']['output']>;
+  input_per_mtok?: Maybe<Scalars['Float']['output']>;
+  output_per_mtok?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Claude_Model_Pricing_Stddev_Samp_Fields = {
+  __typename?: 'claude_model_pricing_stddev_samp_fields';
+  cache_read_per_mtok?: Maybe<Scalars['Float']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['Float']['output']>;
+  input_per_mtok?: Maybe<Scalars['Float']['output']>;
+  output_per_mtok?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Streaming cursor of the table "claude_model_pricing" */
+export type Claude_Model_Pricing_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Claude_Model_Pricing_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Claude_Model_Pricing_Stream_Cursor_Value_Input = {
+  cache_read_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  cache_write_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  input_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  output_per_mtok?: InputMaybe<Scalars['numeric']['input']>;
+  source?: InputMaybe<Scalars['String']['input']>;
+  updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Claude_Model_Pricing_Sum_Fields = {
+  __typename?: 'claude_model_pricing_sum_fields';
+  cache_read_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  input_per_mtok?: Maybe<Scalars['numeric']['output']>;
+  output_per_mtok?: Maybe<Scalars['numeric']['output']>;
+};
+
+/** update columns of table "claude_model_pricing" */
+export enum Claude_Model_Pricing_Update_Column {
+  /** column name */
+  CacheReadPerMtok = 'cache_read_per_mtok',
+  /** column name */
+  CacheWritePerMtok = 'cache_write_per_mtok',
+  /** column name */
+  Currency = 'currency',
+  /** column name */
+  InputPerMtok = 'input_per_mtok',
+  /** column name */
+  Model = 'model',
+  /** column name */
+  OutputPerMtok = 'output_per_mtok',
+  /** column name */
+  Source = 'source',
+  /** column name */
+  UpdatedAt = 'updated_at'
+}
+
+export type Claude_Model_Pricing_Updates = {
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Claude_Model_Pricing_Inc_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Claude_Model_Pricing_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Claude_Model_Pricing_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Claude_Model_Pricing_Var_Pop_Fields = {
+  __typename?: 'claude_model_pricing_var_pop_fields';
+  cache_read_per_mtok?: Maybe<Scalars['Float']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['Float']['output']>;
+  input_per_mtok?: Maybe<Scalars['Float']['output']>;
+  output_per_mtok?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Claude_Model_Pricing_Var_Samp_Fields = {
+  __typename?: 'claude_model_pricing_var_samp_fields';
+  cache_read_per_mtok?: Maybe<Scalars['Float']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['Float']['output']>;
+  input_per_mtok?: Maybe<Scalars['Float']['output']>;
+  output_per_mtok?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Claude_Model_Pricing_Variance_Fields = {
+  __typename?: 'claude_model_pricing_variance_fields';
+  cache_read_per_mtok?: Maybe<Scalars['Float']['output']>;
+  cache_write_per_mtok?: Maybe<Scalars['Float']['output']>;
+  input_per_mtok?: Maybe<Scalars['Float']['output']>;
+  output_per_mtok?: Maybe<Scalars['Float']['output']>;
+};
+
+/** columns and relationships of "claude_usage" */
+export type Claude_Usage = {
+  __typename?: 'claude_usage';
+  cache_read_tokens: Scalars['bigint']['output'];
+  cache_write_tokens: Scalars['bigint']['output'];
+  cost_usd: Scalars['numeric']['output'];
+  created_at: Scalars['timestamptz']['output'];
+  ended_at?: Maybe<Scalars['timestamptz']['output']>;
+  id: Scalars['uuid']['output'];
+  input_tokens: Scalars['bigint']['output'];
+  model: Scalars['String']['output'];
+  output_tokens: Scalars['bigint']['output'];
+  repo?: Maybe<Scalars['String']['output']>;
+  session_id: Scalars['String']['output'];
+  started_at?: Maybe<Scalars['timestamptz']['output']>;
+  /** An object relationship */
+  todo?: Maybe<Todos>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  usage_by_model?: Maybe<Scalars['jsonb']['output']>;
+  /** An object relationship */
+  user: Users;
+  user_id: Scalars['uuid']['output'];
+};
+
+
+/** columns and relationships of "claude_usage" */
+export type Claude_UsageUsage_By_ModelArgs = {
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregated selection of "claude_usage" */
+export type Claude_Usage_Aggregate = {
+  __typename?: 'claude_usage_aggregate';
+  aggregate?: Maybe<Claude_Usage_Aggregate_Fields>;
+  nodes: Array<Claude_Usage>;
+};
+
+export type Claude_Usage_Aggregate_Bool_Exp = {
+  count?: InputMaybe<Claude_Usage_Aggregate_Bool_Exp_Count>;
+};
+
+export type Claude_Usage_Aggregate_Bool_Exp_Count = {
+  arguments?: InputMaybe<Array<Claude_Usage_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Claude_Usage_Bool_Exp>;
+  predicate: Int_Comparison_Exp;
+};
+
+/** aggregate fields of "claude_usage" */
+export type Claude_Usage_Aggregate_Fields = {
+  __typename?: 'claude_usage_aggregate_fields';
+  avg?: Maybe<Claude_Usage_Avg_Fields>;
+  count: Scalars['Int']['output'];
+  max?: Maybe<Claude_Usage_Max_Fields>;
+  min?: Maybe<Claude_Usage_Min_Fields>;
+  stddev?: Maybe<Claude_Usage_Stddev_Fields>;
+  stddev_pop?: Maybe<Claude_Usage_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Claude_Usage_Stddev_Samp_Fields>;
+  sum?: Maybe<Claude_Usage_Sum_Fields>;
+  var_pop?: Maybe<Claude_Usage_Var_Pop_Fields>;
+  var_samp?: Maybe<Claude_Usage_Var_Samp_Fields>;
+  variance?: Maybe<Claude_Usage_Variance_Fields>;
+};
+
+
+/** aggregate fields of "claude_usage" */
+export type Claude_Usage_Aggregate_FieldsCountArgs = {
+  columns?: InputMaybe<Array<Claude_Usage_Select_Column>>;
+  distinct?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** order by aggregate values of table "claude_usage" */
+export type Claude_Usage_Aggregate_Order_By = {
+  avg?: InputMaybe<Claude_Usage_Avg_Order_By>;
+  count?: InputMaybe<Order_By>;
+  max?: InputMaybe<Claude_Usage_Max_Order_By>;
+  min?: InputMaybe<Claude_Usage_Min_Order_By>;
+  stddev?: InputMaybe<Claude_Usage_Stddev_Order_By>;
+  stddev_pop?: InputMaybe<Claude_Usage_Stddev_Pop_Order_By>;
+  stddev_samp?: InputMaybe<Claude_Usage_Stddev_Samp_Order_By>;
+  sum?: InputMaybe<Claude_Usage_Sum_Order_By>;
+  var_pop?: InputMaybe<Claude_Usage_Var_Pop_Order_By>;
+  var_samp?: InputMaybe<Claude_Usage_Var_Samp_Order_By>;
+  variance?: InputMaybe<Claude_Usage_Variance_Order_By>;
+};
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type Claude_Usage_Append_Input = {
+  usage_by_model?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** input type for inserting array relation for remote table "claude_usage" */
+export type Claude_Usage_Arr_Rel_Insert_Input = {
+  data: Array<Claude_Usage_Insert_Input>;
+  /** upsert condition */
+  on_conflict?: InputMaybe<Claude_Usage_On_Conflict>;
+};
+
+/** aggregate avg on columns */
+export type Claude_Usage_Avg_Fields = {
+  __typename?: 'claude_usage_avg_fields';
+  cache_read_tokens?: Maybe<Scalars['Float']['output']>;
+  cache_write_tokens?: Maybe<Scalars['Float']['output']>;
+  cost_usd?: Maybe<Scalars['Float']['output']>;
+  input_tokens?: Maybe<Scalars['Float']['output']>;
+  output_tokens?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by avg() on columns of table "claude_usage" */
+export type Claude_Usage_Avg_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+};
+
+/** Boolean expression to filter rows from the table "claude_usage". All fields are combined with a logical 'AND'. */
+export type Claude_Usage_Bool_Exp = {
+  _and?: InputMaybe<Array<Claude_Usage_Bool_Exp>>;
+  _not?: InputMaybe<Claude_Usage_Bool_Exp>;
+  _or?: InputMaybe<Array<Claude_Usage_Bool_Exp>>;
+  cache_read_tokens?: InputMaybe<Bigint_Comparison_Exp>;
+  cache_write_tokens?: InputMaybe<Bigint_Comparison_Exp>;
+  cost_usd?: InputMaybe<Numeric_Comparison_Exp>;
+  created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  ended_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  id?: InputMaybe<Uuid_Comparison_Exp>;
+  input_tokens?: InputMaybe<Bigint_Comparison_Exp>;
+  model?: InputMaybe<String_Comparison_Exp>;
+  output_tokens?: InputMaybe<Bigint_Comparison_Exp>;
+  repo?: InputMaybe<String_Comparison_Exp>;
+  session_id?: InputMaybe<String_Comparison_Exp>;
+  started_at?: InputMaybe<Timestamptz_Comparison_Exp>;
+  todo?: InputMaybe<Todos_Bool_Exp>;
+  todo_id?: InputMaybe<Uuid_Comparison_Exp>;
+  usage_by_model?: InputMaybe<Jsonb_Comparison_Exp>;
+  user?: InputMaybe<Users_Bool_Exp>;
+  user_id?: InputMaybe<Uuid_Comparison_Exp>;
+};
+
+/** unique or primary key constraints on table "claude_usage" */
+export enum Claude_Usage_Constraint {
+  /** unique or primary key constraint on columns "id" */
+  ClaudeUsagePkey = 'claude_usage_pkey',
+  /** unique or primary key constraint on columns "session_id" */
+  ClaudeUsageSessionIdKey = 'claude_usage_session_id_key'
+}
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type Claude_Usage_Delete_At_Path_Input = {
+  usage_by_model?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type Claude_Usage_Delete_Elem_Input = {
+  usage_by_model?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type Claude_Usage_Delete_Key_Input = {
+  usage_by_model?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** input type for incrementing numeric columns in table "claude_usage" */
+export type Claude_Usage_Inc_Input = {
+  cache_read_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  cache_write_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  cost_usd?: InputMaybe<Scalars['numeric']['input']>;
+  input_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  output_tokens?: InputMaybe<Scalars['bigint']['input']>;
+};
+
+/** input type for inserting data into table "claude_usage" */
+export type Claude_Usage_Insert_Input = {
+  cache_read_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  cache_write_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  cost_usd?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  ended_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  input_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  output_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  repo?: InputMaybe<Scalars['String']['input']>;
+  session_id?: InputMaybe<Scalars['String']['input']>;
+  started_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  todo?: InputMaybe<Todos_Obj_Rel_Insert_Input>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  usage_by_model?: InputMaybe<Scalars['jsonb']['input']>;
+  user?: InputMaybe<Users_Obj_Rel_Insert_Input>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate max on columns */
+export type Claude_Usage_Max_Fields = {
+  __typename?: 'claude_usage_max_fields';
+  cache_read_tokens?: Maybe<Scalars['bigint']['output']>;
+  cache_write_tokens?: Maybe<Scalars['bigint']['output']>;
+  cost_usd?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  ended_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  input_tokens?: Maybe<Scalars['bigint']['output']>;
+  model?: Maybe<Scalars['String']['output']>;
+  output_tokens?: Maybe<Scalars['bigint']['output']>;
+  repo?: Maybe<Scalars['String']['output']>;
+  session_id?: Maybe<Scalars['String']['output']>;
+  started_at?: Maybe<Scalars['timestamptz']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by max() on columns of table "claude_usage" */
+export type Claude_Usage_Max_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  ended_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  model?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+  repo?: InputMaybe<Order_By>;
+  session_id?: InputMaybe<Order_By>;
+  started_at?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Claude_Usage_Min_Fields = {
+  __typename?: 'claude_usage_min_fields';
+  cache_read_tokens?: Maybe<Scalars['bigint']['output']>;
+  cache_write_tokens?: Maybe<Scalars['bigint']['output']>;
+  cost_usd?: Maybe<Scalars['numeric']['output']>;
+  created_at?: Maybe<Scalars['timestamptz']['output']>;
+  ended_at?: Maybe<Scalars['timestamptz']['output']>;
+  id?: Maybe<Scalars['uuid']['output']>;
+  input_tokens?: Maybe<Scalars['bigint']['output']>;
+  model?: Maybe<Scalars['String']['output']>;
+  output_tokens?: Maybe<Scalars['bigint']['output']>;
+  repo?: Maybe<Scalars['String']['output']>;
+  session_id?: Maybe<Scalars['String']['output']>;
+  started_at?: Maybe<Scalars['timestamptz']['output']>;
+  todo_id?: Maybe<Scalars['uuid']['output']>;
+  user_id?: Maybe<Scalars['uuid']['output']>;
+};
+
+/** order by min() on columns of table "claude_usage" */
+export type Claude_Usage_Min_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  ended_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  model?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+  repo?: InputMaybe<Order_By>;
+  session_id?: InputMaybe<Order_By>;
+  started_at?: InputMaybe<Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** response of any mutation on the table "claude_usage" */
+export type Claude_Usage_Mutation_Response = {
+  __typename?: 'claude_usage_mutation_response';
+  /** number of rows affected by the mutation */
+  affected_rows: Scalars['Int']['output'];
+  /** data from the rows affected by the mutation */
+  returning: Array<Claude_Usage>;
+};
+
+/** on_conflict condition type for table "claude_usage" */
+export type Claude_Usage_On_Conflict = {
+  constraint: Claude_Usage_Constraint;
+  update_columns?: Array<Claude_Usage_Update_Column>;
+  where?: InputMaybe<Claude_Usage_Bool_Exp>;
+};
+
+/** Ordering options when selecting data from "claude_usage". */
+export type Claude_Usage_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  created_at?: InputMaybe<Order_By>;
+  ended_at?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  model?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+  repo?: InputMaybe<Order_By>;
+  session_id?: InputMaybe<Order_By>;
+  started_at?: InputMaybe<Order_By>;
+  todo?: InputMaybe<Todos_Order_By>;
+  todo_id?: InputMaybe<Order_By>;
+  usage_by_model?: InputMaybe<Order_By>;
+  user?: InputMaybe<Users_Order_By>;
+  user_id?: InputMaybe<Order_By>;
+};
+
+/** primary key columns input for table: claude_usage */
+export type Claude_Usage_Pk_Columns_Input = {
+  id: Scalars['uuid']['input'];
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type Claude_Usage_Prepend_Input = {
+  usage_by_model?: InputMaybe<Scalars['jsonb']['input']>;
+};
+
+/** select columns of table "claude_usage" */
+export enum Claude_Usage_Select_Column {
+  /** column name */
+  CacheReadTokens = 'cache_read_tokens',
+  /** column name */
+  CacheWriteTokens = 'cache_write_tokens',
+  /** column name */
+  CostUsd = 'cost_usd',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  EndedAt = 'ended_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InputTokens = 'input_tokens',
+  /** column name */
+  Model = 'model',
+  /** column name */
+  OutputTokens = 'output_tokens',
+  /** column name */
+  Repo = 'repo',
+  /** column name */
+  SessionId = 'session_id',
+  /** column name */
+  StartedAt = 'started_at',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UsageByModel = 'usage_by_model',
+  /** column name */
+  UserId = 'user_id'
+}
+
+/** input type for updating data in table "claude_usage" */
+export type Claude_Usage_Set_Input = {
+  cache_read_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  cache_write_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  cost_usd?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  ended_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  input_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  output_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  repo?: InputMaybe<Scalars['String']['input']>;
+  session_id?: InputMaybe<Scalars['String']['input']>;
+  started_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  usage_by_model?: InputMaybe<Scalars['jsonb']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Claude_Usage_Stddev_Fields = {
+  __typename?: 'claude_usage_stddev_fields';
+  cache_read_tokens?: Maybe<Scalars['Float']['output']>;
+  cache_write_tokens?: Maybe<Scalars['Float']['output']>;
+  cost_usd?: Maybe<Scalars['Float']['output']>;
+  input_tokens?: Maybe<Scalars['Float']['output']>;
+  output_tokens?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev() on columns of table "claude_usage" */
+export type Claude_Usage_Stddev_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Claude_Usage_Stddev_Pop_Fields = {
+  __typename?: 'claude_usage_stddev_pop_fields';
+  cache_read_tokens?: Maybe<Scalars['Float']['output']>;
+  cache_write_tokens?: Maybe<Scalars['Float']['output']>;
+  cost_usd?: Maybe<Scalars['Float']['output']>;
+  input_tokens?: Maybe<Scalars['Float']['output']>;
+  output_tokens?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_pop() on columns of table "claude_usage" */
+export type Claude_Usage_Stddev_Pop_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Claude_Usage_Stddev_Samp_Fields = {
+  __typename?: 'claude_usage_stddev_samp_fields';
+  cache_read_tokens?: Maybe<Scalars['Float']['output']>;
+  cache_write_tokens?: Maybe<Scalars['Float']['output']>;
+  cost_usd?: Maybe<Scalars['Float']['output']>;
+  input_tokens?: Maybe<Scalars['Float']['output']>;
+  output_tokens?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by stddev_samp() on columns of table "claude_usage" */
+export type Claude_Usage_Stddev_Samp_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+};
+
+/** Streaming cursor of the table "claude_usage" */
+export type Claude_Usage_Stream_Cursor_Input = {
+  /** Stream column input with initial value */
+  initial_value: Claude_Usage_Stream_Cursor_Value_Input;
+  /** cursor ordering */
+  ordering?: InputMaybe<Cursor_Ordering>;
+};
+
+/** Initial value of the column from where the streaming should start */
+export type Claude_Usage_Stream_Cursor_Value_Input = {
+  cache_read_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  cache_write_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  cost_usd?: InputMaybe<Scalars['numeric']['input']>;
+  created_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  ended_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  id?: InputMaybe<Scalars['uuid']['input']>;
+  input_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  model?: InputMaybe<Scalars['String']['input']>;
+  output_tokens?: InputMaybe<Scalars['bigint']['input']>;
+  repo?: InputMaybe<Scalars['String']['input']>;
+  session_id?: InputMaybe<Scalars['String']['input']>;
+  started_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  todo_id?: InputMaybe<Scalars['uuid']['input']>;
+  usage_by_model?: InputMaybe<Scalars['jsonb']['input']>;
+  user_id?: InputMaybe<Scalars['uuid']['input']>;
+};
+
+/** aggregate sum on columns */
+export type Claude_Usage_Sum_Fields = {
+  __typename?: 'claude_usage_sum_fields';
+  cache_read_tokens?: Maybe<Scalars['bigint']['output']>;
+  cache_write_tokens?: Maybe<Scalars['bigint']['output']>;
+  cost_usd?: Maybe<Scalars['numeric']['output']>;
+  input_tokens?: Maybe<Scalars['bigint']['output']>;
+  output_tokens?: Maybe<Scalars['bigint']['output']>;
+};
+
+/** order by sum() on columns of table "claude_usage" */
+export type Claude_Usage_Sum_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+};
+
+/** update columns of table "claude_usage" */
+export enum Claude_Usage_Update_Column {
+  /** column name */
+  CacheReadTokens = 'cache_read_tokens',
+  /** column name */
+  CacheWriteTokens = 'cache_write_tokens',
+  /** column name */
+  CostUsd = 'cost_usd',
+  /** column name */
+  CreatedAt = 'created_at',
+  /** column name */
+  EndedAt = 'ended_at',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  InputTokens = 'input_tokens',
+  /** column name */
+  Model = 'model',
+  /** column name */
+  OutputTokens = 'output_tokens',
+  /** column name */
+  Repo = 'repo',
+  /** column name */
+  SessionId = 'session_id',
+  /** column name */
+  StartedAt = 'started_at',
+  /** column name */
+  TodoId = 'todo_id',
+  /** column name */
+  UsageByModel = 'usage_by_model',
+  /** column name */
+  UserId = 'user_id'
+}
+
+export type Claude_Usage_Updates = {
+  /** append existing jsonb value of filtered columns with new jsonb value */
+  _append?: InputMaybe<Claude_Usage_Append_Input>;
+  /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+  _delete_at_path?: InputMaybe<Claude_Usage_Delete_At_Path_Input>;
+  /** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+  _delete_elem?: InputMaybe<Claude_Usage_Delete_Elem_Input>;
+  /** delete key/value pair or string element. key/value pairs are matched based on their key value */
+  _delete_key?: InputMaybe<Claude_Usage_Delete_Key_Input>;
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Claude_Usage_Inc_Input>;
+  /** prepend existing jsonb value of filtered columns with new jsonb value */
+  _prepend?: InputMaybe<Claude_Usage_Prepend_Input>;
+  /** sets the columns of the filtered rows to the given values */
+  _set?: InputMaybe<Claude_Usage_Set_Input>;
+  /** filter the rows which have to be updated */
+  where: Claude_Usage_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Claude_Usage_Var_Pop_Fields = {
+  __typename?: 'claude_usage_var_pop_fields';
+  cache_read_tokens?: Maybe<Scalars['Float']['output']>;
+  cache_write_tokens?: Maybe<Scalars['Float']['output']>;
+  cost_usd?: Maybe<Scalars['Float']['output']>;
+  input_tokens?: Maybe<Scalars['Float']['output']>;
+  output_tokens?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_pop() on columns of table "claude_usage" */
+export type Claude_Usage_Var_Pop_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+};
+
+/** aggregate var_samp on columns */
+export type Claude_Usage_Var_Samp_Fields = {
+  __typename?: 'claude_usage_var_samp_fields';
+  cache_read_tokens?: Maybe<Scalars['Float']['output']>;
+  cache_write_tokens?: Maybe<Scalars['Float']['output']>;
+  cost_usd?: Maybe<Scalars['Float']['output']>;
+  input_tokens?: Maybe<Scalars['Float']['output']>;
+  output_tokens?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by var_samp() on columns of table "claude_usage" */
+export type Claude_Usage_Var_Samp_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+};
+
+/** aggregate variance on columns */
+export type Claude_Usage_Variance_Fields = {
+  __typename?: 'claude_usage_variance_fields';
+  cache_read_tokens?: Maybe<Scalars['Float']['output']>;
+  cache_write_tokens?: Maybe<Scalars['Float']['output']>;
+  cost_usd?: Maybe<Scalars['Float']['output']>;
+  input_tokens?: Maybe<Scalars['Float']['output']>;
+  output_tokens?: Maybe<Scalars['Float']['output']>;
+};
+
+/** order by variance() on columns of table "claude_usage" */
+export type Claude_Usage_Variance_Order_By = {
+  cache_read_tokens?: InputMaybe<Order_By>;
+  cache_write_tokens?: InputMaybe<Order_By>;
+  cost_usd?: InputMaybe<Order_By>;
+  input_tokens?: InputMaybe<Order_By>;
+  output_tokens?: InputMaybe<Order_By>;
+};
+
 /** columns and relationships of "clients" */
 export type Clients = {
   __typename?: 'clients';
@@ -6443,6 +7320,14 @@ export type Mutation_Root = {
   delete_boards?: Maybe<Boards_Mutation_Response>;
   /** delete single row from the table: "boards" */
   delete_boards_by_pk?: Maybe<Boards>;
+  /** delete data from the table: "claude_model_pricing" */
+  delete_claude_model_pricing?: Maybe<Claude_Model_Pricing_Mutation_Response>;
+  /** delete single row from the table: "claude_model_pricing" */
+  delete_claude_model_pricing_by_pk?: Maybe<Claude_Model_Pricing>;
+  /** delete data from the table: "claude_usage" */
+  delete_claude_usage?: Maybe<Claude_Usage_Mutation_Response>;
+  /** delete single row from the table: "claude_usage" */
+  delete_claude_usage_by_pk?: Maybe<Claude_Usage>;
   /** delete data from the table: "clients" */
   delete_clients?: Maybe<Clients_Mutation_Response>;
   /** delete single row from the table: "clients" */
@@ -6587,6 +7472,14 @@ export type Mutation_Root = {
   insert_boards?: Maybe<Boards_Mutation_Response>;
   /** insert a single row into the table: "boards" */
   insert_boards_one?: Maybe<Boards>;
+  /** insert data into the table: "claude_model_pricing" */
+  insert_claude_model_pricing?: Maybe<Claude_Model_Pricing_Mutation_Response>;
+  /** insert a single row into the table: "claude_model_pricing" */
+  insert_claude_model_pricing_one?: Maybe<Claude_Model_Pricing>;
+  /** insert data into the table: "claude_usage" */
+  insert_claude_usage?: Maybe<Claude_Usage_Mutation_Response>;
+  /** insert a single row into the table: "claude_usage" */
+  insert_claude_usage_one?: Maybe<Claude_Usage>;
   /** insert data into the table: "clients" */
   insert_clients?: Maybe<Clients_Mutation_Response>;
   /** insert a single row into the table: "clients" */
@@ -6741,6 +7634,18 @@ export type Mutation_Root = {
   update_boards_by_pk?: Maybe<Boards>;
   /** update multiples rows of table: "boards" */
   update_boards_many?: Maybe<Array<Maybe<Boards_Mutation_Response>>>;
+  /** update data of the table: "claude_model_pricing" */
+  update_claude_model_pricing?: Maybe<Claude_Model_Pricing_Mutation_Response>;
+  /** update single row of the table: "claude_model_pricing" */
+  update_claude_model_pricing_by_pk?: Maybe<Claude_Model_Pricing>;
+  /** update multiples rows of table: "claude_model_pricing" */
+  update_claude_model_pricing_many?: Maybe<Array<Maybe<Claude_Model_Pricing_Mutation_Response>>>;
+  /** update data of the table: "claude_usage" */
+  update_claude_usage?: Maybe<Claude_Usage_Mutation_Response>;
+  /** update single row of the table: "claude_usage" */
+  update_claude_usage_by_pk?: Maybe<Claude_Usage>;
+  /** update multiples rows of table: "claude_usage" */
+  update_claude_usage_many?: Maybe<Array<Maybe<Claude_Usage_Mutation_Response>>>;
   /** update data of the table: "clients" */
   update_clients?: Maybe<Clients_Mutation_Response>;
   /** update single row of the table: "clients" */
@@ -6986,6 +7891,30 @@ export type Mutation_RootDelete_BoardsArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Boards_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Claude_Model_PricingArgs = {
+  where: Claude_Model_Pricing_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Claude_Model_Pricing_By_PkArgs = {
+  model: Scalars['String']['input'];
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Claude_UsageArgs = {
+  where: Claude_Usage_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootDelete_Claude_Usage_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -7433,6 +8362,34 @@ export type Mutation_RootInsert_BoardsArgs = {
 export type Mutation_RootInsert_Boards_OneArgs = {
   object: Boards_Insert_Input;
   on_conflict?: InputMaybe<Boards_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Claude_Model_PricingArgs = {
+  objects: Array<Claude_Model_Pricing_Insert_Input>;
+  on_conflict?: InputMaybe<Claude_Model_Pricing_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Claude_Model_Pricing_OneArgs = {
+  object: Claude_Model_Pricing_Insert_Input;
+  on_conflict?: InputMaybe<Claude_Model_Pricing_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Claude_UsageArgs = {
+  objects: Array<Claude_Usage_Insert_Input>;
+  on_conflict?: InputMaybe<Claude_Usage_On_Conflict>;
+};
+
+
+/** mutation root */
+export type Mutation_RootInsert_Claude_Usage_OneArgs = {
+  object: Claude_Usage_Insert_Input;
+  on_conflict?: InputMaybe<Claude_Usage_On_Conflict>;
 };
 
 
@@ -7991,6 +8948,60 @@ export type Mutation_RootUpdate_Boards_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Boards_ManyArgs = {
   updates: Array<Boards_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Claude_Model_PricingArgs = {
+  _inc?: InputMaybe<Claude_Model_Pricing_Inc_Input>;
+  _set?: InputMaybe<Claude_Model_Pricing_Set_Input>;
+  where: Claude_Model_Pricing_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Claude_Model_Pricing_By_PkArgs = {
+  _inc?: InputMaybe<Claude_Model_Pricing_Inc_Input>;
+  _set?: InputMaybe<Claude_Model_Pricing_Set_Input>;
+  pk_columns: Claude_Model_Pricing_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Claude_Model_Pricing_ManyArgs = {
+  updates: Array<Claude_Model_Pricing_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Claude_UsageArgs = {
+  _append?: InputMaybe<Claude_Usage_Append_Input>;
+  _delete_at_path?: InputMaybe<Claude_Usage_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Claude_Usage_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Claude_Usage_Delete_Key_Input>;
+  _inc?: InputMaybe<Claude_Usage_Inc_Input>;
+  _prepend?: InputMaybe<Claude_Usage_Prepend_Input>;
+  _set?: InputMaybe<Claude_Usage_Set_Input>;
+  where: Claude_Usage_Bool_Exp;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Claude_Usage_By_PkArgs = {
+  _append?: InputMaybe<Claude_Usage_Append_Input>;
+  _delete_at_path?: InputMaybe<Claude_Usage_Delete_At_Path_Input>;
+  _delete_elem?: InputMaybe<Claude_Usage_Delete_Elem_Input>;
+  _delete_key?: InputMaybe<Claude_Usage_Delete_Key_Input>;
+  _inc?: InputMaybe<Claude_Usage_Inc_Input>;
+  _prepend?: InputMaybe<Claude_Usage_Prepend_Input>;
+  _set?: InputMaybe<Claude_Usage_Set_Input>;
+  pk_columns: Claude_Usage_Pk_Columns_Input;
+};
+
+
+/** mutation root */
+export type Mutation_RootUpdate_Claude_Usage_ManyArgs = {
+  updates: Array<Claude_Usage_Updates>;
 };
 
 
@@ -8632,6 +9643,7 @@ export type Mutation_RootUpdate_UsersArgs = {
   _delete_at_path?: InputMaybe<Users_Delete_At_Path_Input>;
   _delete_elem?: InputMaybe<Users_Delete_Elem_Input>;
   _delete_key?: InputMaybe<Users_Delete_Key_Input>;
+  _inc?: InputMaybe<Users_Inc_Input>;
   _prepend?: InputMaybe<Users_Prepend_Input>;
   _set?: InputMaybe<Users_Set_Input>;
   where: Users_Bool_Exp;
@@ -8644,6 +9656,7 @@ export type Mutation_RootUpdate_Users_By_PkArgs = {
   _delete_at_path?: InputMaybe<Users_Delete_At_Path_Input>;
   _delete_elem?: InputMaybe<Users_Delete_Elem_Input>;
   _delete_key?: InputMaybe<Users_Delete_Key_Input>;
+  _inc?: InputMaybe<Users_Inc_Input>;
   _prepend?: InputMaybe<Users_Prepend_Input>;
   _set?: InputMaybe<Users_Set_Input>;
   pk_columns: Users_Pk_Columns_Input;
@@ -10714,6 +11727,18 @@ export type Query_Root = {
   boards_aggregate: Boards_Aggregate;
   /** fetch data from the table: "boards" using primary key columns */
   boards_by_pk?: Maybe<Boards>;
+  /** fetch data from the table: "claude_model_pricing" */
+  claude_model_pricing: Array<Claude_Model_Pricing>;
+  /** fetch aggregated fields from the table: "claude_model_pricing" */
+  claude_model_pricing_aggregate: Claude_Model_Pricing_Aggregate;
+  /** fetch data from the table: "claude_model_pricing" using primary key columns */
+  claude_model_pricing_by_pk?: Maybe<Claude_Model_Pricing>;
+  /** fetch data from the table: "claude_usage" */
+  claude_usage: Array<Claude_Usage>;
+  /** fetch aggregated fields from the table: "claude_usage" */
+  claude_usage_aggregate: Claude_Usage_Aggregate;
+  /** fetch data from the table: "claude_usage" using primary key columns */
+  claude_usage_by_pk?: Maybe<Claude_Usage>;
   /** fetch data from the table: "clients" */
   clients: Array<Clients>;
   /** fetch aggregated fields from the table: "clients" */
@@ -11022,6 +12047,52 @@ export type Query_RootBoards_AggregateArgs = {
 
 
 export type Query_RootBoards_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Query_RootClaude_Model_PricingArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Model_Pricing_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Model_Pricing_Order_By>>;
+  where?: InputMaybe<Claude_Model_Pricing_Bool_Exp>;
+};
+
+
+export type Query_RootClaude_Model_Pricing_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Model_Pricing_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Model_Pricing_Order_By>>;
+  where?: InputMaybe<Claude_Model_Pricing_Bool_Exp>;
+};
+
+
+export type Query_RootClaude_Model_Pricing_By_PkArgs = {
+  model: Scalars['String']['input'];
+};
+
+
+export type Query_RootClaude_UsageArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Usage_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Usage_Order_By>>;
+  where?: InputMaybe<Claude_Usage_Bool_Exp>;
+};
+
+
+export type Query_RootClaude_Usage_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Usage_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Usage_Order_By>>;
+  where?: InputMaybe<Claude_Usage_Bool_Exp>;
+};
+
+
+export type Query_RootClaude_Usage_By_PkArgs = {
   id: Scalars['uuid']['input'];
 };
 
@@ -12054,6 +13125,22 @@ export type Subscription_Root = {
   boards_by_pk?: Maybe<Boards>;
   /** fetch data from the table in a streaming manner: "boards" */
   boards_stream: Array<Boards>;
+  /** fetch data from the table: "claude_model_pricing" */
+  claude_model_pricing: Array<Claude_Model_Pricing>;
+  /** fetch aggregated fields from the table: "claude_model_pricing" */
+  claude_model_pricing_aggregate: Claude_Model_Pricing_Aggregate;
+  /** fetch data from the table: "claude_model_pricing" using primary key columns */
+  claude_model_pricing_by_pk?: Maybe<Claude_Model_Pricing>;
+  /** fetch data from the table in a streaming manner: "claude_model_pricing" */
+  claude_model_pricing_stream: Array<Claude_Model_Pricing>;
+  /** fetch data from the table: "claude_usage" */
+  claude_usage: Array<Claude_Usage>;
+  /** fetch aggregated fields from the table: "claude_usage" */
+  claude_usage_aggregate: Claude_Usage_Aggregate;
+  /** fetch data from the table: "claude_usage" using primary key columns */
+  claude_usage_by_pk?: Maybe<Claude_Usage>;
+  /** fetch data from the table in a streaming manner: "claude_usage" */
+  claude_usage_stream: Array<Claude_Usage>;
   /** fetch data from the table: "clients" */
   clients: Array<Clients>;
   /** fetch aggregated fields from the table: "clients" */
@@ -12464,6 +13551,66 @@ export type Subscription_RootBoards_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Boards_Stream_Cursor_Input>>;
   where?: InputMaybe<Boards_Bool_Exp>;
+};
+
+
+export type Subscription_RootClaude_Model_PricingArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Model_Pricing_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Model_Pricing_Order_By>>;
+  where?: InputMaybe<Claude_Model_Pricing_Bool_Exp>;
+};
+
+
+export type Subscription_RootClaude_Model_Pricing_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Model_Pricing_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Model_Pricing_Order_By>>;
+  where?: InputMaybe<Claude_Model_Pricing_Bool_Exp>;
+};
+
+
+export type Subscription_RootClaude_Model_Pricing_By_PkArgs = {
+  model: Scalars['String']['input'];
+};
+
+
+export type Subscription_RootClaude_Model_Pricing_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Claude_Model_Pricing_Stream_Cursor_Input>>;
+  where?: InputMaybe<Claude_Model_Pricing_Bool_Exp>;
+};
+
+
+export type Subscription_RootClaude_UsageArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Usage_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Usage_Order_By>>;
+  where?: InputMaybe<Claude_Usage_Bool_Exp>;
+};
+
+
+export type Subscription_RootClaude_Usage_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Usage_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Usage_Order_By>>;
+  where?: InputMaybe<Claude_Usage_Bool_Exp>;
+};
+
+
+export type Subscription_RootClaude_Usage_By_PkArgs = {
+  id: Scalars['uuid']['input'];
+};
+
+
+export type Subscription_RootClaude_Usage_StreamArgs = {
+  batch_size: Scalars['Int']['input'];
+  cursor: Array<InputMaybe<Claude_Usage_Stream_Cursor_Input>>;
+  where?: InputMaybe<Claude_Usage_Bool_Exp>;
 };
 
 
@@ -14070,6 +15217,10 @@ export type Todos = {
   assignees: Array<Todo_Assignees>;
   /** An aggregate relationship */
   assignees_aggregate: Todo_Assignees_Aggregate;
+  /** An array relationship */
+  claude_usages: Array<Claude_Usage>;
+  /** An aggregate relationship */
+  claude_usages_aggregate: Claude_Usage_Aggregate;
   comment_hours?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
   comments: Array<Comments>;
@@ -14161,6 +15312,26 @@ export type TodosAssignees_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Todo_Assignees_Order_By>>;
   where?: InputMaybe<Todo_Assignees_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosClaude_UsagesArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Usage_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Usage_Order_By>>;
+  where?: InputMaybe<Claude_Usage_Bool_Exp>;
+};
+
+
+/** columns and relationships of "todos" */
+export type TodosClaude_Usages_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Usage_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Usage_Order_By>>;
+  where?: InputMaybe<Claude_Usage_Bool_Exp>;
 };
 
 
@@ -14386,6 +15557,8 @@ export type Todos_Bool_Exp = {
   assignee?: InputMaybe<Users_Bool_Exp>;
   assignees?: InputMaybe<Todo_Assignees_Bool_Exp>;
   assignees_aggregate?: InputMaybe<Todo_Assignees_Aggregate_Bool_Exp>;
+  claude_usages?: InputMaybe<Claude_Usage_Bool_Exp>;
+  claude_usages_aggregate?: InputMaybe<Claude_Usage_Aggregate_Bool_Exp>;
   comment_hours?: InputMaybe<String_Comparison_Exp>;
   comments?: InputMaybe<Comments_Bool_Exp>;
   comments_aggregate?: InputMaybe<Comments_Aggregate_Bool_Exp>;
@@ -14454,6 +15627,7 @@ export type Todos_Insert_Input = {
   assigned_to?: InputMaybe<Scalars['uuid']['input']>;
   assignee?: InputMaybe<Users_Obj_Rel_Insert_Input>;
   assignees?: InputMaybe<Todo_Assignees_Arr_Rel_Insert_Input>;
+  claude_usages?: InputMaybe<Claude_Usage_Arr_Rel_Insert_Input>;
   comment_hours?: InputMaybe<Scalars['String']['input']>;
   comments?: InputMaybe<Comments_Arr_Rel_Insert_Input>;
   completed_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -14669,6 +15843,7 @@ export type Todos_Order_By = {
   assigned_to?: InputMaybe<Order_By>;
   assignee?: InputMaybe<Users_Order_By>;
   assignees_aggregate?: InputMaybe<Todo_Assignees_Aggregate_Order_By>;
+  claude_usages_aggregate?: InputMaybe<Claude_Usage_Aggregate_Order_By>;
   comment_hours?: InputMaybe<Order_By>;
   comments_aggregate?: InputMaybe<Comments_Aggregate_Order_By>;
   completed_at?: InputMaybe<Order_By>;
@@ -17834,6 +19009,13 @@ export type Users = {
   boards: Array<Boards>;
   /** An aggregate relationship */
   boards_aggregate: Boards_Aggregate;
+  claude_plan?: Maybe<Scalars['String']['output']>;
+  claude_plan_currency?: Maybe<Scalars['String']['output']>;
+  claude_plan_monthly?: Maybe<Scalars['numeric']['output']>;
+  /** An array relationship */
+  claude_usages: Array<Claude_Usage>;
+  /** An aggregate relationship */
+  claude_usages_aggregate: Claude_Usage_Aggregate;
   /** An array relationship */
   comments: Array<Comments>;
   /** An aggregate relationship */
@@ -18020,6 +19202,26 @@ export type UsersBoards_AggregateArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   order_by?: InputMaybe<Array<Boards_Order_By>>;
   where?: InputMaybe<Boards_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersClaude_UsagesArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Usage_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Usage_Order_By>>;
+  where?: InputMaybe<Claude_Usage_Bool_Exp>;
+};
+
+
+/** columns and relationships of "users" */
+export type UsersClaude_Usages_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Claude_Usage_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Claude_Usage_Order_By>>;
+  where?: InputMaybe<Claude_Usage_Bool_Exp>;
 };
 
 
@@ -18390,9 +19592,17 @@ export type Users_Aggregate = {
 /** aggregate fields of "users" */
 export type Users_Aggregate_Fields = {
   __typename?: 'users_aggregate_fields';
+  avg?: Maybe<Users_Avg_Fields>;
   count: Scalars['Int']['output'];
   max?: Maybe<Users_Max_Fields>;
   min?: Maybe<Users_Min_Fields>;
+  stddev?: Maybe<Users_Stddev_Fields>;
+  stddev_pop?: Maybe<Users_Stddev_Pop_Fields>;
+  stddev_samp?: Maybe<Users_Stddev_Samp_Fields>;
+  sum?: Maybe<Users_Sum_Fields>;
+  var_pop?: Maybe<Users_Var_Pop_Fields>;
+  var_samp?: Maybe<Users_Var_Samp_Fields>;
+  variance?: Maybe<Users_Variance_Fields>;
 };
 
 
@@ -18410,6 +19620,12 @@ export type Users_Append_Input = {
   settings?: InputMaybe<Scalars['jsonb']['input']>;
 };
 
+/** aggregate avg on columns */
+export type Users_Avg_Fields = {
+  __typename?: 'users_avg_fields';
+  claude_plan_monthly?: Maybe<Scalars['Float']['output']>;
+};
+
 /** Boolean expression to filter rows from the table "users". All fields are combined with a logical 'AND'. */
 export type Users_Bool_Exp = {
   _and?: InputMaybe<Array<Users_Bool_Exp>>;
@@ -18425,6 +19641,11 @@ export type Users_Bool_Exp = {
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Bool_Exp>;
   boards?: InputMaybe<Boards_Bool_Exp>;
   boards_aggregate?: InputMaybe<Boards_Aggregate_Bool_Exp>;
+  claude_plan?: InputMaybe<String_Comparison_Exp>;
+  claude_plan_currency?: InputMaybe<String_Comparison_Exp>;
+  claude_plan_monthly?: InputMaybe<Numeric_Comparison_Exp>;
+  claude_usages?: InputMaybe<Claude_Usage_Bool_Exp>;
+  claude_usages_aggregate?: InputMaybe<Claude_Usage_Aggregate_Bool_Exp>;
   comments?: InputMaybe<Comments_Bool_Exp>;
   comments_aggregate?: InputMaybe<Comments_Aggregate_Bool_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -18512,6 +19733,11 @@ export type Users_Delete_Key_Input = {
   settings?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** input type for incrementing numeric columns in table "users" */
+export type Users_Inc_Input = {
+  claude_plan_monthly?: InputMaybe<Scalars['numeric']['input']>;
+};
+
 /** input type for inserting data into table "users" */
 export type Users_Insert_Input = {
   accounts?: InputMaybe<Accounts_Arr_Rel_Insert_Input>;
@@ -18519,6 +19745,10 @@ export type Users_Insert_Input = {
   board_invitations?: InputMaybe<Board_Invitations_Arr_Rel_Insert_Input>;
   board_members?: InputMaybe<Board_Members_Arr_Rel_Insert_Input>;
   boards?: InputMaybe<Boards_Arr_Rel_Insert_Input>;
+  claude_plan?: InputMaybe<Scalars['String']['input']>;
+  claude_plan_currency?: InputMaybe<Scalars['String']['input']>;
+  claude_plan_monthly?: InputMaybe<Scalars['numeric']['input']>;
+  claude_usages?: InputMaybe<Claude_Usage_Arr_Rel_Insert_Input>;
   comments?: InputMaybe<Comments_Arr_Rel_Insert_Input>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   dark_mode?: InputMaybe<Scalars['Boolean']['input']>;
@@ -18559,6 +19789,9 @@ export type Users_Insert_Input = {
 /** aggregate max on columns */
 export type Users_Max_Fields = {
   __typename?: 'users_max_fields';
+  claude_plan?: Maybe<Scalars['String']['output']>;
+  claude_plan_currency?: Maybe<Scalars['String']['output']>;
+  claude_plan_monthly?: Maybe<Scalars['numeric']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   emailVerified?: Maybe<Scalars['timestamptz']['output']>;
@@ -18577,6 +19810,9 @@ export type Users_Max_Fields = {
 /** aggregate min on columns */
 export type Users_Min_Fields = {
   __typename?: 'users_min_fields';
+  claude_plan?: Maybe<Scalars['String']['output']>;
+  claude_plan_currency?: Maybe<Scalars['String']['output']>;
+  claude_plan_monthly?: Maybe<Scalars['numeric']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   emailVerified?: Maybe<Scalars['timestamptz']['output']>;
@@ -18622,6 +19858,10 @@ export type Users_Order_By = {
   board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Order_By>;
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Order_By>;
   boards_aggregate?: InputMaybe<Boards_Aggregate_Order_By>;
+  claude_plan?: InputMaybe<Order_By>;
+  claude_plan_currency?: InputMaybe<Order_By>;
+  claude_plan_monthly?: InputMaybe<Order_By>;
+  claude_usages_aggregate?: InputMaybe<Claude_Usage_Aggregate_Order_By>;
   comments_aggregate?: InputMaybe<Comments_Aggregate_Order_By>;
   created_at?: InputMaybe<Order_By>;
   dark_mode?: InputMaybe<Order_By>;
@@ -18674,6 +19914,12 @@ export type Users_Prepend_Input = {
 /** select columns of table "users" */
 export enum Users_Select_Column {
   /** column name */
+  ClaudePlan = 'claude_plan',
+  /** column name */
+  ClaudePlanCurrency = 'claude_plan_currency',
+  /** column name */
+  ClaudePlanMonthly = 'claude_plan_monthly',
+  /** column name */
   CreatedAt = 'created_at',
   /** column name */
   DarkMode = 'dark_mode',
@@ -18711,6 +19957,9 @@ export enum Users_Select_Column {
 
 /** input type for updating data in table "users" */
 export type Users_Set_Input = {
+  claude_plan?: InputMaybe<Scalars['String']['input']>;
+  claude_plan_currency?: InputMaybe<Scalars['String']['input']>;
+  claude_plan_monthly?: InputMaybe<Scalars['numeric']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   dark_mode?: InputMaybe<Scalars['Boolean']['input']>;
   default_labels?: InputMaybe<Scalars['jsonb']['input']>;
@@ -18729,6 +19978,24 @@ export type Users_Set_Input = {
   stripe_customer_id?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** aggregate stddev on columns */
+export type Users_Stddev_Fields = {
+  __typename?: 'users_stddev_fields';
+  claude_plan_monthly?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_pop on columns */
+export type Users_Stddev_Pop_Fields = {
+  __typename?: 'users_stddev_pop_fields';
+  claude_plan_monthly?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate stddev_samp on columns */
+export type Users_Stddev_Samp_Fields = {
+  __typename?: 'users_stddev_samp_fields';
+  claude_plan_monthly?: Maybe<Scalars['Float']['output']>;
 };
 
 /** Streaming cursor of the table "users" */
@@ -18741,6 +20008,9 @@ export type Users_Stream_Cursor_Input = {
 
 /** Initial value of the column from where the streaming should start */
 export type Users_Stream_Cursor_Value_Input = {
+  claude_plan?: InputMaybe<Scalars['String']['input']>;
+  claude_plan_currency?: InputMaybe<Scalars['String']['input']>;
+  claude_plan_monthly?: InputMaybe<Scalars['numeric']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   dark_mode?: InputMaybe<Scalars['Boolean']['input']>;
   default_labels?: InputMaybe<Scalars['jsonb']['input']>;
@@ -18761,8 +20031,20 @@ export type Users_Stream_Cursor_Value_Input = {
   username?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** aggregate sum on columns */
+export type Users_Sum_Fields = {
+  __typename?: 'users_sum_fields';
+  claude_plan_monthly?: Maybe<Scalars['numeric']['output']>;
+};
+
 /** update columns of table "users" */
 export enum Users_Update_Column {
+  /** column name */
+  ClaudePlan = 'claude_plan',
+  /** column name */
+  ClaudePlanCurrency = 'claude_plan_currency',
+  /** column name */
+  ClaudePlanMonthly = 'claude_plan_monthly',
   /** column name */
   CreatedAt = 'created_at',
   /** column name */
@@ -18808,12 +20090,32 @@ export type Users_Updates = {
   _delete_elem?: InputMaybe<Users_Delete_Elem_Input>;
   /** delete key/value pair or string element. key/value pairs are matched based on their key value */
   _delete_key?: InputMaybe<Users_Delete_Key_Input>;
+  /** increments the numeric columns with given value of the filtered values */
+  _inc?: InputMaybe<Users_Inc_Input>;
   /** prepend existing jsonb value of filtered columns with new jsonb value */
   _prepend?: InputMaybe<Users_Prepend_Input>;
   /** sets the columns of the filtered rows to the given values */
   _set?: InputMaybe<Users_Set_Input>;
   /** filter the rows which have to be updated */
   where: Users_Bool_Exp;
+};
+
+/** aggregate var_pop on columns */
+export type Users_Var_Pop_Fields = {
+  __typename?: 'users_var_pop_fields';
+  claude_plan_monthly?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate var_samp on columns */
+export type Users_Var_Samp_Fields = {
+  __typename?: 'users_var_samp_fields';
+  claude_plan_monthly?: Maybe<Scalars['Float']['output']>;
+};
+
+/** aggregate variance on columns */
+export type Users_Variance_Fields = {
+  __typename?: 'users_variance_fields';
+  claude_plan_monthly?: Maybe<Scalars['Float']['output']>;
 };
 
 /** Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'. */
@@ -18988,7 +20290,7 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null };
 
@@ -19004,7 +20306,7 @@ export type LabelFieldsFragment = { __typename?: 'labels', id: string, name: str
 
 export type NoteFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> };
 
-export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, created_at: string, updated_at: string };
+export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null, created_at: string, updated_at: string };
 
 export type GetTodosQueryVariables = Exact<{
   where?: InputMaybe<Todos_Bool_Exp>;
@@ -19014,7 +20316,7 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -19058,7 +20360,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -19066,7 +20368,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -19192,7 +20494,7 @@ export type GetUsersQueryVariables = Exact<{
 }>;
 
 
-export type GetUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, created_at: string, updated_at: string }> };
+export type GetUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null, created_at: string, updated_at: string }> };
 
 export type UpdateUserMutationVariables = Exact<{
   where: Users_Bool_Exp;
@@ -19200,7 +20502,7 @@ export type UpdateUserMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserMutation = { __typename?: 'mutation_root', update_users?: { __typename?: 'users_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, created_at: string, updated_at: string }> } | null };
+export type UpdateUserMutation = { __typename?: 'mutation_root', update_users?: { __typename?: 'users_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null, created_at: string, updated_at: string }> } | null };
 
 export type GetCommentsQueryVariables = Exact<{
   where?: InputMaybe<Comments_Bool_Exp>;
@@ -19211,6 +20513,15 @@ export type GetCommentsQueryVariables = Exact<{
 
 
 export type GetCommentsQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> };
+
+export type GetClaudeUsageMonthQueryVariables = Exact<{
+  user_id: Scalars['uuid']['input'];
+  from: Scalars['timestamptz']['input'];
+  to: Scalars['timestamptz']['input'];
+}>;
+
+
+export type GetClaudeUsageMonthQuery = { __typename?: 'query_root', claude_usage_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null } };
 
 export type GetCommentsAggregateQueryVariables = Exact<{
   where?: InputMaybe<Comments_Bool_Exp>;
@@ -19883,6 +21194,13 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  claude_usages_aggregate {
+    aggregate {
+      sum {
+        cost_usd
+      }
+    }
+  }
   assignee {
     id
     name
@@ -19936,6 +21254,12 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
       sort_order
       github
       settings
+      user_id
+      user {
+        claude_plan
+        claude_plan_monthly
+        claude_plan_currency
+      }
     }
   }
 }
@@ -20128,6 +21452,9 @@ export const UserFieldsFragmentDoc = new TypedDocumentString(`
   emailVerified
   plan
   plan_expires_at
+  claude_plan
+  claude_plan_monthly
+  claude_plan_currency
   created_at
   updated_at
 }
@@ -20454,6 +21781,13 @@ export const GetTodosDocument = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  claude_usages_aggregate {
+    aggregate {
+      sum {
+        cost_usd
+      }
+    }
+  }
   assignee {
     id
     name
@@ -20507,6 +21841,12 @@ export const GetTodosDocument = new TypedDocumentString(`
       sort_order
       github
       settings
+      user_id
+      user {
+        claude_plan
+        claude_plan_monthly
+        claude_plan_currency
+      }
     }
   }
 }
@@ -20721,6 +22061,13 @@ export const CreateTodoDocument = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  claude_usages_aggregate {
+    aggregate {
+      sum {
+        cost_usd
+      }
+    }
+  }
   assignee {
     id
     name
@@ -20774,6 +22121,12 @@ export const CreateTodoDocument = new TypedDocumentString(`
       sort_order
       github
       settings
+      user_id
+      user {
+        claude_plan
+        claude_plan_monthly
+        claude_plan_currency
+      }
     }
   }
 }
@@ -20837,6 +22190,13 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   max_hours
   actual_hours
   comment_hours
+  claude_usages_aggregate {
+    aggregate {
+      sum {
+        cost_usd
+      }
+    }
+  }
   assignee {
     id
     name
@@ -20890,6 +22250,12 @@ export const UpdateTodosDocument = new TypedDocumentString(`
       sort_order
       github
       settings
+      user_id
+      user {
+        claude_plan
+        claude_plan_monthly
+        claude_plan_currency
+      }
     }
   }
 }
@@ -21300,6 +22666,9 @@ export const GetUsersDocument = new TypedDocumentString(`
   emailVerified
   plan
   plan_expires_at
+  claude_plan
+  claude_plan_monthly
+  claude_plan_currency
   created_at
   updated_at
 }`) as unknown as TypedDocumentString<GetUsersQuery, GetUsersQueryVariables>;
@@ -21325,6 +22694,9 @@ export const UpdateUserDocument = new TypedDocumentString(`
   emailVerified
   plan
   plan_expires_at
+  claude_plan
+  claude_plan_monthly
+  claude_plan_currency
   created_at
   updated_at
 }`) as unknown as TypedDocumentString<UpdateUserMutation, UpdateUserMutationVariables>;
@@ -21351,6 +22723,19 @@ export const GetCommentsDocument = new TypedDocumentString(`
     email
   }
 }`) as unknown as TypedDocumentString<GetCommentsQuery, GetCommentsQueryVariables>;
+export const GetClaudeUsageMonthDocument = new TypedDocumentString(`
+    query GetClaudeUsageMonth($user_id: uuid!, $from: timestamptz!, $to: timestamptz!) {
+  claude_usage_aggregate(
+    where: {user_id: {_eq: $user_id}, created_at: {_gte: $from, _lt: $to}}
+  ) {
+    aggregate {
+      sum {
+        cost_usd
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetClaudeUsageMonthQuery, GetClaudeUsageMonthQueryVariables>;
 export const GetCommentsAggregateDocument = new TypedDocumentString(`
     query GetCommentsAggregate($where: comments_bool_exp = {}) {
   comments_aggregate(where: $where) {

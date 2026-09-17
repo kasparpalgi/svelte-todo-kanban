@@ -27,6 +27,13 @@ export const TODO_FRAGMENT = graphql(`
 		max_hours
 		actual_hours
 		comment_hours
+		claude_usages_aggregate {
+			aggregate {
+				sum {
+					cost_usd
+				}
+			}
+		}
 		assignee {
 			id
 			name
@@ -80,6 +87,12 @@ export const TODO_FRAGMENT = graphql(`
 				sort_order
 				github
 				settings
+				user_id
+				user {
+					claude_plan
+					claude_plan_monthly
+					claude_plan_currency
+				}
 			}
 		}
 	}
@@ -262,6 +275,9 @@ export const USER_FRAGMENT = graphql(`
 		emailVerified
 		plan
 		plan_expires_at
+		claude_plan
+		claude_plan_monthly
+		claude_plan_currency
 		created_at
 		updated_at
 	}
@@ -538,6 +554,20 @@ export const GET_COMMENTS = graphql(`
 	) {
 		comments(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
 			...CommentFields
+		}
+	}
+`);
+
+export const GET_CLAUDE_USAGE_MONTH = graphql(`
+	query GetClaudeUsageMonth($user_id: uuid!, $from: timestamptz!, $to: timestamptz!) {
+		claude_usage_aggregate(
+			where: { user_id: { _eq: $user_id }, created_at: { _gte: $from, _lt: $to } }
+		) {
+			aggregate {
+				sum {
+					cost_usd
+				}
+			}
 		}
 	}
 `);

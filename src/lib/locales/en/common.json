@@ -548,7 +548,11 @@
     "no_members_to_subscribe": "No board members available to subscribe (assigned user is already notified)",
     "you": "you",
     "subscribers_count": "{{count}} subscriber will receive notifications",
-    "subscribers_count_plural": "{{count}} subscribers will receive notifications"
+    "subscribers_count_plural": "{{count}} subscribers will receive notifications",
+    "claude_ratio": {
+      "known": "Paid {{monthly}}/mo → effective {{percent}}% of list cost ({{list}} this month)",
+      "pending": "Paid {{monthly}}/mo — effective ratio pending this period's usage"
+    }
   },
   "notes": {
     "title": "Notes",
@@ -766,6 +770,20 @@
       "sending": "Sending...",
       "sent": "News sent to all users",
       "send_failed": "Failed to send news"
+    },
+    "claude_usage": {
+      "title": "Claude usage & plan",
+      "description": "Set your Claude plan to see its effective price alongside the API-list cost on each card.",
+      "plan_label": "Plan",
+      "plan_none": "None",
+      "plan_api": "API (pay-as-you-go)",
+      "plan_pro": "Pro",
+      "plan_max5x": "Max 5x",
+      "plan_max20x": "Max 20x",
+      "monthly_label": "Monthly amount",
+      "currency_label": "Currency",
+      "save": "Save plan",
+      "saved": "Claude plan updated"
     }
   },
   "notifications": {

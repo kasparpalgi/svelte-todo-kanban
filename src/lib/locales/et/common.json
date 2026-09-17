@@ -548,7 +548,11 @@
     "no_members_to_subscribe": "Pole saadaval liikmeid tellimuseks (määratud kasutaja saab juba teateid)",
     "you": "sina",
     "subscribers_count": "{{count}} tellija saab teateid",
-    "subscribers_count_plural": "{{count}} tellijat saavad teateid"
+    "subscribers_count_plural": "{{count}} tellijat saavad teateid",
+    "claude_ratio": {
+      "known": "Makstud {{monthly}}/kuus → tegelik hind {{percent}}% nimekirja hinnast ({{list}} sel kuul)",
+      "pending": "Makstud {{monthly}}/kuus — tegelik suhe selgub selle perioodi kasutuse põhjal"
+    }
   },
   "notes": {
     "title": "Märkmed",
@@ -766,6 +770,20 @@
       "sending": "Saatmine...",
       "sent": "Uudis saadetud kõigile kasutajatele",
       "send_failed": "Uudise saatmine ebaõnnestus"
+    },
+    "claude_usage": {
+      "title": "Claude kasutus ja pakett",
+      "description": "Määra oma Claude pakett, et näha tegelikku hinda koos API-hinnaga igal kaardil.",
+      "plan_label": "Pakett",
+      "plan_none": "Puudub",
+      "plan_api": "API (kasutuspõhine)",
+      "plan_pro": "Pro",
+      "plan_max5x": "Max 5x",
+      "plan_max20x": "Max 20x",
+      "monthly_label": "Kuutasu",
+      "currency_label": "Valuuta",
+      "save": "Salvesta pakett",
+      "saved": "Claude pakett uuendatud"
     }
   },
   "notifications": {

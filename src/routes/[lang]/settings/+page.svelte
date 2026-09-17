@@ -28,6 +28,7 @@
 	import GoogleCalendarIntegration from '$lib/components/settings/GoogleCalendarIntegration.svelte';
 	import SpeechToTextIntegration from '$lib/components/settings/SpeechToTextIntegration.svelte';
 	import PlanSettings from '$lib/components/settings/PlanSettings.svelte';
+	import ClaudeUsageSettings from '$lib/components/settings/ClaudeUsageSettings.svelte';
 	import DevMode from '$lib/components/DevMode.svelte';
 
 	let user = $derived(userStore.user);
@@ -293,6 +294,8 @@
 					</div>
 				</CardContent>
 			</Card>
+
+			<ClaudeUsageSettings />
 
 			<PushNotificationSettings />
 
