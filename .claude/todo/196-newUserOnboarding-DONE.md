@@ -88,3 +88,6 @@ Implemented the full new-user onboarding flow for board invitations:
 - Rendered the real email template with English strings in a browser and screenshotted it to
   confirm the new design (sent to user).
 
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
