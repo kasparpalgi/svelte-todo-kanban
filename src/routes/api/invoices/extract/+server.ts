@@ -1,7 +1,7 @@
 /** @file src/routes/api/invoices/extract/+server.ts */
-import { OPENAI_API_KEY } from '$env/static/private';
 import { json } from '@sveltejs/kit';
 import { PDFParse } from 'pdf-parse';
+import { resolveOpenAiKey } from '$lib/server/aiKey';
 import type { RequestHandler } from './$types';
 
 interface InvoiceData {
@@ -19,20 +19,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const startTime = Date.now();
 
 	try {
-		const session = await locals.auth();
-
-		if (!session) {
-			return json({ error: 'Not authenticated' }, { status: 401 });
-		}
+		const { apiKey, errorResponse } = await resolveOpenAiKey(locals);
+		if (errorResponse) return errorResponse;
 
 		const { pdfBase64, fileName } = await request.json();
 
 		if (!pdfBase64) {
 			return json({ error: 'PDF content is required' }, { status: 400 });
-		}
-
-		if (!OPENAI_API_KEY) {
-			return json({ error: 'AI service not configured' }, { status: 500 });
 		}
 
 		// Convert base64 to buffer
@@ -47,21 +40,19 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		if (!extractedText || extractedText.trim().length < 10) {
 			return json(
 				{
-					error:
-						'Could not extract text from PDF. The file might be a scanned image or encrypted.',
-					suggestion:
-						'Try using a text-based PDF or ensure the PDF is not password protected.'
+					error: 'Could not extract text from PDF. The file might be a scanned image or encrypted.',
+					suggestion: 'Try using a text-based PDF or ensure the PDF is not password protected.'
 				},
 				{ status: 400 }
 			);
 		}
 
-		console.log(
-			`[InvoiceExtract] Extracted ${extractedText.length} characters from PDF`
-		);
+		console.log(`[InvoiceExtract] Extracted ${extractedText.length} characters from PDF`);
 
 		// Log extracted text for debugging
-		console.log(`[InvoiceExtract] PDF TEXT (first 500 chars):\n---\n${extractedText.substring(0, 500)}\n---`);
+		console.log(
+			`[InvoiceExtract] PDF TEXT (first 500 chars):\n---\n${extractedText.substring(0, 500)}\n---`
+		);
 
 		// Use OpenAI to extract structured data
 		const prompt = `You are an expert at extracting structured data from invoices and payment slips, especially Estonian invoices.
@@ -144,7 +135,7 @@ ${extractedText.substring(0, 4000)}`;
 		const response = await fetch('https://api.openai.com/v1/chat/completions', {
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${OPENAI_API_KEY}`,
+				Authorization: `Bearer ${apiKey}`,
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
@@ -183,10 +174,7 @@ ${extractedText.substring(0, 4000)}`;
 			console.log(`[InvoiceExtract] PARSED DATA for ${fileName}:`, invoiceData);
 		} catch (e) {
 			console.error('Failed to parse AI response:', extractedDataStr);
-			return json(
-				{ error: 'Invalid response from AI service' },
-				{ status: 500 }
-			);
+			return json({ error: 'Invalid response from AI service' }, { status: 500 });
 		}
 
 		// Add raw text preview

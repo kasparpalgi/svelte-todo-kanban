@@ -67,6 +67,20 @@ function createBoardMembersStore() {
 		if (!emailOrUsername.trim())
 			return { success: false, message: 'Email or username is required' };
 
+		// Free plan: cap collaborators per board. Count current non-owner members plus
+		// pending invitations; surfaced only when the limit is hit (soft upsell).
+		const { userStore } = await import('./user.svelte');
+		const { isPaid, FREE_LIMITS } = await import('$lib/config/plan');
+		if (!isPaid(userStore.user)) {
+			const nonOwnerMembers = state.members.filter((m) => m.role !== 'owner').length;
+			const collaborators = nonOwnerMembers + state.invitations.length;
+			if (collaborators >= FREE_LIMITS.collaboratorsPerBoard) {
+				const { upgradeStore } = await import('./upgrade.svelte');
+				upgradeStore.trigger('collaborators');
+				return { success: false, message: 'Collaborator limit reached', upsell: true };
+			}
+		}
+
 		try {
 			const isEmail = emailOrUsername.includes('@');
 			const invitation = {

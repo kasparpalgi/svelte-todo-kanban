@@ -9,6 +9,8 @@ export interface ListBoardStoreResult<T = any> {
 	success: boolean;
 	message: string;
 	data?: T;
+	/** Set when the failure is a free-plan limit that triggered the upgrade dialog. */
+	upsell?: boolean;
 }
 
 export interface ListsState {
@@ -35,6 +37,8 @@ export interface BoardStoreResultGeneric<T = void> {
 	success: boolean;
 	message: string;
 	data?: T;
+	/** Set when the failure is a free-plan limit that triggered the upgrade dialog. */
+	upsell?: boolean;
 }
 
 export interface GithubRepoSelectorProps {

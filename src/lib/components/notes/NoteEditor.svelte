@@ -10,6 +10,7 @@
 	import VoiceInput from '$lib/components/todo/VoiceInput.svelte';
 	import AITaskButton from '$lib/components/todo/AITaskButton.svelte';
 	import { notesStore } from '$lib/stores/notes.svelte';
+	import { upgradeStore } from '$lib/stores/upgrade.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { t } from '$lib/i18n';
 	import { getEditorMarkdown } from '$lib/utils/markdown';
@@ -72,7 +73,9 @@
 				if (editor) {
 					isSettingContent = true;
 					editor.commands.setContent('');
-					setTimeout(() => { isSettingContent = false; }, 50);
+					setTimeout(() => {
+						isSettingContent = false;
+					}, 50);
 				}
 			}
 			return;
@@ -226,11 +229,17 @@
 				const uploadResult = await response.json();
 				if (uploadResult.success) {
 					return await notesStore.createNoteUpload(note.id, uploadResult.url);
+				} else if (uploadResult.upsell) {
+					upgradeStore.trigger(uploadResult.upsell);
 				}
 			});
 
 			await Promise.all(uploadPromises);
-			displayMessage($t('notes.images_uploaded') || 'Images uploaded successfully', undefined, true);
+			displayMessage(
+				$t('notes.images_uploaded') || 'Images uploaded successfully',
+				undefined,
+				true
+			);
 		} catch (error) {
 			console.error('[NoteEditor] Error uploading images:', error);
 			displayMessage($t('notes.upload_error') || 'Error uploading images');
@@ -365,11 +374,7 @@
 						placeholder={$t('notes.untitled')}
 						class="min-w-0 flex-1 text-xl font-semibold"
 					/>
-					<VoiceInput
-						onTranscript={handleTitleVoice}
-						onError={handleVoiceError}
-						minimal={true}
-					/>
+					<VoiceInput onTranscript={handleTitleVoice} onError={handleVoiceError} minimal={true} />
 				</div>
 				<div class="flex items-center justify-between">
 					<div class="text-xs text-muted-foreground">
@@ -390,15 +395,16 @@
 		</div>
 
 		<!-- Editor -->
-		<div class="w-full min-w-0 flex-1 overflow-y-auto p-4" style="touch-action: pan-y; -webkit-overflow-scrolling: touch;">
+		<div
+			class="w-full min-w-0 flex-1 overflow-y-auto p-4"
+			style="touch-action: pan-y; -webkit-overflow-scrolling: touch;"
+		>
 			<div class="w-full">
-				<RichTextEditor
-					content={editorContent}
-					bind:editor={editorStore}
-					showToolbar={true}
-				/>
+				<RichTextEditor content={editorContent} bind:editor={editorStore} showToolbar={true} />
 			</div>
-			<div class="mt-2 flex w-full min-w-0 flex-wrap items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2">
+			<div
+				class="mt-2 flex w-full min-w-0 flex-wrap items-center gap-1.5 rounded-md border bg-muted/30 px-3 py-2"
+			>
 				<VoiceInput
 					onTranscript={handleContentVoice}
 					onError={handleVoiceError}

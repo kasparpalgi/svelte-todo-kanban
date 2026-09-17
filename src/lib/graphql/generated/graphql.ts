@@ -17874,6 +17874,8 @@ export type Users = {
   /** An aggregate relationship */
   notifications_aggregate: Notifications_Aggregate;
   password?: Maybe<Scalars['String']['output']>;
+  plan: Scalars['String']['output'];
+  plan_expires_at?: Maybe<Scalars['timestamptz']['output']>;
   /** An array relationship */
   podcasts: Array<Podcasts>;
   /** An aggregate relationship */
@@ -17883,6 +17885,7 @@ export type Users = {
   /** An aggregate relationship */
   sessions_aggregate: Sessions_Aggregate;
   settings: Scalars['jsonb']['output'];
+  stripe_customer_id?: Maybe<Scalars['String']['output']>;
   /** An array relationship */
   todo_subscribers: Array<Todo_Subscribers>;
   /** An aggregate relationship */
@@ -18447,11 +18450,14 @@ export type Users_Bool_Exp = {
   notifications?: InputMaybe<Notifications_Bool_Exp>;
   notifications_aggregate?: InputMaybe<Notifications_Aggregate_Bool_Exp>;
   password?: InputMaybe<String_Comparison_Exp>;
+  plan?: InputMaybe<String_Comparison_Exp>;
+  plan_expires_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   podcasts?: InputMaybe<Podcasts_Bool_Exp>;
   podcasts_aggregate?: InputMaybe<Podcasts_Aggregate_Bool_Exp>;
   sessions?: InputMaybe<Sessions_Bool_Exp>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Bool_Exp>;
   settings?: InputMaybe<Jsonb_Comparison_Exp>;
+  stripe_customer_id?: InputMaybe<String_Comparison_Exp>;
   todo_subscribers?: InputMaybe<Todo_Subscribers_Bool_Exp>;
   todo_subscribers_aggregate?: InputMaybe<Todo_Subscribers_Aggregate_Bool_Exp>;
   todos?: InputMaybe<Todos_Bool_Exp>;
@@ -18532,9 +18538,12 @@ export type Users_Insert_Input = {
   notes?: InputMaybe<Notes_Arr_Rel_Insert_Input>;
   notifications?: InputMaybe<Notifications_Arr_Rel_Insert_Input>;
   password?: InputMaybe<Scalars['String']['input']>;
+  plan?: InputMaybe<Scalars['String']['input']>;
+  plan_expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
   podcasts?: InputMaybe<Podcasts_Arr_Rel_Insert_Input>;
   sessions?: InputMaybe<Sessions_Arr_Rel_Insert_Input>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
+  stripe_customer_id?: InputMaybe<Scalars['String']['input']>;
   todo_subscribers?: InputMaybe<Todo_Subscribers_Arr_Rel_Insert_Input>;
   todos?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
   todosByAssignedTo?: InputMaybe<Todos_Arr_Rel_Insert_Input>;
@@ -18558,6 +18567,9 @@ export type Users_Max_Fields = {
   locale?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   password?: Maybe<Scalars['String']['output']>;
+  plan?: Maybe<Scalars['String']['output']>;
+  plan_expires_at?: Maybe<Scalars['timestamptz']['output']>;
+  stripe_customer_id?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
   username?: Maybe<Scalars['String']['output']>;
 };
@@ -18573,6 +18585,9 @@ export type Users_Min_Fields = {
   locale?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   password?: Maybe<Scalars['String']['output']>;
+  plan?: Maybe<Scalars['String']['output']>;
+  plan_expires_at?: Maybe<Scalars['timestamptz']['output']>;
+  stripe_customer_id?: Maybe<Scalars['String']['output']>;
   updated_at?: Maybe<Scalars['timestamptz']['output']>;
   username?: Maybe<Scalars['String']['output']>;
 };
@@ -18625,9 +18640,12 @@ export type Users_Order_By = {
   notes_aggregate?: InputMaybe<Notes_Aggregate_Order_By>;
   notifications_aggregate?: InputMaybe<Notifications_Aggregate_Order_By>;
   password?: InputMaybe<Order_By>;
+  plan?: InputMaybe<Order_By>;
+  plan_expires_at?: InputMaybe<Order_By>;
   podcasts_aggregate?: InputMaybe<Podcasts_Aggregate_Order_By>;
   sessions_aggregate?: InputMaybe<Sessions_Aggregate_Order_By>;
   settings?: InputMaybe<Order_By>;
+  stripe_customer_id?: InputMaybe<Order_By>;
   todo_subscribers_aggregate?: InputMaybe<Todo_Subscribers_Aggregate_Order_By>;
   todosByAssignedTo_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
   todos_aggregate?: InputMaybe<Todos_Aggregate_Order_By>;
@@ -18678,7 +18696,13 @@ export enum Users_Select_Column {
   /** column name */
   Password = 'password',
   /** column name */
+  Plan = 'plan',
+  /** column name */
+  PlanExpiresAt = 'plan_expires_at',
+  /** column name */
   Settings = 'settings',
+  /** column name */
+  StripeCustomerId = 'stripe_customer_id',
   /** column name */
   UpdatedAt = 'updated_at',
   /** column name */
@@ -18699,7 +18723,10 @@ export type Users_Set_Input = {
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
+  plan?: InputMaybe<Scalars['String']['input']>;
+  plan_expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
+  stripe_customer_id?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
 };
@@ -18726,7 +18753,10 @@ export type Users_Stream_Cursor_Value_Input = {
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
+  plan?: InputMaybe<Scalars['String']['input']>;
+  plan_expires_at?: InputMaybe<Scalars['timestamptz']['input']>;
   settings?: InputMaybe<Scalars['jsonb']['input']>;
+  stripe_customer_id?: InputMaybe<Scalars['String']['input']>;
   updated_at?: InputMaybe<Scalars['timestamptz']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
 };
@@ -18756,7 +18786,13 @@ export enum Users_Update_Column {
   /** column name */
   Password = 'password',
   /** column name */
+  Plan = 'plan',
+  /** column name */
+  PlanExpiresAt = 'plan_expires_at',
+  /** column name */
   Settings = 'settings',
+  /** column name */
+  StripeCustomerId = 'stripe_customer_id',
   /** column name */
   UpdatedAt = 'updated_at',
   /** column name */
@@ -18968,7 +19004,7 @@ export type LabelFieldsFragment = { __typename?: 'labels', id: string, name: str
 
 export type NoteFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> };
 
-export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, created_at: string, updated_at: string };
+export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, created_at: string, updated_at: string };
 
 export type GetTodosQueryVariables = Exact<{
   where?: InputMaybe<Todos_Bool_Exp>;
@@ -19156,7 +19192,7 @@ export type GetUsersQueryVariables = Exact<{
 }>;
 
 
-export type GetUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, created_at: string, updated_at: string }> };
+export type GetUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, created_at: string, updated_at: string }> };
 
 export type UpdateUserMutationVariables = Exact<{
   where: Users_Bool_Exp;
@@ -19164,7 +19200,7 @@ export type UpdateUserMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserMutation = { __typename?: 'mutation_root', update_users?: { __typename?: 'users_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, created_at: string, updated_at: string }> } | null };
+export type UpdateUserMutation = { __typename?: 'mutation_root', update_users?: { __typename?: 'users_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, created_at: string, updated_at: string }> } | null };
 
 export type GetCommentsQueryVariables = Exact<{
   where?: InputMaybe<Comments_Bool_Exp>;
@@ -20090,6 +20126,8 @@ export const UserFieldsFragmentDoc = new TypedDocumentString(`
   settings
   default_labels
   emailVerified
+  plan
+  plan_expires_at
   created_at
   updated_at
 }
@@ -21260,6 +21298,8 @@ export const GetUsersDocument = new TypedDocumentString(`
   settings
   default_labels
   emailVerified
+  plan
+  plan_expires_at
   created_at
   updated_at
 }`) as unknown as TypedDocumentString<GetUsersQuery, GetUsersQueryVariables>;
@@ -21283,6 +21323,8 @@ export const UpdateUserDocument = new TypedDocumentString(`
   settings
   default_labels
   emailVerified
+  plan
+  plan_expires_at
   created_at
   updated_at
 }`) as unknown as TypedDocumentString<UpdateUserMutation, UpdateUserMutationVariables>;

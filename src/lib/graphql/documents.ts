@@ -260,6 +260,8 @@ export const USER_FRAGMENT = graphql(`
 		settings
 		default_labels
 		emailVerified
+		plan
+		plan_expires_at
 		created_at
 		updated_at
 	}

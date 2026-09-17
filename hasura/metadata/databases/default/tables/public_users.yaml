@@ -198,6 +198,8 @@ select_permissions:
         - emailVerified
         - updated_at
         - id
+        - plan
+        - plan_expires_at
       filter: {}
     comment: ""
 update_permissions:

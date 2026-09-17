@@ -1,4 +1,55 @@
 {
+  "plan": {
+    "title": "Pakett",
+    "description": "Halda oma paketti ja API-võtmeid.",
+    "status": {
+      "free": "Kasutad tasuta paketti.",
+      "paid": "Kasutad tasulist paketti.",
+      "renews": "Uueneb {{date}}."
+    },
+    "reason": {
+      "boards": "Oled jõudnud tasuta paketi 7 tahvli piirini. Uuenda piiramatute tahvlite jaoks.",
+      "cards": "See tahvel on jõudnud tasuta paketi 40 avatud kaardi piirini. Uuenda piiramatute kaartide jaoks.",
+      "collaborators": "Oled jõudnud tasuta paketi 4 kaastöötaja piirini sellel tahvlil. Uuenda piiramatute kaastöötajate jaoks.",
+      "uploads": "Oled jõudnud tasuta paketi 10 üleslaadimise piirini. Uuenda või lisa seadetes oma Cloudflare R2 võti.",
+      "ai": "Tasuta paketi AI-funktsioonid vajavad sinu enda OpenAI võtit. Uuenda, et kasutada neid ilma võtmeta."
+    },
+    "perks": {
+      "boards": "Piiramatud tahvlid",
+      "cards": "Piiramatud avatud kaardid tahvli kohta",
+      "collaborators": "Piiramatud kaastöötajad tahvli kohta",
+      "uploads": "Piiramatud üleslaadimised",
+      "ai": "AI-funktsioonid ilma API-võtmeta"
+    },
+    "upgrade": {
+      "title": "Uuenda tasulisele paketile",
+      "cta": "Uuenda — {{price}}€/aastas",
+      "redirecting": "Suunan…",
+      "not_now": "Mitte praegu"
+    },
+    "checkout": {
+      "success": "Tere tulemast tasulisse paketti! Sinu pakett on nüüd aktiivne.",
+      "cancelled": "Ost tühistatud."
+    },
+    "keys": {
+      "title": "Sinu API-võtmed",
+      "description": "Tasuta paketis lisa oma võtmed, et kasutada AI-funktsioone ja piiramatuid üleslaadimisi.",
+      "openai_label": "OpenAI API võti",
+      "r2_label": "Cloudflare R2 (üleslaadimiste jaoks)",
+      "r2_hint": "Lisa oma R2 andmed, et salvestada üleslaadimised piiranguteta oma ämbrisse.",
+      "r2_account_id": "Konto ID",
+      "r2_access_key": "Juurdepääsuvõtme ID",
+      "r2_secret": "Salajane juurdepääsuvõti",
+      "r2_bucket": "Ämbri nimi",
+      "r2_public_url": "Avalik baas-URL (nt https://files.example.com)",
+      "configured": "seadistatud",
+      "save": "Salvesta võtmed",
+      "saving": "Salvestan…",
+      "saved": "Võtmed salvestatud.",
+      "save_failed": "Võtmete salvestamine ebaõnnestus.",
+      "nothing_to_save": "Sisesta salvestamiseks võti."
+    }
+  },
   "common": {
     "all": "Kõik",
     "manage": "Halda",
@@ -7,6 +58,8 @@
     "edit": "Muuda",
     "delete": "Kustuta",
     "close": "Sulge",
+    "show": "Näita",
+    "hide": "Peida",
     "confirm": "Kinnita",
     "save": "Salvesta",
     "saving": "Salvestan...",

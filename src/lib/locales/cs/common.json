@@ -1,4 +1,55 @@
 {
+  "plan": {
+    "title": "Plán",
+    "description": "Spravujte svůj plán a API klíče.",
+    "status": {
+      "free": "Používáte plán Zdarma.",
+      "paid": "Používáte placený plán.",
+      "renews": "Obnovuje se {{date}}."
+    },
+    "reason": {
+      "boards": "Dosáhli jste limitu 7 nástěnek plánu Zdarma. Upgradujte pro neomezené nástěnky.",
+      "cards": "Tato nástěnka dosáhla limitu 40 otevřených karet plánu Zdarma. Upgradujte pro neomezené karty.",
+      "collaborators": "Dosáhli jste limitu 4 spolupracovníků na této nástěnce v plánu Zdarma. Upgradujte pro neomezené spolupracovníky.",
+      "uploads": "Dosáhli jste limitu 10 nahrání v plánu Zdarma. Upgradujte, nebo přidejte v nastavení vlastní klíč Cloudflare R2.",
+      "ai": "AI funkce v plánu Zdarma vyžadují vlastní klíč OpenAI. Upgradujte, abyste je používali bez klíče."
+    },
+    "perks": {
+      "boards": "Neomezené nástěnky",
+      "cards": "Neomezené otevřené karty na nástěnku",
+      "collaborators": "Neomezení spolupracovníci na nástěnku",
+      "uploads": "Neomezená nahrání",
+      "ai": "AI funkce bez potřeby API klíče"
+    },
+    "upgrade": {
+      "title": "Upgradovat na placený",
+      "cta": "Upgradovat — {{price}}€/rok",
+      "redirecting": "Přesměrování…",
+      "not_now": "Teď ne"
+    },
+    "checkout": {
+      "success": "Vítejte v placeném plánu! Váš plán je nyní aktivní.",
+      "cancelled": "Platba zrušena."
+    },
+    "keys": {
+      "title": "Vaše API klíče",
+      "description": "V plánu Zdarma přidejte vlastní klíče pro použití AI funkcí a neomezených nahrání.",
+      "openai_label": "API klíč OpenAI",
+      "r2_label": "Cloudflare R2 (pro nahrávání)",
+      "r2_hint": "Přidejte přístupové údaje R2 pro ukládání nahrání do vlastního bucketu bez limitu.",
+      "r2_account_id": "ID účtu",
+      "r2_access_key": "ID přístupového klíče",
+      "r2_secret": "Tajný přístupový klíč",
+      "r2_bucket": "Název bucketu",
+      "r2_public_url": "Veřejná základní URL (např. https://files.example.com)",
+      "configured": "nastaveno",
+      "save": "Uložit klíče",
+      "saving": "Ukládání…",
+      "saved": "Klíče uloženy.",
+      "save_failed": "Uložení klíčů selhalo.",
+      "nothing_to_save": "Zadejte klíč k uložení."
+    }
+  },
   "common": {
     "all": "Vše",
     "manage": "Spravovat",
@@ -7,6 +58,8 @@
     "edit": "Upravit",
     "delete": "Smazat",
     "close": "Zavřít",
+    "show": "Zobrazit",
+    "hide": "Skrýt",
     "confirm": "Potvrdit",
     "save": "Uložit",
     "saving": "Ukládání...",

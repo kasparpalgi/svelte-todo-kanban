@@ -27,6 +27,7 @@
 	import GithubIntegration from '$lib/components/settings/GithubIntegration.svelte';
 	import GoogleCalendarIntegration from '$lib/components/settings/GoogleCalendarIntegration.svelte';
 	import SpeechToTextIntegration from '$lib/components/settings/SpeechToTextIntegration.svelte';
+	import PlanSettings from '$lib/components/settings/PlanSettings.svelte';
 	import DevMode from '$lib/components/DevMode.svelte';
 
 	let user = $derived(userStore.user);
@@ -167,6 +168,8 @@
 		</Card>
 	{:else}
 		<form onsubmit={handleSubmit} class="space-y-6">
+			<PlanSettings />
+
 			<Card>
 				<CardHeader>
 					<CardTitle class="flex items-center gap-2">

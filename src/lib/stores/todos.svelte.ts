@@ -339,6 +339,18 @@ function createTodosStore() {
 		// Import user store to get current user ID
 		const { userStore: us } = await import('./user.svelte');
 
+		// Free plan: cap uncompleted cards per board. state.todos is scoped to the
+		// selected board, so counting its uncompleted entries gives the board total.
+		const { isPaid, FREE_LIMITS } = await import('$lib/config/plan');
+		if (!isPaid(us.user)) {
+			const uncompletedCount = state.todos.filter((t) => !t.completed_at).length;
+			if (uncompletedCount >= FREE_LIMITS.uncompletedCardsPerBoard) {
+				const { upgradeStore } = await import('./upgrade.svelte');
+				upgradeStore.trigger('cards');
+				return { success: false, message: 'Card limit reached', upsell: true };
+			}
+		}
+
 		const tempId = `temp-${crypto.randomUUID()}`;
 
 		try {

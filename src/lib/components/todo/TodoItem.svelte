@@ -5,6 +5,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { todosStore } from '$lib/stores/todos.svelte';
+	import { upgradeStore } from '$lib/stores/upgrade.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
@@ -255,6 +256,7 @@
 						if (result.success) {
 							return await todosStore.createUpload(todo.id, result.url);
 						} else {
+							if (result.upsell) upgradeStore.trigger(result.upsell);
 							throw new Error(result.error || 'Upload failed');
 						}
 					});

@@ -1,12 +1,12 @@
 /** @file src/routes/api/ai/task/+server.ts */
-import { OPENAI_API_KEY } from '$env/static/private';
 import { json } from '@sveltejs/kit';
 import { aiModels } from '$lib/settings/aiModels';
 import { calculateCost } from '$lib/utils/aiCostUtils';
 import { toPlainText } from '$lib/utils/markdown';
+import { resolveOpenAiKey } from '$lib/server/aiKey';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
 	const startTime = Date.now();
 
 	try {
@@ -16,9 +16,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ error: 'Task is required' }, { status: 400 });
 		}
 
-		if (!OPENAI_API_KEY) {
-			return json({ error: 'AI service not configured' }, { status: 500 });
-		}
+		const { apiKey, errorResponse } = await resolveOpenAiKey(locals);
+		if (errorResponse) return errorResponse;
 
 		const validModels = aiModels.map((m) => m.value);
 		const selectedModel = validModels.includes(model) ? model : 'gpt-5-mini';
@@ -56,7 +55,7 @@ Do NOT use HTML tags. Do NOT wrap the whole answer in a code fence. Your respons
 		const response = await fetch('https://api.openai.com/v1/chat/completions', {
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${OPENAI_API_KEY}`,
+				Authorization: `Bearer ${apiKey}`,
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({

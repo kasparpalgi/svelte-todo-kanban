@@ -6,6 +6,7 @@
 	import { z } from 'zod';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
+	import { upgradeStore } from '$lib/stores/upgrade.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { todoEditSchema, getPriorityColor, getPriorityLabel } from '$lib/utils/cardHelpers';
 	import { formatLocaleDate } from '$lib/utils/dateTime.svelte';
@@ -299,6 +300,7 @@
 						if (uploadResult.success && todo) {
 							return await todosStore.createUpload(todo.id, uploadResult.url);
 						} else {
+							if (uploadResult.upsell) upgradeStore.trigger(uploadResult.upsell);
 							throw new Error(uploadResult.error || 'Upload failed');
 						}
 					});

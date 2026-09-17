@@ -1,35 +1,35 @@
 /** @file src/routes/api/ai/plan/+server.ts */
-import { OPENAI_API_KEY } from '$env/static/private';
 import { json } from '@sveltejs/kit';
 import { toPlainText } from '$lib/utils/markdown';
+import { resolveOpenAiKey } from '$lib/server/aiKey';
 import type { RequestHandler } from './$types';
 
 const PLAN_THRESHOLD = 300;
 /** An HTML comment is also a comment in Markdown — it stays invisible in both formats. */
 const PLANNED_MARKER = '<!-- planned -->';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
 	const { content, title, model = 'gpt-5-mini' } = await request.json();
 
 	if (!content || typeof content !== 'string') {
 		return json({ error: 'content is required' }, { status: 400 });
 	}
 
-	if (!OPENAI_API_KEY) {
-		return json({ error: 'AI service not configured' }, { status: 500 });
-	}
-
-	// Idempotency guard — never plan twice
+	// Idempotency guard — never plan twice (before any key/plan work).
 	if (content.includes(PLANNED_MARKER)) {
 		return json({ changed: false, content });
 	}
 
 	const plainText = toPlainText(content);
 
-	// Length gate — short cards don't need planning
+	// Length gate — short cards don't need planning (and shouldn't trigger the
+	// free-plan "add a key" prompt).
 	if (plainText.length < PLAN_THRESHOLD) {
 		return json({ changed: false, content });
 	}
+
+	const { apiKey, errorResponse } = await resolveOpenAiKey(locals);
+	if (errorResponse) return errorResponse;
 
 	const titleContext = title ? `Task title: "${title}"\n\n` : '';
 	const prompt = `${titleContext}The following is a raw voice note. Extract a clear, actionable task description from it.
@@ -47,7 +47,7 @@ Return ONLY the task description formatted as Markdown (paragraphs, **bold**, *i
 		const response = await fetch('https://api.openai.com/v1/chat/completions', {
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${OPENAI_API_KEY}`,
+				Authorization: `Bearer ${apiKey}`,
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({

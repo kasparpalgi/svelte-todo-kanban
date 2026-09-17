@@ -1,7 +1,7 @@
 /** @file src/routes/api/bank-statement/extract/+server.ts */
-import { OPENAI_API_KEY } from '$env/static/private';
 import { json } from '@sveltejs/kit';
 import { PDFParse } from 'pdf-parse';
+import { resolveOpenAiKey } from '$lib/server/aiKey';
 import type { RequestHandler } from './$types';
 
 interface PaymentRecord {
@@ -15,20 +15,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const startTime = Date.now();
 
 	try {
-		const session = await locals.auth();
-
-		if (!session) {
-			return json({ error: 'Not authenticated' }, { status: 401 });
-		}
+		const { apiKey, errorResponse } = await resolveOpenAiKey(locals);
+		if (errorResponse) return errorResponse;
 
 		const { pdfBase64, fileName } = await request.json();
 
 		if (!pdfBase64) {
 			return json({ error: 'PDF content is required' }, { status: 400 });
-		}
-
-		if (!OPENAI_API_KEY) {
-			return json({ error: 'AI service not configured' }, { status: 500 });
 		}
 
 		// Convert base64 to buffer
@@ -49,12 +42,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			);
 		}
 
-		console.log(
-			`[BankStatementExtract] Extracted ${extractedText.length} characters from PDF`
-		);
+		console.log(`[BankStatementExtract] Extracted ${extractedText.length} characters from PDF`);
 
 		// Log extracted text for debugging
-		console.log(`[BankStatementExtract] BANK STATEMENT TEXT (first 1000 chars):\n---\n${extractedText.substring(0, 1000)}\n---`);
+		console.log(
+			`[BankStatementExtract] BANK STATEMENT TEXT (first 1000 chars):\n---\n${extractedText.substring(0, 1000)}\n---`
+		);
 
 		// Use OpenAI to extract structured data
 		const prompt = `You are an expert at extracting payment data from Estonian bank statements (KONTO VÄLJAVÕTE).
@@ -107,7 +100,7 @@ ${extractedText.substring(0, 8000)}`;
 		const response = await fetch('https://api.openai.com/v1/chat/completions', {
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${OPENAI_API_KEY}`,
+				Authorization: `Bearer ${apiKey}`,
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
@@ -143,13 +136,13 @@ ${extractedText.substring(0, 8000)}`;
 		let paymentsData: { payments: PaymentRecord[] };
 		try {
 			paymentsData = JSON.parse(extractedDataStr);
-			console.log(`[BankStatementExtract] PARSED PAYMENTS (count: ${paymentsData.payments?.length || 0}):`, paymentsData.payments);
+			console.log(
+				`[BankStatementExtract] PARSED PAYMENTS (count: ${paymentsData.payments?.length || 0}):`,
+				paymentsData.payments
+			);
 		} catch (e) {
 			console.error('Failed to parse AI response:', extractedDataStr);
-			return json(
-				{ error: 'Invalid response from AI service' },
-				{ status: 500 }
-			);
+			return json({ error: 'Invalid response from AI service' }, { status: 500 });
 		}
 
 		const processingTime = Date.now() - startTime;

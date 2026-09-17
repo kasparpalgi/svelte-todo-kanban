@@ -18,6 +18,8 @@ export interface StoreResult<T = any> {
 	success: boolean;
 	message: string;
 	data?: T;
+	/** Set when the failure is a free-plan limit that triggered the upgrade dialog. */
+	upsell?: boolean;
 }
 
 export interface CanbanColumnProps {

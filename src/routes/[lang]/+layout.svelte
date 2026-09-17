@@ -10,6 +10,7 @@
 	import Logo from '$lib/components/ui/Logo.svelte';
 	import UnifiedNotificationBell from '$lib/components/notifications/UnifiedNotificationBell.svelte';
 	import BoardSwitcherModal from '$lib/components/listBoard/BoardSwitcherModal.svelte';
+	import UpgradeDialog from '$lib/components/plan/UpgradeDialog.svelte';
 	import { actionState } from '$lib/stores/states.svelte';
 
 	let { data, children } = $props();
@@ -81,3 +82,7 @@
 <main class="w-full px-4">
 	{@render children?.()}
 </main>
+
+{#if data?.session}
+	<UpgradeDialog />
+{/if}

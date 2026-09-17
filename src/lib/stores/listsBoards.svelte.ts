@@ -267,6 +267,15 @@ function createListsStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!name.trim()) return { success: false, message: 'Name is required' };
 
+		// Free plan: cap the number of boards. Surfaced only when hit (soft upsell).
+		const { userStore } = await import('./user.svelte');
+		const { isPaid, FREE_LIMITS } = await import('$lib/config/plan');
+		if (!isPaid(userStore.user) && boards.length >= FREE_LIMITS.boards) {
+			const { upgradeStore } = await import('./upgrade.svelte');
+			upgradeStore.trigger('boards');
+			return { success: false, message: 'Board limit reached', upsell: true };
+		}
+
 		try {
 			const maxSortOrder = Math.max(...boards.map((b) => b.sort_order || 0), 0);
 

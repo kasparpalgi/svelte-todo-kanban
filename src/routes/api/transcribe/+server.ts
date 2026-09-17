@@ -1,9 +1,9 @@
 /** @file src/routes/api/transcribe/+server.ts */
-import { OPENAI_API_KEY } from '$env/static/private';
 import { json } from '@sveltejs/kit';
+import { resolveOpenAiKey } from '$lib/server/aiKey';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
 		const formData = await request.formData();
 		const audio = formData.get('audio') as File | null;
@@ -19,6 +19,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		let model: string;
 
 		if (provider === 'groq') {
+			// Groq is always the caller's own key, so it works on any plan.
 			if (!groqApiKey) {
 				return json({ error: 'Groq API key not configured' }, { status: 400 });
 			}
@@ -26,11 +27,11 @@ export const POST: RequestHandler = async ({ request }) => {
 			apiKey = groqApiKey;
 			model = 'whisper-large-v3';
 		} else {
-			if (!OPENAI_API_KEY) {
-				return json({ error: 'OpenAI API key not configured' }, { status: 500 });
-			}
+			// OpenAI Whisper: paid uses the app key, free must supply their own.
+			const resolved = await resolveOpenAiKey(locals);
+			if (resolved.errorResponse) return resolved.errorResponse;
 			apiUrl = 'https://api.openai.com/v1/audio/transcriptions';
-			apiKey = OPENAI_API_KEY;
+			apiKey = resolved.apiKey as string;
 			model = 'whisper-1';
 		}
 

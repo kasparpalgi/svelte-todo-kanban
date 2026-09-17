@@ -1,4 +1,55 @@
 {
+  "plan": {
+    "title": "Plan",
+    "description": "Manage your plan and API keys.",
+    "status": {
+      "free": "You're on the Free plan.",
+      "paid": "You're on the Paid plan.",
+      "renews": "Renews on {{date}}."
+    },
+    "reason": {
+      "boards": "You've reached the Free plan limit of 7 boards. Upgrade for unlimited boards.",
+      "cards": "This board has reached the Free plan limit of 40 open cards. Upgrade for unlimited cards.",
+      "collaborators": "You've reached the Free plan limit of 4 collaborators on this board. Upgrade for unlimited collaborators.",
+      "uploads": "You've reached the Free plan limit of 10 uploads. Upgrade, or add your own Cloudflare R2 key in Settings.",
+      "ai": "AI features on the Free plan need your own OpenAI key. Upgrade to use them without one."
+    },
+    "perks": {
+      "boards": "Unlimited boards",
+      "cards": "Unlimited open cards per board",
+      "collaborators": "Unlimited collaborators per board",
+      "uploads": "Unlimited uploads",
+      "ai": "AI features with no API key needed"
+    },
+    "upgrade": {
+      "title": "Upgrade to Paid",
+      "cta": "Upgrade — {{price}}€/year",
+      "redirecting": "Redirecting…",
+      "not_now": "Not now"
+    },
+    "checkout": {
+      "success": "Welcome to Paid! Your plan is now active.",
+      "cancelled": "Checkout cancelled."
+    },
+    "keys": {
+      "title": "Your API keys",
+      "description": "On the Free plan, add your own keys to use AI features and unlimited uploads.",
+      "openai_label": "OpenAI API key",
+      "r2_label": "Cloudflare R2 (for uploads)",
+      "r2_hint": "Add your R2 credentials to store uploads in your own bucket with no limit.",
+      "r2_account_id": "Account ID",
+      "r2_access_key": "Access Key ID",
+      "r2_secret": "Secret Access Key",
+      "r2_bucket": "Bucket name",
+      "r2_public_url": "Public base URL (e.g. https://files.example.com)",
+      "configured": "configured",
+      "save": "Save keys",
+      "saving": "Saving…",
+      "saved": "Keys saved.",
+      "save_failed": "Failed to save keys.",
+      "nothing_to_save": "Enter a key to save."
+    }
+  },
   "common": {
     "all": "All",
     "manage": "Manage",
@@ -7,6 +58,8 @@
     "edit": "Edit",
     "delete": "Delete",
     "close": "Close",
+    "show": "Show",
+    "hide": "Hide",
     "confirm": "Confirm",
     "save": "Save",
     "saving": "Saving...",
