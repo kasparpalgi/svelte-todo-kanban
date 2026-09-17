@@ -4,8 +4,6 @@
 
 [NEVER REMOVE]
 
-_(no description yet)_
+I think there's 2 users with [kaspar@e-stonia.co.uk](mailto:kaspar@e-stonia.co.uk) and when I login with Google SSO sometimes I see all my boards but sometimes none.
 
 _From Kanban card `66c5a572-abff-4ff9-b6dc-79c72a77b1e2`._
-
-_GitHub issue #193 — end the commit subject with `(#193)`._
