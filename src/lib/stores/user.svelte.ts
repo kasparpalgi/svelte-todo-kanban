@@ -20,7 +20,15 @@ function createUserStore() {
 	const userLocale = $derived(() => user()?.locale || DEFAULT_LOCALE);
 
 	async function initializeUser(sessionUser: any | null) {
-		if (!browser || state.initialized || state.isLoggingOut) return;
+		if (!browser) return;
+
+		// Always validate the cached JWT against the current session user, even if
+		// already initialized. The browser HTTP cache can return a token endpoint
+		// response from a previous user session (bypassing ensureTokenForUser),
+		// so we re-check on every call to catch stale tokens before any request goes out.
+		if (sessionUser?.id) ensureTokenForUser(sessionUser.id);
+
+		if (state.initialized || state.isLoggingOut) return;
 
 		if (!sessionUser?.id) {
 			state.loading = false;
@@ -29,11 +37,6 @@ function createUserStore() {
 		}
 
 		state.loading = true;
-
-		// Discard a cached JWT minted for a different user id before making any
-		// request — otherwise Hasura's update-permission check rejects mutations
-		// for the current session with a stale, hard-to-diagnose permission error.
-		ensureTokenForUser(sessionUser.id);
 
 		try {
 			const data = (await request(GET_USERS, {

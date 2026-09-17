@@ -28,13 +28,9 @@ export const GET: RequestHandler = async (event) => {
 		{ algorithm: 'HS256' }
 	);
 
-	return json(
-		{ token },
-		{
-			headers: {
-				// Allow browser to cache token for 55 min (token expires in 24h)
-				'Cache-Control': 'private, max-age=3300'
-			}
-		}
-	);
+	// No HTTP cache: the browser would cache this at the URL level, with no awareness
+	// of which session cookie is active. After a user switch the old response gets
+	// served back, giving the new session a JWT stamped with the previous user's ID.
+	// Client-side caching (in-memory + localStorage in graphql/client.ts) is enough.
+	return json({ token }, { headers: { 'Cache-Control': 'no-store' } });
 };

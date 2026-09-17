@@ -214,10 +214,10 @@ update_permissions:
         - settings
         - updated_at
         - username
-      filter: {}
-      check:
+      filter:
         id:
           _eq: X-Hasura-User-Id
+      check: {}
     comment: ""
 delete_permissions:
   - role: user
