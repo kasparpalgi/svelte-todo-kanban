@@ -36,3 +36,7 @@ Migration `1799000000000_merge_duplicate_user`:
 4. Deleted the now-empty Gmail user
 
 Result: `kaspar@e-stonia.co.uk` (id `87130678`) has all 21 boards and both Google accounts linked.
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
