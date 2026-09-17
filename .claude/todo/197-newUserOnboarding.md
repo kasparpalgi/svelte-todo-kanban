@@ -4,6 +4,6 @@
 
 [NEVER REMOVE]
 
-Invited a new user to the board and the email that arrived is terrible looking. Make a nice HTML email. Also, it shall tell in email that you must create account with email address (address where invite was sent).
+Invited a new user to the board and the email that arrived is terrible looking. Make a nice HTML email. Also, it shall tell in email that you must create account with email address (address where invite was sent). Cick on the link and click "Create account"
 
 _From Kanban card `177e4d61-e1df-4609-916c-b03cf6195dfe`._
