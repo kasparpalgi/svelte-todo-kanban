@@ -96,3 +96,13 @@ Tests + verification:
 - Dev-server boot smoke-test green (see log above).
 
 **Files changed:** `src/lib/graphql/client.ts`, `src/routes/api/auth/token/+server.ts`, `src/routes/+layout.server.ts`, `src/hooks.server.ts`, `src/lib/graphql/__tests__/client.svelte.test.ts`, `src/lib/graphql/__tests__/client-ssr.test.ts`.
+
+## Follow-up: GitHub reconnect "redirect_uri not associated" (commit 3919c66)
+
+When the user went to reconnect GitHub, GitHub showed *"Be careful! The redirect_uri is not associated with this application."* Cause (pre-existing, surfaced because reconnect was finally exercised):
+- `src/routes/api/github/+server.ts` (connect) built the redirect_uri from `PUBLIC_APP_URL`, which is misconfigured (local `.env` has `http://localhost:55173`; intended prod value is `https://todzz.eu` per `.env.example`). GitHub received an unregistered URL → rejection at the authorize step.
+- `src/routes/api/github/callback/+server.ts` (token exchange) used a stale path `/api/auth/github/callback` (the route was moved to `/api/github/callback`; the `@file` header still shows the old path) — would also fail the exchange.
+
+**Fix:** both routes now derive the callback from `url.origin` → `${origin}/api/github/callback`, identical between authorize and token-exchange, independent of `PUBLIC_APP_URL`. Verified in dev: connect emits `http://localhost:5173/api/github/callback`; on prod → `https://todzz.eu/api/github/callback`.
+
+**User action:** ensure the GitHub OAuth app's **Authorization callback URL** is exactly `https://todzz.eu/api/github/callback` (github.com → Settings → Developer settings → OAuth Apps). Optionally fix the Vercel prod `PUBLIC_APP_URL` env to `https://todzz.eu` (no longer used for OAuth, but used elsewhere).
