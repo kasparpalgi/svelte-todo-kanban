@@ -119,9 +119,16 @@ export const myStore = createStore();
 
 ## Key Rules
 
-- **Branch**: commit straight to `main`. The kanban runner pulls and pushes `main`;
-  a task branch stalls the card until someone merges it by hand. Branch only when a
-  human asked you to, and name it after the task file — `039-featureName`.
+- **Branch**: commit straight to `main`. A task branch stalls the card until someone
+  merges it by hand. Branch only when a human asked you to, and name it after the task
+  file — `039-featureName`.
+- **Push your commits**: after committing to `main`, run `git push origin main` yourself
+  — do not rely on the runner. Vercel's git integration deploys on push, so an unpushed
+  commit means the production deploy never gets your change. If the push is rejected
+  because `main` moved, `git pull --rebase origin main` then push again.
+- **Line endings = LF**: the repo is all-LF (`.gitattributes` enforces it). Never
+  introduce CRLF. The local `.env` is LF too — if you extract env values, strip any
+  stray `\r`/quotes, since CRLF once silently corrupted a VAPID key sent to Vercel.
 - **Mutations**: always return `{ success: boolean, message: string, data? }`
 - **Browser guard**: `if (!browser) return;` before any client-side API call
 - **Optimistic updates**: always include rollback on error

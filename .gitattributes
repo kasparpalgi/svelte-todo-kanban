@@ -1,0 +1,31 @@
+# Normalize all text files to LF in the repo and on checkout.
+# CRLF in env files silently corrupted values passed to Vercel — keep everything LF.
+* text=auto eol=lf
+
+# Env files are LF even though they are gitignored locally.
+.env* text eol=lf
+
+# Explicit shell/JS/TS/config as LF (safety on Windows checkouts).
+*.sh text eol=lf
+*.ts text eol=lf
+*.js text eol=lf
+*.svelte text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+
+# Binary assets — never touch line endings.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.pdf binary
+*.mp4 binary
+*.webm binary
