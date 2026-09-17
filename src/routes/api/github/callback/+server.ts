@@ -3,7 +3,6 @@ import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private';
 import { UPDATE_USER } from '$lib/graphql/documents';
 import { redirect } from '@sveltejs/kit';
 import { encryptToken } from '$lib/utils/crypto';
-import { dev } from '$app/environment';
 import { serverRequest } from '$lib/graphql/server-client';
 import type { RequestEvent } from './$types';
 import type { GetUserResult, GitHubTokenResponse, GitHubUser } from '$lib/types/github';
@@ -21,9 +20,9 @@ export async function GET({ url }: RequestEvent) {
 	}
 
 	try {
-		const redirectUri = dev
-			? 'http://localhost:5173/api/auth/github/callback'
-			: `${url.origin}/api/auth/github/callback`;
+		// Must be byte-for-byte identical to the redirect_uri used at authorize time
+		// (src/routes/api/github/+server.ts) or GitHub rejects the token exchange.
+		const redirectUri = `${url.origin}/api/github/callback`;
 
 		const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
 			method: 'POST',
