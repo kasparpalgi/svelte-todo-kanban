@@ -60,10 +60,10 @@
 		return board.board_members.filter((m: any) => m.role !== 'owner').length;
 	}
 
-	// listsStore.boards is already scoped server-side to boards the user owns, is a
-	// member of, is invited to, or that are public (see the `boards` select
-	// permission) — re-filtering here by isOwner/isMember dropped public and
-	// invited-but-not-yet-member boards from the switcher.
+	// listsStore.boards is scoped in loadBoards() to boards the user owns, is a
+	// member of, or is invited to — public-only boards are intentionally excluded
+	// here so strangers' public boards don't leak into the switcher (issue #192).
+	// A public board opened by direct URL is loaded separately via loadBoardByAlias.
 	const filteredBoards = $derived(listsStore.sortedBoards);
 	const filteredArchivedBoards = $derived(listsStore.sortedArchivedBoards);
 </script>

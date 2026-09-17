@@ -20,7 +20,7 @@ vi.mock('$app/environment', () => ({
 	version: '1.0.0'
 }));
 
-vi.mock('./user.svelte', () => ({
+vi.mock('../user.svelte', () => ({
 	userStore: {
 		user: { id: 'user-1', settings: {} },
 		updateUser: vi.fn()
@@ -74,8 +74,13 @@ describe('ListsStore - archive boards', () => {
 		vi.clearAllMocks();
 	});
 
+	// The mocked user has no email/username, so the scope covers owner + membership.
+	const ownerOrMemberScope = {
+		_or: [{ user_id: { _eq: 'user-1' } }, { board_members: { user_id: { _eq: 'user-1' } } }]
+	};
+
 	describe('loadBoards', () => {
-		it('excludes archived boards and filters with archived_at is_null', async () => {
+		it('excludes archived boards and scopes to the user (issue #192 — no public leak)', async () => {
 			const board = createMockBoard();
 			const { request } = await import('$lib/graphql/client');
 			vi.mocked(request).mockResolvedValue({ boards: [board] });
@@ -84,14 +89,81 @@ describe('ListsStore - archive boards', () => {
 
 			expect(request).toHaveBeenCalledWith(
 				expect.anything(),
-				expect.objectContaining({ where: { archived_at: { _is_null: true } } })
+				expect.objectContaining({
+					where: { _and: [{ archived_at: { _is_null: true } }, ownerOrMemberScope] }
+				})
 			);
 			expect(listsStore.boards).toEqual([board]);
+		});
+
+		it('includes invitation conditions when the user has email/username', async () => {
+			const userModule = await import('../user.svelte');
+			const original = userModule.userStore.user;
+			// @ts-expect-error test override of the mocked getter value
+			userModule.userStore.user = {
+				id: 'user-1',
+				email: 'kaspar@e-stonia.co.uk',
+				username: 'kaspar1',
+				settings: {}
+			};
+
+			const board = createMockBoard();
+			const { request } = await import('$lib/graphql/client');
+			vi.mocked(request).mockResolvedValue({ boards: [board] });
+
+			await listsStore.loadBoards();
+
+			expect(request).toHaveBeenCalledWith(
+				expect.anything(),
+				expect.objectContaining({
+					where: {
+						_and: [
+							{ archived_at: { _is_null: true } },
+							{
+								_or: [
+									{ user_id: { _eq: 'user-1' } },
+									{ board_members: { user_id: { _eq: 'user-1' } } },
+									{
+										board_invitations: {
+											_or: [
+												{ invitee_email: { _eq: 'kaspar@e-stonia.co.uk' } },
+												{ invitee_username: { _eq: 'kaspar1' } }
+											]
+										}
+									}
+								]
+							}
+						]
+					}
+				})
+			);
+
+			// @ts-expect-error restore the mocked getter value
+			userModule.userStore.user = original;
+		});
+
+		it('returns nothing and does not query when there is no signed-in user', async () => {
+			const userModule = await import('../user.svelte');
+			const original = userModule.userStore.user;
+			// @ts-expect-error test override of the mocked getter value
+			userModule.userStore.user = null;
+
+			const { request } = await import('$lib/graphql/client');
+			vi.mocked(request).mockResolvedValue({ boards: [createMockBoard()] });
+
+			const result = await listsStore.loadBoards();
+
+			expect(request).not.toHaveBeenCalled();
+			expect(result).toEqual([]);
+			expect(listsStore.boards).toEqual([]);
+
+			// @ts-expect-error restore the mocked getter value
+			userModule.userStore.user = original;
 		});
 	});
 
 	describe('loadArchivedBoards', () => {
-		it('loads boards with archived_at set and stores them separately', async () => {
+		it('loads scoped archived boards and stores them separately', async () => {
 			const archivedBoard = createMockBoard({ id: 'board-2', archived_at: '2025-06-01T00:00:00Z' });
 			const { request } = await import('$lib/graphql/client');
 			vi.mocked(request).mockResolvedValue({ boards: [archivedBoard] });
@@ -100,9 +172,35 @@ describe('ListsStore - archive boards', () => {
 
 			expect(request).toHaveBeenCalledWith(
 				expect.anything(),
-				expect.objectContaining({ where: { archived_at: { _is_null: false } } })
+				expect.objectContaining({
+					where: { _and: [{ archived_at: { _is_null: false } }, ownerOrMemberScope] }
+				})
 			);
 			expect(listsStore.archivedBoards).toEqual([archivedBoard]);
+		});
+	});
+
+	describe('loadBoardByAlias', () => {
+		it('fetches a single public board by alias and selects it', async () => {
+			const publicBoard = createMockBoard({
+				id: 'board-9',
+				alias: 'ftwbihss-board',
+				is_public: true,
+				user: { id: 'someone-else', username: 'ftwbihs', email: 'ftwbihs@yandex.by' }
+			});
+			const { request } = await import('$lib/graphql/client');
+			vi.mocked(request).mockResolvedValue({ boards: [publicBoard] });
+
+			const board = await listsStore.loadBoardByAlias('ftwbihss-board');
+
+			expect(request).toHaveBeenCalledWith(
+				expect.anything(),
+				expect.objectContaining({ where: { alias: { _eq: 'ftwbihss-board' } }, limit: 1 })
+			);
+			expect(board).toEqual(publicBoard);
+			// Selected for viewing, but NOT added to the switcher list.
+			expect(listsStore.selectedBoard).toEqual(publicBoard);
+			expect(listsStore.boards).toEqual([]);
 		});
 	});
 

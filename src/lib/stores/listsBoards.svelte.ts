@@ -76,14 +76,46 @@ function createListsStore() {
 		}
 	}
 
+	// Scope a board list query to boards the current user actually belongs to:
+	// owns, is a member of, or is invited to (by email or username). Without this
+	// the `boards` select permission also returns every public board on the
+	// platform (is_public = true), which leaked strangers' boards into the switcher.
+	// Returns null when there is no signed-in user (caller should show nothing).
+	async function boardScopeWhere(): Promise<Record<string, unknown> | null> {
+		const { userStore } = await import('./user.svelte');
+		const user = userStore.user;
+		if (!user?.id) return null;
+
+		const invitationConds: Record<string, unknown>[] = [];
+		if (user.email) invitationConds.push({ invitee_email: { _eq: user.email } });
+		if (user.username) invitationConds.push({ invitee_username: { _eq: user.username } });
+
+		const or: Record<string, unknown>[] = [
+			{ user_id: { _eq: user.id } },
+			{ board_members: { user_id: { _eq: user.id } } }
+		];
+		if (invitationConds.length > 0) {
+			or.push({ board_invitations: { _or: invitationConds } });
+		}
+
+		return { _or: or };
+	}
+
 	async function loadBoards(): Promise<BoardFieldsFragment[]> {
 		if (!browser) return [];
 
 		try {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
 
+			const scope = await boardScopeWhere();
+			if (!scope) {
+				boards = [];
+				selectedBoard = null;
+				return [];
+			}
+
 			const data: GetBoardsQuery = await request(GET_BOARDS, {
-				where: { archived_at: { _is_null: true } },
+				where: { _and: [{ archived_at: { _is_null: true } }, scope] },
 				order_by: [{ sort_order: Order_By.Asc }, { name: Order_By.Asc }]
 			});
 
@@ -360,8 +392,14 @@ function createListsStore() {
 		try {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
 
+			const scope = await boardScopeWhere();
+			if (!scope) {
+				archivedBoards = [];
+				return [];
+			}
+
 			const data: GetBoardsQuery = await request(GET_BOARDS, {
-				where: { archived_at: { _is_null: false } },
+				where: { _and: [{ archived_at: { _is_null: false } }, scope] },
 				order_by: [{ name: Order_By.Asc }]
 			});
 
@@ -446,6 +484,32 @@ function createListsStore() {
 		}
 	}
 
+	// Fetch a single board by alias regardless of the switcher scope. Used when a
+	// user opens a public board (or one shared to them) by direct URL that isn't in
+	// their own board list — it selects the board for viewing without adding it to
+	// the switcher. Returns the board, or null when not found / not readable.
+	async function loadBoardByAlias(alias: string): Promise<BoardFieldsFragment | null> {
+		if (!browser || !alias) return null;
+
+		try {
+			const data: GetBoardsQuery = await request(GET_BOARDS, {
+				where: { alias: { _eq: alias } },
+				limit: 1
+			});
+
+			const board = data.boards?.[0] || null;
+			if (board) {
+				await setSelectedBoard(board);
+			}
+			return board;
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Error loading board';
+			console.error('Load board by alias error:', err);
+			displayMessage(message);
+			return null;
+		}
+	}
+
 	async function setSelectedBoard(board: BoardFieldsFragment | null) {
 		selectedBoard = board;
 		if (browser) {
@@ -523,6 +587,7 @@ function createListsStore() {
 		loadLists,
 		loadBoards,
 		loadArchivedBoards,
+		loadBoardByAlias,
 		createList,
 		updateList,
 		deleteList,

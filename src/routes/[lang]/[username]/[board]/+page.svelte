@@ -83,7 +83,13 @@
 				await listsStore.loadBoards();
 			}
 
-			const board = listsStore.boards.find((b: any) => b.alias === alias);
+			// The switcher list is scoped to boards the user owns / is a member of /
+			// is invited to. A public board opened by direct URL won't be in that
+			// list, so fetch it by alias as a fallback (still permission-checked).
+			let board = listsStore.boards.find((b: any) => b.alias === alias);
+			if (!board) {
+				board = (await listsStore.loadBoardByAlias(alias)) ?? undefined;
+			}
 
 			if (board) {
 				// Set selected board if different
