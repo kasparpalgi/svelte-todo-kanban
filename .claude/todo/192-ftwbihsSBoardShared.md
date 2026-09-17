@@ -4,8 +4,6 @@
 
 [NEVER REMOVE]
 
-_(no description yet)_
+In the top of my
 
 _From Kanban card `7f76f657-452b-4f56-a872-5996a7c04a6b`._
-
-_GitHub issue #192 — end the commit subject with `(#192)`._
