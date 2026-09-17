@@ -68,3 +68,6 @@ Actionable leftovers from the four items (1 = dev account, already done):
 **Left for you (manual, cannot be automated):** upload the ZIP + the two resized images to
 the Chrome Web Store Developer Dashboard and submit for review.
 
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
