@@ -19291,6 +19291,13 @@ export type GetMyInvitationsQueryVariables = Exact<{
 
 export type GetMyInvitationsQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token?: string | null, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
 
+export type GetInvitationByTokenQueryVariables = Exact<{
+  token: Scalars['String']['input'];
+}>;
+
+
+export type GetInvitationByTokenQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, role: string, status: string, invitee_email?: string | null, expires_at: string, board: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', username: string } } }> };
+
 export type CreateBoardInvitationMutationVariables = Exact<{
   objects: Array<Board_Invitations_Insert_Input> | Board_Invitations_Insert_Input;
 }>;
@@ -21579,6 +21586,26 @@ export const GetMyInvitationsDocument = new TypedDocumentString(`
     alias
   }
 }`) as unknown as TypedDocumentString<GetMyInvitationsQuery, GetMyInvitationsQueryVariables>;
+export const GetInvitationByTokenDocument = new TypedDocumentString(`
+    query GetInvitationByToken($token: String!) {
+  board_invitations(where: {token: {_eq: $token}}, limit: 1) {
+    id
+    board_id
+    role
+    status
+    invitee_email
+    expires_at
+    board {
+      id
+      name
+      alias
+      user {
+        username
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetInvitationByTokenQuery, GetInvitationByTokenQueryVariables>;
 export const CreateBoardInvitationDocument = new TypedDocumentString(`
     mutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {
   insert_board_invitations(objects: $objects) {

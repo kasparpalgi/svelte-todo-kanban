@@ -1,6 +1,7 @@
 <!-- @file src/lib/components/auth/LoginForm.svelte -->
 <script lang="ts">
 	import { signIn } from '@auth/sveltekit/client';
+	import { page } from '$app/state';
 	import { t } from '$lib/i18n';
 	import { Button } from '$lib/components/ui/button';
 	import {
@@ -19,6 +20,14 @@
 
 	type Mode = 'login' | 'signup' | 'magic-link';
 
+	// Invitation context (from the invite email link: ?invite=<token>&email=<addr>).
+	// When present we default to account creation, lock the email to the invited
+	// address, and route through /invite/<token> after auth so the invitation is
+	// accepted automatically and the user lands on the board.
+	const inviteToken = $derived(page.url.searchParams.get('invite'));
+	const invitedEmail = $derived(page.url.searchParams.get('email'));
+	const callbackUrl = $derived(inviteToken ? `/invite/${encodeURIComponent(inviteToken)}` : '/et');
+
 	let mode = $state<Mode>('login');
 	let email = $state('');
 	let password = $state('');
@@ -27,11 +36,22 @@
 	let isLoading = $state(false);
 	let errors = $state<Record<string, string>>({});
 
+	// Prefill + lock the email and switch to signup when arriving from an invite.
+	// Runs once when the invite params are first available.
+	let inviteApplied = false;
+	$effect(() => {
+		if (!inviteApplied && invitedEmail) {
+			email = invitedEmail;
+			mode = 'signup';
+			inviteApplied = true;
+		}
+	});
+
 	async function handleMagicLinkSignIn() {
 		isLoading = true;
 		errors = {};
 		try {
-			await signIn('nodemailer', { email, callbackUrl: '/et' });
+			await signIn('nodemailer', { email, callbackUrl });
 		} catch (error) {
 			console.error('Sign in error:', error);
 			errors.general = 'Failed to send magic link';
@@ -65,7 +85,7 @@
 					password,
 					name,
 					mode: 'signup',
-					callbackUrl: '/et'
+					callbackUrl
 				});
 			} else {
 				// Validate login data
@@ -86,7 +106,7 @@
 					email,
 					password,
 					mode: 'login',
-					callbackUrl: '/et'
+					callbackUrl
 				});
 			}
 		} catch (error) {
@@ -99,7 +119,7 @@
 
 	async function handleGoogleSignIn() {
 		try {
-			await signIn('google', { callbackUrl: '/et' });
+			await signIn('google', { callbackUrl });
 		} catch (error) {
 			console.error('Google sign in error:', error);
 		}
@@ -139,6 +159,22 @@
 		</div>
 	</CardHeader>
 	<CardContent class="space-y-4">
+		{#if inviteToken}
+			<div
+				class="rounded-md border border-primary/30 bg-primary/5 p-3 text-sm text-foreground"
+				role="status"
+			>
+				<p class="font-medium">{$t('auth.invite_banner_title')}</p>
+				<p class="mt-1 text-muted-foreground">{$t('auth.invite_banner_text')}</p>
+				{#if invitedEmail}
+					<p class="mt-2 text-muted-foreground">
+						{$t('auth.invite_use_email')}
+						<span class="font-semibold text-foreground">{invitedEmail}</span>
+					</p>
+				{/if}
+			</div>
+		{/if}
+
 		<!-- Google Sign In -->
 		<Button
 			onclick={handleGoogleSignIn}
@@ -173,8 +209,12 @@
 						type="email"
 						placeholder={$t('auth.enter_email')}
 						bind:value={email}
+						readonly={!!invitedEmail}
 						required
 					/>
+					{#if invitedEmail}
+						<p class="text-xs text-muted-foreground">{$t('auth.invite_email_locked')}</p>
+					{/if}
 				</div>
 				<Button type="submit" class="w-full" disabled={isLoading}>
 					<Mail class="mr-2 h-4 w-4" />
@@ -210,8 +250,12 @@
 						type="email"
 						placeholder={$t('auth.enter_email')}
 						bind:value={email}
+						readonly={!!invitedEmail}
 						required
 					/>
+					{#if invitedEmail}
+						<p class="text-xs text-muted-foreground">{$t('auth.invite_email_locked')}</p>
+					{/if}
 					{#if errors.email}
 						<p class="text-sm text-destructive">{errors.email}</p>
 					{/if}

@@ -707,6 +707,27 @@ export const GET_MY_INVITATIONS = graphql(`
 	}
 `);
 
+export const GET_INVITATION_BY_TOKEN = graphql(`
+	query GetInvitationByToken($token: String!) {
+		board_invitations(where: { token: { _eq: $token } }, limit: 1) {
+			id
+			board_id
+			role
+			status
+			invitee_email
+			expires_at
+			board {
+				id
+				name
+				alias
+				user {
+					username
+				}
+			}
+		}
+	}
+`);
+
 export const CREATE_BOARD_INVITATION = graphql(`
 	mutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {
 		insert_board_invitations(objects: $objects) {

@@ -85,11 +85,17 @@ function createBoardMembersStore() {
 			if (newInvitation) {
 				state.invitations = [...state.invitations, newInvitation];
 
-				if (isEmail && newInvitation.board) {
+				if (isEmail && newInvitation.board && newInvitation.token) {
 					try {
 						const inviterName = newInvitation.inviter?.name || newInvitation.inviter?.username;
 						const boardName = newInvitation.board.name;
-						const invitationUrl = `${window.location.origin}/signin`;
+						const inviteeEmail = emailOrUsername.trim();
+						// Carry the invitation token + invitee email so the sign-in page can
+						// lock the account to the invited address and, once authenticated,
+						// route through /invite/<token> to auto-accept and land on the board.
+						const invitationUrl =
+							`${window.location.origin}/signin?invite=${encodeURIComponent(newInvitation.token)}` +
+							`&email=${encodeURIComponent(inviteeEmail)}`;
 						const currentLocale = get(locale);
 
 						await fetch('/api/invitations/send', {

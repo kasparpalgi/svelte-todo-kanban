@@ -282,7 +282,8 @@
     "no_pending_invitations": "No pending invitations",
     "invited_by": "Invited by:",
     "invitation_accepted_message": "Invitation accepted! Board added.",
-    "invitation_declined_message": "Invitation declined"
+    "invitation_declined_message": "Invitation declined",
+    "accepting_invitation": "Joining the board…"
   },
   "visibility": {
     "sharing_visibility": "Sharing & Visibility",
@@ -370,7 +371,11 @@
     "switch_to_signup": "Sign up",
     "password_requirements": "Password must be at least 8 characters and include uppercase, lowercase, and a number",
     "use_magic_link_instead": "Or use magic link instead",
-    "use_password_instead": "Or use password instead"
+    "use_password_instead": "Or use password instead",
+    "invite_banner_title": "You've been invited to a board",
+    "invite_banner_text": "Create your account to accept the invitation — you'll be taken straight to the board.",
+    "invite_use_email": "Please sign up with this email address:",
+    "invite_email_locked": "This is the address your invitation was sent to."
   },
   "todo": {
     "noLists": "No lists yet",
@@ -732,10 +737,19 @@
   "email": {
     "invitation_subject": "You've been invited to collaborate in tasks' management in the project",
     "greeting": "Hi there!",
-    "invite_text": "has invited you to see, manage and create new tasks. Comment exiting tasks, see the work progress, report software bugs and much more.",
-    "description": "ToDzz is a collaborative task management tool that helps teams stay organised and productive. All the communication and materials related to a certain issue are under a single task (or card in Kanban board) and for developers it is also synced with GitHub issues.",
-    "button_text": "Sign up and as you login, you can accept the invitation",
-    "expiry_notice": "This invitation will expire in 7 days. If you don't want to accept this invitation, you can safely just delete this email.",
+    "invite_text": "has invited you to collaborate on a board — see, manage and create tasks, comment, track progress, report bugs and much more.",
+    "description": "ToDzz is a collaborative task management tool that helps teams stay organised and productive. All the communication and materials related to a certain issue live under a single task (or card in a Kanban board), and for developers it is also synced with GitHub issues.",
+    "button_text": "Create your account & join the board",
+    "someone": "Someone",
+    "board_label": "Board",
+    "email_notice_title": "Use this email address",
+    "email_notice_text": "Your invitation is tied to this address. Create your account (or sign in) with it — using a different email means the invitation will not be found.",
+    "steps_title": "How to join",
+    "step_1": "Click the button below — it takes you straight to account creation with your email already filled in.",
+    "step_2": "Set a password, or continue with Google using the same email address.",
+    "step_3": "That's it — the invitation is accepted automatically and you land right on the board.",
+    "link_fallback": "Button not working? Copy and paste this link:",
+    "expiry_notice": "This invitation will expire in 7 days. If you don't want to accept it, you can safely just delete this email.",
     "footer_text": "This email was sent from ToDzz.eu and if you have any questions, please contact"
   },
   "stats": {

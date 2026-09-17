@@ -282,7 +282,8 @@
     "no_pending_invitations": "Ootel kutseid pole",
     "invited_by": "Kutsuja:",
     "invitation_accepted_message": "Kutse vastu võetud! Projekt lisatud.",
-    "invitation_declined_message": "Kutsest keeldutud"
+    "invitation_declined_message": "Kutsest keeldutud",
+    "accepting_invitation": "Liitume tahvliga…"
   },
   "visibility": {
     "sharing_visibility": "Jagamine ja nähtavus",
@@ -370,7 +371,11 @@
     "switch_to_signup": "Loo konto",
     "password_requirements": "Parool peab olema vähemalt 8 tähemärki ning sisaldama suuri ja väikesi tähti ning numbreid",
     "use_magic_link_instead": "Või kasuta maagilist linki",
-    "use_password_instead": "Või kasuta parooli"
+    "use_password_instead": "Või kasuta parooli",
+    "invite_banner_title": "Sind on kutsutud tahvlile",
+    "invite_banner_text": "Kutse vastuvõtmiseks loo konto — jõuad kohe tahvlile.",
+    "invite_use_email": "Palun registreeru selle e-posti aadressiga:",
+    "invite_email_locked": "Sellele aadressile saadeti Sinu kutse."
   },
   "todo": {
     "noLists": "Liste veel pole",
@@ -732,9 +737,18 @@
   "email": {
     "invitation_subject": "Sind on kutsutud kaasa lööma ülesannete haldamisega projektis",
     "greeting": "Hei!",
-    "invite_text": "on kutsunud Sind koostööd tegema. Saad vaadata pooleli olevaid, kui ka lõpetatud ülesandeid. Kommenteerida tööde käiku, lisada uusi ülesandeid ning palju muud.",
+    "invite_text": "on kutsunud Sind tahvlil koostööd tegema — vaata, halda ja loo ülesandeid, kommenteeri, jälgi edenemist, teata vigadest ja palju muud.",
     "description": "ToDzz on ülesannete haldamise tööriist, mis aitab hoida töökorralduse selgena. Iga ülesandega seonduvad vestlused on kõik ühes kohas ning arendajate jaoks sünkroniseerib äpp kõiki ülesandeid GitHub task'dega.",
-    "button_text": "Loo omale konto ning sisse logituna saad kutse vastu võtta",
+    "button_text": "Loo konto ja liitu tahvliga",
+    "someone": "Keegi",
+    "board_label": "Tahvel",
+    "email_notice_title": "Kasuta seda e-posti aadressi",
+    "email_notice_text": "Sinu kutse on seotud selle aadressiga. Loo konto (või logi sisse) just selle aadressiga — muu e-posti kasutamisel kutset ei leita.",
+    "steps_title": "Kuidas liituda",
+    "step_1": "Klõpsa allolevat nuppu — see viib Su otse konto loomise juurde, kus e-post on juba täidetud.",
+    "step_2": "Määra parool või jätka Google'iga sama e-posti aadressiga.",
+    "step_3": "Ongi kõik — kutse võetakse automaatselt vastu ja jõuad kohe tahvlile.",
+    "link_fallback": "Nupp ei tööta? Kopeeri ja kleebi see link:",
     "expiry_notice": "See kutse aegub 7 päeva jooksul. Kui sa ei soovi kutset vastu võtta, võid selle e-kirja lihtsalt ära kustutada.",
     "footer_text": "See kiri saadeti rakendusest ToDzz.eu ning küsimuste korral võta ühendust aadressil"
   },

@@ -203,7 +203,8 @@
     "no_pending_invitations": "Žádné čekající pozvánky",
     "invited_by": "Pozván uživatelem",
     "invitation_accepted_message": "Pozvánka přijata! Deska přidána.",
-    "invitation_declined_message": "Pozvánka odmítnuta"
+    "invitation_declined_message": "Pozvánka odmítnuta",
+    "accepting_invitation": "Připojování k desce…"
   },
   "visibility": {
     "sharing_visibility": "Sdílení a viditelnost",
@@ -291,7 +292,11 @@
     "switch_to_signup": "Registrovat se",
     "password_requirements": "Heslo musí mít alespoň 8 znaků a obsahovat velká a malá písmena a čísla",
     "use_magic_link_instead": "Nebo použít magický odkaz",
-    "use_password_instead": "Nebo použít heslo"
+    "use_password_instead": "Nebo použít heslo",
+    "invite_banner_title": "Byli jste pozváni na desku",
+    "invite_banner_text": "Pro přijetí pozvánky si vytvořte účet — rovnou se dostanete na desku.",
+    "invite_use_email": "Zaregistrujte se prosím s touto e-mailovou adresou:",
+    "invite_email_locked": "Na tuto adresu byla vaše pozvánka odeslána."
   },
   "todo": {
     "noLists": "Žádné seznamy",
@@ -703,9 +708,18 @@
   "email": {
     "invitation_subject": "Byli jste pozváni ke spolupráci na správě úkolů v projektu",
     "greeting": "Ahoj!",
-    "invite_text": "vás pozval(a), abyste mohli zobrazovat, spravovat a vytvářet nové úkoly. Komentujte stávající úkoly, sledujte průběh práce, hlaste chyby v softwaru a mnoho dalšího.",
+    "invite_text": "vás pozval(a) ke spolupráci na desce — zobrazujte, spravujte a vytvářejte úkoly, komentujte, sledujte průběh, hlaste chyby a mnoho dalšího.",
     "description": "ToDzz je nástroj pro týmovou správu úkolů, který pomáhá týmům zůstat organizované a produktivní. Veškerá komunikace a materiály týkající se určitého problému jsou soustředěny v jednom úkolu (nebo kartě v Kanban boardu) a pro vývojáře je vše synchronizováno s GitHub Issues.",
-    "button_text": "Zaregistrujte se a po přihlášení můžete pozvání přijmout",
+    "button_text": "Vytvořte účet a připojte se k desce",
+    "someone": "Někdo",
+    "board_label": "Deska",
+    "email_notice_title": "Použijte tuto e-mailovou adresu",
+    "email_notice_text": "Vaše pozvánka je vázána na tuto adresu. Vytvořte účet (nebo se přihlaste) právě s ní — s jinou e-mailovou adresou pozvánku nenajdeme.",
+    "steps_title": "Jak se připojit",
+    "step_1": "Klikněte na tlačítko níže — přenese vás rovnou k vytvoření účtu s předvyplněným e-mailem.",
+    "step_2": "Nastavte si heslo nebo pokračujte přes Google se stejnou e-mailovou adresou.",
+    "step_3": "A je to — pozvánka se přijme automaticky a rovnou se dostanete na desku.",
+    "link_fallback": "Tlačítko nefunguje? Zkopírujte a vložte tento odkaz:",
     "expiry_notice": "Toto pozvání vyprší za 7 dní. Pokud jej nechcete přijmout, můžete tento e-mail jednoduše smazat.",
     "footer_text": "Tento e-mail byl odeslán z ToDzz.eu. Pokud máte jakékoli dotazy, kontaktujte nás na"
   },

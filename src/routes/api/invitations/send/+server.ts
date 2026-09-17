@@ -35,13 +35,26 @@ function getTranslation(translations: any, key: string, fallback: string): strin
 	return result;
 }
 
+/** Escape user-supplied values before interpolating them into HTML. */
+function escapeHtml(value: string): string {
+	return String(value ?? '')
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
 async function getEmailTemplate(
 	inviterName: string,
 	boardName: string,
 	invitationUrl: string,
+	inviteeEmail: string,
 	locale: string = 'et'
 ): Promise<EmailTemplate> {
 	const translations = await loadTranslations(locale);
+
+	const inviter = inviterName || getTranslation(translations, 'email.someone', 'Someone');
 
 	const subject =
 		getTranslation(
@@ -54,15 +67,11 @@ async function getEmailTemplate(
 
 	const greeting = getTranslation(translations, 'email.greeting', 'Hi there!');
 
-	const inviteText =
-		'<strong>' +
-		(inviterName || 'Someone') +
-		'</strong> ' +
-		getTranslation(
-			translations,
-			'email.invite_text',
-			'has invited you to see, manage and create new tasks. Comment existing tasks, see the work progress, report software bugs and much more.'
-		);
+	const inviteText = getTranslation(
+		translations,
+		'email.invite_text',
+		'has invited you to see, manage and create new tasks. Comment existing tasks, see the work progress, report software bugs and much more.'
+	);
 
 	const description = getTranslation(
 		translations,
@@ -73,7 +82,36 @@ async function getEmailTemplate(
 	const buttonText = getTranslation(
 		translations,
 		'email.button_text',
-		'Sign up and as you login, you can accept the invitation'
+		'Create your account & join the board'
+	);
+
+	const stepsTitle = getTranslation(translations, 'email.steps_title', 'How to join:');
+
+	const emailNoticeTitle = getTranslation(
+		translations,
+		'email.email_notice_title',
+		'Use this email address'
+	);
+	const emailNoticeText = getTranslation(
+		translations,
+		'email.email_notice_text',
+		'Your invitation is tied to this address. Create your account (or sign in) with it — using a different email means the invitation will not be found.'
+	);
+
+	const step1 = getTranslation(
+		translations,
+		'email.step_1',
+		'Click the button below — it takes you straight to account creation with your email already filled in.'
+	);
+	const step2 = getTranslation(
+		translations,
+		'email.step_2',
+		'Set a password, or continue with Google using the same email address.'
+	);
+	const step3 = getTranslation(
+		translations,
+		'email.step_3',
+		"That's it — the invitation is accepted automatically and you land right on the board."
 	);
 
 	const expiryNotice = getTranslation(
@@ -88,117 +126,119 @@ async function getEmailTemplate(
 		'This email was sent from ToDzz.eu and if you have any questions, please contact'
 	);
 
-	const html = `
-<!DOCTYPE html>
-<html>
+	const safeBoard = escapeHtml(boardName);
+	const safeInviter = escapeHtml(inviter);
+	const safeEmail = escapeHtml(inviteeEmail);
+	const safeUrl = escapeHtml(invitationUrl);
+
+	// Table-based, inline-styled layout for maximum email-client compatibility.
+	const html = `<!DOCTYPE html>
+<html lang="${escapeHtml(locale)}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            background: linear-gradient(135deg, oklch(0.184 0.056 286) 0%, oklch(0.24 0.048 286) 50%, oklch(0.35 0.042 286) 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 10px 10px 0 0;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .logo-image {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            vertical-align: middle;
-        }
-        .content {
-            background: #f9fafb;
-            padding: 30px;
-            border-radius: 0 0 10px 10px;
-        }
-        .content h2 {
-            color: oklch(0.184 0.056 286);
-            margin: 0 0 20px 0;
-        }
-        .content p {
-            color: #333;
-            margin: 0 0 16px 0;
-        }
-        .button {
-            display: inline-block;
-            padding: 12px 30px;
-            background: oklch(0.184 0.056 286);
-            color: white !important;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 600;
-            margin: 20px 0;
-        }
-        .button:hover {
-            background: oklch(0.24 0.048 286);
-        }
-        .board-name {
-            font-weight: 700;
-            color: oklch(0.184 0.056 286);
-        }
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #6b7280;
-            font-size: 14px;
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="color-scheme" content="light only">
+	<title>${safeBoard}</title>
 </head>
-<body>
-    <div class="header">
-        <h1>
-            <img src="https://todzz.eu/pwa-192x192.png" alt="ToDzz" class="logo-image" />
-            ToDzz
-        </h1>
-    </div>
-    <div class="content">
-        <h2>Board Invitation</h2>
-        <p>${greeting}</p>
-        <p><strong>${inviterName || 'Someone'}</strong> ${inviteText.replace(/<\/?strong>/g, '')}</p>
-        <p class="board-name">"${boardName}"</p>
-        <p>${description}</p>
-        <center>
-            <a href="${invitationUrl}" class="button">${buttonText}</a>
-        </center>
-        <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
-            ${expiryNotice}
-        </p>
-    </div>
-    <div class="footer">
-        <p>${footerText} <a href="mailto:support@todzz.eu">support@todzz.eu</a></p>
-    </div>
+<body style="margin:0;padding:0;background-color:#f1f2f6;">
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f1f2f6;padding:24px 0;">
+		<tr>
+			<td align="center">
+				<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background-color:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 4px 18px rgba(20,20,40,0.08);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+					<!-- Header -->
+					<tr>
+						<td style="background:linear-gradient(135deg,#241b4a 0%,#312a5c 55%,#4a4276 100%);padding:32px 32px;text-align:center;">
+							<img src="https://todzz.eu/pwa-192x192.png" alt="ToDzz" width="44" height="44" style="width:44px;height:44px;border-radius:10px;vertical-align:middle;" />
+							<span style="color:#ffffff;font-size:26px;font-weight:700;letter-spacing:0.5px;vertical-align:middle;margin-left:10px;">ToDzz</span>
+						</td>
+					</tr>
+					<!-- Body -->
+					<tr>
+						<td style="padding:32px 32px 8px 32px;color:#1f2233;">
+							<p style="margin:0 0 8px 0;font-size:15px;color:#6b7280;">${greeting}</p>
+							<h1 style="margin:0 0 16px 0;font-size:23px;line-height:1.3;color:#1f2233;">
+								${safeInviter} ${inviteText}
+							</h1>
+							<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px 0;">
+								<tr>
+									<td style="background-color:#f5f4fb;border-left:4px solid #4a4276;border-radius:8px;padding:14px 18px;">
+										<span style="font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.6px;">${escapeHtml(getTranslation(translations, 'email.board_label', 'Board'))}</span><br>
+										<span style="font-size:19px;font-weight:700;color:#241b4a;">${safeBoard}</span>
+									</td>
+								</tr>
+							</table>
+							<p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;color:#4b5065;">${description}</p>
+
+							<!-- Email notice -->
+							<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
+								<tr>
+									<td style="background-color:#fff7ed;border:1px solid #fdba74;border-radius:8px;padding:16px 18px;">
+										<p style="margin:0 0 6px 0;font-size:14px;font-weight:700;color:#9a3412;">⚠️ ${emailNoticeTitle}</p>
+										<p style="margin:0 0 8px 0;font-size:14px;line-height:1.5;color:#7c2d12;">${emailNoticeText}</p>
+										<p style="margin:0;font-size:15px;font-weight:700;color:#1f2233;background-color:#ffffff;border:1px solid #fed7aa;border-radius:6px;padding:8px 12px;display:inline-block;">${safeEmail}</p>
+									</td>
+								</tr>
+							</table>
+
+							<!-- Steps -->
+							<p style="margin:0 0 12px 0;font-size:14px;font-weight:700;color:#1f2233;text-transform:uppercase;letter-spacing:0.6px;">${stepsTitle}</p>
+							<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 8px 0;">
+								<tr>
+									<td width="30" valign="top" style="padding:0 10px 14px 0;"><span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background-color:#241b4a;color:#ffffff;border-radius:50%;font-size:13px;font-weight:700;">1</span></td>
+									<td valign="top" style="padding:0 0 14px 0;font-size:15px;line-height:1.5;color:#4b5065;">${step1}</td>
+								</tr>
+								<tr>
+									<td width="30" valign="top" style="padding:0 10px 14px 0;"><span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background-color:#241b4a;color:#ffffff;border-radius:50%;font-size:13px;font-weight:700;">2</span></td>
+									<td valign="top" style="padding:0 0 14px 0;font-size:15px;line-height:1.5;color:#4b5065;">${step2}</td>
+								</tr>
+								<tr>
+									<td width="30" valign="top" style="padding:0 10px 0 0;"><span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background-color:#16a34a;color:#ffffff;border-radius:50%;font-size:13px;font-weight:700;">3</span></td>
+									<td valign="top" style="font-size:15px;line-height:1.5;color:#4b5065;">${step3}</td>
+								</tr>
+							</table>
+
+							<!-- CTA -->
+							<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 8px 0;">
+								<tr>
+									<td align="center">
+										<a href="${safeUrl}" style="display:inline-block;padding:14px 34px;background-color:#241b4a;color:#ffffff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:600;">${buttonText}</a>
+									</td>
+								</tr>
+							</table>
+							<p style="margin:16px 0 0 0;font-size:12px;line-height:1.5;color:#9ca3af;text-align:center;">${escapeHtml(getTranslation(translations, 'email.link_fallback', 'Button not working? Copy and paste this link:'))}<br><a href="${safeUrl}" style="color:#4a4276;word-break:break-all;">${safeUrl}</a></p>
+
+							<p style="margin:24px 0 0 0;font-size:13px;line-height:1.5;color:#9ca3af;">${expiryNotice}</p>
+						</td>
+					</tr>
+					<!-- Footer -->
+					<tr>
+						<td style="padding:20px 32px 28px 32px;border-top:1px solid #ececf2;text-align:center;">
+							<p style="margin:0;font-size:13px;line-height:1.5;color:#9ca3af;">${footerText} <a href="mailto:support@todzz.eu" style="color:#4a4276;">support@todzz.eu</a></p>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
 </body>
-</html>
-    `;
+</html>`;
 
-	const inviteTextPlain = inviteText.replace(/<[^>]*>/g, '');
+	const text = `${greeting}
 
-	const text = `
-${greeting}
+${inviter} ${inviteText}
 
-"${boardName}"
-
-${inviteTextPlain}
+${getTranslation(translations, 'email.board_label', 'Board')}: "${boardName}"
 
 ${description}
+
+${emailNoticeTitle}
+${emailNoticeText}
+${inviteeEmail}
+
+${stepsTitle}
+1. ${step1}
+2. ${step2}
+3. ${step3}
 
 ${buttonText}:
 ${invitationUrl}
@@ -206,8 +246,7 @@ ${invitationUrl}
 ${expiryNotice}
 
 ---
-${footerText} support@todzz.eu
-    `;
+${footerText} support@todzz.eu`;
 
 	return { html, text, subject };
 }
@@ -243,6 +282,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 			inviterName,
 			boardName,
 			invitationUrl,
+			inviteeEmail,
 			locale
 		);
 
@@ -256,7 +296,7 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 			html
 		});
 
-		console.log('resp: ',mailResponse);
+		console.log('resp: ', mailResponse);
 
 		return json({ success: true });
 	} catch (error) {
