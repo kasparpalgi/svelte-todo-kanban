@@ -110,3 +110,6 @@ Fixed. Strangers' public boards no longer leak into anyone's board switcher; pub
 boards remain viewable by direct URL. Root cause was client-side (unscoped board fetch),
 not a data corruption — nothing in kaspar's records needed changing.
 
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
