@@ -4,6 +4,6 @@
 
 [NEVER REMOVE]
 
-Under settings make it possible for user to delete account and all
+Under settings make it possible for user to delete account and all data. Also, to download all own data.
 
 _From Kanban card `bf7d332c-a876-4ba9-863f-675e6fca42f2`._
