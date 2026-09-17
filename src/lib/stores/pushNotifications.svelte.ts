@@ -1,7 +1,10 @@
 /** @file src/lib/stores/pushNotifications.svelte.ts */
 import { browser } from '$app/environment';
 import { request } from '$lib/graphql/client';
-import { PUBLIC_VAPID_PUBLIC_KEY } from '$env/static/public';
+// Dynamic (not static) public env: a missing PUBLIC_VAPID_PUBLIC_KEY then degrades
+// push subscription at runtime instead of failing the whole build, the way
+// `$env/static/public` does when the var isn't set in the deploy environment.
+import { env } from '$env/dynamic/public';
 import { CREATE_PUSH_SUBSCRIPTION, DELETE_PUSH_SUBSCRIPTION } from '$lib/graphql/documents';
 
 export interface PushNotificationState {
@@ -54,12 +57,17 @@ function createPushNotificationStore() {
 				return { success: false, message: 'Permission denied' };
 			}
 
+			const vapidKey = env.PUBLIC_VAPID_PUBLIC_KEY;
+			if (!vapidKey) {
+				return { success: false, message: 'Push notifications are not configured' };
+			}
+
 			const registration = await navigator.serviceWorker.ready;
 			let subscription = await registration.pushManager.getSubscription();
 			if (!subscription) {
 				subscription = await registration.pushManager.subscribe({
 					userVisibleOnly: true,
-					applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_PUBLIC_KEY)
+					applicationServerKey: urlBase64ToUint8Array(vapidKey)
 				});
 			}
 
