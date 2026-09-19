@@ -60,7 +60,9 @@ function createListsStore() {
 
 			const data: GetListsQuery = await request(GET_LISTS, {
 				where: {},
-				order_by: [{ sort_order: Order_By.Asc }, { name: Order_By.Asc }]
+				order_by: [{ sort_order: Order_By.Asc }, { name: Order_By.Asc }],
+				// GET_LISTS defaults to 100; newest lists (highest sort_order) were cut off on reload
+				limit: 10000
 			});
 
 			lists = data.lists || [];
@@ -167,7 +169,10 @@ function createListsStore() {
 		if (!name.trim()) return { success: false, message: 'Name is required' };
 
 		try {
-			const maxSortOrder = Math.max(...lists.map((l) => l.sort_order || 0), 0);
+			const maxSortOrder = Math.max(
+				...lists.filter((l) => !boardId || l.board_id === boardId).map((l) => l.sort_order || 0),
+				0
+			);
 
 			const data: CreateListMutation = await request(CREATE_LIST, {
 				objects: [
