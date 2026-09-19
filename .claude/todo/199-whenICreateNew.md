@@ -4,8 +4,6 @@
 
 [NEVER REMOVE]
 
-_(no description yet)_
+I think not saving to DB
 
 _From Kanban card `65351e55-cdfd-4eb8-9464-7147ef5a9f4e`._
-
-_GitHub issue #199 — end the commit subject with `(#199)`._
