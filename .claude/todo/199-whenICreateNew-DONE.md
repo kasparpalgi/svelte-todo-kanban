@@ -16,3 +16,7 @@ _GitHub issue #199 — end the commit subject with `(#199)`._
 - Root cause: `listsStore.loadLists` used `GET_LISTS` default `limit: 100` ordered by `sort_order`, so once >100 lists are visible, newly created lists (highest sort_order) are dropped on reload. Create itself does persist (`CREATE_LIST` -> `insert_lists`).
 - Fix: `loadLists` passes `limit: 10000`; `createList` computes `sort_order` from lists of the target board only.
 - Not verified live in browser (no repro data checked); verified via `npm run check` / tests below.
+
+## Results
+
+The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
