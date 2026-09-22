@@ -13,6 +13,7 @@ const GET_TODO_FOR_DRAFT = `
 			content
 			agent_model
 			agent_effort
+			agent_machine
 			github_issue_number
 			task_file_path
 			list {

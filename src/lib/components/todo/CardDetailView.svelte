@@ -34,7 +34,13 @@
 	import type { Readable } from 'svelte/store';
 	import type { Editor } from 'svelte-tiptap';
 	import type { DateValue } from '@internationalized/date';
-	import type { CardDetailViewProps, Priority, AgentModel, AgentEffort } from '$lib/types/todo';
+	import type {
+		CardDetailViewProps,
+		Priority,
+		AgentModel,
+		AgentEffort,
+		AgentMachine
+	} from '$lib/types/todo';
 
 	let { todo, lang, onClose }: CardDetailViewProps = $props();
 
@@ -58,7 +64,8 @@
 		actual_hours: todo.actual_hours ?? null,
 		comment_hours: todo.comment_hours || '',
 		agent_model: (todo.agent_model as AgentModel | null) ?? null,
-		agent_effort: (todo.agent_effort as AgentEffort | null) ?? null
+		agent_effort: (todo.agent_effort as AgentEffort | null) ?? null,
+		agent_machine: (todo.agent_machine as AgentMachine | null) ?? null
 	});
 
 	let selectedDate = $state<DateValue | undefined>(
@@ -96,7 +103,8 @@
 			actual_hours: editData.actual_hours,
 			comment_hours: editData.comment_hours,
 			agent_model: editData.agent_model,
-			agent_effort: editData.agent_effort
+			agent_effort: editData.agent_effort,
+			agent_machine: editData.agent_machine
 		});
 	}
 
@@ -224,7 +232,8 @@
 				actual_hours: validatedData.actual_hours,
 				comment_hours: validatedData.comment_hours,
 				agent_model: validatedData.agent_model || null,
-				agent_effort: validatedData.agent_effort || null
+				agent_effort: validatedData.agent_effort || null,
+				agent_machine: validatedData.agent_machine || null
 			});
 
 			if (!result.success) {
@@ -651,6 +660,21 @@
 						<option value="high">{$t('card.agent_effort_high')}</option>
 						<option value="xhigh">{$t('card.agent_effort_xhigh')}</option>
 						<option value="max">{$t('card.agent_effort_max')}</option>
+					</select>
+				</div>
+
+				<div>
+					<Label for="agent-machine" class="mb-2 flex items-center gap-2">
+						{$t('card.agent_machine_label')}
+					</Label>
+					<select
+						id="agent-machine"
+						bind:value={editData.agent_machine}
+						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+					>
+						<option value={null}>{$t('card.agent_machine_auto')}</option>
+						<option value="mac">{$t('card.agent_machine_mac')}</option>
+						<option value="karel">{$t('card.agent_machine_karel')}</option>
 					</select>
 				</div>
 			{/if}

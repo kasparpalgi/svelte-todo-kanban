@@ -88,6 +88,7 @@ insert_permissions:
       columns:
         - actual_hours
         - agent_effort
+        - agent_machine
         - agent_model
         - alias
         - assigned_to
@@ -118,6 +119,7 @@ select_permissions:
       columns:
         - actual_hours
         - agent_effort
+        - agent_machine
         - agent_model
         - alias
         - assigned_to
@@ -174,6 +176,7 @@ update_permissions:
       columns:
         - actual_hours
         - agent_effort
+        - agent_machine
         - agent_model
         - alias
         - assigned_to

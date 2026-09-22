@@ -8,6 +8,7 @@ import {
 	buildTaskFile,
 	camelName,
 	ensureFooter,
+	ensureMachine,
 	ensureRunWith,
 	nextNumber,
 	todoPathFor
@@ -23,6 +24,7 @@ const GET_TODO_FOR_TASK_FILE = `
 			content
 			agent_model
 			agent_effort
+			agent_machine
 			github_issue_number
 			task_file_path
 			list {
@@ -116,7 +118,7 @@ async function renameDraftToTodo(
 		method: 'PUT',
 		body: JSON.stringify({
 			message: `docs(todo): ${todoPath} from Kanban${ref}`,
-			content: encode(ensureFooter(ensureRunWith(body, card), card))
+			content: encode(ensureFooter(ensureMachine(ensureRunWith(body, card), card), card))
 		})
 	});
 

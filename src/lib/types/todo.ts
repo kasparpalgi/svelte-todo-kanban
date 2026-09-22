@@ -6,6 +6,9 @@ export type Priority = 'low' | 'medium' | 'high';
 export type AgentModel = 'fable' | 'opus' | 'sonnet' | 'haiku';
 export type AgentEffort = 'low' | 'medium' | 'high';
 
+/** The machines a runner answers to; see `> Machine:` in the task file. */
+export type AgentMachine = 'mac' | 'karel';
+
 export interface TodosState {
 	todos: TodoFieldsFragment[];
 	loading: boolean;

@@ -5,6 +5,7 @@ import {
 	buildTaskFile,
 	camelName,
 	ensureFooter,
+	ensureMachine,
 	ensureRunWith,
 	findTaskFileRenames,
 	nextNumber,
@@ -291,5 +292,67 @@ describe('findTaskFileRenames', () => {
 		expect(
 			findTaskFileRenames({ removed: ['.claude/todo/160-dragNDropCrap-TODO.md'], added: [] })
 		).toEqual([]);
+	});
+});
+
+describe('machine line', () => {
+	const card = { id: 'abc', title: 'Ship it', content: 'do it' };
+
+	it('addresses the task to the machine the card names', () => {
+		expect(buildTaskFile({ ...card, agent_machine: 'karel' })).toContain('> Machine: karel');
+	});
+
+	it('omits the line entirely on auto, so the default machine claims it', () => {
+		expect(buildTaskFile(card)).not.toContain('> Machine:');
+		expect(buildDraftFile(card)).not.toContain('> Machine:');
+	});
+
+	it('keeps the machine directly under the tier line', () => {
+		const file = buildTaskFile({ ...card, agent_model: 'opus-5', agent_machine: 'karel' });
+		expect(file.startsWith('> Run with: Opus 5 / high\n> Machine: karel\n\n# Ship it')).toBe(true);
+	});
+
+	it('stands alone when the card has no tier', () => {
+		expect(buildDraftFile({ ...card, agent_machine: 'mac' }).startsWith('> Machine: mac\n\n#')).toBe(
+			true
+		);
+	});
+
+	it('slugs an odd spelling the way the runner does', () => {
+		expect(buildTaskFile({ ...card, agent_machine: 'Karel Ubuntu' })).toContain(
+			'> Machine: karel-ubuntu'
+		);
+	});
+});
+
+describe('ensureMachine', () => {
+	it('injects the line a draft was frozen without', () => {
+		const body = '# Fix errors\n\nnpm run check is red.\n';
+		const out = ensureMachine(body, { id: 'abc', title: 'x', agent_machine: 'karel' });
+		expect(out).toBe('> Machine: karel\n\n# Fix errors\n\nnpm run check is red.\n');
+	});
+
+	it('tucks the line under an existing tier line', () => {
+		const body = '> Run with: Opus 5 / high\n\n# Fix errors\n';
+		const out = ensureMachine(body, { id: 'abc', title: 'x', agent_machine: 'karel' });
+		expect(out).toBe('> Run with: Opus 5 / high\n> Machine: karel\n\n# Fix errors\n');
+	});
+
+	it('overwrites a stale draft line when the field disagrees', () => {
+		const body = '> Run with: Opus 5 / high\n> Machine: karel\n\n# Fix errors\n';
+		const out = ensureMachine(body, { id: 'abc', title: 'x', agent_machine: 'mac' });
+		expect(out).toBe('> Run with: Opus 5 / high\n> Machine: mac\n\n# Fix errors\n');
+		expect(out).not.toContain('karel');
+	});
+
+	it('drops a stale line when the card went back to auto', () => {
+		const body = '> Run with: Opus 5 / high\n> Machine: karel\n\n# Fix errors\n';
+		const out = ensureMachine(body, { id: 'abc', title: 'x' });
+		expect(out).toBe('> Run with: Opus 5 / high\n\n# Fix errors\n');
+	});
+
+	it('leaves an unaddressed auto card untouched', () => {
+		const body = '# Fix errors\n';
+		expect(ensureMachine(body, { id: 'abc', title: 'x' })).toBe(body);
 	});
 });

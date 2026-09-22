@@ -609,6 +609,7 @@ function createTodosStore() {
 				| 'comment_hours'
 				| 'agent_model'
 				| 'agent_effort'
+				| 'agent_machine'
 			> & {
 				list_id?: string | null;
 				assigned_to?: string | null;

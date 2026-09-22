@@ -13,7 +13,6 @@ import { getGithubToken, githubRequest } from '$lib/server/github';
  * Requirements:
  * - User must have admin access to the repository
  * - GITHUB_WEBHOOK_SECRET must be configured
- * - PUBLIC_APP_URL must be set for webhook callback URL
  */
 
 interface WebhookConfig {
@@ -45,10 +44,25 @@ interface GitHubWebhookResponse {
 	updated_at: string;
 }
 
+const WEBHOOK_PATH = '/api/github/webhook';
+
+/**
+ * GitHub does not follow redirects on a delivery: it records the 3xx as the response and
+ * moves on, so a hook pointing at a domain that redirects never reaches the handler and
+ * fails silently. `PUBLIC_APP_URL` was the apex `todzz.eu`, which 307s to `www` — every
+ * delivery died there. Derive the callback from the real request origin instead, the same
+ * fix the OAuth redirect_uri needed in #195.
+ */
+const webhookUrlFor = (origin: string) => `${origin}${WEBHOOK_PATH}`;
+
+/** Match on the path, not the full URL — a hook registered from another domain is still ours. */
+const isOurWebhook = (hook: GitHubWebhookResponse) =>
+	Boolean(hook.config?.url?.endsWith(WEBHOOK_PATH));
+
 /**
  * POST - Register webhook for a repository
  */
-export const POST: RequestHandler = async ({ request: req, locals }) => {
+export const POST: RequestHandler = async ({ request: req, url, locals }) => {
 	const session = await locals.auth();
 	if (!session?.user?.id) {
 		throw error(401, 'Unauthorized');
@@ -68,10 +82,6 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		);
 	}
 
-	if (!env.PUBLIC_APP_URL) {
-		throw error(500, 'PUBLIC_APP_URL not configured');
-	}
-
 	// Get user's GitHub token
 	const githubToken = await getGithubToken(session.user.id);
 	if (!githubToken) {
@@ -86,8 +96,8 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			{ method: 'GET' }
 		);
 
-		const webhookUrl = `${env.PUBLIC_APP_URL}/api/github/webhook`;
-		const existingWebhook = existingWebhooks.find((hook) => hook.config?.url === webhookUrl);
+		const webhookUrl = webhookUrlFor(url.origin);
+		const existingWebhook = existingWebhooks.find(isOurWebhook);
 
 		if (existingWebhook) {
 			return json({
@@ -218,8 +228,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			{ method: 'GET' }
 		);
 
-		const webhookUrl = `${env.PUBLIC_APP_URL}/api/github/webhook`;
-		const ourWebhook = webhooks.find((hook) => hook.config?.url === webhookUrl);
+		const ourWebhook = webhooks.find(isOurWebhook);
 
 		if (ourWebhook) {
 			return json({

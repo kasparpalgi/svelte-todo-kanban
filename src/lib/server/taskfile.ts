@@ -92,13 +92,45 @@ function fieldLabel(model: string, effort?: string | null): string | null {
 	return label(family, version, effort);
 }
 
+/**
+ * Which computer runs the task. The runner slugs the `> Machine:` line the same way
+ * before matching it against the names it answers to, so `Karel Ubuntu`,
+ * `karel-ubuntu` and `KAREL UBUNTU` are one machine. Slug on the way out too — the
+ * stored string's spelling is not worth trusting.
+ */
+const machineSlug = (s?: string | null): string =>
+	String(s ?? '')
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
+
 export interface TaskCard {
 	id: string;
 	title: string;
 	content?: string | null;
 	agent_model?: string | null;
 	agent_effort?: string | null;
+	agent_machine?: string | null;
 	github_issue_number?: number | null;
+}
+
+/**
+ * `> Machine: karel` — the line the runner reads to decide the task is its own.
+ * Null when the card is on *auto*: a file with no such line is *unaddressed*, and the
+ * one runner configured as `machineDefault` (the Mac) takes those. So auto must emit
+ * nothing at all rather than a line naming a machine.
+ */
+const machineLine = (card: TaskCard): string | null => {
+	const slug = machineSlug(card.agent_machine);
+	return slug ? `> Machine: ${slug}` : null;
+};
+
+/** The `> Run with:` / `> Machine:` block, as the 0-2 lines that open the file. */
+function header(card: TaskCard, runWith: string | null): string[] {
+	const lines = [runWith && `> Run with: ${runWith}`, machineLine(card)].filter((l): l is string =>
+		Boolean(l)
+	);
+	return lines.length ? [...lines, ''] : [];
 }
 
 /**
@@ -127,6 +159,29 @@ export function ensureRunWith(body: string, card: TaskCard): string {
 	const line = `> Run with: ${wanted}`;
 	const existing = /^> Run with:.*$/m;
 	if (existing.test(body)) return body.replace(existing, line);
+	return `${line}\n\n${body.replace(/^\s+/, '')}`;
+}
+
+/**
+ * The `> Machine:` twin of {@link ensureRunWith}, for the same frozen-draft problem: the
+ * machine is usually picked after the draft was written, so the field is set on the board
+ * and the line is absent from the file — and the task runs on the Mac instead of Karel.
+ *
+ * Unlike the tier, this reconciles in *both* directions. A tier can also come from prose
+ * (`detectRunWith`), so an auto card leaves the body alone; a machine only ever comes from
+ * this field, so an auto card means the line must go — otherwise switching a card back to
+ * Auto leaves a stale `> Machine: karel` behind and the task still runs on Karel.
+ */
+export function ensureMachine(body: string, card: TaskCard): string {
+	const existing = /^> Machine:.*$\n?/m;
+	const line = machineLine(card);
+
+	if (!line) return existing.test(body) ? body.replace(existing, '') : body;
+	if (existing.test(body)) return body.replace(existing, `${line}\n`);
+
+	// Directly under the tier line when there is one, so the block stays together.
+	const runWith = /^> Run with:.*$/m;
+	if (runWith.test(body)) return body.replace(runWith, (m) => `${m}\n${line}`);
 	return `${line}\n\n${body.replace(/^\s+/, '')}`;
 }
 
@@ -181,7 +236,7 @@ export function buildDraftFile(card: TaskCard): string {
 	const body = toText(card.content);
 	const runWith = resolveRunWith(card, body);
 	return [
-		...(runWith ? [`> Run with: ${runWith}`, ''] : []),
+		...header(card, runWith),
 		`# ${card.title}`,
 		'',
 		'## Original Requirement',
@@ -201,7 +256,7 @@ export function buildTaskFile(card: TaskCard): string {
 	const body = toText(card.content);
 	const runWith = resolveRunWith(card, body);
 	return [
-		...(runWith ? [`> Run with: ${runWith}`, ''] : []),
+		...header(card, runWith),
 		`# ${card.title}`,
 		'',
 		'## Original Requirement',
