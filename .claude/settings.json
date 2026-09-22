@@ -1,0 +1,13 @@
+{
+	"extraKnownMarketplaces": {
+		"klarity": {
+			"source": {
+				"source": "github",
+				"repo": "kasparpalgi/klarity-claude-kit"
+			}
+		}
+	},
+	"enabledPlugins": {
+		"dev-kit@klarity": true
+	}
+}
