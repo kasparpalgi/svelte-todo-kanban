@@ -126,6 +126,23 @@ describe('POST /api/github/write-task-file', () => {
 		});
 	});
 
+	it('deletes the old-numbered draft when the issue renumbers it', async () => {
+		// Draft was created as 199-…; the card's issue is #163, so the TODO becomes 163-…-TODO.
+		// The DELETE must still target the original 199-… draft, not the new path.
+		githubRequest.mockResolvedValue({ content: 'ZHJhZnQ=', sha: 'draft-sha' });
+
+		const res = await call({ task_file_path: '.claude/todo/199-dragNDropCrap.md' });
+
+		expect(await res.json()).toMatchObject({
+			success: true,
+			path: '.claude/todo/163-dragNDropCrap-TODO.md'
+		});
+
+		const delCall = githubRequest.mock.calls.find(([, , opts]) => opts?.method === 'DELETE');
+		expect(delCall?.[0]).toContain('199-dragNDropCrap.md');
+		expect(JSON.parse(String(delCall?.[2].body)).sha).toBe('draft-sha');
+	});
+
 	it('injects the model line when renaming a draft frozen before the dropdown was set', async () => {
 		// The draft was written at card creation, before a model was picked — no Run with line.
 		const draft = Buffer.from(

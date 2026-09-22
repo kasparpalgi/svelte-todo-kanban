@@ -122,14 +122,24 @@ async function renameDraftToTodo(
 		})
 	});
 
-	// Delete the draft
-	await githubRequest(`/repos/${repo}/contents/${draftPath}`, token, {
-		method: 'DELETE',
-		body: JSON.stringify({
-			message: `docs(todo): replace ${draftPath} with ${todoPath}${ref}`,
-			sha: fileInfo.sha
-		})
-	});
+	// Delete the draft — log explicitly so a 409 or stale-sha failure is visible
+	try {
+		await githubRequest(`/repos/${repo}/contents/${draftPath}`, token, {
+			method: 'DELETE',
+			body: JSON.stringify({
+				message: `docs(todo): replace ${draftPath} with ${todoPath}${ref}`,
+				sha: fileInfo.sha
+			})
+		});
+	} catch (err: any) {
+		serverLog.error('TaskFile', 'Draft DELETE failed — orphan may remain', {
+			draftPath,
+			todoPath,
+			sha: fileInfo.sha,
+			error: err.message
+		});
+		throw err;
+	}
 
 	return todoPath;
 }
