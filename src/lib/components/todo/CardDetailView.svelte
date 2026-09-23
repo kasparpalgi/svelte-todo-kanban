@@ -636,6 +636,7 @@
 					>
 						<option value={null}>{$t('card.agent_model_auto')}</option>
 						<option value="fable-5.1">{$t('card.agent_model_fable_5_1')}</option>
+						<option value="opus-5.5">{$t('card.agent_model_opus_5_5')}</option>
 						<option value="opus-5">{$t('card.agent_model_opus_5')}</option>
 						<option value="opus-4.8">{$t('card.agent_model_opus_4_8')}</option>
 						<option value="opus-4.6">{$t('card.agent_model_opus_4_6')}</option>

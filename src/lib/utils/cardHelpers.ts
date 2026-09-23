@@ -18,6 +18,7 @@ export const todoEditSchema = z.object({
 			'sonnet',
 			'haiku',
 			'fable-5.1',
+			'opus-5.5',
 			'opus-5',
 			'opus-4.8',
 			'opus-4.6',
