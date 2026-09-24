@@ -47,11 +47,18 @@
 	let addToGoogleCalendar = $state(false);
 	const user = $derived(userStore.user);
 	const hasCalendarConnected = $derived(!!user?.settings?.tokens?.google_calendar?.encrypted);
-	const taskFileUrl = $derived(
-		todo.task_file_path && todo.list?.board?.github
-			? `https://github.com/${todo.list.board.github}/blob/main/${todo.task_file_path}`
-			: null
-	);
+	function githubFileUrl(github: string | null | undefined, filePath: string | null | undefined) {
+		if (!filePath || !github) return null;
+		try {
+			const gh = typeof github === 'string' ? JSON.parse(github) : github;
+			const fullName = gh?.full_name ?? `${gh?.owner}/${gh?.repo}`;
+			return `https://github.com/${fullName}/blob/main/${filePath}`;
+		} catch {
+			return null;
+		}
+	}
+
+	const taskFileUrl = $derived(githubFileUrl(todo.list?.board?.github, todo.task_file_path));
 	let dueDateTime = $state<Date | null>(todo.due_on ? new Date(todo.due_on) : null);
 
 	let editData = $state({
