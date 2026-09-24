@@ -656,7 +656,8 @@
     "all_changes_saved": "Kõik muudatused salvestatud",
     "auto_saving": "Salvestamine…",
     "calendar_event_failed": "Google kalendrisse lisamine ebaõnnestus",
-    "include_time": "Lisa kellaaeg"
+    "include_time": "Lisa kellaaeg",
+    "task_file_notice": "Seotud ülesandefail"
   },
   "labels": {
     "labels": "Sildid",

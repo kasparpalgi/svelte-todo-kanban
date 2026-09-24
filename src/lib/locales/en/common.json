@@ -656,7 +656,8 @@
     "all_changes_saved": "All changes saved",
     "auto_saving": "Saving…",
     "calendar_event_failed": "Failed to add to Google Calendar",
-    "include_time": "Include time"
+    "include_time": "Include time",
+    "task_file_notice": "Linked task file"
   },
   "labels": {
     "labels": "Labels",

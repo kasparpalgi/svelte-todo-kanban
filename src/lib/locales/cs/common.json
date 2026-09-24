@@ -577,7 +577,8 @@
     "all_changes_saved": "Vše uloženo",
     "auto_saving": "Ukládání…",
     "calendar_event_failed": "Nepodařilo se přidat do Google Calendar",
-    "include_time": "Zahrnout čas"
+    "include_time": "Zahrnout čas",
+    "task_file_notice": "Propojený soubor úkolu"
   },
   "labels": {
     "labels": "Štítky",
