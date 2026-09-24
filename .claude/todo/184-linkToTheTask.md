@@ -8,8 +8,6 @@
 
 At the top of the card we have: [.claude/todo/183-getVercelCliWorking-DONE.mdcard.task_file_notice](https://github.com/{\"owner\":\"kasparpalgi\",\"repo\":\"svelte-todo-kanban\",\"full_name\":\"kasparpalgi/svelte-todo-kanban\"}/blob/main/.claude/todo/183-getVercelCliWorking-DONE.md)
 
-When I click it takes me 
-
 What that `card.task_file_notice`text means? Remove if nonsense and otherwise make it make a sense.
 
 Also, the file link is way outstanding with its yellow background and way too prominent location at the very top.
