@@ -25,7 +25,8 @@ export const todoEditSchema = z.object({
 			'sonnet-5.5',
 			'sonnet-5',
 			'sonnet-4.6',
-			'haiku-4.5'
+			'haiku-4.5',
+			'gemini-3.8'
 		])
 		.nullable()
 		.optional(),

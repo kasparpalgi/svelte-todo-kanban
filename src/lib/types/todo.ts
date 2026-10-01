@@ -3,7 +3,7 @@ import type { TodoImage } from './imageUpload';
 
 export type Priority = 'low' | 'medium' | 'high';
 
-export type AgentModel = 'fable' | 'opus' | 'sonnet' | 'haiku';
+export type AgentModel = 'fable' | 'opus' | 'sonnet' | 'haiku' | 'gemini';
 export type AgentEffort = 'low' | 'medium' | 'high';
 
 /** The machines a runner answers to; see `> Machine:` in the task file. */

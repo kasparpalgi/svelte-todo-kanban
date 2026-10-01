@@ -649,6 +649,7 @@
 						<option value="sonnet-5">{$t('card.agent_model_sonnet_5')}</option>
 						<option value="sonnet-4.6">{$t('card.agent_model_sonnet_4_6')}</option>
 						<option value="haiku-4.5">{$t('card.agent_model_haiku_4_5')}</option>
+						<option value="gemini-3.8">{$t('card.agent_model_gemini_3_8')}</option>
 					</select>
 				</div>
 
@@ -665,8 +666,11 @@
 						<option value="low">{$t('card.agent_effort_low')}</option>
 						<option value="medium">{$t('card.agent_effort_medium')}</option>
 						<option value="high">{$t('card.agent_effort_high')}</option>
-						<option value="xhigh">{$t('card.agent_effort_xhigh')}</option>
-						<option value="max">{$t('card.agent_effort_max')}</option>
+						<!-- Gemini thinks at low/medium/high only. -->
+						{#if !editData.agent_model?.startsWith('gemini')}
+							<option value="xhigh">{$t('card.agent_effort_xhigh')}</option>
+							<option value="max">{$t('card.agent_effort_max')}</option>
+						{/if}
 					</select>
 				</div>
 

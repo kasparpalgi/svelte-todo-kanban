@@ -50,11 +50,16 @@ export function toText(content?: string | null): string {
  * A tier label is `<Name> <version> / <effort>` — the runner pins that exact model
  * id, so the version is not decoration. `latest` is what a bare family name means.
  */
-const FAMILIES: Record<string, { name: string; latest: string; effort: string }> = {
+const FAMILIES: Record<
+	string,
+	{ name: string; latest: string; effort: string; efforts?: string[] }
+> = {
 	fable: { name: 'Fable', latest: '5.1', effort: 'high' },
 	opus: { name: 'Opus', latest: '5', effort: 'high' },
 	sonnet: { name: 'Sonnet', latest: '5', effort: 'medium' },
-	haiku: { name: 'Haiku', latest: '4.5', effort: 'low' }
+	haiku: { name: 'Haiku', latest: '4.5', effort: 'low' },
+	// Free Gemini 3.8 Flash, run by aider on the runner; it thinks at low/medium/high only.
+	gemini: { name: 'Gemini', latest: '3.8', effort: 'medium', efforts: ['low', 'medium', 'high'] }
 };
 
 const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
@@ -62,11 +67,13 @@ const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
 function label(family: string, version?: string | null, effort?: string | null): string | null {
 	const f = FAMILIES[family];
 	if (!f) return null;
-	const e = effort && EFFORTS.includes(effort.toLowerCase()) ? effort.toLowerCase() : f.effort;
+	const allowed = f.efforts ?? EFFORTS;
+	let e = effort && EFFORTS.includes(effort.toLowerCase()) ? effort.toLowerCase() : f.effort;
+	if (!allowed.includes(e)) e = allowed[allowed.length - 1];
 	return `${f.name} ${version || f.latest} / ${e}`;
 }
 
-const NAMED = /\b(fable|opus|sonnet|haiku)\b[ \t]*(\d+(?:\.\d+)?)?[ \t]*(?:\/[ \t]*(\w+))?/i;
+const NAMED = /\b(fable|opus|sonnet|haiku|gemini)\b[ \t]*(\d+(?:\.\d+)?)?[ \t]*(?:\/[ \t]*(\w+))?/i;
 const PREFIXED = new RegExp(`run with:[ \\t]*${NAMED.source}`, 'i');
 
 /** Looks for a hand-typed tier in card prose ("Run with: opus 4.8 / xhigh" or a bare "Sonnet 4.6"). Null when nothing is named. */

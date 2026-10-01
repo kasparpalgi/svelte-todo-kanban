@@ -116,6 +116,10 @@ describe('runWithLabel', () => {
 		expect(runWithLabel('Run with: opus 4.8 / xhigh\nhard task')).toBe('Opus 4.8 / xhigh');
 	});
 
+	it('caps Gemini at its highest effort, high', () => {
+		expect(runWithLabel('Run with: gemini / xhigh\nsimple task')).toBe('Gemini 3.8 / high');
+	});
+
 	it('prefers an explicit Run with: over a model named earlier in prose', () => {
 		expect(runWithLabel('rewrite the sonnet parser\nRun with: opus')).toBe('Opus 5 / high');
 	});
@@ -162,6 +166,16 @@ describe('buildDraftFile', () => {
 			agent_effort: 'low'
 		});
 		expect(file).toContain('> Run with: Haiku 4.5 / low');
+	});
+
+	it('writes the free Gemini tier from the card fields', () => {
+		const file = buildDraftFile({
+			id: 'abc',
+			title: 'Ship it',
+			agent_model: 'gemini-3.8',
+			agent_effort: 'low'
+		});
+		expect(file).toContain('> Run with: Gemini 3.8 / low');
 	});
 
 	it('defaults effort to medium when only a model field is set', () => {

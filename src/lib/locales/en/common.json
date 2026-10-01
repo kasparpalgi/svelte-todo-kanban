@@ -596,6 +596,7 @@
     "agent_model_sonnet_5": "Sonnet 5",
     "agent_model_sonnet_4_6": "Sonnet 4.6",
     "agent_model_haiku_4_5": "Haiku 4.5",
+    "agent_model_gemini_3_8": "Gemini 3.8 (free)",
     "agent_effort_label": "Agent Effort",
     "agent_effort_low": "Low",
     "agent_effort_medium": "Medium",

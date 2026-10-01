@@ -517,6 +517,7 @@
     "agent_model_sonnet_5": "Sonnet 5",
     "agent_model_sonnet_4_6": "Sonnet 4.6",
     "agent_model_haiku_4_5": "Haiku 4.5",
+    "agent_model_gemini_3_8": "Gemini 3.8 (zdarma)",
     "agent_effort_label": "Úsilí agenta",
     "agent_effort_low": "Nízké",
     "agent_effort_medium": "Střední",
