@@ -7,7 +7,7 @@ export type AgentModel = 'fable' | 'opus' | 'sonnet' | 'haiku';
 export type AgentEffort = 'low' | 'medium' | 'high';
 
 /** The machines a runner answers to; see `> Machine:` in the task file. */
-export type AgentMachine = 'mac' | 'karel';
+export type AgentMachine = 'mac' | 'karel' | 'dell';
 
 export interface TodosState {
 	todos: TodoFieldsFragment[];

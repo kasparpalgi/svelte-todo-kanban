@@ -645,6 +645,7 @@
 						<option value="opus-5">{$t('card.agent_model_opus_5')}</option>
 						<option value="opus-4.8">{$t('card.agent_model_opus_4_8')}</option>
 						<option value="opus-4.6">{$t('card.agent_model_opus_4_6')}</option>
+						<option value="sonnet-5.5">{$t('card.agent_model_sonnet_5_5')}</option>
 						<option value="sonnet-5">{$t('card.agent_model_sonnet_5')}</option>
 						<option value="sonnet-4.6">{$t('card.agent_model_sonnet_4_6')}</option>
 						<option value="haiku-4.5">{$t('card.agent_model_haiku_4_5')}</option>
@@ -681,6 +682,7 @@
 						<option value={null}>{$t('card.agent_machine_auto')}</option>
 						<option value="mac">{$t('card.agent_machine_mac')}</option>
 						<option value="karel">{$t('card.agent_machine_karel')}</option>
+						<option value="dell">{$t('card.agent_machine_dell')}</option>
 					</select>
 				</div>
 			{/if}

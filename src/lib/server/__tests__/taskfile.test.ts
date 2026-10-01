@@ -300,6 +300,12 @@ describe('machine line', () => {
 
 	it('addresses the task to the machine the card names', () => {
 		expect(buildTaskFile({ ...card, agent_machine: 'karel' })).toContain('> Machine: karel');
+		expect(buildTaskFile({ ...card, agent_machine: 'dell' })).toContain('> Machine: dell');
+	});
+
+	it('pins Sonnet 5.5 to its own version', () => {
+		const file = buildTaskFile({ ...card, agent_model: 'sonnet-5.5' });
+		expect(file.startsWith('> Run with: Sonnet 5.5 / medium\n')).toBe(true);
 	});
 
 	it('omits the line entirely on auto, so the default machine claims it', () => {
@@ -313,9 +319,9 @@ describe('machine line', () => {
 	});
 
 	it('stands alone when the card has no tier', () => {
-		expect(buildDraftFile({ ...card, agent_machine: 'mac' }).startsWith('> Machine: mac\n\n#')).toBe(
-			true
-		);
+		expect(
+			buildDraftFile({ ...card, agent_machine: 'mac' }).startsWith('> Machine: mac\n\n#')
+		).toBe(true);
 	});
 
 	it('slugs an odd spelling the way the runner does', () => {

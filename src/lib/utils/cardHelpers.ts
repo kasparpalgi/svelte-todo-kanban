@@ -22,6 +22,7 @@ export const todoEditSchema = z.object({
 			'opus-5',
 			'opus-4.8',
 			'opus-4.6',
+			'sonnet-5.5',
 			'sonnet-5',
 			'sonnet-4.6',
 			'haiku-4.5'
@@ -31,7 +32,7 @@ export const todoEditSchema = z.object({
 	agent_effort: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).nullable().optional(),
 	// Only the machines a runner actually answers to. A card naming anything else would
 	// produce a task file no runner claims, and it would sit in the queue silently.
-	agent_machine: z.enum(['mac', 'karel']).nullable().optional()
+	agent_machine: z.enum(['mac', 'karel', 'dell']).nullable().optional()
 });
 
 export function formatDate(dateString: string, lang: string): string {
