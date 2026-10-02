@@ -257,8 +257,8 @@
 		<Separator />
 
 		<!-- Assignment Filters -->
-		<div class="space-y-3">
-			<label class="text-sm font-medium">{$t('filters.assignment')}</label>
+		<div class="space-y-3" role="group" aria-label={$t('filters.assignment')}>
+			<span class="text-sm font-medium">{$t('filters.assignment')}</span>
 			<div class="space-y-2">
 				<Button
 					variant={currentFilters.assignedToMe ? 'default' : 'outline'}
@@ -324,8 +324,8 @@
 		<Separator />
 
 		<!-- Priority Filters -->
-		<div class="space-y-3">
-			<label class="text-sm font-medium">{$t('filters.priority')}</label>
+		<div class="space-y-3" role="group" aria-label={$t('filters.priority')}>
+			<span class="text-sm font-medium">{$t('filters.priority')}</span>
 			<div class="space-y-1">
 				<Button
 					variant={selectedPriorities.includes('high') ? 'destructive' : 'outline'}
@@ -361,8 +361,8 @@
 
 		<!-- Label Filters -->
 		{#if boardLabels.length > 0}
-			<div class="space-y-3">
-				<label class="text-sm font-medium">{$t('filters.labels')}</label>
+			<div class="space-y-3" role="group" aria-label={$t('filters.labels')}>
+				<span class="text-sm font-medium">{$t('filters.labels')}</span>
 				<div class="flex flex-wrap gap-2">
 					{#each boardLabels as label (label.id)}
 						<Button

@@ -39,7 +39,7 @@ export interface SessionBreakdown {
 	reason: string; // why it was matched/allocated
 }
 
-export interface StatsPeriod {
+interface StatsPeriod {
 	startDate: Date;
 	endDate: Date;
 	totalSeconds: number;
@@ -52,7 +52,7 @@ export interface StatsPeriod {
 	matchedPercentage: number; // (matchedSeconds / totalSeconds) * 100
 }
 
-export interface TrackerStatsState {
+interface TrackerStatsState {
 	sessions: any[];
 	keywords: any[];
 	categories: any[];

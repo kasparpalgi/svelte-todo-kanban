@@ -23,6 +23,7 @@ vi.mock('$app/environment', () => ({
 vi.mock('../user.svelte', () => ({
 	userStore: {
 		user: { id: 'user-1', settings: {} },
+		whenReady: async () => null,
 		updateUser: vi.fn()
 	}
 }));

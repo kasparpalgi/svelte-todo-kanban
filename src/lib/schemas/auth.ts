@@ -1,7 +1,7 @@
 /** @file src/lib/schemas/auth.ts */
 import { z } from 'zod';
 
-export const passwordSchema = z
+const passwordSchema = z
 	.string()
 	.min(8, 'Password must be at least 8 characters')
 	.max(100, 'Password must be less than 100 characters')
@@ -26,5 +26,3 @@ export const loginSchema = z.object({
 	password: z.string().min(1, 'Password is required')
 });
 
-export type SignupData = z.infer<typeof signupSchema>;
-export type LoginData = z.infer<typeof loginSchema>;

@@ -1,6 +1,6 @@
 <script lang="ts">
 	/** @file src/routes/[lang]/[username]/[board]/expenses/+page.svelte */
-	import { onMount } from 'svelte';
+	import { untrack } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
@@ -16,9 +16,10 @@
 
 	let { data }: { data: PageData } = $props();
 
-	const board = data.board;
-	const boardMembers = data.boardMembers;
-	const currentUserId = data.session?.user?.id || '';
+	// $derived: switching boards reuses this component with new `data`.
+	const board = $derived(data.board);
+	const boardMembers = $derived(data.boardMembers);
+	const currentUserId = $derived(data.session?.user?.id || '');
 
 	let addExpenseOpen = $state(false);
 	let settleUpOpen = $state(false);
@@ -27,11 +28,10 @@
 	let settleToUser = $state<string | undefined>(undefined);
 	let settleAmount = $state<number | undefined>(undefined);
 
-	// Load expenses on mount
-	onMount(() => {
-		if (board.id) {
-			expensesStore.loadBoardExpenses(board.id);
-		}
+	// Load expenses for the current board (re-runs when the board changes)
+	$effect(() => {
+		const boardId = board.id;
+		if (boardId) untrack(() => expensesStore.loadBoardExpenses(boardId));
 	});
 
 	// Computed balances

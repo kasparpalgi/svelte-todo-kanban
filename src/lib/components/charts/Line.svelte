@@ -78,6 +78,7 @@
 		width={$width} 
 		height={$height} 
 		fill="transparent" 
+		role="presentation"
 		onmousemove={handleMouseMove}
 		onmouseleave={handleMouseLeave}
 		style="cursor: crosshair;"

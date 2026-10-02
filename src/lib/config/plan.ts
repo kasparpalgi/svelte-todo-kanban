@@ -3,8 +3,6 @@
  * Shared by client stores (soft upsell) and server endpoints (authoritative gating).
  */
 
-export type PlanTier = 'free' | 'paid';
-
 /** Limits that apply to the FREE plan. Paid removes all of them. */
 export const FREE_LIMITS = {
 	/** Max boards a user may own/belong-create. */

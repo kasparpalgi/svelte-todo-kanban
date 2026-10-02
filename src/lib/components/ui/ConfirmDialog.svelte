@@ -56,7 +56,7 @@
 		unsaved: FileX
 	};
 
-	const IconComponent = iconMap[icon];
+	const IconComponent = $derived(iconMap[icon]);
 </script>
 
 <Dialog bind:open onOpenChange={handleOpenChange}>

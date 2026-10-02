@@ -174,6 +174,20 @@ export async function publicRequest<TResult, TVariables = any>(
 	return client.request<TResult>(query, variables as any, headers);
 }
 
+const SLOW_OPERATION_MS = 1000;
+// The logger's own flush; reporting it as slow would just enqueue another
+// CreateLog and feed back into itself (267 such rows in Sept 2026, #206).
+const UNLOGGED_SLOW_OPERATIONS = new Set(['CreateLog']);
+
+async function warnSlow(message: string, data: Record<string, unknown>) {
+	try {
+		const { loggingStore } = await import('$lib/stores/logging.svelte');
+		loggingStore.warn('GraphQLClient', message, data);
+	} catch (logError) {
+		console.debug('[GraphQLClient] Failed to log slow operation:', logError);
+	}
+}
+
 export async function request<TResult, TVariables = any>(
 	document: { toString(): string },
 	variables?: TVariables,
@@ -189,6 +203,9 @@ export async function request<TResult, TVariables = any>(
 	try {
 		const useFetch = fetchFn || globalThis.fetch;
 		const token = await getJWTToken(useFetch);
+		// Time the token wait apart from the query: concurrent requests share one
+		// /api/auth/token call, so a slow token made every query look slow (#206).
+		const tokenDuration = browser ? performance.now() - startTime : 0;
 
 		if (!token) {
 			const authError = new Error('Authentication required');
@@ -204,19 +221,19 @@ export async function request<TResult, TVariables = any>(
 		const result = await client.request<TResult>(query, variables as any, headers);
 
 		// Log slow operations
-		if (browser) {
-			const duration = performance.now() - startTime;
-			if (duration > 1000) {
-				try {
-					const { loggingStore } = await import('$lib/stores/logging.svelte');
-					loggingStore.warn('GraphQLClient', `Slow ${operationType}: ${operationName}`, {
-						operation: operationName,
-						duration: `${Math.round(duration)}ms`,
-						type: operationType
-					});
-				} catch (logError) {
-					console.debug('[GraphQLClient] Failed to log slow operation:', logError);
-				}
+		if (browser && !UNLOGGED_SLOW_OPERATIONS.has(operationName)) {
+			const duration = performance.now() - startTime - tokenDuration;
+			if (duration > SLOW_OPERATION_MS) {
+				await warnSlow(`Slow ${operationType}: ${operationName}`, {
+					operation: operationName,
+					duration: `${Math.round(duration)}ms`,
+					type: operationType
+				});
+			} else if (tokenDuration > SLOW_OPERATION_MS) {
+				await warnSlow('Slow token fetch', {
+					operation: operationName,
+					duration: `${Math.round(tokenDuration)}ms`
+				});
 			}
 		}
 
@@ -240,7 +257,10 @@ export async function request<TResult, TVariables = any>(
 					error?.message?.toLowerCase().includes('network') ||
 					error?.message?.toLowerCase().includes('fetch');
 
-				loggingStore.error('GraphQLClient', `${operationType} failed: ${operationName}`, {
+				// A dropped connection (offline, waking from sleep, navigation abort) is
+				// not an app bug: keep it visible as a warning, not an error (#206).
+				const log = isNetworkError ? loggingStore.warn : loggingStore.error;
+				log('GraphQLClient', `${operationType} failed: ${operationName}`, {
 					operation: operationName,
 					type: operationType,
 					error: {
@@ -250,7 +270,8 @@ export async function request<TResult, TVariables = any>(
 					},
 					duration: `${Math.round(duration)}ms`,
 					variables: variables ? Object.keys(variables as object) : [],
-					errorType: isNetworkError ? 'network' : 'graphql'
+					errorType: isNetworkError ? 'network' : 'graphql',
+					online: navigator.onLine
 				});
 			} catch (logError) {
 				console.debug('[GraphQLClient] Failed to log error:', logError);

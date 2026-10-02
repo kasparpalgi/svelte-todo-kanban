@@ -9,7 +9,7 @@
 	import NoteImageManager from '$lib/components/notes/NoteImageManager.svelte';
 	import VoiceInput from '$lib/components/todo/VoiceInput.svelte';
 	import AITaskButton from '$lib/components/todo/AITaskButton.svelte';
-	import { notesStore } from '$lib/stores/notes.svelte';
+	import { notesStore, type Note } from '$lib/stores/notes.svelte';
 	import { upgradeStore } from '$lib/stores/upgrade.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { t } from '$lib/i18n';
@@ -17,21 +17,6 @@
 	import type { Editor } from 'svelte-tiptap';
 	import type { Readable } from 'svelte/store';
 
-	type NoteUpload = {
-		id: string;
-		url: string;
-		created_at: string;
-	};
-
-	type Note = {
-		id: string;
-		title: string;
-		content: string | null;
-		cover_image_url: string | null;
-		note_uploads?: NoteUpload[];
-		updated_at: string;
-		created_at: string;
-	};
 
 	let {
 		note,
@@ -374,7 +359,7 @@
 						placeholder={$t('notes.untitled')}
 						class="min-w-0 flex-1 text-xl font-semibold"
 					/>
-					<VoiceInput onTranscript={handleTitleVoice} onError={handleVoiceError} minimal={true} />
+					<VoiceInput onTranscript={handleTitleVoice} onError={handleVoiceError} />
 				</div>
 				<div class="flex items-center justify-between">
 					<div class="text-xs text-muted-foreground">

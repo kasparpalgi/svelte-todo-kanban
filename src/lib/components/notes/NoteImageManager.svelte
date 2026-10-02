@@ -1,6 +1,6 @@
 <!-- @file src/lib/components/notes/NoteImageManager.svelte -->
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+	import { onDestroy, untrack } from 'svelte';
 	import { t } from '$lib/i18n';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { notesStore } from '$lib/stores/notes.svelte';
@@ -25,8 +25,9 @@
 
 	let { noteId, coverImageUrl = null, initialImages = [], onFilesAdded }: NoteImageManagerProps = $props();
 
-	let images = $state<NoteImage[]>(initialImages);
-	let currentCoverUrl = $state<string | null>(coverImageUrl);
+	// Seeded once; this component owns images/cover after mount.
+	let images = $state<NoteImage[]>(untrack(() => initialImages));
+	let currentCoverUrl = $state<string | null>(untrack(() => coverImageUrl));
 	let isDragOver = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 	let showUploadArea = $state(false);

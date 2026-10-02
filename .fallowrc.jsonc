@@ -1,0 +1,84 @@
+// fallow config — run `npx fallow` (dead code + duplication + complexity).
+{
+	"$schema": "https://fallow.tools/schema.json",
+	"ignorePatterns": [
+		// Codegen output (`npm run generate`), never edited by hand.
+		"src/lib/graphql/generated/**",
+		// Hasura metadata/migrations are consumed by the Hasura CLI, not imported.
+		"hasura/**",
+		// Standalone sub-projects with their own package.json / manifest entry points.
+		"chrome-extension/**",
+		"tracker-sync/**",
+		"scripts/ai-translate/**"
+	],
+	"ignoreExports": [
+		// Vendored shadcn-svelte components: index barrels re-export every part
+		// (Root, Content, Title, …) by design, whether or not we use each one.
+		{ "file": "src/lib/components/ui/**", "exports": ["*"] },
+		// Fragments are consumed by `...FragmentName` spreads inside other documents,
+		// which graphql-codegen resolves by name; the import graph can't see that.
+		{
+			"file": "src/lib/graphql/documents.ts",
+			"exports": [
+				"TODO_FRAGMENT",
+				"LIST_FRAGMENT",
+				"BOARD_MEMBER_FRAGMENT",
+				"BOARD_INVITATION_FRAGMENT",
+				"BOARD_FRAGMENT",
+				"COMMENT_FRAGMENT",
+				"LABEL_FRAGMENT",
+				"NOTE_CORE_FRAGMENT",
+				"NOTE_FRAGMENT",
+				"USER_FRAGMENT",
+				"NOTIFICATION_FRAGMENT",
+				"ACTIVITY_LOG_FRAGMENT",
+				"TRACKER_SESSION_FRAGMENT",
+				"TRACKER_KEYWORD_FRAGMENT",
+				"EXPENSE_SPLIT_FRAGMENT",
+				"EXPENSE_FRAGMENT",
+				"URL_SHORTCUT_FRAGMENT",
+				"CLIENT_FRAGMENT",
+				"INVOICE_COMPANY_FRAGMENT",
+				"INVOICE_ITEM_FRAGMENT",
+				"INVOICE_FRAGMENT"
+			]
+		}
+	],
+	"ignoreDependencies": [
+		// CLI used to add ui components, never imported.
+		"shadcn-svelte",
+		// Loaded from app.css via `@plugin`, which the import graph doesn't see.
+		"@tailwindcss/typography",
+		// Imported by the generated GraphQL types, which are excluded above.
+		"@graphql-typed-document-node/core"
+	],
+	"circularDependencies": {
+		// client.ts lazily `import()`s the logging store (which calls request()), so the
+		// cycle never exists at module-evaluation time.
+		"ignoreLazyImports": true
+	},
+	"overrides": [
+		{
+			// Upstream shadcn-svelte pattern: a part imports its own index barrel.
+			"files": ["src/lib/components/ui/**"],
+			"rules": { "circular-dependencies": "off" }
+		}
+	],
+	"rules": {
+		// SvelteKit bundles client deps at build time and Vercel installs devDependencies,
+		// so UI libraries living in devDependencies is the template default, not a bug.
+		"dev-dependencies-in-production": "off",
+		// Complexity is tracked, not gated: 337 functions exceed the defaults (259 only on
+		// CRAP estimated without coverage). Refactor hotspots incrementally — see
+		// `npx fallow health --targets`.
+		"complexity-cyclomatic": "warn",
+		"complexity-cognitive": "warn",
+		"complexity-crap": "warn"
+	},
+	"duplicates": {
+		"ignore": ["src/lib/components/ui/**"],
+		// Ratchet: today's level is 5.9% (73 clone groups, e.g. Card/NoteImageManager share
+		// ~180 lines). Fail if it grows; lower this as clones get extracted (#206).
+		"threshold": 6
+	}
+}

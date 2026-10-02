@@ -2,313 +2,31 @@
 import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
 import type { StoreResult } from '$lib/types/todo';
+import {
+	GET_NOTES,
+	CREATE_NOTE,
+	UPDATE_NOTE,
+	UPDATE_NOTES,
+	DELETE_NOTE,
+	CREATE_NOTE_UPLOAD,
+	DELETE_NOTE_UPLOAD
+} from '$lib/graphql/documents';
+import type {
+	NoteCoreFieldsFragment,
+	GetNotesQuery,
+	CreateNoteMutation,
+	UpdateNoteMutation,
+	UpdateNotesMutation,
+	DeleteNoteMutation,
+	CreateNoteUploadMutation,
+	DeleteNoteUploadMutation
+} from '$lib/graphql/generated/graphql';
 
-// Temporary raw GraphQL queries until npm run generate is executed
-// TODO: Replace with imports from $lib/graphql/documents after running npm run generate
-const GET_NOTES = `
-	query GetNotes($where: notes_bool_exp = {}, $order_by: [notes_order_by!] = { sort_order: asc, created_at: desc }, $limit: Int = 100, $offset: Int = 0) {
-		notes(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
-			id
-			board_id
-			user_id
-			parent_id
-			title
-			content
-			cover_image_url
-			sort_order
-			created_at
-			updated_at
-			user {
-				id
-				name
-				username
-				image
-				email
-			}
-			board {
-				id
-				name
-				alias
-			}
-			note_uploads {
-				id
-				url
-				created_at
-			}
-			subnotes(order_by: { sort_order: asc }) {
-				id
-				board_id
-				user_id
-				parent_id
-				title
-				content
-				cover_image_url
-				sort_order
-				created_at
-				updated_at
-				note_uploads {
-					id
-					url
-					created_at
-				}
-			}
-		}
-	}
-`;
-
-const CREATE_NOTE = `
-	mutation CreateNote($objects: [notes_insert_input!]!) {
-		insert_notes(objects: $objects) {
-			returning {
-				id
-				board_id
-				user_id
-				parent_id
-				title
-				content
-				cover_image_url
-				sort_order
-				created_at
-				updated_at
-				user {
-					id
-					name
-					username
-					image
-					email
-				}
-				board {
-					id
-					name
-					alias
-				}
-				note_uploads {
-					id
-					url
-					created_at
-				}
-				subnotes(order_by: { sort_order: asc }) {
-					id
-					parent_id
-					title
-					content
-					cover_image_url
-					sort_order
-					created_at
-					updated_at
-				}
-			}
-		}
-	}
-`;
-
-const UPDATE_NOTE = `
-	mutation UpdateNote($where: notes_bool_exp!, $_set: notes_set_input!) {
-		update_notes(where: $where, _set: $_set) {
-			affected_rows
-			returning {
-				id
-				board_id
-				user_id
-				parent_id
-				title
-				content
-				cover_image_url
-				sort_order
-				created_at
-				updated_at
-				user {
-					id
-					name
-					username
-					image
-					email
-				}
-				board {
-					id
-					name
-					alias
-				}
-				note_uploads {
-					id
-					url
-					created_at
-				}
-				subnotes(order_by: { sort_order: asc }) {
-					id
-					parent_id
-					title
-					content
-					cover_image_url
-					sort_order
-					created_at
-					updated_at
-				}
-			}
-		}
-	}
-`;
-
-const UPDATE_NOTES = `
-	mutation UpdateNotes($updates: [notes_updates!]!) {
-		update_notes_many(updates: $updates) {
-			affected_rows
-			returning {
-				id
-				board_id
-				user_id
-				parent_id
-				title
-				content
-				cover_image_url
-				sort_order
-				created_at
-				updated_at
-				user {
-					id
-					name
-					username
-					image
-					email
-				}
-				board {
-					id
-					name
-					alias
-				}
-				note_uploads {
-					id
-					url
-					created_at
-				}
-				subnotes(order_by: { sort_order: asc }) {
-					id
-					parent_id
-					title
-					content
-					cover_image_url
-					sort_order
-					created_at
-					updated_at
-				}
-			}
-		}
-	}
-`;
-
-const DELETE_NOTE = `
-	mutation DeleteNote($where: notes_bool_exp!) {
-		delete_notes(where: $where) {
-			affected_rows
-		}
-	}
-`;
-
-const CREATE_NOTE_UPLOAD = `
-	mutation CreateNoteUpload($objects: [note_uploads_insert_input!]!) {
-		insert_note_uploads(objects: $objects) {
-			returning {
-				id
-				url
-				note_id
-				created_at
-			}
-		}
-	}
-`;
-
-const DELETE_NOTE_UPLOAD = `
-	mutation DeleteNoteUpload($where: note_uploads_bool_exp!) {
-		delete_note_uploads(where: $where) {
-			affected_rows
-		}
-	}
-`;
-
-// Temporary types until GraphQL codegen runs
-// These will be replaced by generated types from $lib/graphql/generated/graphql
-type NoteUpload = {
-	id: string;
-	url: string;
-	created_at: string;
-};
-
-type NoteFieldsFragment = {
-	id: string;
-	board_id: string;
-	user_id: string;
-	parent_id: string | null;
-	title: string;
-	content: string | null;
-	cover_image_url: string | null;
-	sort_order: number;
-	created_at: string;
-	updated_at: string;
-	user?: {
-		id: string;
-		name: string | null;
-		username: string | null;
-		image: string | null;
-		email: string | null;
-	};
-	board?: {
-		id: string;
-		name: string;
-		alias: string | null;
-	};
-	note_uploads?: NoteUpload[];
-	subnotes?: NoteFieldsFragment[];
-};
-
-type GetNotesQuery = {
-	notes: NoteFieldsFragment[];
-};
-
-type CreateNoteMutation = {
-	insert_notes?: {
-		returning: NoteFieldsFragment[];
-	};
-};
-
-type UpdateNoteMutation = {
-	update_notes?: {
-		affected_rows: number;
-		returning: NoteFieldsFragment[];
-	};
-};
-
-type UpdateNotesMutation = {
-	update_notes_many?: Array<{
-		affected_rows: number;
-		returning: NoteFieldsFragment[];
-	}>;
-};
-
-type DeleteNoteMutation = {
-	delete_notes?: {
-		affected_rows: number;
-	};
-};
-
-type CreateNoteUploadMutation = {
-	insert_note_uploads?: {
-		returning: Array<{
-			id: string;
-			url: string;
-			note_id: string;
-			created_at: string;
-		}>;
-	};
-};
-
-type DeleteNoteUploadMutation = {
-	delete_note_uploads?: {
-		affected_rows: number;
-	};
-};
+// Queries return one level of subnotes; the store handles the tree recursively.
+export type Note = NoteCoreFieldsFragment & { subnotes?: Note[] };
 
 interface NotesState {
-	notes: NoteFieldsFragment[];
+	notes: Note[];
 	loading: boolean;
 	error: string | null;
 	currentBoardId: string | null;
@@ -335,7 +53,7 @@ function createNotesStore() {
 		})
 	);
 
-	async function loadNotes(boardId: string): Promise<NoteFieldsFragment[]> {
+	async function loadNotes(boardId: string): Promise<Note[]> {
 		if (!browser) {
 			return [];
 		}
@@ -444,7 +162,7 @@ function createNotesStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		// Recursively find the note (it might be a subnote)
-		const findNoteRecursive = (notesList: NoteFieldsFragment[]): NoteFieldsFragment | null => {
+		const findNoteRecursive = (notesList: Note[]): Note | null => {
 			for (const n of notesList) {
 				if (n.id === id) return n;
 				if (n.subnotes) {
@@ -461,7 +179,7 @@ function createNotesStore() {
 		const originalNotes = [...state.notes];
 
 		// Helper to recursively update note
-		const updateNoteRecursively = (notesList: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+		const updateNoteRecursively = (notesList: Note[]): Note[] => {
 			return notesList.map(n => {
 				if (n.id === id) {
 					return {
@@ -517,7 +235,7 @@ function createNotesStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		// Recursively find the note (it might be a subnote)
-		const findNoteRecursive = (notesList: NoteFieldsFragment[]): NoteFieldsFragment | null => {
+		const findNoteRecursive = (notesList: Note[]): Note | null => {
 			for (const n of notesList) {
 				if (n.id === id) return n;
 				if (n.subnotes) {
@@ -534,7 +252,7 @@ function createNotesStore() {
 		const originalNotes = [...state.notes];
 
 		// Helper to recursively remove note from anywhere in the tree
-		const removeNoteRecursively = (notesList: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+		const removeNoteRecursively = (notesList: Note[]): Note[] => {
 			return notesList
 				.filter(n => n.id !== id)
 				.map(n => {
@@ -573,7 +291,7 @@ function createNotesStore() {
 		const originalNotes = [...state.notes];
 
 		// Recursively find note anywhere in tree
-		const findNoteRecursive = (notesList: NoteFieldsFragment[], id: string): NoteFieldsFragment | null => {
+		const findNoteRecursive = (notesList: Note[], id: string): Note | null => {
 			for (const n of notesList) {
 				if (n.id === id) return n;
 				if (n.subnotes) {
@@ -585,7 +303,7 @@ function createNotesStore() {
 		};
 
 		// Recursively update note's sort_order anywhere in tree
-		const updateSortOrderRecursively = (notesList: NoteFieldsFragment[], id: string, sortOrder: number): NoteFieldsFragment[] => {
+		const updateSortOrderRecursively = (notesList: Note[], id: string, sortOrder: number): Note[] => {
 			return notesList.map(n => {
 				if (n.id === id) {
 					return { ...n, sort_order: sortOrder };
@@ -616,13 +334,13 @@ function createNotesStore() {
 			if (data.update_notes_many) {
 				// Flatten all returned notes
 				const updatedNotes = data.update_notes_many.flatMap(
-					(result) => result.returning || []
+					(result) => result?.returning || []
 				);
 
 				if (updatedNotes.length > 0) {
 					// Update state with server response (recursively)
 					updatedNotes.forEach(serverNote => {
-						const updateWithServerData = (notesList: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+						const updateWithServerData = (notesList: Note[]): Note[] => {
 							return notesList.map(n => {
 								if (n.id === serverNote.id) {
 									return { ...n, ...serverNote };
@@ -663,7 +381,7 @@ function createNotesStore() {
 		const originalNotes = [...state.notes];
 
 		// Recursively find the note (it might be a subnote)
-		const findNoteRecursive = (notesList: NoteFieldsFragment[]): NoteFieldsFragment | null => {
+		const findNoteRecursive = (notesList: Note[]): Note | null => {
 			for (const n of notesList) {
 				if (n.id === noteId) return n;
 				if (n.subnotes) {
@@ -682,7 +400,7 @@ function createNotesStore() {
 
 		// Prevent circular parent-child relationships
 		if (newParentId) {
-			const findById = (notesList: NoteFieldsFragment[], id: string): NoteFieldsFragment | null => {
+			const findById = (notesList: Note[], id: string): Note | null => {
 				for (const n of notesList) {
 					if (n.id === id) return n;
 					if (n.subnotes) {
@@ -714,7 +432,7 @@ function createNotesStore() {
 		const updatedNote = { ...note, parent_id: newParentId, sort_order: sortOrder };
 
 		// Helper to recursively remove note from anywhere in the tree
-		const removeNoteRecursively = (notesList: NoteFieldsFragment[], idToRemove: string): NoteFieldsFragment[] => {
+		const removeNoteRecursively = (notesList: Note[], idToRemove: string): Note[] => {
 			return notesList
 				.filter(n => n.id !== idToRemove)
 				.map(n => {
@@ -726,7 +444,7 @@ function createNotesStore() {
 		};
 
 		// Helper to recursively add note to a parent
-		const addNoteToParent = (notesList: NoteFieldsFragment[], parentId: string, childNote: NoteFieldsFragment): NoteFieldsFragment[] => {
+		const addNoteToParent = (notesList: Note[], parentId: string, childNote: Note): Note[] => {
 			return notesList.map(n => {
 				if (n.id === parentId) {
 					const subnotes = [...(n.subnotes || []), childNote].sort(
@@ -768,7 +486,7 @@ function createNotesStore() {
 			const serverNote = data.update_notes?.returning?.[0];
 			if (serverNote) {
 				// Update the moved note with server data
-				const updateNoteInState = (notes: NoteFieldsFragment[]): NoteFieldsFragment[] => {
+				const updateNoteInState = (notes: Note[]): Note[] => {
 					return notes.map(n => {
 						if (n.id === noteId) {
 							return { ...n, ...serverNote };

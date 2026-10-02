@@ -119,7 +119,7 @@ export async function POST({ request, locals }: RequestEvent) {
 
 		// Create a File object from the buffer
 		const fileName = `og-${type}-${boardAlias}${cardAlias ? `-${cardAlias}` : ''}-${Date.now()}.png`;
-		const file = new File([screenshotBuffer], fileName, { type: 'image/png' });
+		const file = new File([new Uint8Array(screenshotBuffer)], fileName, { type: 'image/png' });
 
 		// Upload to Backblaze
 		const uploadResult = await uploadStreamToBackblaze(file);
@@ -164,12 +164,12 @@ export async function GET({ url }: RequestEvent) {
 			type,
 			username,
 			boardAlias,
-			cardAlias,
+			cardAlias: cardAlias ?? undefined,
 			lang
 		});
 
 		// Return the image directly
-		return new Response(screenshotBuffer, {
+		return new Response(new Uint8Array(screenshotBuffer), {
 			headers: {
 				'Content-Type': 'image/png',
 				'Cache-Control': 'public, max-age=86400' // Cache for 24 hours

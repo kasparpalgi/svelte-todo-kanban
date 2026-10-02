@@ -3,18 +3,8 @@
 	import { StickyNote, ChevronRight, ChevronDown, Plus } from 'lucide-svelte';
 	import { draggable, type DragEventData } from '@neodrag/svelte';
 	import { t } from '$lib/i18n';
-	import { notesStore } from '$lib/stores/notes.svelte';
+	import { notesStore, type Note } from '$lib/stores/notes.svelte';
 
-	interface Note {
-		id: string;
-		title: string;
-		content: string | null;
-		cover_image_url: string | null;
-		updated_at: string;
-		parent_id?: string | null;
-		sort_order: number;
-		subnotes?: Note[];
-	}
 
 	interface Props {
 		note: Note;

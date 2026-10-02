@@ -19,7 +19,6 @@
 		onError = (error: string) => {},
 		disabled = false,
 		title = '',
-		minimal = false,
 		startAutomatically = false,
 		getContext = () => ({ contentBefore: '', contentAfter: '' }),
 		useContextualCorrection = false
@@ -401,7 +400,10 @@
 				};
 
 				recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-					loggingStore.error('VoiceInput', 'Speech recognition error', {
+					// Denied mic / silence / user abort are expected outcomes, not app errors.
+					const expected = ['not-allowed', 'service-not-allowed', 'no-speech', 'aborted'];
+					const log = expected.includes(event.error) ? loggingStore.info : loggingStore.error;
+					log('VoiceInput', 'Speech recognition error', {
 						error: event.error,
 						message: event.message,
 						isMobile
@@ -454,7 +456,8 @@
 				};
 			}
 		} else {
-			loggingStore.warn('VoiceInput', 'Speech recognition not supported', {
+			// Expected on browsers without the Web Speech API (e.g. Firefox).
+			loggingStore.info('VoiceInput', 'Speech recognition not supported', {
 				userAgent: navigator.userAgent
 			});
 		}

@@ -27,8 +27,9 @@
 
 	let { board, open = $bindable(), onClose }: VisibilityProps = $props();
 
-	let isPublic = $state(board.is_public || false);
-	let allowPublicComments = $state(board.allow_public_comments || false);
+	// Seeded by the open-effect below.
+	let isPublic = $state(false);
+	let allowPublicComments = $state(false);
 	let copied = $state(false);
 
 	$effect(() => {

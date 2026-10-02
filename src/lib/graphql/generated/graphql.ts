@@ -20318,7 +20318,9 @@ export type CommentFieldsFragment = { __typename?: 'comments', id: string, conte
 
 export type LabelFieldsFragment = { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null };
 
-export type NoteFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> };
+export type NoteCoreFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> };
+
+export type NoteFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> };
 
 export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null, created_at: string, updated_at: string };
 
@@ -20360,14 +20362,7 @@ export type GetNotesQueryVariables = Exact<{
 }>;
 
 
-export type GetNotesQuery = { __typename?: 'query_root', notes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> };
-
-export type GetNoteQueryVariables = Exact<{
-  id: Scalars['uuid']['input'];
-}>;
-
-
-export type GetNoteQuery = { __typename?: 'query_root', notes_by_pk?: { __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> } | null };
+export type GetNotesQuery = { __typename?: 'query_root', notes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> };
 
 export type CreateTodoMutationVariables = Exact<{
   objects: Array<Todos_Insert_Input> | Todos_Insert_Input;
@@ -20448,7 +20443,7 @@ export type CreateNoteMutationVariables = Exact<{
 }>;
 
 
-export type CreateNoteMutation = { __typename?: 'mutation_root', insert_notes?: { __typename?: 'notes_mutation_response', returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null };
+export type CreateNoteMutation = { __typename?: 'mutation_root', insert_notes?: { __typename?: 'notes_mutation_response', returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null };
 
 export type UpdateNoteMutationVariables = Exact<{
   where: Notes_Bool_Exp;
@@ -20456,14 +20451,14 @@ export type UpdateNoteMutationVariables = Exact<{
 }>;
 
 
-export type UpdateNoteMutation = { __typename?: 'mutation_root', update_notes?: { __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null };
+export type UpdateNoteMutation = { __typename?: 'mutation_root', update_notes?: { __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null };
 
 export type UpdateNotesMutationVariables = Exact<{
   updates: Array<Notes_Updates> | Notes_Updates;
 }>;
 
 
-export type UpdateNotesMutation = { __typename?: 'mutation_root', update_notes_many?: Array<{ __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null> | null };
+export type UpdateNotesMutation = { __typename?: 'mutation_root', update_notes_many?: Array<{ __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null> | null };
 
 export type DeleteNoteMutationVariables = Exact<{
   where: Notes_Bool_Exp;
@@ -20854,13 +20849,6 @@ export type GetTodoSubscribersQueryVariables = Exact<{
 
 export type GetTodoSubscribersQuery = { __typename?: 'query_root', todo_subscribers: Array<{ __typename?: 'todo_subscribers', todo_id: string, user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> };
 
-export type GetUserSubscriptionsQueryVariables = Exact<{
-  user_id: Scalars['uuid']['input'];
-}>;
-
-
-export type GetUserSubscriptionsQuery = { __typename?: 'query_root', todo_subscribers: Array<{ __typename?: 'todo_subscribers', todo_id: string, user_id: string, created_at: string, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } }> };
-
 export type TrackerSessionFieldsFragment = { __typename?: 'tracker_sessions', id: number, window_title?: string | null, start_time: string, end_time: string, duration_seconds: number, tracker_app: { __typename?: 'tracker_apps', id: number, name: string } };
 
 export type TrackerKeywordFieldsFragment = { __typename?: 'tracker_keywords', id: string, board_id?: string | null, keyword: string, case_sensitive: boolean, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null, tracker_category?: { __typename?: 'tracker_categories', id: string, name: string, parent_category?: { __typename?: 'tracker_categories', id: string, name: string } | null, sub_categories: Array<{ __typename?: 'tracker_categories', id: string, name: string }> } | null };
@@ -20920,23 +20908,6 @@ export type DeleteExpenseMutationVariables = Exact<{
 
 
 export type DeleteExpenseMutation = { __typename?: 'mutation_root', update_expenses_by_pk?: { __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
-
-export type PenonQueryVariables = Exact<{
-  where?: InputMaybe<Penon_Bool_Exp>;
-  order_by?: InputMaybe<Array<Penon_Order_By> | Penon_Order_By>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type PenonQuery = { __typename?: 'query_root', penon: Array<{ __typename?: 'penon', id: string, temp: number, humidity: number, soil: number, timestamp: string }> };
-
-export type InsertPenonMutationVariables = Exact<{
-  objects: Array<Penon_Insert_Input> | Penon_Insert_Input;
-}>;
-
-
-export type InsertPenonMutation = { __typename?: 'mutation_root', insert_penon?: { __typename?: 'penon_mutation_response', affected_rows: number } | null };
 
 export type GetPodcastsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -21423,11 +21394,12 @@ fragment LabelFields on labels {
   created_at
   updated_at
 }`, {"fragmentName":"BoardFields"}) as unknown as TypedDocumentString<BoardFieldsFragment, unknown>;
-export const NoteFieldsFragmentDoc = new TypedDocumentString(`
-    fragment NoteFields on notes {
+export const NoteCoreFieldsFragmentDoc = new TypedDocumentString(`
+    fragment NoteCoreFields on notes {
   id
   board_id
   user_id
+  parent_id
   title
   content
   cover_image_url
@@ -21452,7 +21424,43 @@ export const NoteFieldsFragmentDoc = new TypedDocumentString(`
     created_at
   }
 }
-    `, {"fragmentName":"NoteFields"}) as unknown as TypedDocumentString<NoteFieldsFragment, unknown>;
+    `, {"fragmentName":"NoteCoreFields"}) as unknown as TypedDocumentString<NoteCoreFieldsFragment, unknown>;
+export const NoteFieldsFragmentDoc = new TypedDocumentString(`
+    fragment NoteFields on notes {
+  ...NoteCoreFields
+  subnotes(order_by: {sort_order: asc}) {
+    ...NoteCoreFields
+  }
+}
+    fragment NoteCoreFields on notes {
+  id
+  board_id
+  user_id
+  parent_id
+  title
+  content
+  cover_image_url
+  sort_order
+  created_at
+  updated_at
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+  board {
+    id
+    name
+    alias
+  }
+  note_uploads {
+    id
+    url
+    created_at
+  }
+}`, {"fragmentName":"NoteFields"}) as unknown as TypedDocumentString<NoteFieldsFragment, unknown>;
 export const UserFieldsFragmentDoc = new TypedDocumentString(`
     fragment UserFields on users {
   id
@@ -21982,10 +21990,11 @@ export const GetNotesDocument = new TypedDocumentString(`
     ...NoteFields
   }
 }
-    fragment NoteFields on notes {
+    fragment NoteCoreFields on notes {
   id
   board_id
   user_id
+  parent_id
   title
   content
   cover_image_url
@@ -22008,42 +22017,14 @@ export const GetNotesDocument = new TypedDocumentString(`
     id
     url
     created_at
-  }
-}`) as unknown as TypedDocumentString<GetNotesQuery, GetNotesQueryVariables>;
-export const GetNoteDocument = new TypedDocumentString(`
-    query GetNote($id: uuid!) {
-  notes_by_pk(id: $id) {
-    ...NoteFields
   }
 }
-    fragment NoteFields on notes {
-  id
-  board_id
-  user_id
-  title
-  content
-  cover_image_url
-  sort_order
-  created_at
-  updated_at
-  user {
-    id
-    name
-    username
-    image
-    email
+fragment NoteFields on notes {
+  ...NoteCoreFields
+  subnotes(order_by: {sort_order: asc}) {
+    ...NoteCoreFields
   }
-  board {
-    id
-    name
-    alias
-  }
-  note_uploads {
-    id
-    url
-    created_at
-  }
-}`) as unknown as TypedDocumentString<GetNoteQuery, GetNoteQueryVariables>;
+}`) as unknown as TypedDocumentString<GetNotesQuery, GetNotesQueryVariables>;
 export const CreateTodoDocument = new TypedDocumentString(`
     mutation CreateTodo($objects: [todos_insert_input!]!) {
   insert_todos(objects: $objects) {
@@ -22518,10 +22499,11 @@ export const CreateNoteDocument = new TypedDocumentString(`
     }
   }
 }
-    fragment NoteFields on notes {
+    fragment NoteCoreFields on notes {
   id
   board_id
   user_id
+  parent_id
   title
   content
   cover_image_url
@@ -22544,6 +22526,12 @@ export const CreateNoteDocument = new TypedDocumentString(`
     id
     url
     created_at
+  }
+}
+fragment NoteFields on notes {
+  ...NoteCoreFields
+  subnotes(order_by: {sort_order: asc}) {
+    ...NoteCoreFields
   }
 }`) as unknown as TypedDocumentString<CreateNoteMutation, CreateNoteMutationVariables>;
 export const UpdateNoteDocument = new TypedDocumentString(`
@@ -22555,10 +22543,11 @@ export const UpdateNoteDocument = new TypedDocumentString(`
     }
   }
 }
-    fragment NoteFields on notes {
+    fragment NoteCoreFields on notes {
   id
   board_id
   user_id
+  parent_id
   title
   content
   cover_image_url
@@ -22581,6 +22570,12 @@ export const UpdateNoteDocument = new TypedDocumentString(`
     id
     url
     created_at
+  }
+}
+fragment NoteFields on notes {
+  ...NoteCoreFields
+  subnotes(order_by: {sort_order: asc}) {
+    ...NoteCoreFields
   }
 }`) as unknown as TypedDocumentString<UpdateNoteMutation, UpdateNoteMutationVariables>;
 export const UpdateNotesDocument = new TypedDocumentString(`
@@ -22592,10 +22587,11 @@ export const UpdateNotesDocument = new TypedDocumentString(`
     }
   }
 }
-    fragment NoteFields on notes {
+    fragment NoteCoreFields on notes {
   id
   board_id
   user_id
+  parent_id
   title
   content
   cover_image_url
@@ -22618,6 +22614,12 @@ export const UpdateNotesDocument = new TypedDocumentString(`
     id
     url
     created_at
+  }
+}
+fragment NoteFields on notes {
+  ...NoteCoreFields
+  subnotes(order_by: {sort_order: asc}) {
+    ...NoteCoreFields
   }
 }`) as unknown as TypedDocumentString<UpdateNotesMutation, UpdateNotesMutationVariables>;
 export const DeleteNoteDocument = new TypedDocumentString(`
@@ -23587,33 +23589,6 @@ export const GetTodoSubscribersDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetTodoSubscribersQuery, GetTodoSubscribersQueryVariables>;
-export const GetUserSubscriptionsDocument = new TypedDocumentString(`
-    query GetUserSubscriptions($user_id: uuid!) {
-  todo_subscribers(where: {user_id: {_eq: $user_id}}) {
-    todo_id
-    user_id
-    created_at
-    todo {
-      id
-      alias
-      title
-      list {
-        id
-        name
-        board {
-          id
-          name
-          alias
-          user {
-            id
-            username
-          }
-        }
-      }
-    }
-  }
-}
-    `) as unknown as TypedDocumentString<GetUserSubscriptionsQuery, GetUserSubscriptionsQueryVariables>;
 export const GetTrackerSessionsDocument = new TypedDocumentString(`
     query GetTrackerSessions($limit: Int = 15000, $offset: Int = 0, $order_by: [tracker_sessions_order_by!], $where: tracker_sessions_bool_exp) {
   tracker_sessions(
@@ -23840,24 +23815,6 @@ fragment ExpenseFields on expenses {
     alias
   }
 }`) as unknown as TypedDocumentString<DeleteExpenseMutation, DeleteExpenseMutationVariables>;
-export const PenonDocument = new TypedDocumentString(`
-    query Penon($where: penon_bool_exp = {}, $order_by: [penon_order_by!] = {timestamp: desc}, $limit: Int = 5000, $offset: Int = 0) {
-  penon(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
-    id
-    temp
-    humidity
-    soil
-    timestamp
-  }
-}
-    `) as unknown as TypedDocumentString<PenonQuery, PenonQueryVariables>;
-export const InsertPenonDocument = new TypedDocumentString(`
-    mutation InsertPenon($objects: [penon_insert_input!]!) {
-  insert_penon(objects: $objects) {
-    affected_rows
-  }
-}
-    `) as unknown as TypedDocumentString<InsertPenonMutation, InsertPenonMutationVariables>;
 export const GetPodcastsDocument = new TypedDocumentString(`
     query GetPodcasts {
   podcasts(limit: 5000, order_by: {created_at: desc}) {

@@ -10,7 +10,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	const currentUserId = data.session?.user?.id || '';
+	const currentUserId = $derived(data.session?.user?.id || '');
 
 	onMount(() => {
 		expensesStore.loadAllExpenses();

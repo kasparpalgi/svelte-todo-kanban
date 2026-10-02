@@ -16,7 +16,7 @@ import type {
 	Notifications_Insert_Input
 } from '$lib/graphql/generated/graphql';
 
-export interface NotificationState {
+interface NotificationState {
 	notifications: Array<any>;
 	loading: boolean;
 	error: string | null;

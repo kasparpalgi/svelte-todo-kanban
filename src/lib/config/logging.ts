@@ -42,5 +42,3 @@ export const LOGGING_CONFIG = {
 	// Maximum in-memory logs
 	maxInMemoryLogs: dev ? 500 : 1000
 } as const;
-
-export type LoggingConfig = typeof LOGGING_CONFIG;

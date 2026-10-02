@@ -8,7 +8,7 @@ import {
 	DELETE_URL_SHORTCUT
 } from '$lib/graphql/documents';
 
-export interface UrlShortcut {
+interface UrlShortcut {
 	id: string;
 	user_id: string;
 	alias: string;
@@ -34,7 +34,7 @@ interface DeleteUrlShortcutMutation {
 	delete_url_shortcuts_by_pk: { id: string } | null;
 }
 
-export type StoreResult<T = unknown> = {
+type StoreResult<T = unknown> = {
 	success: boolean;
 	message: string;
 	data?: T;

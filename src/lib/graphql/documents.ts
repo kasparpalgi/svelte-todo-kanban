@@ -231,11 +231,12 @@ export const LABEL_FRAGMENT = graphql(`
 	}
 `);
 
-export const NOTE_FRAGMENT = graphql(`
-	fragment NoteFields on notes {
+export const NOTE_CORE_FRAGMENT = graphql(`
+	fragment NoteCoreFields on notes {
 		id
 		board_id
 		user_id
+		parent_id
 		title
 		content
 		cover_image_url
@@ -258,6 +259,15 @@ export const NOTE_FRAGMENT = graphql(`
 			id
 			url
 			created_at
+		}
+	}
+`);
+
+export const NOTE_FRAGMENT = graphql(`
+	fragment NoteFields on notes {
+		...NoteCoreFields
+		subnotes(order_by: { sort_order: asc }) {
+			...NoteCoreFields
 		}
 	}
 `);
@@ -331,14 +341,6 @@ export const GET_NOTES = graphql(`
 		$offset: Int = 0
 	) {
 		notes(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
-			...NoteFields
-		}
-	}
-`);
-
-export const GET_NOTE = graphql(`
-	query GetNote($id: uuid!) {
-		notes_by_pk(id: $id) {
 			...NoteFields
 		}
 	}
@@ -1210,34 +1212,6 @@ export const GET_TODO_SUBSCRIBERS = graphql(`
 	}
 `);
 
-export const GET_USER_SUBSCRIPTIONS = graphql(`
-	query GetUserSubscriptions($user_id: uuid!) {
-		todo_subscribers(where: { user_id: { _eq: $user_id } }) {
-			todo_id
-			user_id
-			created_at
-			todo {
-				id
-				alias
-				title
-				list {
-					id
-					name
-					board {
-						id
-						name
-						alias
-						user {
-							id
-							username
-						}
-					}
-				}
-			}
-		}
-	}
-`);
-
 // ========== Tracker Sessions & Keywords ==========
 
 export const TRACKER_SESSION_FRAGMENT = graphql(`
@@ -1415,33 +1389,11 @@ export const DELETE_EXPENSE = graphql(`
 	}
 `);
 
-export const Penon = graphql(`
-	query Penon(
-		$where: penon_bool_exp = {}
-		$order_by: [penon_order_by!] = { timestamp: desc }
-		$limit: Int = 5000
-		$offset: Int = 0
-	) {
-		penon(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
-			id
-			temp
-			humidity
-			soil
-			timestamp
-		}
-	}
-`);
-
-export const InsertPenon = graphql(`
-	mutation InsertPenon($objects: [penon_insert_input!]!) {
-		insert_penon(objects: $objects) {
-			affected_rows
-		}
-	}
-`);
-
 // ========== Podcasts ==========
 
+// Not called via request(): podcasts load through Hasura's REST endpoint
+// (/api/rest/podcasts). This document only generates the `GetPodcastsQuery` type.
+// fallow-ignore-next-line unused-export -- type source for podcasts.svelte.ts
 export const GET_PODCASTS = graphql(`
 	query GetPodcasts {
 		podcasts(limit: 5000, order_by: { created_at: desc }) {

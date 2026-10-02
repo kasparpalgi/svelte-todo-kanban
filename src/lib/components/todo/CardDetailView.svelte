@@ -1,6 +1,6 @@
 <!-- @file src/lib/components/todo/CardDetailView.svelte -->
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, untrack } from 'svelte';
 	import { get } from 'svelte/store';
 	import { t } from '$lib/i18n';
 	import { z } from 'zod';
@@ -59,20 +59,23 @@
 	}
 
 	const taskFileUrl = $derived(githubFileUrl(todo.list?.board?.github, todo.task_file_path));
-	let dueDateTime = $state<Date | null>(todo.due_on ? new Date(todo.due_on) : null);
+	// The edit form is seeded once from the card; later store refreshes of `todo`
+	// must not clobber in-progress edits.
+	const initial = untrack(() => todo);
+	let dueDateTime = $state<Date | null>(initial.due_on ? new Date(initial.due_on) : null);
 
 	let editData = $state({
-		title: todo.title,
-		due_on: todo.due_on || null,
-		has_time: todo.has_time ?? false,
-		priority: (todo.priority as Priority | null) ?? null,
-		min_hours: todo.min_hours ?? null,
-		max_hours: todo.max_hours ?? null,
-		actual_hours: todo.actual_hours ?? null,
-		comment_hours: todo.comment_hours || '',
-		agent_model: (todo.agent_model as AgentModel | null) ?? null,
-		agent_effort: (todo.agent_effort as AgentEffort | null) ?? null,
-		agent_machine: (todo.agent_machine as AgentMachine | null) ?? null
+		title: initial.title,
+		due_on: initial.due_on || null,
+		has_time: initial.has_time ?? false,
+		priority: (initial.priority as Priority | null) ?? null,
+		min_hours: initial.min_hours ?? null,
+		max_hours: initial.max_hours ?? null,
+		actual_hours: initial.actual_hours ?? null,
+		comment_hours: initial.comment_hours || '',
+		agent_model: (initial.agent_model as AgentModel | null) ?? null,
+		agent_effort: (initial.agent_effort as AgentEffort | null) ?? null,
+		agent_machine: (initial.agent_machine as AgentMachine | null) ?? null
 	});
 
 	let selectedDate = $state<DateValue | undefined>(
@@ -85,7 +88,7 @@
 			: '09:00'
 	);
 
-	let includeTime = $state(todo.has_time ?? false);
+	let includeTime = $state(initial.has_time ?? false);
 	let datePickerOpen = $state(false);
 	let validationErrors = $state<Record<string, string>>({});
 	let isSubmitting = $state(false);

@@ -70,7 +70,9 @@
 			});
 
 			if (!response.ok) {
-				throw new Error(`AI task failed: ${response.status}`);
+				// Surface the server's reason (bad key, upstream status) instead of a bare code.
+				const body = await response.json().catch(() => null);
+				throw new Error(`AI task failed: ${response.status}${body?.error ? ` — ${body.error}` : ''}`);
 			}
 
 			const result = await response.json();
@@ -168,7 +170,6 @@
 						onTranscript={handleVoiceTranscript}
 						onError={handleVoiceError}
 						disabled={isProcessing}
-						minimal={true}
 					/>
 				</div>
 				<Textarea

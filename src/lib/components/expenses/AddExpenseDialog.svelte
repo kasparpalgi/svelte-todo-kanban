@@ -36,9 +36,10 @@
 
 	let amount = $state('');
 	let description = $state('');
-	let paidBy = $state(currentUserId);
+	// Seeded by the open-effect below.
+	let paidBy = $state('');
 	let splitType = $state<'equal' | 'custom'>('equal');
-	let selectedMembers = $state<Set<string>>(new Set(boardMembers.map((m) => m.user_id)));
+	let selectedMembers = $state<Set<string>>(new Set());
 	let customSplits = $state<Map<string, string>>(new Map());
 	let submitting = $state(false);
 

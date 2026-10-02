@@ -7,7 +7,7 @@ import type {
 	Activity_Logs_Insert_Input
 } from '$lib/graphql/generated/graphql';
 
-export interface ActivityLogState {
+interface ActivityLogState {
 	logs: Array<any>;
 	loading: boolean;
 	error: string | null;

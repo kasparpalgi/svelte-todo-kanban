@@ -28,7 +28,7 @@ let cachedRate = 0.8592;
 let lastFetched = 0;
 const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12hrs
 
-export async function getCachedExchangeRate(): Promise<number> {
+async function getCachedExchangeRate(): Promise<number> {
 	const now = Date.now();
 
 	if (now - lastFetched > CACHE_DURATION) {
@@ -47,7 +47,3 @@ export async function convertUsdToEur(usdAmount: number): Promise<number> {
 	return usdAmount * rate;
 }
 
-export async function refreshExchangeRate(): Promise<number> {
-	lastFetched = 0;
-	return await getCachedExchangeRate();
-}

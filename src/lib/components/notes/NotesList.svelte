@@ -4,19 +4,9 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { t } from '$lib/i18n';
-	import { notesStore } from '$lib/stores/notes.svelte';
+	import { notesStore, type Note } from '$lib/stores/notes.svelte';
 	import NoteItem from './NoteItem.svelte';
 
-	interface Note {
-		id: string;
-		title: string;
-		content: string | null;
-		cover_image_url: string | null;
-		updated_at: string;
-		parent_id?: string | null;
-		sort_order: number;
-		subnotes?: Note[];
-	}
 
 	interface Props {
 		notes: Note[];

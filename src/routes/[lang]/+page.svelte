@@ -29,7 +29,7 @@
 	// another tab), we forward to it instead of showing the empty state.
 	$effect(() => {
 		if (!browser) return;
-		if (!listsStore.initialized) {
+		if (!listsStore.boardsInitialized) {
 			listsStore.loadBoards();
 			return;
 		}

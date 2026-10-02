@@ -23,7 +23,7 @@ import type {
 	ListFieldsFragment,
 	BoardFieldsFragment
 } from '$lib/graphql/generated/graphql';
-import type { ListBoardStoreResult, ListsState } from '$lib/types/listBoard';
+import type { ListBoardStoreResult } from '$lib/types/listBoard';
 import { displayMessage } from './errorSuccess.svelte';
 
 function createListsStore() {
@@ -34,6 +34,8 @@ function createListsStore() {
 	let loading = $state(false);
 	let error = $state<string | null>(null);
 	let initialized = $state(false);
+	// Separate from `initialized` (lists): set once loadBoards() has an answer.
+	let boardsInitialized = $state(false);
 
 	const sortedLists = $derived(
 		[...lists].sort((a, b) => (a.sort_order || 999) - (b.sort_order || 999))
@@ -85,7 +87,9 @@ function createListsStore() {
 	// Returns null when there is no signed-in user (caller should show nothing).
 	async function boardScopeWhere(): Promise<Record<string, unknown> | null> {
 		const { userStore } = await import('./user.svelte');
-		const user = userStore.user;
+		// On a fresh page load the board page asks for boards before the layout has
+		// hydrated the user; wait for it instead of treating it as signed out (#206).
+		const user = userStore.user ?? (await userStore.whenReady());
 		if (!user?.id) return null;
 
 		const invitationConds: Record<string, unknown>[] = [];
@@ -113,6 +117,7 @@ function createListsStore() {
 			if (!scope) {
 				boards = [];
 				selectedBoard = null;
+				boardsInitialized = true;
 				return [];
 			}
 
@@ -154,6 +159,7 @@ function createListsStore() {
 				selectedBoard = null;
 			}
 
+			boardsInitialized = true;
 			return boards;
 		} catch (err) {
 			displayMessage('Load boards error:' + err);
@@ -564,6 +570,7 @@ function createListsStore() {
 		loading = false;
 		error = null;
 		initialized = false;
+		boardsInitialized = false;
 	}
 
 	return {
@@ -596,6 +603,9 @@ function createListsStore() {
 		},
 		get initialized() {
 			return initialized;
+		},
+		get boardsInitialized() {
+			return boardsInitialized;
 		},
 
 		loadLists,

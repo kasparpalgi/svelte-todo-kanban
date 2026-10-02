@@ -239,7 +239,7 @@ if (PUBLIC_APP_ENV !== 'production') {
 	);
 }
 
-export const { handle: authHandle, signOut } = SvelteKitAuth({
+const { handle: authHandle, signOut } = SvelteKitAuth({
 	adapter: HasuraAdapter({
 		endpoint: apiEndpoint,
 		adminSecret: HASURA_ADMIN_SECRET
@@ -353,4 +353,5 @@ const securityHandle: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
+export { signOut };
 export const handle = sequence(authHandle, securityHandle);

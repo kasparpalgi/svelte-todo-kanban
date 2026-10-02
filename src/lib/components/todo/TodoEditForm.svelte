@@ -175,7 +175,6 @@
 							onTranscript={handleTitleVoice}
 							onError={handleVoiceError}
 							disabled={isSubmitting}
-							minimal={true}
 						/>
 					</div>
 					{#if validationErrors.title}

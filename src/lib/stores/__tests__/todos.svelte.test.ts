@@ -43,6 +43,8 @@ const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFields
 	labels: [],
 	comments: [],
 	assignees: [],
+	subscribers: [],
+	claude_usages_aggregate: { aggregate: null },
 	__typename: 'todos',
 	...overrides
 });

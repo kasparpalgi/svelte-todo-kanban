@@ -41,9 +41,10 @@
 		defaultAmount
 	}: Props = $props();
 
-	let fromUserId = $state(defaultFromUser || currentUserId);
-	let toUserId = $state(defaultToUser || '');
-	let amount = $state(defaultAmount?.toString() || '');
+	// Seeded by the open-effect below.
+	let fromUserId = $state('');
+	let toUserId = $state('');
+	let amount = $state('');
 	let submitting = $state(false);
 
 	// Reset form when dialog opens

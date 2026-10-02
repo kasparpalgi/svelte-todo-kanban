@@ -3,7 +3,7 @@
 	import { t } from '$lib/i18n';
 	import { commentsStore } from '$lib/stores/comments.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
-	import { formatDate } from '$lib/utils/cardHelpers';
+	import { formatLocalizedDate } from '$lib/utils/cardHelpers';
 	import { linkifyText } from '$lib/utils/linkifyText';
 	import { Card } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
@@ -96,7 +96,7 @@
 								{comment.user?.name || comment.user?.username || $t('card.unknown_user')}
 							</span>
 							<span class="text-xs text-muted-foreground">
-								{formatDate(comment.created_at || '', lang)}
+								{formatLocalizedDate(comment.created_at || '', lang)}
 							</span>
 						</div>
 						<Button

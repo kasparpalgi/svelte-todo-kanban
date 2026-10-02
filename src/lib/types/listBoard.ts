@@ -1,8 +1,7 @@
 import type {
 	BoardFieldsFragment,
 	BoardInvitationFieldsFragment,
-	BoardMemberFieldsFragment,
-	ListFieldsFragment
+	BoardMemberFieldsFragment
 } from '$lib/graphql/generated/graphql';
 
 export interface ListBoardStoreResult<T = any> {
@@ -11,26 +10,6 @@ export interface ListBoardStoreResult<T = any> {
 	data?: T;
 	/** Set when the failure is a free-plan limit that triggered the upgrade dialog. */
 	upsell?: boolean;
-}
-
-export interface ListsState {
-	lists: ListFieldsFragment[];
-	boards: BoardFieldsFragment[];
-	loading: boolean;
-	error: string | null;
-	initialized: boolean;
-}
-
-export interface ListStoreResult {
-	success: boolean;
-	message: string;
-	data?: ListFieldsFragment;
-}
-
-export interface BoardStoreResult {
-	success: boolean;
-	message: string;
-	data?: BoardFieldsFragment;
 }
 
 export interface BoardStoreResultGeneric<T = void> {

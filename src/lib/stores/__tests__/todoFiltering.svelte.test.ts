@@ -45,6 +45,8 @@ const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFields
 	labels: [],
 	comments: [],
 	assignees: [],
+	subscribers: [],
+	claude_usages_aggregate: { aggregate: null },
 	__typename: 'todos',
 	...overrides
 });
@@ -154,6 +156,8 @@ describe('TodoFilteringStore', () => {
 						alias: 'main-board',
 						sort_order: 1,
 						settings: {},
+						user_id: 'user1',
+						user: {},
 						__typename: 'boards'
 					},
 					__typename: 'lists'
@@ -173,6 +177,8 @@ describe('TodoFilteringStore', () => {
 						alias: 'main-board',
 						sort_order: 1,
 						settings: {},
+						user_id: 'user1',
+						user: {},
 						__typename: 'boards'
 					},
 					__typename: 'lists'
@@ -193,6 +199,8 @@ describe('TodoFilteringStore', () => {
 						alias: 'main-board',
 						sort_order: 1,
 						settings: {},
+						user_id: 'user1',
+						user: {},
 						__typename: 'boards'
 					},
 					__typename: 'lists'
@@ -213,6 +221,8 @@ describe('TodoFilteringStore', () => {
 						alias: 'main-board',
 						sort_order: 1,
 						settings: null,
+						user_id: 'user1',
+						user: {},
 						__typename: 'boards'
 					},
 					__typename: 'lists'
@@ -255,6 +265,8 @@ describe('TodoFilteringStore', () => {
 							alias: 'main-board',
 							sort_order: 1,
 							settings: null,
+							user_id: 'user1',
+							user: {},
 							__typename: 'boards'
 						},
 						__typename: 'lists'
@@ -274,6 +286,8 @@ describe('TodoFilteringStore', () => {
 							alias: 'main-board',
 							sort_order: 1,
 							settings: null,
+							user_id: 'user1',
+							user: {},
 							__typename: 'boards'
 						},
 						__typename: 'lists'
@@ -293,6 +307,8 @@ describe('TodoFilteringStore', () => {
 							alias: 'main-board',
 							sort_order: 1,
 							settings: null,
+							user_id: 'user1',
+							user: {},
 							__typename: 'boards'
 						},
 						__typename: 'lists'

@@ -982,7 +982,7 @@ function createTodosStore() {
 			};
 
 			const [activeData, completedData]: [GetTodosQuery, GetTodosQuery] = await Promise.all([
-				request(GET_TODOS, {
+				request<GetTodosQuery>(GET_TODOS, {
 					where: activeWhere,
 					order_by: [
 						{ sort_order: Order_By.Asc },
@@ -992,7 +992,7 @@ function createTodosStore() {
 					limit: 1000,
 					offset: 0
 				}),
-				request(GET_TODOS, {
+				request<GetTodosQuery>(GET_TODOS, {
 					where: completedWhere,
 					order_by: [{ completed_at: Order_By.Desc }],
 					limit: 200,

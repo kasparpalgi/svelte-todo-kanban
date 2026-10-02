@@ -12,7 +12,10 @@ vi.mock('$lib/server/github', () => ({
 vi.mock('$lib/graphql/server-client', () => ({
 	serverRequest: (...args: unknown[]) => serverRequest(...args)
 }));
-vi.mock('$lib/graphql/documents', () => ({ CREATE_COMMENT: 'CREATE_COMMENT' }));
+vi.mock('$lib/graphql/documents', () => ({
+	CREATE_COMMENT: 'CREATE_COMMENT',
+	UPDATE_TASK_FILE_PATH: 'UPDATE_TASK_FILE_PATH'
+}));
 
 const { POST } = await import('../write-task-file/+server');
 

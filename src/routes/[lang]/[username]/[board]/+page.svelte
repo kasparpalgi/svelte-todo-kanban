@@ -97,9 +97,13 @@
 					listsStore.setSelectedBoard(board);
 				}
 
-				const currentUser = userStore.user;
-				const isMember = board.board_members?.some((m: any) => m.user_id === currentUser?.id);
-				const isOwner = board.user?.id === currentUser?.id;
+				// The layout hydrates userStore asynchronously; without waiting, an
+				// undefined id made every board look "not a member" and its todos were
+				// never loaded, leaving an empty board until refresh (#206).
+				const currentUserId =
+					(userStore.user ?? (await userStore.whenReady()))?.id ?? data.session.user?.id;
+				const isMember = board.board_members?.some((m: any) => m.user_id === currentUserId);
+				const isOwner = board.user?.id === currentUserId;
 				const notMember = !isMember && !isOwner;
 
 				// Check if we need to load todos (first load or board changed)
@@ -128,7 +132,9 @@
 	// Silently re-fetch the current board's data so changes made by other
 	// users/tabs/devices show up without a manual page refresh.
 	async function refreshBoardInBackground() {
-		if (!data?.session || !listsStore.selectedBoard || document.hidden) return;
+		// Waking from sleep fires visibilitychange before the network is back; the
+		// requests then fail instantly with "Failed to fetch" (#206). Wait for `online`.
+		if (!data?.session || !listsStore.selectedBoard || document.hidden || !navigator.onLine) return;
 
 		const boardId = listsStore.selectedBoard.id;
 		await Promise.all([
@@ -157,9 +163,20 @@
 		};
 		document.addEventListener('visibilitychange', handleVisibilityChange);
 
+		// Back online: retry a load that failed while offline, else just refresh.
+		const handleOnline = () => {
+			const retry =
+				boardNotFound || listsStore.boards.length === 0 || !listsStore.selectedBoard
+					? loadBoardData(boardAlias)
+					: refreshBoardInBackground();
+			retry.catch((e) => console.error('[BoardPage] online refresh error:', e));
+		};
+		window.addEventListener('online', handleOnline);
+
 		return () => {
 			clearInterval(pollInterval);
 			document.removeEventListener('visibilitychange', handleVisibilityChange);
+			window.removeEventListener('online', handleOnline);
 		};
 	});
 

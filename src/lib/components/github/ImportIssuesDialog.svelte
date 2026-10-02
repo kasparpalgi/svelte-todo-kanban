@@ -23,7 +23,12 @@
 		onImportComplete?: () => void;
 	} = $props();
 
-	let selectedListId = $state(lists[0]?.id || '');
+	let selectedListId = $state('');
+
+	// `lists` can arrive after mount; default to the first one once it does.
+	$effect(() => {
+		if (!selectedListId && lists[0]) selectedListId = lists[0].id;
+	});
 	let importing = $state(false);
 
 	async function importIssues() {

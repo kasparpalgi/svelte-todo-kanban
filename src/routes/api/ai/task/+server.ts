@@ -72,8 +72,19 @@ Do NOT use HTML tags. Do NOT wrap the whole answer in a code fence. Your respons
 
 		if (!response.ok) {
 			const error = await response.text();
-			console.error('OpenAI API error:', error);
-			return json({ error: 'AI service error' }, { status: 500 });
+			console.error('OpenAI API error:', response.status, error);
+			// Upstream failure, not ours: 502 + OpenAI's status so the client log says
+			// *why* (e.g. 401 = invalid/rotated key, 429 = quota) instead of a bare 500.
+			let detail = '';
+			try {
+				detail = JSON.parse(error)?.error?.code ?? '';
+			} catch {
+				// non-JSON upstream body: keep the bare status
+			}
+			return json(
+				{ error: `AI service error (OpenAI ${response.status}${detail ? ` ${detail}` : ''})` },
+				{ status: 502 }
+			);
 		}
 
 		const data = await response.json();

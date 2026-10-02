@@ -20,7 +20,7 @@ export function pointerKind(pointerType: string): PointerKind {
 	return pointerType === 'mouse' ? 'mouse' : 'touch';
 }
 
-export function distance(dx: number, dy: number): number {
+function distance(dx: number, dy: number): number {
 	return Math.hypot(dx, dy);
 }
 

@@ -38,7 +38,7 @@ async function anonymousRequest<T>(query: string, variables?: Record<string, unk
 	return json.data as T;
 }
 
-export type TranscriptionProgressStep = 'downloading' | 'splitting' | 'chunks_found' | 'transcribing' | 'polishing' | 'idle';
+type TranscriptionProgressStep = 'downloading' | 'splitting' | 'chunks_found' | 'transcribing' | 'polishing' | 'idle';
 
 interface PodcastsState {
 	podcasts: Podcast[];

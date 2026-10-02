@@ -19,10 +19,11 @@
 		children: Snippet;
 	} = $props();
 
-	const sideClasses =
+	const sideClasses = $derived(
 		side === 'right'
 			? 'right-0 top-0 h-full w-80 border-l data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right'
-			: 'left-0 top-0 h-full w-80 border-r data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left';
+			: 'left-0 top-0 h-full w-80 border-r data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left'
+	);
 </script>
 
 <DialogPrimitive.Portal {...portalProps}>

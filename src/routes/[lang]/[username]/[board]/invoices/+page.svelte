@@ -1,6 +1,6 @@
 <script lang="ts">
 	/** @file src/routes/[lang]/[username]/[board]/invoices/+page.svelte */
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n';
@@ -15,15 +15,20 @@
 
 	let { data }: { data: PageData } = $props();
 
-	const board = data.board;
-	const lists = data.lists;
+	// $derived: switching boards reuses this component with new `data`.
+	const board = $derived(data.board);
+	const lists = $derived(data.lists);
 
 	let createOpen = $state(false);
 	let showSettings = $state(false);
 
 	onMount(() => {
-		invoicingStore.loadBoardInvoices(board.id);
 		clientsStore.loadClients();
+	});
+
+	$effect(() => {
+		const boardId = board.id;
+		untrack(() => invoicingStore.loadBoardInvoices(boardId));
 	});
 
 	const invoices = $derived(invoicingStore.invoices);

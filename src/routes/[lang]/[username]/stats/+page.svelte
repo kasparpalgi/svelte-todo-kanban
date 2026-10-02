@@ -32,8 +32,6 @@
 	import DateRangePicker from './DateRangePicker.svelte';
 	import SessionBreakdown from './SessionBreakdown.svelte';
 
-	let { data } = $props();
-
 	let selectedPeriod: 'today' | 'week' | 'month' | 'custom' = $state('today');
 	let customStartDate = $state(new Date());
 	let customEndDate = $state(new Date());

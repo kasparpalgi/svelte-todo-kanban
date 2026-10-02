@@ -105,39 +105,3 @@ export function parseSplitwiseCsv(csvText: string): ParsedCsvData {
 	};
 }
 
-/**
- * Determine if CSV is a simple 2-user case
- * In simple case: exactly 2 users, one has negative amounts, one has positive
- */
-export function isSimpleTwoUserCase(data: ParsedCsvData): boolean {
-	return data.userNames.length === 2;
-}
-
-/**
- * For 2-user case, identify which user is the current user (the one with negative amounts)
- * Returns the index of the current user (0 or 1)
- */
-export function identifyCurrentUserInSimpleCase(data: ParsedCsvData): number {
-	if (data.userNames.length !== 2) {
-		throw new Error('Not a simple 2-user case');
-	}
-
-	// Sum up the amounts for each user across all expenses
-	let user0Total = 0;
-	let user1Total = 0;
-
-	for (const expense of data.expenses) {
-		const user0Amount = expense.splits.get(data.userNames[0]) || 0;
-		const user1Amount = expense.splits.get(data.userNames[1]) || 0;
-		user0Total += user0Amount;
-		user1Total += user1Amount;
-	}
-
-	// The current user typically has a negative total (owes money)
-	// Return the user with the most negative total
-	if (user0Total < user1Total) {
-		return 0;
-	} else {
-		return 1;
-	}
-}

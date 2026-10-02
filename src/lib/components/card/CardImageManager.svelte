@@ -1,6 +1,6 @@
 <!-- @file src/lib/components/card/CardImageManager.svelte -->
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+	import { onDestroy, untrack } from 'svelte';
 	import { t } from '$lib/i18n';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -12,7 +12,8 @@
 
 	let { todoId, initialImages = [] }: CardImageProps = $props();
 
-	let images = $state<TodoImage[]>(initialImages);
+	// Seeded once; this component owns the list after mount (uploads/removals).
+	let images = $state<TodoImage[]>(untrack(() => initialImages));
 	let isDragOver = $state(false);
 	let fileInput = $state<HTMLInputElement>();
 	let showUploadArea = $state(false);

@@ -9,12 +9,10 @@
 
 	let {
 		owner,
-		repo,
-		boardId
+		repo
 	}: {
 		owner: string;
 		repo: string;
-		boardId: string;
 	} = $props();
 
 	let webhookStatus = $state<{

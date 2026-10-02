@@ -78,11 +78,8 @@
 
 	let isEditing = $derived(editingTodo.id === todo.id);
 	let isHovered = $state(false);
-	let editData = $state<TodoEditData>({
-		title: todo.title,
-		content: todo.content || '',
-		due_on: todo.due_on ? new Date(todo.due_on).toISOString().split('T')[0] : ''
-	});
+	// Synced from `todo` by the effect below whenever not editing.
+	let editData = $state<TodoEditData>({ title: '', content: '', due_on: '' });
 	let images = $state<TodoImage[]>([]);
 	let validationErrors = $state<Record<string, string>>({});
 	let isDragOver = $state(false);

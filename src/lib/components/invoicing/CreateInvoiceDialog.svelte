@@ -69,12 +69,15 @@
 		}
 	}
 
+	const initialIssuedDate = todayISODate();
+	const initialDueDate = addDays(initialIssuedDate, 5);
+
 	let form = $state({
 		clientId: '',
 		companyId: '',
 		invoiceNumber: '',
-		issuedDate: todayISODate(),
-		dueDate: addDays(todayISODate(), 5),
+		issuedDate: initialIssuedDate,
+		dueDate: initialDueDate,
 		currency: 'EUR',
 		hourlyRate: '',
 		notes: ''
@@ -90,8 +93,8 @@
 		customFields = customFields.filter((_, idx) => idx !== i);
 	}
 
-	let selectedIssuedDate = $state<DateValue | undefined>(isoToDateValue(form.issuedDate));
-	let selectedDueDate = $state<DateValue | undefined>(isoToDateValue(form.dueDate));
+	let selectedIssuedDate = $state<DateValue | undefined>(isoToDateValue(initialIssuedDate));
+	let selectedDueDate = $state<DateValue | undefined>(isoToDateValue(initialDueDate));
 
 	const totalHours = $derived(
 		todosForInvoicing

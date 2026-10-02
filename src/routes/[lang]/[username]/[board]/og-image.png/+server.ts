@@ -148,7 +148,7 @@ export async function GET({ url, params, fetch: fetchFn }: RequestEvent) {
 				description: todo.content?.substring(0, 100) || undefined
 			});
 
-			return new Response(imageBuffer, {
+			return new Response(new Uint8Array(imageBuffer), {
 				headers: {
 					'Content-Type': 'image/svg+xml',
 					'Cache-Control': 'public, max-age=3600'
@@ -162,7 +162,7 @@ export async function GET({ url, params, fetch: fetchFn }: RequestEvent) {
 				description: undefined
 			});
 
-			return new Response(imageBuffer, {
+			return new Response(new Uint8Array(imageBuffer), {
 				headers: {
 					'Content-Type': 'image/svg+xml',
 					'Cache-Control': 'public, max-age=3600'
@@ -179,7 +179,7 @@ export async function GET({ url, params, fetch: fetchFn }: RequestEvent) {
 			description: 'Kanban Board'
 		});
 
-		return new Response(errorImage, {
+		return new Response(new Uint8Array(errorImage), {
 			headers: {
 				'Content-Type': 'image/svg+xml',
 				'Cache-Control': 'public, max-age=300'

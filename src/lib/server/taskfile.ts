@@ -77,7 +77,7 @@ const NAMED = /\b(fable|opus|sonnet|haiku|gemini)\b[ \t]*(\d+(?:\.\d+)?)?[ \t]*(
 const PREFIXED = new RegExp(`run with:[ \\t]*${NAMED.source}`, 'i');
 
 /** Looks for a hand-typed tier in card prose ("Run with: opus 4.8 / xhigh" or a bare "Sonnet 4.6"). Null when nothing is named. */
-export function detectRunWith(text: string): string | null {
+function detectRunWith(text: string): string | null {
 	for (const re of [PREFIXED, NAMED]) {
 		const m = re.exec(text || '');
 		if (m) return label(m[1].toLowerCase(), m[2], m[3]);

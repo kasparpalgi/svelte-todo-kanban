@@ -90,7 +90,7 @@
 
 				{#if boardId && currentRepo.includes('/')}
 					{@const [owner, repo] = currentRepo.split('/')}
-					<WebhookManager {owner} {repo} {boardId} />
+					<WebhookManager {owner} {repo} />
 				{/if}
 			{/if}
 

@@ -36,7 +36,7 @@ export const todoEditSchema = z.object({
 	agent_machine: z.enum(['mac', 'karel', 'dell']).nullable().optional()
 });
 
-export function formatDate(dateString: string, lang: string): string {
+export function formatLocalizedDate(dateString: string, lang: string): string {
 	const date = new Date(dateString);
 	return date.toLocaleDateString(lang, {
 		month: 'short',

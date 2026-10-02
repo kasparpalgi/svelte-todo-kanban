@@ -24,7 +24,7 @@ const config = {
 	]
 };
 
-export const { t, locale, locales, loading, loadTranslations } = new i18n(config);
+export const { t, locale, loadTranslations } = new i18n(config);
 
 export async function initTranslations(currentLocale: string) {
 	await loadTranslations(currentLocale);

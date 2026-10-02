@@ -7,7 +7,7 @@
 	import { getBoardCustomization } from '$lib/constants/boardCustomization';
 
 	$effect(() => {
-		if (!listsStore.initialized) listsStore.loadBoards();
+		if (!listsStore.boardsInitialized) listsStore.loadBoards();
 	});
 
 	const currentBoardName = $derived(() => listsStore.selectedBoard?.name || '');

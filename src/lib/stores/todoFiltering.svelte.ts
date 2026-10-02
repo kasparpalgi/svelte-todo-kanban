@@ -5,7 +5,7 @@ import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 export type SortOrder = 'sort_order' | 'due_date' | 'created_date' | 'updated_at' | 'priority';
 export type SortDirection = 'asc' | 'desc';
 
-export interface TodoFilters {
+interface TodoFilters {
 	boardId?: string | null;
 	listId?: string | null;
 	completed?: boolean;
@@ -19,7 +19,7 @@ export interface TodoFilters {
 	labelIds?: string[];
 }
 
-export interface TodoSorting {
+interface TodoSorting {
 	order: SortOrder;
 	direction: SortDirection;
 }

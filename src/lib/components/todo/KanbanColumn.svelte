@@ -37,7 +37,8 @@
 	}: KanbanColumnProps = $props();
 
 	let isEditing = $state(false);
-	let editName = $state(list.name);
+	// Synced from `list.name` by the effect below.
+	let editName = $state('');
 	let newTaskTitleTop = $state('');
 	let newTaskTitleBottom = $state('');
 	let showQuickAdd = $state(false);

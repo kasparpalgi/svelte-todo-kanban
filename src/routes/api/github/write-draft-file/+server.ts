@@ -3,6 +3,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
+import { UPDATE_TASK_FILE_PATH } from '$lib/graphql/documents';
 import { buildDraftFile, camelName, nextNumber } from '$lib/server/taskfile';
 
 const GET_TODO_FOR_DRAFT = `
@@ -21,14 +22,6 @@ const GET_TODO_FOR_DRAFT = `
 					github
 				}
 			}
-		}
-	}
-`;
-
-const UPDATE_TASK_FILE_PATH = `
-	mutation UpdateTaskFilePath($id: uuid!, $path: String) {
-		update_todos_by_pk(pk_columns: { id: $id }, _set: { task_file_path: $path }) {
-			id
 		}
 	}
 `;

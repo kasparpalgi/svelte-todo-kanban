@@ -7,7 +7,7 @@ import { request } from '$lib/graphql/client';
 import { env } from '$env/dynamic/public';
 import { CREATE_PUSH_SUBSCRIPTION, DELETE_PUSH_SUBSCRIPTION } from '$lib/graphql/documents';
 
-export interface PushNotificationState {
+interface PushNotificationState {
 	supported: boolean;
 	permission: NotificationPermission | 'unsupported';
 	subscribed: boolean;

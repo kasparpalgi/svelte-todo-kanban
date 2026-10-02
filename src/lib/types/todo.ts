@@ -25,23 +25,6 @@ export interface StoreResult<T = any> {
 	upsell?: boolean;
 }
 
-export interface CanbanColumnProps {
-	list: {
-		id: string;
-		name: string;
-		sort_order: number;
-		board?: {
-			id: string;
-			name: string;
-			alias: string;
-			sort_order: number;
-			github?: string | null;
-		} | null;
-	};
-	todos: TodoFieldsFragment[];
-	isHighlighted?: boolean;
-}
-
 /** Keyboard reordering directions: up/down within a list, left/right across lists. */
 export type CardMoveDirection = 'up' | 'down' | 'left' | 'right';
 
@@ -97,17 +80,6 @@ export type KanbanColumnProps = {
 };
 
 // Store results
-
-export interface TodoStoreResult {
-	success: boolean;
-	message: string;
-	data?: TodoFieldsFragment;
-}
-
-export interface GenericStoreResult {
-	success: boolean;
-	message: string;
-}
 
 export interface LabelManagementProps {
 	todo: TodoFieldsFragment;

@@ -1,27 +1,6 @@
 /** @file src/lib/utils/localStorage.ts */
 import { browser } from '$app/environment';
 
-const APP_STORAGE_KEYS = [
-	'selectedBoardId',
-	'todo-filtering-preferences',
-	'todo-view-mode',
-	'mode-watcher-mode',
-	'mode-watcher-theme',
-	'app_jwt_cache'
-] as const;
-
-export function clearAppStorage(): void {
-	if (!browser) return;
-
-	APP_STORAGE_KEYS.forEach((key) => {
-		try {
-			localStorage.removeItem(key);
-		} catch (error) {
-			console.warn(`Failed to remove localStorage key: ${key}`, error);
-		}
-	});
-}
-
 export async function clearAllStorage(): Promise<void> {
 	if (!browser) return;
 

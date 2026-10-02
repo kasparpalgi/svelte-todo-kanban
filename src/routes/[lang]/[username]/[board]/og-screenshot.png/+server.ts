@@ -161,7 +161,7 @@ export async function GET({ url, params }: RequestEvent) {
 		});
 
 		// Return the image directly
-		return new Response(screenshotBuffer, {
+		return new Response(new Uint8Array(screenshotBuffer), {
 			headers: {
 				'Content-Type': 'image/png',
 				'Cache-Control': 'public, max-age=86400, s-maxage=2592000' // Cache for 24h (browsers), 30d (CDN)

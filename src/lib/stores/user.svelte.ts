@@ -15,6 +15,13 @@ function createUserStore() {
 		isLoggingOut: false
 	});
 
+	// Resolves once initializeUser() has settled (DB user hydrated, or failed).
+	// Board/list loaders scope their queries by the current user and run from
+	// child onMount, which fires before the layout's initializeUser() request
+	// returns; without waiting they saw `user === null` and loaded nothing (#206).
+	let resolveReady: () => void = () => {};
+	let ready = new Promise<void>((resolve) => (resolveReady = resolve));
+
 	const user = $derived(() => state.cachedUser);
 	const isDarkMode = $derived(() => user()?.dark_mode || false);
 	const userLocale = $derived(() => user()?.locale || DEFAULT_LOCALE);
@@ -33,6 +40,7 @@ function createUserStore() {
 		if (!sessionUser?.id) {
 			state.loading = false;
 			state.initialized = true;
+			resolveReady();
 			return;
 		}
 
@@ -64,13 +72,34 @@ function createUserStore() {
 				userId: sessionUser.id
 			});
 		} catch (error: any) {
+			// Fall back to the session identity so board/list scoping still works
+			// when the profile request fails (e.g. a flaky network on wake-up).
+			state.cachedUser = sessionUser;
 			state.error = error.message || 'Failed to load user profile.';
 			displayMessage(error);
 			loggingStore.error('UserStore', 'Failed to hydrate user from DB', { error });
 		} finally {
 			state.loading = false;
 			state.initialized = true;
+			resolveReady();
 		}
+	}
+
+	/**
+	 * Wait until the signed-in user is known, then return it (null when signed
+	 * out). Bounded by `timeoutMs` so a caller can never hang if initializeUser()
+	 * is never called (e.g. no session).
+	 */
+	async function whenReady(timeoutMs = 10000) {
+		if (!state.initialized) {
+			let timer: ReturnType<typeof setTimeout> | undefined;
+			await Promise.race([
+				ready,
+				new Promise<void>((resolve) => (timer = setTimeout(resolve, timeoutMs)))
+			]);
+			clearTimeout(timer);
+		}
+		return user();
 	}
 
 	async function initializeAppState(dbUser: any) {
@@ -194,6 +223,7 @@ function createUserStore() {
 		state.loading = true;
 		state.error = null;
 		state.cachedUser = null;
+		ready = new Promise<void>((resolve) => (resolveReady = resolve));
 		clearTokenCache();
 		loggingStore.setUserId(null);
 	}
@@ -225,6 +255,7 @@ function createUserStore() {
 			return user()?.settings?.tokens?.github?.username || null;
 		},
 		initializeUser,
+		whenReady,
 		updateUser,
 		toggleDarkMode,
 		reset,
