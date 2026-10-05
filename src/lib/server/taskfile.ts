@@ -124,8 +124,8 @@ export interface TaskCard {
 /**
  * `> Machine: karel` — the line the runner reads to decide the task is its own.
  * Null when the card is on *auto*: a file with no such line is *unaddressed*, and the
- * one runner configured as `machineDefault` (the Mac) takes those. So auto must emit
- * nothing at all rather than a line naming a machine.
+ * first free runner claims it by pushing its own line (klarity-claude-kit claim.js).
+ * So auto must emit nothing at all rather than a line naming a machine.
  */
 const machineLine = (card: TaskCard): string | null => {
 	const slug = machineSlug(card.agent_machine);
