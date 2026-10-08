@@ -21,16 +21,23 @@ async function taskEntries(repo: string, token: string) {
 	return { dir: 'doc/todo', entries: (await listDir(repo, 'doc/todo', token)) ?? [] };
 }
 
+/** `053-x-DONE.md` and its `053-x.log` share the stem `053-x`. */
+const stemOf = (name: string) => name.replace(/(-DONE)?\.(md|log)$/i, '');
+
 /**
- * The files to move aside so issue `#n` can have `n` as its task number: when `n` is
- * taken, everything numbered `n` and up goes to `archive/`. A live `-TODO.md` stays —
- * it is another card's queued work — and so does `keep`, the card's own draft.
+ * The files to move aside so issue `#n` can have `n` as its task number. Only finished
+ * work moves: every `-DONE.md` numbered `n` and up, with its `.log`. A draft, a queued
+ * `-TODO.md` or a `-BLOCKED.md` a person still owes stays put — and when one of those
+ * holds `n`, nothing moves and the caller falls back to the next free number. `keep`,
+ * the card's own draft, neither moves nor counts as holding `n`.
  */
 export function toArchive(names: string[], n: number, keep?: string): string[] {
+	const done = new Set(names.filter((x) => numberOf(x) >= n && /-DONE\.md$/i.test(x)).map(stemOf));
 	const movable = names.filter(
-		(name) => numberOf(name) >= n && name !== keep && !name.endsWith('-TODO.md')
+		(x) => x !== keep && /(-DONE\.md|\.log)$/i.test(x) && done.has(stemOf(x))
 	);
-	return movable.some((name) => numberOf(name) === n) ? movable : [];
+	const holders = names.filter((x) => numberOf(x) === n && x !== keep);
+	return holders.length && holders.every((x) => movable.includes(x)) ? movable : [];
 }
 
 /**

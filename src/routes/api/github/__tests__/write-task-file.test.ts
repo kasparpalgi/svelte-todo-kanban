@@ -161,13 +161,13 @@ describe('POST /api/github/write-task-file', () => {
 	});
 
 	it('archives what holds the issue number, then takes the number itself', async () => {
-		// Issue #52's draft got 053 because a backlog file already held 052.
+		// Issue #52's draft got 053 because a finished task already held 052.
 		githubRequest.mockImplementation(async (path: string, _t: string, opts?: RequestInit) => {
 			const p = String(path);
 			if (p.endsWith('/contents/doc/todo'))
 				return [
 					{ name: '051-a-DONE.md', sha: 's51' },
-					{ name: '052-seo.md', sha: 's52' },
+					{ name: '052-seo-DONE.md', sha: 's52' },
 					{ name: '053-me.md', sha: 's53' }
 				];
 			if (p.endsWith('/kasparpalgi/svelte-todo-kanban')) return { default_branch: 'main' };
@@ -185,8 +185,8 @@ describe('POST /api/github/write-task-file', () => {
 		expect(await res.json()).toMatchObject({ success: true, path: 'doc/todo/052-me-TODO.md' });
 		const tree = githubRequest.mock.calls.find(([p]) => String(p).endsWith('/git/trees'));
 		expect(JSON.parse(String(tree?.[2].body)).tree).toEqual([
-			{ path: 'doc/todo/archive/052-seo.md', mode: '100644', type: 'blob', sha: 's52' },
-			{ path: 'doc/todo/052-seo.md', mode: '100644', type: 'blob', sha: null }
+			{ path: 'doc/todo/archive/052-seo-DONE.md', mode: '100644', type: 'blob', sha: 's52' },
+			{ path: 'doc/todo/052-seo-DONE.md', mode: '100644', type: 'blob', sha: null }
 		]);
 		const ref = githubRequest.mock.calls.find(([, , o]) => o?.method === 'PATCH');
 		expect(JSON.parse(String(ref?.[2].body))).toEqual({ sha: 'c1' });
