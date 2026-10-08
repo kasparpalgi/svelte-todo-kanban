@@ -193,7 +193,7 @@ export function ensureMachine(body: string, card: TaskCard): string {
 }
 
 /** The leading NNN of a task filename, or NaN. Issue numbers outgrow three digits. */
-const numberOf = (filename: string) => Number.parseInt(/^(\d+)-/.exec(filename)?.[1] ?? '', 10);
+export const numberOf = (filename: string) => Number.parseInt(/^(\d+)-/.exec(filename)?.[1] ?? '', 10);
 
 /** Zero-padded to the three digits every existing file uses; wider numbers keep their width. */
 const pad = (n: number) => String(n).padStart(3, '0');

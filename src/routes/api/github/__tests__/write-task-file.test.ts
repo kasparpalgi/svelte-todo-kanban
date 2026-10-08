@@ -160,6 +160,38 @@ describe('POST /api/github/write-task-file', () => {
 		expect(writtenFile()?.body).toContain('> Run with: Opus 5 / high');
 	});
 
+	it('archives what holds the issue number, then takes the number itself', async () => {
+		// Issue #52's draft got 053 because a backlog file already held 052.
+		githubRequest.mockImplementation(async (path: string, _t: string, opts?: RequestInit) => {
+			const p = String(path);
+			if (p.endsWith('/contents/doc/todo'))
+				return [
+					{ name: '051-a-DONE.md', sha: 's51' },
+					{ name: '052-seo.md', sha: 's52' },
+					{ name: '053-me.md', sha: 's53' }
+				];
+			if (p.endsWith('/kasparpalgi/svelte-todo-kanban')) return { default_branch: 'main' };
+			if (p.includes('/git/ref/heads/main')) return { object: { sha: 'head' } };
+			if (p.endsWith('/git/commits/head')) return { tree: { sha: 'tree0' } };
+			if (p.endsWith('/git/trees')) return { sha: 'tree1' };
+			if (p.endsWith('/git/commits')) return { sha: 'c1' };
+			if (p.endsWith('/contents/.claude/todo')) throw notFound();
+			if (opts?.method) return {};
+			return { content: 'ZHJhZnQ=', sha: 'draft-sha' };
+		});
+
+		const res = await call({ github_issue_number: 52, task_file_path: 'doc/todo/053-me.md' });
+
+		expect(await res.json()).toMatchObject({ success: true, path: 'doc/todo/052-me-TODO.md' });
+		const tree = githubRequest.mock.calls.find(([p]) => String(p).endsWith('/git/trees'));
+		expect(JSON.parse(String(tree?.[2].body)).tree).toEqual([
+			{ path: 'doc/todo/archive/052-seo.md', mode: '100644', type: 'blob', sha: 's52' },
+			{ path: 'doc/todo/052-seo.md', mode: '100644', type: 'blob', sha: null }
+		]);
+		const ref = githubRequest.mock.calls.find(([, , o]) => o?.method === 'PATCH');
+		expect(JSON.parse(String(ref?.[2].body))).toEqual({ sha: 'c1' });
+	});
+
 	it('does nothing when the list is not the board agent list', async () => {
 		const res = await call({
 			list: { ...CARD.list, board: { ...CARD.list.board, settings: { agent_list_id: 'other' } } }

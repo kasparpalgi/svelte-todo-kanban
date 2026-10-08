@@ -5,6 +5,7 @@ import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
 import { UPDATE_TASK_FILE_PATH } from '$lib/graphql/documents';
 import { buildDraftFile, camelName, nextNumber } from '$lib/server/taskfile';
+import { makeRoom } from '$lib/server/taskdir';
 
 const GET_TODO_FOR_DRAFT = `
 	query GetTodoForDraft($todoId: uuid!) {
@@ -25,25 +26,6 @@ const GET_TODO_FOR_DRAFT = `
 		}
 	}
 `;
-
-async function listDir(repo: string, dir: string, token: string): Promise<string[] | null> {
-	try {
-		const entries = await githubRequest<{ name: string }[]>(
-			`/repos/${repo}/contents/${dir}`,
-			token
-		);
-		return Array.isArray(entries) ? entries.map((e) => e.name) : [];
-	} catch (err: any) {
-		if (err.message?.includes('(404)')) return null;
-		throw err;
-	}
-}
-
-async function taskDir(repo: string, token: string) {
-	const dotClaude = await listDir(repo, '.claude/todo', token);
-	if (dotClaude) return { dir: '.claude/todo', names: dotClaude };
-	return { dir: 'doc/todo', names: (await listDir(repo, 'doc/todo', token)) ?? [] };
-}
 
 export const POST: RequestHandler = async ({ request: req, locals }) => {
 	const session = await locals.auth();
@@ -82,7 +64,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 		let path = '';
 		for (let attempt = 0; ; attempt++) {
-			const { dir, names } = await taskDir(repo, token);
+			const { dir, names } = await makeRoom(repo, token, attempt ? null : issueNumber, ref);
 			path = `${dir}/${nextNumber(names, attempt ? null : issueNumber)}-${slug}.md`;
 			try {
 				await githubRequest(`/repos/${repo}/contents/${path}`, token, {

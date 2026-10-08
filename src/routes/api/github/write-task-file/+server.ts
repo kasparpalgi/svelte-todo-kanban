@@ -14,6 +14,7 @@ import {
 	todoPathFor
 } from '$lib/server/taskfile';
 import type { TaskCard } from '$lib/server/taskfile';
+import { makeRoom } from '$lib/server/taskdir';
 import { serverLog } from '$lib/server/log';
 
 const GET_TODO_FOR_TASK_FILE = `
@@ -38,25 +39,6 @@ const GET_TODO_FOR_TASK_FILE = `
 		}
 	}
 `;
-
-async function listDir(repo: string, dir: string, token: string): Promise<string[] | null> {
-	try {
-		const entries = await githubRequest<{ name: string }[]>(
-			`/repos/${repo}/contents/${dir}`,
-			token
-		);
-		return Array.isArray(entries) ? entries.map((e) => e.name) : [];
-	} catch (err: any) {
-		if (err.message?.includes('(404)')) return null;
-		throw err;
-	}
-}
-
-async function taskDir(repo: string, token: string) {
-	const dotClaude = await listDir(repo, '.claude/todo', token);
-	if (dotClaude) return { dir: '.claude/todo', names: dotClaude };
-	return { dir: 'doc/todo', names: (await listDir(repo, 'doc/todo', token)) ?? [] };
-}
 
 /**
  * `task_file_path` is never cleared, so it outlives the file it names — deleted by hand,
@@ -104,6 +86,9 @@ async function renameDraftToTodo(
 	// runner needs — reconcile the model line with the card's now-set field, then add any missing
 	// footer.
 	const body = Buffer.from(fileInfo.content, 'base64').toString('utf8');
+
+	// Whatever already holds the issue's number moves to archive/, so file and issue match.
+	await makeRoom(repo, token, card.github_issue_number, ref, draftPath.split('/').pop());
 
 	// Create the TODO file with the draft's content
 	await githubRequest(`/repos/${repo}/contents/${todoPath}`, token, {
@@ -198,7 +183,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			const slug = camelName(todo.title);
 
 			for (let attempt = 0; ; attempt++) {
-				const { dir, names } = await taskDir(repo, token);
+				const { dir, names } = await makeRoom(repo, token, attempt ? null : issueNumber, ref);
 				path = `${dir}/${nextNumber(names, attempt ? null : issueNumber)}-${slug}-TODO.md`;
 				try {
 					await githubRequest(`/repos/${repo}/contents/${path}`, token, {
