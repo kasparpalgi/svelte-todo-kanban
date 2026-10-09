@@ -363,7 +363,7 @@
     "no_repositories_available": "Reposid pole saadaval",
     "disconnect": "Ühenda lahti",
     "retry": "Proovi uuesti",
-    "org_repo_hint": "Organisatsiooni repo puudub? GitHub peidab selle, kuni organisatsioon on selle äpi heaks kiitnud. Ava <a>Authorized OAuth Apps</a>, vali see äpp ja vajuta organisatsiooni kõrval Grant.",
+    "org_repo_hint": "Organisatsiooni repo puudub? GitHub peidab selle, kuni organisatsioon on selle äpi heaks kiitnud. Ava <a>Authorized OAuth Apps</a>, vali ToDzz ja vajuta organisatsiooni kõrval Grant.",
     "github_integration": "GitHubi integratsioon",
     "github_integration_description": "Ühenda oma GitHubi konto, et sünkroonida probleeme ja hallata neid ülesannetena",
     "connected_to_github": "Ühendatud GitHubiga",
