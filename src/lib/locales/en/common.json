@@ -363,6 +363,7 @@
     "no_repositories_available": "No repositories available",
     "disconnect": "Disconnect",
     "retry": "Retry",
+    "org_repo_hint": "Missing an organisation's repo? GitHub hides it until that organisation approves this app. Open <a>Authorized OAuth Apps</a>, pick this app and click Grant next to the organisation.",
     "github_integration": "GitHub Integration",
     "github_integration_description": "Connect your GitHub account to sync issues and manage them as tasks",
     "connected_to_github": "Connected to GitHub",

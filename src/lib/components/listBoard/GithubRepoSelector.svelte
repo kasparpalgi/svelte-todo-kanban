@@ -18,7 +18,12 @@
 	import type { GithubRepoSelectorProps } from '$lib/types/listBoard';
 	import WebhookManager from '$lib/components/github/WebhookManager.svelte';
 
-	let { open = $bindable(), currentRepo, onSelect, boardId }: GithubRepoSelectorProps & { boardId?: string } = $props();
+	let {
+		open = $bindable(),
+		currentRepo,
+		onSelect,
+		boardId
+	}: GithubRepoSelectorProps & { boardId?: string } = $props();
 
 	let repos = $state<Array<{ full_name: string; description: string | null }>>([]);
 	let loading = $state(false);
@@ -96,7 +101,11 @@
 
 			<div class="relative">
 				<Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-				<Input bind:value={searchQuery} placeholder={$t('github.search_repositories')} class="pl-9" />
+				<Input
+					bind:value={searchQuery}
+					placeholder={$t('github.search_repositories')}
+					class="pl-9"
+				/>
 			</div>
 
 			<div class="max-h-[300px] space-y-2 overflow-y-auto rounded-lg border p-2">
@@ -107,11 +116,15 @@
 				{:else if error}
 					<div class="py-8 text-center">
 						<p class="text-sm text-red-600">{error}</p>
-						<Button variant="outline" size="sm" onclick={fetchRepos} class="mt-2">{$t('github.retry')}</Button>
+						<Button variant="outline" size="sm" onclick={fetchRepos} class="mt-2"
+							>{$t('github.retry')}</Button
+						>
 					</div>
 				{:else if filteredRepos.length === 0}
 					<div class="py-8 text-center text-sm text-muted-foreground">
-						{searchQuery ? $t('github.no_repositories_found') : $t('github.no_repositories_available')}
+						{searchQuery
+							? $t('github.no_repositories_found')
+							: $t('github.no_repositories_available')}
 					</div>
 				{:else}
 					{#each filteredRepos as repo (repo.full_name)}
@@ -130,6 +143,18 @@
 					{/each}
 				{/if}
 			</div>
+
+			{#if !loading}
+				{@const [before, link, after] = $t('github.org_repo_hint').split(/<\/?a>/)}
+				<p class="text-xs text-muted-foreground">
+					{before}<a
+						href="https://github.com/settings/applications"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="underline">{link}</a
+					>{after}
+				</p>
+			{/if}
 		</div>
 
 		<DialogFooter class="gap-2">

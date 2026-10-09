@@ -284,6 +284,7 @@
     "no_repositories_available": "Nejsou k dispozici žádné repozitáře",
     "disconnect": "Odpojit",
     "retry": "Zkusit znovu",
+    "org_repo_hint": "Chybí repozitář organizace? GitHub ho skryje, dokud organizace tuto aplikaci neschválí. Otevřete <a>Authorized OAuth Apps</a>, vyberte tuto aplikaci a u organizace klikněte na Grant.",
     "github_integration": "GitHub integrace",
     "github_integration_description": "Připojte svůj GitHub účet pro synchronizaci issues a jejich správu jako úkolů",
     "connected_to_github": "Připojeno k GitHub",

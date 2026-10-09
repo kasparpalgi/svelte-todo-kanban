@@ -1,60 +1,35 @@
 /** @file src/routes/api/github/repos/+server.ts  */
 import { json, error } from '@sveltejs/kit';
-import { decryptToken } from '$lib/utils/crypto';
-import { serverRequest } from '$lib/graphql/server-client';
+import { getGithubToken, githubRequest } from '$lib/server/github';
 import type { RequestEvent } from './$types';
-import type { GetUserGithubTokenResult } from '$lib/types/github';
+
+type Repo = { full_name: string; description: string | null };
+
+const PER_PAGE = 100;
+const MAX_PAGES = 10; // 1000 repos is plenty for a picker
 
 export async function GET({ url }: RequestEvent) {
 	const userId = url.searchParams.get('userId');
+	if (!userId) throw error(401, 'User ID required');
 
-	if (!userId) {
-		throw error(401, 'User ID required');
-	}
+	const token = await getGithubToken(userId);
+	if (!token) throw error(400, 'GitHub not connected');
 
 	try {
-		const userData = await serverRequest<GetUserGithubTokenResult, { userId: string }>(
-			`query GetUserGithubToken($userId: uuid!) {
-				users_by_pk(id: $userId) {
-					id
-					settings
-				}
-			}`,
-			{ userId }
-		);
-
-		const encryptedToken = userData.users_by_pk?.settings?.tokens?.github?.encrypted;
-
-		if (!encryptedToken) {
-			throw error(400, 'GitHub not connected');
+		// Page through everything: users with >100 repos never saw the older ones (#54).
+		const repos: Repo[] = [];
+		for (let page = 1; page <= MAX_PAGES; page++) {
+			const batch = await githubRequest<Repo[]>(
+				`/user/repos?per_page=${PER_PAGE}&sort=updated&page=${page}`,
+				token
+			);
+			repos.push(...batch);
+			if (batch.length < PER_PAGE) break;
 		}
 
-		const githubToken = decryptToken(encryptedToken);
-
-		const reposResponse = await fetch(
-			'https://api.github.com/user/repos?per_page=100&sort=updated',
-			{
-				headers: {
-					Authorization: `token ${githubToken}`,
-					Accept: 'application/vnd.github.v3+json'
-				}
-			}
-		);
-
-		if (!reposResponse.ok) {
-			throw error(reposResponse.status, 'Failed to fetch GitHub repositories');
-		}
-
-		const repos = await reposResponse.json();
-
-		return json(
-			repos.map((repo: any) => ({
-				full_name: repo.full_name,
-				description: repo.description
-			}))
-		);
-	} catch (err: any) {
+		return json(repos.map(({ full_name, description }) => ({ full_name, description })));
+	} catch (err) {
 		console.error('Error fetching GitHub repos:', err);
-		throw error(500, err.message || 'Failed to fetch repositories');
+		throw error(500, err instanceof Error ? err.message : 'Failed to fetch repositories');
 	}
 }
