@@ -7,6 +7,7 @@ import { CREATE_COMMENT, UPDATE_TASK_FILE_PATH } from '$lib/graphql/documents';
 import {
 	buildTaskFile,
 	camelName,
+	toText,
 	ensureFooter,
 	ensureMachine,
 	ensureRunWith,
@@ -14,7 +15,7 @@ import {
 	todoPathFor
 } from '$lib/server/taskfile';
 import type { TaskCard } from '$lib/server/taskfile';
-import { makeRoom } from '$lib/server/taskdir';
+import { commitTree, makeRoom } from '$lib/server/taskdir';
 import { serverLog } from '$lib/server/log';
 
 const GET_TODO_FOR_TASK_FILE = `
@@ -64,7 +65,18 @@ async function commentOnCard(todoId: string, userId: string, content: string) {
 /** GitHub wants base64, and the body is UTF-8 markdown. */
 const encode = (body: string) => Buffer.from(body, 'utf8').toString('base64');
 
-/** Rename a draft file (no -TODO) to a TODO file by delete + create. */
+/**
+ * The words a draft goes to the agent with. Saving a card no longer rewrites its draft (one
+ * commit per save), so the draft holds the card's text as it was at creation — and an edit
+ * since then lives only on the card. The draft wins while it still holds the card's text,
+ * since an agent may have written it with more; otherwise the card does.
+ */
+export function publishedBody(draft: string, card: TaskCard): string {
+	if (!draft.includes(toText(card.content))) return buildTaskFile(card);
+	return ensureFooter(ensureMachine(ensureRunWith(draft, card), card), card);
+}
+
+/** Swap a draft (no -TODO) for its TODO file in one commit. */
 async function renameDraftToTodo(
 	repo: string,
 	draftPath: string,
@@ -75,44 +87,24 @@ async function renameDraftToTodo(
 	// Derive the TODO path: insert -TODO before the final .md, renumbering to the issue
 	const todoPath = todoPathFor(draftPath, card.github_issue_number);
 
-	// Get the current content + SHA of the draft
-	const fileInfo = await githubRequest<{ content: string; sha: string }>(
+	const fileInfo = await githubRequest<{ content: string }>(
 		`/repos/${repo}/contents/${draftPath}`,
 		token
 	);
-
-	// The draft keeps every word it has, but it froze its `> Run with:` line at creation time
-	// (usually before the model dropdown was touched) and may predate the card/issue footers the
-	// runner needs — reconcile the model line with the card's now-set field, then add any missing
-	// footer.
-	const body = Buffer.from(fileInfo.content, 'base64').toString('utf8');
+	const draft = Buffer.from(fileInfo.content, 'base64').toString('utf8');
 
 	// Whatever already holds the issue's number moves to archive/, so file and issue match.
 	await makeRoom(repo, token, card.github_issue_number, ref, draftPath.split('/').pop());
 
-	// Create the TODO file with the draft's content
-	await githubRequest(`/repos/${repo}/contents/${todoPath}`, token, {
-		method: 'PUT',
-		body: JSON.stringify({
-			message: `docs(todo): ${todoPath} from Kanban${ref}`,
-			content: encode(ensureFooter(ensureMachine(ensureRunWith(body, card), card), card))
-		})
-	});
-
-	// Delete the draft — log explicitly so a 409 or stale-sha failure is visible
 	try {
-		await githubRequest(`/repos/${repo}/contents/${draftPath}`, token, {
-			method: 'DELETE',
-			body: JSON.stringify({
-				message: `docs(todo): replace ${draftPath} with ${todoPath}${ref}`,
-				sha: fileInfo.sha
-			})
-		});
+		await commitTree(repo, token, `docs(todo): ${todoPath} from Kanban${ref}`, [
+			{ path: todoPath, mode: '100644', type: 'blob', content: publishedBody(draft, card) },
+			{ path: draftPath, mode: '100644', type: 'blob', sha: null }
+		]);
 	} catch (err: any) {
-		serverLog.error('TaskFile', 'Draft DELETE failed — orphan may remain', {
+		serverLog.error('TaskFile', 'Draft → TODO commit failed', {
 			draftPath,
 			todoPath,
-			sha: fileInfo.sha,
 			error: err.message
 		});
 		throw err;

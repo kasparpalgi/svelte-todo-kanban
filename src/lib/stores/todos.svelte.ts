@@ -821,11 +821,12 @@ function createTodosStore() {
 					}).catch((err) => console.error('Failed to write task file:', err));
 				}
 
-				// Content changed: update the draft file so the prompt stays current.
+				// Content changed on a queued task: rewrite its -TODO file. A draft is left alone —
+				// one commit per save buried main — and publishing it takes the card's text.
 				if (
 					updates.content !== undefined &&
 					originalTodo.content !== updates.content &&
-					(updatedTodo as any).task_file_path
+					/-TODO\.md$/i.test((updatedTodo as any).task_file_path ?? '')
 				) {
 					fetch('/api/github/update-task-file', {
 						method: 'POST',

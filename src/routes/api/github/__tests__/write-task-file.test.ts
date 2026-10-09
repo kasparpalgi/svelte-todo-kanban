@@ -52,17 +52,41 @@ function call(card: Partial<typeof CARD>) {
 	} as never);
 }
 
-/** The PUT that writes a task file, decoded back to markdown. */
+/** The task file written — by a contents PUT, or by a draft's one-commit swap — as markdown. */
 function writtenFile() {
 	const put = githubRequest.mock.calls.find(
 		([, , opts]) => opts?.method === 'PUT' && String(opts.body).includes('from Kanban')
 	);
-	if (!put) return null;
-	const [path, , opts] = put;
-	return {
-		path: String(path).replace('/repos/kasparpalgi/svelte-todo-kanban/contents/', ''),
-		body: Buffer.from(JSON.parse(String(opts.body)).content, 'base64').toString('utf-8')
-	};
+	if (put) {
+		const [path, , opts] = put;
+		return {
+			path: String(path).replace('/repos/kasparpalgi/svelte-todo-kanban/contents/', ''),
+			body: Buffer.from(JSON.parse(String(opts.body)).content, 'base64').toString('utf-8')
+		};
+	}
+	const entry = treeOf()?.find((e: { content?: string }) => e.content !== undefined);
+	return entry ? { path: entry.path, body: entry.content } : null;
+}
+
+/** The entries of the last tree the Git data API was asked to build. */
+function treeOf() {
+	const tree = githubRequest.mock.calls.findLast(([p]) => String(p).endsWith('/git/trees'));
+	return tree ? JSON.parse(String(tree[2].body)).tree : null;
+}
+
+/** GitHub with one draft at `draft`: contents reads, and the Git data API for one commit. */
+function repoWithDraft(draft: string) {
+	githubRequest.mockImplementation(async (path: string, _t: string, opts?: RequestInit) => {
+		const p = String(path);
+		if (p.endsWith('/kasparpalgi/svelte-todo-kanban')) return { default_branch: 'main' };
+		if (p.includes('/git/ref/heads/main')) return { object: { sha: 'head' } };
+		if (p.endsWith('/git/commits/head')) return { tree: { sha: 'tree0' } };
+		if (p.endsWith('/git/trees')) return { sha: 'tree1' };
+		if (p.endsWith('/git/commits')) return { sha: 'c1' };
+		if (/\/contents\/(doc|\.claude)\/todo$/.test(p)) return [];
+		if (opts?.method) return {};
+		return { content: Buffer.from(draft, 'utf-8').toString('base64'), sha: 'draft-sha' };
+	});
 }
 
 /** GitHub's 404 shape, which the endpoint detects by the "(404)" in the message. */
@@ -118,8 +142,8 @@ describe('POST /api/github/write-task-file', () => {
 		});
 	});
 
-	it('renames a live draft to -TODO.md', async () => {
-		githubRequest.mockResolvedValue({ content: 'ZHJhZnQ=', sha: 'abc' });
+	it('swaps a live draft for its -TODO.md in one commit', async () => {
+		repoWithDraft('# Draft\n\nRefactor it properly.\n');
 
 		const res = await call({ task_file_path: '.claude/todo/163-dragNDropCrap.md' });
 
@@ -127,12 +151,17 @@ describe('POST /api/github/write-task-file', () => {
 			success: true,
 			path: '.claude/todo/163-dragNDropCrap-TODO.md'
 		});
+		expect(treeOf()).toEqual([
+			expect.objectContaining({ path: '.claude/todo/163-dragNDropCrap-TODO.md' }),
+			{ path: '.claude/todo/163-dragNDropCrap.md', mode: '100644', type: 'blob', sha: null }
+		]);
+		const writes = githubRequest.mock.calls.filter(([, , o]) => /PUT|DELETE/.test(o?.method));
+		expect(writes).toEqual([]);
 	});
 
-	it('deletes the old-numbered draft when the issue renumbers it', async () => {
+	it('removes the old-numbered draft when the issue renumbers it', async () => {
 		// Draft was created as 199-…; the card's issue is #163, so the TODO becomes 163-…-TODO.
-		// The DELETE must still target the original 199-… draft, not the new path.
-		githubRequest.mockResolvedValue({ content: 'ZHJhZnQ=', sha: 'draft-sha' });
+		repoWithDraft('# Draft\n\nRefactor it properly.\n');
 
 		const res = await call({ task_file_path: '.claude/todo/199-dragNDropCrap.md' });
 
@@ -140,19 +169,27 @@ describe('POST /api/github/write-task-file', () => {
 			success: true,
 			path: '.claude/todo/163-dragNDropCrap-TODO.md'
 		});
+		expect(treeOf()).toContainEqual({
+			path: '.claude/todo/199-dragNDropCrap.md',
+			mode: '100644',
+			type: 'blob',
+			sha: null
+		});
+	});
 
-		const delCall = githubRequest.mock.calls.find(([, , opts]) => opts?.method === 'DELETE');
-		expect(delCall?.[0]).toContain('199-dragNDropCrap.md');
-		expect(JSON.parse(String(delCall?.[2].body)).sha).toBe('draft-sha');
+	it('publishes the card, not the draft, once the card was edited after the draft', async () => {
+		// Saves no longer rewrite the draft, so it still holds the words the card was created with.
+		repoWithDraft("# Drag'n'drop crap\n\nFirst idea.\n\n_From Kanban card `card-1`._\n");
+
+		await call({ task_file_path: '.claude/todo/163-dragNDropCrap.md' });
+
+		expect(writtenFile()?.body).toContain('Refactor it properly.');
+		expect(writtenFile()?.body).not.toContain('First idea.');
 	});
 
 	it('injects the model line when renaming a draft frozen before the dropdown was set', async () => {
 		// The draft was written at card creation, before a model was picked — no Run with line.
-		const draft = Buffer.from(
-			"# Drag'n'drop crap\n\nRefactor it properly.\n\n_From Kanban card `card-1`._\n",
-			'utf-8'
-		).toString('base64');
-		githubRequest.mockResolvedValue({ content: draft, sha: 'abc' });
+		repoWithDraft("# Drag'n'drop crap\n\nRefactor it properly.\n\n_From Kanban card `card-1`._\n");
 
 		await call({ task_file_path: '.claude/todo/163-dragNDropCrap.md' });
 

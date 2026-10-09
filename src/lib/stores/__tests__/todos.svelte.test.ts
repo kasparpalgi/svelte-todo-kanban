@@ -191,6 +191,27 @@ describe('TodosStore', () => {
 			expect(result.data).toEqual(updatedTodo);
 		});
 
+		it.each([
+			['a draft: the save waits for publishing', 'doc/todo/090-x.md', 0],
+			['a queued -TODO file: the agent gets the edit', 'doc/todo/090-x-TODO.md', 1]
+		])('rewrites the task file on a content save only for %s', async (_, path, writes) => {
+			const fetchSpy = vi.fn().mockResolvedValue({ ok: true });
+			vi.stubGlobal('fetch', fetchSpy);
+			const todo = createMockTodo({ id: 'f1', content: 'old', task_file_path: path } as never);
+			const { request } = await import('$lib/graphql/client');
+			vi.mocked(request).mockResolvedValueOnce({ insert_todos: { returning: [todo] } });
+			await todosStore.addTodo('Draft');
+			vi.mocked(request).mockResolvedValue({
+				update_todos: { returning: [{ ...todo, content: 'new' }] }
+			});
+
+			await todosStore.updateTodo('f1', { content: 'new' });
+
+			const calls = fetchSpy.mock.calls.filter(([url]) => String(url).includes('update-task-file'));
+			expect(calls).toHaveLength(writes);
+			vi.unstubAllGlobals();
+		});
+
 		it('should not update a non-existent todo', async () => {
 			const result = await todosStore.updateTodo('non-existent-id', { title: 'New Title' });
 

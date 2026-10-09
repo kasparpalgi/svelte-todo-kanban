@@ -40,34 +40,48 @@ export function toArchive(names: string[], n: number, keep?: string): string[] {
 	return holders.length && holders.every((x) => movable.includes(x)) ? movable : [];
 }
 
+type TreeEntry = { path: string; mode: '100644'; type: 'blob' } & (
+	| { sha: string | null }
+	| { content: string }
+);
+
 /**
- * Move files into `<dir>/archive/` as one commit. The Git data API reuses each blob by
- * sha, so a transcript over the contents API's 1 MB limit moves intact.
+ * Change several files on the default branch as one commit, through the Git data API.
+ * An entry with `sha: null` deletes its path; one with `content` writes it.
  */
-async function archive(repo: string, dir: string, files: Entry[], token: string, ref: string) {
+export async function commitTree(repo: string, token: string, message: string, tree: TreeEntry[]) {
 	const api = `/repos/${repo}/git`;
 	const { default_branch: branch } = await githubRequest(`/repos/${repo}`, token);
 	const head = await githubRequest(`${api}/ref/heads/${branch}`, token);
 	const parent = await githubRequest(`${api}/commits/${head.object.sha}`, token);
-	const tree = await githubRequest(`${api}/trees`, token, {
+	const next = await githubRequest(`${api}/trees`, token, {
 		method: 'POST',
-		body: JSON.stringify({
-			base_tree: parent.tree.sha,
-			tree: files.flatMap((f) => [
-				{ path: `${dir}/archive/${f.name}`, mode: '100644', type: 'blob', sha: f.sha },
-				{ path: `${dir}/${f.name}`, mode: '100644', type: 'blob', sha: null }
-			])
-		})
+		body: JSON.stringify({ base_tree: parent.tree.sha, tree })
 	});
-	const message = `docs(todo): archive ${files.map((f) => f.name).join(', ')}${ref}`;
 	const commit = await githubRequest(`${api}/commits`, token, {
 		method: 'POST',
-		body: JSON.stringify({ message, tree: tree.sha, parents: [head.object.sha] })
+		body: JSON.stringify({ message, tree: next.sha, parents: [head.object.sha] })
 	});
 	await githubRequest(`${api}/refs/heads/${branch}`, token, {
 		method: 'PATCH',
 		body: JSON.stringify({ sha: commit.sha })
 	});
+}
+
+/**
+ * Move files into `<dir>/archive/` as one commit. The Git data API reuses each blob by
+ * sha, so a transcript over the contents API's 1 MB limit moves intact.
+ */
+async function archive(repo: string, dir: string, files: Entry[], token: string, ref: string) {
+	await commitTree(
+		repo,
+		token,
+		`docs(todo): archive ${files.map((f) => f.name).join(', ')}${ref}`,
+		files.flatMap((f) => [
+			{ path: `${dir}/archive/${f.name}`, mode: '100644', type: 'blob', sha: f.sha },
+			{ path: `${dir}/${f.name}`, mode: '100644', type: 'blob', sha: null }
+		])
+	);
 }
 
 /**
