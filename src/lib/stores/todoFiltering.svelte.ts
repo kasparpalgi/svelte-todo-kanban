@@ -288,10 +288,29 @@ function createTodoFilteringStore() {
 		savePreferences();
 	}
 
+	// Clear every filter but stay on the current board
 	function clearAllFilters() {
-		state.filters = {};
+		if (searchTimeout) clearTimeout(searchTimeout);
+		const { boardId } = state.filters;
+		state.filters = boardId !== undefined ? { boardId } : {};
 		resetPagination();
 		savePreferences();
+	}
+
+	// Switching boards must not carry filters over (labels, assignees etc. are board-specific)
+	function setBoard(boardId: string | null) {
+		if (state.filters.boardId === boardId) return;
+		if (searchTimeout) clearTimeout(searchTimeout);
+		state.filters = { boardId };
+		resetPagination();
+		savePreferences();
+	}
+
+	// Number of user-set filters (boardId and the searchContent option don't count)
+	function getActiveFilterCount(): number {
+		return Object.entries(state.filters).filter(
+			([key, value]) => key !== 'boardId' && key !== 'searchContent' && value !== undefined
+		).length;
 	}
 
 	function setSorting(order: SortOrder, direction: SortDirection) {
@@ -329,7 +348,7 @@ function createTodoFilteringStore() {
 		currentUserId?: string
 	): TodoFieldsFragment[] {
 		const completedOnly = todos.filter((t) => !!t.completed_at);
-		return sortTodos(completedOnly); // Sort only completed todos
+		return sortTodos(filterTodos(completedOnly, currentUserId));
 	}
 
 	return {
@@ -354,6 +373,8 @@ function createTodoFilteringStore() {
 		setFilter,
 		clearFilter,
 		clearAllFilters,
+		setBoard,
+		getActiveFilterCount,
 		setSorting,
 		resetPagination,
 		loadMore,

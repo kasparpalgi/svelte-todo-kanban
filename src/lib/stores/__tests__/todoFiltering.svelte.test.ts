@@ -55,6 +55,7 @@ describe('TodoFilteringStore', () => {
 	beforeEach(() => {
 		localStorage.clear();
 		todoFilteringStore.clearAllFilters();
+		todoFilteringStore.clearFilter('boardId');
 		todoFilteringStore.resetPagination();
 	});
 
@@ -439,6 +440,77 @@ describe('TodoFilteringStore', () => {
 			todoFilteringStore.setFilter('assignedTo', null);
 			const filtered = todoFilteringStore.filterTodos(todos);
 			expect(filtered.map((t) => t.id)).toEqual(['c']);
+		});
+	});
+
+	describe('Board scoping and clearing (#207)', () => {
+		const boardTodo = (id: string, overrides: Partial<TodoFieldsFragment> = {}) =>
+			createMockTodo({
+				id,
+				list: {
+					id: 'list1',
+					name: 'Work',
+					sort_order: 1,
+					board: { id: 'board1', name: 'B', alias: 'b', sort_order: 1, user: {} },
+					__typename: 'lists'
+				} as TodoFieldsFragment['list'],
+				...overrides
+			});
+
+		it('clearAllFilters keeps the current board', () => {
+			todoFilteringStore.setFilter('boardId', 'board1');
+			todoFilteringStore.setFilter('search', 'x');
+			todoFilteringStore.clearAllFilters();
+			expect(todoFilteringStore.filters).toEqual({ boardId: 'board1' });
+		});
+
+		it('setBoard resets filters when the board changes', () => {
+			todoFilteringStore.setBoard('board1');
+			todoFilteringStore.setFilter('priority', ['high']);
+			todoFilteringStore.setFilter('labelIds', ['l1']);
+			todoFilteringStore.setBoard('board2');
+			expect(todoFilteringStore.filters).toEqual({ boardId: 'board2' });
+		});
+
+		it('setBoard keeps filters for the same board', () => {
+			todoFilteringStore.setBoard('board1');
+			todoFilteringStore.setFilter('priority', ['high']);
+			todoFilteringStore.setBoard('board1');
+			expect(todoFilteringStore.filters.priority).toEqual(['high']);
+		});
+
+		it('counts active filters without boardId and searchContent', () => {
+			todoFilteringStore.setBoard('board1');
+			todoFilteringStore.setFilter('searchContent', true);
+			expect(todoFilteringStore.getActiveFilterCount()).toBe(0);
+			todoFilteringStore.setFilter('overdue', true);
+			expect(todoFilteringStore.getActiveFilterCount()).toBe(1);
+		});
+
+		it('getCompletedTodos applies filters', () => {
+			const done = '2025-01-02T00:00:00Z';
+			const todos = [
+				boardTodo('1', { title: 'Alpha', completed_at: done, priority: 'high' }),
+				boardTodo('2', { title: 'Beta', completed_at: done, priority: 'low' }),
+				boardTodo('3', { title: 'Alpha open', priority: 'high' })
+			];
+			todoFilteringStore.setBoard('board1');
+			todoFilteringStore.setFilter('search', 'alpha');
+			const completed = todoFilteringStore.getCompletedTodos(todos);
+			expect(completed.map((t) => t.id)).toEqual(['1']);
+
+			todoFilteringStore.clearAllFilters();
+			expect(todoFilteringStore.getCompletedTodos(todos)).toHaveLength(2);
+		});
+
+		it('clearAllFilters cancels a pending debounced search', () => {
+			vi.useFakeTimers();
+			todoFilteringStore.setBoard('board1');
+			todoFilteringStore.setSearchFilter('pending');
+			todoFilteringStore.clearAllFilters();
+			vi.advanceTimersByTime(400);
+			expect(todoFilteringStore.filters.search).toBeUndefined();
+			vi.useRealTimers();
 		});
 	});
 

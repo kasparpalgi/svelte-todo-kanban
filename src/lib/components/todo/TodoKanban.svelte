@@ -16,7 +16,7 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
-	import { Plus, RefreshCw, ChevronDown, AlertTriangle } from 'lucide-svelte';
+	import { Plus, RefreshCw, ChevronDown, AlertTriangle, X } from 'lucide-svelte';
 	import KanbanColumn from './KanbanColumn.svelte';
 	import { autoScrollIntent, type ScrollIntent } from '$lib/utils/cardDrag';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
@@ -48,9 +48,8 @@
 	});
 
 	$effect(() => {
-		if (listsStore.selectedBoard?.id !== todoFilteringStore.filters.boardId) {
-			todoFilteringStore.setFilter('boardId', listsStore.selectedBoard?.id || null);
-		}
+		const boardId = listsStore.selectedBoard?.id;
+		if (boardId) todoFilteringStore.setBoard(boardId);
 	});
 
 	const user = $derived(userStore.user);
@@ -103,7 +102,7 @@
 	});
 
 	let filteredCompletedTodos = $derived(() => {
-		const completedTodos = todoFilteringStore.getCompletedTodos(todosStore.todos);
+		const completedTodos = todoFilteringStore.getCompletedTodos(todosStore.todos, user?.id);
 
 		let filtered = !listsStore.selectedBoard
 			? completedTodos
@@ -459,7 +458,7 @@
 		const parts: string[] = [];
 
 		if (filters.search) {
-			parts.push($t('todo.search_filter'));
+			parts.push(`${$t('todo.search_filter')} "${filters.search}"`);
 		}
 		if (filters.listId) {
 			if (filters.listId === 'inbox') {
@@ -478,6 +477,20 @@
 		}
 		if (filters.overdue) {
 			parts.push($t('todo.overdue_filter'));
+		}
+		if (filters.priority?.length) {
+			parts.push(`${$t('filters.priority')}: ${filters.priority.join(', ')}`);
+		}
+		if (filters.labelIds?.length) {
+			parts.push(`${$t('filters.labels')}: ${filters.labelIds.length}`);
+		}
+		if (filters.assignedToMe) {
+			parts.push($t('filters.assigned_to_me'));
+		}
+		if (filters.assignedTo === null) {
+			parts.push($t('filters.unassigned'));
+		} else if (filters.assignedTo) {
+			parts.push($t('filters.assigned_to_other'));
 		}
 
 		return parts.join(', ');
@@ -508,12 +521,22 @@
 			</p>
 		{/if}
 
-		{#if getFilterSummary()}
-			<div class="mb-4 rounded-md bg-muted/50 p-3">
+		{#if todoFilteringStore.getActiveFilterCount() > 0}
+			<div class="mb-4 flex items-center justify-between gap-3 rounded-md bg-muted/50 p-3">
 				<p class="text-sm text-muted-foreground">
 					<span class="font-medium">{$t('todo.active_filters')}</span>
 					{getFilterSummary()}
 				</p>
+				<Button
+					variant="ghost"
+					size="sm"
+					class="h-7 shrink-0 text-xs"
+					onclick={() => todoFilteringStore.clearAllFilters()}
+					data-testid="clear-filters-banner"
+				>
+					<X class="mr-1 h-3 w-3" />
+					{$t('todo.clear_filters')}
+				</Button>
 			</div>
 		{/if}
 	</div>

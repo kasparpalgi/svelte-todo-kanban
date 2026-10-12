@@ -513,6 +513,7 @@
     "list_filter": "List:",
     "due_today_filter": "Due today",
     "overdue_filter": "Overdue",
+    "clear_filters": "Clear filters",
     "add_new_list": "Add new list",
     "create_list": "Create list",
     "load_more": "Load more",

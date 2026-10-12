@@ -434,6 +434,7 @@
     "list_filter": "Seznam:",
     "due_today_filter": "Termín dnes",
     "overdue_filter": "Po termínu",
+    "clear_filters": "Vymazat filtry",
     "add_new_list": "Přidat nový seznam",
     "create_list": "Vytvořit seznam",
     "load_more": "Načíst dalších",

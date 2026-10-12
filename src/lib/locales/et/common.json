@@ -513,6 +513,7 @@
     "list_filter": "List:",
     "due_today_filter": "Tähtaeg täna",
     "overdue_filter": "Tähtaeg ületatud",
+    "clear_filters": "Tühjenda filtrid",
     "add_new_list": "Uus list",
     "create_list": "Loo list",
     "load_more": "Lae juurde",

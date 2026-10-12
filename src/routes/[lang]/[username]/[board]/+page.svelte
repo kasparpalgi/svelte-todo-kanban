@@ -239,6 +239,14 @@
 	}
 
 	function handleGlobalKeydown(event: KeyboardEvent) {
+		// Ctrl/Cmd+F opens the filters sidebar with the search focused (replaces browser find)
+		if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'f') {
+			event.preventDefault();
+			actionState.showFilters = true;
+			actionState.focusFilterSearch = true;
+			return;
+		}
+
 		// Only handle if not typing in an input field
 		const target = event.target as HTMLElement;
 		const isInputField =
@@ -247,7 +255,7 @@
 		if (isInputField) return;
 
 		// Toggle filters sidebar with 'F' key
-		if (event.key === 'f' || event.key === 'F') {
+		if ((event.key === 'f' || event.key === 'F') && !event.ctrlKey && !event.metaKey) {
 			event.preventDefault();
 			actionState.showFilters = !actionState.showFilters;
 		}

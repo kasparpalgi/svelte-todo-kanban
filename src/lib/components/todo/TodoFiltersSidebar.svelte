@@ -33,10 +33,11 @@
 		Tag,
 		AlertCircle
 	} from 'lucide-svelte';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 
-	let searchTerm = $state('');
-	let searchContentEnabled = $state(false);
+	let searchTerm = $state(todoFilteringStore.filters.search || '');
+	let searchInput = $state<HTMLInputElement | null>(null);
+	const searchContentEnabled = $derived(!!todoFilteringStore.filters.searchContent);
 
 	const user = $derived(userStore.user);
 	const members = $derived(boardMembersStore.members);
@@ -47,8 +48,20 @@
 		if (currentBoard?.id) {
 			await boardMembersStore.loadMembers(currentBoard.id);
 		}
-		// Load initial search content state from filters
-		searchContentEnabled = todoFilteringStore.filters.searchContent || false;
+	});
+
+	// Keep the input in sync when the search filter is cleared elsewhere (banner, board switch)
+	$effect(() => {
+		if (!todoFilteringStore.filters.search) untrack(() => (searchTerm = ''));
+	});
+
+	// Ctrl/Cmd+F opens the sidebar and asks for the search field to be focused
+	$effect(() => {
+		if (actionState.focusFilterSearch && searchInput) {
+			searchInput.focus();
+			searchInput.select();
+			actionState.focusFilterSearch = false;
+		}
 	});
 
 	function handleSearchInput() {
@@ -81,22 +94,10 @@
 	function clearAllFilters() {
 		todoFilteringStore.clearAllFilters();
 		searchTerm = '';
-		searchContentEnabled = false;
-	}
-
-	function getActiveFilterCount() {
-		const filters = todoFilteringStore.filters;
-		return Object.keys(filters).filter(
-			(key) =>
-				key !== 'boardId' &&
-				key !== 'searchContent' &&
-				filters[key as keyof typeof filters] !== undefined
-		).length;
 	}
 
 	function handleSearchContentToggle() {
-		searchContentEnabled = !searchContentEnabled;
-		if (searchContentEnabled) {
+		if (!searchContentEnabled) {
 			todoFilteringStore.setFilter('searchContent', true);
 		} else {
 			todoFilteringStore.clearFilter('searchContent');
@@ -151,7 +152,7 @@
 		}
 	}
 
-	let activeFilterCount = $derived(getActiveFilterCount());
+	let activeFilterCount = $derived(todoFilteringStore.getActiveFilterCount());
 	let currentFilters = $derived(todoFilteringStore.filters);
 	let currentSorting = $derived(todoFilteringStore.sorting);
 	let selectedPriorities = $derived(currentFilters.priority || []);
@@ -200,12 +201,14 @@
 		<Separator />
 
 		<div class="space-y-2">
-			<label for="search" class="text-sm font-medium">{$t('filters.search')}</label>
+			<label for="filter-search" class="text-sm font-medium">{$t('filters.search')}</label>
 			<div class="relative">
 				<Search class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 				<Input
+					id="filter-search"
 					type="text"
 					placeholder={$t('filters.search_placeholder')}
+					bind:ref={searchInput}
 					bind:value={searchTerm}
 					oninput={handleSearchInput}
 					class="pl-9"

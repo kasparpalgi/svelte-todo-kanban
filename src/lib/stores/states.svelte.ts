@@ -6,6 +6,7 @@ import type { TranslationFunction } from 'sveltekit-i18n';
 export let actionState = $state({
 	edit: '',
 	showFilters: false,
+	focusFilterSearch: false,
 	showBoardSwitcher: false,
 
 	tBoard() {
