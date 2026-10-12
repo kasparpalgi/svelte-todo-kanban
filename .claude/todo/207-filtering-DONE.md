@@ -58,3 +58,9 @@ Relevant files: `src/lib/stores/todoFiltering.svelte.ts`, `src/lib/components/to
 ## Results
 
 The agent finished the run but never renamed the file, so the runner completed it. The tree was clean and the agent's commits are in — see the `.log` beside this file for the full session.
+
+### Follow-up: deploy was failing
+- Vercel deploys had been failing since before this task (b9a0c83, d257747 also red), so the #207
+  changes never reached production. Cause: `src/routes/api/github/write-task-file/+server.ts` exported
+  `publishedBody`, which SvelteKit rejects in `+server.ts` ("Invalid export 'publishedBody'").
+  It wasn't imported anywhere, so I made it module-private. `npm run build` passes locally.

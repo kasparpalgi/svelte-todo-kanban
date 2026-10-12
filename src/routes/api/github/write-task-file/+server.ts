@@ -71,7 +71,7 @@ const encode = (body: string) => Buffer.from(body, 'utf8').toString('base64');
  * since then lives only on the card. The draft wins while it still holds the card's text,
  * since an agent may have written it with more; otherwise the card does.
  */
-export function publishedBody(draft: string, card: TaskCard): string {
+function publishedBody(draft: string, card: TaskCard): string {
 	if (!draft.includes(toText(card.content))) return buildTaskFile(card);
 	return ensureFooter(ensureMachine(ensureRunWith(draft, card), card), card);
 }
