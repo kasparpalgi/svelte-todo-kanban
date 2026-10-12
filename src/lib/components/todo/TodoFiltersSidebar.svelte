@@ -464,7 +464,7 @@
 	aria-label="Close sort/filter"
 	role="button"
 	onkeydown={(e) => {
-		if (e.key === 'Esc') {
+		if (e.key === 'Escape') {
 			actionState.showFilters = false;
 		}
 	}}

@@ -247,6 +247,18 @@
 			return;
 		}
 
+		// Esc closes the filters sidebar, also while typing in its search box.
+		// Skipped when a card modal is open (it handles Esc itself) or a menu already consumed it.
+		if (
+			event.key === 'Escape' &&
+			actionState.showFilters &&
+			!openCardId &&
+			!event.defaultPrevented
+		) {
+			actionState.showFilters = false;
+			return;
+		}
+
 		// Only handle if not typing in an input field
 		const target = event.target as HTMLElement;
 		const isInputField =

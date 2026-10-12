@@ -64,3 +64,8 @@ The agent finished the run but never renamed the file, so the runner completed i
   changes never reached production. Cause: `src/routes/api/github/write-task-file/+server.ts` exported
   `publishedBody`, which SvelteKit rejects in `+server.ts` ("Invalid export 'publishedBody'").
   It wasn't imported anywhere, so I made it module-private. `npm run build` passes locally.
+
+### Follow-up: Esc closes the filters sidebar
+- Board page global keydown: `Escape` closes the sidebar, also while focus is in its search input.
+  Skipped when a card modal is open or the event was already `defaultPrevented` (e.g. a dropdown menu
+  closing). Fixed the overlay's dead `'Esc'` key check to `'Escape'`.
