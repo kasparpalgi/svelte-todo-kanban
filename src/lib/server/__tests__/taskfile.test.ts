@@ -315,6 +315,7 @@ describe('machine line', () => {
 	it('addresses the task to the machine the card names', () => {
 		expect(buildTaskFile({ ...card, agent_machine: 'karel' })).toContain('> Machine: karel');
 		expect(buildTaskFile({ ...card, agent_machine: 'dell' })).toContain('> Machine: dell');
+		expect(buildTaskFile({ ...card, agent_machine: 'windows' })).toContain('> Machine: windows');
 	});
 
 	it('pins Sonnet 5.5 to its own version', () => {

@@ -3,6 +3,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
+import { withPin } from '$lib/utils/agentMachine';
 import { UPDATE_TASK_FILE_PATH } from '$lib/graphql/documents';
 import { buildDraftFile, camelName, nextNumber } from '$lib/server/taskfile';
 import { makeRoom } from '$lib/server/taskdir';
@@ -37,7 +38,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	const data = await serverRequest<{ todos_by_pk: any }, { todoId: string }>(GET_TODO_FOR_DRAFT, {
 		todoId
 	});
-	const todo = data.todos_by_pk;
+	const todo = withPin(data.todos_by_pk, session.user.email);
 
 	if (!todo) return json({ skipped: 'todo not found' });
 	if (todo.task_file_path)

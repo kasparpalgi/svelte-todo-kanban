@@ -3,6 +3,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
+import { withPin } from '$lib/utils/agentMachine';
 import { CREATE_COMMENT, UPDATE_TASK_FILE_PATH } from '$lib/graphql/documents';
 import {
 	buildTaskFile,
@@ -125,7 +126,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		GET_TODO_FOR_TASK_FILE,
 		{ todoId }
 	);
-	const todo = data.todos_by_pk;
+	const todo = withPin(data.todos_by_pk, session.user.email);
 	const board = todo?.list?.board;
 
 	if (!board || board.settings?.agent_list_id !== todo.list.id) {

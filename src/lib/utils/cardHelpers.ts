@@ -1,5 +1,6 @@
 /** @file src/lib/utils/cardHelpers.ts  */
 import { z } from 'zod';
+import { AGENT_MACHINES } from './agentMachine';
 
 export const todoEditSchema = z.object({
 	title: z.string().min(1, 'Title is required').max(200).trim(),
@@ -33,7 +34,7 @@ export const todoEditSchema = z.object({
 	agent_effort: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).nullable().optional(),
 	// Only the machines a runner actually answers to. A card naming anything else would
 	// produce a task file no runner claims, and it would sit in the queue silently.
-	agent_machine: z.enum(['mac', 'karel', 'dell']).nullable().optional()
+	agent_machine: z.enum(AGENT_MACHINES).nullable().optional()
 });
 
 export function formatLocalizedDate(dateString: string, lang: string): string {

@@ -610,6 +610,7 @@
     "agent_machine_mac": "Kaspar Mac",
     "agent_machine_karel": "Karel Ubuntu",
     "agent_machine_dell": "Dell Ubuntu",
+    "agent_machine_windows": "Karel Windows",
     "attachments": "Manused",
     "new_images_upload": "Uued pildid üleslaadimiseks",
     "add_images": "Lisa pilte",

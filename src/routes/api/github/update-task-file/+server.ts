@@ -3,6 +3,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
+import { withPin } from '$lib/utils/agentMachine';
 import { buildDraftFile } from '$lib/server/taskfile';
 
 const GET_TODO_FOR_UPDATE = `
@@ -34,7 +35,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	const data = await serverRequest<{ todos_by_pk: any }, { todoId: string }>(GET_TODO_FOR_UPDATE, {
 		todoId
 	});
-	const todo = data.todos_by_pk;
+	const todo = withPin(data.todos_by_pk, session.user.email);
 
 	if (!todo?.task_file_path) return json({ skipped: 'no task file path' });
 

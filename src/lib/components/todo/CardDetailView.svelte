@@ -9,6 +9,7 @@
 	import { upgradeStore } from '$lib/stores/upgrade.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { todoEditSchema, getPriorityColor, getPriorityLabel } from '$lib/utils/cardHelpers';
+	import { AGENT_MACHINES, pinnedMachine } from '$lib/utils/agentMachine';
 	import { formatLocaleDate } from '$lib/utils/dateTime.svelte';
 	import { parseDate } from '@internationalized/date';
 	import { cn } from '$lib/utils';
@@ -62,6 +63,8 @@
 	// The edit form is seeded once from the card; later store refreshes of `todo`
 	// must not clobber in-progress edits.
 	const initial = untrack(() => todo);
+	// A pinned user's cards always run on their own machine; see agentMachine.ts.
+	const pinned = $derived(pinnedMachine(user?.email));
 	let dueDateTime = $state<Date | null>(initial.due_on ? new Date(initial.due_on) : null);
 
 	let editData = $state({
@@ -75,7 +78,7 @@
 		comment_hours: initial.comment_hours || '',
 		agent_model: (initial.agent_model as AgentModel | null) ?? null,
 		agent_effort: (initial.agent_effort as AgentEffort | null) ?? null,
-		agent_machine: (initial.agent_machine as AgentMachine | null) ?? null
+		agent_machine: untrack(() => pinned) ?? (initial.agent_machine as AgentMachine | null) ?? null
 	});
 
 	let selectedDate = $state<DateValue | undefined>(
@@ -686,10 +689,14 @@
 						bind:value={editData.agent_machine}
 						class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
 					>
-						<option value={null}>{$t('card.agent_machine_auto')}</option>
-						<option value="mac">{$t('card.agent_machine_mac')}</option>
-						<option value="karel">{$t('card.agent_machine_karel')}</option>
-						<option value="dell">{$t('card.agent_machine_dell')}</option>
+						{#if pinned}
+							<option value={pinned}>{$t(`card.agent_machine_${pinned}`)}</option>
+						{:else}
+							<option value={null}>{$t('card.agent_machine_auto')}</option>
+							{#each AGENT_MACHINES as machine (machine)}
+								<option value={machine}>{$t(`card.agent_machine_${machine}`)}</option>
+							{/each}
+						{/if}
 					</select>
 				</div>
 			{/if}
