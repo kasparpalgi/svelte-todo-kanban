@@ -48,24 +48,35 @@ type TreeEntry = { path: string; mode: '100644'; type: 'blob' } & (
 /**
  * Change several files on the default branch as one commit, through the Git data API.
  * An entry with `sha: null` deletes its path; one with `content` writes it.
+ *
+ * Two cards moved seconds apart race for the branch: the loser's ref update is "not a
+ * fast forward" (422). The tree names paths, not a snapshot, so rebuilding it on the new
+ * head is safe — try again a few times before giving up.
  */
 export async function commitTree(repo: string, token: string, message: string, tree: TreeEntry[]) {
 	const api = `/repos/${repo}/git`;
 	const { default_branch: branch } = await githubRequest(`/repos/${repo}`, token);
-	const head = await githubRequest(`${api}/ref/heads/${branch}`, token);
-	const parent = await githubRequest(`${api}/commits/${head.object.sha}`, token);
-	const next = await githubRequest(`${api}/trees`, token, {
-		method: 'POST',
-		body: JSON.stringify({ base_tree: parent.tree.sha, tree })
-	});
-	const commit = await githubRequest(`${api}/commits`, token, {
-		method: 'POST',
-		body: JSON.stringify({ message, tree: next.sha, parents: [head.object.sha] })
-	});
-	await githubRequest(`${api}/refs/heads/${branch}`, token, {
-		method: 'PATCH',
-		body: JSON.stringify({ sha: commit.sha })
-	});
+	for (let attempt = 1; ; attempt++) {
+		const head = await githubRequest(`${api}/ref/heads/${branch}`, token);
+		const parent = await githubRequest(`${api}/commits/${head.object.sha}`, token);
+		const next = await githubRequest(`${api}/trees`, token, {
+			method: 'POST',
+			body: JSON.stringify({ base_tree: parent.tree.sha, tree })
+		});
+		const commit = await githubRequest(`${api}/commits`, token, {
+			method: 'POST',
+			body: JSON.stringify({ message, tree: next.sha, parents: [head.object.sha] })
+		});
+		try {
+			await githubRequest(`${api}/refs/heads/${branch}`, token, {
+				method: 'PATCH',
+				body: JSON.stringify({ sha: commit.sha })
+			});
+			return;
+		} catch (err) {
+			if (attempt >= 3 || !/not a fast.forward/i.test((err as Error).message)) throw err;
+		}
+	}
 }
 
 /**

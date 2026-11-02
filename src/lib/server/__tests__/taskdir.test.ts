@@ -32,3 +32,48 @@ describe('toArchive', () => {
 		expect(toArchive(['052-x-DONE.md', '053-me.md'], 52, '053-me.md')).toEqual(['052-x-DONE.md']);
 	});
 });
+
+describe('commitTree', () => {
+	it('rebuilds on the new head when another commit won the race', async () => {
+		const { githubRequest } = await import('$lib/server/github');
+		const { commitTree } = await import('../taskdir');
+		const gh = vi.mocked(githubRequest);
+		gh.mockReset();
+		let patches = 0;
+		gh.mockImplementation(async (path: string, _t: string, init?: RequestInit) => {
+			if (path === '/repos/o/r') return { default_branch: 'main' };
+			if (path.includes('/ref/heads/')) return { object: { sha: `head${patches}` } };
+			if (path.includes('/commits/')) return { tree: { sha: 't' } };
+			if (path.endsWith('/trees')) return { sha: 'nt' };
+			if (path.endsWith('/commits')) return { sha: `c${patches}` };
+			if (init?.method === 'PATCH' && patches++ === 0)
+				throw new Error('GitHub API error (422): {"message":"Update is not a fast forward"}');
+			return {};
+		});
+
+		await commitTree('o/r', 'tok', 'msg', []);
+
+		const commits = gh.mock.calls.filter(([p]) => p.endsWith('/commits'));
+		expect(commits.map(([, , i]) => JSON.parse(i!.body as string).parents)).toEqual([
+			['head0'],
+			['head1']
+		]);
+	});
+
+	it('does not retry other errors', async () => {
+		const { githubRequest } = await import('$lib/server/github');
+		const { commitTree } = await import('../taskdir');
+		const gh = vi.mocked(githubRequest);
+		gh.mockReset();
+		gh.mockImplementation(async (path: string, _t: string, init?: RequestInit) => {
+			if (path === '/repos/o/r') return { default_branch: 'main' };
+			if (path.includes('/ref/heads/')) return { object: { sha: 'h' } };
+			if (path.includes('/commits/')) return { tree: { sha: 't' } };
+			if (init?.method === 'PATCH') throw new Error('GitHub API error (403): Forbidden');
+			return { sha: 'x' };
+		});
+
+		await expect(commitTree('o/r', 'tok', 'msg', [])).rejects.toThrow('403');
+		expect(gh.mock.calls.filter(([, , i]) => i?.method === 'PATCH')).toHaveLength(1);
+	});
+});
