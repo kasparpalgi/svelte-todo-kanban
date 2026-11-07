@@ -811,8 +811,8 @@ function createTodosStore() {
 					console.error('[TodosStore.updateTodo] Failed to log activity:', error);
 				}
 
-				// Card moved: the server decides whether this list is the board's agent list
-				// and, if so, renames the draft NNN-slug.md → NNN-slug-TODO.md.
+				// Card moved: into the board's agent list the server renames the draft
+				// NNN-slug.md → NNN-slug-TODO.md; out of it, the -TODO file back to its draft.
 				if (updates.list_id !== undefined && originalTodo.list?.id !== updates.list_id) {
 					fetch('/api/github/write-task-file', {
 						method: 'POST',

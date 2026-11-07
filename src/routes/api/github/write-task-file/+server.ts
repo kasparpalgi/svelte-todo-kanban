@@ -18,6 +18,7 @@ import {
 import type { TaskCard } from '$lib/server/taskfile';
 import { commitTree, makeRoom } from '$lib/server/taskdir';
 import { serverLog } from '$lib/server/log';
+import { unqueue } from '$lib/server/unqueue';
 
 const GET_TODO_FOR_TASK_FILE = `
 	query GetTodoForTaskFile($todoId: uuid!) {
@@ -130,6 +131,9 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	const board = todo?.list?.board;
 
 	if (!board || board.settings?.agent_list_id !== todo.list.id) {
+		if (board?.github && /-TODO\.md$/i.test(todo?.task_file_path ?? '')) {
+			return unqueue(todo, board.github, userId);
+		}
 		return json({ skipped: 'not the agent list' });
 	}
 	if (!board.github) {

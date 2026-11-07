@@ -237,6 +237,34 @@ describe('POST /api/github/write-task-file', () => {
 		expect(await res.json()).toEqual({ skipped: 'not the agent list' });
 		expect(githubRequest).not.toHaveBeenCalled();
 	});
+
+	it('renames a -TODO file back to its draft when the card leaves the agent list', async () => {
+		repoWithDraft('# Task');
+		const res = await call({
+			task_file_path: 'doc/todo/163-dragNDropCrap-TODO.md',
+			list: { ...CARD.list, id: 'backlog' }
+		});
+
+		expect(await res.json()).toEqual({ success: true, path: 'doc/todo/163-dragNDropCrap.md' });
+		expect(treeOf()).toEqual([
+			{ path: 'doc/todo/163-dragNDropCrap.md', mode: '100644', type: 'blob', sha: 'draft-sha' },
+			{ path: 'doc/todo/163-dragNDropCrap-TODO.md', mode: '100644', type: 'blob', sha: null }
+		]);
+		expect(serverRequest).toHaveBeenCalledWith('UPDATE_TASK_FILE_PATH', {
+			id: 'card-1',
+			path: 'doc/todo/163-dragNDropCrap.md'
+		});
+	});
+
+	it('leaves a -DONE file alone when the card leaves the agent list', async () => {
+		const res = await call({
+			task_file_path: 'doc/todo/163-dragNDropCrap-DONE.md',
+			list: { ...CARD.list, id: 'review' }
+		});
+
+		expect(await res.json()).toEqual({ skipped: 'not the agent list' });
+		expect(githubRequest).not.toHaveBeenCalled();
+	});
 });
 
 // The Run with line comes from these columns; an endpoint that builds a task file
