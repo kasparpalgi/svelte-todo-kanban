@@ -19,6 +19,10 @@ import type { TaskCard } from '$lib/server/taskfile';
 import { commitTree, makeRoom } from '$lib/server/taskdir';
 import { serverLog } from '$lib/server/log';
 import { unqueue } from '$lib/server/unqueue';
+import { withComments, type CardComment } from '$lib/server/cardThread';
+
+/** A card as queued: its body, and the comments that carry review feedback to a re-run. */
+type QueuedCard = TaskCard & { comments?: CardComment[] };
 
 const GET_TODO_FOR_TASK_FILE = `
 	query GetTodoForTaskFile($todoId: uuid!) {
@@ -31,6 +35,14 @@ const GET_TODO_FOR_TASK_FILE = `
 			agent_machine
 			github_issue_number
 			task_file_path
+			comments(order_by: { created_at: asc }) {
+				content
+				created_at
+				user {
+					name
+					username
+				}
+			}
 			list {
 				id
 				board {
@@ -73,9 +85,11 @@ const encode = (body: string) => Buffer.from(body, 'utf8').toString('base64');
  * since then lives only on the card. The draft wins while it still holds the card's text,
  * since an agent may have written it with more; otherwise the card does.
  */
-function publishedBody(draft: string, card: TaskCard): string {
-	if (!draft.includes(toText(card.content))) return buildTaskFile(card);
-	return ensureFooter(ensureMachine(ensureRunWith(draft, card), card), card);
+function publishedBody(draft: string, card: QueuedCard): string {
+	const body = draft.includes(toText(card.content))
+		? ensureFooter(ensureMachine(ensureRunWith(draft, card), card), card)
+		: buildTaskFile(card);
+	return withComments(body, card.comments);
 }
 
 /** Swap a draft (no -TODO) for its TODO file in one commit. */
@@ -83,7 +97,7 @@ async function renameDraftToTodo(
 	repo: string,
 	draftPath: string,
 	token: string,
-	card: TaskCard,
+	card: QueuedCard,
 	ref: string
 ): Promise<string> {
 	// Derive the TODO path: insert -TODO before the final .md, renumbering to the issue
@@ -176,7 +190,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			return json({ skipped: 'already a TODO file', path: existing });
 		} else {
 			// No usable file — create a fresh TODO file
-			const content = encode(buildTaskFile(todo));
+			const content = encode(withComments(buildTaskFile(todo), todo.comments));
 			const slug = camelName(todo.title);
 
 			for (let attempt = 0; ; attempt++) {

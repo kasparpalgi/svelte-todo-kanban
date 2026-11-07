@@ -5,6 +5,7 @@ import { getGithubToken, githubRequest } from '$lib/server/github';
 import { serverRequest } from '$lib/graphql/server-client';
 import { withPin } from '$lib/utils/agentMachine';
 import { buildDraftFile } from '$lib/server/taskfile';
+import { withComments } from '$lib/server/cardThread';
 
 const GET_TODO_FOR_UPDATE = `
 	query GetTodoForUpdate($todoId: uuid!) {
@@ -16,6 +17,14 @@ const GET_TODO_FOR_UPDATE = `
 			agent_effort
 			agent_machine
 			task_file_path
+			comments(order_by: { created_at: asc }) {
+				content
+				created_at
+				user {
+					name
+					username
+				}
+			}
 			list {
 				board {
 					github
@@ -55,7 +64,8 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 			token
 		);
 
-		const body = buildDraftFile(todo);
+		// The rewrite keeps the card's comments, or an edit would drop the rework feedback.
+		const body = withComments(buildDraftFile(todo), todo.comments);
 		const bytes = new TextEncoder().encode(body);
 		let binary = '';
 		for (const b of bytes) binary += String.fromCharCode(b);

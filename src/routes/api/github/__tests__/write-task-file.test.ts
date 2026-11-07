@@ -229,6 +229,41 @@ describe('POST /api/github/write-task-file', () => {
 		expect(JSON.parse(String(ref?.[2].body))).toEqual({ sha: 'c1' });
 	});
 
+	it('carries review feedback from the card comments into a re-queued task file', async () => {
+		// The first run ended -DONE and the card went to Review; the reviewer commented and
+		// moved it back. Without the thread the re-run never learns what to change.
+		githubRequest.mockImplementation(async (path: string, _t: string, opts?: RequestInit) => {
+			if (String(path).endsWith('/contents/.claude/todo')) return [{ name: '162-x.md' }];
+			if (opts?.method === 'PUT') return {};
+			throw notFound();
+		});
+		const user = { name: 'Kaspar', username: 'kaspar' };
+
+		await call({
+			task_file_path: '.claude/todo/163-dragNDropCrap-DONE.md',
+			comments: [
+				{ content: 'Task file ready: .claude/todo/163-x-TODO.md', created_at: null, user },
+				{ content: 'Still jumps on mobile.', created_at: '2026-11-07T12:30:00Z', user }
+			]
+		} as never);
+
+		const body = writtenFile()?.body ?? '';
+		expect(body).toContain('## Card comments');
+		expect(body).toContain('**Kaspar** · 2026-11-07 12:30\n\nStill jumps on mobile.');
+		expect(body).not.toContain('Task file ready');
+	});
+
+	it('carries the card comments through a draft rename too', async () => {
+		repoWithDraft("# Drag'n'drop crap\n\nRefactor it properly.\n\n_From Kanban card `card-1`._\n");
+
+		await call({
+			task_file_path: '.claude/todo/163-dragNDropCrap.md',
+			comments: [{ content: 'Use the existing store.', created_at: null, user: null }]
+		} as never);
+
+		expect(writtenFile()?.body).toContain('**Someone**\n\nUse the existing store.');
+	});
+
 	it('does nothing when the list is not the board agent list', async () => {
 		const res = await call({
 			list: { ...CARD.list, board: { ...CARD.list.board, settings: { agent_list_id: 'other' } } }
