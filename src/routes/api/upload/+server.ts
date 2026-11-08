@@ -1,9 +1,7 @@
 // src/routes/api/upload/+server.ts
 import { MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from '$env/static/private';
-import { uploadStreamToBackblaze } from '$lib/server/upload';
 import { getPlanContext } from '$lib/server/plan';
-import { decryptToken } from '$lib/utils/crypto';
-import { uploadToR2, type R2Credentials } from '$lib/server/r2';
+import { getR2Credentials, storeFile } from '$lib/server/storeFile';
 import { serverRequest } from '$lib/graphql/server-client';
 import { FREE_LIMITS } from '$lib/config/plan';
 import { json, type RequestEvent } from '@sveltejs/kit';
@@ -25,27 +23,6 @@ async function countUserUploads(userId: string): Promise<number> {
 		{ userId }
 	);
 	return data.uploads_aggregate?.aggregate?.count ?? 0;
-}
-
-/** Decrypt a user's stored R2 credentials, or null when not configured/invalid. */
-function getR2Credentials(settings: Record<string, any> | null): R2Credentials | null {
-	const encrypted = settings?.tokens?.r2?.encrypted;
-	if (!encrypted) return null;
-	try {
-		const creds = JSON.parse(decryptToken(encrypted)) as R2Credentials;
-		if (
-			creds.accountId &&
-			creds.accessKeyId &&
-			creds.secretAccessKey &&
-			creds.bucket &&
-			creds.publicBaseUrl
-		) {
-			return creds;
-		}
-		return null;
-	} catch {
-		return null;
-	}
 }
 
 export async function POST({ request, locals }: RequestEvent) {
@@ -92,8 +69,7 @@ export async function POST({ request, locals }: RequestEvent) {
 
 		// Route 1: user's own R2 bucket — no plan limit applies.
 		if (r2Creds) {
-			const key = `${userId}/${Date.now()}-${sanitizedName}`;
-			const result = await uploadToR2(fileToUpload, r2Creds, key);
+			const result = await storeFile(fileToUpload, userId, r2Creds);
 			if (result.success) {
 				return json({
 					success: true,
@@ -122,7 +98,7 @@ export async function POST({ request, locals }: RequestEvent) {
 		}
 
 		// Route 3: paid plan, or free plan under the cap — use the app's storage.
-		const result = await uploadStreamToBackblaze(fileToUpload);
+		const result = await storeFile(fileToUpload, userId, null);
 
 		if (result.success) {
 			return json({
