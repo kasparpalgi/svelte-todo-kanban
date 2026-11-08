@@ -116,3 +116,11 @@ _GitHub issue #209 — end the commit subject with `(#209)`._
   - `comments.updated_at` has no trigger, so a comment edited in place by someone else shows within the 5-min full refresh, not 30 s.
   - `Slow token fetch` (p50 1.7 s on `/api/auth/token`) is untouched; the logger no longer calls it per flush.
   - The 33 stale e2e specs above.
+
+## Follow-ups created (2026-11-08)
+- **server** repo: `.claude/todo/031-todzzPostgresOutagesOn.md` + Server board › Backlog card `da6477fd` — the three
+  Postgres outages on the Hetzner CapRover box (OOM link, memory limit, a probe that catches "Hasura up, Postgres down").
+- **#211** `211-lightBoardQueryLoad.md` — light board fragment, comments/content on card open, `comments.updated_at` trigger.
+- **#212** `212-fixStalePlaywrightE2e.md` — the 33 stale e2e specs (+ the flaky drag test).
+- **#213** `213-speedUpAuthToken.md` — `/api/auth/token` p50 1.7 s.
+All three are Todzz board › Backlog cards (auto model/effort), not queued for the runner.
