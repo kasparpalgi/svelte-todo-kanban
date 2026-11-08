@@ -34,7 +34,8 @@ export const todoEditSchema = z.object({
 	agent_effort: z.enum(['low', 'medium', 'high', 'xhigh', 'max']).nullable().optional(),
 	// Only the machines a runner actually answers to. A card naming anything else would
 	// produce a task file no runner claims, and it would sit in the queue silently.
-	agent_machine: z.enum(AGENT_MACHINES).nullable().optional()
+	agent_machine: z.enum(AGENT_MACHINES).nullable().optional(),
+	agent_plan_first: z.boolean().optional()
 });
 
 export function formatLocalizedDate(dateString: string, lang: string): string {

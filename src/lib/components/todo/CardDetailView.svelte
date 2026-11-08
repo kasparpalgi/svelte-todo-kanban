@@ -78,7 +78,8 @@
 		comment_hours: initial.comment_hours || '',
 		agent_model: (initial.agent_model as AgentModel | null) ?? null,
 		agent_effort: (initial.agent_effort as AgentEffort | null) ?? null,
-		agent_machine: untrack(() => pinned) ?? (initial.agent_machine as AgentMachine | null) ?? null
+		agent_machine: untrack(() => pinned) ?? (initial.agent_machine as AgentMachine | null) ?? null,
+		agent_plan_first: initial.agent_plan_first ?? false
 	});
 
 	let selectedDate = $state<DateValue | undefined>(
@@ -117,7 +118,8 @@
 			comment_hours: editData.comment_hours,
 			agent_model: editData.agent_model,
 			agent_effort: editData.agent_effort,
-			agent_machine: editData.agent_machine
+			agent_machine: editData.agent_machine,
+			agent_plan_first: editData.agent_plan_first
 		});
 	}
 
@@ -246,7 +248,8 @@
 				comment_hours: validatedData.comment_hours,
 				agent_model: validatedData.agent_model || null,
 				agent_effort: validatedData.agent_effort || null,
-				agent_machine: validatedData.agent_machine || null
+				agent_machine: validatedData.agent_machine || null,
+				agent_plan_first: validatedData.agent_plan_first ?? false
 			});
 
 			if (!result.success) {
@@ -698,6 +701,14 @@
 							{/each}
 						{/if}
 					</select>
+				</div>
+
+				<!-- Writes `> Plan first`: the agent's first run stops with a plan for you to approve. -->
+				<div class="flex items-center gap-2 self-end pb-2">
+					<Checkbox id="agent-plan-first" bind:checked={editData.agent_plan_first} />
+					<label for="agent-plan-first" class="text-sm leading-none font-medium">
+						{$t('card.agent_plan_first_label')}
+					</label>
 				</div>
 			{/if}
 		</div>

@@ -17,6 +17,7 @@ const GET_TODO_FOR_DRAFT = `
 			agent_model
 			agent_effort
 			agent_machine
+			agent_plan_first
 			github_issue_number
 			task_file_path
 			list {

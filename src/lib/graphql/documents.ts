@@ -24,6 +24,7 @@ export const TODO_FRAGMENT = graphql(`
 		agent_model
 		agent_effort
 		agent_machine
+		agent_plan_first
 		min_hours
 		max_hours
 		actual_hours

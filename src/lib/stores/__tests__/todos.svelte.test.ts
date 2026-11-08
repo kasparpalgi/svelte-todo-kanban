@@ -34,6 +34,7 @@ const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFields
 	completed_at: null,
 	due_on: null,
 	has_time: false,
+	agent_plan_first: false,
 	priority: 'medium',
 	sort_order: 1,
 	created_at: '2025-01-01T00:00:00Z',

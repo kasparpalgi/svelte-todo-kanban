@@ -6,6 +6,7 @@ import {
 	camelName,
 	ensureFooter,
 	ensureMachine,
+	ensurePlanFirst,
 	ensureRunWith,
 	findTaskFileRenames,
 	nextNumber,
@@ -375,5 +376,41 @@ describe('ensureMachine', () => {
 	it('leaves an unaddressed auto card untouched', () => {
 		const body = '# Fix errors\n';
 		expect(ensureMachine(body, { id: 'abc', title: 'x' })).toBe(body);
+	});
+});
+
+describe('ensurePlanFirst', () => {
+	const card = { id: 'abc', title: 'x', agent_plan_first: true };
+
+	it('adds the line under the header block', () => {
+		const body = '> Run with: Opus 5 / high\n> Machine: dell\n\n# T\n';
+		expect(ensurePlanFirst(body, card)).toBe(
+			'> Run with: Opus 5 / high\n> Machine: dell\n> Plan first\n\n# T\n'
+		);
+	});
+
+	it('opens a headerless file with it', () => {
+		expect(ensurePlanFirst('\n# T\n', card)).toBe('> Plan first\n\n# T\n');
+	});
+
+	it('does not repeat it, and unticking the box drops it', () => {
+		const body = '> Run with: Opus 5 / high\n> Plan first\n\n# T\n';
+		expect(ensurePlanFirst(body, card)).toBe(body);
+		expect(ensurePlanFirst(body, { id: 'abc', title: 'x' })).toBe(
+			'> Run with: Opus 5 / high\n\n# T\n'
+		);
+	});
+
+	it('ignores a quoted Run with line deep in the body', () => {
+		const body = '# T\n\n> Run with: Sonnet 5 / medium\n';
+		expect(ensurePlanFirst(body, card)).toBe(
+			'> Plan first\n\n# T\n\n> Run with: Sonnet 5 / medium\n'
+		);
+	});
+});
+
+describe('todoPathFor a blocked file', () => {
+	it('re-queues it under its own name', () => {
+		expect(todoPathFor('doc/todo/070-plan-BLOCKED.md', 70)).toBe('doc/todo/070-plan-TODO.md');
 	});
 });

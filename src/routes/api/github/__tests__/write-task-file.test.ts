@@ -264,6 +264,44 @@ describe('POST /api/github/write-task-file', () => {
 		expect(writtenFile()?.body).toContain('**Someone**\n\nUse the existing store.');
 	});
 
+	it('re-queues a -BLOCKED file as itself, keeping its plan and adding the review', async () => {
+		// The agent renamed 163-…-TODO.md to -BLOCKED.md; the card still names the TODO.
+		const blocked = '> Plan first\n\n# Drag\n\nRefactor it properly.\n\n## Plan\n\n1. Split it.\n';
+		repoWithDraft(blocked);
+		const base = githubRequest.getMockImplementation()!;
+		githubRequest.mockImplementation(async (path: string, ...rest: unknown[]) => {
+			if (String(path).endsWith('/163-dragNDropCrap-TODO.md')) throw notFound();
+			return base(path, ...(rest as [string, RequestInit]));
+		});
+
+		const res = await call({
+			task_file_path: '.claude/todo/163-dragNDropCrap-TODO.md',
+			agent_plan_first: true,
+			comments: [{ content: 'Plan OK, but keep the old API.', user: { name: 'Kaspar' } }]
+		} as never);
+
+		expect(await res.json()).toMatchObject({ path: '.claude/todo/163-dragNDropCrap-TODO.md' });
+		const body = writtenFile()!.body;
+		expect(body).toContain('## Plan\n\n1. Split it.');
+		expect(body).toContain('keep the old API');
+		expect(body.match(/^> Plan first$/gm)).toHaveLength(1);
+		expect(treeOf()).toContainEqual(
+			expect.objectContaining({ path: '.claude/todo/163-dragNDropCrap-BLOCKED.md', sha: null })
+		);
+	});
+
+	it('writes > Plan first when the card has the box ticked', async () => {
+		githubRequest.mockImplementation(async (path: string, _t: string, opts?: RequestInit) => {
+			if (String(path).endsWith('/contents/.claude/todo')) return [{ name: '162-x.md' }];
+			if (opts?.method === 'PUT') return {};
+			throw notFound();
+		});
+
+		await call({ task_file_path: null, agent_plan_first: true } as never);
+
+		expect(writtenFile()?.body).toMatch(/^> Run with: Opus 5 \/ high\n> Plan first\n\n# /);
+	});
+
 	it('does nothing when the list is not the board agent list', async () => {
 		const res = await call({
 			list: { ...CARD.list, board: { ...CARD.list.board, settings: { agent_list_id: 'other' } } }
@@ -310,6 +348,11 @@ describe.each(['write-task-file', 'write-draft-file', 'update-task-file'])(
 		it('selects agent_model and agent_effort', () => {
 			const src = readFileSync(`src/routes/api/github/${endpoint}/+server.ts`, 'utf-8');
 			expect(src).toMatch(/agent_model\s+agent_effort/);
+		});
+
+		it('selects agent_plan_first', () => {
+			const src = readFileSync(`src/routes/api/github/${endpoint}/+server.ts`, 'utf-8');
+			expect(src).toMatch(/agent_machine\s+agent_plan_first/);
 		});
 	}
 );

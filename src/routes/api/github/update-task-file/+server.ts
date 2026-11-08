@@ -16,6 +16,7 @@ const GET_TODO_FOR_UPDATE = `
 			agent_model
 			agent_effort
 			agent_machine
+			agent_plan_first
 			task_file_path
 			comments(order_by: { created_at: asc }) {
 				content

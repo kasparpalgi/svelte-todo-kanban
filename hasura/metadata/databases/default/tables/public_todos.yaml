@@ -90,6 +90,7 @@ insert_permissions:
         - agent_effort
         - agent_machine
         - agent_model
+        - agent_plan_first
         - alias
         - assigned_to
         - comment_hours
@@ -121,6 +122,7 @@ select_permissions:
         - agent_effort
         - agent_machine
         - agent_model
+        - agent_plan_first
         - alias
         - assigned_to
         - comment_hours
@@ -178,6 +180,7 @@ update_permissions:
         - agent_effort
         - agent_machine
         - agent_model
+        - agent_plan_first
         - alias
         - assigned_to
         - comment_hours

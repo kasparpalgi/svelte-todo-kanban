@@ -118,6 +118,7 @@ export interface TaskCard {
 	agent_model?: string | null;
 	agent_effort?: string | null;
 	agent_machine?: string | null;
+	agent_plan_first?: boolean | null;
 	github_issue_number?: number | null;
 }
 
@@ -132,10 +133,18 @@ const machineLine = (card: TaskCard): string | null => {
 	return slug ? `> Machine: ${slug}` : null;
 };
 
-/** The `> Run with:` / `> Machine:` block, as the 0-2 lines that open the file. */
+/**
+ * `> Plan first` — the card's checkbox. The agent's first run then writes `## Plan` and
+ * ends BLOCKED for a person to approve; re-queued, it builds that plan
+ * (svelte-hasura-boilerplate#70).
+ */
+const PLAN_FIRST = '> Plan first';
+const planFirstLine = (card: TaskCard) => (card.agent_plan_first ? PLAN_FIRST : null);
+
+/** The `> Run with:` / `> Machine:` / `> Plan first` block, as the 0-3 lines that open the file. */
 function header(card: TaskCard, runWith: string | null): string[] {
-	const lines = [runWith && `> Run with: ${runWith}`, machineLine(card)].filter((l): l is string =>
-		Boolean(l)
+	const lines = [runWith && `> Run with: ${runWith}`, machineLine(card), planFirstLine(card)].filter(
+		(l): l is string => Boolean(l)
 	);
 	return lines.length ? [...lines, ''] : [];
 }
@@ -192,6 +201,19 @@ export function ensureMachine(body: string, card: TaskCard): string {
 	return `${line}\n\n${body.replace(/^\s+/, '')}`;
 }
 
+/**
+ * The `> Plan first` twin of {@link ensureMachine}: the box is usually ticked after the
+ * draft was written, and unticking it must drop the line. Goes under the last header line.
+ */
+export function ensurePlanFirst(body: string, card: TaskCard): string {
+	const existing = /^> Plan first[ \t]*$\n?/m;
+	if (!card.agent_plan_first) return body.replace(existing, '');
+	if (existing.test(body)) return body;
+	const head = /^(?:> (?:Run with|Machine):.*\n)+/.exec(body);
+	if (head) return body.replace(head[0], `${head[0]}${PLAN_FIRST}\n`);
+	return `${PLAN_FIRST}\n\n${body.replace(/^\s+/, '')}`;
+}
+
 /** The leading NNN of a task filename, or NaN. Issue numbers outgrow three digits. */
 export const numberOf = (filename: string) => Number.parseInt(/^(\d+)-/.exec(filename)?.[1] ?? '', 10);
 
@@ -215,7 +237,8 @@ export function nextNumber(filenames: string[], issueNumber?: number | null): st
  * the file is being rewritten anyway.
  */
 export function todoPathFor(draftPath: string, issueNumber?: number | null): string {
-	const todoPath = draftPath.replace(/\.md$/, '-TODO.md');
+	// A `-BLOCKED.md` sent back to the agent list is re-queued under its own name.
+	const todoPath = draftPath.replace(/(-BLOCKED)?\.md$/i, '-TODO.md');
 	if (!issueNumber) return todoPath;
 	const cut = todoPath.lastIndexOf('/') + 1;
 	return todoPath.slice(0, cut) + todoPath.slice(cut).replace(/^\d+-/, `${pad(issueNumber)}-`);

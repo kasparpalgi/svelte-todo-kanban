@@ -11,6 +11,7 @@ import {
 	toText,
 	ensureFooter,
 	ensureMachine,
+	ensurePlanFirst,
 	ensureRunWith,
 	nextNumber,
 	todoPathFor
@@ -33,6 +34,7 @@ const GET_TODO_FOR_TASK_FILE = `
 			agent_model
 			agent_effort
 			agent_machine
+			agent_plan_first
 			github_issue_number
 			task_file_path
 			comments(order_by: { created_at: asc }) {
@@ -70,6 +72,20 @@ async function fileExists(repo: string, path: string, token: string): Promise<bo
 	}
 }
 
+/**
+ * The file the card's work lives in now. The agent renames `-TODO.md` to `-BLOCKED.md`
+ * without telling the board, so `task_file_path` still names the TODO. A blocked file is
+ * re-queued as itself — its `## Plan` and first `## Results` are what the second run
+ * builds on — rather than replaced by a fresh file holding only the card's text
+ * (svelte-hasura-boilerplate#70).
+ */
+async function liveFile(repo: string, known: string | null, token: string) {
+	if (!known) return null;
+	if (await fileExists(repo, known, token)) return known;
+	const blocked = known.replace(/-TODO\.md$/i, '-BLOCKED.md');
+	return blocked !== known && (await fileExists(repo, blocked, token)) ? blocked : null;
+}
+
 async function commentOnCard(todoId: string, userId: string, content: string) {
 	await serverRequest(CREATE_COMMENT, {
 		objects: [{ todo_id: todoId, user_id: userId, content }]
@@ -87,7 +103,7 @@ const encode = (body: string) => Buffer.from(body, 'utf8').toString('base64');
  */
 function publishedBody(draft: string, card: QueuedCard): string {
 	const body = draft.includes(toText(card.content))
-		? ensureFooter(ensureMachine(ensureRunWith(draft, card), card), card)
+		? ensureFooter(ensurePlanFirst(ensureMachine(ensureRunWith(draft, card), card), card), card)
 		: buildTaskFile(card);
 	return withComments(body, card.comments);
 }
@@ -167,7 +183,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		// Trailing `(#165)` in the subject is what makes GitHub show the commit on the issue.
 		const ref = issueNumber ? ` (#${issueNumber})` : '';
 		const known: string | null = todo.task_file_path ?? null;
-		const existing = known && (await fileExists(repo, known, token)) ? known : null;
+		const existing = await liveFile(repo, known, token);
 
 		if (known && !existing) {
 			serverLog.warn('TaskFile', 'Card points at a file that is gone — writing a fresh one', {
@@ -178,7 +194,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		}
 
 		if (existing && !existing.endsWith('-TODO.md')) {
-			// Rename the existing draft → -TODO.md
+			// Rename the existing draft (or blocked file) → -TODO.md
 			path = await renameDraftToTodo(repo, existing, token, todo, ref);
 		} else if (existing) {
 			// Already a TODO file — nothing to do

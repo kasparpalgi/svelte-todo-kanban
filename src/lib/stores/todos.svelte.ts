@@ -610,6 +610,7 @@ function createTodosStore() {
 				| 'agent_model'
 				| 'agent_effort'
 				| 'agent_machine'
+				| 'agent_plan_first'
 			> & {
 				list_id?: string | null;
 				assigned_to?: string | null;
