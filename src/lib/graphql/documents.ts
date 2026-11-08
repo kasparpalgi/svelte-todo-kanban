@@ -308,6 +308,44 @@ export const GET_TODOS = graphql(`
 	}
 `);
 
+// Everything that changes what a board shows, in a few bytes per card: the poll
+// compares it with the last one and refetches the full board only on a change. The
+// full GET_TODOS of a 334-card board was 2.3 MB / ~6 s every 30 s (#209). Labels and
+// uploads are listed, not aggregated: the user role has no aggregate permission there.
+export const GET_BOARD_TODOS_FINGERPRINT = graphql(`
+	query GetBoardTodosFingerprint($where: todos_bool_exp!) {
+		todos(where: $where, order_by: { id: asc }) {
+			id
+			updated_at
+			comments_aggregate {
+				aggregate {
+					count
+					max {
+						updated_at
+					}
+				}
+			}
+			labels {
+				label_id
+			}
+			uploads {
+				id
+			}
+			assignees {
+				user_id
+			}
+			subscribers {
+				user_id
+			}
+			claude_usages_aggregate {
+				aggregate {
+					count
+				}
+			}
+		}
+	}
+`);
+
 export const GET_LISTS = graphql(`
 	query GetLists(
 		$where: lists_bool_exp = {}
@@ -1394,7 +1432,6 @@ export const DELETE_EXPENSE = graphql(`
 
 // Not called via request(): podcasts load through Hasura's REST endpoint
 // (/api/rest/podcasts). This document only generates the `GetPodcastsQuery` type.
-// fallow-ignore-next-line unused-export -- type source for podcasts.svelte.ts
 export const GET_PODCASTS = graphql(`
 	query GetPodcasts {
 		podcasts(limit: 5000, order_by: { created_at: desc }) {

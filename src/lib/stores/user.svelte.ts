@@ -5,6 +5,7 @@ import { GET_USERS, UPDATE_USER } from '$lib/graphql/documents';
 import { DEFAULT_LOCALE } from '$lib/constants/locale';
 import { displayMessage } from './errorSuccess.svelte';
 import { loggingStore } from './logging.svelte';
+import { isNetworkError } from '$lib/utils/networkError';
 
 function createUserStore() {
 	const state = $state({
@@ -77,7 +78,8 @@ function createUserStore() {
 			state.cachedUser = sessionUser;
 			state.error = error.message || 'Failed to load user profile.';
 			displayMessage(error);
-			loggingStore.error('UserStore', 'Failed to hydrate user from DB', { error });
+			const log = isNetworkError(error) ? loggingStore.warn : loggingStore.error;
+			log('UserStore', 'Failed to hydrate user from DB', { error });
 		} finally {
 			state.loading = false;
 			state.initialized = true;
@@ -192,7 +194,9 @@ function createUserStore() {
 
 			displayMessage(message);
 
-			loggingStore.error('UserStore', 'Failed to update user', {
+			// A dropped connection is not an app bug (3 such "errors" in Oct 2026, #209).
+			const log = isNetworkError(error) ? loggingStore.warn : loggingStore.error;
+			log('UserStore', 'Failed to update user', {
 				userId,
 				updates,
 				error: message

@@ -6,16 +6,10 @@ import { request } from '$lib/graphql/client';
 import { CREATE_LOG } from '$lib/graphql/documents';
 import { LOGGING_CONFIG } from '$lib/config/logging';
 
-async function isUserAuthenticated(): Promise<boolean> {
-	if (!browser) return false;
-
-	try {
-		const response = await fetch('/api/auth/token');
-		return response.ok;
-	} catch {
-		return false;
-	}
-}
+// A log the server did not take is re-queued and retried with a growing delay,
+// at most this many times — a dead database must not keep every tab retrying (#209).
+const MAX_FLUSH_ATTEMPTS = 5;
+const RETRY_DELAY_MS = 30_000;
 
 function createLoggingStore() {
 	const state = $state({
@@ -56,14 +50,10 @@ function createLoggingStore() {
 		if (!browser || state.pendingLogs.length === 0) return;
 		if (state.isFlushingInProgress) return;
 
-		const isAuthenticated = await isUserAuthenticated();
-		if (!isAuthenticated) {
-			console.debug('[LoggingStore] Skipping log flush - user not authenticated');
-			state.pendingLogs = [];
-			return;
-		}
-
+		// No sign-in pre-check: it cost an /api/auth/token round trip per flush, and
+		// request() already throws AuthenticationError when signed out (dropped below).
 		state.isFlushingInProgress = true;
+		const retry: LogEntry[] = [];
 
 		try {
 			const logsToFlush = [...state.pendingLogs];
@@ -106,18 +96,24 @@ function createLoggingStore() {
 								error?.name === 'AuthenticationError' ||
 								error?.message === 'Authentication required';
 
-							if (!dev && !isAuthError) {
-								state.pendingLogs.push(log);
+							const attempts = (log.attempts ?? 0) + 1;
+							if (!dev && !isAuthError && attempts < MAX_FLUSH_ATTEMPTS) {
+								retry.push({ ...log, attempts });
 							}
 						});
 				})
 			);
 		} finally {
 			state.isFlushingInProgress = false;
+			if (retry.length > 0) {
+				state.pendingLogs.push(...retry);
+				const attempts = Math.max(...retry.map((log) => log.attempts ?? 1));
+				scheduleBatchFlush(RETRY_DELAY_MS * attempts);
+			}
 		}
 	}
 
-	function scheduleBatchFlush() {
+	function scheduleBatchFlush(delay: number = BATCH_TIMEOUT) {
 		if (!browser) return;
 
 		if (state.flushTimeout) {
@@ -126,7 +122,7 @@ function createLoggingStore() {
 
 		state.flushTimeout = setTimeout(() => {
 			flushLogs();
-		}, BATCH_TIMEOUT);
+		}, delay);
 	}
 
 	function shouldSample(component: string, level: LogEntry['level']): boolean {

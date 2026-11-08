@@ -1,6 +1,7 @@
 /** @file src/lib/stores/todos.svelte.ts */
 import {
 	GET_TODOS,
+	GET_BOARD_TODOS_FINGERPRINT,
 	CREATE_TODO,
 	UPDATE_TODOS,
 	DELETE_TODOS,
@@ -18,6 +19,7 @@ import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
 import type {
 	GetTodosQuery,
+	GetBoardTodosFingerprintQuery,
 	CreateTodoMutation,
 	UpdateTodosMutation,
 	DeleteTodosMutation,
@@ -38,6 +40,42 @@ function createTodosStore() {
 		initialized: false,
 		currentBoardId: null
 	});
+
+	// An optimistic card is shown under a `temp-…` id until CREATE_TODO returns. Edits
+	// made in that window sent the placeholder to Hasura ("invalid input syntax for
+	// type uuid", #209); they now wait here for the real id (null = create failed).
+	const pendingCreates = new Map<string, Promise<string | null>>();
+
+	/** The id to send to Hasura: a pending card's real id once known (null = create failed). */
+	async function realTodoId(id: string): Promise<string | null> {
+		return pendingCreates.get(id) ?? id;
+	}
+
+	// Board fingerprint at the last full poll refresh (see refreshBoardTodosIfChanged).
+	const FULL_REFRESH_MS = 5 * 60 * 1000;
+	let lastFingerprint: { boardId: string; value: string; at: number } | null = null;
+
+	/** Index of a todo by id, looked up fresh: an await may have replaced state.todos. */
+	function indexOfTodo(id: string): number {
+		return state.todos.findIndex((t) => t.id === id);
+	}
+
+	/** Real id and current index of a todo (waits for a pending create); null if gone. */
+	async function locateTodo(id: string): Promise<{ id: string; index: number } | null> {
+		const realId = await realTodoId(id);
+		const index = realId ? indexOfTodo(realId) : -1;
+		return realId && index !== -1 ? { id: realId, index } : null;
+	}
+
+	/**
+	 * Write a todo back by id, never by an index captured before an await: a poll or
+	 * another update may have replaced the array, and that slot would now hold a
+	 * different card (#209).
+	 */
+	function replaceTodo(id: string, todo: TodoFieldsFragment) {
+		const index = indexOfTodo(id);
+		if (index !== -1) state.todos[index] = todo;
+	}
 
 	async function loadTodos(): Promise<TodoFieldsFragment[]> {
 		if (!browser) return [];
@@ -352,6 +390,8 @@ function createTodosStore() {
 		}
 
 		const tempId = `temp-${crypto.randomUUID()}`;
+		let settleCreate: (id: string | null) => void = () => {};
+		pendingCreates.set(tempId, new Promise((resolve) => (settleCreate = resolve)));
 
 		try {
 			let sortOrder: number;
@@ -485,6 +525,7 @@ function createTodosStore() {
 				} else {
 					state.todos = [...state.todos, newTodo];
 				}
+				settleCreate(newTodo.id);
 
 				// Log activity: todo created
 				try {
@@ -588,6 +629,8 @@ function createTodosStore() {
 			const message = error instanceof Error ? error.message : 'Error adding todo';
 			console.error('Add todo error:', error);
 			return { success: false, message };
+		} finally {
+			settleCreate(null); // no-op once the real id was settled
 		}
 	}
 
@@ -619,7 +662,14 @@ function createTodosStore() {
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		const todoIndex = state.todos.findIndex((t) => t.id === id);
+		// Only a pending card awaits: an await on every call would defer the optimistic update.
+		if (pendingCreates.has(id)) {
+			const realId = await realTodoId(id);
+			if (!realId) return { success: false, message: 'Todo not found' };
+			id = realId;
+		}
+
+		const todoIndex = indexOfTodo(id);
 		if (todoIndex === -1) return { success: false, message: 'Todo not found' };
 
 		const originalTodo = { ...state.todos[todoIndex] };
@@ -672,9 +722,7 @@ function createTodosStore() {
 
 			const updatedTodo = data.update_todos?.returning?.[0];
 			if (updatedTodo) {
-				if (todoIndex !== -1) {
-					state.todos[todoIndex] = updatedTodo;
-				}
+				replaceTodo(id, updatedTodo);
 
 				// Log activity based on what changed
 				try {
@@ -850,15 +898,11 @@ function createTodosStore() {
 					data: updatedTodo
 				};
 			} else {
-				if (todoIndex !== -1 && originalTodo) {
-					state.todos[todoIndex] = originalTodo;
-				}
+				replaceTodo(id, originalTodo);
 				return { success: false, message: 'Failed to update todo' };
 			}
 		} catch (error) {
-			if (todoIndex !== -1 && originalTodo) {
-				state.todos[todoIndex] = originalTodo;
-			}
+			replaceTodo(id, originalTodo);
 			const message = error instanceof Error ? error.message : 'Error updating todo';
 			console.error('Update todo error:', error);
 			return { success: false, message };
@@ -968,8 +1012,8 @@ function createTodosStore() {
 	 * so polling doesn't flash the loading spinner. Used to pick up changes
 	 * made by other users/tabs without requiring a manual page refresh.
 	 */
-	async function refreshBoardTodos(boardId: string): Promise<void> {
-		if (!browser) return;
+	async function refreshBoardTodos(boardId: string): Promise<boolean> {
+		if (!browser) return false;
 
 		try {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
@@ -1003,11 +1047,43 @@ function createTodosStore() {
 			]);
 
 			// Board may have changed while this request was in flight
-			if (state.currentBoardId !== boardId) return;
+			if (state.currentBoardId !== boardId) return false;
 
 			state.todos = [...(activeData.todos || []), ...(completedData.todos || [])];
+			return true;
 		} catch (error) {
 			console.error('Refresh board todos error:', error);
+			return false;
+		}
+	}
+
+	/**
+	 * Poll entry point. Fetches the board's fingerprint (~170 KB for 521 cards
+	 * instead of 3.5 MB) and runs the full refreshBoardTodos() only when it changed —
+	 * or when the last full refresh is older than FULL_REFRESH_MS, which picks up
+	 * what the fingerprint cannot see (a comment edited in place). Returns true
+	 * when it refreshed.
+	 */
+	async function refreshBoardTodosIfChanged(boardId: string): Promise<boolean> {
+		if (!browser) return false;
+
+		try {
+			const data = await request<GetBoardTodosFingerprintQuery>(GET_BOARD_TODOS_FINGERPRINT, {
+				where: { list: { board_id: { _eq: boardId } } }
+			});
+			const value = JSON.stringify(data.todos ?? []);
+			const last = lastFingerprint;
+			const unchanged =
+				last?.boardId === boardId && last.value === value && Date.now() - last.at < FULL_REFRESH_MS;
+			if (unchanged) return false;
+
+			const refreshed = await refreshBoardTodos(boardId);
+			// Taken before the full fetch: a change in between only costs one more refresh.
+			if (refreshed) lastFingerprint = { boardId, value, at: Date.now() };
+			return refreshed;
+		} catch (error) {
+			console.error('Refresh board fingerprint error:', error);
+			return false;
 		}
 	}
 
@@ -1023,6 +1099,10 @@ function createTodosStore() {
 
 	async function deleteTodo(id: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
+
+		const realId = await realTodoId(id);
+		if (!realId) return { success: false, message: 'Todo not found' };
+		id = realId;
 
 		// Get the todo to check if it has a GitHub issue
 		const todo = state.todos.find((t) => t.id === id);
@@ -1145,10 +1225,11 @@ function createTodosStore() {
 	async function assignUser(todoId: string, userId: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		const idx = state.todos.findIndex((t) => t.id === todoId);
-		if (idx === -1) return { success: false, message: 'Todo not found' };
+		const target = await locateTodo(todoId);
+		if (!target) return { success: false, message: 'Todo not found' };
+		todoId = target.id;
 
-		const current = state.todos[idx];
+		const current = state.todos[target.index];
 		if ((current.assignees || []).some((a) => a.user_id === userId)) {
 			return { success: true, message: 'Already assigned' };
 		}
@@ -1161,7 +1242,8 @@ function createTodosStore() {
 			const row = data.insert_todo_assignees_one;
 			if (!row) return { success: false, message: 'Failed to assign user' };
 
-			const latest = state.todos[idx];
+			const latest = state.todos[indexOfTodo(todoId)];
+			if (!latest) return { success: true, message: 'Todo no longer loaded' };
 			const newAssignees = [...(latest.assignees || []), row];
 
 			// Promote to primary when the todo had no assignee yet.
@@ -1171,15 +1253,18 @@ function createTodosStore() {
 					_set: { assigned_to: userId }
 				});
 				const updated = upd.update_todos?.returning?.[0];
-				state.todos[idx] = (updated ??
-					({
-						...latest,
-						assignees: newAssignees,
-						assigned_to: userId,
-						assignee: row.assignee
-					} as any)) as TodoFieldsFragment;
+				replaceTodo(
+					todoId,
+					(updated ??
+						({
+							...latest,
+							assignees: newAssignees,
+							assigned_to: userId,
+							assignee: row.assignee
+						} as any)) as TodoFieldsFragment
+				);
 			} else {
-				state.todos[idx] = { ...latest, assignees: newAssignees } as TodoFieldsFragment;
+				replaceTodo(todoId, { ...latest, assignees: newAssignees } as TodoFieldsFragment);
 			}
 
 			// Log activity: user assigned
@@ -1214,8 +1299,9 @@ function createTodosStore() {
 	async function unassignUser(todoId: string, userId: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		const idx = state.todos.findIndex((t) => t.id === todoId);
-		if (idx === -1) return { success: false, message: 'Todo not found' };
+		const target = await locateTodo(todoId);
+		if (!target) return { success: false, message: 'Todo not found' };
+		todoId = target.id;
 
 		try {
 			const data: any = await request(UNASSIGN_USER_FROM_TODO, {
@@ -1226,7 +1312,8 @@ function createTodosStore() {
 				return { success: false, message: 'Failed to unassign user' };
 			}
 
-			const latest = state.todos[idx];
+			const latest = state.todos[indexOfTodo(todoId)];
+			if (!latest) return { success: true, message: 'Todo no longer loaded' };
 			const remaining = (latest.assignees || []).filter((a) => a.user_id !== userId);
 
 			// If we removed the primary assignee, promote the first remaining one (or clear).
@@ -1237,15 +1324,18 @@ function createTodosStore() {
 					_set: { assigned_to: newPrimary }
 				});
 				const updated = upd.update_todos?.returning?.[0];
-				state.todos[idx] = (updated ??
-					({
-						...latest,
-						assignees: remaining,
-						assigned_to: newPrimary,
-						assignee: remaining[0]?.assignee ?? null
-					} as any)) as TodoFieldsFragment;
+				replaceTodo(
+					todoId,
+					(updated ??
+						({
+							...latest,
+							assignees: remaining,
+							assigned_to: newPrimary,
+							assignee: remaining[0]?.assignee ?? null
+						} as any)) as TodoFieldsFragment
+				);
 			} else {
-				state.todos[idx] = { ...latest, assignees: remaining } as TodoFieldsFragment;
+				replaceTodo(todoId, { ...latest, assignees: remaining } as TodoFieldsFragment);
 			}
 
 			// Log activity: user unassigned
@@ -1449,6 +1539,7 @@ function createTodosStore() {
 		deleteUpload,
 		refreshTodo,
 		refreshBoardTodos,
+		refreshBoardTodosIfChanged,
 		assignUser,
 		unassignUser,
 		subscribeToTodo,
@@ -1458,6 +1549,7 @@ function createTodosStore() {
 			state.error = null;
 		},
 		reset: () => {
+			lastFingerprint = null;
 			state.todos = [];
 			state.loading = false;
 			state.error = null;

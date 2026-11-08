@@ -2,6 +2,7 @@
 import { PUBLIC_API_ENDPOINT, PUBLIC_API_ENDPOINT_DEV, PUBLIC_API_ENV } from '$env/static/public';
 import { GraphQLClient } from 'graphql-request';
 import { browser } from '$app/environment';
+import { isNetworkError as isTransportError } from '$lib/utils/networkError';
 
 const apiEndpoint = PUBLIC_API_ENV === 'production' ? PUBLIC_API_ENDPOINT : PUBLIC_API_ENDPOINT_DEV;
 const client = new GraphQLClient(apiEndpoint);
@@ -175,9 +176,11 @@ export async function publicRequest<TResult, TVariables = any>(
 }
 
 const SLOW_OPERATION_MS = 1000;
-// The logger's own flush; reporting it as slow would just enqueue another
-// CreateLog and feed back into itself (267 such rows in Sept 2026, #206).
-const UNLOGGED_SLOW_OPERATIONS = new Set(['CreateLog']);
+// The logger's own flush. Reporting it as slow or failed would enqueue another
+// CreateLog that feeds back into itself: 267 slow rows in Sept 2026 (#206), and one
+// Postgres outage turned 3 failed queries into 111 CreateLog error rows (#209).
+// The logging store re-queues its own failures instead.
+const UNLOGGED_OPERATIONS = new Set(['CreateLog']);
 
 async function warnSlow(message: string, data: Record<string, unknown>) {
 	try {
@@ -221,7 +224,7 @@ export async function request<TResult, TVariables = any>(
 		const result = await client.request<TResult>(query, variables as any, headers);
 
 		// Log slow operations
-		if (browser && !UNLOGGED_SLOW_OPERATIONS.has(operationName)) {
+		if (browser && !UNLOGGED_OPERATIONS.has(operationName)) {
 			const duration = performance.now() - startTime - tokenDuration;
 			if (duration > SLOW_OPERATION_MS) {
 				await warnSlow(`Slow ${operationType}: ${operationName}`, {
@@ -247,15 +250,13 @@ export async function request<TResult, TVariables = any>(
 			error?.message?.toLowerCase().includes('permission');
 
 		// log only non-auth errors (prev. infinite loop)
-		if (browser && !isAuthError) {
+		if (browser && !isAuthError && !UNLOGGED_OPERATIONS.has(operationName)) {
 			const duration = performance.now() - startTime;
 
 			try {
 				const { loggingStore } = await import('$lib/stores/logging.svelte');
 
-				const isNetworkError =
-					error?.message?.toLowerCase().includes('network') ||
-					error?.message?.toLowerCase().includes('fetch');
+				const isNetworkError = isTransportError(error);
 
 				// A dropped connection (offline, waking from sleep, navigation abort) is
 				// not an app bug: keep it visible as a warning, not an error (#206).

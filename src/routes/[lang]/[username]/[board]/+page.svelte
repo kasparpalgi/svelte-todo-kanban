@@ -138,7 +138,9 @@
 
 		const boardId = listsStore.selectedBoard.id;
 		await Promise.all([
-			todosStore.refreshBoardTodos(boardId),
+			// Full board only when its fingerprint changed: re-downloading it every 30 s
+			// was 2.3 MB / ~6 s on a 334-card board (#209).
+			todosStore.refreshBoardTodosIfChanged(boardId),
 			listsStore.loadLists(),
 			listsStore.loadBoards()
 		]);

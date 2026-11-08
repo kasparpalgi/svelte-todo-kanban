@@ -64,3 +64,18 @@ export function autoScrollIntent(
 	if (position > end - hotZone) return 1;
 	return 0;
 }
+
+/**
+ * The cards a renumbering of `ordered` to 1..n actually changes. Reorder used to send
+ * one UpdateTodos per card in the list — bursts of 100 parallel requests on a long
+ * list — although moving one card only shifts the cards between its old and new
+ * slot (#209). Ids in `force` (a card changing list) are always included.
+ */
+export function sortOrderChanges<T extends { id: string; sort_order?: number | null }>(
+	ordered: readonly T[],
+	force: ReadonlySet<string> = new Set()
+): { todo: T; sortOrder: number }[] {
+	return ordered.flatMap((todo, index) =>
+		todo.sort_order === index + 1 && !force.has(todo.id) ? [] : [{ todo, sortOrder: index + 1 }]
+	);
+}

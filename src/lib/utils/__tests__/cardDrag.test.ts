@@ -8,7 +8,8 @@ import {
 	isInteractiveTarget,
 	pointerKind,
 	shouldActivateMouseDrag,
-	shouldCancelTouchHold
+	shouldCancelTouchHold,
+	sortOrderChanges
 } from '../cardDrag';
 
 describe('pointerKind', () => {
@@ -107,5 +108,32 @@ describe('isInteractiveTarget', () => {
 		const cardLink = el('<a href="/card"><h3>Title</h3></a>');
 		expect(isInteractiveTarget(cardLink.firstElementChild, cardLink)).toBe(false);
 		expect(isInteractiveTarget(el('<a href="https://github.com">#1</a>'), cardLink)).toBe(true);
+	});
+});
+
+describe('sortOrderChanges', () => {
+	const card = (id: string, sort_order: number | null) => ({ id, sort_order });
+
+	it('only returns the cards whose position changes', () => {
+		// a b c d e numbered 1..5; c moved to the top → c a b d e
+		const ordered = [card('c', 3), card('a', 1), card('b', 2), card('d', 4), card('e', 5)];
+		expect(sortOrderChanges(ordered).map(({ todo, sortOrder }) => [todo.id, sortOrder])).toEqual([
+			['c', 1],
+			['a', 2],
+			['b', 3]
+		]);
+	});
+
+	it('renumbers every card the first time (spaced or missing sort orders)', () => {
+		const ordered = [card('a', 1000), card('b', 2000), card('c', null)];
+		expect(sortOrderChanges(ordered).map(({ sortOrder }) => sortOrder)).toEqual([1, 2, 3]);
+	});
+
+	it('always includes a forced card, e.g. one changing list', () => {
+		const ordered = [card('a', 1), card('moved', 2), card('b', 3)];
+		expect(sortOrderChanges(ordered)).toEqual([]);
+		expect(sortOrderChanges(ordered, new Set(['moved']))).toEqual([
+			{ todo: ordered[1], sortOrder: 2 }
+		]);
 	});
 });

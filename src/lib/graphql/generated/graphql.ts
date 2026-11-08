@@ -20348,6 +20348,13 @@ export type GetTodosQueryVariables = Exact<{
 
 export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> };
 
+export type GetBoardTodosFingerprintQueryVariables = Exact<{
+  where: Todos_Bool_Exp;
+}>;
+
+
+export type GetBoardTodosFingerprintQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, updated_at: string, comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number, max?: { __typename?: 'comments_max_fields', updated_at?: string | null } | null } | null }, labels: Array<{ __typename?: 'todo_labels', label_id: string }>, uploads: Array<{ __typename?: 'uploads', id: string }>, assignees: Array<{ __typename?: 'todo_assignees', user_id: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string }>, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', count: number } | null } }> };
+
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
   order_by?: InputMaybe<Array<Lists_Order_By> | Lists_Order_By>;
@@ -21916,6 +21923,39 @@ fragment LabelFields on labels {
   created_at
   updated_at
 }`) as unknown as TypedDocumentString<GetTodosQuery, GetTodosQueryVariables>;
+export const GetBoardTodosFingerprintDocument = new TypedDocumentString(`
+    query GetBoardTodosFingerprint($where: todos_bool_exp!) {
+  todos(where: $where, order_by: {id: asc}) {
+    id
+    updated_at
+    comments_aggregate {
+      aggregate {
+        count
+        max {
+          updated_at
+        }
+      }
+    }
+    labels {
+      label_id
+    }
+    uploads {
+      id
+    }
+    assignees {
+      user_id
+    }
+    subscribers {
+      user_id
+    }
+    claude_usages_aggregate {
+      aggregate {
+        count
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetBoardTodosFingerprintQuery, GetBoardTodosFingerprintQueryVariables>;
 export const GetListsDocument = new TypedDocumentString(`
     query GetLists($where: lists_bool_exp = {}, $order_by: [lists_order_by!] = {sort_order: asc, name: asc}, $limit: Int = 100, $offset: Int = 0) {
   lists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {

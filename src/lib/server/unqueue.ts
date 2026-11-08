@@ -7,7 +7,7 @@ import { commitTree } from '$lib/server/taskdir';
 import { serverLog } from '$lib/server/log';
 
 /** `NNN-slug-TODO.md` → `NNN-slug.md`: the draft a queued task file came from. */
-export const draftPathFor = (todoPath: string) => todoPath.replace(/-TODO\.md$/i, '.md');
+const draftPathFor = (todoPath: string) => todoPath.replace(/-TODO\.md$/i, '.md');
 
 /** Swap the -TODO file for its draft in one commit; null when the file is already gone. */
 async function todoToDraft(repo: string, token: string, todoPath: string, ref: string) {

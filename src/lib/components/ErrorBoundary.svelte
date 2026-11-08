@@ -2,6 +2,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
+	import { isExtensionStack, isNetworkError as isTransportError } from '$lib/utils/networkError';
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { AlertCircle, RefreshCw, Home } from 'lucide-svelte';
@@ -36,17 +37,20 @@
 		// Network errors (Failed to fetch, timeouts, ad blockers blocking requests) are
 		// transient — stores already handle them gracefully. Don't crash the entire UI.
 		const isNetworkError =
-			reason instanceof TypeError &&
-			(reason.message === 'Failed to fetch' ||
-				reason.message === 'Load failed' ||
-				reason.message === 'NetworkError when attempting to fetch resource.' ||
-				reason.message?.startsWith('Failed to get JWT token'));
+			isTransportError(reason) ||
+			(reason instanceof Error && reason.message.startsWith('Failed to get JWT token'));
+		const fromExtension = isExtensionStack(reason?.stack);
 
-		loggingStore.error('ErrorBoundary', 'Unhandled promise rejection', {
-			reason: String(reason),
-			stack: reason?.stack,
-			isNetworkError
-		});
+		const details = { reason: String(reason), stack: reason?.stack, isNetworkError };
+		if (isNetworkError && fromExtension) {
+			// A browser extension wrapping fetch re-raises a failure request() already
+			// logged — 220 duplicate error rows in Oct 2026 (#209). Console only.
+			loggingStore.debug('ErrorBoundary', 'Extension re-raised a network failure', details);
+		} else if (isNetworkError) {
+			loggingStore.warn('ErrorBoundary', 'Unhandled network failure', details);
+		} else {
+			loggingStore.error('ErrorBoundary', 'Unhandled promise rejection', details);
+		}
 
 		event.preventDefault();
 

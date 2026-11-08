@@ -90,7 +90,11 @@
 	): Promise<{ corrected: string; time: string; cost: string }> {
 		if (!text.trim()) return { corrected: text, time: '', cost: '' };
 
-		loggingStore.info('VoiceInput', 'Starting AI correction', { text, model: aiModel, useContextualCorrection });
+		loggingStore.info('VoiceInput', 'Starting AI correction', {
+			text,
+			model: aiModel,
+			useContextualCorrection
+		});
 
 		const startTime = Date.now();
 
@@ -400,9 +404,20 @@
 				};
 
 				recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-					// Denied mic / silence / user abort are expected outcomes, not app errors.
-					const expected = ['not-allowed', 'service-not-allowed', 'no-speech', 'aborted'];
-					const log = expected.includes(event.error) ? loggingStore.info : loggingStore.error;
+					// Denied or missing mic / silence / user abort are expected outcomes, not
+					// app errors (`audio-capture` = no microphone: 4 "errors" in Oct 2026, #209).
+					const expected = [
+						'not-allowed',
+						'service-not-allowed',
+						'no-speech',
+						'aborted',
+						'audio-capture'
+					];
+					const log = expected.includes(event.error)
+						? loggingStore.info
+						: event.error === 'network'
+							? loggingStore.warn
+							: loggingStore.error;
 					log('VoiceInput', 'Speech recognition error', {
 						error: event.error,
 						message: event.message,
@@ -584,7 +599,8 @@
 
 		{#if (processingTime && processingCost) || (showRevertButton && processingTime)}
 			<div class="text-xs text-gray-400">
-				{processingTime} {formatCost(processingCost, currentLang)}
+				{processingTime}
+				{formatCost(processingCost, currentLang)}
 			</div>
 		{/if}
 	</div>

@@ -18,7 +18,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Plus, RefreshCw, ChevronDown, AlertTriangle, X } from 'lucide-svelte';
 	import KanbanColumn from './KanbanColumn.svelte';
-	import { autoScrollIntent, type ScrollIntent } from '$lib/utils/cardDrag';
+	import { autoScrollIntent, sortOrderChanges, type ScrollIntent } from '$lib/utils/cardDrag';
 	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { CardMoveDirection } from '$lib/types/todo';
 	import { claudeUsageStore } from '$lib/stores/claudeUsage.svelte';
@@ -231,8 +231,8 @@
 					dropTarget = null;
 
 					await Promise.all(
-						currentList.map((todo, index) =>
-							todosStore.updateTodo(todo.id, { sort_order: index + 1 })
+						sortOrderChanges(currentList).map(({ todo, sortOrder }) =>
+							todosStore.updateTodo(todo.id, { sort_order: sortOrder })
 						)
 					).catch((err) => console.error('Failed to update order:', err));
 
@@ -260,16 +260,18 @@
 					draggedTodo = null;
 					dropTarget = null;
 
-					const sourceUpdates = sourceList.map((todo, index) =>
-						todosStore.updateTodo(todo.id, { sort_order: index + 1 })
+					const sourceUpdates = sortOrderChanges(sourceList).map(({ todo, sortOrder }) =>
+						todosStore.updateTodo(todo.id, { sort_order: sortOrder })
 					);
-					const targetUpdates = targetList.map((todo, index) => {
-						const updates: { sort_order: number; list_id?: string | null } = {
-							sort_order: index + 1
-						};
-						if (todo.id === todoId) updates.list_id = listIdToUpdate;
-						return todosStore.updateTodo(todo.id, updates);
-					});
+					const targetUpdates = sortOrderChanges(targetList, new Set([todoId])).map(
+						({ todo, sortOrder }) => {
+							const updates: { sort_order: number; list_id?: string | null } = {
+								sort_order: sortOrder
+							};
+							if (todo.id === todoId) updates.list_id = listIdToUpdate;
+							return todosStore.updateTodo(todo.id, updates);
+						}
+					);
 					await Promise.all([...sourceUpdates, ...targetUpdates]).catch((err) =>
 						console.error('Failed to update:', err)
 					);
@@ -411,7 +413,9 @@
 
 			focusCardAfterMove(todo.id);
 			await Promise.all(
-				reordered.map((t, index) => todosStore.updateTodo(t.id, { sort_order: index + 1 }))
+				sortOrderChanges(reordered).map(({ todo: t, sortOrder }) =>
+					todosStore.updateTodo(t.id, { sort_order: sortOrder })
+				)
 			).catch((err) => console.error('Failed to reorder:', err));
 			return;
 		}
@@ -426,13 +430,15 @@
 
 		focusCardAfterMove(todo.id);
 		await Promise.all([
-			...remaining.map((t, index) => todosStore.updateTodo(t.id, { sort_order: index + 1 })),
-			...targetTodos.map((t, index) =>
+			...sortOrderChanges(remaining).map(({ todo: t, sortOrder }) =>
+				todosStore.updateTodo(t.id, { sort_order: sortOrder })
+			),
+			...sortOrderChanges(targetTodos, new Set([todo.id])).map(({ todo: t, sortOrder }) =>
 				todosStore.updateTodo(
 					t.id,
 					t.id === todo.id
-						? { sort_order: index + 1, list_id: targetListId }
-						: { sort_order: index + 1 }
+						? { sort_order: sortOrder, list_id: targetListId }
+						: { sort_order: sortOrder }
 				)
 			)
 		]).catch((err) => console.error('Failed to move card:', err));

@@ -7,6 +7,8 @@ export interface LogEntry {
 	data?: any;
 	userAgent?: string;
 	url?: string;
+	/** Failed attempts to save this entry to the `logs` table. */
+	attempts?: number;
 }
 
 export interface EncryptedData {
