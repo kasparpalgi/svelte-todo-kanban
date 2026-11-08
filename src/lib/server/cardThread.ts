@@ -13,9 +13,13 @@ export interface CardComment {
 	user?: { name?: string | null; username?: string | null } | null;
 }
 
-/** The board's own notes about the file — bookkeeping, not something a person said. */
+/**
+ * The board's own notes about the file — bookkeeping, not something a person said. The
+ * runner's live status line (`▶ Running on dell since 14:02 · …`, svelte-hasura-boilerplate#68)
+ * is one too; its prefixes mirror `STATUS` in the runner's `status.js`.
+ */
 const NOTE =
-	/^(Task file (ready|back to draft):|Could not (write|unqueue) the task file|✅ \*\*Task complete\*\*)/;
+	/^(Task file (ready|back to draft):|Could not (write|unqueue) the task file|✅ \*\*Task complete\*\*|(▶ Running|⏳ Waiting|⏸ Needs you|✘ Failed|⚠ Did not finish|■ Finished) on )/;
 
 const HEADING = '## Card comments';
 

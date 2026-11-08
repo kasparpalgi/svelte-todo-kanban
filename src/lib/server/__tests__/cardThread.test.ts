@@ -27,13 +27,24 @@ describe('withComments', () => {
 			'Task file ready: doc/todo/059-x-TODO.md (#59)',
 			'Task file back to draft: doc/todo/059-x.md',
 			'Could not write the task file to a/b: 409',
-			'✅ **Task complete** — [`abc1234`](https://x)\n\n`059-x-DONE.md`'
+			'✅ **Task complete** — [`abc1234`](https://x)\n\n`059-x-DONE.md`',
+			'▶ Running on dell since 14:02 · Opus 5.5 / xhigh · attempt 1',
+			'⏸ Needs you on dell since 14:02 · Opus 5.5 / xhigh · attempt 2',
+			'⚠ Did not finish on dell 14:02–14:20 · Opus 5.5 / xhigh · attempt 1',
+			'■ Finished on dell 14:02–14:41 · Opus 5.5 / xhigh · attempt 1 · $2.33'
 		];
 		const out = withComments(
 			BODY,
 			notes.map((content) => ({ content, user: kaspar }))
 		);
 		expect(out).toBe(BODY);
+	});
+
+	it('keeps a person who happens to start with a status word', () => {
+		const out = withComments(BODY, [
+			{ content: '▶ Running late, will check tomorrow', user: kaspar }
+		]);
+		expect(out).toContain('Running late');
 	});
 
 	it('flattens editor HTML and falls back to the username, then Someone', () => {
