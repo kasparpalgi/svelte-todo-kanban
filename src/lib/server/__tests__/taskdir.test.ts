@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('$lib/server/github', () => ({ githubRequest: vi.fn() }));
 
-const { toArchive } = await import('../taskdir');
+const { toArchive, toDelete } = await import('../taskdir');
 
 describe('toArchive', () => {
 	const names = ['051-a-DONE.md', '052-seo-DONE.md', '053-b-DONE.md', '053-b.log', 'README.md'];
@@ -75,5 +75,28 @@ describe('commitTree', () => {
 
 		await expect(commitTree('o/r', 'tok', 'msg', [])).rejects.toThrow('403');
 		expect(gh.mock.calls.filter(([, , i]) => i?.method === 'PATCH')).toHaveLength(1);
+	});
+});
+
+describe('toDelete', () => {
+	it("deletes a draft card's draft and nothing else", () => {
+		const names = ['078-test.md', '079-x-TODO.md', '077-y.md'];
+		expect(toDelete(names, '078-test.md')).toEqual(['078-test.md']);
+	});
+
+	it('deletes a queued -TODO file with the log of an earlier attempt', () => {
+		expect(toDelete(['080-a-TODO.md', '080-a.log', '080-ab.md'], '080-a-TODO.md')).toEqual([
+			'080-a-TODO.md',
+			'080-a.log'
+		]);
+	});
+
+	it('keeps a finished run: -DONE or -BLOCKED, its log and any leftover', () => {
+		expect(toDelete(['081-a-DONE.md', '081-a.log'], '081-a-TODO.md')).toEqual([]);
+		expect(toDelete(['082-b-BLOCKED.md', '082-b-TODO.md'], '082-b-BLOCKED.md')).toEqual([]);
+	});
+
+	it('deletes nothing when the file is already gone', () => {
+		expect(toDelete(['083-c-DONE.md'], '084-d.md')).toEqual([]);
 	});
 });

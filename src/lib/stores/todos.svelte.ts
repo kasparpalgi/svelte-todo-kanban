@@ -1076,6 +1076,22 @@ function createTodosStore() {
 					}
 				}
 
+				// The card's draft or -TODO file goes too, or the runner still sees it (#79).
+				const taskFilePath = (todo as any)?.task_file_path;
+				if (taskFilePath && boardGithub) {
+					const gh = typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
+					fetch('/api/github/delete-task-file', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							path: taskFilePath,
+							owner: (gh as any).owner,
+							repo: (gh as any).repo,
+							issueNumber: githubIssueNumber
+						})
+					}).catch((err) => console.error('Failed to delete task file:', err));
+				}
+
 				// Optimistically remove from local state
 				state.todos = state.todos.filter((t) => t.id !== id);
 				return { success: true, message: 'Todo deleted successfully' };

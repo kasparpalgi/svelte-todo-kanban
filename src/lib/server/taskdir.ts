@@ -125,3 +125,34 @@ export async function makeRoom(
 	}
 	return { dir, names: entries.map((e) => e.name).filter((name) => !moving.includes(name)) };
 }
+
+/**
+ * The files to delete with a card whose task file is `name`: its draft, `-TODO.md` and
+ * `.log`. A `-DONE.md` or `-BLOCKED.md` is a finished run whose commits point at it, so
+ * once either exists the whole stem stays as history.
+ */
+export function toDelete(names: string[], name: string): string[] {
+	const stem = name.replace(/(-TODO|-DONE|-BLOCKED)?\.md$/i, '');
+	const mine = names.filter((x) => [`${stem}.md`, `${stem}-TODO.md`, `${stem}.log`].includes(x));
+	const finished = names.some((x) => x === `${stem}-DONE.md` || x === `${stem}-BLOCKED.md`);
+	return finished ? [] : mine;
+}
+
+/** Delete a deleted card's unfinished task files in one commit; returns what went. */
+export async function dropTaskFiles(repo: string, token: string, path: string, ref: string) {
+	const dir = path.slice(0, path.lastIndexOf('/'));
+	const entries = (await listDir(repo, dir, token)) ?? [];
+	const names = toDelete(
+		entries.map((e) => e.name),
+		path.slice(dir.length + 1)
+	);
+	if (names.length) {
+		await commitTree(
+			repo,
+			token,
+			`docs(todo): delete ${names.join(', ')} with its card${ref}`,
+			names.map((n) => ({ path: `${dir}/${n}`, mode: '100644', type: 'blob', sha: null }))
+		);
+	}
+	return names;
+}
