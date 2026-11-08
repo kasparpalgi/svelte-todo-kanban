@@ -14,12 +14,21 @@ export interface CardComment {
 }
 
 /**
- * The board's own notes about the file — bookkeeping, not something a person said. The
- * runner's live status line (`▶ Running on dell since 14:02 · …`, svelte-hasura-boilerplate#68)
- * is one too; its prefixes mirror `STATUS` in the runner's `status.js`.
+ * The runner's live status line (`▶ Running on dell since 14:02 · …`,
+ * svelte-hasura-boilerplate#68); its prefixes mirror `STATUS` in the runner's `status.js`.
+ * A card carrying one is the runner's to close (webhook, #80). Plain enough to run as a
+ * Postgres `_regex` as well.
  */
-const NOTE =
-	/^(Task file (ready|back to draft):|Could not (write|unqueue) the task file|✅ \*\*Task complete\*\*|(▶ Running|⏳ Waiting|⏸ Needs you|✘ Failed|⚠ Did not finish|■ Finished) on )/;
+export const RUNNER_STATUS =
+	/^(▶ Running|⏳ Waiting|⏸ Needs you|✘ Failed|⚠ Did not finish|■ Finished) on /;
+
+/**
+ * The board's own notes about the file — bookkeeping, not something a person said. The
+ * runner's status line is one too.
+ */
+const NOTE = new RegExp(
+	`^(Task file (ready|back to draft):|Could not (write|unqueue) the task file|✅ \\*\\*Task complete\\*\\*)|${RUNNER_STATUS.source}`
+);
 
 const HEADING = '## Card comments';
 

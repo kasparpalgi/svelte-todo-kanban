@@ -7,6 +7,7 @@ import { serverRequest } from '$lib/graphql/server-client';
 import {
 	UPDATE_TODOS,
 	CREATE_COMMENT,
+	GET_COMMENTS,
 	UPDATE_COMMENT,
 	DELETE_COMMENT,
 	GET_TODO_BY_GITHUB_ISSUE,
@@ -20,6 +21,7 @@ import {
 } from '$lib/graphql/documents';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import { findTaskFileRenames } from '$lib/server/taskfile';
+import { RUNNER_STATUS } from '$lib/server/cardThread';
 
 /**
  * GitHub Webhook Endpoint
@@ -421,6 +423,31 @@ async function notifyUser(
 }
 
 /**
+ * The runner and the board post on the card first and on the issue second, so a new issue
+ * comment whose text the card already holds, unlinked, is that same comment coming back.
+ * Copying it showed the runner's Results twice on nine cards (svelte-hasura-boilerplate#80).
+ * Link it instead, so a later edit or delete on GitHub still finds it.
+ */
+async function linkTwin(todoId: string, comment: { id: number; body: string }): Promise<boolean> {
+	const { comments } = await serverRequest(GET_COMMENTS, {
+		where: {
+			todo_id: { _eq: todoId },
+			github_comment_id: { _is_null: true },
+			content: { _eq: comment.body }
+		},
+		limit: 1
+	});
+	const twin = comments[0];
+	if (!twin) return false;
+	await serverRequest(UPDATE_COMMENT, {
+		where: { id: { _eq: twin.id } },
+		_set: { github_comment_id: comment.id, github_synced_at: new Date().toISOString() }
+	});
+	console.log(`Linked comment ${twin.id} to GitHub comment ${comment.id}, not copied`);
+	return true;
+}
+
+/**
  * Handle comment events from GitHub
  */
 async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
@@ -449,7 +476,7 @@ async function handleCommentEvent(event: GitHubCommentEvent): Promise<void> {
 				{ githubCommentId: number }
 			>(GET_COMMENT_BY_GITHUB_ID, { githubCommentId: comment.id });
 
-			if (existingData?.comments?.length === 0) {
+			if (existingData?.comments?.length === 0 && !(await linkTwin(todo.id, comment))) {
 				// Find or map the user
 				const userId = await findUserByGithubUsername(comment.user.login, todo);
 
@@ -700,6 +727,18 @@ async function handleTaskFileDone(
 	const todo = todoData?.todos_by_pk;
 	if (!todo) {
 		console.log(`[016] Todo ${cardId} not found`);
+		return;
+	}
+
+	// The runner closes a card it ran: Review, its Results, the issue. Doing it here too put
+	// "✅ Task complete" beside the Results, and closed the issue before the Results reached
+	// it, a -BLOCKED one too (svelte-hasura-boilerplate#80). Without a runner this stays the path.
+	const ran = await serverRequest(GET_COMMENTS, {
+		where: { todo_id: { _eq: cardId }, content: { _regex: RUNNER_STATUS.source } },
+		limit: 1
+	});
+	if (ran.comments.length) {
+		console.log(`[016] Card ${cardId} has a runner status line, the runner closes it`);
 		return;
 	}
 
