@@ -769,7 +769,8 @@
       "description": "Get an OS-level notification, with sound, even when the app isn't open",
       "enable": "Enable push notifications",
       "enable_description": "You'll be notified about news broadcasts on this device",
-      "blocked": "Notifications are blocked in your browser settings"
+      "blocked": "Notifications are blocked in your browser settings",
+      "error_no_service": "This browser has no push service. In Brave, turn on \"Use Google services for push messaging\" (Settings → Privacy and security) and reload. Chrome, Firefox and Safari work out of the box."
     },
     "news": {
       "title": "Broadcast News",

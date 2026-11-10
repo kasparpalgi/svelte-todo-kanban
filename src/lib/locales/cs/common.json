@@ -690,7 +690,8 @@
       "description": "Dostávejte upozornění na úrovni systému se zvukem, i když aplikace není otevřená",
       "enable": "Povolit push notifikace",
       "enable_description": "Na tomto zařízení budete upozorněni na novinky",
-      "blocked": "Notifikace jsou v nastavení prohlížeče zablokovány"
+      "blocked": "Notifikace jsou v nastavení prohlížeče zablokovány",
+      "error_no_service": "Tento prohlížeč nemá push službu. V Brave zapněte „Use Google services for push messaging“ (Nastavení → Soukromí a zabezpečení) a stránku znovu načtěte. Chrome, Firefox a Safari fungují bez nastavení."
     },
     "news": {
       "title": "Rozeslat novinku",

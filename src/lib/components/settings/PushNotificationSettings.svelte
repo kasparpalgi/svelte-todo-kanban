@@ -19,13 +19,21 @@
 		pushNotificationStore.refreshStatus();
 	});
 
+	// Brave, Opera and other Chromium forks ship without Google's push service, so
+	// subscribe() rejects with "Registration failed - push service error" (#214).
+	const NO_PUSH_SERVICE = /push service/i;
+
 	async function handleToggle(checked: boolean) {
 		const result = checked
 			? await pushNotificationStore.subscribe()
 			: await pushNotificationStore.unsubscribe();
 
 		if (!result.success) {
-			displayMessage(result.message);
+			displayMessage(
+				NO_PUSH_SERVICE.test(result.message)
+					? $t('settings.push.error_no_service')
+					: result.message
+			);
 		}
 	}
 </script>
@@ -50,8 +58,7 @@
 					</p>
 				</div>
 				<Switch
-					checked={pushNotificationStore.subscribed}
-					onCheckedChange={handleToggle}
+					bind:checked={() => pushNotificationStore.subscribed, handleToggle}
 					disabled={pushNotificationStore.loading || pushNotificationStore.permission === 'denied'}
 				/>
 			</div>

@@ -6,6 +6,7 @@ import { request } from '$lib/graphql/client';
 // `$env/static/public` does when the var isn't set in the deploy environment.
 import { env } from '$env/dynamic/public';
 import { CREATE_PUSH_SUBSCRIPTION, DELETE_PUSH_SUBSCRIPTION } from '$lib/graphql/documents';
+import { loggingStore } from '$lib/stores/logging.svelte';
 
 interface PushNotificationState {
 	supported: boolean;
@@ -46,6 +47,13 @@ function createPushNotificationStore() {
 		}
 	}
 
+	// Logged so /logs shows which browser failed and why (the user agent rides along).
+	function fail(action: string, e: unknown) {
+		state.error = e instanceof Error ? e.message : String(e);
+		loggingStore.warn('PushNotifications', `${action} failed`, { error: state.error });
+		return { success: false, message: state.error };
+	}
+
 	async function subscribe() {
 		if (!browser || !state.supported) return { success: false, message: 'Push not supported' };
 		state.loading = true;
@@ -83,8 +91,7 @@ function createPushNotificationStore() {
 			state.subscribed = true;
 			return { success: true, message: 'Subscribed to push notifications' };
 		} catch (e) {
-			state.error = e instanceof Error ? e.message : String(e);
-			return { success: false, message: state.error };
+			return fail('Subscribe', e);
 		} finally {
 			state.loading = false;
 		}
@@ -105,8 +112,7 @@ function createPushNotificationStore() {
 			state.subscribed = false;
 			return { success: true, message: 'Unsubscribed from push notifications' };
 		} catch (e) {
-			state.error = e instanceof Error ? e.message : String(e);
-			return { success: false, message: state.error };
+			return fail('Unsubscribe', e);
 		} finally {
 			state.loading = false;
 		}

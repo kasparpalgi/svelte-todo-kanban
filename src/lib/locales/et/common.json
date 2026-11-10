@@ -769,7 +769,8 @@
       "description": "Saad süsteemitasandi heliga teavituse ka siis, kui rakendus pole avatud",
       "enable": "Luba push-teavitused",
       "enable_description": "Sind teavitatakse uudistest selles seadmes",
-      "blocked": "Teavitused on brauseri seadetes blokeeritud"
+      "blocked": "Teavitused on brauseri seadetes blokeeritud",
+      "error_no_service": "Selles brauseris puudub push-teenus. Brave'is lülita sisse „Use Google services for push messaging” (Seaded → Privaatsus ja turvalisus) ja laadi leht uuesti. Chrome, Firefox ja Safari töötavad kohe."
     },
     "news": {
       "title": "Saada uudis",
