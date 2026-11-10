@@ -29,5 +29,9 @@
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "svelte"
+  ]
 }

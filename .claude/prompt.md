@@ -1,1 +1,0 @@
-Do the task from `.claude/todo` folder: 

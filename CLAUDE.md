@@ -1,6 +1,25 @@
 # CLAUDE.md
 
-> See `.claude/context.md` for workflow procedures, MCP usage, store patterns, and task templates.
+## How work happens here
+
+Every request becomes **one markdown file in `.claude/todo/`** holding the original prompt
+at the top and the outcome at the bottom. That folder is the prompt history — never rewrite
+the top of a file.
+
+| Step                                  | Command            |
+| ------------------------------------- | ------------------ |
+| Turn a request into a task file       | `/plan <request>`  |
+| Execute a task file                   | `/todo <number>`   |
+| Check a change                        | `/verify`          |
+| Audit auth / secrets / input handling | `/security-review` |
+
+These come from the **`dev-kit` plugin** (`kasparpalgi/klarity-claude-kit`), enabled in
+`.claude/settings.json` — the same workflow as every other Klarity repo. Improve it there,
+not with a project-level command here. `.claude/context.md` is older reference (GraphQL
+examples, MCP usage); where it disagrees with this file, this file wins.
+
+**Svelte MCP** (`.mcp.json`) is mandatory for Svelte work: `list-sections` →
+`get-documentation` → write code → `svelte-autofixer` until clean.
 
 ## Project
 
