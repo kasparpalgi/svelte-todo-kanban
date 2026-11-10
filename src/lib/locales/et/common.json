@@ -611,6 +611,7 @@
     "agent_machine_karel": "Karel Ubuntu",
     "agent_machine_dell": "Dell Ubuntu",
     "agent_machine_windows": "Karel Windows",
+    "agent_machine_cloud": "Pilv (Claude Code)",
     "agent_plan_first_label": "Plaan enne — kinnita enne koodi",
     "attachments": "Manused",
     "new_images_upload": "Uued pildid üleslaadimiseks",

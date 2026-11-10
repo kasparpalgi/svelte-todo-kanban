@@ -2,9 +2,11 @@
 
 /**
  * The machines a runner answers to, in dropdown order; see `> Machine:` in the task file.
- * `windows` is the WSL runner on the Windows PC (karel2).
+ * `windows` is the WSL runner on the Windows PC (karel2). `cloud` is no computer: the
+ * runner with `cloud` on sends the task to a Claude Code cloud session, and it comes back
+ * as a pull request (svelte-hasura-boilerplate#86).
  */
-export const AGENT_MACHINES = ['mac', 'karel', 'dell', 'windows'] as const;
+export const AGENT_MACHINES = ['mac', 'karel', 'dell', 'windows', 'cloud'] as const;
 
 export type AgentMachine = (typeof AGENT_MACHINES)[number];
 

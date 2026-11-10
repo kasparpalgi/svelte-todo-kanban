@@ -7,8 +7,16 @@ import { buildTaskFile } from '$lib/server/taskfile';
 const KAREL = 'karelsaega1992@gmail.com';
 
 describe('agent machines', () => {
-	it('offers the Windows runner alongside the others', () => {
-		expect(AGENT_MACHINES).toEqual(['mac', 'karel', 'dell', 'windows']);
+	it('offers the Windows runner and the cloud alongside the others', () => {
+		expect(AGENT_MACHINES).toEqual(['mac', 'karel', 'dell', 'windows', 'cloud']);
+	});
+
+	it('writes a Cloud card as the line the cloud runner takes', () => {
+		const parsed = todoEditSchema.safeParse({ title: 'x', priority: null, agent_machine: 'cloud' });
+		expect(parsed.success).toBe(true);
+		expect(
+			buildTaskFile({ id: 'abc', title: 'x', content: 'y', agent_machine: 'cloud' })
+		).toContain('> Machine: cloud');
 	});
 
 	it('lets a card be saved with the Windows machine', () => {

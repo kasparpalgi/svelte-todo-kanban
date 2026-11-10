@@ -532,6 +532,7 @@
     "agent_machine_karel": "Karel Ubuntu",
     "agent_machine_dell": "Dell Ubuntu",
     "agent_machine_windows": "Karel Windows",
+    "agent_machine_cloud": "Cloud (Claude Code)",
     "agent_plan_first_label": "Nejdřív plán — schválit před kódem",
     "attachments": "Přílohy",
     "new_images_upload": "Nové obrázky k nahrání",
