@@ -1,6 +1,6 @@
 /** @file src/lib/server/push.ts */
 import webpush from 'web-push';
-import { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { serverRequest } from '$lib/graphql/server-client';
 import { serverLog } from '$lib/server/log';
 
@@ -15,7 +15,7 @@ let vapidConfigured: boolean | null = null;
 function ensureVapid(): boolean {
 	if (vapidConfigured !== null) return vapidConfigured;
 	try {
-		webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+		webpush.setVapidDetails(env.VAPID_SUBJECT, env.VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY);
 		vapidConfigured = true;
 	} catch (error: any) {
 		serverLog.error('push', 'Invalid VAPID configuration; push disabled', {

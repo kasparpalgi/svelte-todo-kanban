@@ -1,17 +1,5 @@
 /** @file src/hooks.server.ts */
-import {
-	AUTH_SECRET,
-	AUTH_GOOGLE_ID,
-	AUTH_GOOGLE_SECRET,
-	EMAIL_SERVER_HOST,
-	EMAIL_SERVER_PORT,
-	EMAIL_SERVER_USER,
-	EMAIL_SERVER_PASSWORD,
-	EMAIL_FROM,
-	API_ENDPOINT,
-	API_ENDPOINT_DEV,
-	HASURA_ADMIN_SECRET
-} from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { PUBLIC_APP_ENV, PUBLIC_API_ENV } from '$env/static/public';
 import { SvelteKitAuth } from '@auth/sveltekit';
 import { sequence } from '@sveltejs/kit/hooks';
@@ -42,12 +30,11 @@ declare module '@auth/core/types' {
 }
 
 const maxAge = PUBLIC_APP_ENV ? 90 * 24 * 60 * 60 : 3 * 24 * 60 * 60; // 90 days vs 3 days
-const apiEndpoint = PUBLIC_API_ENV === 'production' ? API_ENDPOINT : API_ENDPOINT_DEV;
 
 const providers: Provider[] = [
 	Google({
-		clientId: AUTH_GOOGLE_ID,
-		clientSecret: AUTH_GOOGLE_SECRET,
+		clientId: env.AUTH_GOOGLE_ID,
+		clientSecret: env.AUTH_GOOGLE_SECRET,
 		// Google verifies email ownership, so linking by email is safe here: a Google
 		// sign-in whose email already belongs to a user links to that user instead of
 		// creating a second account or crashing on the `users_email_key` unique
@@ -64,14 +51,14 @@ const providers: Provider[] = [
 	}),
 	Nodemailer({
 		server: {
-			host: EMAIL_SERVER_HOST,
-			port: Number(EMAIL_SERVER_PORT),
+			host: env.EMAIL_SERVER_HOST,
+			port: Number(env.EMAIL_SERVER_PORT),
 			auth: {
-				user: EMAIL_SERVER_USER,
-				pass: EMAIL_SERVER_PASSWORD
+				user: env.EMAIL_SERVER_USER,
+				pass: env.EMAIL_SERVER_PASSWORD
 			}
 		},
-		from: EMAIL_FROM
+		from: env.EMAIL_FROM
 	})
 ];
 
@@ -139,13 +126,15 @@ if (PUBLIC_APP_ENV !== 'production') {
 	);
 }
 
-const { handle: authHandle, signOut } = SvelteKitAuth({
+// A function config is read per request, not at import: SvelteKit's build-time
+// analyse step imports this file, and HasuraAdapter throws without an admin secret.
+const { handle: authHandle, signOut } = SvelteKitAuth(async () => ({
 	adapter: HasuraAdapter({
-		endpoint: apiEndpoint,
-		adminSecret: HASURA_ADMIN_SECRET
+		endpoint: PUBLIC_API_ENV === 'production' ? env.API_ENDPOINT : env.API_ENDPOINT_DEV,
+		adminSecret: env.HASURA_ADMIN_SECRET
 	}),
 	providers,
-	secret: AUTH_SECRET,
+	secret: env.AUTH_SECRET,
 	trustHost: true,
 	session: {
 		strategy: 'jwt',
@@ -170,6 +159,10 @@ const { handle: authHandle, signOut } = SvelteKitAuth({
 				return token;
 			}
 
+			// Password and magic-link sessions have no Google token to refresh; without
+			// this they called Google (and failed) on every request.
+			if (!token.refreshToken) return token;
+
 			// Token is still valid
 			if (Date.now() < (token.expires_at as number) * 1000) {
 				return token;
@@ -181,8 +174,8 @@ const { handle: authHandle, signOut } = SvelteKitAuth({
 				const response = await fetch('https://oauth2.googleapis.com/token', {
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 					body: new URLSearchParams({
-						client_id: AUTH_GOOGLE_ID,
-						client_secret: AUTH_GOOGLE_SECRET,
+						client_id: env.AUTH_GOOGLE_ID,
+						client_secret: env.AUTH_GOOGLE_SECRET,
 						grant_type: 'refresh_token',
 						refresh_token: token.refreshToken as string
 					}),
@@ -220,7 +213,7 @@ const { handle: authHandle, signOut } = SvelteKitAuth({
 			return session;
 		}
 	}
-});
+}));
 
 const securityHandle: Handle = async ({ event, resolve }) => {
 	const url = event.url;

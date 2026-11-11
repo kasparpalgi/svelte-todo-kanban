@@ -1,5 +1,5 @@
 /** @file src/routes/api/auth/github/callback/+server.ts  */
-import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { UPDATE_USER } from '$lib/graphql/documents';
 import { redirect } from '@sveltejs/kit';
 import { encryptToken } from '$lib/utils/crypto';
@@ -31,8 +31,8 @@ export async function GET({ url }: RequestEvent) {
 				Accept: 'application/json'
 			},
 			body: JSON.stringify({
-				client_id: GITHUB_CLIENT_ID,
-				client_secret: GITHUB_CLIENT_SECRET,
+				client_id: env.GITHUB_CLIENT_ID,
+				client_secret: env.GITHUB_CLIENT_SECRET,
 				code,
 				redirect_uri: redirectUri
 			})

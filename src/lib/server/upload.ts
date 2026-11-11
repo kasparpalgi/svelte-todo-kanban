@@ -1,11 +1,11 @@
 // src/lib/server/upload.ts
-import { B2_KEY_ID, B2_APPLICATION_KEY, B2_BUCKET_NAME } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 const authorizeUrl = 'https://api.backblazeb2.com/b2api/v1/b2_authorize_account';
 
 async function getBackblazeDetails() {
 	try {
-		const encodedCredentials = Buffer.from(B2_KEY_ID + ':' + B2_APPLICATION_KEY).toString('base64');
+		const encodedCredentials = Buffer.from(env.B2_KEY_ID + ':' + env.B2_APPLICATION_KEY).toString('base64');
 
 		const response = await fetch(authorizeUrl, {
 			method: 'GET',
@@ -126,11 +126,11 @@ async function uploadFile(uploadUrl: string, uploadAuthToken: string, file: File
 // Main function
 export async function uploadStreamToBackblaze(file: File) {
 	const { apiUrl, authorizationToken, accountId, downloadUrl } = await getBackblazeDetails();
-	const bucketId = await getBucketId(apiUrl, authorizationToken, accountId, B2_BUCKET_NAME);
+	const bucketId = await getBucketId(apiUrl, authorizationToken, accountId, env.B2_BUCKET_NAME);
 	const { uploadUrl, uploadAuthToken } = await getUploadUrl(apiUrl, authorizationToken, bucketId);
 	const uploadedFile = await uploadFile(uploadUrl, uploadAuthToken, file);
 
-	const finalUrl = `${downloadUrl}/file/${B2_BUCKET_NAME}/${uploadedFile.fileName}`;
+	const finalUrl = `${downloadUrl}/file/${env.B2_BUCKET_NAME}/${uploadedFile.fileName}`;
 
 	return { success: true, url: finalUrl };
 }

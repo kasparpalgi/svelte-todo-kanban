@@ -1,0 +1,39 @@
+# Build and deploy the app to Cloudflare Workers on every push to main (#218).
+# Belongs in .github/workflows/ (needs a token with the `workflow` scope to push there).
+# Needs repo secrets CLOUDFLARE_API_TOKEN (Workers Scripts: Edit) and CLOUDFLARE_ACCOUNT_ID.
+# Runtime secrets live on the Worker (scripts/cf-secrets.sh), so the build needs none.
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-cloudflare
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Public values, inlined into the bundle by $env/static/public.
+      PUBLIC_APP_ENV: production
+      PUBLIC_API_ENV: production
+      PUBLIC_APP_URL: https://www.todzz.eu
+      PUBLIC_API_ENDPOINT: https://todzz.admin.servicehost.io/v1/graphql
+      PUBLIC_API_ENDPOINT_DEV: http://localhost:3001/v1/graphql
+      PUBLIC_VAPID_PUBLIC_KEY: BOrSV4xMQFX0LS_G5MWXGzX_3qmVcigMKk6TRgvOA5Th1nvlKLtr4Fn3uQc00Mz6nlINmMcYZZajp58Wax-SpUI
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

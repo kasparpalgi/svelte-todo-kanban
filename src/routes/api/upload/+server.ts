@@ -1,13 +1,13 @@
 // src/routes/api/upload/+server.ts
-import { MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { getPlanContext } from '$lib/server/plan';
 import { getR2Credentials, storeFile } from '$lib/server/storeFile';
 import { serverRequest } from '$lib/graphql/server-client';
 import { FREE_LIMITS } from '$lib/config/plan';
 import { json, type RequestEvent } from '@sveltejs/kit';
 
-const maxFileSize = parseInt(MAX_FILE_SIZE);
-const allowedFileTypes = ALLOWED_FILE_TYPES?.split(',');
+const maxFileSize = parseInt(env.MAX_FILE_SIZE);
+const allowedFileTypes = env.ALLOWED_FILE_TYPES?.split(',');
 
 /** Total uploads owned by a user (across all their todos). */
 async function countUserUploads(userId: string): Promise<number> {

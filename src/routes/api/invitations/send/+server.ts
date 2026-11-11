@@ -1,13 +1,7 @@
 /** @file src/routes/api/invitations/send/+server.ts */
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import {
-	EMAIL_SERVER_HOST,
-	EMAIL_SERVER_PORT,
-	EMAIL_SERVER_USER,
-	EMAIL_SERVER_PASSWORD,
-	EMAIL_FROM
-} from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import nodemailer from 'nodemailer';
 import type { EmailTemplate, InvitationEmailData } from '$lib/types/email';
 
@@ -270,11 +264,11 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 		}
 
 		const transporter = nodemailer.createTransport({
-			host: EMAIL_SERVER_HOST,
-			port: Number(EMAIL_SERVER_PORT),
+			host: env.EMAIL_SERVER_HOST,
+			port: Number(env.EMAIL_SERVER_PORT),
 			auth: {
-				user: EMAIL_SERVER_USER,
-				pass: EMAIL_SERVER_PASSWORD
+				user: env.EMAIL_SERVER_USER,
+				pass: env.EMAIL_SERVER_PASSWORD
 			}
 		});
 
@@ -286,10 +280,10 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
 			locale
 		);
 
-		console.log('EMAIL_FROM: ', EMAIL_FROM);
+		console.log('EMAIL_FROM: ', env.EMAIL_FROM);
 
 		const mailResponse = await transporter.sendMail({
-			from: EMAIL_FROM,
+			from: env.EMAIL_FROM,
 			to: inviteeEmail,
 			subject,
 			text,

@@ -1,4 +1,4 @@
-import { AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { PUBLIC_APP_ENV, PUBLIC_APP_URL } from '$env/static/public';
 import { UPDATE_USER } from '$lib/graphql/documents';
 import { redirect } from '@sveltejs/kit';
@@ -57,8 +57,8 @@ export async function GET({ url }: RequestEvent) {
 			},
 			body: new URLSearchParams({
 				code,
-				client_id: AUTH_GOOGLE_ID,
-				client_secret: AUTH_GOOGLE_SECRET,
+				client_id: env.AUTH_GOOGLE_ID,
+				client_secret: env.AUTH_GOOGLE_SECRET,
 				redirect_uri: redirectUri,
 				grant_type: 'authorization_code'
 			})

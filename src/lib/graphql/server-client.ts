@@ -1,5 +1,5 @@
 /** @file src/lib/graphql/server-client.ts  */
-import { API_ENDPOINT, HASURA_ADMIN_SECRET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import type { TypedDocumentString } from '$lib/graphql/generated/graphql';
 
 export async function serverRequest<TResult, TVariables>(
@@ -8,11 +8,11 @@ export async function serverRequest<TResult, TVariables>(
 ) {
 	const queryString = typeof query === 'string' ? query : query.toString();
 
-	const response = await fetch(API_ENDPOINT, {
+	const response = await fetch(env.API_ENDPOINT, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			'x-hasura-admin-secret': HASURA_ADMIN_SECRET
+			'x-hasura-admin-secret': env.HASURA_ADMIN_SECRET
 		},
 		body: JSON.stringify({
 			query: queryString,

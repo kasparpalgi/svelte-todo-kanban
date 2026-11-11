@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const serverRequest = vi.fn();
 const storeFile = vi.fn();
 
-vi.mock('$env/static/private', () => ({ HASURA_ADMIN_SECRET: 'admin' }));
+vi.mock('$env/dynamic/private', () => ({ env: { HASURA_ADMIN_SECRET: 'admin' } }));
 vi.mock('$lib/graphql/server-client', () => ({
 	serverRequest: (...a: unknown[]) => serverRequest(...a)
 }));

@@ -1,5 +1,5 @@
 /** @file src/routes/api/github/+server.ts  */
-import { GITHUB_CLIENT_ID } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { redirect } from '@sveltejs/kit';
 import type { RequestEvent } from './$types';
 
@@ -17,7 +17,7 @@ export async function GET({ url }: RequestEvent) {
 	const redirectUri = `${url.origin}/api/github/callback`;
 
 	const params = new URLSearchParams({
-		client_id: GITHUB_CLIENT_ID,
+		client_id: env.GITHUB_CLIENT_ID,
 		scope: 'repo user read:org',
 		redirect_uri: redirectUri,
 		state: userId

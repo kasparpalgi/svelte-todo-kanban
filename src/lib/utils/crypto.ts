@@ -1,5 +1,5 @@
 /** @file src/lib/utils/crypto.ts  */
-import { SECRET_ENCRYPTION_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import crypto from 'crypto';
 import type { EncryptedData } from '$lib/types/common';
 
@@ -7,10 +7,10 @@ const ALGORITHM = 'aes-256-gcm';
 const SALT = 'github-token-salt';
 
 function getKey(): Buffer {
-	if (!SECRET_ENCRYPTION_KEY) {
+	if (!env.SECRET_ENCRYPTION_KEY) {
 		throw new Error('SECRET_ENCRYPTION_KEY is not defined');
 	}
-	return crypto.scryptSync(SECRET_ENCRYPTION_KEY, SALT, 32);
+	return crypto.scryptSync(env.SECRET_ENCRYPTION_KEY, SALT, 32);
 }
 
 export function encryptToken(text: string): string {

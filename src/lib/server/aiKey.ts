@@ -4,7 +4,7 @@
  *  - free plan  -> the user's own key, stored encrypted in settings.tokens.openai
  * Free users without a key get a 402 telling them to add one or upgrade.
  */
-import { OPENAI_API_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import { decryptToken } from '$lib/utils/crypto';
 import { getPlanContext } from '$lib/server/plan';
@@ -34,10 +34,10 @@ export async function resolveOpenAiKey(locals: Locals): Promise<AiKeyResult> {
 	}
 
 	if (ctx.isPaid) {
-		if (!OPENAI_API_KEY) {
+		if (!env.OPENAI_API_KEY) {
 			return { errorResponse: json({ error: 'AI service not configured' }, { status: 500 }) };
 		}
-		return { apiKey: OPENAI_API_KEY };
+		return { apiKey: env.OPENAI_API_KEY };
 	}
 
 	// Free plan: use the user's own encrypted key.

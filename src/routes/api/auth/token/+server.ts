@@ -1,5 +1,5 @@
 /** @file src/routes/api/auth/token/+server.ts */
-import { AUTH_SECRET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import { serverRequest } from '$lib/graphql/server-client';
@@ -51,7 +51,7 @@ export const GET: RequestHandler = async (event) => {
 			iat: Math.floor(Date.now() / 1000),
 			exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 24 hours
 		},
-		AUTH_SECRET,
+		env.AUTH_SECRET,
 		{ algorithm: 'HS256' }
 	);
 

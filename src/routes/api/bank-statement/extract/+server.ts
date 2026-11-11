@@ -1,6 +1,6 @@
 /** @file src/routes/api/bank-statement/extract/+server.ts */
 import { json } from '@sveltejs/kit';
-import { PDFParse } from 'pdf-parse';
+import { pdfMessage } from '$lib/server/pdfMessage';
 import { resolveOpenAiKey } from '$lib/server/aiKey';
 import type { RequestHandler } from './$types';
 
@@ -23,31 +23,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		if (!pdfBase64) {
 			return json({ error: 'PDF content is required' }, { status: 400 });
 		}
-
-		// Convert base64 to buffer
-		const pdfBuffer = Buffer.from(pdfBase64, 'base64');
-
-		// Extract text from PDF
-		console.log(`[BankStatementExtract] Extracting text from PDF: ${fileName}`);
-		const parser = new PDFParse({ data: pdfBuffer });
-		const pdfData = await parser.getText();
-		const extractedText = pdfData.text;
-
-		if (!extractedText || extractedText.trim().length < 10) {
-			return json(
-				{
-					error: 'Could not extract text from bank statement PDF.'
-				},
-				{ status: 400 }
-			);
-		}
-
-		console.log(`[BankStatementExtract] Extracted ${extractedText.length} characters from PDF`);
-
-		// Log extracted text for debugging
-		console.log(
-			`[BankStatementExtract] BANK STATEMENT TEXT (first 1000 chars):\n---\n${extractedText.substring(0, 1000)}\n---`
-		);
 
 		// Use OpenAI to extract structured data
 		const prompt = `You are an expert at extracting payment data from Estonian bank statements (KONTO VÄLJAVÕTE).
@@ -92,8 +67,7 @@ Should extract:
   "reference": "765307025501"
 }
 
-Bank statement text:
-${extractedText.substring(0, 8000)}`;
+The bank statement is the attached PDF.`;
 
 		console.log(`[BankStatementExtract] Sending to OpenAI for extraction`);
 
@@ -105,12 +79,7 @@ ${extractedText.substring(0, 8000)}`;
 			},
 			body: JSON.stringify({
 				model: 'gpt-4o',
-				messages: [
-					{
-						role: 'user',
-						content: prompt
-					}
-				],
+				messages: [pdfMessage(prompt, pdfBase64, fileName)],
 				response_format: { type: 'json_object' },
 				max_completion_tokens: 2000
 			})
@@ -155,8 +124,7 @@ ${extractedText.substring(0, 8000)}`;
 			success: true,
 			payments: paymentsData.payments || [],
 			fileName,
-			processingTime,
-			textLength: extractedText.length
+			processingTime
 		});
 	} catch (error: any) {
 		console.error('Bank statement extraction error:', error);

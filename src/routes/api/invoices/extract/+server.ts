@@ -1,6 +1,6 @@
 /** @file src/routes/api/invoices/extract/+server.ts */
 import { json } from '@sveltejs/kit';
-import { PDFParse } from 'pdf-parse';
+import { pdfMessage } from '$lib/server/pdfMessage';
 import { resolveOpenAiKey } from '$lib/server/aiKey';
 import type { RequestHandler } from './$types';
 
@@ -12,7 +12,6 @@ interface InvoiceData {
 	amount_without_vat: number | null; // Summa ilma km-ta
 	payment_date: string | null; // Tasumise kuupäev (YYYY-MM-DD) - from payment slip
 	confidence: 'high' | 'medium' | 'low';
-	raw_text_preview: string; // First 500 chars of extracted text
 }
 
 export const POST: RequestHandler = async ({ request, locals }) => {
@@ -28,32 +27,6 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			return json({ error: 'PDF content is required' }, { status: 400 });
 		}
 
-		// Convert base64 to buffer
-		const pdfBuffer = Buffer.from(pdfBase64, 'base64');
-
-		// Extract text from PDF
-		console.log(`[InvoiceExtract] Extracting text from PDF: ${fileName}`);
-		const parser = new PDFParse({ data: pdfBuffer });
-		const pdfData = await parser.getText();
-		const extractedText = pdfData.text;
-
-		if (!extractedText || extractedText.trim().length < 10) {
-			return json(
-				{
-					error: 'Could not extract text from PDF. The file might be a scanned image or encrypted.',
-					suggestion: 'Try using a text-based PDF or ensure the PDF is not password protected.'
-				},
-				{ status: 400 }
-			);
-		}
-
-		console.log(`[InvoiceExtract] Extracted ${extractedText.length} characters from PDF`);
-
-		// Log extracted text for debugging
-		console.log(
-			`[InvoiceExtract] PDF TEXT (first 500 chars):\n---\n${extractedText.substring(0, 500)}\n---`
-		);
-
 		// Use OpenAI to extract structured data
 		const prompt = `You are an expert at extracting structured data from invoices and payment slips, especially Estonian invoices.
 
@@ -67,7 +40,7 @@ CRITICAL RULES:
 
 3. DO NOT extract payment date from invoices - leave it as null. Payment dates come from bank statements.
 
-Extract the following information from the invoice text below. Return ONLY a valid JSON object:
+Extract the following information from the attached invoice PDF. Return ONLY a valid JSON object:
 
 {
   "vendor_name": "string | null",  // Makse saaja - The SELLER/VENDOR who issued the invoice
@@ -127,8 +100,7 @@ invoice_date: "2025-01-15"
 total_amount: 500.00
 payment_date: null
 
-Invoice text:
-${extractedText.substring(0, 4000)}`;
+The invoice is the attached PDF.`;
 
 		console.log(`[InvoiceExtract] Sending to OpenAI for extraction`);
 
@@ -140,12 +112,7 @@ ${extractedText.substring(0, 4000)}`;
 			},
 			body: JSON.stringify({
 				model: 'gpt-4o',
-				messages: [
-					{
-						role: 'user',
-						content: prompt
-					}
-				],
+				messages: [pdfMessage(prompt, pdfBase64, fileName)],
 				response_format: { type: 'json_object' },
 				max_completion_tokens: 500
 			})
@@ -177,9 +144,6 @@ ${extractedText.substring(0, 4000)}`;
 			return json({ error: 'Invalid response from AI service' }, { status: 500 });
 		}
 
-		// Add raw text preview
-		invoiceData.raw_text_preview = extractedText.substring(0, 500);
-
 		const processingTime = Date.now() - startTime;
 
 		console.log(
@@ -190,8 +154,7 @@ ${extractedText.substring(0, 4000)}`;
 			success: true,
 			data: invoiceData,
 			fileName,
-			processingTime,
-			textLength: extractedText.length
+			processingTime
 		});
 	} catch (error: any) {
 		console.error('Invoice extraction error:', error);

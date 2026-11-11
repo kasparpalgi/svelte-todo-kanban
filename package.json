@@ -1,7 +1,7 @@
 {
 	"name": "svelte-todo-kanban",
 	"private": true,
-	"version": "0.26.3",
+	"version": "0.27.0",
 	"type": "module",
 	"scripts": {
 		"generate": "graphql-codegen --require dotenv/config && node fix-imports.cjs",
@@ -40,6 +40,7 @@
 		"@lucide/svelte": "^0.544.0",
 		"@playwright/test": "^1.63.0",
 		"@sveltejs/adapter-auto": "^7.0.1",
+		"@sveltejs/adapter-cloudflare": "^7.2.10",
 		"@sveltejs/kit": "^2.22.0",
 		"@sveltejs/vite-plugin-svelte": "^6.0.0",
 		"@tailwindcss/typography": "^0.5.15",
@@ -82,7 +83,8 @@
 		"vite-plugin-devtools-json": "^1.0.0",
 		"vitest": "^3.2.4",
 		"vitest-browser-svelte": "^0.1.0",
-		"workbox-precaching": "^7.4.1"
+		"workbox-precaching": "^7.4.1",
+		"wrangler": "^4.160.1"
 	},
 	"dependencies": {
 		"@auth/hasura-adapter": "^1.10.0",
@@ -95,8 +97,6 @@
 		"@tiptap/extension-task-item": "^3.6.3",
 		"@tiptap/extension-task-list": "^3.6.3",
 		"@tiptap/starter-kit": "^3.6.3",
-		"@vercel/analytics": "^1.5.0",
-		"@vercel/speed-insights": "^1.2.0",
 		"d3-scale": "^4.0.2",
 		"d3-shape": "^3.2.0",
 		"date-fns": "^4.1.0",
@@ -110,7 +110,6 @@
 		"marked": "^18.0.0",
 		"mode-watcher": "^1.1.0",
 		"nodemailer": "^6.10.1",
-		"pdf-parse": "^2.4.5",
 		"puppeteer-extra": "^3.3.6",
 		"puppeteer-extra-plugin-stealth": "^2.11.2",
 		"svelte-tiptap": "^3.0.0",
@@ -118,5 +117,8 @@
 		"tiptap-markdown": "^0.9.0",
 		"web-push": "^3.6.7",
 		"zod": "^4.1.11"
+	},
+	"allowScripts": {
+		"workerd@1.20261110.1": true
 	}
 }

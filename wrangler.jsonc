@@ -1,0 +1,14 @@
+// Cloudflare Workers config for the SvelteKit app (#218).
+// Secrets are set with `wrangler secret bulk` (see scripts/cf-secrets.sh), not here.
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "todzz",
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"compatibility_date": "2026-11-01",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	"observability": { "enabled": true }
+}

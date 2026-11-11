@@ -1,5 +1,5 @@
 // @file src/routes/api/calendar-event/+server.ts
-import { AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { UPDATE_USER } from '$lib/graphql/documents';
 import { json } from '@sveltejs/kit';
 import { googleFetch } from '$lib/server/google';
@@ -15,8 +15,8 @@ async function refreshGoogleToken(refreshToken: string) {
 			'Content-Type': 'application/x-www-form-urlencoded'
 		},
 		body: new URLSearchParams({
-			client_id: AUTH_GOOGLE_ID,
-			client_secret: AUTH_GOOGLE_SECRET,
+			client_id: env.AUTH_GOOGLE_ID,
+			client_secret: env.AUTH_GOOGLE_SECRET,
 			grant_type: 'refresh_token',
 			refresh_token: refreshToken
 		})

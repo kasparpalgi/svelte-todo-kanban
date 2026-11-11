@@ -7,7 +7,7 @@
  */
 import crypto from 'crypto';
 import { json } from '@sveltejs/kit';
-import { HASURA_ADMIN_SECRET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { serverRequest } from '$lib/graphql/server-client';
 import { getPlanContext } from '$lib/server/plan';
 import { getR2Credentials, storeFile } from '$lib/server/storeFile';
@@ -17,7 +17,7 @@ const MAX_BYTES = 5 * 1024 * 1024;
 
 function isRunner(secret: string | null): boolean {
 	const a = Buffer.from(secret ?? '');
-	const b = Buffer.from(HASURA_ADMIN_SECRET ?? '');
+	const b = Buffer.from(env.HASURA_ADMIN_SECRET ?? '');
 	return b.length > 0 && a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
