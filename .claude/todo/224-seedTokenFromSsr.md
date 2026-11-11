@@ -21,3 +21,5 @@ Watch out for:
 
 First measure prod after #213 deploys (the `Slow token fetch` warnings in `logs`). If
 they're gone, close this as not needed.
+
+_GitHub issue #224 — end the commit subject with `(#224)`._
