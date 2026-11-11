@@ -7,11 +7,11 @@
 //
 // It works on the test user's own board and creates a uniquely-named list which it deletes on the
 // way out, so runs stay isolated and don't accumulate fixtures. The board path is configurable for
-// other environments via TEST_BOARD_PATH (default: the seeded test account's board).
-import { test, expect, type Page } from '@playwright/test';
+// other environments via TEST_BOARD_PATH (see ./board.ts).
+import { test, expect, type Locator, type Page } from '@playwright/test';
+import { addCards, createList, deleteList, gotoBoard } from './board';
 
 const stamp = Date.now();
-const BOARD_PATH = process.env.TEST_BOARD_PATH || '/en/test/tests-board';
 const LIST = `Reorder ${stamp}`;
 const CARDS = [`Alpha ${stamp}`, `Bravo ${stamp}`, `Charlie ${stamp}`];
 
@@ -28,70 +28,22 @@ async function listOrder(page: Page): Promise<string[]> {
 	}, LIST);
 }
 
-/** Dismiss any open overlay/modal so the next interaction is not intercepted. */
-async function closeModals(page: Page) {
-	for (let i = 0; i < 4; i++) {
-		if ((await page.locator('.fixed.inset-0.z-50').count()) === 0) return;
-		const close = page.getByRole('button', { name: '✕' });
-		if (await close.count()) {
-			await close
-				.first()
-				.click({ timeout: 1000 })
-				.catch(() => {});
-		} else {
-			await page.keyboard.press('Escape');
-		}
-		await page.waitForTimeout(150);
-	}
-}
-
 test.describe.serial('Board card reordering', () => {
 	let page: Page;
+	let list: Locator;
 
 	test.beforeAll(async ({ browser }) => {
 		test.setTimeout(90_000);
 		page = await browser.newPage();
-		// The list delete in afterAll goes through the app's native confirm() dialog.
-		page.on('dialog', (dialog) => dialog.accept().catch(() => {}));
-
-		await page.goto(BOARD_PATH);
-		// Board is hydrated once its "Create list" affordance is interactive.
-		await expect(page.getByRole('button', { name: 'Create list' }).first()).toBeVisible({
-			timeout: 20_000
-		});
-
-		// Add a uniquely-named list via the Manage Lists → New List flow.
-		await page.getByRole('button', { name: 'Create list' }).first().click();
-		await page.getByRole('button', { name: 'New List' }).first().click();
-		await page.getByRole('textbox', { name: 'List Name' }).fill(LIST);
-		await page.getByRole('dialog').getByRole('button', { name: 'Create list' }).first().click();
-		await closeModals(page);
-
-		const list = page.locator('[data-list-id]', { hasText: LIST });
-		await expect(list).toBeVisible();
-
-		// Add three cards.
-		await list.getByRole('button', { name: 'Add task' }).click();
-		const input = page.locator('input[placeholder="Enter task title..."]');
-		for (const title of CARDS) {
-			await input.fill(title);
-			await input.press('Enter');
-			await expect(list.locator('[data-todo-id]', { hasText: title })).toBeVisible();
-		}
+		await gotoBoard(page);
+		list = await createList(page, LIST);
+		await addCards(list, CARDS);
 
 		expect(await listOrder(page)).toEqual(CARDS);
 	});
 
 	test.afterAll(async () => {
-		// Best-effort cleanup: delete the temp list (removes its cards).
-		try {
-			const list = page.locator('[data-list-id]', { hasText: LIST });
-			await list.getByRole('button').nth(1).click(); // list menu (ellipsis)
-			await page.getByRole('menuitem', { name: /delete list/i }).click(); // confirm auto-accepted
-			await expect(list).toBeHidden({ timeout: 5000 });
-		} catch {
-			// leave the list if the menu shifted — the assertions already ran
-		}
+		await deleteList(page, list);
 		await page.close();
 	});
 
@@ -110,16 +62,22 @@ test.describe.serial('Board card reordering', () => {
 		const last = before[before.length - 1];
 		const first = before[0];
 
+		const target = page.locator('[data-todo-id]', { hasText: first });
 		const src = await page.locator('[data-todo-id]', { hasText: last }).boundingBox();
-		const dst = await page.locator('[data-todo-id]', { hasText: first }).boundingBox();
+		const dst = await target.boundingBox();
 		if (!src || !dst) throw new Error('card bounding boxes unavailable');
 
 		await page.mouse.move(src.x + src.width / 2, src.y + src.height / 2);
 		await page.mouse.down();
-		// Cross the 6px activation threshold, then hover the target card's upper half → drop above.
+		// Cross the 6px activation threshold, then hover the target card.
 		await page.mouse.move(src.x + src.width / 2 + 12, src.y + src.height / 2 + 12, { steps: 4 });
-		await page.mouse.move(dst.x + dst.width / 2, dst.y + 6, { steps: 14 });
-		await page.mouse.move(dst.x + dst.width / 2, dst.y + 6, { steps: 2 });
+		await page.mouse.move(dst.x + dst.width / 2, dst.y + dst.height / 4, { steps: 14 });
+		// Mid-drag the drop indicator shifts the cards a few px, so re-measure and settle on the
+		// target's upper quarter ("drop above") — a fixed offset from the old top edge could land
+		// in the gap and drop at the end of the list instead.
+		const now = await target.boundingBox();
+		if (!now) throw new Error('target card vanished mid-drag');
+		await page.mouse.move(now.x + now.width / 2, now.y + now.height / 4, { steps: 4 });
 		await page.mouse.up();
 
 		await expect.poll(() => listOrder(page).then((o) => o[0])).toBe(last);

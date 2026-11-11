@@ -1,8 +1,7 @@
+/** @file e2e/error-boundary.spec.ts */
 import { test, expect } from '@playwright/test';
 
 test.describe('Error Boundary', () => {
-	test.use({ storageState: 'e2e/.auth/user.json' });
-
 	test('should catch runtime errors and display error UI', async ({ page }) => {
 		// Create a page that will throw an error
 		await page.goto('/en');
@@ -20,7 +19,7 @@ test.describe('Error Boundary', () => {
 		// Check if error boundary UI is displayed
 		const errorTitle = await page.locator('h1:has-text("Something went wrong")').count();
 		if (errorTitle > 0) {
-			await expect(page.locator('h1')).toContainText('Something went wrong');
+			await expect(page.getByRole('heading', { name: 'Something went wrong' })).toBeVisible();
 			await expect(page.locator('button:has-text("Reload Page")')).toBeVisible();
 			await expect(page.locator('button:has-text("Go Home")')).toBeVisible();
 		}
@@ -38,9 +37,9 @@ test.describe('Error Boundary', () => {
 
 		await page.waitForTimeout(500);
 
-		const errorUI = await page.locator('text=Error Message').count();
+		const errorUI = await page.getByText('Error Message:').count();
 		if (errorUI > 0) {
-			await expect(page.locator('text=Error Message')).toBeVisible();
+			await expect(page.getByText('Custom test error message', { exact: true })).toBeVisible();
 		}
 	});
 
@@ -64,9 +63,11 @@ test.describe('Error Boundary', () => {
 	test('should have reload button that works', async ({ page }) => {
 		await page.goto('/en');
 
-		// Cause an error
+		// Cause an uncaught error in the page (a throw inside evaluate would reject the test itself)
 		await page.evaluate(() => {
-			throw new Error('Test error');
+			setTimeout(() => {
+				throw new Error('Test error');
+			}, 0);
 		});
 
 		await page.waitForTimeout(500);
@@ -80,8 +81,6 @@ test.describe('Error Boundary', () => {
 });
 
 test.describe('Performance Monitoring', () => {
-	test.use({ storageState: 'e2e/.auth/user.json' });
-
 	test('should track page load performance', async ({ page }) => {
 		await page.goto('/en');
 

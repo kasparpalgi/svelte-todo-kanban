@@ -620,7 +620,7 @@
 									<div class="h-2 w-2 rounded-full bg-red-500" title="High Priority"></div>
 								{/if}
 
-								{#if todo.comments_aggregate.aggregate?.count}
+								{#if todo.comments_aggregate?.aggregate?.count}
 									<MessageSquareText class="h-3 w-3 text-muted-foreground" />
 								{/if}
 

@@ -87,6 +87,17 @@ describe('TodosStore', () => {
 			expect(todosStore.todos).toContainEqual(newTodo);
 		});
 
+		it('shows the optimistic card with the light-fragment comment count (#212)', async () => {
+			const { request } = await import('$lib/graphql/client');
+			vi.mocked(request).mockReturnValue(new Promise(() => {})); // keep it in flight
+
+			void todosStore.addTodo('Pending Todo');
+
+			// TodoItem reads comments_aggregate.aggregate.count; a missing one crashed the board.
+			await vi.waitFor(() => expect(todosStore.todos).toHaveLength(1));
+			expect(todosStore.todos[0].comments_aggregate).toEqual({ aggregate: { count: 0 } });
+		});
+
 		it('should not add a todo with an empty title', async () => {
 			const result = await todosStore.addTodo('   '); // Whitespace only
 

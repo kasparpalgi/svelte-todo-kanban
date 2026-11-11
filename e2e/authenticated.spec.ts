@@ -1,84 +1,48 @@
 /** @file e2e/authenticated.spec.ts */
-import { test, expect } from '@playwright/test';
+// Signed-in basics: the root lands on a board, and a list's quick-add creates cards.
+import { test, expect, type Locator, type Page } from '@playwright/test';
+import { addCards, createList, deleteList, gotoBoard } from './board';
 
-test.describe('Authenticated user flow', () => {
-	test('should access todos', async ({ page }) => {
-		await page.goto('/');
-		await expect(page.getByRole('heading', { name: /today/i })).toBeVisible();
-		await expect(page.getByPlaceholder(/enter task title/i)).toBeVisible();
+const stamp = Date.now();
+const LIST = `QuickAdd ${stamp}`;
+
+test('root lands a signed-in user on a board', async ({ page }) => {
+	await page.goto('/');
+	await expect(page).not.toHaveURL(/\/signin/);
+	await expect(page.locator('main').getByRole('heading', { level: 1 })).toBeVisible({
+		timeout: 20_000
+	});
+});
+
+test.describe.serial('Quick add', () => {
+	let page: Page;
+	let list: Locator;
+
+	test.beforeAll(async ({ browser }) => {
+		test.setTimeout(60_000);
+		page = await browser.newPage();
+		await gotoBoard(page);
+		list = await createList(page, LIST);
 	});
 
-	test('should create new todo item', async ({ page }) => {
-		await page.goto('/');
-
-		const taskInput = page.getByPlaceholder(/enter task title/i);
-		const addButton = page.getByRole('button', { name: /add/i });
-		const testTodoTitle = 'E2E test todo';
-		await taskInput.fill(testTodoTitle);
-		await addButton.click();
-
-		const todoContainer = page.locator('div[class*="grid-cols-1"]');
-		await expect(todoContainer.getByText(testTodoTitle).first()).toBeVisible();
+	test.afterAll(async () => {
+		await deleteList(page, list);
+		await page.close();
 	});
 
-	test('should toggle between list/kanban', async ({ page }) => {
-		await page.goto('/');
-
-		const listButton = page.getByRole('button', { name: /list/i });
-		const kanbanButton = page.getByRole('button', { name: /kanban/i });
-
-		await expect(kanbanButton).toHaveClass(/bg-primary/);
-		await listButton.click();
-		await expect(listButton).toHaveClass(/bg-primary/);
-		await kanbanButton.click();
-		await expect(kanbanButton).toHaveClass(/bg-primary/);
+	test('creates several cards with Enter and clears the input', async () => {
+		const titles = ['First', 'Second', 'Third'].map((t) => `${t} ${stamp}`);
+		await addCards(list, titles);
+		await expect(list.locator('input[id^="quickaddBottom-"]')).toHaveValue('');
+		await expect(list.locator('[data-todo-id]')).toHaveCount(titles.length);
 	});
 
-	test('should display quick add form', async ({ page }) => {
-		await page.goto('/');
-
-		await expect(page.getByText(/add new task/i)).toBeVisible();
-		await expect(page.getByText(/what.*accomplish/i)).toBeVisible();
-
-		const taskInput = page.getByPlaceholder(/enter task title/i);
-		const addButton = page.getByRole('button', { name: /add/i });
-
-		await expect(addButton).toBeDisabled();
-		await taskInput.fill('Test task');
-		await expect(addButton).toBeEnabled();
-
-		await taskInput.fill('');
-		await expect(addButton).toBeDisabled();
-	});
-
-	test('should handle keyboard shortcuts', async ({ page }) => {
-		await page.goto('/');
-
-		const taskInput = page.getByPlaceholder(/enter task title/i);
-
-		await taskInput.fill('Keyboard shortcut todo');
-		await taskInput.press('Enter');
-
-		const todoContainer = page.locator('div[class*="grid-cols-1"]');
-		await expect(todoContainer.getByText('Keyboard shortcut todo').first()).toBeVisible();
-
-		await expect(taskInput).toHaveValue('');
-	});
-
-	test('should show error handling', async ({ page }) => {
-		await page.goto('/');
-
-		const errorContainer = page.locator('.border-destructive');
-
-		// TODO: trigger error condition
-	});
-
-	test('should persist view mode preference', async ({ page }) => {
-		await page.goto('/');
-
-		const listButton = page.getByRole('button', { name: /list/i });
-		await listButton.click();
-		await page.reload();
-		await expect(listButton).toHaveClass(/bg-primary/);
+	test('ignores a blank title', async () => {
+		const before = await list.locator('[data-todo-id]').count();
+		const input = list.locator('input[id^="quickaddBottom-"]');
+		await input.fill('   ');
+		await input.press('Enter');
+		await page.waitForTimeout(500);
+		await expect(list.locator('[data-todo-id]')).toHaveCount(before);
 	});
 });

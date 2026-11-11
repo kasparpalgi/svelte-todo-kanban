@@ -472,7 +472,7 @@ function createTodosStore() {
 						]
 					: [],
 				labels: [],
-				comments: [],
+				comments_aggregate: { aggregate: { count: 0 } },
 				uploads: [],
 				subscribers: [],
 				list: listData
