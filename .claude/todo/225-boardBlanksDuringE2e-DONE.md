@@ -30,3 +30,14 @@ first, then decide whether (2) and (3) are app bugs or spec flakes.
 _GitHub issue #225 — end the commit subject with `(#225)`._
 
 _From Kanban card `d0e3402e-5902-4620-9c20-136fb972d1b4`, moved to the agent list._
+
+## Results
+
+**Summary** — Cause of (1): `loadBoards()` (called by the 30 s poll / focus refresh) re-resolved `selectedBoard` from `lastBoardAlias` / `localStorage` on every call. Parallel e2e workers on the same user change those, so the poll switched the page to another board and every list was filtered off. `loadBoards()` now keeps the current board when it still exists (refreshing its object), and only falls back to the saved alias/id/first board when nothing is selected.
+(2) quick-add Enter ignored and (3) drag landing wrong are not reproduced or fixed: (2) is most plausibly the same board swap (the input/list were on a different board), (3) needs a `--trace=retain-on-failure` capture. Not run in parallel here.
+
+**Files changed** — `src/lib/stores/listsBoards.svelte.ts`
+
+**Verification** — `npm run check` 0 errors; store tests 135/135 pass. The 4-worker `--repeat-each=20` e2e repro was not run.
+
+**Deviations** — (2) and (3) left unverified; re-run the repro command from the task to see if either still occurs.

@@ -140,9 +140,14 @@ function createListsStore() {
 				const user = userStore.user;
 				const lastBoardAlias = user?.settings?.lastBoardAlias;
 
-				let selected: BoardFieldsFragment | undefined;
+				// A refresh (30 s poll, focus) must not swap the board the user is on:
+				// lastBoardAlias/localStorage can point elsewhere (another tab or e2e
+				// worker), which filtered every list off the page (#225).
+				let selected: BoardFieldsFragment | undefined = selectedBoard
+					? boards.find((b) => b.id === selectedBoard?.id)
+					: undefined;
 
-				if (lastBoardAlias) {
+				if (!selected && lastBoardAlias) {
 					selected = boards.find((b) => b.alias === lastBoardAlias);
 				}
 
