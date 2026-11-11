@@ -25,3 +25,10 @@ holds the app's R2 keys (`CLOUDFARE_ACCESS_KEY_ID`, `CLOUDFARE_SECRET_ACCESS_KEY
 _GitHub issue #219 — end the commit subject with `(#219)`._
 
 _From Kanban card `656dcd1a-caa0-4965-999d-58ba4f172722`, moved to the agent list._
+
+## Results
+
+**Summary** — `storeFile` now falls back to the app's own R2 bucket (`getAppR2Credentials()` reading `CLOUDFARE_ACCOUNT_ID`, `CLOUDFARE_ACCESS_KEY_ID`, `CLOUDFARE_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_URL`, all already in `.env`) instead of Backblaze; returns an error if unconfigured. `upload.ts` and the 19 existing B2 URLs are untouched.
+**Files changed** — modified `src/lib/server/storeFile.ts`, `.env.example`; created `src/lib/server/__tests__/storeFile.test.ts`.
+**Verification** — NOT run: worktree has no usable node_modules (`npm ci` fails on a lockfile mismatch; the main checkout's modules lack `@sveltejs/adapter-cloudflare`). Unit tests are written but unexecuted; `npm run check` unexecuted. The real upload to R2 was not done. Please run `npm test`, `npm run check`, and one manual upload.
+**Deviations** — Verification gaps above. Need not ask owner for bucket/URL: both were already in `.env`.
