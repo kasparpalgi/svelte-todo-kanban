@@ -55,7 +55,9 @@ during SSR) is filed as Backlog follow-up `224-seedTokenFromSsr.md`.
 
 **Verification**
 - `npm run check` — 0 errors, 0 warnings
-- `npm test` — 43 files / 430 tests pass
+- `npm test` — 44 files / 433 tests pass after rebasing onto #219. Its new
+  `storeFile.test.ts` failed on `main` too (`envMock` used before `vi.mock` hoisting); fixed with
+  `vi.hoisted` in a separate `test(upload)` commit
 - `VERCEL=1 vite build` — passes; the generated `.vc-config.json` has `"regions": ["arn1"]`
 - `vite build` (Cloudflare) — passes
 - Live, dev server, signed in as the test user: `/api/auth/token` 200 in 20–35 ms with

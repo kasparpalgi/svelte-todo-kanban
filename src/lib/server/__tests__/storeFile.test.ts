@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const uploadToR2 = vi.fn();
-const envMock: Record<string, string> = {};
+const envMock = vi.hoisted((): Record<string, string> => ({}));
 vi.mock('$env/dynamic/private', () => ({ env: envMock }));
 vi.mock('$lib/utils/crypto', () => ({ decryptToken: vi.fn() }));
 vi.mock('$lib/server/r2', () => ({ uploadToR2: (...a: unknown[]) => uploadToR2(...a) }));
