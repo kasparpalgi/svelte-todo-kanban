@@ -21,3 +21,5 @@ holds the app's R2 keys (`CLOUDFARE_ACCESS_KEY_ID`, `CLOUDFARE_SECRET_ACCESS_KEY
 2. Only 19 uploads exist. Leave their B2 URLs as they are, so nothing breaks, and keep
    `upload.ts` until those are copied over or no longer needed.
 3. Add the new env names to `.env.example`. Check: unit tests for `storeFile` and one real upload.
+
+_GitHub issue #219 — end the commit subject with `(#219)`._
