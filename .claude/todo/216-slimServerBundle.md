@@ -29,3 +29,5 @@ this ships before the move.
    them (the board page uses the SVG `og-image.png` route), and Vercel has no Chromium either.
 3. Check: `npm run check` and the unit tests pass. Calendar sync, the Drive picker and Sheets
    export still work against your Google account (manual test, listed in Results).
+
+_GitHub issue #216 — end the commit subject with `(#216)`._
