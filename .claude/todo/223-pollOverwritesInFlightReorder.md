@@ -20,3 +20,5 @@ fingerprint all the time, so they hit this more often than real use does.
 Confirm the race (for example, delay one `updateTodo` response in a unit test while a refresh
 resolves). If it is real, skip or merge a refresh while card writes are pending, the way
 `pendingCreates` already guards creates. Then run the drag spec with `--repeat-each=20`.
+
+_GitHub issue #223 — end the commit subject with `(#223)`._
