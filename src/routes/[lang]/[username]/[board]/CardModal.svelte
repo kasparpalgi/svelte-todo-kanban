@@ -9,12 +9,12 @@
 	import { CircleAlert } from 'lucide-svelte';
 	import CardLoading from '$lib/components/card/CardLoading.svelte';
 	import CardDetailView from '$lib/components/todo/CardDetailView.svelte';
-	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+	import type { BoardTodo } from '$lib/types/todo';
 
 	let { cardAlias, lang, onClose }: { cardAlias: string; lang: string; onClose: () => void } =
 		$props();
 
-	let todo = $state<TodoFieldsFragment | null>(null);
+	let todo = $state<BoardTodo | null>(null);
 	let loading = $state(true);
 	let isClosing = $state(false);
 	let cardDetailView = $state<{ save: () => Promise<void> } | undefined>(undefined);
@@ -41,8 +41,12 @@
 
 		const foundTodo = todosStore.todos.find((t) => t.alias === cardAlias);
 		if (foundTodo) {
-			todo = foundTodo;
-			await commentsStore.loadComments(foundTodo.id);
+			// The board holds no full body (#211); the editor needs it before it mounts
+			const [full] = await Promise.all([
+				todosStore.loadTodoDetails(foundTodo.id),
+				commentsStore.loadComments(foundTodo.id)
+			]);
+			todo = full ?? foundTodo;
 		}
 		loading = false;
 	});

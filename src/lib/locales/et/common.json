@@ -524,6 +524,7 @@
     "todo_added": "Ülesanne edukalt lisatud!",
     "error_adding_todo": "Ülesande lisamisel tekkis viga: {{message}}",
     "update_failed": "Ülesande uuendamine ebaõnnestus",
+    "load_failed": "Kaardi laadimine ebaõnnestus — proovi uuesti",
     "update_success": "Ülesanne on edukalt uuendatud",
     "upload_success": "Üleslaadimine õnnestus",
     "upload_partial_failure": "Mõne pildi üleslaadimine ebaõnnestus, kuid ülesanne salvestati",

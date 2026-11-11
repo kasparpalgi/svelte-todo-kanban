@@ -89,7 +89,7 @@ export const load: PageServerLoad = async ({ locals, url, params, fetch, request
 
 					ogData = {
 						title: todo.title || 'Card',
-						description: todo.content?.substring(0, 200) || 'View this card',
+						description: todo.content_preview?.substring(0, 200) || 'View this card',
 						image: firstImage || null, // Will use screenshot if null
 						url: `${pageUrl}?card=${cardAlias}`
 					};

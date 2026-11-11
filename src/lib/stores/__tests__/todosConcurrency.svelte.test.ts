@@ -4,7 +4,7 @@
 // the whole board when nothing changed.
 import { todosStore } from '../todos.svelte';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+import type { BoardTodo } from '$lib/types/todo';
 import { request } from '$lib/graphql/client';
 
 vi.mock('../user.svelte', () => ({
@@ -33,7 +33,7 @@ vi.mock('$app/environment', () => ({
 	version: '1.0.0'
 }));
 
-const todo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFieldsFragment => ({
+const todo = (overrides: Partial<BoardTodo> = {}): BoardTodo => ({
 	id: 'todo-1',
 	alias: 'alias',
 	title: 'Todo',
@@ -49,7 +49,7 @@ const todo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFieldsFragment =
 	list: null,
 	uploads: [],
 	labels: [],
-	comments: [],
+	comments_aggregate: { aggregate: { count: 0 } },
 	assignees: [],
 	subscribers: [],
 	claude_usages_aggregate: { aggregate: null },

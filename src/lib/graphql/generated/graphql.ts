@@ -15262,6 +15262,8 @@ export type Todos = {
   comments_aggregate: Comments_Aggregate;
   completed_at?: Maybe<Scalars['timestamptz']['output']>;
   content?: Maybe<Scalars['String']['output']>;
+  /** First 300 characters of content, for the card face (#211) */
+  content_preview?: Maybe<Scalars['String']['output']>;
   created_at: Scalars['timestamptz']['output'];
   due_on?: Maybe<Scalars['timestamptz']['output']>;
   /** GitHub internal issue ID (immutable, for API calls) */
@@ -15600,6 +15602,7 @@ export type Todos_Bool_Exp = {
   comments_aggregate?: InputMaybe<Comments_Aggregate_Bool_Exp>;
   completed_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   content?: InputMaybe<String_Comparison_Exp>;
+  content_preview?: InputMaybe<String_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   due_on?: InputMaybe<Timestamptz_Comparison_Exp>;
   github_issue_id?: InputMaybe<Bigint_Comparison_Exp>;
@@ -15715,6 +15718,8 @@ export type Todos_Max_Fields = {
   comment_hours?: Maybe<Scalars['String']['output']>;
   completed_at?: Maybe<Scalars['timestamptz']['output']>;
   content?: Maybe<Scalars['String']['output']>;
+  /** First 300 characters of content, for the card face (#211) */
+  content_preview?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   due_on?: Maybe<Scalars['timestamptz']['output']>;
   /** GitHub internal issue ID (immutable, for API calls) */
@@ -15790,6 +15795,8 @@ export type Todos_Min_Fields = {
   comment_hours?: Maybe<Scalars['String']['output']>;
   completed_at?: Maybe<Scalars['timestamptz']['output']>;
   content?: Maybe<Scalars['String']['output']>;
+  /** First 300 characters of content, for the card face (#211) */
+  content_preview?: Maybe<Scalars['String']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   due_on?: Maybe<Scalars['timestamptz']['output']>;
   /** GitHub internal issue ID (immutable, for API calls) */
@@ -15892,6 +15899,7 @@ export type Todos_Order_By = {
   comments_aggregate?: InputMaybe<Comments_Aggregate_Order_By>;
   completed_at?: InputMaybe<Order_By>;
   content?: InputMaybe<Order_By>;
+  content_preview?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   due_on?: InputMaybe<Order_By>;
   github_issue_id?: InputMaybe<Order_By>;
@@ -20355,7 +20363,9 @@ export type Verify_User_Password_Args = {
   user_password?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null };
+export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content_preview?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number } | null }, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null };
+
+export type TodoDetailFieldsFragment = { __typename?: 'todos', content?: string | null, id: string, alias: string, title: string, content_preview?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number } | null }, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null };
 
@@ -20383,7 +20393,21 @@ export type GetTodosQueryVariables = Exact<{
 }>;
 
 
-export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> };
+export type GetTodosQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content_preview?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number } | null }, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> };
+
+export type GetTodoDetailsQueryVariables = Exact<{
+  where: Todos_Bool_Exp;
+}>;
+
+
+export type GetTodoDetailsQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', content?: string | null, id: string, alias: string, title: string, content_preview?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number } | null }, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> };
+
+export type SearchTodoContentQueryVariables = Exact<{
+  where: Todos_Bool_Exp;
+}>;
+
+
+export type SearchTodoContentQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string }> };
 
 export type GetBoardTodosFingerprintQueryVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -20427,7 +20451,7 @@ export type CreateTodoMutationVariables = Exact<{
 }>;
 
 
-export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> } | null };
+export type CreateTodoMutation = { __typename?: 'mutation_root', insert_todos?: { __typename?: 'todos_mutation_response', returning: Array<{ __typename?: 'todos', content?: string | null, id: string, alias: string, title: string, content_preview?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number } | null }, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> } | null };
 
 export type UpdateTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -20435,7 +20459,7 @@ export type UpdateTodosMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> } | null };
+export type UpdateTodosMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'todos', content?: string | null, id: string, alias: string, title: string, content_preview?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number } | null }, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null }> } | null };
 
 export type DeleteTodosMutationVariables = Exact<{
   where: Todos_Bool_Exp;
@@ -21209,31 +21233,12 @@ export const LabelFieldsFragmentDoc = new TypedDocumentString(`
   updated_at
 }
     `, {"fragmentName":"LabelFields"}) as unknown as TypedDocumentString<LabelFieldsFragment, unknown>;
-export const CommentFieldsFragmentDoc = new TypedDocumentString(`
-    fragment CommentFields on comments {
-  id
-  content
-  todo_id
-  user_id
-  created_at
-  updated_at
-  github_comment_id
-  github_synced_at
-  user {
-    id
-    name
-    username
-    image
-    email
-  }
-}
-    `, {"fragmentName":"CommentFields"}) as unknown as TypedDocumentString<CommentFieldsFragment, unknown>;
 export const TodoFieldsFragmentDoc = new TypedDocumentString(`
     fragment TodoFields on todos {
   id
   alias
   title
-  content
+  content_preview
   due_on
   has_time
   sort_order
@@ -21286,8 +21291,10 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
       ...LabelFields
     }
   }
-  comments(order_by: {created_at: asc}) {
-    ...CommentFields
+  comments_aggregate {
+    aggregate {
+      count
+    }
   }
   uploads {
     id
@@ -21325,21 +21332,116 @@ export const TodoFieldsFragmentDoc = new TypedDocumentString(`
     }
   }
 }
-    fragment CommentFields on comments {
+    fragment LabelFields on labels {
   id
-  content
-  todo_id
-  user_id
+  name
+  color
+  sort_order
+  board_id
   created_at
   updated_at
-  github_comment_id
+}`, {"fragmentName":"TodoFields"}) as unknown as TypedDocumentString<TodoFieldsFragment, unknown>;
+export const TodoDetailFieldsFragmentDoc = new TypedDocumentString(`
+    fragment TodoDetailFields on todos {
+  ...TodoFields
+  content
+}
+    fragment TodoFields on todos {
+  id
+  alias
+  title
+  content_preview
+  due_on
+  has_time
+  sort_order
+  priority
+  list_id
+  completed_at
+  created_at
+  updated_at
+  assigned_to
+  github_issue_number
+  github_issue_id
   github_synced_at
-  user {
+  github_url
+  task_file_path
+  agent_model
+  agent_effort
+  agent_machine
+  agent_plan_first
+  min_hours
+  max_hours
+  actual_hours
+  comment_hours
+  claude_usages_aggregate {
+    aggregate {
+      sum {
+        cost_usd
+      }
+    }
+  }
+  assignee {
     id
     name
     username
     image
     email
+  }
+  assignees {
+    user_id
+    created_at
+    assignee {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
+  labels {
+    label {
+      ...LabelFields
+    }
+  }
+  comments_aggregate {
+    aggregate {
+      count
+    }
+  }
+  uploads {
+    id
+    url
+    created_at
+  }
+  subscribers {
+    user_id
+    created_at
+    subscriber {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
+  list {
+    id
+    name
+    sort_order
+    board {
+      id
+      name
+      alias
+      sort_order
+      github
+      settings
+      user_id
+      user {
+        claude_plan
+        claude_plan_monthly
+        claude_plan_currency
+      }
+    }
   }
 }
 fragment LabelFields on labels {
@@ -21350,7 +21452,7 @@ fragment LabelFields on labels {
   board_id
   created_at
   updated_at
-}`, {"fragmentName":"TodoFields"}) as unknown as TypedDocumentString<TodoFieldsFragment, unknown>;
+}`, {"fragmentName":"TodoDetailFields"}) as unknown as TypedDocumentString<TodoDetailFieldsFragment, unknown>;
 export const ListFieldsFragmentDoc = new TypedDocumentString(`
     fragment ListFields on lists {
   id
@@ -21470,6 +21572,25 @@ fragment LabelFields on labels {
   created_at
   updated_at
 }`, {"fragmentName":"BoardFields"}) as unknown as TypedDocumentString<BoardFieldsFragment, unknown>;
+export const CommentFieldsFragmentDoc = new TypedDocumentString(`
+    fragment CommentFields on comments {
+  id
+  content
+  todo_id
+  user_id
+  created_at
+  updated_at
+  github_comment_id
+  github_synced_at
+  user {
+    id
+    name
+    username
+    image
+    email
+  }
+}
+    `, {"fragmentName":"CommentFields"}) as unknown as TypedDocumentString<CommentFieldsFragment, unknown>;
 export const NoteCoreFieldsFragmentDoc = new TypedDocumentString(`
     fragment NoteCoreFields on notes {
   id
@@ -21859,7 +21980,7 @@ export const GetTodosDocument = new TypedDocumentString(`
   id
   alias
   title
-  content
+  content_preview
   due_on
   has_time
   sort_order
@@ -21912,8 +22033,10 @@ export const GetTodosDocument = new TypedDocumentString(`
       ...LabelFields
     }
   }
-  comments(order_by: {created_at: asc}) {
-    ...CommentFields
+  comments_aggregate {
+    aggregate {
+      count
+    }
   }
   uploads {
     id
@@ -21951,23 +22074,6 @@ export const GetTodosDocument = new TypedDocumentString(`
     }
   }
 }
-fragment CommentFields on comments {
-  id
-  content
-  todo_id
-  user_id
-  created_at
-  updated_at
-  github_comment_id
-  github_synced_at
-  user {
-    id
-    name
-    username
-    image
-    email
-  }
-}
 fragment LabelFields on labels {
   id
   name
@@ -21977,6 +22083,130 @@ fragment LabelFields on labels {
   created_at
   updated_at
 }`) as unknown as TypedDocumentString<GetTodosQuery, GetTodosQueryVariables>;
+export const GetTodoDetailsDocument = new TypedDocumentString(`
+    query GetTodoDetails($where: todos_bool_exp!) {
+  todos(where: $where, limit: 1) {
+    ...TodoDetailFields
+  }
+}
+    fragment TodoFields on todos {
+  id
+  alias
+  title
+  content_preview
+  due_on
+  has_time
+  sort_order
+  priority
+  list_id
+  completed_at
+  created_at
+  updated_at
+  assigned_to
+  github_issue_number
+  github_issue_id
+  github_synced_at
+  github_url
+  task_file_path
+  agent_model
+  agent_effort
+  agent_machine
+  agent_plan_first
+  min_hours
+  max_hours
+  actual_hours
+  comment_hours
+  claude_usages_aggregate {
+    aggregate {
+      sum {
+        cost_usd
+      }
+    }
+  }
+  assignee {
+    id
+    name
+    username
+    image
+    email
+  }
+  assignees {
+    user_id
+    created_at
+    assignee {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
+  labels {
+    label {
+      ...LabelFields
+    }
+  }
+  comments_aggregate {
+    aggregate {
+      count
+    }
+  }
+  uploads {
+    id
+    url
+    created_at
+  }
+  subscribers {
+    user_id
+    created_at
+    subscriber {
+      id
+      name
+      username
+      image
+      email
+    }
+  }
+  list {
+    id
+    name
+    sort_order
+    board {
+      id
+      name
+      alias
+      sort_order
+      github
+      settings
+      user_id
+      user {
+        claude_plan
+        claude_plan_monthly
+        claude_plan_currency
+      }
+    }
+  }
+}
+fragment TodoDetailFields on todos {
+  ...TodoFields
+  content
+}
+fragment LabelFields on labels {
+  id
+  name
+  color
+  sort_order
+  board_id
+  created_at
+  updated_at
+}`) as unknown as TypedDocumentString<GetTodoDetailsQuery, GetTodoDetailsQueryVariables>;
+export const SearchTodoContentDocument = new TypedDocumentString(`
+    query SearchTodoContent($where: todos_bool_exp!) {
+  todos(where: $where) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<SearchTodoContentQuery, SearchTodoContentQueryVariables>;
 export const GetBoardTodosFingerprintDocument = new TypedDocumentString(`
     query GetBoardTodosFingerprint($where: todos_bool_exp!) {
   todos(where: $where, order_by: {id: asc}) {
@@ -22139,7 +22369,7 @@ export const CreateTodoDocument = new TypedDocumentString(`
     mutation CreateTodo($objects: [todos_insert_input!]!) {
   insert_todos(objects: $objects) {
     returning {
-      ...TodoFields
+      ...TodoDetailFields
     }
   }
 }
@@ -22147,7 +22377,7 @@ export const CreateTodoDocument = new TypedDocumentString(`
   id
   alias
   title
-  content
+  content_preview
   due_on
   has_time
   sort_order
@@ -22200,8 +22430,10 @@ export const CreateTodoDocument = new TypedDocumentString(`
       ...LabelFields
     }
   }
-  comments(order_by: {created_at: asc}) {
-    ...CommentFields
+  comments_aggregate {
+    aggregate {
+      count
+    }
   }
   uploads {
     id
@@ -22239,22 +22471,9 @@ export const CreateTodoDocument = new TypedDocumentString(`
     }
   }
 }
-fragment CommentFields on comments {
-  id
+fragment TodoDetailFields on todos {
+  ...TodoFields
   content
-  todo_id
-  user_id
-  created_at
-  updated_at
-  github_comment_id
-  github_synced_at
-  user {
-    id
-    name
-    username
-    image
-    email
-  }
 }
 fragment LabelFields on labels {
   id
@@ -22270,7 +22489,7 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   update_todos(where: $where, _set: $_set) {
     affected_rows
     returning {
-      ...TodoFields
+      ...TodoDetailFields
     }
   }
 }
@@ -22278,7 +22497,7 @@ export const UpdateTodosDocument = new TypedDocumentString(`
   id
   alias
   title
-  content
+  content_preview
   due_on
   has_time
   sort_order
@@ -22331,8 +22550,10 @@ export const UpdateTodosDocument = new TypedDocumentString(`
       ...LabelFields
     }
   }
-  comments(order_by: {created_at: asc}) {
-    ...CommentFields
+  comments_aggregate {
+    aggregate {
+      count
+    }
   }
   uploads {
     id
@@ -22370,22 +22591,9 @@ export const UpdateTodosDocument = new TypedDocumentString(`
     }
   }
 }
-fragment CommentFields on comments {
-  id
+fragment TodoDetailFields on todos {
+  ...TodoFields
   content
-  todo_id
-  user_id
-  created_at
-  updated_at
-  github_comment_id
-  github_synced_at
-  user {
-    id
-    name
-    username
-    image
-    email
-  }
 }
 fragment LabelFields on labels {
   id

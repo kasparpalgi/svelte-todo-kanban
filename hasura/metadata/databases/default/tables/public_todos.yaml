@@ -68,6 +68,13 @@ array_relationships:
         table:
           name: uploads
           schema: public
+computed_fields:
+  - name: content_preview
+    definition:
+      function:
+        name: todo_content_preview
+        schema: public
+    comment: First 300 characters of content, for the card face (#211)
 insert_permissions:
   - role: user
     permission:
@@ -145,6 +152,8 @@ select_permissions:
         - title
         - updated_at
         - user_id
+      computed_fields:
+        - content_preview
       filter:
         _or:
           - user_id:

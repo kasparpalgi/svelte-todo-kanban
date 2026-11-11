@@ -31,9 +31,8 @@
 	import TodoEditForm from './TodoEditForm.svelte';
 	import CardCostBadge from './CardCostBadge.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
-	import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
 	import type { TodoImage } from '$lib/types/imageUpload';
-	import type { TodoItemProps } from '$lib/types/todo';
+	import type { BoardTodo, TodoItemProps } from '$lib/types/todo';
 
 	let {
 		todo,
@@ -148,23 +147,7 @@
 		}
 	});
 
-	function startEdit() {
-		if (editingTodo.id && editingTodo.id !== todo.id && editingTodo.hasUnsavedChanges) {
-			pendingAction = () => {
-				editingTodo.start(todo.id);
-				validationErrors = {};
-				images =
-					todo.uploads?.map((upload) => ({
-						id: upload.id,
-						file: null,
-						preview: upload.url,
-						isExisting: true
-					})) || [];
-			};
-			showStartEditConfirm = true;
-			return;
-		}
-
+	function beginEdit() {
 		editingTodo.start(todo.id);
 		validationErrors = {};
 		images =
@@ -174,6 +157,26 @@
 				preview: upload.url,
 				isExisting: true
 			})) || [];
+	}
+
+	async function startEdit() {
+		// The board holds no full body (#211): fetch it first, or saving would wipe it
+		if (todo.content === undefined) {
+			const full = await todosStore.loadTodoDetails(todo.id);
+			if (!full) {
+				displayMessage($t('todo.load_failed'));
+				return;
+			}
+			editData.content = full.content || '';
+		}
+
+		if (editingTodo.id && editingTodo.id !== todo.id && editingTodo.hasUnsavedChanges) {
+			pendingAction = beginEdit;
+			showStartEditConfirm = true;
+			return;
+		}
+
+		beginEdit();
 	}
 
 	function cancelEdit() {
@@ -223,7 +226,7 @@
 				finalDueOn = newDate.toISOString();
 			}
 
-			const updateData: Partial<Pick<TodoFieldsFragment, 'title' | 'content' | 'due_on'>> = {
+			const updateData: Partial<Pick<BoardTodo, 'title' | 'content' | 'due_on'>> = {
 				title: validatedData.title,
 				content: validatedData.content || null,
 				due_on: finalDueOn
@@ -515,13 +518,13 @@
 									{todo.title}
 								</h3>
 
-								{#if todo.content}
+								{#if todo.content_preview}
 									<p
 										class="mt-0.5 text-xs leading-tight [overflow-wrap:anywhere] text-muted-foreground {todo.completed_at
 											? 'line-through'
 											: ''}"
 									>
-										{shortenText(toPlainText(todo.content))}
+										{shortenText(toPlainText(todo.content_preview))}
 									</p>
 								{/if}
 
@@ -617,7 +620,7 @@
 									<div class="h-2 w-2 rounded-full bg-red-500" title="High Priority"></div>
 								{/if}
 
-								{#if todo.comments.length > 0}
+								{#if todo.comments_aggregate.aggregate?.count}
 									<MessageSquareText class="h-3 w-3 text-muted-foreground" />
 								{/if}
 

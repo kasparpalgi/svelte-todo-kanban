@@ -2,6 +2,7 @@
 import {
 	GET_TODOS,
 	GET_BOARD_TODOS_FINGERPRINT,
+	GET_TODO_DETAILS,
 	CREATE_TODO,
 	UPDATE_TODOS,
 	DELETE_TODOS,
@@ -25,9 +26,9 @@ import type {
 	DeleteTodosMutation,
 	CreateUploadMutation,
 	DeleteUploadMutation,
-	TodoFieldsFragment
+	GetTodoDetailsQuery
 } from '$lib/graphql/generated/graphql';
-import type { StoreResult, TodosState } from '$lib/types/todo';
+import type { BoardTodo, StoreResult, TodosState } from '$lib/types/todo';
 import { todoFilteringStore } from './todoFiltering.svelte';
 import { listsStore } from './listsBoards.svelte';
 import { loggingStore } from './logging.svelte';
@@ -72,12 +73,27 @@ function createTodosStore() {
 	 * another update may have replaced the array, and that slot would now hold a
 	 * different card (#209).
 	 */
-	function replaceTodo(id: string, todo: TodoFieldsFragment) {
+	function replaceTodo(id: string, todo: BoardTodo) {
 		const index = indexOfTodo(id);
 		if (index !== -1) state.todos[index] = todo;
 	}
 
-	async function loadTodos(): Promise<TodoFieldsFragment[]> {
+	/**
+	 * Board rows carry no body (#211). Keep the one an opened card already loaded, unless
+	 * the card changed since — then it is stale and the next open fetches it again.
+	 */
+	function keepLoadedContent(incoming: BoardTodo[]): BoardTodo[] {
+		const loaded = new Map(
+			state.todos.filter((t) => t.content !== undefined).map((t) => [t.id, t])
+		);
+		if (loaded.size === 0) return incoming;
+		return incoming.map((todo) => {
+			const old = loaded.get(todo.id);
+			return old && old.updated_at === todo.updated_at ? { ...todo, content: old.content } : todo;
+		});
+	}
+
+	async function loadTodos(): Promise<BoardTodo[]> {
 		if (!browser) return [];
 
 		state.loading = true;
@@ -97,7 +113,7 @@ function createTodosStore() {
 				offset: 0
 			});
 
-			state.todos = data.todos || [];
+			state.todos = keepLoadedContent(data.todos || []);
 			state.initialized = true;
 			return state.todos;
 		} catch (error) {
@@ -127,7 +143,7 @@ function createTodosStore() {
 	 * Load initial batch of todos (top 50) with limit on comments/uploads
 	 * This provides fast initial render for the board view
 	 */
-	async function loadTodosInitial(boardId?: string): Promise<TodoFieldsFragment[]> {
+	async function loadTodosInitial(boardId?: string): Promise<BoardTodo[]> {
 		if (!browser) return [];
 
 		state.loading = true;
@@ -153,7 +169,7 @@ function createTodosStore() {
 				offset: 0
 			});
 
-			state.todos = data.todos || [];
+			state.todos = keepLoadedContent(data.todos || []);
 			state.initialized = true;
 			state.currentBoardId = boardId || null;
 
@@ -264,33 +280,22 @@ function createTodosStore() {
 	}
 
 	/**
-	 * Load full details for a specific todo (including ensuring all data is loaded)
-	 * Used when opening the card modal
+	 * Fetch a card's full body: the board loads only the light TodoFields (#211). Call it
+	 * before anything reads or edits `content`. Returns null when the card is gone.
 	 */
-	async function loadTodoDetails(todoId: string): Promise<TodoFieldsFragment | null> {
+	async function loadTodoDetails(todoId: string): Promise<BoardTodo | null> {
 		if (!browser) return null;
 
 		try {
-			// Just refresh the todo from the database to ensure we have latest data
-			const data: GetTodosQuery = await request(GET_TODOS, {
+			const data = await request<GetTodoDetailsQuery>(GET_TODO_DETAILS, {
 				where: { id: { _eq: todoId } }
 			});
-
 			const fullTodo = data.todos?.[0];
+			if (!fullTodo) return null;
 
-			if (fullTodo) {
-				// Update the todo in state with full details
-				const index = state.todos.findIndex((t) => t.id === todoId);
-				if (index !== -1) {
-					state.todos[index] = fullTodo;
-				} else {
-					// Todo not in state yet, add it
-					state.todos = [...state.todos, fullTodo];
-				}
-				return fullTodo;
-			}
-
-			return null;
+			if (indexOfTodo(todoId) === -1) state.todos = [...state.todos, fullTodo];
+			else replaceTodo(todoId, fullTodo);
+			return fullTodo;
 		} catch (error) {
 			console.error('Load todo details error:', error);
 			return null;
@@ -301,11 +306,7 @@ function createTodosStore() {
 	 * Sync todo changes to GitHub issue
 	 * Non-blocking: errors are logged but don't fail the todo update
 	 */
-	async function syncTodoToGithub(
-		todo: TodoFieldsFragment,
-		updates: any,
-		originalTodo: TodoFieldsFragment
-	) {
+	async function syncTodoToGithub(todo: BoardTodo, updates: any, originalTodo: BoardTodo) {
 		if (!todo.list || !(todo.list.board as any)?.github || !(todo as any).github_issue_number) {
 			return; // Board not connected or todo not linked to issue
 		}
@@ -491,7 +492,7 @@ function createTodosStore() {
 								: null
 						}
 					: null
-			} as unknown as TodoFieldsFragment;
+			} as unknown as BoardTodo;
 
 			const insertIndex = state.todos.findIndex((t) => (t.sort_order || 1000) > sortOrder);
 			if (insertIndex === -1) {
@@ -555,7 +556,7 @@ function createTodosStore() {
 								state.todos[i] = {
 									...state.todos[i],
 									assignees: [row]
-								} as TodoFieldsFragment;
+								} as BoardTodo;
 							}
 						}
 					} catch (error) {
@@ -638,7 +639,7 @@ function createTodosStore() {
 		id: string,
 		updates: Partial<
 			Pick<
-				TodoFieldsFragment,
+				BoardTodo,
 				| 'title'
 				| 'content'
 				| 'completed_at'
@@ -711,7 +712,7 @@ function createTodosStore() {
 				}
 			}
 
-			state.todos[todoIndex] = optimisticUpdate as TodoFieldsFragment;
+			state.todos[todoIndex] = optimisticUpdate as BoardTodo;
 		}
 
 		try {
@@ -989,22 +990,7 @@ function createTodosStore() {
 	}
 
 	async function refreshTodo(todoId: string): Promise<void> {
-		try {
-			const data: GetTodosQuery = await request(GET_TODOS, {
-				where: { id: { _eq: todoId } }
-			});
-
-			if (data.todos?.[0]) {
-				const updatedTodo = data.todos[0];
-				// Update the todo in the store's todos array
-				const index = state.todos.findIndex((t) => t.id === todoId);
-				if (index !== -1) {
-					state.todos[index] = updatedTodo;
-				}
-			}
-		} catch (error) {
-			console.error('Refresh todo error:', error);
-		}
+		if (indexOfTodo(todoId) !== -1) await loadTodoDetails(todoId);
 	}
 
 	/**
@@ -1049,7 +1035,10 @@ function createTodosStore() {
 			// Board may have changed while this request was in flight
 			if (state.currentBoardId !== boardId) return false;
 
-			state.todos = [...(activeData.todos || []), ...(completedData.todos || [])];
+			state.todos = keepLoadedContent([
+				...(activeData.todos || []),
+				...(completedData.todos || [])
+			]);
 			return true;
 		} catch (error) {
 			console.error('Refresh board todos error:', error);
@@ -1261,10 +1250,10 @@ function createTodosStore() {
 							assignees: newAssignees,
 							assigned_to: userId,
 							assignee: row.assignee
-						} as any)) as TodoFieldsFragment
+						} as any)) as BoardTodo
 				);
 			} else {
-				replaceTodo(todoId, { ...latest, assignees: newAssignees } as TodoFieldsFragment);
+				replaceTodo(todoId, { ...latest, assignees: newAssignees } as BoardTodo);
 			}
 
 			// Log activity: user assigned
@@ -1332,10 +1321,10 @@ function createTodosStore() {
 							assignees: remaining,
 							assigned_to: newPrimary,
 							assignee: remaining[0]?.assignee ?? null
-						} as any)) as TodoFieldsFragment
+						} as any)) as BoardTodo
 				);
 			} else {
-				replaceTodo(todoId, { ...latest, assignees: remaining } as TodoFieldsFragment);
+				replaceTodo(todoId, { ...latest, assignees: remaining } as BoardTodo);
 			}
 
 			// Log activity: user unassigned
@@ -1489,7 +1478,7 @@ function createTodosStore() {
 				return true;
 			});
 
-		const groups = new Map<string, TodoFieldsFragment[]>();
+		const groups = new Map<string, BoardTodo[]>();
 		for (const todo of activeTodosFiltered) {
 			const listId = todo.list?.id || 'inbox';
 			if (!groups.has(listId)) {
@@ -1559,7 +1548,7 @@ function createTodosStore() {
 
 		...(import.meta.env?.MODE === 'test' || process.env.NODE_ENV === 'test'
 			? {
-					setTodosForTesting: (todos: TodoFieldsFragment[]) => {
+					setTodosForTesting: (todos: BoardTodo[]) => {
 						state.todos = todos;
 					}
 				}

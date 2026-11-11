@@ -524,6 +524,7 @@
     "todo_added": "Todo added successfully!",
     "error_adding_todo": "Error adding todo: {{message}}",
     "update_failed": "Failed to update task",
+    "load_failed": "Could not load the card — try again",
     "update_success": "Task updated successfully",
     "upload_success": "Upload successful",
     "upload_partial_failure": "Some images failed to upload, but the task was saved",

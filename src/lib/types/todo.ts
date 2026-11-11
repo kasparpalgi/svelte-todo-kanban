@@ -8,8 +8,14 @@ export type AgentEffort = 'low' | 'medium' | 'high';
 
 export type { AgentMachine } from '$lib/utils/agentMachine';
 
+/**
+ * A card as the board holds it: the light TodoFields (#211). `content` is the full body,
+ * there only once the card was opened, edited or saved — the face uses `content_preview`.
+ */
+export type BoardTodo = TodoFieldsFragment & { content?: string | null };
+
 export interface TodosState {
-	todos: TodoFieldsFragment[];
+	todos: BoardTodo[];
 	loading: boolean;
 	error: string | null;
 	initialized: boolean;
@@ -28,19 +34,19 @@ export interface StoreResult<T = any> {
 export type CardMoveDirection = 'up' | 'down' | 'left' | 'right';
 
 export interface TodoItemProps {
-	todo: TodoFieldsFragment;
-	draggedTodo: TodoFieldsFragment | null;
+	todo: BoardTodo;
+	draggedTodo: BoardTodo | null;
 	isDragging?: boolean;
 	showDropAbove?: boolean;
 	listId: string;
-	onDragStart: (todo: TodoFieldsFragment) => void;
+	onDragStart: (todo: BoardTodo) => void;
 	onDragEnd: () => void;
-	onMoveCard?: (todo: TodoFieldsFragment, direction: CardMoveDirection) => void;
+	onMoveCard?: (todo: BoardTodo, direction: CardMoveDirection) => void;
 	onDelete: (todoId: string) => void;
 }
 
 export interface TodoEditProps {
-	todo: TodoFieldsFragment;
+	todo: BoardTodo;
 	editData: any;
 	validationErrors: Record<string, string>;
 	images: TodoImage[];
@@ -58,30 +64,30 @@ export interface TodoEditProps {
 }
 
 export type CardDetailViewProps = {
-	todo: TodoFieldsFragment;
+	todo: BoardTodo;
 	lang: string;
 	onClose: () => void;
 };
 
 export type KanbanColumnProps = {
 	list: { id: string; name: string; board?: { github?: string } };
-	todos: TodoFieldsFragment[];
-	draggedTodo: TodoFieldsFragment | null;
+	todos: BoardTodo[];
+	draggedTodo: BoardTodo | null;
 	dropTarget: {
 		listId: string;
 		index: number;
 		position: 'above' | 'below';
 	} | null;
-	onDragStart: (todo: TodoFieldsFragment) => void;
+	onDragStart: (todo: BoardTodo) => void;
 	onDragEnd: () => void;
-	onMoveCard?: (todo: TodoFieldsFragment, direction: CardMoveDirection) => void;
+	onMoveCard?: (todo: BoardTodo, direction: CardMoveDirection) => void;
 	onDelete: (todoId: string) => void;
 };
 
 // Store results
 
 export interface LabelManagementProps {
-	todo: TodoFieldsFragment;
+	todo: BoardTodo;
 }
 
 export interface CardImageProps {

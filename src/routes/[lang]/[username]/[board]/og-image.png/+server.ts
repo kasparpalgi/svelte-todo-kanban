@@ -145,7 +145,7 @@ export async function GET({ url, params, fetch: fetchFn }: RequestEvent) {
 			const imageBuffer = generateFallbackImage({
 				type: 'card',
 				title: todo.title || 'Card',
-				description: todo.content?.substring(0, 100) || undefined
+				description: todo.content_preview?.substring(0, 100) || undefined
 			});
 
 			return new Response(new Uint8Array(imageBuffer), {

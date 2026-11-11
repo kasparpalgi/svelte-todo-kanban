@@ -445,6 +445,7 @@
     "todo_added": "Úkol úspěšně přidán!",
     "error_adding_todo": "Chyba při přidávání úkolu: {{message}}",
     "update_failed": "Nepodařilo se aktualizovat úkol",
+    "load_failed": "Kartu se nepodařilo načíst — zkuste to znovu",
     "update_success": "Úkol úspěšně aktualizován",
     "upload_success": "Nahrávání dokončeno úspěšně",
     "upload_partial_failure": "Některé obrázky se nepodařilo nahrát, ale úkol byl uložen",

@@ -1,6 +1,7 @@
 /** @file src/lib/stores/todoFiltering.svelte.ts */
 import { browser } from '$app/environment';
-import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+import type { BoardTodo } from '$lib/types/todo';
+import { contentSearch } from './contentSearch.svelte';
 
 export type SortOrder = 'sort_order' | 'due_date' | 'created_date' | 'updated_at' | 'priority';
 export type SortDirection = 'asc' | 'desc';
@@ -66,11 +67,19 @@ function createTodoFilteringStore() {
 		} catch (error) {
 			console.warn('Failed to load filtering preferences:', error);
 		}
+		syncContentSearch();
+	}
+
+	/** Keep the server-side content match in step with the search filters. */
+	function syncContentSearch() {
+		const { boardId, search, searchContent } = state.filters;
+		contentSearch.sync(boardId, searchContent ? search : undefined);
 	}
 
 	// Save preferences to localStorage
 	function savePreferences() {
 		if (!browser) return;
+		syncContentSearch();
 
 		try {
 			localStorage.setItem(
@@ -86,7 +95,7 @@ function createTodoFilteringStore() {
 	}
 
 	// Filter based on current filters
-	function filterTodos(todos: TodoFieldsFragment[], currentUserId?: string): TodoFieldsFragment[] {
+	function filterTodos(todos: BoardTodo[], currentUserId?: string): BoardTodo[] {
 		return todos.filter((todo) => {
 			if (todo.list?.board?.id !== state.filters.boardId) return false;
 
@@ -109,9 +118,10 @@ function createTodoFilteringStore() {
 				const searchTerm = state.filters.search.toLowerCase();
 				const titleMatch = todo.title.toLowerCase().includes(searchTerm);
 
-				// Only search content if searchContent flag is true
+				// Content: the board holds no bodies (#211), so the server match or a loaded body
 				if (state.filters.searchContent) {
-					const contentMatch = todo.content?.toLowerCase().includes(searchTerm) || false;
+					const contentMatch =
+						contentSearch.has(todo.id) || !!todo.content?.toLowerCase().includes(searchTerm);
 					if (!titleMatch && !contentMatch) return false;
 				} else {
 					if (!titleMatch) return false;
@@ -168,7 +178,7 @@ function createTodoFilteringStore() {
 	}
 
 	// Sort based on current sorting
-	function sortTodos(todos: TodoFieldsFragment[]): TodoFieldsFragment[] {
+	function sortTodos(todos: BoardTodo[]): BoardTodo[] {
 		const sorted = [...todos].sort((a, b) => {
 			let aValue: any;
 			let bValue: any;
@@ -207,7 +217,7 @@ function createTodoFilteringStore() {
 		return sorted;
 	}
 
-	function paginateTodos(todos: TodoFieldsFragment[]): TodoFieldsFragment[] {
+	function paginateTodos(todos: BoardTodo[]): BoardTodo[] {
 		const start = state.pagination.offset;
 		const end = start + state.pagination.limit;
 		const paginatedTodos = todos.slice(start, end);
@@ -220,10 +230,10 @@ function createTodoFilteringStore() {
 
 	// Get filtered, sorted & paginated
 	function getProcessedTodos(
-		todos: TodoFieldsFragment[],
+		todos: BoardTodo[],
 		includePagination = true,
 		currentUserId?: string
-	): TodoFieldsFragment[] {
+	): BoardTodo[] {
 		let result = filterTodos(todos, currentUserId);
 		result = sortTodos(result);
 
@@ -235,17 +245,14 @@ function createTodoFilteringStore() {
 	}
 
 	// Group by list (for kanban only?)
-	function getTodosByList(
-		todos: TodoFieldsFragment[],
-		currentUserId?: string
-	): Map<string, TodoFieldsFragment[]> {
+	function getTodosByList(todos: BoardTodo[], currentUserId?: string): Map<string, BoardTodo[]> {
 		const filtered = filterTodos(
 			todos.filter((t) => !t.completed_at),
 			currentUserId
 		);
 		const sorted = sortTodos(filtered);
 
-		const groups = new Map<string, TodoFieldsFragment[]>();
+		const groups = new Map<string, BoardTodo[]>();
 
 		for (const todo of sorted) {
 			const listId = todo.list?.id || 'inbox';
@@ -335,18 +342,12 @@ function createTodoFilteringStore() {
 		resetPagination();
 	}
 
-	function getActiveTodos(
-		todos: TodoFieldsFragment[],
-		currentUserId?: string
-	): TodoFieldsFragment[] {
+	function getActiveTodos(todos: BoardTodo[], currentUserId?: string): BoardTodo[] {
 		const activeOnly = todos.filter((t) => !t.completed_at);
 		return getProcessedTodos(activeOnly, false, currentUserId); // Don't include pagination
 	}
 
-	function getCompletedTodos(
-		todos: TodoFieldsFragment[],
-		currentUserId?: string
-	): TodoFieldsFragment[] {
+	function getCompletedTodos(todos: BoardTodo[], currentUserId?: string): BoardTodo[] {
 		const completedOnly = todos.filter((t) => !!t.completed_at);
 		return sortTodos(filterTodos(completedOnly, currentUserId));
 	}

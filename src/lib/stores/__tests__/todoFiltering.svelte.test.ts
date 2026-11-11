@@ -1,7 +1,7 @@
 /** @file src/lib/stores/__tests__/todoFiltering.svelte.test.ts */
 import { todoFilteringStore } from '../todoFiltering.svelte';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+import type { BoardTodo } from '$lib/types/todo';
 
 const localStorageMock = (() => {
 	let store: Record<string, string> = {};
@@ -28,7 +28,7 @@ vi.mock('$app/environment', () => ({
 	browser: true
 }));
 
-const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFieldsFragment => ({
+const createMockTodo = (overrides: Partial<BoardTodo> = {}): BoardTodo => ({
 	id: 'test-id',
 	alias: 'test-alias',
 	title: 'Test Todo',
@@ -44,7 +44,7 @@ const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFields
 	list: null,
 	uploads: [],
 	labels: [],
-	comments: [],
+	comments_aggregate: { aggregate: { count: 0 } },
 	assignees: [],
 	subscribers: [],
 	claude_usages_aggregate: { aggregate: null },
@@ -143,7 +143,7 @@ describe('TodoFilteringStore', () => {
 	});
 
 	describe('Todo Filtering Logic', () => {
-		const mockTodos: TodoFieldsFragment[] = [
+		const mockTodos: BoardTodo[] = [
 			createMockTodo({
 				id: '1',
 				title: 'Active Todo',
@@ -246,9 +246,7 @@ describe('TodoFilteringStore', () => {
 			const filtered = todoFilteringStore.filterTodos(mockTodos);
 
 			expect(filtered).toHaveLength(4);
-			expect(filtered.every((todo: TodoFieldsFragment) => todo.list?.board?.id === 'board1')).toBe(
-				true
-			);
+			expect(filtered.every((todo: BoardTodo) => todo.list?.board?.id === 'board1')).toBe(true);
 		});
 
 		it('should filter by search term in title and content', () => {
@@ -324,7 +322,7 @@ describe('TodoFilteringStore', () => {
 			const filtered = todoFilteringStore.filterTodos(todosWithContent);
 
 			expect(filtered).toHaveLength(2);
-			expect(filtered.map((t: TodoFieldsFragment) => t.id)).toEqual(['1', '2']);
+			expect(filtered.map((t: BoardTodo) => t.id)).toEqual(['1', '2']);
 		});
 
 		it('should filter overdue todos correctly', () => {
@@ -379,28 +377,28 @@ describe('TodoFilteringStore', () => {
 			todoFilteringStore.setSorting('sort_order', 'asc');
 			const sorted = todoFilteringStore.sortTodos(unsortedTodos);
 
-			expect(sorted.map((t: TodoFieldsFragment) => t.id)).toEqual(['2', '3', '1']);
+			expect(sorted.map((t: BoardTodo) => t.id)).toEqual(['2', '3', '1']);
 		});
 
 		it('should sort by due date with nulls last', () => {
 			todoFilteringStore.setSorting('due_date', 'asc');
 			const sorted = todoFilteringStore.sortTodos(unsortedTodos);
 
-			expect(sorted.map((t: TodoFieldsFragment) => t.id)).toEqual(['2', '3', '1']);
+			expect(sorted.map((t: BoardTodo) => t.id)).toEqual(['2', '3', '1']);
 		});
 
 		it('should sort by priority correctly', () => {
 			todoFilteringStore.setSorting('priority', 'desc');
 			const sorted = todoFilteringStore.sortTodos(unsortedTodos);
 
-			expect(sorted.map((t: TodoFieldsFragment) => t.id)).toEqual(['2', '3', '1']); // high, medium, low
+			expect(sorted.map((t: BoardTodo) => t.id)).toEqual(['2', '3', '1']); // high, medium, low
 		});
 
 		it('should respect sort direction', () => {
 			todoFilteringStore.setSorting('sort_order', 'desc');
 			const sorted = todoFilteringStore.sortTodos(unsortedTodos);
 
-			expect(sorted.map((t: TodoFieldsFragment) => t.id)).toEqual(['1', '3', '2']);
+			expect(sorted.map((t: BoardTodo) => t.id)).toEqual(['1', '3', '2']);
 		});
 	});
 
@@ -445,7 +443,7 @@ describe('TodoFilteringStore', () => {
 	});
 
 	describe('Board scoping and clearing (#207)', () => {
-		const boardTodo = (id: string, overrides: Partial<TodoFieldsFragment> = {}) =>
+		const boardTodo = (id: string, overrides: Partial<BoardTodo> = {}) =>
 			createMockTodo({
 				id,
 				list: {
@@ -454,7 +452,7 @@ describe('TodoFilteringStore', () => {
 					sort_order: 1,
 					board: { id: 'board1', name: 'B', alias: 'b', sort_order: 1, user: {} },
 					__typename: 'lists'
-				} as TodoFieldsFragment['list'],
+				} as BoardTodo['list'],
 				...overrides
 			});
 

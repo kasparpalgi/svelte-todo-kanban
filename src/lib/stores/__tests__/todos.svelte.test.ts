@@ -1,7 +1,7 @@
 /** @file src/lib/stores/__tests__/todos.svelte.test.ts */
 import { todosStore } from '../todos.svelte';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { TodoFieldsFragment } from '$lib/graphql/generated/graphql';
+import type { BoardTodo } from '$lib/types/todo';
 
 vi.mock('../user.svelte', () => ({
 	userStore: { user: { id: 'user-1', name: 'Test', username: 'test', email: 'test@example.com' } }
@@ -26,7 +26,7 @@ vi.mock('$app/environment', () => ({
 
 vi.mock('$lib/graphql/client');
 
-const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFieldsFragment => ({
+const createMockTodo = (overrides: Partial<BoardTodo> = {}): BoardTodo => ({
 	id: 'test-id',
 	alias: 'test-alias',
 	title: 'Test Todo',
@@ -42,7 +42,7 @@ const createMockTodo = (overrides: Partial<TodoFieldsFragment> = {}): TodoFields
 	list: null,
 	uploads: [],
 	labels: [],
-	comments: [],
+	comments_aggregate: { aggregate: { count: 0 } },
 	assignees: [],
 	subscribers: [],
 	claude_usages_aggregate: { aggregate: null },

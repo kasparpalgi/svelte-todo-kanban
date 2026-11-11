@@ -1,12 +1,14 @@
 /** @file src/lib/graphql/documents.ts */
 import { graphql } from './generated';
 
+// What the board needs per card (#211): no full body and no comments, which were most of
+// a 3.6 MB board load. A card opening fetches TodoDetailFields via GET_TODO_DETAILS.
 export const TODO_FRAGMENT = graphql(`
 	fragment TodoFields on todos {
 		id
 		alias
 		title
-		content
+		content_preview
 		due_on
 		has_time
 		sort_order
@@ -59,8 +61,10 @@ export const TODO_FRAGMENT = graphql(`
 				...LabelFields
 			}
 		}
-		comments(order_by: { created_at: asc }) {
-			...CommentFields
+		comments_aggregate {
+			aggregate {
+				count
+			}
 		}
 		uploads {
 			id
@@ -97,6 +101,13 @@ export const TODO_FRAGMENT = graphql(`
 				}
 			}
 		}
+	}
+`);
+
+export const TODO_DETAIL_FRAGMENT = graphql(`
+	fragment TodoDetailFields on todos {
+		...TodoFields
+		content
 	}
 `);
 
@@ -308,6 +319,23 @@ export const GET_TODOS = graphql(`
 	}
 `);
 
+export const GET_TODO_DETAILS = graphql(`
+	query GetTodoDetails($where: todos_bool_exp!) {
+		todos(where: $where, limit: 1) {
+			...TodoDetailFields
+		}
+	}
+`);
+
+// "Search in content": the board holds no full bodies (#211), so the match runs in Postgres.
+export const SEARCH_TODO_CONTENT = graphql(`
+	query SearchTodoContent($where: todos_bool_exp!) {
+		todos(where: $where) {
+			id
+		}
+	}
+`);
+
 // Everything that changes what a board shows, in a few bytes per card: the poll
 // compares it with the last one and refetches the full board only on a change. The
 // full GET_TODOS of a 334-card board was 2.3 MB / ~6 s every 30 s (#209). Labels and
@@ -389,7 +417,7 @@ export const CREATE_TODO = graphql(`
 	mutation CreateTodo($objects: [todos_insert_input!]!) {
 		insert_todos(objects: $objects) {
 			returning {
-				...TodoFields
+				...TodoDetailFields
 			}
 		}
 	}
@@ -400,7 +428,7 @@ export const UPDATE_TODOS = graphql(`
 		update_todos(where: $where, _set: $_set) {
 			affected_rows
 			returning {
-				...TodoFields
+				...TodoDetailFields
 			}
 		}
 	}
