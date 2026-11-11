@@ -21,6 +21,7 @@ import type {
 } from '$lib/graphql/generated/graphql';
 import type { StoreResult } from '$lib/types/todo';
 import { userStore } from './user.svelte';
+import { listsStore } from './listsBoards.svelte';
 
 interface CommentsState {
 	comments: CommentFieldsFragment[];
@@ -217,7 +218,7 @@ function createCommentsStore() {
 				// Sync to GitHub if todo has a GitHub issue
 				const githubIssueNumber = todo?.github_issue_number;
 				const githubIssueId = todo?.github_issue_id;
-				const boardGithub = todo?.list?.board?.github;
+				const boardGithub = listsStore.boardById(todo?.list?.board?.id)?.github;
 
 				if (githubIssueNumber && githubIssueId && boardGithub) {
 					try {
@@ -358,7 +359,7 @@ function createCommentsStore() {
 			if (data.delete_comments?.affected_rows && data.delete_comments.affected_rows > 0) {
 				// Sync deletion to GitHub if comment has a GitHub ID
 				const githubCommentId = comment.github_comment_id;
-				const boardGithub = todo?.list?.board?.github;
+				const boardGithub = listsStore.boardById(todo?.list?.board?.id)?.github;
 
 				if (githubCommentId && boardGithub) {
 					try {

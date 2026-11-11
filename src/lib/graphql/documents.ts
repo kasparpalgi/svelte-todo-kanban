@@ -88,17 +88,6 @@ export const TODO_FRAGMENT = graphql(`
 			sort_order
 			board {
 				id
-				name
-				alias
-				sort_order
-				github
-				settings
-				user_id
-				user {
-					claude_plan
-					claude_plan_monthly
-					claude_plan_currency
-				}
 			}
 		}
 	}
@@ -196,6 +185,9 @@ export const BOARD_FRAGMENT = graphql(`
 			id
 			username
 			email
+			claude_plan
+			claude_plan_monthly
+			claude_plan_currency
 		}
 		board_members {
 			...BoardMemberFields

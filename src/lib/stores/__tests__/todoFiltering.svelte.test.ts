@@ -154,12 +154,6 @@ describe('TodoFilteringStore', () => {
 					sort_order: 1,
 					board: {
 						id: 'board1',
-						name: 'Main Board',
-						alias: 'main-board',
-						sort_order: 1,
-						settings: {},
-						user_id: 'user1',
-						user: {},
 						__typename: 'boards'
 					},
 					__typename: 'lists'
@@ -175,12 +169,6 @@ describe('TodoFilteringStore', () => {
 					sort_order: 1,
 					board: {
 						id: 'board1',
-						name: 'Main Board',
-						alias: 'main-board',
-						sort_order: 1,
-						settings: {},
-						user_id: 'user1',
-						user: {},
 						__typename: 'boards'
 					},
 					__typename: 'lists'
@@ -197,12 +185,6 @@ describe('TodoFilteringStore', () => {
 					sort_order: 1,
 					board: {
 						id: 'board1',
-						name: 'Main Board',
-						alias: 'main-board',
-						sort_order: 1,
-						settings: {},
-						user_id: 'user1',
-						user: {},
 						__typename: 'boards'
 					},
 					__typename: 'lists'
@@ -219,12 +201,6 @@ describe('TodoFilteringStore', () => {
 					sort_order: 1,
 					board: {
 						id: 'board1',
-						name: 'Main Board',
-						alias: 'main-board',
-						sort_order: 1,
-						settings: null,
-						user_id: 'user1',
-						user: {},
 						__typename: 'boards'
 					},
 					__typename: 'lists'
@@ -261,12 +237,6 @@ describe('TodoFilteringStore', () => {
 						sort_order: 1,
 						board: {
 							id: 'board1',
-							name: 'Main Board',
-							alias: 'main-board',
-							sort_order: 1,
-							settings: null,
-							user_id: 'user1',
-							user: {},
 							__typename: 'boards'
 						},
 						__typename: 'lists'
@@ -282,12 +252,6 @@ describe('TodoFilteringStore', () => {
 						sort_order: 1,
 						board: {
 							id: 'board1',
-							name: 'Main Board',
-							alias: 'main-board',
-							sort_order: 1,
-							settings: null,
-							user_id: 'user1',
-							user: {},
 							__typename: 'boards'
 						},
 						__typename: 'lists'
@@ -303,12 +267,6 @@ describe('TodoFilteringStore', () => {
 						sort_order: 1,
 						board: {
 							id: 'board1',
-							name: 'Main Board',
-							alias: 'main-board',
-							sort_order: 1,
-							settings: null,
-							user_id: 'user1',
-							user: {},
 							__typename: 'boards'
 						},
 						__typename: 'lists'

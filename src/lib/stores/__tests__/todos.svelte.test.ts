@@ -1,5 +1,6 @@
 /** @file src/lib/stores/__tests__/todos.svelte.test.ts */
 import { todosStore } from '../todos.svelte';
+import { listsStore } from '../listsBoards.svelte';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { BoardTodo } from '$lib/types/todo';
 
@@ -121,19 +122,15 @@ describe('TodosStore', () => {
 			const fetchSpy = vi.fn().mockResolvedValue({ ok: true });
 			vi.stubGlobal('fetch', fetchSpy);
 
+			// Cards carry only the board id (#222); the board's GitHub comes from listsStore.
+			const boardSpy = vi.spyOn(listsStore, 'boardById').mockReturnValue({
+				id: 'board-1',
+				github: JSON.stringify({ owner: 'acme', repo: 'app' })
+			} as any);
 			const todoWithGithub = createMockTodo({
 				id: 'gh-1',
 				title: 'GitHub Todo',
-				list: {
-					id: 'list-1',
-					name: 'Backlog',
-					board: {
-						id: 'board-1',
-						name: 'My Board',
-						alias: 'my-board',
-						github: JSON.stringify({ owner: 'acme', repo: 'app' })
-					} as any
-				} as any
+				list: { id: 'list-1', name: 'Backlog', board: { id: 'board-1' } } as any
 			});
 
 			const { request } = await import('$lib/graphql/client');
@@ -146,6 +143,7 @@ describe('TodosStore', () => {
 			);
 			expect(draftCalls).toHaveLength(1);
 
+			boardSpy.mockRestore();
 			vi.unstubAllGlobals();
 		});
 

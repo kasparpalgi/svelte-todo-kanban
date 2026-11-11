@@ -5,6 +5,7 @@
 	import { t } from '$lib/i18n';
 	import { z } from 'zod';
 	import { todosStore } from '$lib/stores/todos.svelte';
+	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { upgradeStore } from '$lib/stores/upgrade.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
@@ -59,7 +60,8 @@
 		}
 	}
 
-	const taskFileUrl = $derived(githubFileUrl(todo.list?.board?.github, todo.task_file_path));
+	const board = $derived(listsStore.boardById(todo.list?.board?.id));
+	const taskFileUrl = $derived(githubFileUrl(board?.github, todo.task_file_path));
 	// The edit form is seeded once from the card; later store refreshes of `todo`
 	// must not clobber in-progress edits.
 	const initial = untrack(() => todo);
@@ -638,7 +640,7 @@
 				</select>
 			</div>
 
-			{#if todo.list?.board?.settings?.enable_model_effort ?? true}
+			{#if board?.settings?.enable_model_effort ?? true}
 				<div>
 					<Label for="agent-model" class="mb-2 flex items-center gap-2">
 						{$t('card.agent_model_label')}
@@ -713,7 +715,7 @@
 			{/if}
 		</div>
 
-		{#if todo.list?.board?.settings?.enable_hour_tracking}
+		{#if board?.settings?.enable_hour_tracking}
 			<CardHourTracking
 				bind:min_hours={editData.min_hours}
 				bind:max_hours={editData.max_hours}

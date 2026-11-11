@@ -205,6 +205,19 @@ describe('ListsStore - archive boards', () => {
 		});
 	});
 
+	describe('boardById', () => {
+		it('finds a card board by id, including a viewed public board (#222)', async () => {
+			const publicBoard = createMockBoard({ id: 'board-9', is_public: true });
+			const { request } = await import('$lib/graphql/client');
+			vi.mocked(request).mockResolvedValue({ boards: [publicBoard] });
+			await listsStore.loadBoardByAlias('test-board');
+
+			expect(listsStore.boardById('board-9')).toEqual(publicBoard);
+			expect(listsStore.boardById('missing')).toBeUndefined();
+			expect(listsStore.boardById(null)).toBeUndefined();
+		});
+	});
+
 	describe('archiveBoard', () => {
 		it('optimistically moves the board from boards to archivedBoards on success', async () => {
 			const board = createMockBoard();

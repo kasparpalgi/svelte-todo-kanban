@@ -319,14 +319,12 @@ function createTodosStore() {
 	 * Non-blocking: errors are logged but don't fail the todo update
 	 */
 	async function syncTodoToGithub(todo: BoardTodo, updates: any, originalTodo: BoardTodo) {
-		if (!todo.list || !(todo.list.board as any)?.github || !(todo as any).github_issue_number) {
+		const boardGithub = listsStore.boardById(todo.list?.board?.id)?.github;
+		if (!boardGithub || !todo.github_issue_number) {
 			return; // Board not connected or todo not linked to issue
 		}
 
-		const githubData =
-			typeof (todo.list.board as any).github === 'string'
-				? JSON.parse((todo.list.board as any).github)
-				: (todo.list.board as any).github;
+		const githubData = typeof boardGithub === 'string' ? JSON.parse(boardGithub) : boardGithub;
 		const { owner, repo } = githubData as { owner: string; repo: string };
 
 		// Determine what changed and needs to be synced
@@ -492,16 +490,7 @@ function createTodosStore() {
 							id: listData.id,
 							name: listData.name,
 							sort_order: listData.sort_order,
-							board: listData.board
-								? {
-										id: listData.board.id,
-										name: listData.board.name,
-										alias: listData.board.alias,
-										sort_order: listData.board.sort_order,
-										github: listData.board.github ?? null,
-										settings: (listData.board as any).settings ?? null
-									}
-								: null
+							board: listData.board ? { id: listData.board.id } : null
 						}
 					: null
 			} as unknown as BoardTodo;
@@ -619,7 +608,7 @@ function createTodosStore() {
 				// Written last, and only once the issue exists: the issue number is the task
 				// file's number, so a draft created first would be numbered wrong.
 				// Only write draft file if GitHub integration is enabled AND the user didn't opt out.
-				const boardGithub = (newTodo as any).list?.board?.github;
+				const boardGithub = listsStore.boardById(newTodo.list?.board?.id)?.github;
 				if (createGithubIssue && boardGithub && newTodo.id) {
 					fetch('/api/github/write-draft-file', {
 						method: 'POST',
@@ -1113,7 +1102,7 @@ function createTodosStore() {
 		const todo = state.todos.find((t) => t.id === id);
 		const githubIssueNumber = (todo as any)?.github_issue_number;
 		const githubIssueId = (todo as any)?.github_issue_id;
-		const boardGithub = todo?.list?.board?.github;
+		const boardGithub = listsStore.boardById(todo?.list?.board?.id)?.github;
 
 		// Log activity BEFORE deletion (since todo will be removed)
 		if (todo) {

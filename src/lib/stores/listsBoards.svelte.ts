@@ -51,6 +51,13 @@ function createListsStore() {
 		)
 	);
 
+	// Cards carry only `list.board.id` (#222); the full board lives here once.
+	function boardById(id: string | null | undefined): BoardFieldsFragment | undefined {
+		if (!id) return undefined;
+		if (selectedBoard?.id === id) return selectedBoard;
+		return boards.find((b) => b.id === id) ?? archivedBoards.find((b) => b.id === id);
+	}
+
 	async function loadLists(): Promise<ListFieldsFragment[]> {
 		if (!browser) return [];
 
@@ -608,6 +615,7 @@ function createListsStore() {
 			return boardsInitialized;
 		},
 
+		boardById,
 		loadLists,
 		loadBoards,
 		loadArchivedBoards,
