@@ -193,5 +193,43 @@ describe('todosStore races (#209)', () => {
 			expect(await todosStore.refreshBoardTodosIfChanged(board)).toBe(true);
 			expect(fullFetches()).toBe(4);
 		});
+
+		// #223: a drag/Ctrl+Arrow move is an optimistic sort_order write. A poll that
+		// fetched before it committed must not put the card back where it was.
+		it('a poll does not overwrite a sort_order write still in flight', async () => {
+			const update = deferred<unknown>();
+			const base = vi.mocked(request).getMockImplementation()!;
+			vi.mocked(request).mockImplementation(async (doc: any, vars: any) =>
+				opName(doc) === 'UpdateTodos' ? update.promise : base(doc, vars)
+			);
+
+			const moving = todosStore.updateTodo('a', { sort_order: 0 });
+			expect(await todosStore.refreshBoardTodosIfChanged(board)).toBe(false);
+			expect(todosStore.todos[0].sort_order).toBe(0);
+
+			update.resolve({ update_todos: { returning: [todo({ id: 'a', sort_order: 0 })] } });
+			await moving;
+			// Skipped, so the fingerprint was not recorded: the next poll refreshes.
+			expect(await todosStore.refreshBoardTodosIfChanged(board)).toBe(true);
+		});
+
+		it('a poll whose fetch started before a write committed is dropped', async () => {
+			const fetched = deferred<unknown>();
+			const base = vi.mocked(request).getMockImplementation()!;
+			vi.mocked(request).mockImplementation(async (doc: any, vars: any) => {
+				if (opName(doc) === 'GetTodos') return fetched.promise;
+				if (opName(doc) === 'UpdateTodos')
+					return { update_todos: { returning: [todo({ id: 'a', sort_order: 0 })] } };
+				return base(doc, vars);
+			});
+
+			const polling = todosStore.refreshBoardTodosIfChanged(board);
+			await vi.waitFor(() => expect(fullFetches()).toBe(2));
+			await todosStore.updateTodo('a', { sort_order: 0 });
+			fetched.resolve({ todos: [todo({ id: 'a', sort_order: 1 })] }); // pre-write copy
+
+			expect(await polling).toBe(false);
+			expect(todosStore.todos[0].sort_order).toBe(0);
+		});
 	});
 });

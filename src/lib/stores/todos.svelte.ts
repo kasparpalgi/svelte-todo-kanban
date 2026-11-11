@@ -52,6 +52,18 @@ function createTodosStore() {
 		return pendingCreates.get(id) ?? id;
 	}
 
+	// Card writes in flight, and how many ever started. A poll that lands while one is
+	// pending, or that fetched before one committed, holds the pre-write rows and would
+	// put a just-dragged card back where it was (#223) — refreshBoardTodos drops it.
+	let writesInFlight = 0;
+	let writesStarted = 0;
+
+	function trackWrite<T>(write: Promise<T>): Promise<T> {
+		writesInFlight++;
+		writesStarted++;
+		return write.finally(() => writesInFlight--);
+	}
+
 	// Board fingerprint at the last full poll refresh (see refreshBoardTodosIfChanged).
 	const FULL_REFRESH_MS = 5 * 60 * 1000;
 	let lastFingerprint: { boardId: string; value: string; at: number } | null = null;
@@ -505,17 +517,19 @@ function createTodosStore() {
 				];
 			}
 
-			const data: CreateTodoMutation = await request(CREATE_TODO, {
-				objects: [
-					{
-						title: title.trim(),
-						content: content?.trim() || null,
-						sort_order: sortOrder,
-						...(listId && { list_id: listId }),
-						assigned_to: us.user?.id || null
-					}
-				]
-			});
+			const data: CreateTodoMutation = await trackWrite(
+				request(CREATE_TODO, {
+					objects: [
+						{
+							title: title.trim(),
+							content: content?.trim() || null,
+							sort_order: sortOrder,
+							...(listId && { list_id: listId }),
+							assigned_to: us.user?.id || null
+						}
+					]
+				})
+			);
 
 			const newTodo = data.insert_todos?.returning?.[0];
 			if (newTodo) {
@@ -716,10 +730,9 @@ function createTodosStore() {
 		}
 
 		try {
-			const data: UpdateTodosMutation = await request(UPDATE_TODOS, {
-				where: { id: { _eq: id } },
-				_set: updates
-			});
+			const data: UpdateTodosMutation = await trackWrite(
+				request(UPDATE_TODOS, { where: { id: { _eq: id } }, _set: updates })
+			);
 
 			const updatedTodo = data.update_todos?.returning?.[0];
 			if (updatedTodo) {
@@ -1001,6 +1014,7 @@ function createTodosStore() {
 	async function refreshBoardTodos(boardId: string): Promise<boolean> {
 		if (!browser) return false;
 
+		const startedBefore = writesStarted;
 		try {
 			const { Order_By } = await import('$lib/graphql/generated/graphql');
 
@@ -1034,6 +1048,8 @@ function createTodosStore() {
 
 			// Board may have changed while this request was in flight
 			if (state.currentBoardId !== boardId) return false;
+			// Not recorded as refreshed, so the next poll tries again (#223).
+			if (writesInFlight > 0 || writesStarted !== startedBefore) return false;
 
 			state.todos = keepLoadedContent([
 				...(activeData.todos || []),
@@ -1115,9 +1131,9 @@ function createTodosStore() {
 		}
 
 		try {
-			const data: DeleteTodosMutation = await request(DELETE_TODOS, {
-				where: { id: { _eq: id } }
-			});
+			const data: DeleteTodosMutation = await trackWrite(
+				request(DELETE_TODOS, { where: { id: { _eq: id } } })
+			);
 
 			if (data.delete_todos?.affected_rows && data.delete_todos.affected_rows > 0) {
 				// Close GitHub issue if this todo was linked to one

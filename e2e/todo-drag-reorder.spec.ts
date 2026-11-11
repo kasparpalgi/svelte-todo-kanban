@@ -11,9 +11,10 @@
 import { test, expect, type Locator, type Page } from '@playwright/test';
 import { addCards, createList, deleteList, gotoBoard } from './board';
 
-const stamp = Date.now();
-const LIST = `Reorder ${stamp}`;
-const CARDS = [`Alpha ${stamp}`, `Bravo ${stamp}`, `Charlie ${stamp}`];
+// Named per run in beforeAll: the module loads once per worker, so a module-level stamp
+// gave every --repeat-each run the same list, and one failed cleanup broke the next run.
+let LIST = '';
+let CARDS: string[] = [];
 
 /** Titles of the cards in `LIST`, top-to-bottom, as currently rendered. */
 async function listOrder(page: Page): Promise<string[]> {
@@ -32,8 +33,11 @@ test.describe.serial('Board card reordering', () => {
 	let page: Page;
 	let list: Locator;
 
-	test.beforeAll(async ({ browser }) => {
+	test.beforeAll(async ({ browser }, testInfo) => {
 		test.setTimeout(90_000);
+		const stamp = `${Date.now()}-${testInfo.repeatEachIndex}`;
+		LIST = `Reorder ${stamp}`;
+		CARDS = [`Alpha ${stamp}`, `Bravo ${stamp}`, `Charlie ${stamp}`];
 		page = await browser.newPage();
 		await gotoBoard(page);
 		list = await createList(page, LIST);
