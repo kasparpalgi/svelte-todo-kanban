@@ -46,3 +46,5 @@ measurements: `.claude/todo/215-planAndMoveTo-DONE.md`.
 
 **After:** watch Workers → Metrics → CPU time. If exceeded-CPU errors (1102) show up on heavy
 pages, the fix is Workers Paid at $5/mo, not code.
+
+_GitHub issue #218 — end the commit subject with `(#218)`._
