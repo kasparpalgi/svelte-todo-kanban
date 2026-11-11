@@ -1,3 +1,6 @@
+> Run with: Opus 5.5 / high
+> Machine: mac
+
 # Speed up auth token endpoint
 
 ## Original Requirement
