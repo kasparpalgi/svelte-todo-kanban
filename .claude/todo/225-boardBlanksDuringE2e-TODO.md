@@ -28,3 +28,5 @@ Reproduce with `npx playwright test e2e/todo-drag-reorder.spec.ts --project=setu
 first, then decide whether (2) and (3) are app bugs or spec flakes.
 
 _GitHub issue #225 — end the commit subject with `(#225)`._
+
+_From Kanban card `d0e3402e-5902-4620-9c20-136fb972d1b4`, moved to the agent list._
