@@ -508,7 +508,7 @@
 									<span class="sr-only">{$t('todo.move_card_keyboard_hint')}</span>
 								{/if}
 								<h3
-									class="text-sm leading-tight font-medium {todo.completed_at
+									class="text-sm leading-tight font-medium [overflow-wrap:anywhere] {todo.completed_at
 										? 'text-muted-foreground line-through'
 										: ''}"
 								>
@@ -517,7 +517,7 @@
 
 								{#if todo.content}
 									<p
-										class="mt-0.5 text-xs leading-tight text-muted-foreground {todo.completed_at
+										class="mt-0.5 text-xs leading-tight [overflow-wrap:anywhere] text-muted-foreground {todo.completed_at
 											? 'line-through'
 											: ''}"
 									>
