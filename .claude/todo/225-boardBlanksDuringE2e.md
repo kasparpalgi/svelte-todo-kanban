@@ -26,3 +26,5 @@ left, none of them the poll overwriting a reorder:
 Reproduce with `npx playwright test e2e/todo-drag-reorder.spec.ts --project=setup
 --project=authenticated --repeat-each=20 --trace=retain-on-failure`, find the cause of (1)
 first, then decide whether (2) and (3) are app bugs or spec flakes.
+
+_GitHub issue #225 — end the commit subject with `(#225)`._
