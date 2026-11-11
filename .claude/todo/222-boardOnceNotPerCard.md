@@ -20,3 +20,5 @@ inside `TodoFields`: the same board JSON repeated on every card — 193 KB of th
 - Consider trimming `content_preview` to ~150 chars if the card preview still reads the same.
 
 Measure before/after on tekdok the same way #211 did (GetTodos as the board owner).
+
+_GitHub issue #222 — end the commit subject with `(#222)`._
