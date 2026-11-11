@@ -28,3 +28,5 @@ crypt(pw, '$2a$' || substr(hash, 5)) = '$2a$' || substr(hash, 5)   -- right pw â
 3. Remove `bcryptjs` and `@types/bcryptjs` if nothing else uses them.
 4. Check: unit tests for `password.ts` with the request mocked, `npm run check`, then sign-up and
    sign-in by hand with a new account and with an existing password user.
+
+_GitHub issue #217 â€” end the commit subject with `(#217)`._
