@@ -23,3 +23,5 @@ holds the app's R2 keys (`CLOUDFARE_ACCESS_KEY_ID`, `CLOUDFARE_SECRET_ACCESS_KEY
 3. Add the new env names to `.env.example`. Check: unit tests for `storeFile` and one real upload.
 
 _GitHub issue #219 — end the commit subject with `(#219)`._
+
+_From Kanban card `656dcd1a-caa0-4965-999d-58ba4f172722`, moved to the agent list._
