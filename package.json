@@ -1,7 +1,7 @@
 {
 	"name": "svelte-todo-kanban",
 	"private": true,
-	"version": "0.27.3",
+	"version": "0.27.4",
 	"type": "module",
 	"scripts": {
 		"generate": "graphql-codegen --require dotenv/config && node fix-imports.cjs",
@@ -41,6 +41,7 @@
 		"@playwright/test": "^1.63.0",
 		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/adapter-cloudflare": "^7.2.10",
+		"@sveltejs/adapter-vercel": "^6.3.5",
 		"@sveltejs/kit": "^2.22.0",
 		"@sveltejs/vite-plugin-svelte": "^6.0.0",
 		"@tailwindcss/typography": "^0.5.15",

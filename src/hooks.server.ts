@@ -194,11 +194,18 @@ const { handle: authHandle, signOut } = SvelteKitAuth(async () => ({
 					...token,
 					accessToken: newTokens.access_token,
 					expires_at: Math.floor(Date.now() / 1000 + newTokens.expires_in),
-					refreshToken: newTokens.refresh_token ?? token.refreshToken
+					refreshToken: newTokens.refresh_token ?? token.refreshToken,
+					error: undefined
 				};
 			} catch (error) {
 				console.error('Error refreshing access token', error);
-				return { ...token, error: 'RefreshAccessTokenError' };
+				// Retry in 5 min, not on every request: with the old expires_at kept, a dead
+				// refresh token cost a Google round trip on each page and token mint (#213).
+				return {
+					...token,
+					expires_at: Math.floor(Date.now() / 1000) + 5 * 60,
+					error: 'RefreshAccessTokenError'
+				};
 			}
 		},
 		session: async ({ session, token }) => {
@@ -214,6 +221,16 @@ const { handle: authHandle, signOut } = SvelteKitAuth(async () => ({
 		}
 	}
 }));
+
+// Auth.js re-runs the whole session check (decrypt, callbacks, re-encrypt, maybe a
+// Google refresh) on every locals.auth() call. This handle, the layout load and
+// /api/auth/token each call it, so share one result per request (#213).
+const memoAuthHandle: Handle = ({ event, resolve }) => {
+	const auth = event.locals.auth;
+	let session: ReturnType<typeof auth> | undefined;
+	event.locals.auth = () => (session ??= auth());
+	return resolve(event);
+};
 
 const securityHandle: Handle = async ({ event, resolve }) => {
 	const url = event.url;
@@ -247,4 +264,4 @@ const securityHandle: Handle = async ({ event, resolve }) => {
 };
 
 export { signOut };
-export const handle = sequence(authHandle, securityHandle);
+export const handle = sequence(authHandle, memoAuthHandle, securityHandle);
