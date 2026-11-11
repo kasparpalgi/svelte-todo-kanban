@@ -21,3 +21,5 @@ internal to CapRover, so it is not directly reachable from outside. It is still 
    `hasura metadata apply` only **after** the env var is set on the server, or Hasura loses its
    database.
 2. Make sure `hasura/docker-compose.yml` sets the same variable for local dev (it already does).
+
+_GitHub issue #220 — end the commit subject with `(#220)`._
