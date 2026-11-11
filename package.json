@@ -1,7 +1,7 @@
 {
 	"name": "svelte-todo-kanban",
 	"private": true,
-	"version": "0.26.1",
+	"version": "0.26.2",
 	"type": "module",
 	"scripts": {
 		"generate": "graphql-codegen --require dotenv/config && node fix-imports.cjs",
@@ -104,7 +104,6 @@
 		"date-fns": "^4.1.0",
 		"dotenv-cli": "^10.0.0",
 		"ffmpeg-static": "^5.3.0",
-		"googleapis": "^164.1.0",
 		"graphql": "^16.11.0",
 		"graphql-request": "^7.2.0",
 		"jsonwebtoken": "^9.0.2",

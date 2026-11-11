@@ -1,6 +1,6 @@
 /** @file src/routes/api/google-drive/list/+server.ts */
 import { json } from '@sveltejs/kit';
-import { google } from 'googleapis';
+import { googleFetch } from '$lib/server/google';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
@@ -15,14 +15,6 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		const folderId = url.searchParams.get('folderId') || 'root';
 		const type = url.searchParams.get('type') || 'all'; // 'folders', 'files', 'all'
 
-		// Initialize OAuth2 client with the access token
-		const oauth2Client = new google.auth.OAuth2();
-		oauth2Client.setCredentials({
-			access_token: session.accessToken
-		});
-
-		const drive = google.drive({ version: 'v3', auth: oauth2Client });
-
 		// Build query based on type
 		let query = `'${folderId}' in parents and trashed = false`;
 		if (type === 'folders') {
@@ -32,16 +24,18 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		}
 
 		// List files/folders
-		const response = await drive.files.list({
-			q: query,
-			fields: 'files(id, name, mimeType, modifiedTime, size, webViewLink, thumbnailLink)',
-			orderBy: 'folder,name',
-			pageSize: 1000
+		const data = await googleFetch(session.accessToken, 'https://www.googleapis.com/drive/v3/files', {
+			query: {
+				q: query,
+				fields: 'files(id, name, mimeType, modifiedTime, size, webViewLink, thumbnailLink)',
+				orderBy: 'folder,name',
+				pageSize: 1000
+			}
 		});
 
 		return json({
 			success: true,
-			items: response.data.files || [],
+			items: data.files || [],
 			folderId
 		});
 	} catch (error: any) {

@@ -1,6 +1,6 @@
 /** @file src/routes/api/google-sheets/create/+server.ts */
 import { json } from '@sveltejs/kit';
-import { google } from 'googleapis';
+import { googleFetch } from '$lib/server/google';
 import type { RequestHandler } from './$types';
 
 interface InvoiceRow {
@@ -27,13 +27,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			return json({ error: 'Invoices array is required' }, { status: 400 });
 		}
 
-		// Initialize OAuth2 client with the access token
-		const oauth2Client = new google.auth.OAuth2();
-		oauth2Client.setCredentials({
-			access_token: session.accessToken
-		});
-
-		const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
+		const token = session.accessToken;
 
 		// Create spreadsheet title
 		const spreadsheetTitle = title || `Invoices ${new Date().toISOString().split('T')[0]}`;
@@ -41,8 +35,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		console.log(`[GoogleSheets] Creating spreadsheet: ${spreadsheetTitle}`);
 
 		// Create new spreadsheet
-		const spreadsheet = await sheets.spreadsheets.create({
-			requestBody: {
+		const spreadsheet = await googleFetch(token, 'https://sheets.googleapis.com/v4/spreadsheets', {
+			method: 'POST',
+			body: {
 				properties: {
 					title: spreadsheetTitle
 				},
@@ -59,8 +54,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			}
 		});
 
-		const spreadsheetId = spreadsheet.data.spreadsheetId;
-		const sheetId = spreadsheet.data.sheets?.[0]?.properties?.sheetId;
+		const spreadsheetId: string | undefined = spreadsheet.spreadsheetId;
+		const sheetId: number | undefined = spreadsheet.sheets?.[0]?.properties?.sheetId;
 
 		if (!spreadsheetId) {
 			return json({ error: 'Failed to create spreadsheet' }, { status: 500 });
@@ -99,19 +94,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 		// Write data to spreadsheet
-		await sheets.spreadsheets.values.update({
-			spreadsheetId,
-			range: 'Invoices!A1',
-			valueInputOption: 'USER_ENTERED',
-			requestBody: {
-				values: rows
-			}
+		await googleFetch(token, `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Invoices!A1`, {
+			method: 'PUT',
+			query: { valueInputOption: 'USER_ENTERED' },
+			body: { values: rows }
 		});
 
 		// Format the spreadsheet
-		await sheets.spreadsheets.batchUpdate({
-			spreadsheetId,
-			requestBody: {
+		await googleFetch(token, `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+			method: 'POST',
+			body: {
 				requests: [
 					// Make header row bold
 					{

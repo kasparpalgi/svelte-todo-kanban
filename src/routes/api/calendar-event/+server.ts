@@ -2,7 +2,7 @@
 import { AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET } from '$env/static/private';
 import { UPDATE_USER } from '$lib/graphql/documents';
 import { json } from '@sveltejs/kit';
-import { google } from 'googleapis';
+import { googleFetch } from '$lib/server/google';
 import { serverRequest } from '$lib/graphql/server-client';
 import { decryptToken, encryptToken } from '$lib/utils/crypto';
 import type { RequestHandler } from './$types';
@@ -104,10 +104,6 @@ export const POST: RequestHandler = async ({ request }) => {
 			});
 		}
 
-		const oauth2Client = new google.auth.OAuth2();
-		oauth2Client.setCredentials({ access_token: accessToken });
-
-		const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
 		const dueDateTime = new Date(dueDate);
 		const isDateOnly = !hasTime;
 
@@ -143,24 +139,24 @@ export const POST: RequestHandler = async ({ request }) => {
 			console.log('Creating timed calendar event:', event);
 		}
 
-		const response = await calendar.events.insert({
-			calendarId,
-			requestBody: event
-		});
+		const created = await googleFetch(
+			accessToken,
+			`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
+			{ method: 'POST', body: event }
+		);
 
 		return json({
 			success: true,
-			eventId: response.data.id,
-			eventLink: response.data.htmlLink
+			eventId: created.id,
+			eventLink: created.htmlLink
 		});
 	} catch (error: any) {
 		console.error('Failed to create calendar event:', error);
-		console.error('Error details:', error.response?.data || error.message);
+
 		return json(
 			{
 				success: false,
-				error:
-					error.response?.data?.error?.message || error.message || 'Failed to create calendar event'
+				error: error.message || 'Failed to create calendar event'
 			},
 			{ status: 500 }
 		);

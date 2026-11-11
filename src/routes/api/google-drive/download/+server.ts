@@ -1,6 +1,6 @@
 /** @file src/routes/api/google-drive/download/+server.ts */
 import { json } from '@sveltejs/kit';
-import { google } from 'googleapis';
+import { googleFetch } from '$lib/server/google';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
@@ -17,40 +17,30 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			return json({ error: 'File ID is required' }, { status: 400 });
 		}
 
-		// Initialize OAuth2 client with the access token
-		const oauth2Client = new google.auth.OAuth2();
-		oauth2Client.setCredentials({
-			access_token: session.accessToken
-		});
-
-		const drive = google.drive({ version: 'v3', auth: oauth2Client });
+		const fileUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}`;
 
 		// Get file metadata
-		const fileMetadata = await drive.files.get({
-			fileId,
-			fields: 'id, name, mimeType, size'
+		const fileMetadata = await googleFetch(session.accessToken, fileUrl, {
+			query: { fields: 'id, name, mimeType, size' }
 		});
 
 		// Download file content
-		const response = await drive.files.get(
-			{
-				fileId,
-				alt: 'media'
-			},
-			{ responseType: 'arraybuffer' }
-		);
+		const content = await googleFetch<ArrayBuffer>(session.accessToken, fileUrl, {
+			query: { alt: 'media' },
+			raw: true
+		});
 
 		// Convert to base64 for transfer
-		const buffer = Buffer.from(response.data as ArrayBuffer);
+		const buffer = Buffer.from(content);
 		const base64 = buffer.toString('base64');
 
 		return json({
 			success: true,
 			file: {
-				id: fileMetadata.data.id,
-				name: fileMetadata.data.name,
-				mimeType: fileMetadata.data.mimeType,
-				size: fileMetadata.data.size,
+				id: fileMetadata.id,
+				name: fileMetadata.name,
+				mimeType: fileMetadata.mimeType,
+				size: fileMetadata.size,
 				content: base64
 			}
 		});

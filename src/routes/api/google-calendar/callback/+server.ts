@@ -4,7 +4,7 @@ import { UPDATE_USER } from '$lib/graphql/documents';
 import { redirect } from '@sveltejs/kit';
 import { encryptToken } from '$lib/utils/crypto';
 import { serverRequest } from '$lib/graphql/server-client';
-import { google } from 'googleapis';
+import { googleFetch } from '$lib/server/google';
 import type { RequestEvent } from './$types';
 
 interface GoogleTokenResponse {
@@ -112,16 +112,15 @@ export async function GET({ url }: RequestEvent) {
 		const userEmail = userData.users_by_pk.email || 'Unknown';
 
 		// Create or reuse a dedicated secondary calendar for this app
-		const oauth2Client = new google.auth.OAuth2();
-		oauth2Client.setCredentials({ access_token: tokenData.access_token });
-		const calendarApi = google.calendar({ version: 'v3', auth: oauth2Client });
 
 		let calendarId = currentSettings.tokens?.google_calendar?.calendar_id;
 		if (!calendarId) {
-			const newCalendar = await calendarApi.calendars.insert({
-				requestBody: { summary: 'ToDzz' }
-			});
-			calendarId = newCalendar.data.id;
+			const newCalendar = await googleFetch(
+				tokenData.access_token,
+				'https://www.googleapis.com/calendar/v3/calendars',
+				{ method: 'POST', body: { summary: 'ToDzz' } }
+			);
+			calendarId = newCalendar.id;
 			console.log('Created ToDzz calendar:', calendarId);
 		} else {
 			console.log('Reusing existing ToDzz calendar:', calendarId);
