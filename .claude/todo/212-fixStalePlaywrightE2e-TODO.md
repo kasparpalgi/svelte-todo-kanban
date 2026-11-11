@@ -1,3 +1,6 @@
+> Run with: Opus 5.5 / medium
+> Machine: mac
+
 # Fix stale Playwright e2e specs
 
 ## Original Requirement
