@@ -23,3 +23,5 @@ First measure prod after #213 deploys (the `Slow token fetch` warnings in `logs`
 they're gone, close this as not needed.
 
 _GitHub issue #224 — end the commit subject with `(#224)`._
+
+_From Kanban card `7525c783-bcdc-47c1-81ad-56b9e85273ba`, moved to the agent list._
