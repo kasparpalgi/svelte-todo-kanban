@@ -4035,6 +4035,12 @@ export type Comments_Variance_Order_By = {
   github_comment_id?: InputMaybe<Order_By>;
 };
 
+export type Create_Password_User_Args = {
+  user_email?: InputMaybe<Scalars['String']['input']>;
+  user_name?: InputMaybe<Scalars['String']['input']>;
+  user_password?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** ordering argument of a cursor */
 export enum Cursor_Ordering {
   /** ascending ordering of the cursor */
@@ -7300,6 +7306,8 @@ export type Logs_Updates = {
 /** mutation root */
 export type Mutation_Root = {
   __typename?: 'mutation_root';
+  /** execute VOLATILE function "create_password_user" which returns "users" */
+  create_password_user: Array<Users>;
   /** delete data from the table: "accounts" */
   delete_accounts?: Maybe<Accounts_Mutation_Response>;
   /** delete single row from the table: "accounts" */
@@ -7832,6 +7840,19 @@ export type Mutation_Root = {
   update_verification_tokens_by_pk?: Maybe<Verification_Tokens>;
   /** update multiples rows of table: "verification_tokens" */
   update_verification_tokens_many?: Maybe<Array<Maybe<Verification_Tokens_Mutation_Response>>>;
+  /** execute VOLATILE function "verify_user_password" which returns "users" */
+  verify_user_password: Array<Users>;
+};
+
+
+/** mutation root */
+export type Mutation_RootCreate_Password_UserArgs = {
+  args: Create_Password_User_Args;
+  distinct_on?: InputMaybe<Array<Users_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Users_Order_By>>;
+  where?: InputMaybe<Users_Bool_Exp>;
 };
 
 
@@ -9686,6 +9707,17 @@ export type Mutation_RootUpdate_Verification_Tokens_By_PkArgs = {
 /** mutation root */
 export type Mutation_RootUpdate_Verification_Tokens_ManyArgs = {
   updates: Array<Verification_Tokens_Updates>;
+};
+
+
+/** mutation root */
+export type Mutation_RootVerify_User_PasswordArgs = {
+  args: Verify_User_Password_Args;
+  distinct_on?: InputMaybe<Array<Users_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Users_Order_By>>;
+  where?: InputMaybe<Users_Bool_Exp>;
 };
 
 /** News items broadcast by admins (from ADMIN_EMAILS) to all users */
@@ -20318,6 +20350,11 @@ export type Verification_Tokens_Updates = {
   where: Verification_Tokens_Bool_Exp;
 };
 
+export type Verify_User_Password_Args = {
+  user_email?: InputMaybe<Scalars['String']['input']>;
+  user_password?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type TodoFieldsFragment = { __typename?: 'todos', id: string, alias: string, title: string, content?: string | null, due_on?: string | null, has_time: boolean, sort_order: number, priority?: string | null, list_id?: string | null, completed_at?: string | null, created_at: string, updated_at: string, assigned_to?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, github_synced_at?: string | null, github_url?: string | null, task_file_path?: string | null, agent_model?: string | null, agent_effort?: string | null, agent_machine?: string | null, agent_plan_first: boolean, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', sum?: { __typename?: 'claude_usage_sum_fields', cost_usd?: number | null } | null } | null }, assignee?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string, created_at: string, assignee: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, labels: Array<{ __typename?: 'todo_labels', label: { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null } }>, comments: Array<{ __typename?: 'comments', id: string, content: string, todo_id: string, user_id: string, created_at?: string | null, updated_at?: string | null, github_comment_id?: number | null, github_synced_at?: string | null, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, uploads: Array<{ __typename?: 'uploads', id: string, url: string, created_at: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, list?: { __typename?: 'lists', id: string, name: string, sort_order: number, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null, settings: any, user_id: string, user: { __typename?: 'users', claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null } } | null } | null };
 
 export type ListFieldsFragment = { __typename?: 'lists', id: string, name: string, sort_order: number, board_id?: string | null, created_at: string, updated_at: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, sort_order: number, github?: string | null } | null };
@@ -21125,6 +21162,23 @@ export type GetTodosForInvoicingQueryVariables = Exact<{
 
 
 export type GetTodosForInvoicingQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, title: string, actual_hours?: number | null, list_id?: string | null, completed_at?: string | null, list?: { __typename?: 'lists', id: string, name: string } | null }> };
+
+export type VerifyUserPasswordMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+}>;
+
+
+export type VerifyUserPasswordMutation = { __typename?: 'mutation_root', verify_user_password: Array<{ __typename?: 'users', id: string, name?: string | null, email?: string | null, username: string, image?: string | null }> };
+
+export type CreatePasswordUserMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+}>;
+
+
+export type CreatePasswordUserMutation = { __typename?: 'mutation_root', create_password_user: Array<{ __typename?: 'users', id: string, name?: string | null, email?: string | null, username: string, image?: string | null }> };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String
@@ -24453,3 +24507,27 @@ export const GetTodosForInvoicingDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetTodosForInvoicingQuery, GetTodosForInvoicingQueryVariables>;
+export const VerifyUserPasswordDocument = new TypedDocumentString(`
+    mutation VerifyUserPassword($email: String!, $password: String!) {
+  verify_user_password(args: {user_email: $email, user_password: $password}) {
+    id
+    name
+    email
+    username
+    image
+  }
+}
+    `) as unknown as TypedDocumentString<VerifyUserPasswordMutation, VerifyUserPasswordMutationVariables>;
+export const CreatePasswordUserDocument = new TypedDocumentString(`
+    mutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {
+  create_password_user(
+    args: {user_email: $email, user_name: $name, user_password: $password}
+  ) {
+    id
+    name
+    email
+    username
+    image
+  }
+}
+    `) as unknown as TypedDocumentString<CreatePasswordUserMutation, CreatePasswordUserMutationVariables>;

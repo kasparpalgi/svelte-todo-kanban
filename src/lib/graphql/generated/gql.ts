@@ -137,6 +137,8 @@ type Documents = {
     "\n\tmutation UpdateInvoiceStatus($id: uuid!, $status: String!) {\n\t\tupdate_invoices_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {\n\t\t\tid\n\t\t\tstatus\n\t\t}\n\t}\n": typeof types.UpdateInvoiceStatusDocument,
     "\n\tmutation DeleteInvoice($id: uuid!) {\n\t\tdelete_invoice_items(where: { invoice_id: { _eq: $id } }) {\n\t\t\taffected_rows\n\t\t}\n\t\tdelete_invoices_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteInvoiceDocument,
     "\n\tquery GetTodosForInvoicing($list_ids: [uuid!]!) {\n\t\ttodos(\n\t\t\twhere: { list_id: { _in: $list_ids }, actual_hours: { _gt: 0 } }\n\t\t\torder_by: { sort_order: asc }\n\t\t) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetTodosForInvoicingDocument,
+    "\n\tmutation VerifyUserPassword($email: String!, $password: String!) {\n\t\tverify_user_password(args: { user_email: $email, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": typeof types.VerifyUserPasswordDocument,
+    "\n\tmutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {\n\t\tcreate_password_user(args: { user_email: $email, user_name: $name, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": typeof types.CreatePasswordUserDocument,
 };
 const documents: Documents = {
     "\n\tfragment TodoFields on todos {\n\t\tid\n\t\talias\n\t\ttitle\n\t\tcontent\n\t\tdue_on\n\t\thas_time\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tassigned_to\n\t\tgithub_issue_number\n\t\tgithub_issue_id\n\t\tgithub_synced_at\n\t\tgithub_url\n\t\ttask_file_path\n\t\tagent_model\n\t\tagent_effort\n\t\tagent_machine\n\t\tagent_plan_first\n\t\tmin_hours\n\t\tmax_hours\n\t\tactual_hours\n\t\tcomment_hours\n\t\tclaude_usages_aggregate {\n\t\t\taggregate {\n\t\t\t\tsum {\n\t\t\t\t\tcost_usd\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\tassignee {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tassignees {\n\t\t\tuser_id\n\t\t\tcreated_at\n\t\t\tassignee {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tusername\n\t\t\t\timage\n\t\t\t\temail\n\t\t\t}\n\t\t}\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tcomments(order_by: { created_at: asc }) {\n\t\t\t...CommentFields\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tsubscribers {\n\t\t\tuser_id\n\t\t\tcreated_at\n\t\t\tsubscriber {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tusername\n\t\t\t\timage\n\t\t\t\temail\n\t\t\t}\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tsort_order\n\t\t\t\tgithub\n\t\t\t\tsettings\n\t\t\t\tuser_id\n\t\t\t\tuser {\n\t\t\t\t\tclaude_plan\n\t\t\t\t\tclaude_plan_monthly\n\t\t\t\t\tclaude_plan_currency\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.TodoFieldsFragmentDoc,
@@ -261,6 +263,8 @@ const documents: Documents = {
     "\n\tmutation UpdateInvoiceStatus($id: uuid!, $status: String!) {\n\t\tupdate_invoices_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {\n\t\t\tid\n\t\t\tstatus\n\t\t}\n\t}\n": types.UpdateInvoiceStatusDocument,
     "\n\tmutation DeleteInvoice($id: uuid!) {\n\t\tdelete_invoice_items(where: { invoice_id: { _eq: $id } }) {\n\t\t\taffected_rows\n\t\t}\n\t\tdelete_invoices_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteInvoiceDocument,
     "\n\tquery GetTodosForInvoicing($list_ids: [uuid!]!) {\n\t\ttodos(\n\t\t\twhere: { list_id: { _in: $list_ids }, actual_hours: { _gt: 0 } }\n\t\t\torder_by: { sort_order: asc }\n\t\t) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": types.GetTodosForInvoicingDocument,
+    "\n\tmutation VerifyUserPassword($email: String!, $password: String!) {\n\t\tverify_user_password(args: { user_email: $email, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": types.VerifyUserPasswordDocument,
+    "\n\tmutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {\n\t\tcreate_password_user(args: { user_email: $email, user_name: $name, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": types.CreatePasswordUserDocument,
 };
 
 /**
@@ -751,6 +755,14 @@ export function graphql(source: "\n\tmutation DeleteInvoice($id: uuid!) {\n\t\td
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tquery GetTodosForInvoicing($list_ids: [uuid!]!) {\n\t\ttodos(\n\t\t\twhere: { list_id: { _in: $list_ids }, actual_hours: { _gt: 0 } }\n\t\t\torder_by: { sort_order: asc }\n\t\t) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetTodosForInvoicingDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation VerifyUserPassword($email: String!, $password: String!) {\n\t\tverify_user_password(args: { user_email: $email, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n"): typeof import('./graphql').VerifyUserPasswordDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {\n\t\tcreate_password_user(args: { user_email: $email, user_name: $name, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n"): typeof import('./graphql').CreatePasswordUserDocument;
 
 
 export function graphql(source: string) {

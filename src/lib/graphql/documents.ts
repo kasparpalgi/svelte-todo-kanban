@@ -1800,3 +1800,28 @@ export const GET_TODOS_FOR_INVOICING = graphql(`
 		}
 	}
 `);
+
+// Password sign-in / sign-up: Postgres hashes and checks the password (#217). Admin only.
+export const VERIFY_USER_PASSWORD = graphql(`
+	mutation VerifyUserPassword($email: String!, $password: String!) {
+		verify_user_password(args: { user_email: $email, user_password: $password }) {
+			id
+			name
+			email
+			username
+			image
+		}
+	}
+`);
+
+export const CREATE_PASSWORD_USER = graphql(`
+	mutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {
+		create_password_user(args: { user_email: $email, user_name: $name, user_password: $password }) {
+			id
+			name
+			email
+			username
+			image
+		}
+	}
+`);

@@ -1,7 +1,7 @@
 {
 	"name": "svelte-todo-kanban",
 	"private": true,
-	"version": "0.26.2",
+	"version": "0.26.3",
 	"type": "module",
 	"scripts": {
 		"generate": "graphql-codegen --require dotenv/config && node fix-imports.cjs",
@@ -46,7 +46,6 @@
 		"@tailwindcss/vite": "^4.0.0",
 		"@testing-library/jest-dom": "^6.8.0",
 		"@testing-library/svelte": "^5.2.8",
-		"@types/bcryptjs": "^2.4.6",
 		"@types/d3-scale": "^4.0.9",
 		"@types/d3-shape": "^3.1.8",
 		"@types/jsonwebtoken": "^9.0.10",
@@ -98,7 +97,6 @@
 		"@tiptap/starter-kit": "^3.6.3",
 		"@vercel/analytics": "^1.5.0",
 		"@vercel/speed-insights": "^1.2.0",
-		"bcryptjs": "^3.0.3",
 		"d3-scale": "^4.0.2",
 		"d3-shape": "^3.2.0",
 		"date-fns": "^4.1.0",
