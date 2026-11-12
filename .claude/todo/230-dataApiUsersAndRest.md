@@ -29,3 +29,5 @@ Live as the test user: settings save (dark mode, locale); GitHub still connected
 settings save; notes CRUD; a short link redirects; the invoices and expenses pages load. A
 GraphQL query as the test user for another user's `email` returns nothing. The browser
 makes no request to `todzz.admin.servicehost.io` on any page.
+
+_GitHub issue #230 — end the commit subject with `(#230)`._
