@@ -30,3 +30,5 @@ Plan: `.claude/todo/226-backend-DONE.md`, sections 7 and 9.
 **Done when (deploy + live check):** deployed. A real runner tick files, claims and closes a
 test card through the new endpoints. The extension (unpacked) lists boards and saves a note
 on production. `grep -r servicehost` finds nothing in the extension or the runner.
+
+_GitHub issue #231 — end the commit subject with `(#231)`._
