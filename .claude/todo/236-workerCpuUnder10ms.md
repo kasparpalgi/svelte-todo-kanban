@@ -28,3 +28,5 @@ option, so the page has to get lighter.
 **Done when (deploy + live check):** deployed to the Worker. The board page's p90 is under
 10 ms of CPU over 20 warm runs, with numbers in the Results. As the test user on the
 Worker URL, the board looks and behaves as before (load, drag, open a card, the poll).
+
+_GitHub issue #236 — end the commit subject with `(#236)`._
