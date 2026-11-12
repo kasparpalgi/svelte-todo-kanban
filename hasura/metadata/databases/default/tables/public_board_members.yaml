@@ -11,7 +11,35 @@ object_relationships:
 insert_permissions:
   - role: user
     permission:
-      check: {}
+      check:
+        _or:
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                _and:
+                  - user_id:
+                      _eq: X-Hasura-User-Id
+                  - role:
+                      _eq: owner
+          - _and:
+              - user_id:
+                  _eq: X-Hasura-User-Id
+              - board:
+                  board_invitations:
+                    _and:
+                      - status:
+                          _eq: pending
+                      - role:
+                          _ceq:
+                            - $
+                            - role
+                      - _or:
+                          - invitee_email:
+                              _eq: X-Hasura-User-Email
+                          - invitee_username:
+                              _eq: X-Hasura-User-Username
       columns:
         - created_at
         - updated_at
@@ -19,7 +47,7 @@ insert_permissions:
         - id
         - user_id
         - role
-    comment: ""
+    comment: Board owners add members; an invitee adds only themselves, with the invited role
 select_permissions:
   - role: user
     permission:
@@ -30,20 +58,29 @@ select_permissions:
         - id
         - user_id
         - role
-      filter: {}
-    comment: ""
-update_permissions:
-  - role: user
-    permission:
-      columns:
-        - board_id
-        - role
-        - updated_at
-        - user_id
       filter:
         _or:
           - user_id:
               _eq: X-Hasura-User-Id
+          - board:
+              user_id:
+                _eq: X-Hasura-User-Id
+          - board:
+              board_members:
+                user_id:
+                  _eq: X-Hasura-User-Id
+          - board:
+              is_public:
+                _eq: true
+    comment: Members of boards the user can see
+update_permissions:
+  - role: user
+    permission:
+      columns:
+        - role
+        - updated_at
+      filter:
+        _or:
           - board:
               user_id:
                 _eq: X-Hasura-User-Id
@@ -55,7 +92,7 @@ update_permissions:
                   - role:
                       _eq: owner
       check: null
-    comment: ""
+    comment: Only board owners change a member's role
 delete_permissions:
   - role: user
     permission:

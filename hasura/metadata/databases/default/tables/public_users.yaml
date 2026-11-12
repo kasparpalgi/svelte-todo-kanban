@@ -163,25 +163,6 @@ array_relationships:
         table:
           name: url_shortcuts
           schema: public
-insert_permissions:
-  - role: user
-    permission:
-      check: {}
-      columns:
-        - created_at
-        - dark_mode
-        - default_labels
-        - email
-        - emailVerified
-        - id
-        - image
-        - locale
-        - name
-        - password
-        - settings
-        - updated_at
-        - username
-    comment: ""
 select_permissions:
   - role: anonymous
     permission:

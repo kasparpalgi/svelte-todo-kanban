@@ -126,7 +126,6 @@ update_permissions:
         - settings
         - sort_order
         - updated_at
-        - user_id
       filter:
         _or:
           - user_id:

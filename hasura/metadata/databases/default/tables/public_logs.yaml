@@ -67,7 +67,9 @@ update_permissions:
         - url
         - user_agent
         - user_id
-      filter: {}
+      filter:
+        user_id:
+          _eq: X-Hasura-User-Id
       check:
         user_id:
           _eq: X-Hasura-User-Id
