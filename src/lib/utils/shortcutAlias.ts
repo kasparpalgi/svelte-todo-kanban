@@ -11,8 +11,6 @@ export const RESERVED_ALIASES = new Set<string>([
 	'extension-auth',
 	'invoices',
 	'logout',
-	'penon',
-	'podcasts',
 	'signin',
 	'signout',
 	'terms',
@@ -21,7 +19,6 @@ export const RESERVED_ALIASES = new Set<string>([
 	'splitwise',
 	'logs',
 	'settings',
-	'stats',
 	'mail'
 ]);
 

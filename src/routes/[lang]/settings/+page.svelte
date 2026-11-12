@@ -21,7 +21,7 @@
 		CardHeader,
 		CardTitle
 	} from '$lib/components/ui/card';
-	import { User, Moon, Sun, Save, Brain, ChartColumn, LogOut } from 'lucide-svelte';
+	import { User, Moon, Sun, Save, Brain, LogOut } from 'lucide-svelte';
 	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { clearAllStorage } from '$lib/utils/localStorage';
 	import GithubIntegration from '$lib/components/settings/GithubIntegration.svelte';
@@ -149,15 +149,6 @@
 				<h1 class="text-3xl font-bold tracking-tight">{$t('settings.title')}</h1>
 				<p class="text-muted-foreground">{$t('settings.description')}</p>
 			</div>
-			{#if user?.username}
-				<a
-					href="/{currentLang}/{user.username}/stats"
-					class="flex items-center gap-2 text-sm text-primary hover:underline"
-				>
-					<ChartColumn class="h-4 w-4" />
-					{$t('settings.view_statistics')}
-				</a>
-			{/if}
 		</div>
 	</div>
 

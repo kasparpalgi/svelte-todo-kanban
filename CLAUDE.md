@@ -80,8 +80,6 @@ hasura/
 - `logs` — id, user_id, level, component, message, metadata
 - `notes` — id, user_id, title, content
 
-**Tracker tables** (time tracking): tracker_sessions, tracker_apps, tracker_categories, tracker_keywords, tracker_category_apps, tracker_daily_stats, tracker_category_stats
-
 **Permissions**: defined in `hasura/metadata/databases/default/tables/*.yaml` — users can only access their own boards or boards they're members of.
 
 ---
