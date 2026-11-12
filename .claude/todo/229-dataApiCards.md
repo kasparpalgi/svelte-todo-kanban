@@ -34,3 +34,5 @@ file the write path as its own follow-up.
 `/en/test/tests-board`: create, edit, drag, complete and delete a card; assign; label;
 comment, edit, delete; attach an image; a second tab sees the change within one poll. The
 board load makes no request to Hasura.
+
+_GitHub issue #229 — end the commit subject with `(#229)`._
