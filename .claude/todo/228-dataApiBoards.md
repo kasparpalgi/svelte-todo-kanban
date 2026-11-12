@@ -30,3 +30,5 @@ Plan: `.claude/todo/226-backend-DONE.md`, section 2. Needs `dataApiFoundation` f
 non-member read of a private board → 403). Deployed to Vercel and the Worker. Live as the
 test user: create, rename and archive a board; reorder lists; add and remove a label; send an
 invitation, see it listed, cancel it. No GraphQL request from the browser for these.
+
+_GitHub issue #228 — end the commit subject with `(#228)`._
