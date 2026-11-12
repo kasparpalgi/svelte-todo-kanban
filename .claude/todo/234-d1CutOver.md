@@ -22,3 +22,5 @@ Plan: `.claude/todo/226-backend-DONE.md`. Needs `d1Ops` and `runnerAndExtensionA
    are lost; copy them back by hand if any). After that, forward-fix only.
 6. Watch for 7 days: D1 rows read and written against the Free limits, Worker CPU
    (error 1102), errors in the logs page.
+
+_GitHub issue #234 — end the commit subject with `(#234)`._
