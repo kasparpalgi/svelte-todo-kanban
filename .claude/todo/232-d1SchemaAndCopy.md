@@ -38,3 +38,10 @@ production from Hasura (nothing reads D1 yet). Live check as the test user: boar
 before. The staging copy's row counts match Postgres.
 
 _GitHub issue #232 — end the commit subject with `(#232)`._
+
+## Owner decisions (2026-11-12)
+
+- Stay on D1 Free (500 MB, 5M reads and 100k writes a day); no Workers Paid.
+- No tracker, podcasts or penon tables (dropped in 226). Keep expenses and invoices.
+- Passwords: copy only the PBKDF2 hashes (`dataApiUsersAndRest` re-hashes at sign-in). A user
+  still on bcrypt gets no password hash in D1 and signs in with the email link once.

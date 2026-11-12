@@ -31,3 +31,16 @@ GraphQL query as the test user for another user's `email` returns nothing. The b
 makes no request to `todzz.admin.servicehost.io` on any page.
 
 _GitHub issue #230 — end the commit subject with `(#230)`._
+
+## Owner decisions (2026-11-12)
+
+- **Passwords are re-hashed cheaper, here in phase 1:** at a successful password sign-in
+  (Postgres still checks bcrypt), hash the password with PBKDF2-SHA256 through
+  `crypto.subtle` and store `pbkdf2$<iterations>$<salt>$<hash>`. Measure on the Worker and
+  pick the iterations that keep the whole sign-in under the 10 ms CPU limit (#215 measured
+  100k iterations at 48 ms, so roughly 10k). Keeping the iterations in the string means they
+  can be raised later. Verify PBKDF2 hashes first and fall back to Postgres bcrypt only for
+  users not yet re-hashed. No bcrypt in the Worker.
+- **Keep expenses and invoices** (clients, invoice companies, invoices, invoice items,
+  expenses, splits). The tracker, podcasts and penon are already gone (226).
+- Stay on Workers Free and D1 Free.

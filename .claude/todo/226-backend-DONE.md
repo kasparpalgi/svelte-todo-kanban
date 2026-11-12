@@ -211,3 +211,62 @@ one urgent slice.
   is smaller than #215 said.
 - Follow-up numbers 227–235 are provisional. The runner renumbers each file to its GitHub
   issue, so the plan refers to them by name.
+
+## Owner decisions (follow-up prompt, 2026-11-12)
+
+> 1. remember, we want to stay on free.Be always clever and lightweight and simple.  2. re-hash cheaper. 3. delete time tracker part fully, zip somewhere for me as a separately runnable locally podcast and penon, I need expenses and invoices. 4. What you need to do there? 5. Board viewers shall be read only and can only comment.
+
+What changes in the plan:
+
+1. **Free only, no Workers Paid.** Every follow-up designs for 10 ms CPU, 100k requests a
+   day, and D1's 5M reads and 100k writes a day. When a limit bites, the code gets lighter;
+   no plan is bought. New follow-up `workerCpuUnder10ms`: the board render measured ~22 ms
+   of CPU (#218).
+2. **Passwords are re-hashed with PBKDF2 (WebCrypto) at sign-in, in phase 1**
+   (`dataApiUsersAndRest`). Postgres still checks the bcrypt hash; the Worker then stores
+   `pbkdf2$<iterations>$<salt>$<hash>`, with the iterations picked so sign-in stays under
+   about 5 ms of CPU. By the D1 cut-over every active user has a cheap hash. Anyone left on
+   bcrypt signs in with the email link once.
+3. **Time tracker deleted; podcasts and penon moved out; expenses and invoices stay.** Done
+   in this prompt, see below.
+4. **#218:** answered in the reply. The podcast blocker is gone and Paid is off the table,
+   so what is left is two one-liners from the owner plus a "go".
+5. **Viewers are read-only and can only comment** (add comments, edit and delete their own).
+   This goes into `dataApiBoards` and `dataApiCards`, with the UI hiding edit controls.
+
+### Done in this prompt
+
+- **Time tracker deleted:** the stats page, store and tests; `tracker-sync/`; the
+  GraphQL ops; the Settings link; the `stats` translations; the 5 tables, 2 views and
+  their function (migration `1813000000000`). A safety export is
+  `~/Documents/todzz-extracted/tracker-backup-before-delete.json.gz`; delete it whenever.
+- **Podcasts and penon moved out** to `~/Documents/todzz-extracted/todzz-podcasts.zip` and
+  `todzz-penon.zip`. Each is a dependency-free Node app (`node server.js`) with its data
+  in `data.json` (8 podcasts; 5,564 penon readings, merged from Todzz and the other Hasura).
+  Removed from Todzz: the routes, store, chart components, `/api/transcribe-podcast`, the
+  Hasura REST endpoint, the tables, and the `ffmpeg-static`, `layercake` and `d3-scale`
+  packages. The transcription route had a command-injection bug (the raw URL went into a
+  shell); the standalone app calls yt-dlp and ffmpeg without a shell.
+- **Found: a leaked admin secret.** `src/routes/penon/+page.svelte` shipped the admin
+  secret of the *other* Hasura (`api.admin.servicehost.io`) to every browser that opened
+  `/penon`, from 2026-02-08 until this removal; it is still in git history. It worked when
+  tested today. **The owner must rotate it in CapRover.**
+
+### Verification (this prompt)
+
+- Standalone apps: each runs from a fresh unzip with no `npm install`. The penon pages
+  render at desktop and phone widths, light and dark. The podcasts API was exercised for
+  list, create, delete and transcribe; transcribe downloads and splits the audio and calls
+  Groq, which rejects a dummy key cleanly. A real transcription needs the owner's Groq key.
+- `npm run check`: 0 errors. `vitest`: 43 files, 427 tests (the 9 tracker tests went with
+  the feature). Playwright, all projects: 29 passed, 2 skipped.
+- Order: the code removal was pushed and Vercel production reported success for
+  `f2e97f3` before any table was dropped. The Worker was deployed too (1.07 MB gzip).
+- Hasura: `metadata diff` showed only the 9 untracked tables, 2 relationships and the
+  podcasts REST endpoint. After applying the metadata and migration `1813000000000`
+  (applied by version), metadata is consistent and the diff is empty. No `tracker*`,
+  `podcasts` or `penon` relation is left in Postgres. Types regenerated with
+  `npm run generate`.
+- Live as the test user on www.todzz.eu and on the Worker: sign-in, board and Settings
+  load; no console or GraphQL errors; no stats link; `/podcasts` and `/penon` redirect to
+  the board.

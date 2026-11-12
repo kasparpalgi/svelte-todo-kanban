@@ -36,3 +36,11 @@ comment, edit, delete; attach an image; a second tab sees the change within one 
 board load makes no request to Hasura.
 
 _GitHub issue #229 — end the commit subject with `(#229)`._
+
+## Owner decisions (2026-11-12)
+
+- **Viewers are read-only and can only comment:** they can read the board and cards, add
+  comments, and edit or delete their own comments. Nothing else; the API returns 403. The
+  UI hides the edit controls for viewers (create card, drag, edit fields, labels, assign,
+  uploads, list and board settings).
+- Stay on Workers Free and D1 Free; keep every op cheap in CPU, requests and rows read.

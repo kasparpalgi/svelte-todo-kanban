@@ -32,3 +32,11 @@ test user: create, rename and archive a board; reorder lists; add and remove a l
 invitation, see it listed, cancel it. No GraphQL request from the browser for these.
 
 _GitHub issue #228 — end the commit subject with `(#228)`._
+
+## Owner decisions (2026-11-12)
+
+- **Viewers are read-only and can only comment:** they can read the board and cards, add
+  comments, and edit or delete their own comments. Nothing else; the API returns 403. The
+  UI hides the edit controls for viewers (create card, drag, edit fields, labels, assign,
+  uploads, list and board settings).
+- Stay on Workers Free and D1 Free; keep every op cheap in CPU, requests and rows read.

@@ -46,3 +46,10 @@ Return the exact JSON shape the store reads today, so no component changes.
   second tab within 30 s.
 
 _GitHub issue #227 — end the commit subject with `(#227)`._
+
+## Owner decisions (2026-11-12)
+
+- **Stay on Free, always.** No Workers Paid. Budget: 10 ms CPU per request, 100k requests a
+  day; later D1's 5M reads and 100k writes a day. Prefer a few lines of code over a new
+  dependency. The merged `poll` op and the log write cap are not optional.
+- The time tracker, podcasts and penon are gone (226), so there is nothing to port there.

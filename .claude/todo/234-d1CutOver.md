@@ -24,3 +24,8 @@ Plan: `.claude/todo/226-backend-DONE.md`. Needs `d1Ops` and `runnerAndExtensionA
    (error 1102), errors in the logs page.
 
 _GitHub issue #234 — end the commit subject with `(#234)`._
+
+## Owner decisions (2026-11-12)
+
+- Stay on Free. If the 7-day watch shows error 1102 or D1 limit errors, the fix is lighter
+  code, not Workers Paid.

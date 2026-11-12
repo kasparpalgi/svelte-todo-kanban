@@ -32,3 +32,7 @@ test card through the new endpoints. The extension (unpacked) lists boards and s
 on production. `grep -r servicehost` finds nothing in the extension or the runner.
 
 _GitHub issue #231 — end the commit subject with `(#231)`._
+
+## Owner decisions (2026-11-12)
+
+- tracker-sync was deleted with the time tracker (226), so step 3 is done.

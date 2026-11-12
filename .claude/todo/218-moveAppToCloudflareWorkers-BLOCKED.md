@@ -164,3 +164,12 @@ limit, so decide on it before or soon after the cut-over.
      Stripe test webhook, an upload, push, and the Chrome extension.
    - After the week: remove the `VERCEL` branch in `svelte.config.js` and
      `@sveltejs/adapter-auto`.
+
+## Owner answers (2026-11-12, via #226)
+
+- **Workers Paid: no.** Stay on Free. The CPU work is `236-workerCpuUnder10ms`.
+- **`/api/transcribe-podcast`:** podcasts moved out of Todzz into a standalone local app
+  (#226), so the route is gone. Item 3 is done.
+- Still needed from the owner: `vercel login` (so the production secrets can be copied to the
+  Worker), `gh auth refresh -h github.com -s workflow` (auto-deploy), and a "go" for
+  attaching `todzz.eu` / `www.todzz.eu` to the Worker.
