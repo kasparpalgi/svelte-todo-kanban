@@ -93,13 +93,6 @@ array_relationships:
         table:
           name: notifications
           schema: public
-  - name: podcasts
-    using:
-      foreign_key_constraint_on:
-        column: user_id
-        table:
-          name: podcasts
-          schema: public
   - name: sessions
     using:
       foreign_key_constraint_on:
@@ -127,34 +120,6 @@ array_relationships:
         column: assigned_to
         table:
           name: todos
-          schema: public
-  - name: tracker_apps
-    using:
-      foreign_key_constraint_on:
-        column: user_id
-        table:
-          name: tracker_apps
-          schema: public
-  - name: tracker_categories
-    using:
-      foreign_key_constraint_on:
-        column: user_id
-        table:
-          name: tracker_categories
-          schema: public
-  - name: tracker_category_apps
-    using:
-      foreign_key_constraint_on:
-        column: user_id
-        table:
-          name: tracker_category_apps
-          schema: public
-  - name: tracker_sessions
-    using:
-      foreign_key_constraint_on:
-        column: user_id
-        table:
-          name: tracker_sessions
           schema: public
   - name: url_shortcuts
     using:

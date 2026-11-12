@@ -44,13 +44,6 @@ array_relationships:
         table:
           name: lists
           schema: public
-  - name: tracker_keywords
-    using:
-      foreign_key_constraint_on:
-        column: board_id
-        table:
-          name: tracker_keywords
-          schema: public
   - name: invoices
     using:
       foreign_key_constraint_on:
