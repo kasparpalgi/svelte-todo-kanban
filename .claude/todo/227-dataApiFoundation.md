@@ -44,3 +44,5 @@ Return the exact JSON shape the store reads today, so no component changes.
   shows up there; the network tab shows `/api/data/*` and no request to
   `todzz.admin.servicehost.io` for logs; the board still picks up a change made in a
   second tab within 30 s.
+
+_GitHub issue #227 — end the commit subject with `(#227)`._
