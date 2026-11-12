@@ -24,3 +24,5 @@ Plan: `.claude/todo/226-backend-DONE.md`. Run 7 days after `d1CutOver`.
 **Done when:** the Results say, in so many words, **"You can now delete the todzz Hasura and
 Postgres apps from CapRover on Hetzner"**, with the dump's location. Leave the box's other
 apps alone. Rename `-BLOCKED.md` if the deletion itself is left for the owner, and say so.
+
+_GitHub issue #235 — end the commit subject with `(#235)`._
