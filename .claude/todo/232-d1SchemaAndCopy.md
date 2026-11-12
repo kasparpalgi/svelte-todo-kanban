@@ -36,3 +36,5 @@ reachable only from a Worker) and the owner's answers in 226, Decisions 1–3.
 **Done when (deploy + live check):** the Worker deploys with the binding and still serves
 production from Hasura (nothing reads D1 yet). Live check as the test user: board loads as
 before. The staging copy's row counts match Postgres.
+
+_GitHub issue #232 — end the commit subject with `(#232)`._
