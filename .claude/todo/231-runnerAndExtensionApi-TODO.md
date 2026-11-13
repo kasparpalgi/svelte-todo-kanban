@@ -1,5 +1,4 @@
 > Run with: Opus 5.5 / medium
-> Machine: mac
 
 # Runner, Chrome extension and tracker-sync stop using Hasura
 

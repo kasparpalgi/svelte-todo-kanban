@@ -1,5 +1,4 @@
 > Run with: Opus 5.5 / medium
-> Machine: mac
 
 # Data API: users and settings, notes, money, extras; then remove the browser GraphQL client
 

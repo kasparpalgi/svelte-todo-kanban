@@ -1,5 +1,4 @@
 > Run with: Opus 5.5 / xhigh
-> Machine: mac
 
 # Cut production over to D1
 

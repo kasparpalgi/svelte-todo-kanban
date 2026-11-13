@@ -1,5 +1,4 @@
 > Run with: Opus 5.5 / xhigh
-> Machine: mac
 
 # kanban?
 
