@@ -132,3 +132,36 @@ poll. Shipped in `041904c`, live on www.todzz.eu (Vercel) and on the Worker.
   a note in #228 says where it belongs.
 - `/verify` was not invoked as a skill; the checks above are the ones that match this
   change.
+
+## Follow-up prompt (2026-11-13)
+
+> Delete old logs and make sure they don't pile up again. Also, let me know what TODO task next before todzz Hasura can be deleted from Hetzner and PostgreSQL.
+
+**Old logs:** already gone. Production has no row older than 30 days (5,290 rows, the
+oldest from 2026-10-14). Autovacuum has run, and the table is 43 MB on disk, down from
+125 MB; Postgres keeps the freed space for reuse rather than returning it. That doesn't
+matter, because the D1 copy takes only live rows.
+
+**Why they can't pile up again:**
+- Every write now goes through `createLog`, which deletes rows older than 30 days on about
+  1 in 100 writes, so the clean-up runs as often as logs arrive.
+- The browser saves the same message at most once a minute and at most 100 logs an hour
+  per tab.
+- **Closed today:** the Hasura `user` role could still insert into `logs` directly, which
+  skipped both the cap and the clean-up. It was open to any signed-in user's token and to
+  tabs still running the old JavaScript. All four user-role permissions on `logs`
+  (insert, select, update, delete) are removed. `hasura metadata diff` before the apply
+  showed only those four; after it, metadata is consistent and the diff is empty.
+  Impersonating the test user, `insert_logs_one` and `logs` are now "not found". Live on
+  www.todzz.eu, `createLog` → 200 and `getLogs` → 200 still list the new log first.
+- A note in `233-d1Ops.md` says the D1 `createLog` must keep the clean-up.
+
+**Next tasks before the todzz Hasura and Postgres can be deleted** (the reply has the
+reasoning): `228-dataApiBoards` next, then `229-dataApiCards` and `230-dataApiUsersAndRest`.
+`231-runnerAndExtensionApi` can run alongside; start its extension part early, because the
+store review takes days. The owner's three #218 steps come before phase 2, ideally with
+`236-workerCpuUnder10ms`. Then `232` → `233` → `234` (owner picks the moment), wait 7 days,
+then `235`, which ends with the go-ahead to delete.
+
+**Files changed:** `hasura/metadata/databases/default/tables/public_logs.yaml` (applied to
+production), `.claude/todo/233-d1Ops.md`, this file.
