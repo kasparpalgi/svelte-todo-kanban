@@ -40,3 +40,14 @@ _GitHub issue #228 — end the commit subject with `(#228)`._
   UI hides the edit controls for viewers (create card, drag, edit fields, labels, assign,
   uploads, list and board settings).
 - Stay on Workers Free and D1 Free; keep every op cheap in CPU, requests and rows read.
+
+## Notes from #227 (data API foundation, shipped)
+
+- `boardRole(ctx, boardId)` in `src/lib/server/access.ts` covers owner, member and public,
+  as #227 asked. The Hasura boards select rule also lets an **invitee** (by email or
+  username) read the board row, which the invitation UI needs. Keep that as a separate
+  invitation check in these ops, not as a `boardRole` value.
+- The poll (`src/lib/server/ops/poll.ts`) fingerprints the board's cards, its lists and
+  `boards.updated_at`, and the board page reloads lists and boards only when that changes
+  (plus a full refresh every 5 minutes). Member and label changes ride on the 5-minute
+  refresh; add them to the fingerprint here if that is too slow.

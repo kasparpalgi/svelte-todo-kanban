@@ -44,3 +44,11 @@ _GitHub issue #229 — end the commit subject with `(#229)`._
   UI hides the edit controls for viewers (create card, drag, edit fields, labels, assign,
   uploads, list and board settings).
 - Stay on Workers Free and D1 Free; keep every op cheap in CPU, requests and rows read.
+
+## Notes from #227 (data API foundation, shipped)
+
+- The `poll` op is `src/lib/server/ops/poll.ts`: it hashes `POLL_BOARD` (cards, lists,
+  `boards.updated_at`) on the server and returns `{ board, unread }`. The browser only
+  compares the `board` string, so switching to `changed_at` is a server-only change.
+- `changed_at` must also move on list create, rename, reorder and delete: lists are in
+  today's fingerprint, and the board page reloads lists only when it changes.
