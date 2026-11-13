@@ -1,0 +1,33 @@
+> Run with: Opus 5.5 / high
+> Machine: dell
+
+# D1 implementation of every data op, proven equal to Hasura
+
+## Original Requirement
+
+[NEVER REMOVE]
+
+> Run with: Opus 5.5 / high
+
+# D1 implementation of every data op, proven equal to Hasura
+
+## Original Requirement
+
+\[NEVER REMOVE\]
+
+Follow-up from #226. Original request: "Backend tables are not most logical maybe everywhere so it is not just a blind one to one Hasura -&gt; Cloudfare. Anyway, want to drop now Hasura and move to Cloudfare D1 SQLight I hink was there free to host. So plan properly each section before just moving if it could be also improved. Each subtask must end with deploy and test that is still works the same way after deploy. Finally confirm that I can dow delete the Hasura from Hetzner."
+
+Plan: `.claude/todo/226-backend-DONE.md`. Needs `d1SchemaAndCopy` and all phase-1 follow-ups. Split into one follow-up per section if it does not fit one session.
+
+1. A D1 version of each op from phase 1 (Drizzle; relational queries return the nested shapes the stores read), chosen by `DATA_BACKEND=hasura|d1` per environment.
+2. Logic the Postgres triggers did, as plain functions with unit tests ported from the PL/pgSQL: board alias (global, `name` → lowercase-hyphenated, numeric suffix), todo alias (unique per user), username from email, first board on sign-up plus its owner row, invitation token, `updated_at`. Content preview = first 150 characters. Search uses `instr(lower(...))`, because D1 `LIKE` patterns are capped at 50 bytes. Writes that belong together go in one `db.batch()`, which counts as one of the 50 queries per request.
+3. Auth.js: `@auth/d1-adapter` 1.11 wrapped so `createUser` runs the sign-up function. Passwords per 226, Decisions 2. bcrypt costs 86 ms of CPU against Free's 10 ms.
+4. **Contract tests:** for each op, run the same input against Hasura and against the staging D1 copy, then compare the JSON (ignoring `__typename` and timestamp precision).
+
+**Done when (deploy + live check):** all contract tests equal. The staging Worker (`DATA_BACKEND=d1`) passes the authenticated e2e suite and a manual pass as the test user (board, card, comment, invite, settings, notes). Production is deployed and still on Hasura.
+
+*GitHub issue #233 — end the commit subject with* `(#233)`*.*
+
+_From Kanban card `0c4796de-8356-499f-a5ae-ae2d898d56d5`, moved to the agent list._
+
+_GitHub issue #233 — end the commit subject with `(#233)`._
