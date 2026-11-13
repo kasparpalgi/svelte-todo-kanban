@@ -193,7 +193,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Listen for messages from the web page
 window.addEventListener('message', (event) => {
   // Only accept messages from todzz.eu
-  const allowedOrigins = ['https://todzz.eu', 'https://www.todzz.eu', 'https://todzz.admin.servicehost.io'];
+  const allowedOrigins = ['https://todzz.eu', 'https://www.todzz.eu'];
   if (!allowedOrigins.includes(event.origin)) {
     return;
   }

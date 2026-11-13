@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ToDzz - Save to Notes",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Save web pages to your ToDzz boards as notes with AI summarization",
   "permissions": [
     "activeTab",
@@ -10,8 +10,7 @@
   ],
   "host_permissions": [
     "https://todzz.eu/*",
-    "https://www.todzz.eu/*",
-    "https://todzz.admin.servicehost.io/*"
+    "https://www.todzz.eu/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",
@@ -37,6 +36,6 @@
     "128": "icons/icon128.png"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://todzz.eu https://www.todzz.eu https://todzz.admin.servicehost.io;"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://todzz.eu https://www.todzz.eu;"
   }
 }

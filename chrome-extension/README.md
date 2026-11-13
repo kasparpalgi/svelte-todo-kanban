@@ -129,7 +129,7 @@ chrome-extension/
 ├── content/
 │   └── content.js         # Page metadata extraction
 ├── lib/
-│   ├── graphql.js         # GraphQL client
+│   ├── api.js             # ToDzz data API client
 │   ├── auth.js            # Authentication helpers
 │   └── storage.js         # Chrome storage helpers
 ├── icons/
@@ -143,9 +143,10 @@ chrome-extension/
 
 - **Authentication**: `GET /api/auth/token`
 - **AI Summarization**: `POST /api/ai`
-- **GraphQL**: `POST /v1/graphql`
-  - `GetBoards` - Fetch user's boards
-  - `CreateNote` - Create new note
+- **Data API**: `POST /api/data/<op>` with `Authorization: Bearer <token>`
+  - `getBoards` - Fetch user's boards
+  - `getNotes` - Fetch a board's notes
+  - `createNote` - Create new note
 
 ## Troubleshooting
 

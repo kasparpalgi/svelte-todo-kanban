@@ -17462,6 +17462,103 @@ export type CreatePasswordUserMutationVariables = Exact<{
 
 export type CreatePasswordUserMutation = { __typename?: 'mutation_root', create_password_user: Array<{ __typename?: 'users', id: string, name?: string | null, email?: string | null, username: string, image?: string | null }> };
 
+export type RunnerBoardQueryVariables = Exact<{
+  repo: Scalars['String']['input'];
+}>;
+
+
+export type RunnerBoardQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, user_id: string, lists: Array<{ __typename?: 'lists', id: string, name: string }> }> };
+
+export type RunnerBoardsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RunnerBoardsQuery = { __typename?: 'query_root', boards: Array<{ __typename?: 'boards', id: string, name: string, github?: string | null, client_id?: string | null, archived_at?: string | null }> };
+
+export type RunnerSetBoardGithubMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  github: Scalars['String']['input'];
+}>;
+
+
+export type RunnerSetBoardGithubMutation = { __typename?: 'mutation_root', update_boards_by_pk?: { __typename?: 'boards', id: string } | null };
+
+export type RunnerCardsQueryVariables = Exact<{
+  where: Todos_Bool_Exp;
+}>;
+
+
+export type RunnerCardsQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, task_file_path?: string | null, list?: { __typename?: 'lists', name: string } | null }> };
+
+export type RunnerCreateCardMutationVariables = Exact<{
+  o: Todos_Insert_Input;
+}>;
+
+
+export type RunnerCreateCardMutation = { __typename?: 'mutation_root', insert_todos_one?: { __typename?: 'todos', id: string } | null };
+
+export type RunnerUpdateCardsMutationVariables = Exact<{
+  where: Todos_Bool_Exp;
+  set: Todos_Set_Input;
+}>;
+
+
+export type RunnerUpdateCardsMutation = { __typename?: 'mutation_root', update_todos?: { __typename?: 'todos_mutation_response', affected_rows: number } | null };
+
+export type RunnerDeleteCardMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type RunnerDeleteCardMutation = { __typename?: 'mutation_root', delete_todos_by_pk?: { __typename?: 'todos', id: string } | null };
+
+export type RunnerCommentsQueryVariables = Exact<{
+  where: Comments_Bool_Exp;
+}>;
+
+
+export type RunnerCommentsQuery = { __typename?: 'query_root', comments: Array<{ __typename?: 'comments', id: string, content: string }> };
+
+export type RunnerCreateCommentMutationVariables = Exact<{
+  o: Comments_Insert_Input;
+}>;
+
+
+export type RunnerCreateCommentMutation = { __typename?: 'mutation_root', insert_comments_one?: { __typename?: 'comments', id: string } | null };
+
+export type RunnerUpdateCommentMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  content: Scalars['String']['input'];
+}>;
+
+
+export type RunnerUpdateCommentMutation = { __typename?: 'mutation_root', update_comments_by_pk?: { __typename?: 'comments', id: string } | null };
+
+export type RunnerUploadsQueryVariables = Exact<{
+  todoId: Scalars['uuid']['input'];
+}>;
+
+
+export type RunnerUploadsQuery = { __typename?: 'query_root', uploads: Array<{ __typename?: 'uploads', url: string }> };
+
+export type RunnerPricingQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RunnerPricingQuery = { __typename?: 'query_root', claude_model_pricing: Array<{ __typename?: 'claude_model_pricing', model: string, input_per_mtok: number, output_per_mtok: number, cache_read_per_mtok?: number | null, cache_write_per_mtok?: number | null }> };
+
+export type RunnerUpsertPricingMutationVariables = Exact<{
+  rows: Array<Claude_Model_Pricing_Insert_Input> | Claude_Model_Pricing_Insert_Input;
+}>;
+
+
+export type RunnerUpsertPricingMutation = { __typename?: 'mutation_root', insert_claude_model_pricing?: { __typename?: 'claude_model_pricing_mutation_response', affected_rows: number } | null };
+
+export type RunnerUpsertUsageMutationVariables = Exact<{
+  row: Claude_Usage_Insert_Input;
+}>;
+
+
+export type RunnerUpsertUsageMutation = { __typename?: 'mutation_root', insert_claude_usage_one?: { __typename?: 'claude_usage', id: string } | null };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -20802,3 +20899,125 @@ export const CreatePasswordUserDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<CreatePasswordUserMutation, CreatePasswordUserMutationVariables>;
+export const RunnerBoardDocument = new TypedDocumentString(`
+    query RunnerBoard($repo: String!) {
+  boards(where: {github: {_ilike: $repo}}, limit: 1) {
+    id
+    user_id
+    lists(order_by: {sort_order: asc}) {
+      id
+      name
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerBoardQuery, RunnerBoardQueryVariables>;
+export const RunnerBoardsDocument = new TypedDocumentString(`
+    query RunnerBoards {
+  boards(where: {github: {_is_null: false}}, order_by: {name: asc}) {
+    id
+    name
+    github
+    client_id
+    archived_at
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerBoardsQuery, RunnerBoardsQueryVariables>;
+export const RunnerSetBoardGithubDocument = new TypedDocumentString(`
+    mutation RunnerSetBoardGithub($id: uuid!, $github: String!) {
+  update_boards_by_pk(pk_columns: {id: $id}, _set: {github: $github}) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerSetBoardGithubMutation, RunnerSetBoardGithubMutationVariables>;
+export const RunnerCardsDocument = new TypedDocumentString(`
+    query RunnerCards($where: todos_bool_exp!) {
+  todos(where: $where, order_by: [{created_at: asc}, {id: asc}]) {
+    id
+    task_file_path
+    list {
+      name
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerCardsQuery, RunnerCardsQueryVariables>;
+export const RunnerCreateCardDocument = new TypedDocumentString(`
+    mutation RunnerCreateCard($o: todos_insert_input!) {
+  insert_todos_one(object: $o) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerCreateCardMutation, RunnerCreateCardMutationVariables>;
+export const RunnerUpdateCardsDocument = new TypedDocumentString(`
+    mutation RunnerUpdateCards($where: todos_bool_exp!, $set: todos_set_input!) {
+  update_todos(where: $where, _set: $set) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerUpdateCardsMutation, RunnerUpdateCardsMutationVariables>;
+export const RunnerDeleteCardDocument = new TypedDocumentString(`
+    mutation RunnerDeleteCard($id: uuid!) {
+  delete_todos_by_pk(id: $id) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerDeleteCardMutation, RunnerDeleteCardMutationVariables>;
+export const RunnerCommentsDocument = new TypedDocumentString(`
+    query RunnerComments($where: comments_bool_exp!) {
+  comments(where: $where, order_by: {created_at: desc}) {
+    id
+    content
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerCommentsQuery, RunnerCommentsQueryVariables>;
+export const RunnerCreateCommentDocument = new TypedDocumentString(`
+    mutation RunnerCreateComment($o: comments_insert_input!) {
+  insert_comments_one(object: $o) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerCreateCommentMutation, RunnerCreateCommentMutationVariables>;
+export const RunnerUpdateCommentDocument = new TypedDocumentString(`
+    mutation RunnerUpdateComment($id: uuid!, $content: String!) {
+  update_comments_by_pk(pk_columns: {id: $id}, _set: {content: $content}) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerUpdateCommentMutation, RunnerUpdateCommentMutationVariables>;
+export const RunnerUploadsDocument = new TypedDocumentString(`
+    query RunnerUploads($todoId: uuid!) {
+  uploads(where: {todo_id: {_eq: $todoId}}) {
+    url
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerUploadsQuery, RunnerUploadsQueryVariables>;
+export const RunnerPricingDocument = new TypedDocumentString(`
+    query RunnerPricing {
+  claude_model_pricing {
+    model
+    input_per_mtok
+    output_per_mtok
+    cache_read_per_mtok
+    cache_write_per_mtok
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerPricingQuery, RunnerPricingQueryVariables>;
+export const RunnerUpsertPricingDocument = new TypedDocumentString(`
+    mutation RunnerUpsertPricing($rows: [claude_model_pricing_insert_input!]!) {
+  insert_claude_model_pricing(
+    objects: $rows
+    on_conflict: {constraint: claude_model_pricing_pkey, update_columns: [input_per_mtok, output_per_mtok, cache_write_per_mtok, cache_read_per_mtok, currency, source, updated_at]}
+  ) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerUpsertPricingMutation, RunnerUpsertPricingMutationVariables>;
+export const RunnerUpsertUsageDocument = new TypedDocumentString(`
+    mutation RunnerUpsertUsage($row: claude_usage_insert_input!) {
+  insert_claude_usage_one(
+    object: $row
+    on_conflict: {constraint: claude_usage_session_id_key, update_columns: [todo_id, user_id, repo, model, input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, usage_by_model, cost_usd, started_at, ended_at]}
+  ) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerUpsertUsageMutation, RunnerUpsertUsageMutationVariables>;

@@ -147,6 +147,20 @@ type Documents = {
     "\n\tquery GetPasswordUser($email: String!) {\n\t\tusers(where: { email: { _eq: $email } }, limit: 1) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t\tpassword\n\t\t}\n\t}\n": typeof types.GetPasswordUserDocument,
     "\n\tmutation SetPasswordHash($id: uuid!, $password: String!) {\n\t\tupdate_users_by_pk(pk_columns: { id: $id }, _set: { password: $password }) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.SetPasswordHashDocument,
     "\n\tmutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {\n\t\tcreate_password_user(args: { user_email: $email, user_name: $name, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": typeof types.CreatePasswordUserDocument,
+    "\n\tquery RunnerBoard($repo: String!) {\n\t\tboards(where: { github: { _ilike: $repo } }, limit: 1) {\n\t\t\tid\n\t\t\tuser_id\n\t\t\tlists(order_by: { sort_order: asc }) {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": typeof types.RunnerBoardDocument,
+    "\n\tquery RunnerBoards {\n\t\tboards(where: { github: { _is_null: false } }, order_by: { name: asc }) {\n\t\t\tid\n\t\t\tname\n\t\t\tgithub\n\t\t\tclient_id\n\t\t\tarchived_at\n\t\t}\n\t}\n": typeof types.RunnerBoardsDocument,
+    "\n\tmutation RunnerSetBoardGithub($id: uuid!, $github: String!) {\n\t\tupdate_boards_by_pk(pk_columns: { id: $id }, _set: { github: $github }) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.RunnerSetBoardGithubDocument,
+    "\n\tquery RunnerCards($where: todos_bool_exp!) {\n\t\ttodos(where: $where, order_by: [{ created_at: asc }, { id: asc }]) {\n\t\t\tid\n\t\t\ttask_file_path\n\t\t\tlist {\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": typeof types.RunnerCardsDocument,
+    "\n\tmutation RunnerCreateCard($o: todos_insert_input!) {\n\t\tinsert_todos_one(object: $o) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.RunnerCreateCardDocument,
+    "\n\tmutation RunnerUpdateCards($where: todos_bool_exp!, $set: todos_set_input!) {\n\t\tupdate_todos(where: $where, _set: $set) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.RunnerUpdateCardsDocument,
+    "\n\tmutation RunnerDeleteCard($id: uuid!) {\n\t\tdelete_todos_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.RunnerDeleteCardDocument,
+    "\n\tquery RunnerComments($where: comments_bool_exp!) {\n\t\tcomments(where: $where, order_by: { created_at: desc }) {\n\t\t\tid\n\t\t\tcontent\n\t\t}\n\t}\n": typeof types.RunnerCommentsDocument,
+    "\n\tmutation RunnerCreateComment($o: comments_insert_input!) {\n\t\tinsert_comments_one(object: $o) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.RunnerCreateCommentDocument,
+    "\n\tmutation RunnerUpdateComment($id: uuid!, $content: String!) {\n\t\tupdate_comments_by_pk(pk_columns: { id: $id }, _set: { content: $content }) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.RunnerUpdateCommentDocument,
+    "\n\tquery RunnerUploads($todoId: uuid!) {\n\t\tuploads(where: { todo_id: { _eq: $todoId } }) {\n\t\t\turl\n\t\t}\n\t}\n": typeof types.RunnerUploadsDocument,
+    "\n\tquery RunnerPricing {\n\t\tclaude_model_pricing {\n\t\t\tmodel\n\t\t\tinput_per_mtok\n\t\t\toutput_per_mtok\n\t\t\tcache_read_per_mtok\n\t\t\tcache_write_per_mtok\n\t\t}\n\t}\n": typeof types.RunnerPricingDocument,
+    "\n\tmutation RunnerUpsertPricing($rows: [claude_model_pricing_insert_input!]!) {\n\t\tinsert_claude_model_pricing(\n\t\t\tobjects: $rows\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: claude_model_pricing_pkey\n\t\t\t\tupdate_columns: [\n\t\t\t\t\tinput_per_mtok\n\t\t\t\t\toutput_per_mtok\n\t\t\t\t\tcache_write_per_mtok\n\t\t\t\t\tcache_read_per_mtok\n\t\t\t\t\tcurrency\n\t\t\t\t\tsource\n\t\t\t\t\tupdated_at\n\t\t\t\t]\n\t\t\t}\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.RunnerUpsertPricingDocument,
+    "\n\tmutation RunnerUpsertUsage($row: claude_usage_insert_input!) {\n\t\tinsert_claude_usage_one(\n\t\t\tobject: $row\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: claude_usage_session_id_key\n\t\t\t\tupdate_columns: [\n\t\t\t\t\ttodo_id\n\t\t\t\t\tuser_id\n\t\t\t\t\trepo\n\t\t\t\t\tmodel\n\t\t\t\t\tinput_tokens\n\t\t\t\t\toutput_tokens\n\t\t\t\t\tcache_read_tokens\n\t\t\t\t\tcache_write_tokens\n\t\t\t\t\tusage_by_model\n\t\t\t\t\tcost_usd\n\t\t\t\t\tstarted_at\n\t\t\t\t\tended_at\n\t\t\t\t]\n\t\t\t}\n\t\t) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.RunnerUpsertUsageDocument,
 };
 const documents: Documents = {
     "\n\tfragment TodoFields on todos {\n\t\tid\n\t\talias\n\t\ttitle\n\t\tcontent_preview\n\t\tdue_on\n\t\thas_time\n\t\tsort_order\n\t\tpriority\n\t\tlist_id\n\t\tcompleted_at\n\t\tcreated_at\n\t\tupdated_at\n\t\tassigned_to\n\t\tgithub_issue_number\n\t\tgithub_issue_id\n\t\tgithub_synced_at\n\t\tgithub_url\n\t\ttask_file_path\n\t\tagent_model\n\t\tagent_effort\n\t\tagent_machine\n\t\tagent_plan_first\n\t\tmin_hours\n\t\tmax_hours\n\t\tactual_hours\n\t\tcomment_hours\n\t\tclaude_usages_aggregate {\n\t\t\taggregate {\n\t\t\t\tsum {\n\t\t\t\t\tcost_usd\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\tassignee {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tassignees {\n\t\t\tuser_id\n\t\t\tcreated_at\n\t\t\tassignee {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tusername\n\t\t\t\timage\n\t\t\t\temail\n\t\t\t}\n\t\t}\n\t\tlabels {\n\t\t\tlabel {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t\tcomments_aggregate {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t\tuploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t\tsubscribers {\n\t\t\tuser_id\n\t\t\tcreated_at\n\t\t\tsubscriber {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tusername\n\t\t\t\timage\n\t\t\t\temail\n\t\t\t}\n\t\t}\n\t\tlist {\n\t\t\tid\n\t\t\tname\n\t\t\tsort_order\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t}\n\t\t}\n\t}\n": types.TodoFieldsFragmentDoc,
@@ -281,6 +295,20 @@ const documents: Documents = {
     "\n\tquery GetPasswordUser($email: String!) {\n\t\tusers(where: { email: { _eq: $email } }, limit: 1) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t\tpassword\n\t\t}\n\t}\n": types.GetPasswordUserDocument,
     "\n\tmutation SetPasswordHash($id: uuid!, $password: String!) {\n\t\tupdate_users_by_pk(pk_columns: { id: $id }, _set: { password: $password }) {\n\t\t\tid\n\t\t}\n\t}\n": types.SetPasswordHashDocument,
     "\n\tmutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {\n\t\tcreate_password_user(args: { user_email: $email, user_name: $name, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": types.CreatePasswordUserDocument,
+    "\n\tquery RunnerBoard($repo: String!) {\n\t\tboards(where: { github: { _ilike: $repo } }, limit: 1) {\n\t\t\tid\n\t\t\tuser_id\n\t\t\tlists(order_by: { sort_order: asc }) {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": types.RunnerBoardDocument,
+    "\n\tquery RunnerBoards {\n\t\tboards(where: { github: { _is_null: false } }, order_by: { name: asc }) {\n\t\t\tid\n\t\t\tname\n\t\t\tgithub\n\t\t\tclient_id\n\t\t\tarchived_at\n\t\t}\n\t}\n": types.RunnerBoardsDocument,
+    "\n\tmutation RunnerSetBoardGithub($id: uuid!, $github: String!) {\n\t\tupdate_boards_by_pk(pk_columns: { id: $id }, _set: { github: $github }) {\n\t\t\tid\n\t\t}\n\t}\n": types.RunnerSetBoardGithubDocument,
+    "\n\tquery RunnerCards($where: todos_bool_exp!) {\n\t\ttodos(where: $where, order_by: [{ created_at: asc }, { id: asc }]) {\n\t\t\tid\n\t\t\ttask_file_path\n\t\t\tlist {\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": types.RunnerCardsDocument,
+    "\n\tmutation RunnerCreateCard($o: todos_insert_input!) {\n\t\tinsert_todos_one(object: $o) {\n\t\t\tid\n\t\t}\n\t}\n": types.RunnerCreateCardDocument,
+    "\n\tmutation RunnerUpdateCards($where: todos_bool_exp!, $set: todos_set_input!) {\n\t\tupdate_todos(where: $where, _set: $set) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.RunnerUpdateCardsDocument,
+    "\n\tmutation RunnerDeleteCard($id: uuid!) {\n\t\tdelete_todos_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.RunnerDeleteCardDocument,
+    "\n\tquery RunnerComments($where: comments_bool_exp!) {\n\t\tcomments(where: $where, order_by: { created_at: desc }) {\n\t\t\tid\n\t\t\tcontent\n\t\t}\n\t}\n": types.RunnerCommentsDocument,
+    "\n\tmutation RunnerCreateComment($o: comments_insert_input!) {\n\t\tinsert_comments_one(object: $o) {\n\t\t\tid\n\t\t}\n\t}\n": types.RunnerCreateCommentDocument,
+    "\n\tmutation RunnerUpdateComment($id: uuid!, $content: String!) {\n\t\tupdate_comments_by_pk(pk_columns: { id: $id }, _set: { content: $content }) {\n\t\t\tid\n\t\t}\n\t}\n": types.RunnerUpdateCommentDocument,
+    "\n\tquery RunnerUploads($todoId: uuid!) {\n\t\tuploads(where: { todo_id: { _eq: $todoId } }) {\n\t\t\turl\n\t\t}\n\t}\n": types.RunnerUploadsDocument,
+    "\n\tquery RunnerPricing {\n\t\tclaude_model_pricing {\n\t\t\tmodel\n\t\t\tinput_per_mtok\n\t\t\toutput_per_mtok\n\t\t\tcache_read_per_mtok\n\t\t\tcache_write_per_mtok\n\t\t}\n\t}\n": types.RunnerPricingDocument,
+    "\n\tmutation RunnerUpsertPricing($rows: [claude_model_pricing_insert_input!]!) {\n\t\tinsert_claude_model_pricing(\n\t\t\tobjects: $rows\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: claude_model_pricing_pkey\n\t\t\t\tupdate_columns: [\n\t\t\t\t\tinput_per_mtok\n\t\t\t\t\toutput_per_mtok\n\t\t\t\t\tcache_write_per_mtok\n\t\t\t\t\tcache_read_per_mtok\n\t\t\t\t\tcurrency\n\t\t\t\t\tsource\n\t\t\t\t\tupdated_at\n\t\t\t\t]\n\t\t\t}\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.RunnerUpsertPricingDocument,
+    "\n\tmutation RunnerUpsertUsage($row: claude_usage_insert_input!) {\n\t\tinsert_claude_usage_one(\n\t\t\tobject: $row\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: claude_usage_session_id_key\n\t\t\t\tupdate_columns: [\n\t\t\t\t\ttodo_id\n\t\t\t\t\tuser_id\n\t\t\t\t\trepo\n\t\t\t\t\tmodel\n\t\t\t\t\tinput_tokens\n\t\t\t\t\toutput_tokens\n\t\t\t\t\tcache_read_tokens\n\t\t\t\t\tcache_write_tokens\n\t\t\t\t\tusage_by_model\n\t\t\t\t\tcost_usd\n\t\t\t\t\tstarted_at\n\t\t\t\t\tended_at\n\t\t\t\t]\n\t\t\t}\n\t\t) {\n\t\t\tid\n\t\t}\n\t}\n": types.RunnerUpsertUsageDocument,
 };
 
 /**
@@ -811,6 +839,62 @@ export function graphql(source: "\n\tmutation SetPasswordHash($id: uuid!, $passw
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tmutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {\n\t\tcreate_password_user(args: { user_email: $email, user_name: $name, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n"): typeof import('./graphql').CreatePasswordUserDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery RunnerBoard($repo: String!) {\n\t\tboards(where: { github: { _ilike: $repo } }, limit: 1) {\n\t\t\tid\n\t\t\tuser_id\n\t\t\tlists(order_by: { sort_order: asc }) {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerBoardDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery RunnerBoards {\n\t\tboards(where: { github: { _is_null: false } }, order_by: { name: asc }) {\n\t\t\tid\n\t\t\tname\n\t\t\tgithub\n\t\t\tclient_id\n\t\t\tarchived_at\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerBoardsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation RunnerSetBoardGithub($id: uuid!, $github: String!) {\n\t\tupdate_boards_by_pk(pk_columns: { id: $id }, _set: { github: $github }) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerSetBoardGithubDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery RunnerCards($where: todos_bool_exp!) {\n\t\ttodos(where: $where, order_by: [{ created_at: asc }, { id: asc }]) {\n\t\t\tid\n\t\t\ttask_file_path\n\t\t\tlist {\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerCardsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation RunnerCreateCard($o: todos_insert_input!) {\n\t\tinsert_todos_one(object: $o) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerCreateCardDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation RunnerUpdateCards($where: todos_bool_exp!, $set: todos_set_input!) {\n\t\tupdate_todos(where: $where, _set: $set) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerUpdateCardsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation RunnerDeleteCard($id: uuid!) {\n\t\tdelete_todos_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerDeleteCardDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery RunnerComments($where: comments_bool_exp!) {\n\t\tcomments(where: $where, order_by: { created_at: desc }) {\n\t\t\tid\n\t\t\tcontent\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerCommentsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation RunnerCreateComment($o: comments_insert_input!) {\n\t\tinsert_comments_one(object: $o) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerCreateCommentDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation RunnerUpdateComment($id: uuid!, $content: String!) {\n\t\tupdate_comments_by_pk(pk_columns: { id: $id }, _set: { content: $content }) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerUpdateCommentDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery RunnerUploads($todoId: uuid!) {\n\t\tuploads(where: { todo_id: { _eq: $todoId } }) {\n\t\t\turl\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerUploadsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery RunnerPricing {\n\t\tclaude_model_pricing {\n\t\t\tmodel\n\t\t\tinput_per_mtok\n\t\t\toutput_per_mtok\n\t\t\tcache_read_per_mtok\n\t\t\tcache_write_per_mtok\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerPricingDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation RunnerUpsertPricing($rows: [claude_model_pricing_insert_input!]!) {\n\t\tinsert_claude_model_pricing(\n\t\t\tobjects: $rows\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: claude_model_pricing_pkey\n\t\t\t\tupdate_columns: [\n\t\t\t\t\tinput_per_mtok\n\t\t\t\t\toutput_per_mtok\n\t\t\t\t\tcache_write_per_mtok\n\t\t\t\t\tcache_read_per_mtok\n\t\t\t\t\tcurrency\n\t\t\t\t\tsource\n\t\t\t\t\tupdated_at\n\t\t\t\t]\n\t\t\t}\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerUpsertPricingDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation RunnerUpsertUsage($row: claude_usage_insert_input!) {\n\t\tinsert_claude_usage_one(\n\t\t\tobject: $row\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: claude_usage_session_id_key\n\t\t\t\tupdate_columns: [\n\t\t\t\t\ttodo_id\n\t\t\t\t\tuser_id\n\t\t\t\t\trepo\n\t\t\t\t\tmodel\n\t\t\t\t\tinput_tokens\n\t\t\t\t\toutput_tokens\n\t\t\t\t\tcache_read_tokens\n\t\t\t\t\tcache_write_tokens\n\t\t\t\t\tusage_by_model\n\t\t\t\t\tcost_usd\n\t\t\t\t\tstarted_at\n\t\t\t\t\tended_at\n\t\t\t\t]\n\t\t\t}\n\t\t) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').RunnerUpsertUsageDocument;
 
 
 export function graphql(source: string) {

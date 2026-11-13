@@ -1,7 +1,8 @@
 /** @file src/routes/api/runner/upload/+server.ts
  * The Kanban runner attaches a finished task's screenshots to its card
- * (svelte-hasura-boilerplate#69). The runner has no user session, only the Hasura admin
- * secret it already uses for GraphQL, so that is its credential here. The file goes to
+ * (svelte-hasura-boilerplate#69). The runner has no user session: it sends its
+ * RUNNER_API_TOKEN (#231), or — until every runner has switched — the Hasura admin
+ * secret it used for GraphQL. The file goes to
  * the board owner's store — their R2 bucket, else the app's — and becomes an `uploads`
  * row, which the card shows as an attachment.
  */
@@ -10,19 +11,20 @@ import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { serverRequest } from '$lib/graphql/server-client';
 import { getPlanContext } from '$lib/server/plan';
+import { isRunner as hasRunnerToken } from '$lib/server/runner';
 import { getR2Credentials, storeFile } from '$lib/server/storeFile';
 import type { RequestHandler } from './$types';
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
-function isRunner(secret: string | null): boolean {
+function hasAdminSecret(secret: string | null): boolean {
 	const a = Buffer.from(secret ?? '');
 	const b = Buffer.from(env.HASURA_ADMIN_SECRET ?? '');
 	return b.length > 0 && a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
 export const POST: RequestHandler = async ({ request }) => {
-	if (!isRunner(request.headers.get('x-hasura-admin-secret')))
+	if (!hasRunnerToken(request) && !hasAdminSecret(request.headers.get('x-hasura-admin-secret')))
 		return json({ success: false, error: 'Not authorized' }, { status: 401 });
 
 	const form = await request.formData();

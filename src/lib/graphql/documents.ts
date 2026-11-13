@@ -1869,3 +1869,168 @@ export const CREATE_PASSWORD_USER = graphql(`
 		}
 	}
 `);
+
+// The Kanban runner's own operations, behind POST /api/runner/<op> with RUNNER_API_TOKEN
+// (#231). `boards.github` is text holding JSON, so a repo is matched with `_ilike`.
+export const RUNNER_BOARD = graphql(`
+	query RunnerBoard($repo: String!) {
+		boards(where: { github: { _ilike: $repo } }, limit: 1) {
+			id
+			user_id
+			lists(order_by: { sort_order: asc }) {
+				id
+				name
+			}
+		}
+	}
+`);
+
+export const RUNNER_BOARDS = graphql(`
+	query RunnerBoards {
+		boards(where: { github: { _is_null: false } }, order_by: { name: asc }) {
+			id
+			name
+			github
+			client_id
+			archived_at
+		}
+	}
+`);
+
+export const RUNNER_SET_BOARD_GITHUB = graphql(`
+	mutation RunnerSetBoardGithub($id: uuid!, $github: String!) {
+		update_boards_by_pk(pk_columns: { id: $id }, _set: { github: $github }) {
+			id
+		}
+	}
+`);
+
+export const RUNNER_CARDS = graphql(`
+	query RunnerCards($where: todos_bool_exp!) {
+		todos(where: $where, order_by: [{ created_at: asc }, { id: asc }]) {
+			id
+			task_file_path
+			list {
+				name
+			}
+		}
+	}
+`);
+
+export const RUNNER_CREATE_CARD = graphql(`
+	mutation RunnerCreateCard($o: todos_insert_input!) {
+		insert_todos_one(object: $o) {
+			id
+		}
+	}
+`);
+
+export const RUNNER_UPDATE_CARDS = graphql(`
+	mutation RunnerUpdateCards($where: todos_bool_exp!, $set: todos_set_input!) {
+		update_todos(where: $where, _set: $set) {
+			affected_rows
+		}
+	}
+`);
+
+export const RUNNER_DELETE_CARD = graphql(`
+	mutation RunnerDeleteCard($id: uuid!) {
+		delete_todos_by_pk(id: $id) {
+			id
+		}
+	}
+`);
+
+export const RUNNER_COMMENTS = graphql(`
+	query RunnerComments($where: comments_bool_exp!) {
+		comments(where: $where, order_by: { created_at: desc }) {
+			id
+			content
+		}
+	}
+`);
+
+export const RUNNER_CREATE_COMMENT = graphql(`
+	mutation RunnerCreateComment($o: comments_insert_input!) {
+		insert_comments_one(object: $o) {
+			id
+		}
+	}
+`);
+
+export const RUNNER_UPDATE_COMMENT = graphql(`
+	mutation RunnerUpdateComment($id: uuid!, $content: String!) {
+		update_comments_by_pk(pk_columns: { id: $id }, _set: { content: $content }) {
+			id
+		}
+	}
+`);
+
+export const RUNNER_UPLOADS = graphql(`
+	query RunnerUploads($todoId: uuid!) {
+		uploads(where: { todo_id: { _eq: $todoId } }) {
+			url
+		}
+	}
+`);
+
+export const RUNNER_PRICING = graphql(`
+	query RunnerPricing {
+		claude_model_pricing {
+			model
+			input_per_mtok
+			output_per_mtok
+			cache_read_per_mtok
+			cache_write_per_mtok
+		}
+	}
+`);
+
+export const RUNNER_UPSERT_PRICING = graphql(`
+	mutation RunnerUpsertPricing($rows: [claude_model_pricing_insert_input!]!) {
+		insert_claude_model_pricing(
+			objects: $rows
+			on_conflict: {
+				constraint: claude_model_pricing_pkey
+				update_columns: [
+					input_per_mtok
+					output_per_mtok
+					cache_write_per_mtok
+					cache_read_per_mtok
+					currency
+					source
+					updated_at
+				]
+			}
+		) {
+			affected_rows
+		}
+	}
+`);
+
+export const RUNNER_UPSERT_USAGE = graphql(`
+	mutation RunnerUpsertUsage($row: claude_usage_insert_input!) {
+		insert_claude_usage_one(
+			object: $row
+			on_conflict: {
+				constraint: claude_usage_session_id_key
+				update_columns: [
+					todo_id
+					user_id
+					repo
+					model
+					input_tokens
+					output_tokens
+					cache_read_tokens
+					cache_write_tokens
+					usage_by_model
+					cost_usd
+					started_at
+					ended_at
+				]
+			}
+		) {
+			id
+		}
+	}
+`);

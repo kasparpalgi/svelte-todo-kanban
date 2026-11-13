@@ -1,7 +1,9 @@
 /** @file src/routes/api/data/[op]/+server.ts */
 // The browser's data API: POST /api/data/<op> with the session cookie and a JSON
-// body. Replaces direct browser → Hasura GraphQL, one op at a time (#226).
+// body. Replaces direct browser → Hasura GraphQL, one op at a time (#226). The Chrome
+// extension sends a bearer token instead, for its own few ops (#231).
 import { json } from '@sveltejs/kit';
+import { extensionUserId } from '$lib/server/extensionToken';
 import { serverLog } from '$lib/server/log';
 import { ops, type OpName } from '$lib/server/ops';
 import { OpError, type Op } from '$lib/server/ops/op';
@@ -15,7 +17,8 @@ export const POST: RequestHandler = async ({ params, request, locals, platform }
 	const name = params.op as OpName;
 	const op = ops[name] as Op;
 
-	const userId = (await locals.auth())?.user?.id ?? null;
+	const userId =
+		(await locals.auth())?.user?.id ?? (await extensionUserId(request, params.op)) ?? null;
 	if (op.auth === 'user' && !userId) return fail(401, 'Authentication required');
 
 	const body = await request.json().catch(() => undefined);

@@ -68,16 +68,26 @@ export const createNote = defineOp({
 		parentId: z.guid().nullable().default(null),
 		title,
 		content: content.default(null),
+		// The Chrome extension saves a page with its preview image (#231).
+		cover_image_url: z.string().max(2_000).nullable().default(null),
 		sort_order: z.number().int().default(0)
 	}),
-	async run(ctx, { boardId, parentId, title, content, sort_order }) {
+	async run(ctx, { boardId, parentId, title, content, cover_image_url, sort_order }) {
 		await requireRole(ctx, boardId, canEdit);
 		if (parentId && (await notesBoard(ctx, [parentId])) !== boardId) {
 			throw new OpError(400, 'The parent note is on another board');
 		}
 		const data = await ctx.db(CREATE_NOTE, {
 			objects: [
-				{ board_id: boardId, parent_id: parentId, title, content, sort_order, user_id: ctx.userId }
+				{
+					board_id: boardId,
+					parent_id: parentId,
+					title,
+					content,
+					cover_image_url,
+					sort_order,
+					user_id: ctx.userId
+				}
 			]
 		});
 		const note = data.insert_notes?.returning[0];
