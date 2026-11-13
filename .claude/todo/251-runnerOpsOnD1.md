@@ -17,3 +17,5 @@ card lookup and insert.
 
 **Done when:** on the staging Worker, every runner op answers the same as production does
 for the same data (contract test), and a runner pointed at staging closes a test card.
+
+_GitHub issue #247 — end the commit subject with `(#247)`._
