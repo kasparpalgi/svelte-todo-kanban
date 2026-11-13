@@ -31,3 +31,5 @@ control and gets an error toast when they use one.
 control, can comment and edit/delete their own comment; an editor still sees everything.
 
 _GitHub issue #239 — end the commit subject with `(#239)`._
+
+_From Kanban card `b2d7cd7c-7a2e-4666-aa7c-f488147e9575`, moved to the agent list._
