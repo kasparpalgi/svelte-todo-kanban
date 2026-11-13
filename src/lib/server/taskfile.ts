@@ -48,15 +48,17 @@ export function toText(content?: string | null): string {
 
 /**
  * A tier label is `<Name> <version> / <effort>` — the runner pins that exact model
- * id, so the version is not decoration. `latest` is what a bare family name means.
+ * id, so the version is not decoration. `latest` is what a bare family name means,
+ * and it must match `latest` in the runner's own `classify.js`: when the two drift,
+ * a card asking for a bare family gets a version nobody picked (issue #38).
  */
 const FAMILIES: Record<
 	string,
 	{ name: string; latest: string; effort: string; efforts?: string[] }
 > = {
 	fable: { name: 'Fable', latest: '5.1', effort: 'high' },
-	opus: { name: 'Opus', latest: '5', effort: 'high' },
-	sonnet: { name: 'Sonnet', latest: '5', effort: 'medium' },
+	opus: { name: 'Opus', latest: '5.5', effort: 'high' },
+	sonnet: { name: 'Sonnet', latest: '5.5', effort: 'medium' },
 	haiku: { name: 'Haiku', latest: '4.5', effort: 'low' },
 	// Free Gemini 3.8 Flash, run by aider on the runner; it thinks at low/medium/high only.
 	gemini: { name: 'Gemini', latest: '3.8', effort: 'medium', efforts: ['low', 'medium', 'high'] }

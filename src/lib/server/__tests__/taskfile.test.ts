@@ -86,11 +86,11 @@ describe('todoPathFor', () => {
 
 describe('runWithLabel', () => {
 	it('defaults to sonnet', () => {
-		expect(runWithLabel('add a button')).toBe('Sonnet 5 / medium');
+		expect(runWithLabel('add a button')).toBe('Sonnet 5.5 / medium');
 	});
 
 	it('honours opus from explicit Run with:', () => {
-		expect(runWithLabel('Run with: opus\nredesign auth')).toBe('Opus 5 / high');
+		expect(runWithLabel('Run with: opus\nredesign auth')).toBe('Opus 5.5 / high');
 	});
 
 	it('honours opus 5 from explicit Run with:', () => {
@@ -122,7 +122,7 @@ describe('runWithLabel', () => {
 	});
 
 	it('prefers an explicit Run with: over a model named earlier in prose', () => {
-		expect(runWithLabel('rewrite the sonnet parser\nRun with: opus')).toBe('Opus 5 / high');
+		expect(runWithLabel('rewrite the sonnet parser\nRun with: opus')).toBe('Opus 5.5 / high');
 	});
 });
 
@@ -155,7 +155,7 @@ describe('buildDraftFile', () => {
 
 	it('honours a hand-typed Run with line in the card body (back-compat)', () => {
 		const file = buildDraftFile({ id: 'abc', title: 'Ship it', content: 'Run with: opus\ndo it' });
-		expect(file).toContain('> Run with: Opus 5 / high');
+		expect(file).toContain('> Run with: Opus 5.5 / high');
 	});
 
 	it('prefers the agent_model/agent_effort fields over card prose', () => {
@@ -181,7 +181,7 @@ describe('buildDraftFile', () => {
 
 	it('defaults effort to medium when only a model field is set', () => {
 		const file = buildDraftFile({ id: 'abc', title: 'Ship it', agent_model: 'sonnet' });
-		expect(file).toContain('> Run with: Sonnet 5 / medium');
+		expect(file).toContain('> Run with: Sonnet 5.5 / medium');
 	});
 });
 
