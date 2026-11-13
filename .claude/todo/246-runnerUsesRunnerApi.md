@@ -45,3 +45,5 @@ until this lands).
 
 **Done when:** a real runner tick files, claims and closes a test card through the new
 endpoints, and `grep -r "servicehost\|adminSecret" plugins/dev-kit/runner` finds nothing.
+
+_GitHub issue #246 — end the commit subject with `(#246)`._
