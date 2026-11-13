@@ -2,9 +2,7 @@
 import { PUBLIC_APP_ENV, PUBLIC_API_ENV } from '$env/static/public';
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import { getTopBoardPath } from '$lib/utils/getTopBoardPath';
-import { request } from '$lib/graphql/client';
-import { GET_USERS } from '$lib/graphql/documents';
+import { getTopBoardPath, userLocale } from '$lib/server/topBoardPath';
 import { DEFAULT_LOCALE } from '$lib/constants/locale';
 
 const allowedAppEnvs = ['production', 'testing', 'development'] as const;
@@ -22,7 +20,7 @@ function isValidApiEnv(env: string): env is ApiEnv {
 }
 
 export const load: LayoutServerLoad = async (event) => {
-	const { url, locals, fetch } = event;
+	const { url, locals } = event;
 
 	const appEnv = isValidAppEnv(PUBLIC_APP_ENV) ? PUBLIC_APP_ENV : 'development';
 	const apiEnv = isValidApiEnv(PUBLIC_API_ENV) ? PUBLIC_API_ENV : 'development';
@@ -35,7 +33,7 @@ export const load: LayoutServerLoad = async (event) => {
 	const session = await locals.auth();
 
 	if (url.pathname === '/' && session) {
-		const topBoardPath = await getTopBoardPath(session, fetch);
+		const topBoardPath = await getTopBoardPath(session);
 		if (topBoardPath) {
 			throw redirect(302, topBoardPath);
 		} else {
@@ -44,21 +42,10 @@ export const load: LayoutServerLoad = async (event) => {
 			// token endpoint now returns 401) can't 500 the landing redirect.
 			let locale = DEFAULT_LOCALE;
 			if (session.user?.id) {
-				try {
-					const userData = (await request(
-						GET_USERS,
-						{
-							where: { id: { _eq: session.user.id } },
-							limit: 1
-						},
-						undefined,
-						fetch
-					)) as any;
-
-					locale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
-				} catch (err) {
+				locale = await userLocale(session.user.id).catch((err) => {
 					console.error('[layout.server] locale lookup failed, using default:', err);
-				}
+					return DEFAULT_LOCALE;
+				});
 			}
 			throw redirect(302, `/${locale}`);
 		}

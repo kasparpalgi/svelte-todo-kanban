@@ -10,8 +10,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	if (session) {
 		try {
-			const { getTopBoardPath } = await import('$lib/utils/getTopBoardPath');
-			const topBoardPath = await getTopBoardPath(session, fetch);
+			const { getTopBoardPath } = await import('$lib/server/topBoardPath');
+			const topBoardPath = await getTopBoardPath(session);
 			if (topBoardPath) {
 				throw redirect(302, topBoardPath);
 			} else {

@@ -52,3 +52,18 @@ _GitHub issue #229 — end the commit subject with `(#229)`._
   compares the `board` string, so switching to `changed_at` is a server-only change.
 - `changed_at` must also move on list create, rename, reorder and delete: lists are in
   today's fingerprint, and the board page reloads lists only when it changes.
+
+## Notes from #228 (boards data API, shipped)
+
+- Board, list, label, member and invitation ops live in `src/lib/server/ops/{boards,lists,labels,members,invitations}.ts`.
+  Access helpers in `src/lib/server/access.ts`: `requireRole(ctx, boardId, canEdit | isOwner | isMember | canRead)`
+  throws a 403 `OpError`; `identity(ctx)` / `invitedWhere(ctx)` give the caller's email and username for invitations.
+  Reuse them for the card ops.
+- The server enforces "viewers are read-only" for boards, lists and labels. **The UI does not hide those edit
+  controls yet** (list create/rename/delete, board menu, labels); a viewer just gets an error toast. Do the
+  UI hiding here together with the card controls.
+- Still on the browser JWT after #228: `todo-labels` (add/remove a label on a card, `labelsStore.addTodoLabel`)
+  and the board page SSR in `[lang]/[username]/[board]/+page.server.ts` (`GET_BOARDS` + `GET_TODOS` for OG tags).
+  Both are card work.
+- Seen, not fixed: the archive-board confirm shows an empty name (`Archive ""?`): `$t()` already swallows the
+  `{{boardName}}` placeholder before `.replace()` runs.

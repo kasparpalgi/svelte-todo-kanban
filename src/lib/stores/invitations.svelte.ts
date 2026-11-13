@@ -1,16 +1,8 @@
 /** @file src/lib/stores/invitations.svelte.ts */
-import {
-	GET_MY_INVITATIONS,
-	UPDATE_BOARD_INVITATION,
-	ADD_BOARD_MEMBER
-} from '$lib/graphql/documents';
-import { request } from '$lib/graphql/client';
+import { call } from '$lib/api/call';
 import { browser } from '$app/environment';
 import { userStore } from './user.svelte';
-import type {
-	GetMyInvitationsQuery,
-	BoardInvitationFieldsFragment
-} from '$lib/graphql/generated/graphql';
+import type { BoardInvitationFieldsFragment } from '$lib/graphql/generated/graphql';
 import type { InvitationsState, StoreResult } from '$lib/types/invitation';
 
 function createInvitationsStore() {
@@ -24,10 +16,7 @@ function createInvitationsStore() {
 	async function loadMyInvitations(): Promise<BoardInvitationFieldsFragment[]> {
 		if (!browser) return [];
 
-		const user = userStore.user;
-		if (!user?.email || !user?.username) {
-			return [];
-		}
+		if (!userStore.user?.id) return [];
 
 		if (state.loading) return state.myInvitations;
 
@@ -35,12 +24,7 @@ function createInvitationsStore() {
 		state.error = null;
 
 		try {
-			const data: GetMyInvitationsQuery = await request(GET_MY_INVITATIONS, {
-				email: user.email,
-				username: user.username
-			});
-
-			state.myInvitations = data.board_invitations || [];
+			state.myInvitations = await call('getMyInvitations', {});
 			state.initialized = true;
 			return state.myInvitations;
 		} catch (error) {
@@ -61,46 +45,23 @@ function createInvitationsStore() {
 			return { success: false, message: 'Invitation not found' };
 		}
 
-		const user = userStore.user;
-		if (!user?.id) {
-			return { success: false, message: 'User not authenticated' };
-		}
-
 		try {
-			await request(ADD_BOARD_MEMBER, {
-				objects: [
-					{
-						board_id: invitation.board_id,
-						user_id: user.id,
-						role: invitation.role
-					}
-				]
-			});
-		} catch (memberError) {
-			console.warn('Add board member error (may already be a member):', memberError);
+			// One server op: checks the invitation is pending and the caller's, then joins.
+			await call('acceptInvitation', { id: invitationId });
+			state.myInvitations = state.myInvitations.filter((i) => i.id !== invitationId);
+			return { success: true, message: 'Invitation accepted' };
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Error accepting invitation';
+			console.error('Accept invitation error:', error);
+			return { success: false, message };
 		}
-
-		try {
-			await request(UPDATE_BOARD_INVITATION, {
-				where: { id: { _eq: invitationId } },
-				_set: { status: 'accepted' }
-			});
-		} catch (updateError) {
-			console.warn('Update invitation status error:', updateError);
-		}
-
-		state.myInvitations = state.myInvitations.filter((i) => i.id !== invitationId);
-		return { success: true, message: 'Invitation accepted' };
 	}
 
 	async function declineInvitation(invitationId: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		try {
-			await request(UPDATE_BOARD_INVITATION, {
-				where: { id: { _eq: invitationId } },
-				_set: { status: 'declined' }
-			});
+			await call('declineInvitation', { id: invitationId });
 
 			state.myInvitations = state.myInvitations.filter((i) => i.id !== invitationId);
 			return { success: true, message: 'Invitation declined' };

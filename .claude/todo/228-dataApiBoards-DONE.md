@@ -30,3 +30,11 @@ Plan: `.claude/todo/226-backend-DONE.md`, section 2. Needs `dataApiFoundation` f
 _From Kanban card `9c8e16d7-9af8-470e-8e79-047ccb6219dc`, moved to the agent list._
 
 _GitHub issue #228 — end the commit subject with `(#228)`._
+
+## Results
+
+**Summary** — Boards, lists, labels, members and invitations now go through `POST /api/data/<op>`;
+the browser sends no GraphQL for them. Access is checked in code for every op, and viewers are read-only.
+(Production verification: see below.)
+
+**Files changed** — see the commit; details below once verified live.

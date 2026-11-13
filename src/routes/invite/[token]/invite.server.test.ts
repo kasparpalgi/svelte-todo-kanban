@@ -2,45 +2,36 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { load } from './+page.server';
 
-// Mock the GraphQL client — route request() by operation name.
-vi.mock('$lib/graphql/client', () => ({
-	request: vi.fn()
+// The page runs the acceptInvitation op with the admin client: route it by operation.
+vi.mock('$lib/graphql/server-client', () => ({ serverRequest: vi.fn() }));
+vi.mock('$lib/server/topBoardPath', () => ({
+	getTopBoardPath: vi.fn(),
+	userLocale: vi.fn(async () => 'en')
 }));
 
-// Mock top-board fallback resolution.
-vi.mock('$lib/utils/getTopBoardPath', () => ({
-	getTopBoardPath: vi.fn()
-}));
+import { serverRequest } from '$lib/graphql/server-client';
+import { getTopBoardPath } from '$lib/server/topBoardPath';
 
-import { request } from '$lib/graphql/client';
-import { getTopBoardPath } from '$lib/utils/getTopBoardPath';
-
-const mockedRequest = vi.mocked(request);
+const db = vi.mocked(serverRequest);
 const mockedTopBoard = vi.mocked(getTopBoardPath);
-
-function opName(doc: unknown): string {
-	return String(doc);
-}
+const opName = (doc: unknown) => String(doc).match(/(?:query|mutation)\s+(\w+)/)?.[1];
+const calls = () => db.mock.calls.map((c) => opName(c[0]));
 
 /** Run the load and capture the thrown SvelteKit redirect. */
-async function runLoad(args: any): Promise<{ status: number; location: string }> {
+async function runLoad(args: unknown): Promise<{ status: number; location: string }> {
 	try {
-		await load(args);
-	} catch (e: any) {
-		// SvelteKit redirect() throws a Redirect with status + location.
+		await load(args as Parameters<typeof load>[0]);
+	} catch (e) {
 		if (e && typeof e === 'object' && 'status' in e && 'location' in e) {
-			return { status: e.status, location: e.location };
+			return { status: e.status as number, location: e.location as string };
 		}
 		throw e;
 	}
 	throw new Error('Expected load() to redirect');
 }
 
-const fetch = vi.fn() as any;
-
-const invitedSession = {
-	user: { id: 'user-123', email: 'invitee@example.com', username: 'invitee' }
-};
+const invitedSession = { user: { id: 'user-123', email: 'invitee@example.com' } };
+const locals = (session: unknown) => ({ auth: vi.fn().mockResolvedValue(session) });
 
 const pendingInvitation = {
 	id: 'inv-1',
@@ -52,17 +43,15 @@ const pendingInvitation = {
 	board: { id: 'board-1', name: 'Team Board', alias: 'team-board', user: { username: 'owner' } }
 };
 
-/** Default request router: locale query + invitation lookup + mutations. */
-function routeRequest(invitationRows: any[]) {
-	mockedRequest.mockImplementation(async (doc: unknown) => {
-		const s = opName(doc);
-		if (s.includes('GetUsers')) return { users: [{ locale: 'en' }] } as any;
-		if (s.includes('GetInvitationByToken')) return { board_invitations: invitationRows } as any;
-		if (s.includes('AddBoardMember')) return { insert_board_members: { affected_rows: 1 } } as any;
-		if (s.includes('UpdateBoardInvitation'))
-			return { update_board_invitations: { affected_rows: 1 } } as any;
-		return {} as any;
-	});
+function routeDb(invitationRows: unknown[]) {
+	db.mockImplementation((async (doc: unknown) => {
+		const op = opName(doc);
+		if (op === 'GetUserIdentity')
+			return { users_by_pk: { email: 'invitee@example.com', username: 'invitee' } };
+		if (op === 'GetInvitation') return { board_invitations: invitationRows };
+		if (op === 'AcceptInvitation') return {};
+		throw new Error(`unexpected ${op}`);
+	}) as typeof serverRequest);
 }
 
 describe('invite/[token] load', () => {
@@ -72,57 +61,51 @@ describe('invite/[token] load', () => {
 	});
 
 	it('redirects an anonymous visitor to sign-in, preserving the token', async () => {
-		const locals = { auth: vi.fn().mockResolvedValue(null) };
-		const result = await runLoad({ params: { token: 'tok 1' }, locals, fetch });
-		expect(result.status).toBe(302);
-		expect(result.location).toBe('/signin?invite=tok%201');
-		expect(mockedRequest).not.toHaveBeenCalled();
+		const result = await runLoad({ params: { token: 'tok 1' }, locals: locals(null) });
+		expect(result).toEqual({ status: 302, location: '/signin?invite=tok%201' });
+		expect(db).not.toHaveBeenCalled();
 	});
 
 	it('accepts a matching pending invitation and redirects to the board', async () => {
-		routeRequest([pendingInvitation]);
-		const locals = { auth: vi.fn().mockResolvedValue(invitedSession) };
-
-		const result = await runLoad({ params: { token: 'tok-1' }, locals, fetch });
+		routeDb([pendingInvitation]);
+		const result = await runLoad({ params: { token: 'tok-1' }, locals: locals(invitedSession) });
 
 		expect(result.location).toBe('/en/owner/team-board');
-
-		const calls = mockedRequest.mock.calls.map((c) => opName(c[0]));
-		expect(calls.some((c) => c.includes('AddBoardMember'))).toBe(true);
-		expect(calls.some((c) => c.includes('UpdateBoardInvitation'))).toBe(true);
+		const accept = db.mock.calls.find((c) => opName(c[0]) === 'AcceptInvitation');
+		expect(accept?.[1]).toEqual({
+			id: 'inv-1',
+			member: { board_id: 'board-1', user_id: 'user-123', role: 'editor' }
+		});
 	});
 
 	it('does not re-accept an already accepted invitation', async () => {
-		routeRequest([{ ...pendingInvitation, status: 'accepted' }]);
-		const locals = { auth: vi.fn().mockResolvedValue(invitedSession) };
-
-		const result = await runLoad({ params: { token: 'tok-1' }, locals, fetch });
+		routeDb([{ ...pendingInvitation, status: 'accepted' }]);
+		const result = await runLoad({ params: { token: 'tok-1' }, locals: locals(invitedSession) });
 
 		expect(result.location).toBe('/en/owner/team-board');
-		const calls = mockedRequest.mock.calls.map((c) => opName(c[0]));
-		expect(calls.some((c) => c.includes('AddBoardMember'))).toBe(false);
-		expect(calls.some((c) => c.includes('UpdateBoardInvitation'))).toBe(false);
+		expect(calls()).not.toContain('AcceptInvitation');
 	});
 
 	it('falls back to the top board when no invitation matches the account', async () => {
-		routeRequest([]);
+		routeDb([]);
 		mockedTopBoard.mockResolvedValue('/en/owner/other-board');
-		const locals = { auth: vi.fn().mockResolvedValue(invitedSession) };
-
-		const result = await runLoad({ params: { token: 'tok-1' }, locals, fetch });
+		const result = await runLoad({ params: { token: 'tok-1' }, locals: locals(invitedSession) });
 
 		expect(result.location).toBe('/en/owner/other-board');
-		const calls = mockedRequest.mock.calls.map((c) => opName(c[0]));
-		expect(calls.some((c) => c.includes('AddBoardMember'))).toBe(false);
+		expect(calls()).not.toContain('AcceptInvitation');
+	});
+
+	it('does not accept an expired invitation', async () => {
+		routeDb([{ ...pendingInvitation, expires_at: '2020-01-01T00:00:00Z' }]);
+		const result = await runLoad({ params: { token: 'tok-1' }, locals: locals(invitedSession) });
+
+		expect(result.location).toBe('/en');
+		expect(calls()).not.toContain('AcceptInvitation');
 	});
 
 	it('falls back to the locale root when nothing else resolves', async () => {
-		routeRequest([]);
-		mockedTopBoard.mockResolvedValue(null);
-		const locals = { auth: vi.fn().mockResolvedValue(invitedSession) };
-
-		const result = await runLoad({ params: { token: 'tok-1' }, locals, fetch });
-
+		routeDb([]);
+		const result = await runLoad({ params: { token: 'tok-1' }, locals: locals(invitedSession) });
 		expect(result.location).toBe('/en');
 	});
 });

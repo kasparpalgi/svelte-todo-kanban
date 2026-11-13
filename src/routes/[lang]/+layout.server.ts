@@ -1,7 +1,7 @@
 /** @file src/routes/[lang]/+layout.server.ts */
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import { getTopBoardPath } from '$lib/utils/getTopBoardPath';
+import { getTopBoardPath } from '$lib/server/topBoardPath';
 import { publicRequest } from '$lib/graphql/client';
 import { serverRequest } from '$lib/graphql/server-client';
 import { GET_URL_SHORTCUT_BY_ALIAS, INCREMENT_URL_SHORTCUT_VISITS } from '$lib/graphql/documents';
@@ -15,7 +15,7 @@ interface ShortcutLookupResult {
 }
 
 export const load: LayoutServerLoad = async (event) => {
-	const { params, url, locals, fetch } = event;
+	const { params, url, locals } = event;
 
 	const pathSegments = url.pathname.split('/').filter(Boolean);
 	const isSingleSegment = pathSegments.length === 1;
@@ -68,7 +68,7 @@ export const load: LayoutServerLoad = async (event) => {
 	const isLanguageRootOnly = isSingleSegment && segment === params.lang;
 
 	if (session && isLanguageRootOnly) {
-		const topBoardPath = await getTopBoardPath(session, fetch);
+		const topBoardPath = await getTopBoardPath(session);
 		if (topBoardPath) {
 			throw redirect(302, topBoardPath);
 		}

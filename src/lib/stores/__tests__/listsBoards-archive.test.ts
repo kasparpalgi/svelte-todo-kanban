@@ -9,8 +9,8 @@ vi.mock('$env/static/public', () => ({
 	PUBLIC_API_ENV: 'development'
 }));
 
-vi.mock('$lib/graphql/client', () => ({
-	request: vi.fn()
+vi.mock('$lib/api/call', () => ({
+	call: vi.fn()
 }));
 
 vi.mock('$app/environment', () => ({
@@ -75,72 +75,18 @@ describe('ListsStore - archive boards', () => {
 		vi.clearAllMocks();
 	});
 
-	// The mocked user has no email/username, so the scope covers owner + membership.
-	const ownerOrMemberScope = {
-		_or: [{ user_id: { _eq: 'user-1' } }, { board_members: { user_id: { _eq: 'user-1' } } }]
-	};
-
+	// The scope itself (own, member, invited; never strangers' public boards) is
+	// built on the server: see getBoards in src/lib/server/ops/__tests__/boards.test.ts.
 	describe('loadBoards', () => {
-		it('excludes archived boards and scopes to the user (issue #192 — no public leak)', async () => {
+		it('loads the switcher boards from the data API', async () => {
 			const board = createMockBoard();
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValue({ boards: [board] });
+			const { call } = await import('$lib/api/call');
+			vi.mocked(call).mockResolvedValue([board]);
 
 			await listsStore.loadBoards();
 
-			expect(request).toHaveBeenCalledWith(
-				expect.anything(),
-				expect.objectContaining({
-					where: { _and: [{ archived_at: { _is_null: true } }, ownerOrMemberScope] }
-				})
-			);
+			expect(call).toHaveBeenCalledWith('getBoards', {});
 			expect(listsStore.boards).toEqual([board]);
-		});
-
-		it('includes invitation conditions when the user has email/username', async () => {
-			const userModule = await import('../user.svelte');
-			const original = userModule.userStore.user;
-			// @ts-expect-error test override of the mocked getter value
-			userModule.userStore.user = {
-				id: 'user-1',
-				email: 'kaspar@e-stonia.co.uk',
-				username: 'kaspar1',
-				settings: {}
-			};
-
-			const board = createMockBoard();
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValue({ boards: [board] });
-
-			await listsStore.loadBoards();
-
-			expect(request).toHaveBeenCalledWith(
-				expect.anything(),
-				expect.objectContaining({
-					where: {
-						_and: [
-							{ archived_at: { _is_null: true } },
-							{
-								_or: [
-									{ user_id: { _eq: 'user-1' } },
-									{ board_members: { user_id: { _eq: 'user-1' } } },
-									{
-										board_invitations: {
-											_or: [
-												{ invitee_email: { _eq: 'kaspar@e-stonia.co.uk' } },
-												{ invitee_username: { _eq: 'kaspar1' } }
-											]
-										}
-									}
-								]
-							}
-						]
-					}
-				})
-			);
-
-			// @ts-expect-error restore the mocked getter value
-			userModule.userStore.user = original;
 		});
 
 		it('returns nothing and does not query when there is no signed-in user', async () => {
@@ -149,12 +95,12 @@ describe('ListsStore - archive boards', () => {
 			// @ts-expect-error test override of the mocked getter value
 			userModule.userStore.user = null;
 
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValue({ boards: [createMockBoard()] });
+			const { call } = await import('$lib/api/call');
+			vi.mocked(call).mockResolvedValue([createMockBoard()]);
 
 			const result = await listsStore.loadBoards();
 
-			expect(request).not.toHaveBeenCalled();
+			expect(call).not.toHaveBeenCalled();
 			expect(result).toEqual([]);
 			expect(listsStore.boards).toEqual([]);
 
@@ -166,17 +112,12 @@ describe('ListsStore - archive boards', () => {
 	describe('loadArchivedBoards', () => {
 		it('loads scoped archived boards and stores them separately', async () => {
 			const archivedBoard = createMockBoard({ id: 'board-2', archived_at: '2025-06-01T00:00:00Z' });
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValue({ boards: [archivedBoard] });
+			const { call } = await import('$lib/api/call');
+			vi.mocked(call).mockResolvedValue([archivedBoard]);
 
 			await listsStore.loadArchivedBoards();
 
-			expect(request).toHaveBeenCalledWith(
-				expect.anything(),
-				expect.objectContaining({
-					where: { _and: [{ archived_at: { _is_null: false } }, ownerOrMemberScope] }
-				})
-			);
+			expect(call).toHaveBeenCalledWith('getBoards', { archived: true });
 			expect(listsStore.archivedBoards).toEqual([archivedBoard]);
 		});
 	});
@@ -189,15 +130,12 @@ describe('ListsStore - archive boards', () => {
 				is_public: true,
 				user: { id: 'someone-else', username: 'ftwbihs', email: 'ftwbihs@yandex.by' }
 			});
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValue({ boards: [publicBoard] });
+			const { call } = await import('$lib/api/call');
+			vi.mocked(call).mockResolvedValue(publicBoard);
 
 			const board = await listsStore.loadBoardByAlias('ftwbihss-board');
 
-			expect(request).toHaveBeenCalledWith(
-				expect.anything(),
-				expect.objectContaining({ where: { alias: { _eq: 'ftwbihss-board' } }, limit: 1 })
-			);
+			expect(call).toHaveBeenCalledWith('getBoard', { alias: 'ftwbihss-board' });
 			expect(board).toEqual(publicBoard);
 			// Selected for viewing, but NOT added to the switcher list.
 			expect(listsStore.selectedBoard).toEqual(publicBoard);
@@ -208,8 +146,8 @@ describe('ListsStore - archive boards', () => {
 	describe('boardById', () => {
 		it('finds a card board by id, including a viewed public board (#222)', async () => {
 			const publicBoard = createMockBoard({ id: 'board-9', is_public: true });
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValue({ boards: [publicBoard] });
+			const { call } = await import('$lib/api/call');
+			vi.mocked(call).mockResolvedValue(publicBoard);
 			await listsStore.loadBoardByAlias('test-board');
 
 			expect(listsStore.boardById('board-9')).toEqual(publicBoard);
@@ -221,14 +159,12 @@ describe('ListsStore - archive boards', () => {
 	describe('archiveBoard', () => {
 		it('optimistically moves the board from boards to archivedBoards on success', async () => {
 			const board = createMockBoard();
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValueOnce({ boards: [board] });
+			const { call } = await import('$lib/api/call');
+			vi.mocked(call).mockResolvedValueOnce([board]);
 			await listsStore.loadBoards();
 
 			const archivedReturn = { ...board, archived_at: '2025-06-01T00:00:00Z' };
-			vi.mocked(request).mockResolvedValueOnce({
-				update_boards: { affected_rows: 1, returning: [archivedReturn] }
-			});
+			vi.mocked(call).mockResolvedValueOnce(archivedReturn);
 
 			const result = await listsStore.archiveBoard(board.id);
 
@@ -239,11 +175,11 @@ describe('ListsStore - archive boards', () => {
 
 		it('rolls back to boards and clears archivedBoards on failure', async () => {
 			const board = createMockBoard();
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValueOnce({ boards: [board] });
+			const { call } = await import('$lib/api/call');
+			vi.mocked(call).mockResolvedValueOnce([board]);
 			await listsStore.loadBoards();
 
-			vi.mocked(request).mockRejectedValueOnce(new Error('network error'));
+			vi.mocked(call).mockRejectedValueOnce(new Error('network error'));
 
 			const result = await listsStore.archiveBoard(board.id);
 
@@ -256,14 +192,12 @@ describe('ListsStore - archive boards', () => {
 	describe('restoreBoard', () => {
 		it('optimistically moves the board from archivedBoards to boards on success', async () => {
 			const archivedBoard = createMockBoard({ archived_at: '2025-06-01T00:00:00Z' });
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValueOnce({ boards: [archivedBoard] });
+			const { call } = await import('$lib/api/call');
+			vi.mocked(call).mockResolvedValueOnce([archivedBoard]);
 			await listsStore.loadArchivedBoards();
 
 			const restoredReturn = { ...archivedBoard, archived_at: null };
-			vi.mocked(request).mockResolvedValueOnce({
-				update_boards: { affected_rows: 1, returning: [restoredReturn] }
-			});
+			vi.mocked(call).mockResolvedValueOnce(restoredReturn);
 
 			const result = await listsStore.restoreBoard(archivedBoard.id);
 

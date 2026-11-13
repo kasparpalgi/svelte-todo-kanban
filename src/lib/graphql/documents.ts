@@ -756,6 +756,50 @@ export const GET_BOARD_ROLE = graphql(`
 	}
 `);
 
+// Server only: which board a row belongs to, for the access check in its ops.
+export const GET_LIST_BOARD = graphql(`
+	query GetListBoard($id: uuid!) {
+		lists_by_pk(id: $id) {
+			board_id
+		}
+	}
+`);
+
+export const GET_LABEL_BOARD = graphql(`
+	query GetLabelBoard($id: uuid!) {
+		labels_by_pk(id: $id) {
+			board_id
+		}
+	}
+`);
+
+export const GET_MEMBER_BOARD = graphql(`
+	query GetMemberBoard($id: uuid!) {
+		board_members_by_pk(id: $id) {
+			board_id
+			user_id
+		}
+	}
+`);
+
+export const GET_INVITATION_BOARD = graphql(`
+	query GetInvitationBoard($id: uuid!) {
+		board_invitations_by_pk(id: $id) {
+			board_id
+		}
+	}
+`);
+
+// Server only: the email and username invitations are addressed to.
+export const GET_USER_IDENTITY = graphql(`
+	query GetUserIdentity($id: uuid!) {
+		users_by_pk(id: $id) {
+			email
+			username
+		}
+	}
+`);
+
 // ========== Board Members ==========
 
 export const GET_BOARD_MEMBERS = graphql(`
@@ -767,23 +811,6 @@ export const GET_BOARD_MEMBERS = graphql(`
 	) {
 		board_members(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
 			...BoardMemberFields
-		}
-	}
-`);
-
-export const ADD_BOARD_MEMBER = graphql(`
-	mutation AddBoardMember($objects: [board_members_insert_input!]!) {
-		insert_board_members(
-			objects: $objects
-			on_conflict: {
-				constraint: board_members_board_user_unique
-				update_columns: [role, updated_at]
-			}
-		) {
-			affected_rows
-			returning {
-				...BoardMemberFields
-			}
 		}
 	}
 `);
@@ -839,14 +866,16 @@ export const GET_MY_INVITATIONS = graphql(`
 	}
 `);
 
-export const GET_INVITATION_BY_TOKEN = graphql(`
-	query GetInvitationByToken($token: String!) {
-		board_invitations(where: { token: { _eq: $token } }, limit: 1) {
+// Server only: src/lib/server/ops/invitations.ts, by id or token.
+export const GET_INVITATION = graphql(`
+	query GetInvitation($where: board_invitations_bool_exp!) {
+		board_invitations(where: $where, limit: 1) {
 			id
 			board_id
 			role
 			status
 			invitee_email
+			invitee_username
 			expires_at
 			board {
 				id
@@ -856,6 +885,26 @@ export const GET_INVITATION_BY_TOKEN = graphql(`
 					username
 				}
 			}
+		}
+	}
+`);
+
+// Server only: joins the invitee and marks the invitation accepted, in one transaction.
+// An existing member keeps their row, and an owner is never downgraded.
+export const ACCEPT_INVITATION = graphql(`
+	mutation AcceptInvitation($id: uuid!, $member: board_members_insert_input!) {
+		insert_board_members_one(
+			object: $member
+			on_conflict: {
+				constraint: board_members_board_user_unique
+				update_columns: [role]
+				where: { role: { _neq: "owner" } }
+			}
+		) {
+			id
+		}
+		update_board_invitations_by_pk(pk_columns: { id: $id }, _set: { status: "accepted" }) {
+			id
 		}
 	}
 `);

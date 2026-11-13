@@ -16873,6 +16873,41 @@ export type GetBoardRoleQueryVariables = Exact<{
 
 export type GetBoardRoleQuery = { __typename?: 'query_root', boards_by_pk?: { __typename?: 'boards', user_id: string, is_public: boolean, board_members: Array<{ __typename?: 'board_members', role: string }> } | null };
 
+export type GetListBoardQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetListBoardQuery = { __typename?: 'query_root', lists_by_pk?: { __typename?: 'lists', board_id?: string | null } | null };
+
+export type GetLabelBoardQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetLabelBoardQuery = { __typename?: 'query_root', labels_by_pk?: { __typename?: 'labels', board_id: string } | null };
+
+export type GetMemberBoardQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetMemberBoardQuery = { __typename?: 'query_root', board_members_by_pk?: { __typename?: 'board_members', board_id: string, user_id: string } | null };
+
+export type GetInvitationBoardQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetInvitationBoardQuery = { __typename?: 'query_root', board_invitations_by_pk?: { __typename?: 'board_invitations', board_id: string } | null };
+
+export type GetUserIdentityQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetUserIdentityQuery = { __typename?: 'query_root', users_by_pk?: { __typename?: 'users', email?: string | null, username: string } | null };
+
 export type GetBoardMembersQueryVariables = Exact<{
   where?: InputMaybe<Board_Members_Bool_Exp>;
   order_by?: InputMaybe<Array<Board_Members_Order_By> | Board_Members_Order_By>;
@@ -16882,13 +16917,6 @@ export type GetBoardMembersQueryVariables = Exact<{
 
 
 export type GetBoardMembersQuery = { __typename?: 'query_root', board_members: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> };
-
-export type AddBoardMemberMutationVariables = Exact<{
-  objects: Array<Board_Members_Insert_Input> | Board_Members_Insert_Input;
-}>;
-
-
-export type AddBoardMemberMutation = { __typename?: 'mutation_root', insert_board_members?: { __typename?: 'board_members_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'board_members', id: string, board_id: string, user_id: string, role: string, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null } }> } | null };
 
 export type UpdateBoardMemberMutationVariables = Exact<{
   where: Board_Members_Bool_Exp;
@@ -16923,12 +16951,20 @@ export type GetMyInvitationsQueryVariables = Exact<{
 
 export type GetMyInvitationsQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, inviter_id: string, invitee_email?: string | null, invitee_username?: string | null, role: string, status: string, token?: string | null, created_at: string, updated_at: string, expires_at: string, inviter: { __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
 
-export type GetInvitationByTokenQueryVariables = Exact<{
-  token: Scalars['String']['input'];
+export type GetInvitationQueryVariables = Exact<{
+  where: Board_Invitations_Bool_Exp;
 }>;
 
 
-export type GetInvitationByTokenQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, role: string, status: string, invitee_email?: string | null, expires_at: string, board: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', username: string } } }> };
+export type GetInvitationQuery = { __typename?: 'query_root', board_invitations: Array<{ __typename?: 'board_invitations', id: string, board_id: string, role: string, status: string, invitee_email?: string | null, invitee_username?: string | null, expires_at: string, board: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', username: string } } }> };
+
+export type AcceptInvitationMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  member: Board_Members_Insert_Input;
+}>;
+
+
+export type AcceptInvitationMutation = { __typename?: 'mutation_root', insert_board_members_one?: { __typename?: 'board_members', id: string } | null, update_board_invitations_by_pk?: { __typename?: 'board_invitations', id: string } | null };
 
 export type CreateBoardInvitationMutationVariables = Exact<{
   objects: Array<Board_Invitations_Insert_Input> | Board_Invitations_Insert_Input;
@@ -19270,6 +19306,43 @@ export const GetBoardRoleDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetBoardRoleQuery, GetBoardRoleQueryVariables>;
+export const GetListBoardDocument = new TypedDocumentString(`
+    query GetListBoard($id: uuid!) {
+  lists_by_pk(id: $id) {
+    board_id
+  }
+}
+    `) as unknown as TypedDocumentString<GetListBoardQuery, GetListBoardQueryVariables>;
+export const GetLabelBoardDocument = new TypedDocumentString(`
+    query GetLabelBoard($id: uuid!) {
+  labels_by_pk(id: $id) {
+    board_id
+  }
+}
+    `) as unknown as TypedDocumentString<GetLabelBoardQuery, GetLabelBoardQueryVariables>;
+export const GetMemberBoardDocument = new TypedDocumentString(`
+    query GetMemberBoard($id: uuid!) {
+  board_members_by_pk(id: $id) {
+    board_id
+    user_id
+  }
+}
+    `) as unknown as TypedDocumentString<GetMemberBoardQuery, GetMemberBoardQueryVariables>;
+export const GetInvitationBoardDocument = new TypedDocumentString(`
+    query GetInvitationBoard($id: uuid!) {
+  board_invitations_by_pk(id: $id) {
+    board_id
+  }
+}
+    `) as unknown as TypedDocumentString<GetInvitationBoardQuery, GetInvitationBoardQueryVariables>;
+export const GetUserIdentityDocument = new TypedDocumentString(`
+    query GetUserIdentity($id: uuid!) {
+  users_by_pk(id: $id) {
+    email
+    username
+  }
+}
+    `) as unknown as TypedDocumentString<GetUserIdentityQuery, GetUserIdentityQueryVariables>;
 export const GetBoardMembersDocument = new TypedDocumentString(`
     query GetBoardMembers($where: board_members_bool_exp = {}, $order_by: [board_members_order_by!] = {created_at: asc}, $limit: Int = 100, $offset: Int = 0) {
   board_members(
@@ -19296,33 +19369,6 @@ export const GetBoardMembersDocument = new TypedDocumentString(`
     image
   }
 }`) as unknown as TypedDocumentString<GetBoardMembersQuery, GetBoardMembersQueryVariables>;
-export const AddBoardMemberDocument = new TypedDocumentString(`
-    mutation AddBoardMember($objects: [board_members_insert_input!]!) {
-  insert_board_members(
-    objects: $objects
-    on_conflict: {constraint: board_members_board_user_unique, update_columns: [role, updated_at]}
-  ) {
-    affected_rows
-    returning {
-      ...BoardMemberFields
-    }
-  }
-}
-    fragment BoardMemberFields on board_members {
-  id
-  board_id
-  user_id
-  role
-  created_at
-  updated_at
-  user {
-    id
-    name
-    username
-    email
-    image
-  }
-}`) as unknown as TypedDocumentString<AddBoardMemberMutation, AddBoardMemberMutationVariables>;
 export const UpdateBoardMemberDocument = new TypedDocumentString(`
     mutation UpdateBoardMember($where: board_members_bool_exp!, $_set: board_members_set_input!) {
   update_board_members(where: $where, _set: $_set) {
@@ -19424,14 +19470,15 @@ export const GetMyInvitationsDocument = new TypedDocumentString(`
     alias
   }
 }`) as unknown as TypedDocumentString<GetMyInvitationsQuery, GetMyInvitationsQueryVariables>;
-export const GetInvitationByTokenDocument = new TypedDocumentString(`
-    query GetInvitationByToken($token: String!) {
-  board_invitations(where: {token: {_eq: $token}}, limit: 1) {
+export const GetInvitationDocument = new TypedDocumentString(`
+    query GetInvitation($where: board_invitations_bool_exp!) {
+  board_invitations(where: $where, limit: 1) {
     id
     board_id
     role
     status
     invitee_email
+    invitee_username
     expires_at
     board {
       id
@@ -19443,7 +19490,23 @@ export const GetInvitationByTokenDocument = new TypedDocumentString(`
     }
   }
 }
-    `) as unknown as TypedDocumentString<GetInvitationByTokenQuery, GetInvitationByTokenQueryVariables>;
+    `) as unknown as TypedDocumentString<GetInvitationQuery, GetInvitationQueryVariables>;
+export const AcceptInvitationDocument = new TypedDocumentString(`
+    mutation AcceptInvitation($id: uuid!, $member: board_members_insert_input!) {
+  insert_board_members_one(
+    object: $member
+    on_conflict: {constraint: board_members_board_user_unique, update_columns: [role], where: {role: {_neq: "owner"}}}
+  ) {
+    id
+  }
+  update_board_invitations_by_pk(
+    pk_columns: {id: $id}
+    _set: {status: "accepted"}
+  ) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<AcceptInvitationMutation, AcceptInvitationMutationVariables>;
 export const CreateBoardInvitationDocument = new TypedDocumentString(`
     mutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {
   insert_board_invitations(objects: $objects) {

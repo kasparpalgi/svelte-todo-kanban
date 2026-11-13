@@ -1,20 +1,9 @@
 /** @file src/lib/stores/labels.svelte.ts */
-import {
-	ADD_TODO_LABEL,
-	REMOVE_TODO_LABEL,
-	CREATE_LABEL,
-	UPDATE_LABEL,
-	DELETE_LABEL
-} from '$lib/graphql/documents';
+import { ADD_TODO_LABEL, REMOVE_TODO_LABEL } from '$lib/graphql/documents';
 import { request } from '$lib/graphql/client';
+import { call } from '$lib/api/call';
 import { browser } from '$app/environment';
-import type {
-	AddTodoLabelMutation,
-	RemoveTodoLabelMutation,
-	CreateLabelMutation,
-	UpdateLabelMutation,
-	DeleteLabelMutation
-} from '$lib/graphql/generated/graphql';
+import type { AddTodoLabelMutation, RemoveTodoLabelMutation } from '$lib/graphql/generated/graphql';
 import type { StoreResult } from '$lib/types/todo';
 import { todosStore } from './todos.svelte';
 
@@ -74,26 +63,8 @@ function createLabelsStore() {
 		if (!name.trim()) return { success: false, message: 'Label name is required' };
 
 		try {
-			const data: CreateLabelMutation = await request(CREATE_LABEL, {
-				objects: [
-					{
-						board_id: boardId,
-						name: name.trim(),
-						color: color
-					}
-				]
-			});
-
-			const newLabel = data.insert_labels?.returning?.[0];
-			if (newLabel) {
-				return {
-					success: true,
-					message: 'Label created successfully',
-					data: newLabel
-				};
-			}
-
-			return { success: false, message: 'Failed to create label' };
+			const newLabel = await call('createLabel', { boardId, name: name.trim(), color });
+			return { success: true, message: 'Label created successfully', data: newLabel };
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error creating label';
 			console.error('Create label error:', error);
@@ -108,21 +79,8 @@ function createLabelsStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		try {
-			const data: UpdateLabelMutation = await request(UPDATE_LABEL, {
-				where: { id: { _eq: labelId } },
-				_set: updates
-			});
-
-			const updatedLabel = data.update_labels?.returning?.[0];
-			if (updatedLabel) {
-				return {
-					success: true,
-					message: 'Label updated successfully',
-					data: updatedLabel
-				};
-			}
-
-			return { success: false, message: 'Failed to update label' };
+			const updatedLabel = await call('updateLabel', { id: labelId, set: updates });
+			return { success: true, message: 'Label updated successfully', data: updatedLabel };
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error updating label';
 			console.error('Update label error:', error);
@@ -134,11 +92,8 @@ function createLabelsStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		try {
-			const data: DeleteLabelMutation = await request(DELETE_LABEL, {
-				where: { id: { _eq: labelId } }
-			});
-
-			if (data.delete_labels?.affected_rows && data.delete_labels.affected_rows > 0) {
+			const { deleted } = await call('deleteLabel', { id: labelId });
+			if (deleted) {
 				return { success: true, message: 'Label deleted successfully' };
 			}
 

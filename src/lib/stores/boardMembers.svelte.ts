@@ -1,25 +1,12 @@
 /** @file src/lib/stores/boardMembers.svelte.ts */
-import {
-	GET_BOARD_MEMBERS,
-	GET_BOARD_INVITATIONS,
-	UPDATE_BOARD_MEMBER,
-	REMOVE_BOARD_MEMBER,
-	CREATE_BOARD_INVITATION,
-	DELETE_BOARD_INVITATION,
-	SEARCH_USERS
-} from '$lib/graphql/documents';
+import { SEARCH_USERS } from '$lib/graphql/documents';
 import { get } from 'svelte/store';
 import { browser } from '$app/environment';
 import { request } from '$lib/graphql/client';
+import { call } from '$lib/api/call';
 import { locale } from '$lib/i18n';
 import { displayMessage } from './errorSuccess.svelte';
 import type {
-	GetBoardMembersQuery,
-	GetBoardInvitationsQuery,
-	UpdateBoardMemberMutation,
-	RemoveBoardMemberMutation,
-	CreateBoardInvitationMutation,
-	DeleteBoardInvitationMutation,
 	SearchUsersQuery,
 	BoardMemberFieldsFragment,
 	BoardInvitationFieldsFragment
@@ -41,12 +28,7 @@ function createBoardMembersStore() {
 		state.error = null;
 
 		try {
-			const data: GetBoardMembersQuery = await request(GET_BOARD_MEMBERS, {
-				where: { board_id: { _eq: boardId } },
-				order_by: [{ created_at: 'asc' }]
-			});
-
-			state.members = data.board_members || [];
+			state.members = await call('getBoardMembers', { boardId });
 			return state.members;
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error loading members';
@@ -83,59 +65,48 @@ function createBoardMembersStore() {
 
 		try {
 			const isEmail = emailOrUsername.includes('@');
-			const invitation = {
-				board_id: boardId,
-				role,
-				...(isEmail
-					? { invitee_email: emailOrUsername.trim() }
-					: { invitee_username: emailOrUsername.trim() })
-			};
-
-			const data: CreateBoardInvitationMutation = await request(CREATE_BOARD_INVITATION, {
-				objects: [invitation]
+			const newInvitation = await call('createBoardInvitation', {
+				boardId,
+				invitee: emailOrUsername.trim(),
+				role
 			});
 
-			const newInvitation = data.insert_board_invitations?.returning?.[0];
-			if (newInvitation) {
-				state.invitations = [...state.invitations, newInvitation];
+			state.invitations = [...state.invitations, newInvitation];
 
-				if (isEmail && newInvitation.board && newInvitation.token) {
-					try {
-						const inviterName = newInvitation.inviter?.name || newInvitation.inviter?.username;
-						const boardName = newInvitation.board.name;
-						const inviteeEmail = emailOrUsername.trim();
-						// Carry the invitation token + invitee email so the sign-in page can
-						// lock the account to the invited address and, once authenticated,
-						// route through /invite/<token> to auto-accept and land on the board.
-						const invitationUrl =
-							`${window.location.origin}/signin?invite=${encodeURIComponent(newInvitation.token)}` +
-							`&email=${encodeURIComponent(inviteeEmail)}`;
-						const currentLocale = get(locale);
+			if (isEmail && newInvitation.board && newInvitation.token) {
+				try {
+					const inviterName = newInvitation.inviter?.name || newInvitation.inviter?.username;
+					const boardName = newInvitation.board.name;
+					const inviteeEmail = emailOrUsername.trim();
+					// Carry the invitation token + invitee email so the sign-in page can
+					// lock the account to the invited address and, once authenticated,
+					// route through /invite/<token> to auto-accept and land on the board.
+					const invitationUrl =
+						`${window.location.origin}/signin?invite=${encodeURIComponent(newInvitation.token)}` +
+						`&email=${encodeURIComponent(inviteeEmail)}`;
+					const currentLocale = get(locale);
 
-						await fetch('/api/invitations/send', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
-								inviteeEmail: emailOrUsername.trim(),
-								boardName,
-								inviterName,
-								invitationUrl,
-								locale: currentLocale
-							})
-						});
-					} catch (emailError) {
-						console.error('Failed to send invitation email:', emailError);
-					}
+					await fetch('/api/invitations/send', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							inviteeEmail: emailOrUsername.trim(),
+							boardName,
+							inviterName,
+							invitationUrl,
+							locale: currentLocale
+						})
+					});
+				} catch (emailError) {
+					console.error('Failed to send invitation email:', emailError);
 				}
-
-				return {
-					success: true,
-					message: 'Invitation sent successfully',
-					data: newInvitation
-				};
 			}
 
-			return { success: false, message: 'Failed to send invitation' };
+			return {
+				success: true,
+				message: 'Invitation sent successfully',
+				data: newInvitation
+			};
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error sending invitation';
 			console.error('Invite user error:', error);
@@ -158,27 +129,9 @@ function createBoardMembersStore() {
 		}
 
 		try {
-			const data: UpdateBoardMemberMutation = await request(UPDATE_BOARD_MEMBER, {
-				where: { id: { _eq: memberId } },
-				_set: { role }
-			});
-
-			const updatedMember = data.update_board_members?.returning?.[0];
-			if (updatedMember) {
-				if (memberIndex !== -1) {
-					state.members[memberIndex] = updatedMember;
-				}
-				return {
-					success: true,
-					message: 'Member role updated',
-					data: updatedMember
-				};
-			} else {
-				if (memberIndex !== -1 && originalMember) {
-					state.members[memberIndex] = originalMember;
-				}
-				return { success: false, message: 'Failed to update member role' };
-			}
+			const updatedMember = await call('updateBoardMember', { id: memberId, role });
+			if (memberIndex !== -1) state.members[memberIndex] = updatedMember;
+			return { success: true, message: 'Member role updated', data: updatedMember };
 		} catch (error) {
 			if (memberIndex !== -1 && originalMember) {
 				state.members[memberIndex] = originalMember;
@@ -196,11 +149,8 @@ function createBoardMembersStore() {
 		state.members = state.members.filter((m) => m.id !== memberId);
 
 		try {
-			const data: RemoveBoardMemberMutation = await request(REMOVE_BOARD_MEMBER, {
-				where: { id: { _eq: memberId } }
-			});
-
-			if (data.delete_board_members?.affected_rows && data.delete_board_members.affected_rows > 0) {
+			const { deleted } = await call('removeBoardMember', { id: memberId });
+			if (deleted) {
 				return { success: true, message: 'Member removed successfully' };
 			}
 
@@ -221,12 +171,7 @@ function createBoardMembersStore() {
 		state.error = null;
 
 		try {
-			const data: GetBoardInvitationsQuery = await request(GET_BOARD_INVITATIONS, {
-				where: { board_id: { _eq: boardId }, status: { _eq: 'pending' } },
-				order_by: [{ created_at: 'desc' }]
-			});
-
-			state.invitations = data.board_invitations || [];
+			state.invitations = await call('getBoardInvitations', { boardId });
 			return state.invitations;
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error loading invitations';
@@ -245,14 +190,8 @@ function createBoardMembersStore() {
 		state.invitations = state.invitations.filter((i) => i.id !== invitationId);
 
 		try {
-			const data: DeleteBoardInvitationMutation = await request(DELETE_BOARD_INVITATION, {
-				where: { id: { _eq: invitationId } }
-			});
-
-			if (
-				data.delete_board_invitations?.affected_rows &&
-				data.delete_board_invitations.affected_rows > 0
-			) {
+			const { deleted } = await call('cancelInvitation', { id: invitationId });
+			if (deleted) {
 				return { success: true, message: 'Invitation cancelled' };
 			}
 

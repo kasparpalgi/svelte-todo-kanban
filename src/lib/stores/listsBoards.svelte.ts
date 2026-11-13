@@ -1,28 +1,7 @@
-/** @file src/lib/stores/lists.svelte.ts */
-import {
-	GET_LISTS,
-	GET_BOARDS,
-	CREATE_LIST,
-	UPDATE_LIST,
-	DELETE_LIST,
-	CREATE_BOARD,
-	UPDATE_BOARD,
-	DELETE_BOARD
-} from '$lib/graphql/documents';
-import { request } from '$lib/graphql/client';
+/** @file src/lib/stores/listsBoards.svelte.ts */
+import { call } from '$lib/api/call';
 import { browser } from '$app/environment';
-import type {
-	GetListsQuery,
-	GetBoardsQuery,
-	CreateListMutation,
-	UpdateListMutation,
-	DeleteListMutation,
-	CreateBoardMutation,
-	UpdateBoardMutation,
-	DeleteBoardMutation,
-	ListFieldsFragment,
-	BoardFieldsFragment
-} from '$lib/graphql/generated/graphql';
+import type { ListFieldsFragment, BoardFieldsFragment } from '$lib/graphql/generated/graphql';
 import type { ListBoardStoreResult } from '$lib/types/listBoard';
 import { displayMessage } from './errorSuccess.svelte';
 
@@ -65,16 +44,8 @@ function createListsStore() {
 		error = null;
 
 		try {
-			const { Order_By } = await import('$lib/graphql/generated/graphql');
-
-			const data: GetListsQuery = await request(GET_LISTS, {
-				where: {},
-				order_by: [{ sort_order: Order_By.Asc }, { name: Order_By.Asc }],
-				// GET_LISTS defaults to 100; newest lists (highest sort_order) were cut off on reload
-				limit: 10000
-			});
-
-			lists = data.lists || [];
+			// The user's own boards' lists, plus the open board's when it is a public one.
+			lists = await call('getLists', { boardId: selectedBoard?.id });
 			initialized = true;
 			return lists;
 		} catch (err) {
@@ -87,53 +58,27 @@ function createListsStore() {
 		}
 	}
 
-	// Scope a board list query to boards the current user actually belongs to:
-	// owns, is a member of, or is invited to (by email or username). Without this
-	// the `boards` select permission also returns every public board on the
-	// platform (is_public = true), which leaked strangers' boards into the switcher.
-	// Returns null when there is no signed-in user (caller should show nothing).
-	async function boardScopeWhere(): Promise<Record<string, unknown> | null> {
+	// On a fresh page load the board page asks for boards before the layout has
+	// hydrated the user; wait for it instead of treating it as signed out (#206).
+	async function signedIn(): Promise<boolean> {
 		const { userStore } = await import('./user.svelte');
-		// On a fresh page load the board page asks for boards before the layout has
-		// hydrated the user; wait for it instead of treating it as signed out (#206).
 		const user = userStore.user ?? (await userStore.whenReady());
-		if (!user?.id) return null;
-
-		const invitationConds: Record<string, unknown>[] = [];
-		if (user.email) invitationConds.push({ invitee_email: { _eq: user.email } });
-		if (user.username) invitationConds.push({ invitee_username: { _eq: user.username } });
-
-		const or: Record<string, unknown>[] = [
-			{ user_id: { _eq: user.id } },
-			{ board_members: { user_id: { _eq: user.id } } }
-		];
-		if (invitationConds.length > 0) {
-			or.push({ board_invitations: { _or: invitationConds } });
-		}
-
-		return { _or: or };
+		return !!user?.id;
 	}
 
 	async function loadBoards(): Promise<BoardFieldsFragment[]> {
 		if (!browser) return [];
 
 		try {
-			const { Order_By } = await import('$lib/graphql/generated/graphql');
-
-			const scope = await boardScopeWhere();
-			if (!scope) {
+			if (!(await signedIn())) {
 				boards = [];
 				selectedBoard = null;
 				boardsInitialized = true;
 				return [];
 			}
 
-			const data: GetBoardsQuery = await request(GET_BOARDS, {
-				where: { _and: [{ archived_at: { _is_null: true } }, scope] },
-				order_by: [{ sort_order: Order_By.Asc }, { name: Order_By.Asc }]
-			});
-
-			boards = data.boards || [];
+			// Boards the user owns, belongs to or is invited to, never strangers' public ones.
+			boards = await call('getBoards', {});
 
 			if (boards.length > 0) {
 				const { userStore } = await import('./user.svelte');
@@ -185,34 +130,21 @@ function createListsStore() {
 	): Promise<ListBoardStoreResult<ListFieldsFragment>> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!name.trim()) return { success: false, message: 'Name is required' };
+		if (!boardId) return { success: false, message: 'Board is required' };
 
 		try {
 			const maxSortOrder = Math.max(
-				...lists.filter((l) => !boardId || l.board_id === boardId).map((l) => l.sort_order || 0),
+				...lists.filter((l) => l.board_id === boardId).map((l) => l.sort_order || 0),
 				0
 			);
 
-			const data: CreateListMutation = await request(CREATE_LIST, {
-				objects: [
-					{
-						name: name.trim(),
-						sort_order: maxSortOrder + 1,
-						...(boardId && { board_id: boardId })
-					}
-				]
+			const newList = await call('createList', {
+				boardId,
+				name: name.trim(),
+				sort_order: maxSortOrder + 1
 			});
-
-			const newList = data.insert_lists?.returning?.[0];
-			if (newList) {
-				lists = [...lists, newList];
-				return {
-					success: true,
-					message: 'List created successfully',
-					data: newList
-				};
-			}
-
-			return { success: false, message: 'Failed to create list' };
+			lists = [...lists, newList];
+			return { success: true, message: 'List created successfully', data: newList };
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Error creating list';
 			console.error('Create list error:', err);
@@ -222,7 +154,7 @@ function createListsStore() {
 
 	async function updateList(
 		id: string,
-		updates: Partial<Pick<ListFieldsFragment, 'name' | 'sort_order' | 'board_id'>>
+		updates: { name?: string; sort_order?: number; board_id?: string }
 	): Promise<ListBoardStoreResult<ListFieldsFragment>> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
@@ -234,27 +166,9 @@ function createListsStore() {
 		}
 
 		try {
-			const data: UpdateListMutation = await request(UPDATE_LIST, {
-				where: { id: { _eq: id } },
-				_set: updates
-			});
-
-			const updatedList = data.update_lists?.returning?.[0];
-			if (updatedList) {
-				if (listIndex !== -1) {
-					lists[listIndex] = updatedList;
-				}
-				return {
-					success: true,
-					message: 'List updated successfully',
-					data: updatedList
-				};
-			} else {
-				if (listIndex !== -1 && originalList) {
-					lists[listIndex] = originalList;
-				}
-				return { success: false, message: 'Failed to update list' };
-			}
+			const updatedList = await call('updateList', { id, set: updates });
+			if (listIndex !== -1) lists[listIndex] = updatedList;
+			return { success: true, message: 'List updated successfully', data: updatedList };
 		} catch (err) {
 			if (listIndex !== -1 && originalList) {
 				lists[listIndex] = originalList;
@@ -269,11 +183,8 @@ function createListsStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		try {
-			const data: DeleteListMutation = await request(DELETE_LIST, {
-				where: { id: { _eq: id } }
-			});
-
-			if (data.delete_lists?.affected_rows && data.delete_lists.affected_rows > 0) {
+			const { deleted } = await call('deleteList', { id });
+			if (deleted) {
 				lists = lists.filter((l) => l.id !== id);
 				return { success: true, message: 'List deleted successfully' };
 			}
@@ -302,26 +213,12 @@ function createListsStore() {
 		try {
 			const maxSortOrder = Math.max(...boards.map((b) => b.sort_order || 0), 0);
 
-			const data: CreateBoardMutation = await request(CREATE_BOARD, {
-				objects: [
-					{
-						name: name.trim(),
-						sort_order: maxSortOrder + 1
-					}
-				]
+			const newBoard = await call('createBoard', {
+				name: name.trim(),
+				sort_order: maxSortOrder + 1
 			});
-
-			const newBoard = data.insert_boards?.returning?.[0];
-			if (newBoard) {
-				boards = [...boards, newBoard];
-				return {
-					success: true,
-					message: 'Board created successfully',
-					data: newBoard
-				};
-			}
-
-			return { success: false, message: 'Failed to create board' };
+			boards = [...boards, newBoard];
+			return { success: true, message: 'Board created successfully', data: newBoard };
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Error creating board';
 			console.error('Create board error:', err);
@@ -355,27 +252,9 @@ function createListsStore() {
 		}
 
 		try {
-			const data: UpdateBoardMutation = await request(UPDATE_BOARD, {
-				where: { id: { _eq: id } },
-				_set: updates
-			});
-
-			const updatedBoard = data.update_boards?.returning?.[0];
-			if (updatedBoard) {
-				if (boardIndex !== -1) {
-					boards[boardIndex] = updatedBoard;
-				}
-				return {
-					success: true,
-					message: 'Board updated successfully',
-					data: updatedBoard
-				};
-			} else {
-				if (boardIndex !== -1 && originalBoard) {
-					boards[boardIndex] = originalBoard;
-				}
-				return { success: false, message: 'Failed to update board' };
-			}
+			const updatedBoard = await call('updateBoard', { id, set: updates });
+			if (boardIndex !== -1) boards[boardIndex] = updatedBoard;
+			return { success: true, message: 'Board updated successfully', data: updatedBoard };
 		} catch (err) {
 			if (boardIndex !== -1 && originalBoard) {
 				boards[boardIndex] = originalBoard;
@@ -401,11 +280,8 @@ function createListsStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		try {
-			const data: DeleteBoardMutation = await request(DELETE_BOARD, {
-				where: { id: { _eq: id } }
-			});
-
-			if (data.delete_boards?.affected_rows && data.delete_boards.affected_rows > 0) {
+			const { deleted } = await call('deleteBoard', { id });
+			if (deleted) {
 				boards = boards.filter((b) => b.id !== id);
 				return { success: true, message: 'Board deleted successfully' };
 			}
@@ -422,20 +298,12 @@ function createListsStore() {
 		if (!browser) return [];
 
 		try {
-			const { Order_By } = await import('$lib/graphql/generated/graphql');
-
-			const scope = await boardScopeWhere();
-			if (!scope) {
+			if (!(await signedIn())) {
 				archivedBoards = [];
 				return [];
 			}
 
-			const data: GetBoardsQuery = await request(GET_BOARDS, {
-				where: { _and: [{ archived_at: { _is_null: false } }, scope] },
-				order_by: [{ name: Order_By.Asc }]
-			});
-
-			archivedBoards = data.boards || [];
+			archivedBoards = await call('getBoards', { archived: true });
 			return archivedBoards;
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Error loading archived boards';
@@ -458,20 +326,12 @@ function createListsStore() {
 		if (selectedBoard?.id === id) selectedBoard = null;
 
 		try {
-			const data: UpdateBoardMutation = await request(UPDATE_BOARD, {
-				where: { id: { _eq: id } },
-				_set: { archived_at: archivedBoard.archived_at }
+			const updatedBoard = await call('updateBoard', {
+				id,
+				set: { archived_at: archivedBoard.archived_at }
 			});
-
-			const updatedBoard = data.update_boards?.returning?.[0];
-			if (updatedBoard) {
-				archivedBoards = archivedBoards.map((b) => (b.id === id ? updatedBoard : b));
-				return { success: true, message: 'Board archived successfully', data: updatedBoard };
-			}
-
-			boards = [...boards, board];
-			archivedBoards = archivedBoards.filter((b) => b.id !== id);
-			return { success: false, message: 'Failed to archive board' };
+			archivedBoards = archivedBoards.map((b) => (b.id === id ? updatedBoard : b));
+			return { success: true, message: 'Board archived successfully', data: updatedBoard };
 		} catch (err) {
 			boards = [...boards, board];
 			archivedBoards = archivedBoards.filter((b) => b.id !== id);
@@ -493,20 +353,9 @@ function createListsStore() {
 		boards = [...boards, restoredBoard];
 
 		try {
-			const data: UpdateBoardMutation = await request(UPDATE_BOARD, {
-				where: { id: { _eq: id } },
-				_set: { archived_at: null }
-			});
-
-			const updatedBoard = data.update_boards?.returning?.[0];
-			if (updatedBoard) {
-				boards = boards.map((b) => (b.id === id ? updatedBoard : b));
-				return { success: true, message: 'Board restored successfully', data: updatedBoard };
-			}
-
-			boards = boards.filter((b) => b.id !== id);
-			archivedBoards = [...archivedBoards, board];
-			return { success: false, message: 'Failed to restore board' };
+			const updatedBoard = await call('updateBoard', { id, set: { archived_at: null } });
+			boards = boards.map((b) => (b.id === id ? updatedBoard : b));
+			return { success: true, message: 'Board restored successfully', data: updatedBoard };
 		} catch (err) {
 			boards = boards.filter((b) => b.id !== id);
 			archivedBoards = [...archivedBoards, board];
@@ -524,12 +373,7 @@ function createListsStore() {
 		if (!browser || !alias) return null;
 
 		try {
-			const data: GetBoardsQuery = await request(GET_BOARDS, {
-				where: { alias: { _eq: alias } },
-				limit: 1
-			});
-
-			const board = data.boards?.[0] || null;
+			const board = await call('getBoard', { alias });
 			if (board) {
 				await setSelectedBoard(board);
 			}

@@ -66,13 +66,18 @@ type Documents = {
     "\n\tmutation UpdateLabel($where: labels_bool_exp!, $_set: labels_set_input!) {\n\t\tupdate_labels(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateLabelDocument,
     "\n\tmutation DeleteLabel($where: labels_bool_exp!) {\n\t\tdelete_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteLabelDocument,
     "\n\tquery GetBoardRole($boardId: uuid!, $userId: uuid!) {\n\t\tboards_by_pk(id: $boardId) {\n\t\t\tuser_id\n\t\t\tis_public\n\t\t\tboard_members(where: { user_id: { _eq: $userId } }) {\n\t\t\t\trole\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetBoardRoleDocument,
+    "\n\tquery GetListBoard($id: uuid!) {\n\t\tlists_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t}\n\t}\n": typeof types.GetListBoardDocument,
+    "\n\tquery GetLabelBoard($id: uuid!) {\n\t\tlabels_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t}\n\t}\n": typeof types.GetLabelBoardDocument,
+    "\n\tquery GetMemberBoard($id: uuid!) {\n\t\tboard_members_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t\tuser_id\n\t\t}\n\t}\n": typeof types.GetMemberBoardDocument,
+    "\n\tquery GetInvitationBoard($id: uuid!) {\n\t\tboard_invitations_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t}\n\t}\n": typeof types.GetInvitationBoardDocument,
+    "\n\tquery GetUserIdentity($id: uuid!) {\n\t\tusers_by_pk(id: $id) {\n\t\t\temail\n\t\t\tusername\n\t\t}\n\t}\n": typeof types.GetUserIdentityDocument,
     "\n\tquery GetBoardMembers(\n\t\t$where: board_members_bool_exp = {}\n\t\t$order_by: [board_members_order_by!] = { created_at: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_members(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n": typeof types.GetBoardMembersDocument,
-    "\n\tmutation AddBoardMember($objects: [board_members_insert_input!]!) {\n\t\tinsert_board_members(\n\t\t\tobjects: $objects\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: board_members_board_user_unique\n\t\t\t\tupdate_columns: [role, updated_at]\n\t\t\t}\n\t\t) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.AddBoardMemberDocument,
     "\n\tmutation UpdateBoardMember($where: board_members_bool_exp!, $_set: board_members_set_input!) {\n\t\tupdate_board_members(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateBoardMemberDocument,
     "\n\tmutation RemoveBoardMember($where: board_members_bool_exp!) {\n\t\tdelete_board_members(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.RemoveBoardMemberDocument,
     "\n\tquery GetBoardInvitations(\n\t\t$where: board_invitations_bool_exp = {}\n\t\t$order_by: [board_invitations_order_by!] = { created_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_invitations(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardInvitationFields\n\t\t}\n\t}\n": typeof types.GetBoardInvitationsDocument,
     "\n\tquery GetMyInvitations($email: String!, $username: String!) {\n\t\tboard_invitations(\n\t\t\twhere: {\n\t\t\t\t_and: [\n\t\t\t\t\t{ status: { _eq: \"pending\" } }\n\t\t\t\t\t{ expires_at: { _gt: \"now()\" } }\n\t\t\t\t\t{ _or: [{ invitee_email: { _eq: $email } }, { invitee_username: { _eq: $username } }] }\n\t\t\t\t]\n\t\t\t}\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...BoardInvitationFields\n\t\t}\n\t}\n": typeof types.GetMyInvitationsDocument,
-    "\n\tquery GetInvitationByToken($token: String!) {\n\t\tboard_invitations(where: { token: { _eq: $token } }, limit: 1) {\n\t\t\tid\n\t\t\tboard_id\n\t\t\trole\n\t\t\tstatus\n\t\t\tinvitee_email\n\t\t\texpires_at\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tuser {\n\t\t\t\t\tusername\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetInvitationByTokenDocument,
+    "\n\tquery GetInvitation($where: board_invitations_bool_exp!) {\n\t\tboard_invitations(where: $where, limit: 1) {\n\t\t\tid\n\t\t\tboard_id\n\t\t\trole\n\t\t\tstatus\n\t\t\tinvitee_email\n\t\t\tinvitee_username\n\t\t\texpires_at\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tuser {\n\t\t\t\t\tusername\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetInvitationDocument,
+    "\n\tmutation AcceptInvitation($id: uuid!, $member: board_members_insert_input!) {\n\t\tinsert_board_members_one(\n\t\t\tobject: $member\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: board_members_board_user_unique\n\t\t\t\tupdate_columns: [role]\n\t\t\t\twhere: { role: { _neq: \"owner\" } }\n\t\t\t}\n\t\t) {\n\t\t\tid\n\t\t}\n\t\tupdate_board_invitations_by_pk(pk_columns: { id: $id }, _set: { status: \"accepted\" }) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.AcceptInvitationDocument,
     "\n\tmutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {\n\t\tinsert_board_invitations(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateBoardInvitationDocument,
     "\n\tmutation UpdateBoardInvitation(\n\t\t$where: board_invitations_bool_exp!\n\t\t$_set: board_invitations_set_input!\n\t) {\n\t\tupdate_board_invitations(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateBoardInvitationDocument,
     "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteBoardInvitationDocument,
@@ -188,13 +193,18 @@ const documents: Documents = {
     "\n\tmutation UpdateLabel($where: labels_bool_exp!, $_set: labels_set_input!) {\n\t\tupdate_labels(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...LabelFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateLabelDocument,
     "\n\tmutation DeleteLabel($where: labels_bool_exp!) {\n\t\tdelete_labels(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteLabelDocument,
     "\n\tquery GetBoardRole($boardId: uuid!, $userId: uuid!) {\n\t\tboards_by_pk(id: $boardId) {\n\t\t\tuser_id\n\t\t\tis_public\n\t\t\tboard_members(where: { user_id: { _eq: $userId } }) {\n\t\t\t\trole\n\t\t\t}\n\t\t}\n\t}\n": types.GetBoardRoleDocument,
+    "\n\tquery GetListBoard($id: uuid!) {\n\t\tlists_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t}\n\t}\n": types.GetListBoardDocument,
+    "\n\tquery GetLabelBoard($id: uuid!) {\n\t\tlabels_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t}\n\t}\n": types.GetLabelBoardDocument,
+    "\n\tquery GetMemberBoard($id: uuid!) {\n\t\tboard_members_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t\tuser_id\n\t\t}\n\t}\n": types.GetMemberBoardDocument,
+    "\n\tquery GetInvitationBoard($id: uuid!) {\n\t\tboard_invitations_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t}\n\t}\n": types.GetInvitationBoardDocument,
+    "\n\tquery GetUserIdentity($id: uuid!) {\n\t\tusers_by_pk(id: $id) {\n\t\t\temail\n\t\t\tusername\n\t\t}\n\t}\n": types.GetUserIdentityDocument,
     "\n\tquery GetBoardMembers(\n\t\t$where: board_members_bool_exp = {}\n\t\t$order_by: [board_members_order_by!] = { created_at: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_members(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n": types.GetBoardMembersDocument,
-    "\n\tmutation AddBoardMember($objects: [board_members_insert_input!]!) {\n\t\tinsert_board_members(\n\t\t\tobjects: $objects\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: board_members_board_user_unique\n\t\t\t\tupdate_columns: [role, updated_at]\n\t\t\t}\n\t\t) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n": types.AddBoardMemberDocument,
     "\n\tmutation UpdateBoardMember($where: board_members_bool_exp!, $_set: board_members_set_input!) {\n\t\tupdate_board_members(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateBoardMemberDocument,
     "\n\tmutation RemoveBoardMember($where: board_members_bool_exp!) {\n\t\tdelete_board_members(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.RemoveBoardMemberDocument,
     "\n\tquery GetBoardInvitations(\n\t\t$where: board_invitations_bool_exp = {}\n\t\t$order_by: [board_invitations_order_by!] = { created_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_invitations(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardInvitationFields\n\t\t}\n\t}\n": types.GetBoardInvitationsDocument,
     "\n\tquery GetMyInvitations($email: String!, $username: String!) {\n\t\tboard_invitations(\n\t\t\twhere: {\n\t\t\t\t_and: [\n\t\t\t\t\t{ status: { _eq: \"pending\" } }\n\t\t\t\t\t{ expires_at: { _gt: \"now()\" } }\n\t\t\t\t\t{ _or: [{ invitee_email: { _eq: $email } }, { invitee_username: { _eq: $username } }] }\n\t\t\t\t]\n\t\t\t}\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...BoardInvitationFields\n\t\t}\n\t}\n": types.GetMyInvitationsDocument,
-    "\n\tquery GetInvitationByToken($token: String!) {\n\t\tboard_invitations(where: { token: { _eq: $token } }, limit: 1) {\n\t\t\tid\n\t\t\tboard_id\n\t\t\trole\n\t\t\tstatus\n\t\t\tinvitee_email\n\t\t\texpires_at\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tuser {\n\t\t\t\t\tusername\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.GetInvitationByTokenDocument,
+    "\n\tquery GetInvitation($where: board_invitations_bool_exp!) {\n\t\tboard_invitations(where: $where, limit: 1) {\n\t\t\tid\n\t\t\tboard_id\n\t\t\trole\n\t\t\tstatus\n\t\t\tinvitee_email\n\t\t\tinvitee_username\n\t\t\texpires_at\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tuser {\n\t\t\t\t\tusername\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.GetInvitationDocument,
+    "\n\tmutation AcceptInvitation($id: uuid!, $member: board_members_insert_input!) {\n\t\tinsert_board_members_one(\n\t\t\tobject: $member\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: board_members_board_user_unique\n\t\t\t\tupdate_columns: [role]\n\t\t\t\twhere: { role: { _neq: \"owner\" } }\n\t\t\t}\n\t\t) {\n\t\t\tid\n\t\t}\n\t\tupdate_board_invitations_by_pk(pk_columns: { id: $id }, _set: { status: \"accepted\" }) {\n\t\t\tid\n\t\t}\n\t}\n": types.AcceptInvitationDocument,
     "\n\tmutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {\n\t\tinsert_board_invitations(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateBoardInvitationDocument,
     "\n\tmutation UpdateBoardInvitation(\n\t\t$where: board_invitations_bool_exp!\n\t\t$_set: board_invitations_set_input!\n\t) {\n\t\tupdate_board_invitations(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateBoardInvitationDocument,
     "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteBoardInvitationDocument,
@@ -466,11 +476,27 @@ export function graphql(source: "\n\tquery GetBoardRole($boardId: uuid!, $userId
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery GetBoardMembers(\n\t\t$where: board_members_bool_exp = {}\n\t\t$order_by: [board_members_order_by!] = { created_at: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_members(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetBoardMembersDocument;
+export function graphql(source: "\n\tquery GetListBoard($id: uuid!) {\n\t\tlists_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t}\n\t}\n"): typeof import('./graphql').GetListBoardDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation AddBoardMember($objects: [board_members_insert_input!]!) {\n\t\tinsert_board_members(\n\t\t\tobjects: $objects\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: board_members_board_user_unique\n\t\t\t\tupdate_columns: [role, updated_at]\n\t\t\t}\n\t\t) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardMemberFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').AddBoardMemberDocument;
+export function graphql(source: "\n\tquery GetLabelBoard($id: uuid!) {\n\t\tlabels_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t}\n\t}\n"): typeof import('./graphql').GetLabelBoardDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetMemberBoard($id: uuid!) {\n\t\tboard_members_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t\tuser_id\n\t\t}\n\t}\n"): typeof import('./graphql').GetMemberBoardDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetInvitationBoard($id: uuid!) {\n\t\tboard_invitations_by_pk(id: $id) {\n\t\t\tboard_id\n\t\t}\n\t}\n"): typeof import('./graphql').GetInvitationBoardDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetUserIdentity($id: uuid!) {\n\t\tusers_by_pk(id: $id) {\n\t\t\temail\n\t\t\tusername\n\t\t}\n\t}\n"): typeof import('./graphql').GetUserIdentityDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetBoardMembers(\n\t\t$where: board_members_bool_exp = {}\n\t\t$order_by: [board_members_order_by!] = { created_at: asc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tboard_members(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...BoardMemberFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetBoardMembersDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -490,7 +516,11 @@ export function graphql(source: "\n\tquery GetMyInvitations($email: String!, $us
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery GetInvitationByToken($token: String!) {\n\t\tboard_invitations(where: { token: { _eq: $token } }, limit: 1) {\n\t\t\tid\n\t\t\tboard_id\n\t\t\trole\n\t\t\tstatus\n\t\t\tinvitee_email\n\t\t\texpires_at\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tuser {\n\t\t\t\t\tusername\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetInvitationByTokenDocument;
+export function graphql(source: "\n\tquery GetInvitation($where: board_invitations_bool_exp!) {\n\t\tboard_invitations(where: $where, limit: 1) {\n\t\t\tid\n\t\t\tboard_id\n\t\t\trole\n\t\t\tstatus\n\t\t\tinvitee_email\n\t\t\tinvitee_username\n\t\t\texpires_at\n\t\t\tboard {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\talias\n\t\t\t\tuser {\n\t\t\t\t\tusername\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetInvitationDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tmutation AcceptInvitation($id: uuid!, $member: board_members_insert_input!) {\n\t\tinsert_board_members_one(\n\t\t\tobject: $member\n\t\t\ton_conflict: {\n\t\t\t\tconstraint: board_members_board_user_unique\n\t\t\t\tupdate_columns: [role]\n\t\t\t\twhere: { role: { _neq: \"owner\" } }\n\t\t\t}\n\t\t) {\n\t\t\tid\n\t\t}\n\t\tupdate_board_invitations_by_pk(pk_columns: { id: $id }, _set: { status: \"accepted\" }) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').AcceptInvitationDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -4,7 +4,7 @@
  * itself stayed empty until a refresh. Uses the real user store.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GET_BOARDS, GET_USERS } from '$lib/graphql/documents';
+import { GET_USERS } from '$lib/graphql/documents';
 
 vi.mock('$env/static/public', () => ({
 	PUBLIC_API_ENDPOINT: 'http://localhost:8080/v1/graphql',
@@ -18,6 +18,8 @@ vi.mock('$app/environment', () => ({
 	building: false,
 	version: '1.0.0'
 }));
+
+vi.mock('$lib/api/call', () => ({ call: vi.fn() }));
 
 vi.mock('$lib/graphql/client', () => ({
 	request: vi.fn(),
@@ -75,9 +77,10 @@ describe('board load before user hydration (#206)', () => {
 			if (doc === GET_USERS) {
 				return { users: [{ id: 'user-1', email: 'me@example.com', username: 'me' }] };
 			}
-			if (doc === GET_BOARDS) return { boards: [board] };
 			throw new Error('unexpected request');
 		});
+		const { call } = await import('$lib/api/call');
+		vi.mocked(call).mockResolvedValue([board] as never);
 
 		// Board page onMount runs before the layout's user request returns: the
 		// load must stay pending rather than settle with an empty list.
@@ -93,19 +96,7 @@ describe('board load before user hydration (#206)', () => {
 		expect(await boardsPromise).toEqual([board]);
 		expect(listsStore.boards).toEqual([board]);
 		expect(listsStore.boardsInitialized).toBe(true);
-		expect(request).toHaveBeenCalledWith(
-			GET_BOARDS,
-			expect.objectContaining({
-				where: {
-					_and: [
-						{ archived_at: { _is_null: true } },
-						expect.objectContaining({
-							_or: expect.arrayContaining([{ user_id: { _eq: 'user-1' } }])
-						})
-					]
-				}
-			})
-		);
+		expect(call).toHaveBeenCalledWith('getBoards', {});
 	});
 
 	it('falls back to the session user when the profile request fails', async () => {
