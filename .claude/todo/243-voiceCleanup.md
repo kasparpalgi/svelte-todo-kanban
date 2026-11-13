@@ -23,3 +23,5 @@ Add a `cleanup` intent to the #237 assistant (`voiceCommands.ts` + `voiceAssista
   always archive, and offer "undo".
 - Needs a confirm step in the assistant: a pending action that the next utterance
   ("yes"/"jah"/"ano" vs "no") resolves within the existing 8 s follow-up window.
+
+_GitHub issue #243 — end the commit subject with `(#243)`._
