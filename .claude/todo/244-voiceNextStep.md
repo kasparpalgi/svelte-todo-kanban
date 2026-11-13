@@ -26,3 +26,5 @@ Add `open` and `next` intents to the #237 assistant:
   once and share it.
 - Open question for Kaspar: should "next" also look at the board's GitHub repo / runner
   state (open PRs, blocked tasks), or cards only?
+
+_GitHub issue #244 — end the commit subject with `(#244)`._
