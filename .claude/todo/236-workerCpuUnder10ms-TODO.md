@@ -30,3 +30,5 @@ option, so the page has to get lighter.
 Worker URL, the board looks and behaves as before (load, drag, open a card, the poll).
 
 _GitHub issue #236 — end the commit subject with `(#236)`._
+
+_From Kanban card `040af1ec-db75-4d8d-94ce-5c532789ae6f`, moved to the agent list._
