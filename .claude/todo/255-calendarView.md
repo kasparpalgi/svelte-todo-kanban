@@ -21,3 +21,5 @@ Cards here already have `due_on` + `has_time`.
 - Rescheduling by drag is out of scope for this slice.
 - Linked from the backlog page header. Dates through `date-fns` (already a dependency),
   i18n en / et / cs, unit test for the month-grid function.
+
+_GitHub issue #251 — end the commit subject with `(#251)`._
