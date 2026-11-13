@@ -24,3 +24,5 @@ npx playwright test e2e/card-detail.spec.ts` passes 3 runs in a row, and so does
 against https://www.todzz.eu after the Vercel deploy.
 
 _GitHub issue #240 — end the commit subject with `(#240)`._
+
+_From Kanban card `c7af134f-7552-4ac3-9abc-e670e308b8ec`, moved to the agent list._
