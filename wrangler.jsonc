@@ -12,7 +12,7 @@
 	},
 	"observability": { "enabled": true },
 	// D1 (#232). Migrations come from `drizzle-kit generate` (schema in src/lib/server/db/schema).
-	// Nothing reads it yet: production still runs on Hasura until the cut-over (#234).
+	// Read only with DATA_BACKEND=d1 (#233): production stays on Hasura until the cut-over (#234).
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -24,6 +24,8 @@
 	"env": {
 		// `wrangler … --env staging`: worker `todzz-staging` with its own copy of the data.
 		"staging": {
+			// The data ops read D1; an op without a D1 version answers 501 (#233).
+			"vars": { "DATA_BACKEND": "d1" },
 			"d1_databases": [
 				{
 					"binding": "DB",

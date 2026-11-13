@@ -2,6 +2,7 @@
 // Board access, checked in code because ops run with the admin secret. Ports the
 // Hasura boards select permission: the owner, a member, or anyone for a public board.
 import { GET_BOARD_ROLE, GET_USER_IDENTITY } from '$lib/graphql/documents';
+import { boardAccess, userIdentity } from '$lib/server/ops/d1/access';
 import { OpError, type Ctx } from '$lib/server/ops/op';
 
 export type BoardRole = 'owner' | 'editor' | 'viewer' | 'public' | null;
@@ -28,7 +29,8 @@ export function roleFrom(board: BoardAccess | null | undefined, userId: string |
 }
 
 /** Any user's role on a board: is someone being assigned a member there? */
-export async function roleOf({ db }: Ctx, boardId: string, userId: string): Promise<BoardRole> {
+export async function roleOf({ db, d1 }: Ctx, boardId: string, userId: string): Promise<BoardRole> {
+	if (d1) return roleFrom(await boardAccess(d1, boardId, userId), userId);
 	const data = await db(GET_BOARD_ROLE, { boardId, userId });
 	return roleFrom(data.boards_by_pk, userId);
 }
@@ -75,12 +77,12 @@ type Identity = { email: string | null; username: string | null };
 export function identity(ctx: Ctx): Promise<Identity> {
 	let found = identities.get(ctx);
 	if (!found) {
-		found = ctx.userId
-			? ctx.db(GET_USER_IDENTITY, { id: ctx.userId }).then((d) => ({
-					email: d.users_by_pk?.email ?? null,
-					username: d.users_by_pk?.username ?? null
-				}))
-			: Promise.resolve({ email: null, username: null });
+		found = !ctx.userId
+			? Promise.resolve({ email: null, username: null })
+			: (ctx.d1
+					? userIdentity(ctx.d1, ctx.userId)
+					: ctx.db(GET_USER_IDENTITY, { id: ctx.userId }).then((d) => d.users_by_pk)
+				).then((u) => ({ email: u?.email ?? null, username: u?.username ?? null }));
 		identities.set(ctx, found);
 	}
 	return found;

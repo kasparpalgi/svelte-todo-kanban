@@ -9,7 +9,7 @@ declare global {
 		// interface PageState {}
 		/** On Cloudflare Workers; undefined under Vercel and `vite dev`. */
 		interface Platform {
-			// D1 (#232): `todzz`, or `todzz-staging` with `--env staging`. Nothing reads it yet.
+			// D1 (#232): `todzz`, or `todzz-staging` with `--env staging`. Read when DATA_BACKEND=d1 (#233).
 			env: { DB: D1Database };
 		}
 		interface Locals {

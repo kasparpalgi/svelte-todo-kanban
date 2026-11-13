@@ -62,6 +62,8 @@ export const getLogs = defineOp({
 		if (component) where.component = { _ilike: `%${component}%` };
 		if (search) where.message = { _ilike: `%${search}%` };
 		if (from || to) where.timestamp = { ...(from && { _gte: from }), ...(to && { _lte: to }) };
-		return db(GET_LOGS, { where, order_by: [{ timestamp: Order_By.Desc }], limit, offset });
+		// `id` breaks ties, so paging is stable and D1 returns the same rows (#233).
+		const order_by = [{ timestamp: Order_By.Desc }, { id: Order_By.Desc }];
+		return db(GET_LOGS, { where, order_by, limit, offset });
 	}
 });

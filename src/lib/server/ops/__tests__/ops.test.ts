@@ -78,7 +78,7 @@ describe('getLogs', () => {
 				message: { _ilike: '%slow%' },
 				timestamp: { _gte: '2026-11-01T00:00:00.000Z' }
 			},
-			order_by: [{ timestamp: 'desc' }],
+			order_by: [{ timestamp: 'desc' }, { id: 'desc' }],
 			limit: 20,
 			offset: 40
 		});

@@ -31,3 +31,16 @@ Plan: `.claude/todo/226-backend-DONE.md`. Needs `d1Ops` and `runnerAndExtensionA
 _From Kanban card `bb48a08e-c2ef-4765-855d-6ec0573847d5`, moved to the agent list._
 
 _GitHub issue #234 — end the commit subject with `(#234)`._
+
+## Notes from #233 (D1 ops)
+
+- **Not ready to run yet.** #233 built the switch and the first slice; the rest of the D1
+  work is in the Backlog as 241 (lists, labels, members, invitations), 242 (cards),
+  243 (user, notes, money, extras), 244 (server routes that call Hasura directly) and
+  245 (Auth.js on D1 plus the staging e2e proof). The cut-over needs all five, and #231.
+- The switch: `DATA_BACKEND=d1` (a wrangler `vars` entry; the staging env already has it).
+  With it, an op without a D1 version answers 501 and the Hasura client throws, so a
+  missed path fails loudly instead of reading the old database.
+- The #232 hand-over notes for this file (final copy ≈ 77k of the 100k writes a day, copy
+  `logs` the day before if the estimate is over 90k) were dropped when the card was queued;
+  they are in `git show 10772e7:.claude/todo/234-d1CutOver.md`.
