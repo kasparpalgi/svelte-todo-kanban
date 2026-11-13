@@ -4,6 +4,7 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { todosStore } from '$lib/stores/todos.svelte';
 	import { t } from '$lib/i18n';
 	import { actionState } from '$lib/stores/states.svelte';
@@ -21,7 +22,7 @@
 	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, X, Settings, Funnel, ArrowRight, Github, Bell } from 'lucide-svelte';
+	import { Plus, X, Settings, Funnel, ArrowRight, Github, Bell, ListOrdered } from 'lucide-svelte';
 	import TodoKanban from '$lib/components/todo/TodoKanban.svelte';
 	import BoardManagement from '$lib/components/listBoard/BoardManagement.svelte';
 	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
@@ -392,6 +393,15 @@
 					>
 				</h1>
 				<div class="flex items-center gap-4">
+					<Button
+						variant="outline"
+						size="sm"
+						href={resolve(`/${lang}/backlog`)}
+						title={$t('backlog.title')}
+					>
+						<ListOrdered class="mr-2 h-4 w-4" />
+						<span class="hidden md:block">{$t('backlog.short')}</span>
+					</Button>
 					<Button
 						variant="outline"
 						size="sm"

@@ -1038,5 +1038,13 @@
     "reply_wake": "Yes? Ask me \"what can you do?\"",
     "reply_help": "For now I can tell you what I can do. Soon: what is most urgent today, quick wins across your boards, clean-up suggestions and what to work on next.",
     "reply_unknown": "I can't do that yet. Say \"{{wakeWord}}, what can you do?\""
+  },
+  "backlog": {
+    "title": "Backlog of all projects",
+    "short": "Backlog",
+    "order_hint": "Open cards of all your boards: boards in your board order, then each board’s lists and cards as on its kanban.",
+    "loading": "Loading cards...",
+    "empty": "No open cards on any of your boards.",
+    "boards_failed": "Cards of {{count}} board(s) could not be loaded."
   }
 }

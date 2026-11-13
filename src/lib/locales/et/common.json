@@ -1038,5 +1038,13 @@
     "reply_wake": "Jah? Küsi minult \"mida sa oskad?\"",
     "reply_help": "Praegu oskan öelda, mida ma oskan. Peagi: mis on täna kõige kiireloomulisem, kiired võidud kõigil tahvlitel, koristussoovitused ja millega edasi minna.",
     "reply_unknown": "Seda ma veel ei oska. Ütle \"{{wakeWord}}, mida sa oskad?\""
+  },
+  "backlog": {
+    "title": "Kõigi projektide backlog",
+    "short": "Backlog",
+    "order_hint": "Kõigi sinu projektide avatud ülesanded: projektid sinu järjekorras, siis iga projekti nimekirjad ja ülesanded nagu kanbanil.",
+    "loading": "Laen ülesandeid...",
+    "empty": "Üheski sinu projektis pole avatud ülesandeid.",
+    "boards_failed": "{{count}} projekti ülesandeid ei õnnestunud laadida."
   }
 }

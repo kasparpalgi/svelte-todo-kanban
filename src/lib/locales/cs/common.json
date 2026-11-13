@@ -886,5 +886,13 @@
     "reply_wake": "Ano? Zeptejte se \"co umíš?\"",
     "reply_help": "Zatím umím říct, co umím. Brzy: co je dnes nejnaléhavější, rychlé výhry napříč nástěnkami, návrhy na úklid a na čem pracovat dál.",
     "reply_unknown": "To zatím neumím. Řekněte \"{{wakeWord}}, co umíš?\""
+  },
+  "backlog": {
+    "title": "Backlog všech projektů",
+    "short": "Backlog",
+    "order_hint": "Otevřené karty ze všech tvých desek: desky v tvém pořadí, pak seznamy a karty každé desky jako na kanbanu.",
+    "loading": "Načítám karty...",
+    "empty": "Na žádné z tvých desek nejsou otevřené karty.",
+    "boards_failed": "Karty z {{count}} desek se nepodařilo načíst."
   }
 }
