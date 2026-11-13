@@ -20,3 +20,5 @@ Only after the Chrome Web Store has published extension **1.3.0** (which calls
 
 **Done when:** deployed; the store-installed extension still lists boards and saves a
 note; a GraphQL request with a user token to Hasura is refused.
+
+_GitHub issue #248 — end the commit subject with `(#248)`._
