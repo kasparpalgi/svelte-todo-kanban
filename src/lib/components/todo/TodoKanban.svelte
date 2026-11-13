@@ -678,23 +678,25 @@
 				</div>
 			{/if}
 
-			<div class="w-80 flex-shrink-0">
-				<Card class="border-2 border-dashed border-muted-foreground/25 bg-muted/10">
-					<CardHeader>
-						<CardTitle class="text-sm text-muted-foreground">{$t('todo.add_new_list')}</CardTitle>
-					</CardHeader>
-					<CardContent class="flex flex-col gap-2">
-						<Button
-							variant="ghost"
-							class="h-auto flex-col gap-1 p-4 text-muted-foreground hover:text-foreground"
-							onclick={openListManagement}
-						>
-							<Plus class="h-8 w-8" />
-							<span class="text-xs">{$t('todo.create_list')}</span>
-						</Button>
-					</CardContent>
-				</Card>
-			</div>
+			{#if listsStore.canEditSelectedBoard}
+				<div class="w-80 flex-shrink-0">
+					<Card class="border-2 border-dashed border-muted-foreground/25 bg-muted/10">
+						<CardHeader>
+							<CardTitle class="text-sm text-muted-foreground">{$t('todo.add_new_list')}</CardTitle>
+						</CardHeader>
+						<CardContent class="flex flex-col gap-2">
+							<Button
+								variant="ghost"
+								class="h-auto flex-col gap-1 p-4 text-muted-foreground hover:text-foreground"
+								onclick={openListManagement}
+							>
+								<Plus class="h-8 w-8" />
+								<span class="text-xs">{$t('todo.create_list')}</span>
+							</Button>
+						</CardContent>
+					</Card>
+				</div>
+			{/if}
 		</div>
 	</div>
 </div>

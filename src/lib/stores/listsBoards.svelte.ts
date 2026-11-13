@@ -4,6 +4,17 @@ import { browser } from '$app/environment';
 import type { ListFieldsFragment, BoardFieldsFragment } from '$lib/graphql/generated/graphql';
 import type { ListBoardStoreResult } from '$lib/types/listBoard';
 import { displayMessage } from './errorSuccess.svelte';
+import { userStore } from './user.svelte';
+
+export function canEditBoard(
+	board: BoardFieldsFragment | null,
+	userId: string | undefined
+): boolean {
+	if (!board || !userId) return false;
+	if (board.user?.id === userId) return true;
+	const role = board.board_members?.find((m) => m.user_id === userId)?.role;
+	return role === 'owner' || role === 'editor';
+}
 
 function createListsStore() {
 	let lists = $state<ListFieldsFragment[]>([]);
@@ -450,6 +461,10 @@ function createListsStore() {
 		},
 		get selectedBoard() {
 			return selectedBoard;
+		},
+		/** Owner or editor of the selected board (viewers are read-only, #239). */
+		get canEditSelectedBoard() {
+			return canEditBoard(selectedBoard, userStore.user?.id);
 		},
 		get loading() {
 			return loading;

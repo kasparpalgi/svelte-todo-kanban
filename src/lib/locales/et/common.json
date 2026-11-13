@@ -577,6 +577,7 @@
     "addNoteUnder": "Lisa alamärge siia"
   },
   "card": {
+    "read_only_notice": "Ainult lugemiseks: saad kaarti kommenteerida, kuid mitte muuta.",
     "loading_card": "Laen kaarti...",
     "card_not_found": "Kaarti ei leitud",
     "card_not_found_description": "Seda kaarti pole olemas või see on kustutatud.",

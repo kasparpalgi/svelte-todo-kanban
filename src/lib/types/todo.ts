@@ -93,4 +93,6 @@ export interface LabelManagementProps {
 export interface CardImageProps {
 	todoId: string;
 	initialImages?: TodoImage[];
+	/** Viewers: no upload or delete (#239). */
+	readOnly?: boolean;
 }

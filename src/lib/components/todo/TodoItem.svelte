@@ -9,6 +9,7 @@
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { editingTodo } from '$lib/stores/states.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
+	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import { getEffectiveLocale } from '$lib/constants/locale';
 	import { formatDateWithFuture } from '$lib/utils/dateTime.svelte';
 	import { shortenText } from '$lib/utils/shortenText';
@@ -91,12 +92,14 @@
 	let pendingAction = $state<(() => void) | null>(null);
 	let cardLinkEl = $state<HTMLAnchorElement>();
 
+	const canEdit = $derived(listsStore.canEditSelectedBoard);
+
 	const drag = createCardDrag({
 		onStart: () => onDragStart(todo),
 		onEnd: () => {
 			if (!isEditing) onDragEnd();
 		},
-		isDisabled: () => isEditing,
+		isDisabled: () => isEditing || !canEdit,
 		getCardLink: () => cardLinkEl
 	});
 
@@ -412,7 +415,7 @@
 
 	// Non-pointer path for reordering: Ctrl/Cmd + arrow keys on the focused card.
 	function handleCardKeydown(event: KeyboardEvent) {
-		if (!onMoveCard || isEditing) return;
+		if (!onMoveCard || isEditing || !canEdit) return;
 		if (!(event.ctrlKey || event.metaKey) || event.altKey || event.shiftKey) return;
 		const direction = MOVE_KEYS[event.key];
 		if (!direction) return;
@@ -458,7 +461,7 @@
 				data-sveltekit-preload-data="hover"
 				data-sveltekit-noscroll
 				class="block"
-				aria-keyshortcuts={onMoveCard
+				aria-keyshortcuts={onMoveCard && canEdit
 					? 'Control+ArrowUp Control+ArrowDown Control+ArrowLeft Control+ArrowRight'
 					: undefined}
 				onclick={handleCardClick}
@@ -471,29 +474,34 @@
 					onmouseenter={handleMouseEnter}
 					onmouseleave={handleMouseLeave}
 				>
-					<Button
-						variant="ghost"
-						size="sm"
-						onclick={confirmDeleteTodo}
-						class="absolute top-1 right-1 z-10 h-6 w-6 p-0 transition-opacity hover:bg-red-50 hover:text-red-700 {isHovered
-							? 'opacity-100'
-							: 'opacity-0'}"
-					>
-						<Trash2 class="h-3 w-3" />
-						<span class="sr-only">{$t('common.delete')}</span>
-					</Button>
+					{#if canEdit}
+						<Button
+							variant="ghost"
+							size="sm"
+							onclick={confirmDeleteTodo}
+							class="absolute top-1 right-1 z-10 h-6 w-6 p-0 transition-opacity hover:bg-red-50 hover:text-red-700 {isHovered
+								? 'opacity-100'
+								: 'opacity-0'}"
+						>
+							<Trash2 class="h-3 w-3" />
+							<span class="sr-only">{$t('common.delete')}</span>
+						</Button>
+					{/if}
 
 					<CardContent class="p-2 pb-6">
 						<div class="flex items-start gap-2">
-							<div
-								aria-hidden="true"
-								class="-my-1 -ml-1 flex h-8 w-6 shrink-0 items-center justify-center rounded text-muted-foreground/40 max-md:!opacity-100 md:opacity-0 md:group-hover:opacity-100"
-							>
-								<GripVertical class="h-4 w-4" />
-							</div>
+							{#if canEdit}
+								<div
+									aria-hidden="true"
+									class="-my-1 -ml-1 flex h-8 w-6 shrink-0 items-center justify-center rounded text-muted-foreground/40 max-md:!opacity-100 md:opacity-0 md:group-hover:opacity-100"
+								>
+									<GripVertical class="h-4 w-4" />
+								</div>
+							{/if}
 
 							<button
 								onclick={toggleComplete}
+								disabled={!canEdit}
 								class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-muted-foreground transition-colors hover:border-primary {todo.completed_at
 									? 'border-primary bg-primary'
 									: ''}"
@@ -507,7 +515,7 @@
 							</button>
 
 							<div class="min-w-0 flex-1 pr-8">
-								{#if onMoveCard}
+								{#if onMoveCard && canEdit}
 									<span class="sr-only">{$t('todo.move_card_keyboard_hint')}</span>
 								{/if}
 								<h3
@@ -541,21 +549,23 @@
 								{/if}
 							</div>
 
-							<div
-								class="absolute top-1 right-8 transition-opacity {isHovered
-									? 'opacity-100'
-									: 'opacity-0'}"
-							>
-								<Button
-									variant="ghost"
-									size="sm"
-									onclick={startEdit}
-									class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
+							{#if canEdit}
+								<div
+									class="absolute top-1 right-8 transition-opacity {isHovered
+										? 'opacity-100'
+										: 'opacity-0'}"
 								>
-									<SquarePen class="h-3 w-3" />
-									<span class="sr-only">{$t('common.edit')}</span>
-								</Button>
-							</div>
+									<Button
+										variant="ghost"
+										size="sm"
+										onclick={startEdit}
+										class="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-700"
+									>
+										<SquarePen class="h-3 w-3" />
+										<span class="sr-only">{$t('common.edit')}</span>
+									</Button>
+								</div>
+							{/if}
 						</div>
 
 						<div class="absolute bottom-2 left-3">

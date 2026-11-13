@@ -1,6 +1,7 @@
 <!-- @file src/lib/components/card/CardComments.svelte -->
 <script lang="ts">
 	import { t } from '$lib/i18n';
+	import { userStore } from '$lib/stores/user.svelte';
 	import { commentsStore } from '$lib/stores/comments.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { formatLocalizedDate } from '$lib/utils/cardHelpers';
@@ -12,7 +13,7 @@
 	import { MessageSquare, Send, Trash2 } from 'lucide-svelte';
 	import type { CardCommentsProps } from '$lib/types/comments';
 
-	let { todo, lang }: CardCommentsProps = $props();
+	let { todo, lang, readOnly = false }: CardCommentsProps = $props();
 
 	let newComment = $state('');
 
@@ -99,14 +100,16 @@
 								{formatLocalizedDate(comment.created_at || '', lang)}
 							</span>
 						</div>
-						<Button
-							variant="ghost"
-							size="sm"
-							class="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-							onclick={() => deleteComment(comment.id)}
-						>
-							<Trash2 class="h-3 w-3" />
-						</Button>
+						{#if !readOnly || comment.user_id === userStore.user?.id}
+							<Button
+								variant="ghost"
+								size="sm"
+								class="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+								onclick={() => deleteComment(comment.id)}
+							>
+								<Trash2 class="h-3 w-3" />
+							</Button>
+						{/if}
 					</div>
 					<p class="text-sm whitespace-pre-wrap">
 						{@html linkifyText(comment.content)}

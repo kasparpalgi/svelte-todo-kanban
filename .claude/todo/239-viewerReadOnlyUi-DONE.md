@@ -33,3 +33,13 @@ control, can comment and edit/delete their own comment; an editor still sees eve
 _GitHub issue #239 — end the commit subject with `(#239)`._
 
 _From Kanban card `b2d7cd7c-7a2e-4666-aa7c-f488147e9575`, moved to the agent list._
+
+## Results
+
+**Summary** — `listsStore.canEditSelectedBoard` (owner, or `board_members` role owner/editor; pure helper `canEditBoard`). For viewers: no add-card inputs, list rename/delete menu, add-list card, GitHub import button, card drag / Ctrl+arrow moves, card edit/delete/complete buttons. Opening a card shows the new `CardReadOnlyView` (fields, labels, assignees, attachments read-only) with the comment box; viewers can delete only their own comments (`CardComments readOnly`). `CardImageManager readOnly` hides upload/delete. New i18n key `card.read_only_notice` (en, et). Board menu needed no change: shared boards already expose only view-members/visibility, owner-only controls show on owned boards.
+
+**Files changed** — created: `CardReadOnlyView.svelte`, `stores/__tests__/canEditBoard.test.ts`. Modified: `listsBoards.svelte.ts`, `KanbanColumn`, `TodoItem`, `TodoKanban`, `CardImageManager`, `CardComments`, `CardModal`, board `+page.svelte`, `types/todo.ts`, `types/comments.ts`, locales en/et.
+
+**Verification** — `npm run check` 0 errors; `npm test` 582 pass (one unrelated logs test flaked once, passed on rerun). Not verified live: deploy and the viewer/editor browser check need a human after push.
+
+**Deviations** — Card detail for viewers is a separate read-only component rather than disabling fields in the 895-line `CardDetailView`. Description shows as plain text.

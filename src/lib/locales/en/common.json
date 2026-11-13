@@ -577,6 +577,7 @@
     "addNoteUnder": "Add note under here"
   },
   "card": {
+    "read_only_notice": "Read-only: you can comment on this card but not edit it.",
     "loading_card": "Loading card...",
     "card_not_found": "Card not found",
     "card_not_found_description": "This card does not exist or has been deleted.",

@@ -10,7 +10,7 @@
 	import type { TodoImage } from '$lib/types/imageUpload';
 	import type { CardImageProps } from '$lib/types/todo';
 
-	let { todoId, initialImages = [] }: CardImageProps = $props();
+	let { todoId, initialImages = [], readOnly = false }: CardImageProps = $props();
 
 	// Seeded once; this component owns the list after mount (uploads/removals).
 	let images = $state<TodoImage[]>(untrack(() => initialImages));
@@ -200,15 +200,17 @@
 							class="h-full w-full object-cover transition-transform group-hover:scale-105"
 						/>
 					</button>
-					<Button
-						type="button"
-						size="sm"
-						variant="destructive"
-						class="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
-						onclick={() => removeImage(image.id)}
-					>
-						<X class="h-3 w-3" />
-					</Button>
+					{#if !readOnly}
+						<Button
+							type="button"
+							size="sm"
+							variant="destructive"
+							class="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+							onclick={() => removeImage(image.id)}
+						>
+							<X class="h-3 w-3" />
+						</Button>
+					{/if}
 				</div>
 			{/each}
 		</div>
@@ -244,7 +246,9 @@
 		</div>
 	{/if}
 
-	{#if showUploadArea}
+	{#if readOnly}
+		<!-- viewers cannot upload -->
+	{:else if showUploadArea}
 		<div>
 			<span class="mb-2 block text-sm font-medium text-foreground">
 				{$t('card.add_images')}

@@ -443,7 +443,7 @@
 				<TodoKanban />
 			{/if}
 
-			{#if listsStore.selectedBoard?.github}
+			{#if listsStore.selectedBoard?.github && listsStore.canEditSelectedBoard}
 				<Button
 					variant="outline"
 					size="sm"

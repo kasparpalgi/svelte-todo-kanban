@@ -119,6 +119,8 @@
 		}
 	}
 
+	const canEdit = $derived(listsStore.canEditSelectedBoard);
+
 	function startEdit() {
 		isEditing = true;
 		editName = list.name;
@@ -144,7 +146,7 @@
 		<CardHeader class="pb-2">
 			<div class="flex items-center justify-between">
 				<div class="min-w-0 flex-1">
-					{#if isEditing}
+					{#if isEditing && canEdit}
 						<Input
 							bind:value={editName}
 							class="h-auto border-none bg-transparent px-0 text-sm font-semibold focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -157,7 +159,7 @@
 				</div>
 
 				<div class="flex items-center gap-1">
-					{#if todos.length > 0 && list.id !== 'inbox'}
+					{#if canEdit && todos.length > 0 && list.id !== 'inbox'}
 						<Button
 							variant="ghost"
 							size="sm"
@@ -168,32 +170,37 @@
 						</Button>
 					{/if}
 
-					<DropdownMenu>
-						<DropdownMenuTrigger>
-							<Button
-								variant="ghost"
-								size="sm"
-								class="h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
-							>
-								<Ellipsis class="h-3 w-3" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" class="w-48">
-							<DropdownMenuItem onclick={startEdit}>
-								<SquarePen class="mr-2 h-3 w-3" />
-								{$t('todo.rename_list')}
-							</DropdownMenuItem>
-							<DropdownMenuItem onclick={() => (showQuickAdd = !showQuickAdd)}>
-								<Plus class="mr-2 h-3 w-3" />
-								{$t('todo.add_task')}
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem onclick={handleDeleteList} class="text-red-600 focus:text-red-600">
-								<Trash2 class="mr-2 h-3 w-3" />
-								{$t('todo.delete_list')}
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+					{#if canEdit}
+						<DropdownMenu>
+							<DropdownMenuTrigger>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+								>
+									<Ellipsis class="h-3 w-3" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end" class="w-48">
+								<DropdownMenuItem onclick={startEdit}>
+									<SquarePen class="mr-2 h-3 w-3" />
+									{$t('todo.rename_list')}
+								</DropdownMenuItem>
+								<DropdownMenuItem onclick={() => (showQuickAdd = !showQuickAdd)}>
+									<Plus class="mr-2 h-3 w-3" />
+									{$t('todo.add_task')}
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									onclick={handleDeleteList}
+									class="text-red-600 focus:text-red-600"
+								>
+									<Trash2 class="mr-2 h-3 w-3" />
+									{$t('todo.delete_list')}
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					{/if}
 				</div>
 			</div>
 
@@ -204,7 +211,7 @@
 		</CardHeader>
 		<CardContent class="group min-h-24 space-y-2 pb-3">
 			<div class="min-h-[180px]">
-				{#if showQuickAdd}
+				{#if showQuickAdd && canEdit}
 					<div class="mt-2">
 						<QuickAddInput
 							bind:value={newTaskTitleTop}
@@ -281,22 +288,24 @@
 						{/if}
 					{/if}
 
-					<div class="mt-3"></div>
+					{#if canEdit}
+						<div class="mt-3"></div>
 
-					<QuickAddInput
-						bind:value={newTaskTitleBottom}
-						autofocus={false}
-						id={`quickaddBottom-${list.id}`}
-						onSubmit={(val: string) => {
-							if (val) {
-								handleQuickAddTask(val, false);
-							}
-						}}
-						onCancel={() => {
-							showQuickAdd = false;
-							newTaskTitleBottom = '';
-						}}
-					/>
+						<QuickAddInput
+							bind:value={newTaskTitleBottom}
+							autofocus={false}
+							id={`quickaddBottom-${list.id}`}
+							onSubmit={(val: string) => {
+								if (val) {
+									handleQuickAddTask(val, false);
+								}
+							}}
+							onCancel={() => {
+								showQuickAdd = false;
+								newTaskTitleBottom = '';
+							}}
+						/>
+					{/if}
 				{:else if !showQuickAdd}
 					{@const isEmptyDropTarget = dropTarget?.listId === list.id}
 					<div
@@ -305,7 +314,7 @@
 							: ''}"
 					>
 						<div class="mb-2">{$t('todo.drop_tasks_here')}</div>
-						{#if list.id !== 'inbox'}
+						{#if canEdit && list.id !== 'inbox'}
 							<Button
 								size="sm"
 								variant="ghost"

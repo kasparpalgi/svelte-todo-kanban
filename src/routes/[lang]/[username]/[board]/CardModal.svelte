@@ -9,6 +9,8 @@
 	import { CircleAlert } from 'lucide-svelte';
 	import CardLoading from '$lib/components/card/CardLoading.svelte';
 	import CardDetailView from '$lib/components/todo/CardDetailView.svelte';
+	import CardReadOnlyView from '$lib/components/todo/CardReadOnlyView.svelte';
+	import { listsStore } from '$lib/stores/listsBoards.svelte';
 	import type { BoardTodo } from '$lib/types/todo';
 
 	let { cardAlias, lang, onClose }: { cardAlias: string; lang: string; onClose: () => void } =
@@ -17,6 +19,7 @@
 	let todo = $state<BoardTodo | null>(null);
 	let loading = $state(true);
 	let isClosing = $state(false);
+	const canEdit = $derived(listsStore.canEditSelectedBoard);
 	let cardDetailView = $state<{ save: () => Promise<void> } | undefined>(undefined);
 
 	$effect(() => {
@@ -67,6 +70,7 @@
 	}
 
 	async function handleSave() {
+		if (!canEdit) return;
 		if (cardDetailView) {
 			await cardDetailView.save();
 		} else {
@@ -123,8 +127,10 @@
 					<p class="mb-4 text-muted-foreground">{$t('card.card_not_found_description')}</p>
 					<Button onclick={closeModal}>{$t('card.go_back_to_board')}</Button>
 				</Card>
-			{:else}
+			{:else if canEdit}
 				<CardDetailView bind:this={cardDetailView} {todo} {lang} onClose={closeModal} />
+			{:else}
+				<CardReadOnlyView {todo} {lang} onClose={closeModal} />
 			{/if}
 		</div>
 	</div>
