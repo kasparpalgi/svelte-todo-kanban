@@ -8,7 +8,7 @@
 </script>
 
 <script lang="ts">
-	import { z } from 'zod';
+	import type { TodoEditData } from './todoEditSchema';
 	import { t } from '$lib/i18n';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -55,33 +55,6 @@
 	const lang = $derived(getEffectiveLocale(page.params.lang, userStore.user?.locale));
 	const username = $derived(page.params.username);
 	const boardAlias = $derived(page.params.board);
-
-	const todoEditSchema = z.object({
-		title: z
-			.string()
-			.min(1, $t('validation.title_required'))
-			.max(200, $t('validation.title_max_length'))
-			.trim(),
-		content: z
-			.string()
-			.max(1000, $t('validation.content_max_length'))
-			.optional()
-			.transform((val) => (val === '' ? undefined : val)),
-		due_on: z
-			.string()
-			.optional()
-			.transform((val) => (val === '' ? undefined : val))
-			.refine(
-				(val) => {
-					if (!val) return true;
-					const date = new Date(val);
-					return !isNaN(date.getTime());
-				},
-				{ message: $t('validation.invalid_date') }
-			)
-	});
-
-	type TodoEditData = z.infer<typeof todoEditSchema>;
 
 	let isEditing = $derived(editingTodo.id === todo.id);
 	let isHovered = $state(false);
@@ -218,7 +191,18 @@
 		if (isSubmitting) return;
 
 		try {
-			const validatedData = todoEditSchema.parse(editData);
+			const { createTodoEditSchema } = await import('./todoEditSchema');
+			const parsed = createTodoEditSchema($t).safeParse(editData);
+			if (!parsed.success) {
+				validationErrors = {};
+				parsed.error.issues.forEach((issue) => {
+					if (issue.path[0]) {
+						validationErrors[issue.path[0] as string] = issue.message;
+					}
+				});
+				return;
+			}
+			const validatedData = parsed.data;
 			validationErrors = {};
 			isSubmitting = true;
 
@@ -281,16 +265,7 @@
 				displayMessage($t('todo.update_success'), 1500, true);
 			}
 		} catch (error) {
-			if (error instanceof z.ZodError) {
-				validationErrors = {};
-				error.issues.forEach((issue) => {
-					if (issue.path[0]) {
-						validationErrors[issue.path[0] as string] = issue.message;
-					}
-				});
-			} else {
-				displayMessage($t('common.unexpected_error'));
-			}
+			displayMessage($t('common.unexpected_error'));
 		} finally {
 			isSubmitting = false;
 		}
