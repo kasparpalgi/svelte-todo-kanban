@@ -203,6 +203,7 @@
     "settings_updated": "Projekti seaded on uuendatud",
     "mobile_add": "Mobiili kiirlisamine (link avaekraanile lisamiseks)",
     "switch_board": "Vaheta tahvlit",
+    "filter_boards": "Kirjuta otsimiseks, Enter avab…",
     "active_boards": "Aktiivsed",
     "archived_boards": "Arhiiv",
     "no_archived_boards": "Arhiveeritud tahvleid pole",

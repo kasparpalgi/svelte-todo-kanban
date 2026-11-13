@@ -13,11 +13,13 @@
 	import { userStore } from '$lib/stores/user.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { getBoardCustomization } from '$lib/constants/boardCustomization';
+	import { filterBoards } from '$lib/utils/filterBoards';
 	import { scale } from 'svelte/transition';
 
 	let { close } = $props<{ close: () => void }>();
 
 	let activeTab = $state<'active' | 'archived'>('active');
+	let query = $state('');
 
 	function selectTab(tab: 'active' | 'archived') {
 		activeTab = tab;
@@ -64,8 +66,16 @@
 	// member of, or is invited to — public-only boards are intentionally excluded
 	// here so strangers' public boards don't leak into the switcher (issue #192).
 	// A public board opened by direct URL is loaded separately via loadBoardByAlias.
-	const filteredBoards = $derived(listsStore.sortedBoards);
-	const filteredArchivedBoards = $derived(listsStore.sortedArchivedBoards);
+	const filteredBoards = $derived(filterBoards(listsStore.sortedBoards, query));
+	const filteredArchivedBoards = $derived(filterBoards(listsStore.sortedArchivedBoards, query));
+
+	function handleSearchKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') close();
+		if (e.key === 'Enter' && activeTab === 'active' && filteredBoards[0]) {
+			e.preventDefault();
+			selectBoard(filteredBoards[0]);
+		}
+	}
 </script>
 
 <div
@@ -113,6 +123,18 @@
 				</Button>
 				<Button variant="ghost" size="sm" onclick={close}>✕</Button>
 			</div>
+		</div>
+
+		<div class="border-b px-4 py-2">
+			<input
+				type="search"
+				bind:value={query}
+				onkeydown={handleSearchKeydown}
+				{@attach (el) => el.focus()}
+				placeholder={$t('board.filter_boards')}
+				aria-label={$t('board.filter_boards')}
+				class="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+			/>
 		</div>
 
 		<div class="grid grid-cols-1 gap-3 overflow-y-auto p-4 sm:grid-cols-2">

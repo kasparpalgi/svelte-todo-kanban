@@ -203,6 +203,7 @@
     "settings_updated": "Board settings updated",
     "mobile_add": "Mobile quick add (for adding to homescreen)",
     "switch_board": "Switch Board",
+    "filter_boards": "Type to filter, Enter to open…",
     "active_boards": "Active",
     "archived_boards": "Archive",
     "no_archived_boards": "No archived boards",
