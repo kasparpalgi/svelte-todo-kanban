@@ -144,6 +144,21 @@ describe('todosStore races (#209)', () => {
 		]);
 	});
 
+	it('parallel loads of the same board share one request', async () => {
+		mockCall(async () => [todo({ id: 'a' })]);
+
+		await Promise.all([
+			todosStore.loadTodosInitial('board-1'),
+			todosStore.loadTodosInitial('board-1'),
+			todosStore.loadTodosRemaining('board-1'),
+			todosStore.loadTodosRemaining('board-1')
+		]);
+
+		const pages = calls().map(([, input]) => `${input.completed}:${input.offset}`);
+		expect(pages).toEqual(['false:0', 'false:50', 'true:0']);
+		expect(todosStore.todos.map((t) => t.id)).toEqual(['a']);
+	});
+
 	describe('refreshBoardTodosIfChanged', () => {
 		const board = 'board-1';
 		// The board's hash, as the `poll` op returns it.

@@ -104,9 +104,23 @@ function createTodosStore() {
 	}
 
 	/** The top 50 open cards, for a fast first render; loadTodosRemaining fetches the rest. */
-	async function loadTodosInitial(boardId?: string): Promise<BoardTodo[]> {
-		if (!browser) return [];
-		return loadInto('Load initial todos', boardId, () => fetchCards(boardId, false, 50));
+	function loadTodosInitial(boardId?: string): Promise<BoardTodo[]> {
+		if (!browser) return Promise.resolve([]);
+		return once(`initial:${boardId}`, () =>
+			loadInto('Load initial todos', boardId, () => fetchCards(boardId, false, 50))
+		);
+	}
+
+	// The board page re-runs its load on every boards update, so one page view asked for
+	// the same first page ~9 times in parallel (#229): identical loads share one request.
+	const inFlight = new Map<string, Promise<unknown>>();
+	function once<T>(key: string, run: () => Promise<T>): Promise<T> {
+		let pending = inFlight.get(key) as Promise<T> | undefined;
+		if (!pending) {
+			pending = run().finally(() => inFlight.delete(key));
+			inFlight.set(key, pending);
+		}
+		return pending;
 	}
 
 	async function loadInto(
@@ -138,8 +152,12 @@ function createTodosStore() {
 	}
 
 	/** The rest of the open cards in pages of 100, then the last 100 completed ones. */
-	async function loadTodosRemaining(boardId?: string): Promise<void> {
-		if (!browser) return;
+	function loadTodosRemaining(boardId?: string): Promise<void> {
+		if (!browser) return Promise.resolve();
+		return once(`remaining:${boardId}`, () => loadRemaining(boardId));
+	}
+
+	async function loadRemaining(boardId?: string): Promise<void> {
 		const PAGE = 100;
 		try {
 			for (let offset = 50; ; offset += PAGE) {
