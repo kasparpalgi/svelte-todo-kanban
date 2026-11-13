@@ -560,9 +560,7 @@ function createTodosStore() {
 
 		try {
 			// The server works out and writes the activity row (#229).
-			const updatedTodo = await trackWrite(
-				call('updateTodo', { id, set: updates as CardSet })
-			);
+			const updatedTodo = await trackWrite(call('updateTodo', { id, set: updates as CardSet }));
 
 			if (updatedTodo) {
 				replaceTodo(id, updatedTodo);
@@ -639,10 +637,18 @@ function createTodosStore() {
 	}
 
 	const createUpload = (todoId: string, url: string) =>
-		cardOp(() => call('createUpload', { todoId, url }), 'Upload created', 'Failed to create upload');
+		cardOp(
+			() => call('createUpload', { todoId, url }),
+			'Upload created',
+			'Failed to create upload'
+		);
 
 	const deleteUpload = (uploadId: string) =>
-		cardOp(() => call('deleteUpload', { id: uploadId }), 'Upload deleted', 'Failed to delete upload');
+		cardOp(
+			() => call('deleteUpload', { id: uploadId }),
+			'Upload deleted',
+			'Failed to delete upload'
+		);
 
 	/**
 	 * Silently re-fetch all todos for a board without touching `loading`,
@@ -915,6 +921,7 @@ function createTodosStore() {
 		loadTodosInitial,
 		loadTodosRemaining,
 		loadTodoDetails,
+		realTodoId,
 		addTodo,
 		updateTodo,
 		toggleTodo,

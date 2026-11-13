@@ -26,3 +26,10 @@ against https://www.todzz.eu after the Vercel deploy.
 _GitHub issue #240 — end the commit subject with `(#240)`._
 
 _From Kanban card `c7af134f-7552-4ac3-9abc-e670e308b8ec`, moved to the agent list._
+
+## Results
+
+**Summary** — A click on a card that is still saving (optimistic `temp-…` id, empty alias) used to set `?card=` with no value, so no dialog opened. It now waits for the real id via `todosStore.realTodoId` and then navigates to `?card=<alias>`, so the dialog opens as soon as the create returns. The fix is in the app, and the spec is unchanged as the regression test.
+**Files changed** — modified `src/lib/components/todo/TodoItem.svelte` (`openWhenSaved`, alias guard in `handleCardClick`) and `src/lib/stores/todos.svelte.ts` (exposes `realTodoId`).
+**Verification** — `npm run check`: 0 errors. Store vitest: 139 passed. The live check (`card-detail.spec.ts` 3x on the Worker and www.todzz.eu) was NOT run. It needs the deploy first, so it is still to do after deploy.
+**Deviations** — None.

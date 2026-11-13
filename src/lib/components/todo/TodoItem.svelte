@@ -393,6 +393,13 @@
 		pendingAction = null;
 	}
 
+	// A card still saving has no alias yet: open it as soon as the real one arrives (#240).
+	async function openWhenSaved() {
+		const realId = await todosStore.realTodoId(todo.id);
+		const alias = realId && todosStore.todos.find((t) => t.id === realId)?.alias;
+		if (alias) goto(`/${lang}/${username}/${boardAlias}?card=${alias}`);
+	}
+
 	function handleCardClick(event: MouseEvent) {
 		if (drag.consumeClickSuppression()) {
 			event.preventDefault();
@@ -401,6 +408,11 @@
 		const target = event.target as HTMLElement;
 		if (target.closest('button') || target.closest('[role="button"]') || isEditing) {
 			event.preventDefault();
+			return;
+		}
+		if (!todo.alias) {
+			event.preventDefault();
+			void openWhenSaved();
 			return;
 		}
 		goto(`/${lang}/${username}/${boardAlias}?card=${todo.alias}`);
