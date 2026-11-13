@@ -22,3 +22,5 @@ opens. Once `createTodo` returns (well under 3 s), the same click opens the dial
 **Done when (deploy + live check):** `E2E_BASE_URL=https://todzz.svelte-todo-kanban.workers.dev
 npx playwright test e2e/card-detail.spec.ts` passes 3 runs in a row, and so does the same command
 against https://www.todzz.eu after the Vercel deploy.
+
+_GitHub issue #240 — end the commit subject with `(#240)`._
