@@ -25,3 +25,5 @@ card on its board). Next, so it can be worked from without leaving the page:
 - If loading one request per board (`backlogStore.load`, 4 at a time) gets slow with many
   boards, add one server op that returns the open cards of every board. #242 (voice
   "what's urgent") plans one for its ranking, so share it.
+
+_GitHub issue #250 — end the commit subject with `(#250)`._
