@@ -1,7 +1,7 @@
 {
 	"name": "svelte-todo-kanban",
 	"private": true,
-	"version": "0.33.0",
+	"version": "0.34.0",
 	"type": "module",
 	"scripts": {
 		"generate": "graphql-codegen --require dotenv/config && node fix-imports.cjs",
@@ -28,6 +28,7 @@
 	},
 	"devDependencies": {
 		"@auth/core": "^0.40.0",
+		"@cloudflare/workers-types": "^5.20261113.1",
 		"@eslint/compat": "^1.2.5",
 		"@eslint/js": "^9.22.0",
 		"@graphql-codegen/cli": "^6.0.0",
@@ -60,6 +61,7 @@
 		"clsx": "^2.1.1",
 		"cross-env": "^10.0.0",
 		"dotenv": "^17.2.2",
+		"drizzle-kit": "^0.31.11",
 		"esbuild": "^0.25.12",
 		"eslint": "^9.22.0",
 		"eslint-config-prettier": "^10.0.1",
@@ -100,6 +102,7 @@
 		"d3-shape": "^3.2.0",
 		"date-fns": "^4.1.0",
 		"dotenv-cli": "^10.0.0",
+		"drizzle-orm": "^0.45.4",
 		"graphql": "^16.11.0",
 		"graphql-request": "^7.2.0",
 		"jsonwebtoken": "^9.0.2",

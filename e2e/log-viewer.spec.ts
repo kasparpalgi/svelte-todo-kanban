@@ -113,12 +113,13 @@ test.describe('Log Viewer', () => {
 		if (logCount > 0) {
 			// Check first log card has required elements
 			const firstLog = logCards.first();
-			await expect(firstLog.locator('.font-mono')).toBeVisible(); // Component name
+			// Component name; a log with a session id shows it in a second .font-mono
+			await expect(firstLog.locator('.font-mono').first()).toBeVisible();
 			await expect(firstLog.locator('.text-sm').first()).toBeVisible(); // Message
 
 			// Check if data details toggle exists
 			const detailsToggle = firstLog.locator('details summary');
-			if (await detailsToggle.count() > 0) {
+			if ((await detailsToggle.count()) > 0) {
 				await detailsToggle.click();
 				// Data should be visible
 				await expect(firstLog.locator('pre')).toBeVisible();

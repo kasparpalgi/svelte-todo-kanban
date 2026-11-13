@@ -1,0 +1,1 @@
+CREATE INDEX `logs_created_at_idx` ON `logs` (`created_at`);

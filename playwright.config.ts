@@ -3,6 +3,10 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: './.env.test' });
 
+// E2E_BASE_URL runs the suite against a deployed app (the live check after a deploy),
+// e.g. https://todzz.svelte-todo-kanban.workers.dev, instead of a local build.
+const remote = process.env.E2E_BASE_URL;
+
 export default defineConfig({
 	testDir: 'e2e',
 	fullyParallel: true,
@@ -12,7 +16,7 @@ export default defineConfig({
 	reporter: 'html',
 
 	use: {
-		baseURL: 'http://localhost:4173/en',
+		baseURL: remote ? `${remote}/en` : 'http://localhost:4173/en',
 		trace: 'on-first-retry',
 		// The Google Chrome already installed, not a second copy in the Playwright cache.
 		channel: 'chrome'
@@ -38,10 +42,12 @@ export default defineConfig({
 			testMatch: /.*unauthenticated\.spec\.ts/
 		}
 	],
-	webServer: {
-		command: 'cross-env NODE_ENV=test dotenv -e .env.test -- npm run build && npm run preview',
-		url: 'http://localhost:4173/en',
-		timeout: 120 * 1000,
-		reuseExistingServer: !process.env.CI
-	}
+	webServer: remote
+		? undefined
+		: {
+				command: 'cross-env NODE_ENV=test dotenv -e .env.test -- npm run build && npm run preview',
+				url: 'http://localhost:4173/en',
+				timeout: 120 * 1000,
+				reuseExistingServer: !process.env.CI
+			}
 });

@@ -175,6 +175,13 @@ hasura migrate apply --all-databases
 hasura metadata apply
 hasura migrate create "name" --from-server
 
+# D1 (phase 2 of #226; nothing reads it until the cut-over, #234). Wrangler wants
+# CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID; .env spells them CLOUDFARE_*.
+npx drizzle-kit generate --name <change>           # after editing src/lib/server/db/schema
+npx wrangler d1 migrations apply todzz --remote    # todzz-staging: add --env staging
+node scripts/d1/copy-from-postgres.mjs [--remote] [--prod] [--check] [table…]   # 100k writes/day!
+E2E_BASE_URL=https://todzz.svelte-todo-kanban.workers.dev npx playwright test   # live check
+
 # Docker reset (when Hasura is broken)
 docker-compose down -v && docker-compose up -d
 hasura migrate apply --all-databases && hasura metadata apply

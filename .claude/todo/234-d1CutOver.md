@@ -29,3 +29,17 @@ _GitHub issue #234 — end the commit subject with `(#234)`._
 
 - Stay on Free. If the 7-day watch shows error 1102 or D1 limit errors, the fix is lighter
   code, not Workers Paid.
+
+## Notes from #232 (schema and copy)
+
+- `todzz` exists (`eeur`), has migrations 0000–0002 applied and no rows. The Worker is bound
+  to it as `DB`; `--env staging` binds `todzz-staging`.
+- **The final copy costs ≈ 77k of the 100k rows written a day.** The staging copy on
+  2026-11-13 measured 71.3k; the `logs.created_at` index added afterwards adds ~5.3k.
+  Postgres grows by roughly 400 index-weighted rows a day. So on cut-over day: no staging
+  copy, no other big D1 write. The script prints its estimate first and stops above 90k
+  without `--yes`.
+- If the estimate is over 90k: copy `logs` (~21k rows written with its indexes) on its own
+  the day before (losing the logs written in between is fine), or prune `activity_logs`.
+- Commands: `node scripts/d1/copy-from-postgres.mjs --remote --prod` (copy, then compare
+  counts), and `… --remote --prod --check` (compare only, writes nothing).

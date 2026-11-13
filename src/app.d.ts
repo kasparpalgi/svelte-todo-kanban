@@ -1,12 +1,17 @@
 /** @file src/app.d.ts */
 import type { DefaultSession } from '@auth/core/types';
+import type { D1Database } from '@cloudflare/workers-types';
 // See https://svelte.dev/docs/kit/types#app.d.ts
 
 declare global {
 	namespace App {
 		// interface Error {}
 		// interface PageState {}
-		// interface Platform {}
+		/** On Cloudflare Workers; undefined under Vercel and `vite dev`. */
+		interface Platform {
+			// D1 (#232): `todzz`, or `todzz-staging` with `--env staging`. Nothing reads it yet.
+			env: { DB: D1Database };
+		}
 		interface Locals {
 			auth: () => Promise<Session | null>;
 		}

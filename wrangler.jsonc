@@ -10,5 +10,28 @@
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
 	},
-	"observability": { "enabled": true }
+	"observability": { "enabled": true },
+	// D1 (#232). Migrations come from `drizzle-kit generate` (schema in src/lib/server/db/schema).
+	// Nothing reads it yet: production still runs on Hasura until the cut-over (#234).
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "todzz",
+			"database_id": "e108c6bb-329b-4d5a-8909-62d3dab343eb",
+			"migrations_dir": "drizzle"
+		}
+	],
+	"env": {
+		// `wrangler … --env staging`: worker `todzz-staging` with its own copy of the data.
+		"staging": {
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "todzz-staging",
+					"database_id": "cdbc48e7-ba8f-4f53-97b5-2d13486d90f8",
+					"migrations_dir": "drizzle"
+				}
+			]
+		}
+	}
 }
