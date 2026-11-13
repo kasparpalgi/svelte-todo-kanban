@@ -95,15 +95,8 @@
 			const data = await response.json();
 
 			if (response.ok && data.success) {
-				// Mirror into the cached user so the "configured" badges update immediately.
-				const tokens = { ...(user.settings?.tokens || {}) };
-				if (data.openaiSet) tokens.openai = { encrypted: true };
-				if (data.r2Set) tokens.r2 = { encrypted: true };
-				await userStore.updateUser(
-					user.id,
-					{ settings: { ...(user.settings || {}), tokens } },
-					true
-				);
+				// Re-read the user so the "configured" badges show what the server stored.
+				await userStore.refresh();
 
 				openaiKey = '';
 				r2 = {

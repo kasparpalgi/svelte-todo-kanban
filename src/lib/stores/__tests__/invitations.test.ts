@@ -2,10 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { invitationsStore } from '../invitations.svelte';
 
-// Mock the GraphQL client
-vi.mock('$lib/graphql/client', () => ({
-	request: vi.fn()
-}));
+vi.mock('$lib/api/call', () => ({ call: vi.fn() }));
 
 // Mock the user store
 vi.mock('../user.svelte', () => ({

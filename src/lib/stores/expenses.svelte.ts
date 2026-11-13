@@ -1,18 +1,8 @@
 /** @file src/lib/stores/expenses.svelte.ts */
 
 import { browser } from '$app/environment';
-import { request } from '$lib/graphql/client';
-import {
-	GET_BOARD_EXPENSES,
-	GET_ALL_USER_EXPENSES,
-	CREATE_EXPENSE,
-	DELETE_EXPENSE
-} from '$lib/graphql/documents';
-import type {
-	GetBoardExpensesQuery,
-	CreateExpenseMutation,
-	DeleteExpenseMutation
-} from '$lib/graphql/generated/graphql';
+import { call } from '$lib/api/call';
+import type { GetBoardExpensesQuery } from '$lib/graphql/generated/graphql';
 import {
 	calculateBalances,
 	getBalancesForUser,
@@ -52,11 +42,7 @@ function createExpensesStore() {
 		state.currentBoardId = boardId;
 
 		try {
-			const data: GetBoardExpensesQuery = await request(GET_BOARD_EXPENSES, {
-				board_id: boardId
-			});
-
-			state.expenses = data.expenses || [];
+			state.expenses = await call('getExpenses', { boardId });
 			console.log('[expensesStore.loadBoardExpenses]', {
 				boardId,
 				count: state.expenses.length
@@ -72,7 +58,7 @@ function createExpensesStore() {
 
 	/**
 	 * Load expenses across all boards the user has access to.
-	 * Hasura row-level permissions scope results to accessible boards automatically.
+	 * The server scopes them to boards the user owns or is a member of.
 	 */
 	async function loadAllExpenses() {
 		if (!browser) return;
@@ -82,8 +68,7 @@ function createExpensesStore() {
 		state.currentBoardId = null;
 
 		try {
-			const data: GetBoardExpensesQuery = await request(GET_ALL_USER_EXPENSES, {});
-			state.expenses = data.expenses || [];
+			state.expenses = await call('getExpenses', {});
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Failed to load expenses';
 			state.error = message;
@@ -115,22 +100,13 @@ function createExpensesStore() {
 		}
 
 		try {
-			const data: CreateExpenseMutation = await request(CREATE_EXPENSE, {
-				object: {
-					board_id: boardId,
-					amount,
-					created_by: paidBy,
-					description,
-					expense_splits: {
-						data: splits
-					}
-				}
+			const newExpense = await call('createExpense', {
+				boardId,
+				amount,
+				paidBy,
+				description,
+				splits
 			});
-
-			const newExpense = data.insert_expenses_one;
-			if (!newExpense) {
-				throw new Error('Failed to create expense');
-			}
 
 			// Optimistic update
 			state.expenses = [newExpense, ...state.expenses];
@@ -173,14 +149,7 @@ function createExpensesStore() {
 		state.expenses = state.expenses.filter((e) => e.id !== expenseId);
 
 		try {
-			const data: DeleteExpenseMutation = await request(DELETE_EXPENSE, {
-				id: expenseId,
-				deleted_at: new Date().toISOString()
-			});
-
-			if (!data.update_expenses_by_pk) {
-				throw new Error('Failed to delete expense');
-			}
+			await call('deleteExpense', { id: expenseId });
 
 			console.log('[expensesStore.deleteExpense]', { expenseId });
 
@@ -198,7 +167,6 @@ function createExpensesStore() {
 
 	/**
 	 * Create a settlement expense (one person pays another directly)
-	 * Note: The current user (from session) is automatically set as created_by by Hasura
 	 */
 	async function settleUp(
 		boardId: string,

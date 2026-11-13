@@ -1,11 +1,10 @@
 /** @file src/lib/stores/pushNotifications.svelte.ts */
 import { browser } from '$app/environment';
-import { request } from '$lib/graphql/client';
+import { call } from '$lib/api/call';
 // Dynamic (not static) public env: a missing PUBLIC_VAPID_PUBLIC_KEY then degrades
 // push subscription at runtime instead of failing the whole build, the way
 // `$env/static/public` does when the var isn't set in the deploy environment.
 import { env } from '$env/dynamic/public';
-import { CREATE_PUSH_SUBSCRIPTION, DELETE_PUSH_SUBSCRIPTION } from '$lib/graphql/documents';
 import { loggingStore } from '$lib/stores/logging.svelte';
 
 interface PushNotificationState {
@@ -80,12 +79,10 @@ function createPushNotificationStore() {
 			}
 
 			const json = subscription.toJSON();
-			await request(CREATE_PUSH_SUBSCRIPTION, {
-				subscription: {
-					endpoint: json.endpoint!,
-					p256dh: json.keys!.p256dh,
-					auth: json.keys!.auth
-				}
+			await call('savePushSubscription', {
+				endpoint: json.endpoint!,
+				p256dh: json.keys!.p256dh,
+				auth: json.keys!.auth
 			});
 
 			state.subscribed = true;
@@ -107,7 +104,7 @@ function createPushNotificationStore() {
 			if (subscription) {
 				const endpoint = subscription.endpoint;
 				await subscription.unsubscribe();
-				await request(DELETE_PUSH_SUBSCRIPTION, { endpoint });
+				await call('deletePushSubscription', { endpoint });
 			}
 			state.subscribed = false;
 			return { success: true, message: 'Unsubscribed from push notifications' };

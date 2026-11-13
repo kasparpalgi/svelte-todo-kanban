@@ -157,7 +157,7 @@
 			displayMessage($t('invoicing.select_at_least_one_list'));
 			return;
 		}
-		await invoicingStore.loadTodosForInvoicing(selectedListIds);
+		await invoicingStore.loadTodosForInvoicing(boardId, selectedListIds);
 		selectedTodoIds = todosForInvoicing.map((t) => t.id);
 		step = 'select-todos';
 	}

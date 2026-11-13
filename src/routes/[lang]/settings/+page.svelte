@@ -51,7 +51,6 @@
 
 		const updates = {
 			name: formData.name,
-			email: formData.email,
 			image: formData.image,
 			locale: formData.locale,
 			dark_mode: formData.darkMode,
@@ -185,8 +184,10 @@
 						<Input
 							id="email"
 							type="email"
-							bind:value={formData.email}
-							placeholder={$t('settings.profile.email_placeholder')}
+							value={formData.email}
+							readonly
+							aria-readonly="true"
+							class="bg-muted"
 						/>
 					</div>
 

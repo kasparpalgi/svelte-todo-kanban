@@ -1,12 +1,6 @@
 /** @file src/lib/stores/urlShortcuts.svelte.ts */
 import { browser } from '$app/environment';
-import { request } from '$lib/graphql/client';
-import {
-	GET_URL_SHORTCUTS,
-	CREATE_URL_SHORTCUT,
-	UPDATE_URL_SHORTCUT,
-	DELETE_URL_SHORTCUT
-} from '$lib/graphql/documents';
+import { call } from '$lib/api/call';
 
 interface UrlShortcut {
 	id: string;
@@ -16,22 +10,6 @@ interface UrlShortcut {
 	visit_count: number;
 	created_at: string;
 	updated_at: string;
-}
-
-interface GetUrlShortcutsQuery {
-	url_shortcuts: UrlShortcut[];
-}
-
-interface CreateUrlShortcutMutation {
-	insert_url_shortcuts_one: UrlShortcut | null;
-}
-
-interface UpdateUrlShortcutMutation {
-	update_url_shortcuts_by_pk: UrlShortcut | null;
-}
-
-interface DeleteUrlShortcutMutation {
-	delete_url_shortcuts_by_pk: { id: string } | null;
 }
 
 type StoreResult<T = unknown> = {
@@ -58,8 +36,7 @@ function createUrlShortcutsStore() {
 		state.loading = true;
 		state.error = null;
 		try {
-			const data = await request<GetUrlShortcutsQuery>(GET_URL_SHORTCUTS, {});
-			state.items = data.url_shortcuts ?? [];
+			state.items = await call('getUrlShortcuts', {});
 		} catch (e) {
 			state.error = e instanceof Error ? e.message : 'Failed to load shortcuts';
 			console.error('[urlShortcutsStore.loadShortcuts] Error:', e);
@@ -74,10 +51,7 @@ function createUrlShortcutsStore() {
 	): Promise<StoreResult<UrlShortcut>> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		try {
-			const data = await request<CreateUrlShortcutMutation>(CREATE_URL_SHORTCUT, {
-				object: { alias, target_url: targetUrl }
-			});
-			const created = data.insert_url_shortcuts_one;
+			const created = await call('createUrlShortcut', { alias, target_url: targetUrl });
 			if (!created) {
 				return { success: false, message: 'Failed to create shortcut' };
 			}
@@ -104,12 +78,7 @@ function createUrlShortcutsStore() {
 			state.items[idx] = { ...original, ...updates };
 		}
 		try {
-			const data = await request<UpdateUrlShortcutMutation>(UPDATE_URL_SHORTCUT, {
-				id,
-				_set: updates
-			});
-			const updated = data.update_url_shortcuts_by_pk;
-			if (!updated) throw new Error('Update returned no row');
+			const updated = await call('updateUrlShortcut', { id, set: updates });
 			if (idx >= 0) state.items[idx] = updated;
 			return { success: true, message: 'Shortcut updated', data: updated };
 		} catch (e) {
@@ -130,8 +99,7 @@ function createUrlShortcutsStore() {
 		const original = state.items[idx];
 		state.items = state.items.filter((i) => i.id !== id);
 		try {
-			const data = await request<DeleteUrlShortcutMutation>(DELETE_URL_SHORTCUT, { id });
-			if (!data.delete_url_shortcuts_by_pk) throw new Error('Delete returned no row');
+			await call('deleteUrlShortcut', { id });
 			return { success: true, message: 'Shortcut deleted' };
 		} catch (e) {
 			state.items = [...state.items];

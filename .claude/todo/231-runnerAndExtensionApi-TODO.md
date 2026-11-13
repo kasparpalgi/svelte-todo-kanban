@@ -30,3 +30,15 @@ Plan: `.claude/todo/226-backend-DONE.md`, sections 7 and 9.
 _From Kanban card `85505a2e-2f30-4e48-9409-3c3fa41fe366`, moved to the agent list._
 
 _GitHub issue #231 — end the commit subject with `(#231)`._
+
+## Handover from #230
+
+- **The extension is the last user of the Hasura JWT.** #230 removed the browser GraphQL
+  client, but `/api/auth/token` (JWT minting, `jsonwebtoken`) and `/extension-auth` stay,
+  because the extension gets its token from there. Once the extension calls `/api/data/*`,
+  delete `src/routes/api/auth/token/`, the `jsonwebtoken` dependency, and the Hasura `user`
+  role's remaining permissions.
+- The extension's three operations already exist as ops: `getBoards`, `getNotes` (by
+  `boardId`) and `createNote` (`{ boardId, parentId?, title, content?, sort_order? }`).
+- Hasura's `users` select for the `user` role is now the caller's own row only. The
+  extension doesn't join users, so it is unaffected.

@@ -1,13 +1,10 @@
 /** @file src/lib/stores/boardMembers.svelte.ts */
-import { SEARCH_USERS } from '$lib/graphql/documents';
 import { get } from 'svelte/store';
 import { browser } from '$app/environment';
-import { request } from '$lib/graphql/client';
 import { call } from '$lib/api/call';
 import { locale } from '$lib/i18n';
 import { displayMessage } from './errorSuccess.svelte';
 import type {
-	SearchUsersQuery,
 	BoardMemberFieldsFragment,
 	BoardInvitationFieldsFragment
 } from '$lib/graphql/generated/graphql';
@@ -205,23 +202,6 @@ function createBoardMembersStore() {
 		}
 	}
 
-	async function searchUsers(searchTerm: string): Promise<SearchUsersQuery['users']> {
-		if (!browser) return [];
-		if (!searchTerm.trim()) return [];
-
-		try {
-			const data: SearchUsersQuery = await request(SEARCH_USERS, {
-				search: `%${searchTerm.trim()}%`
-			});
-
-			return data.users || [];
-		} catch (error) {
-			console.error('Search users error:', error);
-			displayMessage('Error searching users');
-			return [];
-		}
-	}
-
 	return {
 		get members() {
 			return state.members;
@@ -242,7 +222,6 @@ function createBoardMembersStore() {
 		removeMember,
 		loadInvitations,
 		cancelInvitation,
-		searchUsers,
 
 		clearError: () => {
 			state.error = null;

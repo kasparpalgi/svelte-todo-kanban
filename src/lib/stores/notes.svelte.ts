@@ -1,26 +1,8 @@
 /** @file src/lib/stores/notes.svelte.ts */
-import { request } from '$lib/graphql/client';
+import { call } from '$lib/api/call';
 import { browser } from '$app/environment';
 import type { StoreResult } from '$lib/types/todo';
-import {
-	GET_NOTES,
-	CREATE_NOTE,
-	UPDATE_NOTE,
-	UPDATE_NOTES,
-	DELETE_NOTE,
-	CREATE_NOTE_UPLOAD,
-	DELETE_NOTE_UPLOAD
-} from '$lib/graphql/documents';
-import type {
-	NoteCoreFieldsFragment,
-	GetNotesQuery,
-	CreateNoteMutation,
-	UpdateNoteMutation,
-	UpdateNotesMutation,
-	DeleteNoteMutation,
-	CreateNoteUploadMutation,
-	DeleteNoteUploadMutation
-} from '$lib/graphql/generated/graphql';
+import type { NoteCoreFieldsFragment } from '$lib/graphql/generated/graphql';
 
 // Queries return one level of subnotes; the store handles the tree recursively.
 export type Note = NoteCoreFieldsFragment & { subnotes?: Note[] };
@@ -63,14 +45,7 @@ function createNotesStore() {
 		state.currentBoardId = boardId;
 
 		try {
-			const data = await request(GET_NOTES, {
-				where: { board_id: { _eq: boardId } },
-				order_by: [{ sort_order: 'asc' }, { created_at: 'desc' }],
-				limit: 1000,
-				offset: 0
-			}) as GetNotesQuery;
-
-			state.notes = data.notes || [];
+			state.notes = await call('getNotes', { boardId });
 			return state.notes;
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error loading notes';
@@ -107,19 +82,13 @@ function createNotesStore() {
 				maxSortOrder = topLevelNotes.reduce((max, note) => Math.max(max, note.sort_order), 0);
 			}
 
-			const data = await request(CREATE_NOTE, {
-				objects: [
-					{
-						board_id: boardId,
-						parent_id: parentId,
-						title: title.trim() || 'Untitled Note',
-						content: content.trim() || null,
-						sort_order: maxSortOrder + 1
-					}
-				]
-			}) as CreateNoteMutation;
-
-			const newNote = data.insert_notes?.returning?.[0];
+			const newNote = await call('createNote', {
+				boardId,
+				parentId: parentId ?? null,
+				title: title.trim() || 'Untitled Note',
+				content: content.trim() || null,
+				sort_order: maxSortOrder + 1
+			});
 
 			if (newNote) {
 				if (parentId) {
@@ -205,12 +174,7 @@ function createNotesStore() {
 			if (updates.content !== undefined) _set.content = updates.content.trim() || null;
 			if (updates.cover_image_url !== undefined) _set.cover_image_url = updates.cover_image_url;
 
-			const data = await request(UPDATE_NOTE, {
-				where: { id: { _eq: id } },
-				_set
-			}) as UpdateNoteMutation;
-
-			const updatedNote = data.update_notes?.returning?.[0];
+			const updatedNote = await call('updateNote', { id, set: _set });
 			if (updatedNote) {
 				// Update with server data
 				state.notes = updateNoteRecursively(state.notes);
@@ -267,11 +231,9 @@ function createNotesStore() {
 		state.notes = removeNoteRecursively(state.notes);
 
 		try {
-			const data = await request(DELETE_NOTE, {
-				where: { id: { _eq: id } }
-			}) as DeleteNoteMutation;
+			const { deleted } = await call('deleteNote', { id });
 
-			if (data.delete_notes?.affected_rows && data.delete_notes.affected_rows > 0) {
+			if (deleted) {
 				return { success: true, message: 'Note deleted successfully' };
 			}
 
@@ -321,44 +283,28 @@ function createNotesStore() {
 		});
 
 		try {
-			// Prepare batch update
-			const updates = noteIds.map((id, index) => ({
-				where: { id: { _eq: id } },
-				_set: { sort_order: index }
-			}));
-
-			const data = await request(UPDATE_NOTES, {
-				updates
-			}) as UpdateNotesMutation;
-
-			if (data.update_notes_many) {
-				// Flatten all returned notes
-				const updatedNotes = data.update_notes_many.flatMap(
-					(result) => result?.returning || []
-				);
-
-				if (updatedNotes.length > 0) {
-					// Update state with server response (recursively)
-					updatedNotes.forEach(serverNote => {
-						const updateWithServerData = (notesList: Note[]): Note[] => {
-							return notesList.map(n => {
-								if (n.id === serverNote.id) {
-									return { ...n, ...serverNote };
-								}
-								if (n.subnotes) {
-									return { ...n, subnotes: updateWithServerData(n.subnotes) };
-								}
-								return n;
-							});
-						};
-						state.notes = updateWithServerData(state.notes);
-					});
-
-					return {
-						success: true,
-						message: 'Notes reordered successfully'
+			const updatedNotes = await call('reorderNotes', { ids: noteIds });
+			if (updatedNotes.length > 0) {
+				// Update state with server response (recursively)
+				updatedNotes.forEach(serverNote => {
+					const updateWithServerData = (notesList: Note[]): Note[] => {
+						return notesList.map(n => {
+							if (n.id === serverNote.id) {
+								return { ...n, ...serverNote };
+							}
+							if (n.subnotes) {
+								return { ...n, subnotes: updateWithServerData(n.subnotes) };
+							}
+							return n;
+						});
 					};
-				}
+					state.notes = updateWithServerData(state.notes);
+				});
+
+				return {
+					success: true,
+					message: 'Notes reordered successfully'
+				};
 			}
 
 			state.notes = originalNotes;
@@ -475,15 +421,10 @@ function createNotesStore() {
 		}
 
 		try {
-			const data = await request(UPDATE_NOTE, {
-				where: { id: { _eq: noteId } },
-				_set: {
-					parent_id: newParentId,
-					sort_order: sortOrder
-				}
-			}) as UpdateNoteMutation;
-
-			const serverNote = data.update_notes?.returning?.[0];
+			const serverNote = await call('updateNote', {
+				id: noteId,
+				set: { parent_id: newParentId, sort_order: sortOrder }
+			});
 			if (serverNote) {
 				// Update the moved note with server data
 				const updateNoteInState = (notes: Note[]): Note[] => {
@@ -521,11 +462,7 @@ function createNotesStore() {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		try {
-			const data = await request(CREATE_NOTE_UPLOAD, {
-				objects: [{ note_id: noteId, url }]
-			}) as CreateNoteUploadMutation;
-
-			const newUpload = data.insert_note_uploads?.returning?.[0];
+			const newUpload = await call('createNoteUpload', { noteId, url });
 
 			if (newUpload) {
 				// Update note's uploads in state
@@ -570,11 +507,9 @@ function createNotesStore() {
 		};
 
 		try {
-			const data = await request(DELETE_NOTE_UPLOAD, {
-				where: { id: { _eq: uploadId } }
-			}) as DeleteNoteUploadMutation;
+			const { deleted } = await call('deleteNoteUpload', { id: uploadId });
 
-			if (data.delete_note_uploads?.affected_rows && data.delete_note_uploads.affected_rows > 0) {
+			if (deleted) {
 				return { success: true, message: 'Upload deleted successfully' };
 			}
 

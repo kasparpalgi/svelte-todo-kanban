@@ -23,7 +23,7 @@ type Documents = {
     "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tgithub\n\t\tis_public\n\t\tallow_public_comments\n\t\tsettings\n\t\tarchived_at\n\t\tclient_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t\tclaude_plan\n\t\t\tclaude_plan_monthly\n\t\t\tclaude_plan_currency\n\t\t}\n\t\tboard_members {\n\t\t\t...BoardMemberFields\n\t\t}\n\t\tclient {\n\t\t\tid\n\t\t\tname\n\t\t\tcompany_name\n\t\t\temail\n\t\t\tcurrency\n\t\t\tdefault_rate\n\t\t}\n\t}\n": typeof types.BoardFieldsFragmentDoc,
     "\n\tfragment CommentFields on comments {\n\t\tid\n\t\tcontent\n\t\ttodo_id\n\t\tuser_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tgithub_comment_id\n\t\tgithub_synced_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n": typeof types.CommentFieldsFragmentDoc,
     "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.LabelFieldsFragmentDoc,
-    "\n\tfragment NoteCoreFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\tparent_id\n\t\ttitle\n\t\tcontent\n\t\tcover_image_url\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t\tnote_uploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t}\n": typeof types.NoteCoreFieldsFragmentDoc,
+    "\n\tfragment NoteCoreFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\tparent_id\n\t\ttitle\n\t\tcontent\n\t\tcover_image_url\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t\tnote_uploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t}\n": typeof types.NoteCoreFieldsFragmentDoc,
     "\n\tfragment NoteFields on notes {\n\t\t...NoteCoreFields\n\t\tsubnotes(order_by: { sort_order: asc }) {\n\t\t\t...NoteCoreFields\n\t\t}\n\t}\n": typeof types.NoteFieldsFragmentDoc,
     "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tplan\n\t\tplan_expires_at\n\t\tclaude_plan\n\t\tclaude_plan_monthly\n\t\tclaude_plan_currency\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.UserFieldsFragmentDoc,
     "\n\tquery GetTodos(\n\t\t$where: todos_bool_exp = {}\n\t\t$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\ttodos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...TodoFields\n\t\t}\n\t}\n": typeof types.GetTodosDocument,
@@ -50,6 +50,8 @@ type Documents = {
     "\n\tmutation DeleteNote($where: notes_bool_exp!) {\n\t\tdelete_notes(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteNoteDocument,
     "\n\tmutation CreateUpload($objects: [uploads_insert_input!]!) {\n\t\tinsert_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\ttodo_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateUploadDocument,
     "\n\tmutation DeleteUpload($where: uploads_bool_exp!) {\n\t\tdelete_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteUploadDocument,
+    "\n\tquery GetNoteBoards($ids: [uuid!]!) {\n\t\tnotes(where: { id: { _in: $ids } }) {\n\t\t\tid\n\t\t\tboard_id\n\t\t}\n\t}\n": typeof types.GetNoteBoardsDocument,
+    "\n\tquery GetNoteUploadNote($id: uuid!) {\n\t\tnote_uploads_by_pk(id: $id) {\n\t\t\tnote_id\n\t\t}\n\t}\n": typeof types.GetNoteUploadNoteDocument,
     "\n\tmutation CreateNoteUpload($objects: [note_uploads_insert_input!]!) {\n\t\tinsert_note_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\tnote_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateNoteUploadDocument,
     "\n\tmutation DeleteNoteUpload($where: note_uploads_bool_exp!) {\n\t\tdelete_note_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteNoteUploadDocument,
     "\n\tquery GetUsers(\n\t\t$where: users_bool_exp = {}\n\t\t$order_by: [users_order_by!] = {}\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tusers(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...UserFields\n\t\t}\n\t}\n": typeof types.GetUsersDocument,
@@ -87,7 +89,7 @@ type Documents = {
     "\n\tmutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {\n\t\tinsert_board_invitations(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.CreateBoardInvitationDocument,
     "\n\tmutation UpdateBoardInvitation(\n\t\t$where: board_invitations_bool_exp!\n\t\t$_set: board_invitations_set_input!\n\t) {\n\t\tupdate_board_invitations(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateBoardInvitationDocument,
     "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteBoardInvitationDocument,
-    "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n": typeof types.SearchUsersDocument,
+    "\n\tquery GetPeople($userId: uuid!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ id: { _eq: $userId } }\n\t\t\t\t\t{ boards: { board_members: { user_id: { _eq: $userId } } } }\n\t\t\t\t\t{\n\t\t\t\t\t\tboard_members: {\n\t\t\t\t\t\t\tboard: {\n\t\t\t\t\t\t\t\t_or: [\n\t\t\t\t\t\t\t\t\t{ user_id: { _eq: $userId } }\n\t\t\t\t\t\t\t\t\t{ board_members: { user_id: { _eq: $userId } } }\n\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t]\n\t\t\t}\n\t\t\torder_by: { name: asc }\n\t\t\tlimit: 500\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": typeof types.GetPeopleDocument,
     "\n\tquery GetTodoByGithubIssue($githubIssueId: bigint!) {\n\t\ttodos(where: { github_issue_id: { _eq: $githubIssueId } }, limit: 1) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tcontent\n\t\t\tcompleted_at\n\t\t\tpriority\n\t\t\tassigned_to\n\t\t\tgithub_issue_number\n\t\t\tgithub_issue_id\n\t\t\tgithub_synced_at\n\t\t\tassignees {\n\t\t\t\tuser_id\n\t\t\t}\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tuser_id\n\t\t\t\t\tgithub\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetTodoByGithubIssueDocument,
     "\n\tquery GetActivityLogByCommitSha($todoId: uuid!, $commitSha: jsonb!) {\n\t\tactivity_logs(\n\t\t\twhere: { todo_id: { _eq: $todoId }, changes: { _contains: $commitSha } }\n\t\t\tlimit: 1\n\t\t) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.GetActivityLogByCommitShaDocument,
     "\n\tquery GetCommentByGithubId($githubCommentId: bigint!) {\n\t\tcomments(where: { github_comment_id: { _eq: $githubCommentId } }, limit: 1) {\n\t\t\tid\n\t\t\tcontent\n\t\t\ttodo_id\n\t\t\tuser_id\n\t\t\tgithub_comment_id\n\t\t}\n\t}\n": typeof types.GetCommentByGithubIdDocument,
@@ -98,8 +100,8 @@ type Documents = {
     "\n\tfragment NotificationFields on notifications {\n\t\tid\n\t\tuser_id\n\t\ttodo_id\n\t\ttype\n\t\ttriggered_by_user_id\n\t\trelated_comment_id\n\t\tcontent\n\t\tis_read\n\t\tcreated_at\n\t\tupdated_at\n\t\ttriggered_by_user {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\ttodo {\n\t\t\tid\n\t\t\ttitle\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\talias\n\t\t\t\t\tuser {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tusername\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\tnews {\n\t\t\tid\n\t\t\ttitle\n\t\t\tbody\n\t\t\turl\n\t\t}\n\t}\n": typeof types.NotificationFieldsFragmentDoc,
     "\n\tquery GetNotifications(\n\t\t$where: notifications_bool_exp\n\t\t$order_by: [notifications_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tnotifications(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...NotificationFields\n\t\t}\n\t}\n": typeof types.GetNotificationsDocument,
     "\n\tmutation CreateNotification($notification: notifications_insert_input!) {\n\t\tinsert_notifications_one(object: $notification) {\n\t\t\t...NotificationFields\n\t\t}\n\t}\n": typeof types.CreateNotificationDocument,
-    "\n\tmutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {\n\t\tinsert_push_subscriptions_one(\n\t\t\tobject: $subscription\n\t\t\ton_conflict: { constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth] }\n\t\t) {\n\t\t\tid\n\t\t\tendpoint\n\t\t}\n\t}\n": typeof types.CreatePushSubscriptionDocument,
-    "\n\tmutation DeletePushSubscription($endpoint: String!) {\n\t\tdelete_push_subscriptions(where: { endpoint: { _eq: $endpoint } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeletePushSubscriptionDocument,
+    "\n\tmutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {\n\t\tinsert_push_subscriptions_one(\n\t\t\tobject: $subscription\n\t\t\ton_conflict: { constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth, user_id] }\n\t\t) {\n\t\t\tid\n\t\t\tendpoint\n\t\t}\n\t}\n": typeof types.CreatePushSubscriptionDocument,
+    "\n\tmutation DeletePushSubscription($endpoint: String!, $userId: uuid!) {\n\t\tdelete_push_subscriptions(\n\t\t\twhere: { endpoint: { _eq: $endpoint }, user_id: { _eq: $userId } }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeletePushSubscriptionDocument,
     "\n\tfragment ActivityLogFields on activity_logs {\n\t\tid\n\t\tuser_id\n\t\ttodo_id\n\t\taction_type\n\t\tfield_name\n\t\told_value\n\t\tnew_value\n\t\tchanges\n\t\tcreated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\ttodo {\n\t\t\tid\n\t\t\talias\n\t\t\ttitle\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\talias\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.ActivityLogFieldsFragmentDoc,
     "\n\tquery GetActivityLogs(\n\t\t$where: activity_logs_bool_exp\n\t\t$order_by: [activity_logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tactivity_logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ActivityLogFields\n\t\t}\n\t}\n": typeof types.GetActivityLogsDocument,
     "\n\tmutation CreateActivityLog($log: activity_logs_insert_input!) {\n\t\tinsert_activity_logs_one(object: $log) {\n\t\t\t...ActivityLogFields\n\t\t}\n\t}\n": typeof types.CreateActivityLogDocument,
@@ -108,38 +110,39 @@ type Documents = {
     "\n\tmutation UnsubscribeFromTodo($todo_id: uuid!, $user_id: uuid!) {\n\t\tdelete_todo_subscribers_by_pk(todo_id: $todo_id, user_id: $user_id) {\n\t\t\ttodo_id\n\t\t\tuser_id\n\t\t}\n\t}\n": typeof types.UnsubscribeFromTodoDocument,
     "\n\tmutation AssignUserToTodo($todo_id: uuid!, $user_id: uuid!) {\n\t\tinsert_todo_assignees_one(\n\t\t\tobject: { todo_id: $todo_id, user_id: $user_id }\n\t\t\ton_conflict: { constraint: todo_assignees_pkey, update_columns: [] }\n\t\t) {\n\t\t\ttodo_id\n\t\t\tuser_id\n\t\t\tcreated_at\n\t\t\tassignee {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tusername\n\t\t\t\timage\n\t\t\t\temail\n\t\t\t}\n\t\t}\n\t}\n": typeof types.AssignUserToTodoDocument,
     "\n\tmutation UnassignUserFromTodo($todo_id: uuid!, $user_id: uuid!) {\n\t\tdelete_todo_assignees_by_pk(todo_id: $todo_id, user_id: $user_id) {\n\t\t\ttodo_id\n\t\t\tuser_id\n\t\t}\n\t}\n": typeof types.UnassignUserFromTodoDocument,
-    "\n\tfragment ExpenseSplitFields on expense_splits {\n\t\tid\n\t\tuser_id\n\t\tamount\n\t\texpense_id\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n": typeof types.ExpenseSplitFieldsFragmentDoc,
-    "\n\tfragment ExpenseFields on expenses {\n\t\tid\n\t\tamount\n\t\tdescription\n\t\tcreated_by\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tdeleted_at\n\t\tcreated {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\texpense_splits {\n\t\t\t...ExpenseSplitFields\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n": typeof types.ExpenseFieldsFragmentDoc,
+    "\n\tfragment ExpenseSplitFields on expense_splits {\n\t\tid\n\t\tuser_id\n\t\tamount\n\t\texpense_id\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": typeof types.ExpenseSplitFieldsFragmentDoc,
+    "\n\tfragment ExpenseFields on expenses {\n\t\tid\n\t\tamount\n\t\tdescription\n\t\tcreated_by\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tdeleted_at\n\t\tcreated {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\texpense_splits {\n\t\t\t...ExpenseSplitFields\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n": typeof types.ExpenseFieldsFragmentDoc,
     "\n\tquery GetBoardExpenses($board_id: uuid!) {\n\t\texpenses(\n\t\t\twhere: { board_id: { _eq: $board_id }, deleted_at: { _is_null: true } }\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": typeof types.GetBoardExpensesDocument,
     "\n\tmutation CreateExpense($object: expenses_insert_input!) {\n\t\tinsert_expenses_one(object: $object) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": typeof types.CreateExpenseDocument,
-    "\n\tmutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses_by_pk(pk_columns: { id: $id }, _set: { deleted_at: $deleted_at }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": typeof types.DeleteExpenseDocument,
+    "\n\tmutation DeleteExpense($id: uuid!, $userId: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses(\n\t\t\twhere: {\n\t\t\t\tid: { _eq: $id }\n\t\t\t\tcreated_by: { _eq: $userId }\n\t\t\t\tdeleted_at: { _is_null: true }\n\t\t\t\tboard: {\n\t\t\t\t\t_or: [\n\t\t\t\t\t\t{ user_id: { _eq: $userId } }\n\t\t\t\t\t\t{ board_members: { user_id: { _eq: $userId } } }\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t}\n\t\t\t_set: { deleted_at: $deleted_at }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteExpenseDocument,
     "\n\tfragment UrlShortcutFields on url_shortcuts {\n\t\tid\n\t\tuser_id\n\t\talias\n\t\ttarget_url\n\t\tvisit_count\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.UrlShortcutFieldsFragmentDoc,
-    "\n\tquery GetUrlShortcuts {\n\t\turl_shortcuts(order_by: { created_at: desc }) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n": typeof types.GetUrlShortcutsDocument,
+    "\n\tquery GetUrlShortcuts($userId: uuid!) {\n\t\turl_shortcuts(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n": typeof types.GetUrlShortcutsDocument,
     "\n\tquery GetUrlShortcutByAlias($alias: String!) {\n\t\turl_shortcuts(where: { alias: { _eq: $alias } }, limit: 1) {\n\t\t\talias\n\t\t\ttarget_url\n\t\t}\n\t}\n": typeof types.GetUrlShortcutByAliasDocument,
     "\n\tmutation CreateUrlShortcut($object: url_shortcuts_insert_input!) {\n\t\tinsert_url_shortcuts_one(object: $object) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n": typeof types.CreateUrlShortcutDocument,
-    "\n\tmutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {\n\t\tupdate_url_shortcuts_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n": typeof types.UpdateUrlShortcutDocument,
-    "\n\tmutation DeleteUrlShortcut($id: uuid!) {\n\t\tdelete_url_shortcuts_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteUrlShortcutDocument,
+    "\n\tmutation UpdateUrlShortcut($id: uuid!, $userId: uuid!, $_set: url_shortcuts_set_input!) {\n\t\tupdate_url_shortcuts(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {\n\t\t\treturning {\n\t\t\t\t...UrlShortcutFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateUrlShortcutDocument,
+    "\n\tmutation DeleteUrlShortcut($id: uuid!, $userId: uuid!) {\n\t\tdelete_url_shortcuts(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteUrlShortcutDocument,
     "\n\tmutation IncrementUrlShortcutVisits($alias: String!) {\n\t\tupdate_url_shortcuts(where: { alias: { _eq: $alias } }, _inc: { visit_count: 1 }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.IncrementUrlShortcutVisitsDocument,
-    "\n\tquery GetAllUserExpenses {\n\t\texpenses(where: { deleted_at: { _is_null: true } }, order_by: { created_at: desc }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": typeof types.GetAllUserExpensesDocument,
+    "\n\tquery GetAllUserExpenses($userId: uuid!) {\n\t\texpenses(\n\t\t\twhere: {\n\t\t\t\tdeleted_at: { _is_null: true }\n\t\t\t\tboard: {\n\t\t\t\t\t_or: [\n\t\t\t\t\t\t{ user_id: { _eq: $userId } }\n\t\t\t\t\t\t{ board_members: { user_id: { _eq: $userId } } }\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t}\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": typeof types.GetAllUserExpensesDocument,
     "\n\tfragment ClientFields on clients {\n\t\tid\n\t\tuser_id\n\t\tlinked_user_id\n\t\tname\n\t\tcompany_name\n\t\temail\n\t\tphone\n\t\taddress\n\t\tvat_number\n\t\tcurrency\n\t\tdefault_rate\n\t\tnotes\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.ClientFieldsFragmentDoc,
-    "\n\tquery GetClients {\n\t\tclients(order_by: { name: asc }) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": typeof types.GetClientsDocument,
+    "\n\tquery GetClients($userId: uuid!) {\n\t\tclients(where: { user_id: { _eq: $userId } }, order_by: { name: asc }) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": typeof types.GetClientsDocument,
     "\n\tmutation CreateClient($object: clients_insert_input!) {\n\t\tinsert_clients_one(object: $object) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": typeof types.CreateClientDocument,
-    "\n\tmutation UpdateClient($id: uuid!, $_set: clients_set_input!) {\n\t\tupdate_clients_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": typeof types.UpdateClientDocument,
-    "\n\tmutation DeleteClient($id: uuid!) {\n\t\tdelete_clients_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteClientDocument,
+    "\n\tmutation UpdateClient($id: uuid!, $userId: uuid!, $_set: clients_set_input!) {\n\t\tupdate_clients(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {\n\t\t\treturning {\n\t\t\t\t...ClientFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateClientDocument,
+    "\n\tmutation DeleteClient($id: uuid!, $userId: uuid!) {\n\t\tdelete_clients(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteClientDocument,
     "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tiban\n\t\tswift\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": typeof types.InvoiceCompanyFieldsFragmentDoc,
-    "\n\tquery GetInvoiceCompanies {\n\t\tinvoice_companies(order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": typeof types.GetInvoiceCompaniesDocument,
+    "\n\tquery GetInvoiceCompanies($userId: uuid!) {\n\t\tinvoice_companies(where: { user_id: { _eq: $userId } }, order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": typeof types.GetInvoiceCompaniesDocument,
     "\n\tmutation CreateInvoiceCompany($object: invoice_companies_insert_input!) {\n\t\tinsert_invoice_companies_one(object: $object) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": typeof types.CreateInvoiceCompanyDocument,
-    "\n\tmutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": typeof types.UpdateInvoiceCompanyDocument,
-    "\n\tmutation DeleteInvoiceCompany($id: uuid!) {\n\t\tdelete_invoice_companies_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteInvoiceCompanyDocument,
+    "\n\tmutation UpdateInvoiceCompany($id: uuid!, $userId: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {\n\t\t\treturning {\n\t\t\t\t...InvoiceCompanyFields\n\t\t\t}\n\t\t}\n\t}\n": typeof types.UpdateInvoiceCompanyDocument,
+    "\n\tmutation DeleteInvoiceCompany($id: uuid!, $userId: uuid!) {\n\t\tdelete_invoice_companies(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteInvoiceCompanyDocument,
     "\n\tfragment InvoiceItemFields on invoice_items {\n\t\tid\n\t\tinvoice_id\n\t\ttodo_id\n\t\ttitle\n\t\thours\n\t\thourly_rate\n\t\tamount\n\t\tcreated_at\n\t}\n": typeof types.InvoiceItemFieldsFragmentDoc,
     "\n\tfragment InvoiceFields on invoices {\n\t\tid\n\t\tuser_id\n\t\tclient_id\n\t\tboard_id\n\t\tcompany_id\n\t\tinvoice_number\n\t\tissued_date\n\t\tdue_date\n\t\tcurrency\n\t\thourly_rate\n\t\ttotal_hours\n\t\ttotal_amount\n\t\tcustom_fields\n\t\tnotes\n\t\tstatus\n\t\tcreated_at\n\t\tupdated_at\n\t\tclient {\n\t\t\t...ClientFields\n\t\t}\n\t\tcompany {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t\titems {\n\t\t\t...InvoiceItemFields\n\t\t}\n\t}\n": typeof types.InvoiceFieldsFragmentDoc,
-    "\n\tquery GetBoardInvoices($board_id: uuid!) {\n\t\tinvoices(where: { board_id: { _eq: $board_id } }, order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": typeof types.GetBoardInvoicesDocument,
-    "\n\tquery GetAllInvoices {\n\t\tinvoices(order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": typeof types.GetAllInvoicesDocument,
+    "\n\tquery GetBoardInvoices($board_id: uuid!, $userId: uuid!) {\n\t\tinvoices(\n\t\t\twhere: { board_id: { _eq: $board_id }, user_id: { _eq: $userId } }\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": typeof types.GetBoardInvoicesDocument,
+    "\n\tquery GetAllInvoices($userId: uuid!) {\n\t\tinvoices(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": typeof types.GetAllInvoicesDocument,
+    "\n\tquery GetInvoiceParties($clientId: uuid!, $companyId: uuid!, $userId: uuid!) {\n\t\tclients(where: { id: { _eq: $clientId }, user_id: { _eq: $userId } }) {\n\t\t\tid\n\t\t}\n\t\tinvoice_companies(where: { id: { _eq: $companyId }, user_id: { _eq: $userId } }) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.GetInvoicePartiesDocument,
     "\n\tmutation CreateInvoiceWithItems($invoice: invoices_insert_input!) {\n\t\tinsert_invoices_one(object: $invoice) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": typeof types.CreateInvoiceWithItemsDocument,
-    "\n\tquery GetInvoicesIssuedToday($today: date!) {\n\t\tinvoices_aggregate(where: { issued_date: { _eq: $today } }) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetInvoicesIssuedTodayDocument,
-    "\n\tmutation UpdateInvoiceStatus($id: uuid!, $status: String!) {\n\t\tupdate_invoices_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {\n\t\t\tid\n\t\t\tstatus\n\t\t}\n\t}\n": typeof types.UpdateInvoiceStatusDocument,
-    "\n\tmutation DeleteInvoice($id: uuid!) {\n\t\tdelete_invoice_items(where: { invoice_id: { _eq: $id } }) {\n\t\t\taffected_rows\n\t\t}\n\t\tdelete_invoices_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": typeof types.DeleteInvoiceDocument,
-    "\n\tquery GetTodosForInvoicing($list_ids: [uuid!]!) {\n\t\ttodos(\n\t\t\twhere: { list_id: { _in: $list_ids }, actual_hours: { _gt: 0 } }\n\t\t\torder_by: { sort_order: asc }\n\t\t) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetTodosForInvoicingDocument,
+    "\n\tquery GetInvoicesIssuedToday($today: date!, $userId: uuid!) {\n\t\tinvoices_aggregate(where: { issued_date: { _eq: $today }, user_id: { _eq: $userId } }) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetInvoicesIssuedTodayDocument,
+    "\n\tmutation UpdateInvoiceStatus($id: uuid!, $userId: uuid!, $status: String!) {\n\t\tupdate_invoices(\n\t\t\twhere: { id: { _eq: $id }, user_id: { _eq: $userId } }\n\t\t\t_set: { status: $status }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.UpdateInvoiceStatusDocument,
+    "\n\tmutation DeleteInvoice($id: uuid!, $userId: uuid!) {\n\t\tdelete_invoice_items(\n\t\t\twhere: { invoice: { id: { _eq: $id }, user_id: { _eq: $userId } } }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t\tdelete_invoices(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": typeof types.DeleteInvoiceDocument,
+    "\n\tquery GetTodosForInvoicing($where: todos_bool_exp!) {\n\t\ttodos(where: $where, order_by: { sort_order: asc }) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": typeof types.GetTodosForInvoicingDocument,
     "\n\tmutation VerifyUserPassword($email: String!, $password: String!) {\n\t\tverify_user_password(args: { user_email: $email, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": typeof types.VerifyUserPasswordDocument,
     "\n\tmutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {\n\t\tcreate_password_user(args: { user_email: $email, user_name: $name, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": typeof types.CreatePasswordUserDocument,
 };
@@ -152,7 +155,7 @@ const documents: Documents = {
     "\n\tfragment BoardFields on boards {\n\t\tid\n\t\tname\n\t\talias\n\t\tsort_order\n\t\tgithub\n\t\tis_public\n\t\tallow_public_comments\n\t\tsettings\n\t\tarchived_at\n\t\tclient_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tlabels {\n\t\t\t...LabelFields\n\t\t}\n\t\tuser {\n\t\t\tid\n\t\t\tusername\n\t\t\temail\n\t\t\tclaude_plan\n\t\t\tclaude_plan_monthly\n\t\t\tclaude_plan_currency\n\t\t}\n\t\tboard_members {\n\t\t\t...BoardMemberFields\n\t\t}\n\t\tclient {\n\t\t\tid\n\t\t\tname\n\t\t\tcompany_name\n\t\t\temail\n\t\t\tcurrency\n\t\t\tdefault_rate\n\t\t}\n\t}\n": types.BoardFieldsFragmentDoc,
     "\n\tfragment CommentFields on comments {\n\t\tid\n\t\tcontent\n\t\ttodo_id\n\t\tuser_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tgithub_comment_id\n\t\tgithub_synced_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n": types.CommentFieldsFragmentDoc,
     "\n\tfragment LabelFields on labels {\n\t\tid\n\t\tname\n\t\tcolor\n\t\tsort_order\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.LabelFieldsFragmentDoc,
-    "\n\tfragment NoteCoreFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\tparent_id\n\t\ttitle\n\t\tcontent\n\t\tcover_image_url\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t\tnote_uploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t}\n": types.NoteCoreFieldsFragmentDoc,
+    "\n\tfragment NoteCoreFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\tparent_id\n\t\ttitle\n\t\tcontent\n\t\tcover_image_url\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t\tnote_uploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t}\n": types.NoteCoreFieldsFragmentDoc,
     "\n\tfragment NoteFields on notes {\n\t\t...NoteCoreFields\n\t\tsubnotes(order_by: { sort_order: asc }) {\n\t\t\t...NoteCoreFields\n\t\t}\n\t}\n": types.NoteFieldsFragmentDoc,
     "\n\tfragment UserFields on users {\n\t\tid\n\t\tname\n\t\tusername\n\t\timage\n\t\temail\n\t\tlocale\n\t\tdark_mode\n\t\tsettings\n\t\tdefault_labels\n\t\temailVerified\n\t\tplan\n\t\tplan_expires_at\n\t\tclaude_plan\n\t\tclaude_plan_monthly\n\t\tclaude_plan_currency\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.UserFieldsFragmentDoc,
     "\n\tquery GetTodos(\n\t\t$where: todos_bool_exp = {}\n\t\t$order_by: [todos_order_by!] = { sort_order: asc, due_on: desc, updated_at: desc }\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\ttodos(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...TodoFields\n\t\t}\n\t}\n": types.GetTodosDocument,
@@ -179,6 +182,8 @@ const documents: Documents = {
     "\n\tmutation DeleteNote($where: notes_bool_exp!) {\n\t\tdelete_notes(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteNoteDocument,
     "\n\tmutation CreateUpload($objects: [uploads_insert_input!]!) {\n\t\tinsert_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\ttodo_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n": types.CreateUploadDocument,
     "\n\tmutation DeleteUpload($where: uploads_bool_exp!) {\n\t\tdelete_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteUploadDocument,
+    "\n\tquery GetNoteBoards($ids: [uuid!]!) {\n\t\tnotes(where: { id: { _in: $ids } }) {\n\t\t\tid\n\t\t\tboard_id\n\t\t}\n\t}\n": types.GetNoteBoardsDocument,
+    "\n\tquery GetNoteUploadNote($id: uuid!) {\n\t\tnote_uploads_by_pk(id: $id) {\n\t\t\tnote_id\n\t\t}\n\t}\n": types.GetNoteUploadNoteDocument,
     "\n\tmutation CreateNoteUpload($objects: [note_uploads_insert_input!]!) {\n\t\tinsert_note_uploads(objects: $objects) {\n\t\t\treturning {\n\t\t\t\tid\n\t\t\t\turl\n\t\t\t\tnote_id\n\t\t\t\tcreated_at\n\t\t\t}\n\t\t}\n\t}\n": types.CreateNoteUploadDocument,
     "\n\tmutation DeleteNoteUpload($where: note_uploads_bool_exp!) {\n\t\tdelete_note_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteNoteUploadDocument,
     "\n\tquery GetUsers(\n\t\t$where: users_bool_exp = {}\n\t\t$order_by: [users_order_by!] = {}\n\t\t$limit: Int = 100\n\t\t$offset: Int = 0\n\t) {\n\t\tusers(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...UserFields\n\t\t}\n\t}\n": types.GetUsersDocument,
@@ -216,7 +221,7 @@ const documents: Documents = {
     "\n\tmutation CreateBoardInvitation($objects: [board_invitations_insert_input!]!) {\n\t\tinsert_board_invitations(objects: $objects) {\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": types.CreateBoardInvitationDocument,
     "\n\tmutation UpdateBoardInvitation(\n\t\t$where: board_invitations_bool_exp!\n\t\t$_set: board_invitations_set_input!\n\t) {\n\t\tupdate_board_invitations(where: $where, _set: $_set) {\n\t\t\taffected_rows\n\t\t\treturning {\n\t\t\t\t...BoardInvitationFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateBoardInvitationDocument,
     "\n\tmutation DeleteBoardInvitation($where: board_invitations_bool_exp!) {\n\t\tdelete_board_invitations(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteBoardInvitationDocument,
-    "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n": types.SearchUsersDocument,
+    "\n\tquery GetPeople($userId: uuid!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ id: { _eq: $userId } }\n\t\t\t\t\t{ boards: { board_members: { user_id: { _eq: $userId } } } }\n\t\t\t\t\t{\n\t\t\t\t\t\tboard_members: {\n\t\t\t\t\t\t\tboard: {\n\t\t\t\t\t\t\t\t_or: [\n\t\t\t\t\t\t\t\t\t{ user_id: { _eq: $userId } }\n\t\t\t\t\t\t\t\t\t{ board_members: { user_id: { _eq: $userId } } }\n\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t]\n\t\t\t}\n\t\t\torder_by: { name: asc }\n\t\t\tlimit: 500\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": types.GetPeopleDocument,
     "\n\tquery GetTodoByGithubIssue($githubIssueId: bigint!) {\n\t\ttodos(where: { github_issue_id: { _eq: $githubIssueId } }, limit: 1) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tcontent\n\t\t\tcompleted_at\n\t\t\tpriority\n\t\t\tassigned_to\n\t\t\tgithub_issue_number\n\t\t\tgithub_issue_id\n\t\t\tgithub_synced_at\n\t\t\tassignees {\n\t\t\t\tuser_id\n\t\t\t}\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tuser_id\n\t\t\t\t\tgithub\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.GetTodoByGithubIssueDocument,
     "\n\tquery GetActivityLogByCommitSha($todoId: uuid!, $commitSha: jsonb!) {\n\t\tactivity_logs(\n\t\t\twhere: { todo_id: { _eq: $todoId }, changes: { _contains: $commitSha } }\n\t\t\tlimit: 1\n\t\t) {\n\t\t\tid\n\t\t}\n\t}\n": types.GetActivityLogByCommitShaDocument,
     "\n\tquery GetCommentByGithubId($githubCommentId: bigint!) {\n\t\tcomments(where: { github_comment_id: { _eq: $githubCommentId } }, limit: 1) {\n\t\t\tid\n\t\t\tcontent\n\t\t\ttodo_id\n\t\t\tuser_id\n\t\t\tgithub_comment_id\n\t\t}\n\t}\n": types.GetCommentByGithubIdDocument,
@@ -227,8 +232,8 @@ const documents: Documents = {
     "\n\tfragment NotificationFields on notifications {\n\t\tid\n\t\tuser_id\n\t\ttodo_id\n\t\ttype\n\t\ttriggered_by_user_id\n\t\trelated_comment_id\n\t\tcontent\n\t\tis_read\n\t\tcreated_at\n\t\tupdated_at\n\t\ttriggered_by_user {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\ttodo {\n\t\t\tid\n\t\t\ttitle\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\talias\n\t\t\t\t\tuser {\n\t\t\t\t\t\tid\n\t\t\t\t\t\tusername\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\tnews {\n\t\t\tid\n\t\t\ttitle\n\t\t\tbody\n\t\t\turl\n\t\t}\n\t}\n": types.NotificationFieldsFragmentDoc,
     "\n\tquery GetNotifications(\n\t\t$where: notifications_bool_exp\n\t\t$order_by: [notifications_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tnotifications(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...NotificationFields\n\t\t}\n\t}\n": types.GetNotificationsDocument,
     "\n\tmutation CreateNotification($notification: notifications_insert_input!) {\n\t\tinsert_notifications_one(object: $notification) {\n\t\t\t...NotificationFields\n\t\t}\n\t}\n": types.CreateNotificationDocument,
-    "\n\tmutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {\n\t\tinsert_push_subscriptions_one(\n\t\t\tobject: $subscription\n\t\t\ton_conflict: { constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth] }\n\t\t) {\n\t\t\tid\n\t\t\tendpoint\n\t\t}\n\t}\n": types.CreatePushSubscriptionDocument,
-    "\n\tmutation DeletePushSubscription($endpoint: String!) {\n\t\tdelete_push_subscriptions(where: { endpoint: { _eq: $endpoint } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeletePushSubscriptionDocument,
+    "\n\tmutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {\n\t\tinsert_push_subscriptions_one(\n\t\t\tobject: $subscription\n\t\t\ton_conflict: { constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth, user_id] }\n\t\t) {\n\t\t\tid\n\t\t\tendpoint\n\t\t}\n\t}\n": types.CreatePushSubscriptionDocument,
+    "\n\tmutation DeletePushSubscription($endpoint: String!, $userId: uuid!) {\n\t\tdelete_push_subscriptions(\n\t\t\twhere: { endpoint: { _eq: $endpoint }, user_id: { _eq: $userId } }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeletePushSubscriptionDocument,
     "\n\tfragment ActivityLogFields on activity_logs {\n\t\tid\n\t\tuser_id\n\t\ttodo_id\n\t\taction_type\n\t\tfield_name\n\t\told_value\n\t\tnew_value\n\t\tchanges\n\t\tcreated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\ttodo {\n\t\t\tid\n\t\t\talias\n\t\t\ttitle\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tboard {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\talias\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.ActivityLogFieldsFragmentDoc,
     "\n\tquery GetActivityLogs(\n\t\t$where: activity_logs_bool_exp\n\t\t$order_by: [activity_logs_order_by!]\n\t\t$limit: Int\n\t\t$offset: Int\n\t) {\n\t\tactivity_logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {\n\t\t\t...ActivityLogFields\n\t\t}\n\t}\n": types.GetActivityLogsDocument,
     "\n\tmutation CreateActivityLog($log: activity_logs_insert_input!) {\n\t\tinsert_activity_logs_one(object: $log) {\n\t\t\t...ActivityLogFields\n\t\t}\n\t}\n": types.CreateActivityLogDocument,
@@ -237,38 +242,39 @@ const documents: Documents = {
     "\n\tmutation UnsubscribeFromTodo($todo_id: uuid!, $user_id: uuid!) {\n\t\tdelete_todo_subscribers_by_pk(todo_id: $todo_id, user_id: $user_id) {\n\t\t\ttodo_id\n\t\t\tuser_id\n\t\t}\n\t}\n": types.UnsubscribeFromTodoDocument,
     "\n\tmutation AssignUserToTodo($todo_id: uuid!, $user_id: uuid!) {\n\t\tinsert_todo_assignees_one(\n\t\t\tobject: { todo_id: $todo_id, user_id: $user_id }\n\t\t\ton_conflict: { constraint: todo_assignees_pkey, update_columns: [] }\n\t\t) {\n\t\t\ttodo_id\n\t\t\tuser_id\n\t\t\tcreated_at\n\t\t\tassignee {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t\tusername\n\t\t\t\timage\n\t\t\t\temail\n\t\t\t}\n\t\t}\n\t}\n": types.AssignUserToTodoDocument,
     "\n\tmutation UnassignUserFromTodo($todo_id: uuid!, $user_id: uuid!) {\n\t\tdelete_todo_assignees_by_pk(todo_id: $todo_id, user_id: $user_id) {\n\t\t\ttodo_id\n\t\t\tuser_id\n\t\t}\n\t}\n": types.UnassignUserFromTodoDocument,
-    "\n\tfragment ExpenseSplitFields on expense_splits {\n\t\tid\n\t\tuser_id\n\t\tamount\n\t\texpense_id\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n": types.ExpenseSplitFieldsFragmentDoc,
-    "\n\tfragment ExpenseFields on expenses {\n\t\tid\n\t\tamount\n\t\tdescription\n\t\tcreated_by\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tdeleted_at\n\t\tcreated {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\texpense_splits {\n\t\t\t...ExpenseSplitFields\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n": types.ExpenseFieldsFragmentDoc,
+    "\n\tfragment ExpenseSplitFields on expense_splits {\n\t\tid\n\t\tuser_id\n\t\tamount\n\t\texpense_id\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": types.ExpenseSplitFieldsFragmentDoc,
+    "\n\tfragment ExpenseFields on expenses {\n\t\tid\n\t\tamount\n\t\tdescription\n\t\tcreated_by\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tdeleted_at\n\t\tcreated {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\texpense_splits {\n\t\t\t...ExpenseSplitFields\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n": types.ExpenseFieldsFragmentDoc,
     "\n\tquery GetBoardExpenses($board_id: uuid!) {\n\t\texpenses(\n\t\t\twhere: { board_id: { _eq: $board_id }, deleted_at: { _is_null: true } }\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": types.GetBoardExpensesDocument,
     "\n\tmutation CreateExpense($object: expenses_insert_input!) {\n\t\tinsert_expenses_one(object: $object) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": types.CreateExpenseDocument,
-    "\n\tmutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses_by_pk(pk_columns: { id: $id }, _set: { deleted_at: $deleted_at }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": types.DeleteExpenseDocument,
+    "\n\tmutation DeleteExpense($id: uuid!, $userId: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses(\n\t\t\twhere: {\n\t\t\t\tid: { _eq: $id }\n\t\t\t\tcreated_by: { _eq: $userId }\n\t\t\t\tdeleted_at: { _is_null: true }\n\t\t\t\tboard: {\n\t\t\t\t\t_or: [\n\t\t\t\t\t\t{ user_id: { _eq: $userId } }\n\t\t\t\t\t\t{ board_members: { user_id: { _eq: $userId } } }\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t}\n\t\t\t_set: { deleted_at: $deleted_at }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteExpenseDocument,
     "\n\tfragment UrlShortcutFields on url_shortcuts {\n\t\tid\n\t\tuser_id\n\t\talias\n\t\ttarget_url\n\t\tvisit_count\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.UrlShortcutFieldsFragmentDoc,
-    "\n\tquery GetUrlShortcuts {\n\t\turl_shortcuts(order_by: { created_at: desc }) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n": types.GetUrlShortcutsDocument,
+    "\n\tquery GetUrlShortcuts($userId: uuid!) {\n\t\turl_shortcuts(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n": types.GetUrlShortcutsDocument,
     "\n\tquery GetUrlShortcutByAlias($alias: String!) {\n\t\turl_shortcuts(where: { alias: { _eq: $alias } }, limit: 1) {\n\t\t\talias\n\t\t\ttarget_url\n\t\t}\n\t}\n": types.GetUrlShortcutByAliasDocument,
     "\n\tmutation CreateUrlShortcut($object: url_shortcuts_insert_input!) {\n\t\tinsert_url_shortcuts_one(object: $object) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n": types.CreateUrlShortcutDocument,
-    "\n\tmutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {\n\t\tupdate_url_shortcuts_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n": types.UpdateUrlShortcutDocument,
-    "\n\tmutation DeleteUrlShortcut($id: uuid!) {\n\t\tdelete_url_shortcuts_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteUrlShortcutDocument,
+    "\n\tmutation UpdateUrlShortcut($id: uuid!, $userId: uuid!, $_set: url_shortcuts_set_input!) {\n\t\tupdate_url_shortcuts(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {\n\t\t\treturning {\n\t\t\t\t...UrlShortcutFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateUrlShortcutDocument,
+    "\n\tmutation DeleteUrlShortcut($id: uuid!, $userId: uuid!) {\n\t\tdelete_url_shortcuts(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteUrlShortcutDocument,
     "\n\tmutation IncrementUrlShortcutVisits($alias: String!) {\n\t\tupdate_url_shortcuts(where: { alias: { _eq: $alias } }, _inc: { visit_count: 1 }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.IncrementUrlShortcutVisitsDocument,
-    "\n\tquery GetAllUserExpenses {\n\t\texpenses(where: { deleted_at: { _is_null: true } }, order_by: { created_at: desc }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": types.GetAllUserExpensesDocument,
+    "\n\tquery GetAllUserExpenses($userId: uuid!) {\n\t\texpenses(\n\t\t\twhere: {\n\t\t\t\tdeleted_at: { _is_null: true }\n\t\t\t\tboard: {\n\t\t\t\t\t_or: [\n\t\t\t\t\t\t{ user_id: { _eq: $userId } }\n\t\t\t\t\t\t{ board_members: { user_id: { _eq: $userId } } }\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t}\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n": types.GetAllUserExpensesDocument,
     "\n\tfragment ClientFields on clients {\n\t\tid\n\t\tuser_id\n\t\tlinked_user_id\n\t\tname\n\t\tcompany_name\n\t\temail\n\t\tphone\n\t\taddress\n\t\tvat_number\n\t\tcurrency\n\t\tdefault_rate\n\t\tnotes\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.ClientFieldsFragmentDoc,
-    "\n\tquery GetClients {\n\t\tclients(order_by: { name: asc }) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": types.GetClientsDocument,
+    "\n\tquery GetClients($userId: uuid!) {\n\t\tclients(where: { user_id: { _eq: $userId } }, order_by: { name: asc }) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": types.GetClientsDocument,
     "\n\tmutation CreateClient($object: clients_insert_input!) {\n\t\tinsert_clients_one(object: $object) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": types.CreateClientDocument,
-    "\n\tmutation UpdateClient($id: uuid!, $_set: clients_set_input!) {\n\t\tupdate_clients_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n": types.UpdateClientDocument,
-    "\n\tmutation DeleteClient($id: uuid!) {\n\t\tdelete_clients_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteClientDocument,
+    "\n\tmutation UpdateClient($id: uuid!, $userId: uuid!, $_set: clients_set_input!) {\n\t\tupdate_clients(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {\n\t\t\treturning {\n\t\t\t\t...ClientFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateClientDocument,
+    "\n\tmutation DeleteClient($id: uuid!, $userId: uuid!) {\n\t\tdelete_clients(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteClientDocument,
     "\n\tfragment InvoiceCompanyFields on invoice_companies {\n\t\tid\n\t\tuser_id\n\t\tname\n\t\taddress\n\t\tvat_number\n\t\tvat_rate\n\t\tiban\n\t\tswift\n\t\tis_default\n\t\tcreated_at\n\t\tupdated_at\n\t}\n": types.InvoiceCompanyFieldsFragmentDoc,
-    "\n\tquery GetInvoiceCompanies {\n\t\tinvoice_companies(order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": types.GetInvoiceCompaniesDocument,
+    "\n\tquery GetInvoiceCompanies($userId: uuid!) {\n\t\tinvoice_companies(where: { user_id: { _eq: $userId } }, order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": types.GetInvoiceCompaniesDocument,
     "\n\tmutation CreateInvoiceCompany($object: invoice_companies_insert_input!) {\n\t\tinsert_invoice_companies_one(object: $object) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": types.CreateInvoiceCompanyDocument,
-    "\n\tmutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n": types.UpdateInvoiceCompanyDocument,
-    "\n\tmutation DeleteInvoiceCompany($id: uuid!) {\n\t\tdelete_invoice_companies_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteInvoiceCompanyDocument,
+    "\n\tmutation UpdateInvoiceCompany($id: uuid!, $userId: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {\n\t\t\treturning {\n\t\t\t\t...InvoiceCompanyFields\n\t\t\t}\n\t\t}\n\t}\n": types.UpdateInvoiceCompanyDocument,
+    "\n\tmutation DeleteInvoiceCompany($id: uuid!, $userId: uuid!) {\n\t\tdelete_invoice_companies(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteInvoiceCompanyDocument,
     "\n\tfragment InvoiceItemFields on invoice_items {\n\t\tid\n\t\tinvoice_id\n\t\ttodo_id\n\t\ttitle\n\t\thours\n\t\thourly_rate\n\t\tamount\n\t\tcreated_at\n\t}\n": types.InvoiceItemFieldsFragmentDoc,
     "\n\tfragment InvoiceFields on invoices {\n\t\tid\n\t\tuser_id\n\t\tclient_id\n\t\tboard_id\n\t\tcompany_id\n\t\tinvoice_number\n\t\tissued_date\n\t\tdue_date\n\t\tcurrency\n\t\thourly_rate\n\t\ttotal_hours\n\t\ttotal_amount\n\t\tcustom_fields\n\t\tnotes\n\t\tstatus\n\t\tcreated_at\n\t\tupdated_at\n\t\tclient {\n\t\t\t...ClientFields\n\t\t}\n\t\tcompany {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t\titems {\n\t\t\t...InvoiceItemFields\n\t\t}\n\t}\n": types.InvoiceFieldsFragmentDoc,
-    "\n\tquery GetBoardInvoices($board_id: uuid!) {\n\t\tinvoices(where: { board_id: { _eq: $board_id } }, order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": types.GetBoardInvoicesDocument,
-    "\n\tquery GetAllInvoices {\n\t\tinvoices(order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": types.GetAllInvoicesDocument,
+    "\n\tquery GetBoardInvoices($board_id: uuid!, $userId: uuid!) {\n\t\tinvoices(\n\t\t\twhere: { board_id: { _eq: $board_id }, user_id: { _eq: $userId } }\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": types.GetBoardInvoicesDocument,
+    "\n\tquery GetAllInvoices($userId: uuid!) {\n\t\tinvoices(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": types.GetAllInvoicesDocument,
+    "\n\tquery GetInvoiceParties($clientId: uuid!, $companyId: uuid!, $userId: uuid!) {\n\t\tclients(where: { id: { _eq: $clientId }, user_id: { _eq: $userId } }) {\n\t\t\tid\n\t\t}\n\t\tinvoice_companies(where: { id: { _eq: $companyId }, user_id: { _eq: $userId } }) {\n\t\t\tid\n\t\t}\n\t}\n": types.GetInvoicePartiesDocument,
     "\n\tmutation CreateInvoiceWithItems($invoice: invoices_insert_input!) {\n\t\tinsert_invoices_one(object: $invoice) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n": types.CreateInvoiceWithItemsDocument,
-    "\n\tquery GetInvoicesIssuedToday($today: date!) {\n\t\tinvoices_aggregate(where: { issued_date: { _eq: $today } }) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": types.GetInvoicesIssuedTodayDocument,
-    "\n\tmutation UpdateInvoiceStatus($id: uuid!, $status: String!) {\n\t\tupdate_invoices_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {\n\t\t\tid\n\t\t\tstatus\n\t\t}\n\t}\n": types.UpdateInvoiceStatusDocument,
-    "\n\tmutation DeleteInvoice($id: uuid!) {\n\t\tdelete_invoice_items(where: { invoice_id: { _eq: $id } }) {\n\t\t\taffected_rows\n\t\t}\n\t\tdelete_invoices_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n": types.DeleteInvoiceDocument,
-    "\n\tquery GetTodosForInvoicing($list_ids: [uuid!]!) {\n\t\ttodos(\n\t\t\twhere: { list_id: { _in: $list_ids }, actual_hours: { _gt: 0 } }\n\t\t\torder_by: { sort_order: asc }\n\t\t) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": types.GetTodosForInvoicingDocument,
+    "\n\tquery GetInvoicesIssuedToday($today: date!, $userId: uuid!) {\n\t\tinvoices_aggregate(where: { issued_date: { _eq: $today }, user_id: { _eq: $userId } }) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n": types.GetInvoicesIssuedTodayDocument,
+    "\n\tmutation UpdateInvoiceStatus($id: uuid!, $userId: uuid!, $status: String!) {\n\t\tupdate_invoices(\n\t\t\twhere: { id: { _eq: $id }, user_id: { _eq: $userId } }\n\t\t\t_set: { status: $status }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.UpdateInvoiceStatusDocument,
+    "\n\tmutation DeleteInvoice($id: uuid!, $userId: uuid!) {\n\t\tdelete_invoice_items(\n\t\t\twhere: { invoice: { id: { _eq: $id }, user_id: { _eq: $userId } } }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t\tdelete_invoices(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n": types.DeleteInvoiceDocument,
+    "\n\tquery GetTodosForInvoicing($where: todos_bool_exp!) {\n\t\ttodos(where: $where, order_by: { sort_order: asc }) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n": types.GetTodosForInvoicingDocument,
     "\n\tmutation VerifyUserPassword($email: String!, $password: String!) {\n\t\tverify_user_password(args: { user_email: $email, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": types.VerifyUserPasswordDocument,
     "\n\tmutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {\n\t\tcreate_password_user(args: { user_email: $email, user_name: $name, user_password: $password }) {\n\t\t\tid\n\t\t\tname\n\t\t\temail\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n": types.CreatePasswordUserDocument,
 };
@@ -308,7 +314,7 @@ export function graphql(source: "\n\tfragment LabelFields on labels {\n\t\tid\n\
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tfragment NoteCoreFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\tparent_id\n\t\ttitle\n\t\tcontent\n\t\tcover_image_url\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t\tnote_uploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t}\n"): typeof import('./graphql').NoteCoreFieldsFragmentDoc;
+export function graphql(source: "\n\tfragment NoteCoreFields on notes {\n\t\tid\n\t\tboard_id\n\t\tuser_id\n\t\tparent_id\n\t\ttitle\n\t\tcontent\n\t\tcover_image_url\n\t\tsort_order\n\t\tcreated_at\n\t\tupdated_at\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t\tnote_uploads {\n\t\t\tid\n\t\t\turl\n\t\t\tcreated_at\n\t\t}\n\t}\n"): typeof import('./graphql').NoteCoreFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -413,6 +419,14 @@ export function graphql(source: "\n\tmutation CreateUpload($objects: [uploads_in
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\tmutation DeleteUpload($where: uploads_bool_exp!) {\n\t\tdelete_uploads(where: $where) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteUploadDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetNoteBoards($ids: [uuid!]!) {\n\t\tnotes(where: { id: { _in: $ids } }) {\n\t\t\tid\n\t\t\tboard_id\n\t\t}\n\t}\n"): typeof import('./graphql').GetNoteBoardsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetNoteUploadNote($id: uuid!) {\n\t\tnote_uploads_by_pk(id: $id) {\n\t\t\tnote_id\n\t\t}\n\t}\n"): typeof import('./graphql').GetNoteUploadNoteDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -564,7 +578,7 @@ export function graphql(source: "\n\tmutation DeleteBoardInvitation($where: boar
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery SearchUsers($search: String!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ email: { _ilike: $search } }\n\t\t\t\t\t{ username: { _ilike: $search } }\n\t\t\t\t\t{ name: { _ilike: $search } }\n\t\t\t\t]\n\t\t\t}\n\t\t\tlimit: 10\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\temail\n\t\t\timage\n\t\t}\n\t}\n"): typeof import('./graphql').SearchUsersDocument;
+export function graphql(source: "\n\tquery GetPeople($userId: uuid!) {\n\t\tusers(\n\t\t\twhere: {\n\t\t\t\t_or: [\n\t\t\t\t\t{ id: { _eq: $userId } }\n\t\t\t\t\t{ boards: { board_members: { user_id: { _eq: $userId } } } }\n\t\t\t\t\t{\n\t\t\t\t\t\tboard_members: {\n\t\t\t\t\t\t\tboard: {\n\t\t\t\t\t\t\t\t_or: [\n\t\t\t\t\t\t\t\t\t{ user_id: { _eq: $userId } }\n\t\t\t\t\t\t\t\t\t{ board_members: { user_id: { _eq: $userId } } }\n\t\t\t\t\t\t\t\t]\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t]\n\t\t\t}\n\t\t\torder_by: { name: asc }\n\t\t\tlimit: 500\n\t\t) {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n"): typeof import('./graphql').GetPeopleDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -608,11 +622,11 @@ export function graphql(source: "\n\tmutation CreateNotification($notification: 
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {\n\t\tinsert_push_subscriptions_one(\n\t\t\tobject: $subscription\n\t\t\ton_conflict: { constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth] }\n\t\t) {\n\t\t\tid\n\t\t\tendpoint\n\t\t}\n\t}\n"): typeof import('./graphql').CreatePushSubscriptionDocument;
+export function graphql(source: "\n\tmutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {\n\t\tinsert_push_subscriptions_one(\n\t\t\tobject: $subscription\n\t\t\ton_conflict: { constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth, user_id] }\n\t\t) {\n\t\t\tid\n\t\t\tendpoint\n\t\t}\n\t}\n"): typeof import('./graphql').CreatePushSubscriptionDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation DeletePushSubscription($endpoint: String!) {\n\t\tdelete_push_subscriptions(where: { endpoint: { _eq: $endpoint } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeletePushSubscriptionDocument;
+export function graphql(source: "\n\tmutation DeletePushSubscription($endpoint: String!, $userId: uuid!) {\n\t\tdelete_push_subscriptions(\n\t\t\twhere: { endpoint: { _eq: $endpoint }, user_id: { _eq: $userId } }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeletePushSubscriptionDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -648,11 +662,11 @@ export function graphql(source: "\n\tmutation UnassignUserFromTodo($todo_id: uui
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tfragment ExpenseSplitFields on expense_splits {\n\t\tid\n\t\tuser_id\n\t\tamount\n\t\texpense_id\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t}\n"): typeof import('./graphql').ExpenseSplitFieldsFragmentDoc;
+export function graphql(source: "\n\tfragment ExpenseSplitFields on expense_splits {\n\t\tid\n\t\tuser_id\n\t\tamount\n\t\texpense_id\n\t\tuser {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t}\n"): typeof import('./graphql').ExpenseSplitFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tfragment ExpenseFields on expenses {\n\t\tid\n\t\tamount\n\t\tdescription\n\t\tcreated_by\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tdeleted_at\n\t\tcreated {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t\temail\n\t\t}\n\t\texpense_splits {\n\t\t\t...ExpenseSplitFields\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n"): typeof import('./graphql').ExpenseFieldsFragmentDoc;
+export function graphql(source: "\n\tfragment ExpenseFields on expenses {\n\t\tid\n\t\tamount\n\t\tdescription\n\t\tcreated_by\n\t\tboard_id\n\t\tcreated_at\n\t\tupdated_at\n\t\tdeleted_at\n\t\tcreated {\n\t\t\tid\n\t\t\tname\n\t\t\tusername\n\t\t\timage\n\t\t}\n\t\texpense_splits {\n\t\t\t...ExpenseSplitFields\n\t\t}\n\t\tboard {\n\t\t\tid\n\t\t\tname\n\t\t\talias\n\t\t}\n\t}\n"): typeof import('./graphql').ExpenseFieldsFragmentDoc;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -664,7 +678,7 @@ export function graphql(source: "\n\tmutation CreateExpense($object: expenses_in
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses_by_pk(pk_columns: { id: $id }, _set: { deleted_at: $deleted_at }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteExpenseDocument;
+export function graphql(source: "\n\tmutation DeleteExpense($id: uuid!, $userId: uuid!, $deleted_at: timestamptz!) {\n\t\tupdate_expenses(\n\t\t\twhere: {\n\t\t\t\tid: { _eq: $id }\n\t\t\t\tcreated_by: { _eq: $userId }\n\t\t\t\tdeleted_at: { _is_null: true }\n\t\t\t\tboard: {\n\t\t\t\t\t_or: [\n\t\t\t\t\t\t{ user_id: { _eq: $userId } }\n\t\t\t\t\t\t{ board_members: { user_id: { _eq: $userId } } }\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t}\n\t\t\t_set: { deleted_at: $deleted_at }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteExpenseDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -672,7 +686,7 @@ export function graphql(source: "\n\tfragment UrlShortcutFields on url_shortcuts
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery GetUrlShortcuts {\n\t\turl_shortcuts(order_by: { created_at: desc }) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetUrlShortcutsDocument;
+export function graphql(source: "\n\tquery GetUrlShortcuts($userId: uuid!) {\n\t\turl_shortcuts(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetUrlShortcutsDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -684,11 +698,11 @@ export function graphql(source: "\n\tmutation CreateUrlShortcut($object: url_sho
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {\n\t\tupdate_url_shortcuts_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...UrlShortcutFields\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateUrlShortcutDocument;
+export function graphql(source: "\n\tmutation UpdateUrlShortcut($id: uuid!, $userId: uuid!, $_set: url_shortcuts_set_input!) {\n\t\tupdate_url_shortcuts(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {\n\t\t\treturning {\n\t\t\t\t...UrlShortcutFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateUrlShortcutDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation DeleteUrlShortcut($id: uuid!) {\n\t\tdelete_url_shortcuts_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteUrlShortcutDocument;
+export function graphql(source: "\n\tmutation DeleteUrlShortcut($id: uuid!, $userId: uuid!) {\n\t\tdelete_url_shortcuts(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteUrlShortcutDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -696,7 +710,7 @@ export function graphql(source: "\n\tmutation IncrementUrlShortcutVisits($alias:
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery GetAllUserExpenses {\n\t\texpenses(where: { deleted_at: { _is_null: true } }, order_by: { created_at: desc }) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetAllUserExpensesDocument;
+export function graphql(source: "\n\tquery GetAllUserExpenses($userId: uuid!) {\n\t\texpenses(\n\t\t\twhere: {\n\t\t\t\tdeleted_at: { _is_null: true }\n\t\t\t\tboard: {\n\t\t\t\t\t_or: [\n\t\t\t\t\t\t{ user_id: { _eq: $userId } }\n\t\t\t\t\t\t{ board_members: { user_id: { _eq: $userId } } }\n\t\t\t\t\t]\n\t\t\t\t}\n\t\t\t}\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...ExpenseFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetAllUserExpensesDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -704,7 +718,7 @@ export function graphql(source: "\n\tfragment ClientFields on clients {\n\t\tid\
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery GetClients {\n\t\tclients(order_by: { name: asc }) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetClientsDocument;
+export function graphql(source: "\n\tquery GetClients($userId: uuid!) {\n\t\tclients(where: { user_id: { _eq: $userId } }, order_by: { name: asc }) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetClientsDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -712,11 +726,11 @@ export function graphql(source: "\n\tmutation CreateClient($object: clients_inse
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation UpdateClient($id: uuid!, $_set: clients_set_input!) {\n\t\tupdate_clients_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...ClientFields\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateClientDocument;
+export function graphql(source: "\n\tmutation UpdateClient($id: uuid!, $userId: uuid!, $_set: clients_set_input!) {\n\t\tupdate_clients(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {\n\t\t\treturning {\n\t\t\t\t...ClientFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateClientDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation DeleteClient($id: uuid!) {\n\t\tdelete_clients_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteClientDocument;
+export function graphql(source: "\n\tmutation DeleteClient($id: uuid!, $userId: uuid!) {\n\t\tdelete_clients(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteClientDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -724,7 +738,7 @@ export function graphql(source: "\n\tfragment InvoiceCompanyFields on invoice_co
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery GetInvoiceCompanies {\n\t\tinvoice_companies(order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetInvoiceCompaniesDocument;
+export function graphql(source: "\n\tquery GetInvoiceCompanies($userId: uuid!) {\n\t\tinvoice_companies(where: { user_id: { _eq: $userId } }, order_by: [{ is_default: desc }, { name: asc }]) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetInvoiceCompaniesDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -732,11 +746,11 @@ export function graphql(source: "\n\tmutation CreateInvoiceCompany($object: invo
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies_by_pk(pk_columns: { id: $id }, _set: $_set) {\n\t\t\t...InvoiceCompanyFields\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateInvoiceCompanyDocument;
+export function graphql(source: "\n\tmutation UpdateInvoiceCompany($id: uuid!, $userId: uuid!, $_set: invoice_companies_set_input!) {\n\t\tupdate_invoice_companies(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {\n\t\t\treturning {\n\t\t\t\t...InvoiceCompanyFields\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateInvoiceCompanyDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation DeleteInvoiceCompany($id: uuid!) {\n\t\tdelete_invoice_companies_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteInvoiceCompanyDocument;
+export function graphql(source: "\n\tmutation DeleteInvoiceCompany($id: uuid!, $userId: uuid!) {\n\t\tdelete_invoice_companies(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteInvoiceCompanyDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -748,11 +762,15 @@ export function graphql(source: "\n\tfragment InvoiceFields on invoices {\n\t\ti
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery GetBoardInvoices($board_id: uuid!) {\n\t\tinvoices(where: { board_id: { _eq: $board_id } }, order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetBoardInvoicesDocument;
+export function graphql(source: "\n\tquery GetBoardInvoices($board_id: uuid!, $userId: uuid!) {\n\t\tinvoices(\n\t\t\twhere: { board_id: { _eq: $board_id }, user_id: { _eq: $userId } }\n\t\t\torder_by: { created_at: desc }\n\t\t) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetBoardInvoicesDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery GetAllInvoices {\n\t\tinvoices(order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetAllInvoicesDocument;
+export function graphql(source: "\n\tquery GetAllInvoices($userId: uuid!) {\n\t\tinvoices(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {\n\t\t\t...InvoiceFields\n\t\t}\n\t}\n"): typeof import('./graphql').GetAllInvoicesDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery GetInvoiceParties($clientId: uuid!, $companyId: uuid!, $userId: uuid!) {\n\t\tclients(where: { id: { _eq: $clientId }, user_id: { _eq: $userId } }) {\n\t\t\tid\n\t\t}\n\t\tinvoice_companies(where: { id: { _eq: $companyId }, user_id: { _eq: $userId } }) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').GetInvoicePartiesDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -760,19 +778,19 @@ export function graphql(source: "\n\tmutation CreateInvoiceWithItems($invoice: i
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery GetInvoicesIssuedToday($today: date!) {\n\t\tinvoices_aggregate(where: { issued_date: { _eq: $today } }) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetInvoicesIssuedTodayDocument;
+export function graphql(source: "\n\tquery GetInvoicesIssuedToday($today: date!, $userId: uuid!) {\n\t\tinvoices_aggregate(where: { issued_date: { _eq: $today }, user_id: { _eq: $userId } }) {\n\t\t\taggregate {\n\t\t\t\tcount\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetInvoicesIssuedTodayDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation UpdateInvoiceStatus($id: uuid!, $status: String!) {\n\t\tupdate_invoices_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {\n\t\t\tid\n\t\t\tstatus\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateInvoiceStatusDocument;
+export function graphql(source: "\n\tmutation UpdateInvoiceStatus($id: uuid!, $userId: uuid!, $status: String!) {\n\t\tupdate_invoices(\n\t\t\twhere: { id: { _eq: $id }, user_id: { _eq: $userId } }\n\t\t\t_set: { status: $status }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').UpdateInvoiceStatusDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tmutation DeleteInvoice($id: uuid!) {\n\t\tdelete_invoice_items(where: { invoice_id: { _eq: $id } }) {\n\t\t\taffected_rows\n\t\t}\n\t\tdelete_invoices_by_pk(id: $id) {\n\t\t\tid\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteInvoiceDocument;
+export function graphql(source: "\n\tmutation DeleteInvoice($id: uuid!, $userId: uuid!) {\n\t\tdelete_invoice_items(\n\t\t\twhere: { invoice: { id: { _eq: $id }, user_id: { _eq: $userId } } }\n\t\t) {\n\t\t\taffected_rows\n\t\t}\n\t\tdelete_invoices(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {\n\t\t\taffected_rows\n\t\t}\n\t}\n"): typeof import('./graphql').DeleteInvoiceDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\tquery GetTodosForInvoicing($list_ids: [uuid!]!) {\n\t\ttodos(\n\t\t\twhere: { list_id: { _in: $list_ids }, actual_hours: { _gt: 0 } }\n\t\t\torder_by: { sort_order: asc }\n\t\t) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetTodosForInvoicingDocument;
+export function graphql(source: "\n\tquery GetTodosForInvoicing($where: todos_bool_exp!) {\n\t\ttodos(where: $where, order_by: { sort_order: asc }) {\n\t\t\tid\n\t\t\ttitle\n\t\t\tactual_hours\n\t\t\tlist_id\n\t\t\tcompleted_at\n\t\t\tlist {\n\t\t\t\tid\n\t\t\t\tname\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').GetTodosForInvoicingDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

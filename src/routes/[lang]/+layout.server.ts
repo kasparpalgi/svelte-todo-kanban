@@ -2,7 +2,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { getTopBoardPath } from '$lib/server/topBoardPath';
-import { publicRequest } from '$lib/graphql/client';
 import { serverRequest } from '$lib/graphql/server-client';
 import { GET_URL_SHORTCUT_BY_ALIAS, INCREMENT_URL_SHORTCUT_VISITS } from '$lib/graphql/documents';
 import { RESERVED_ALIASES, normalizeTargetUrl } from '$lib/utils/shortcutAlias';
@@ -29,7 +28,7 @@ export const load: LayoutServerLoad = async (event) => {
 		!RESERVED_ALIASES.has(segment.toLowerCase())
 	) {
 		try {
-			const data = await publicRequest<ShortcutLookupResult>(GET_URL_SHORTCUT_BY_ALIAS, {
+			const data = await serverRequest<ShortcutLookupResult, { alias: string }>(GET_URL_SHORTCUT_BY_ALIAS, {
 				alias: segment
 			});
 			const hit = data.url_shortcuts?.[0];

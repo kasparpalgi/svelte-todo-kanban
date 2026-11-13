@@ -56,15 +56,7 @@
 		);
 		if (!confirmed) return;
 
-		const currentSettings = user.settings || {};
-		const { google_calendar, ...otherTokens } = currentSettings.tokens || {};
-
-		const result = await userStore.updateUser(user.id, {
-			settings: {
-				...currentSettings,
-				tokens: otherTokens
-			}
-		});
+		const result = await userStore.disconnect('google_calendar');
 
 		if (result.success) {
 			statusMessage = { text: 'Google Calendar disconnected successfully', type: 'success' };

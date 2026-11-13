@@ -156,7 +156,9 @@ select_permissions:
         - claude_plan
         - claude_plan_monthly
         - claude_plan_currency
-      filter: {}
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
     comment: ""
 update_permissions:
   - role: user

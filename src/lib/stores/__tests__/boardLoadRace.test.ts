@@ -4,7 +4,6 @@
  * itself stayed empty until a refresh. Uses the real user store.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GET_USERS } from '$lib/graphql/documents';
 
 vi.mock('$env/static/public', () => ({
 	PUBLIC_API_ENDPOINT: 'http://localhost:8080/v1/graphql',
@@ -20,12 +19,6 @@ vi.mock('$app/environment', () => ({
 }));
 
 vi.mock('$lib/api/call', () => ({ call: vi.fn() }));
-
-vi.mock('$lib/graphql/client', () => ({
-	request: vi.fn(),
-	clearTokenCache: vi.fn(),
-	ensureTokenForUser: vi.fn()
-}));
 
 vi.mock('../logging.svelte', () => ({
 	loggingStore: {
@@ -65,22 +58,18 @@ describe('board load before user hydration (#206)', () => {
 		userStore.reset();
 		userStore.clearLogoutFlag();
 		listsStore.reset();
-		vi.mocked((await import('$lib/graphql/client')).request).mockReset();
+		vi.mocked((await import('$lib/api/call')).call).mockReset();
 	});
 
 	it('waits for the user instead of loading an empty board list', async () => {
-		const { request } = await import('$lib/graphql/client');
 		const { userStore } = await import('../user.svelte');
 		const { listsStore } = await import('../listsBoards.svelte');
-
-		vi.mocked(request).mockImplementation(async (doc: unknown) => {
-			if (doc === GET_USERS) {
-				return { users: [{ id: 'user-1', email: 'me@example.com', username: 'me' }] };
-			}
-			throw new Error('unexpected request');
-		});
 		const { call } = await import('$lib/api/call');
-		vi.mocked(call).mockResolvedValue([board] as never);
+		vi.mocked(call).mockImplementation((async (op: string) => {
+			if (op === 'getMe') return { id: 'user-1', email: 'me@example.com', username: 'me' };
+			if (op === 'getBoards') return [board];
+			throw new Error(`unexpected op ${op}`);
+		}) as never);
 
 		// Board page onMount runs before the layout's user request returns: the
 		// load must stay pending rather than settle with an empty list.
@@ -100,10 +89,10 @@ describe('board load before user hydration (#206)', () => {
 	});
 
 	it('falls back to the session user when the profile request fails', async () => {
-		const { request } = await import('$lib/graphql/client');
+		const { call } = await import('$lib/api/call');
 		const { userStore } = await import('../user.svelte');
 
-		vi.mocked(request).mockRejectedValue(new TypeError('Failed to fetch'));
+		vi.mocked(call).mockRejectedValue(new TypeError('Failed to fetch'));
 
 		await userStore.initializeUser({ id: 'user-1', email: 'me@example.com' });
 

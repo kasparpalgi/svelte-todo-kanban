@@ -1,8 +1,8 @@
 /** @file src/routes/signin/+page.server.ts */
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { request } from '$lib/graphql/client';
-import { GET_USERS } from '$lib/graphql/documents';
+import { serverRequest } from '$lib/graphql/server-client';
+import { getMe } from '$lib/server/ops/users';
 import { DEFAULT_LOCALE } from '$lib/constants/locale';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -18,17 +18,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 				// Fetch user's current locale from database to avoid using stale session data
 				let locale = DEFAULT_LOCALE;
 				if (session.user?.id) {
-					const userData = (await request(
-						GET_USERS,
-						{
-							where: { id: { _eq: session.user.id } },
-							limit: 1
-						},
-						undefined,
-						fetch
-					)) as any;
-
-					locale = userData.users?.[0]?.locale || DEFAULT_LOCALE;
+					const me = await getMe
+						.run({ userId: session.user.id, db: serverRequest }, {})
+						.catch(() => null);
+					locale = me?.locale || DEFAULT_LOCALE;
 				}
 				throw redirect(302, `/${locale}`);
 			}

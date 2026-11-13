@@ -16571,9 +16571,9 @@ export type CommentFieldsFragment = { __typename?: 'comments', id: string, conte
 
 export type LabelFieldsFragment = { __typename?: 'labels', id: string, name: string, color: string, sort_order?: number | null, board_id: string, created_at?: string | null, updated_at?: string | null };
 
-export type NoteCoreFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> };
+export type NoteCoreFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> };
 
-export type NoteFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> };
+export type NoteFieldsFragment = { __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> };
 
 export type UserFieldsFragment = { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null, locale: string, dark_mode: boolean, settings: any, default_labels?: any | null, emailVerified?: string | null, plan: string, plan_expires_at?: string | null, claude_plan?: string | null, claude_plan_monthly?: number | null, claude_plan_currency?: string | null, created_at: string, updated_at: string };
 
@@ -16644,7 +16644,7 @@ export type GetNotesQueryVariables = Exact<{
 }>;
 
 
-export type GetNotesQuery = { __typename?: 'query_root', notes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> };
+export type GetNotesQuery = { __typename?: 'query_root', notes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> };
 
 export type CreateTodoMutationVariables = Exact<{
   objects: Array<Todos_Insert_Input> | Todos_Insert_Input;
@@ -16725,7 +16725,7 @@ export type CreateNoteMutationVariables = Exact<{
 }>;
 
 
-export type CreateNoteMutation = { __typename?: 'mutation_root', insert_notes?: { __typename?: 'notes_mutation_response', returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null };
+export type CreateNoteMutation = { __typename?: 'mutation_root', insert_notes?: { __typename?: 'notes_mutation_response', returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null };
 
 export type UpdateNoteMutationVariables = Exact<{
   where: Notes_Bool_Exp;
@@ -16733,14 +16733,14 @@ export type UpdateNoteMutationVariables = Exact<{
 }>;
 
 
-export type UpdateNoteMutation = { __typename?: 'mutation_root', update_notes?: { __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null };
+export type UpdateNoteMutation = { __typename?: 'mutation_root', update_notes?: { __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null };
 
 export type UpdateNotesMutationVariables = Exact<{
   updates: Array<Notes_Updates> | Notes_Updates;
 }>;
 
 
-export type UpdateNotesMutation = { __typename?: 'mutation_root', update_notes_many?: Array<{ __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null> | null };
+export type UpdateNotesMutation = { __typename?: 'mutation_root', update_notes_many?: Array<{ __typename?: 'notes_mutation_response', affected_rows: number, returning: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, subnotes: Array<{ __typename?: 'notes', id: string, board_id: string, user_id: string, parent_id?: string | null, title: string, content?: string | null, cover_image_url?: string | null, sort_order: number, created_at: string, updated_at: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }>, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, board: { __typename?: 'boards', id: string, name: string, alias: string }, note_uploads: Array<{ __typename?: 'note_uploads', id: string, url: string, created_at: string }> }> } | null> | null };
 
 export type DeleteNoteMutationVariables = Exact<{
   where: Notes_Bool_Exp;
@@ -16762,6 +16762,20 @@ export type DeleteUploadMutationVariables = Exact<{
 
 
 export type DeleteUploadMutation = { __typename?: 'mutation_root', delete_uploads?: { __typename?: 'uploads_mutation_response', affected_rows: number } | null };
+
+export type GetNoteBoardsQueryVariables = Exact<{
+  ids: Array<Scalars['uuid']['input']> | Scalars['uuid']['input'];
+}>;
+
+
+export type GetNoteBoardsQuery = { __typename?: 'query_root', notes: Array<{ __typename?: 'notes', id: string, board_id: string }> };
+
+export type GetNoteUploadNoteQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetNoteUploadNoteQuery = { __typename?: 'query_root', note_uploads_by_pk?: { __typename?: 'note_uploads', note_id: string } | null };
 
 export type CreateNoteUploadMutationVariables = Exact<{
   objects: Array<Note_Uploads_Insert_Input> | Note_Uploads_Insert_Input;
@@ -17050,12 +17064,12 @@ export type DeleteBoardInvitationMutationVariables = Exact<{
 
 export type DeleteBoardInvitationMutation = { __typename?: 'mutation_root', delete_board_invitations?: { __typename?: 'board_invitations_mutation_response', affected_rows: number } | null };
 
-export type SearchUsersQueryVariables = Exact<{
-  search: Scalars['String']['input'];
+export type GetPeopleQueryVariables = Exact<{
+  userId: Scalars['uuid']['input'];
 }>;
 
 
-export type SearchUsersQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, email?: string | null, image?: string | null }> };
+export type GetPeopleQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }> };
 
 export type GetTodoByGithubIssueQueryVariables = Exact<{
   githubIssueId: Scalars['bigint']['input'];
@@ -17138,6 +17152,7 @@ export type CreatePushSubscriptionMutation = { __typename?: 'mutation_root', ins
 
 export type DeletePushSubscriptionMutationVariables = Exact<{
   endpoint: Scalars['String']['input'];
+  userId: Scalars['uuid']['input'];
 }>;
 
 
@@ -17201,35 +17216,38 @@ export type UnassignUserFromTodoMutationVariables = Exact<{
 
 export type UnassignUserFromTodoMutation = { __typename?: 'mutation_root', delete_todo_assignees_by_pk?: { __typename?: 'todo_assignees', todo_id: string, user_id: string } | null };
 
-export type ExpenseSplitFieldsFragment = { __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } };
+export type ExpenseSplitFieldsFragment = { __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } };
 
-export type ExpenseFieldsFragment = { __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } };
+export type ExpenseFieldsFragment = { __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } };
 
 export type GetBoardExpensesQueryVariables = Exact<{
   board_id: Scalars['uuid']['input'];
 }>;
 
 
-export type GetBoardExpensesQuery = { __typename?: 'query_root', expenses: Array<{ __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
+export type GetBoardExpensesQuery = { __typename?: 'query_root', expenses: Array<{ __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
 
 export type CreateExpenseMutationVariables = Exact<{
   object: Expenses_Insert_Input;
 }>;
 
 
-export type CreateExpenseMutation = { __typename?: 'mutation_root', insert_expenses_one?: { __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
+export type CreateExpenseMutation = { __typename?: 'mutation_root', insert_expenses_one?: { __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
 
 export type DeleteExpenseMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
   deleted_at: Scalars['timestamptz']['input'];
 }>;
 
 
-export type DeleteExpenseMutation = { __typename?: 'mutation_root', update_expenses_by_pk?: { __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } } | null };
+export type DeleteExpenseMutation = { __typename?: 'mutation_root', update_expenses?: { __typename?: 'expenses_mutation_response', affected_rows: number } | null };
 
 export type UrlShortcutFieldsFragment = { __typename?: 'url_shortcuts', id: string, user_id: string, alias: string, target_url: string, visit_count: number, created_at: string, updated_at: string };
 
-export type GetUrlShortcutsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetUrlShortcutsQueryVariables = Exact<{
+  userId: Scalars['uuid']['input'];
+}>;
 
 
 export type GetUrlShortcutsQuery = { __typename?: 'query_root', url_shortcuts: Array<{ __typename?: 'url_shortcuts', id: string, user_id: string, alias: string, target_url: string, visit_count: number, created_at: string, updated_at: string }> };
@@ -17250,18 +17268,20 @@ export type CreateUrlShortcutMutation = { __typename?: 'mutation_root', insert_u
 
 export type UpdateUrlShortcutMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
   _set: Url_Shortcuts_Set_Input;
 }>;
 
 
-export type UpdateUrlShortcutMutation = { __typename?: 'mutation_root', update_url_shortcuts_by_pk?: { __typename?: 'url_shortcuts', id: string, user_id: string, alias: string, target_url: string, visit_count: number, created_at: string, updated_at: string } | null };
+export type UpdateUrlShortcutMutation = { __typename?: 'mutation_root', update_url_shortcuts?: { __typename?: 'url_shortcuts_mutation_response', returning: Array<{ __typename?: 'url_shortcuts', id: string, user_id: string, alias: string, target_url: string, visit_count: number, created_at: string, updated_at: string }> } | null };
 
 export type DeleteUrlShortcutMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
 }>;
 
 
-export type DeleteUrlShortcutMutation = { __typename?: 'mutation_root', delete_url_shortcuts_by_pk?: { __typename?: 'url_shortcuts', id: string } | null };
+export type DeleteUrlShortcutMutation = { __typename?: 'mutation_root', delete_url_shortcuts?: { __typename?: 'url_shortcuts_mutation_response', affected_rows: number } | null };
 
 export type IncrementUrlShortcutVisitsMutationVariables = Exact<{
   alias: Scalars['String']['input'];
@@ -17270,14 +17290,18 @@ export type IncrementUrlShortcutVisitsMutationVariables = Exact<{
 
 export type IncrementUrlShortcutVisitsMutation = { __typename?: 'mutation_root', update_url_shortcuts?: { __typename?: 'url_shortcuts_mutation_response', affected_rows: number } | null };
 
-export type GetAllUserExpensesQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetAllUserExpensesQueryVariables = Exact<{
+  userId: Scalars['uuid']['input'];
+}>;
 
 
-export type GetAllUserExpensesQuery = { __typename?: 'query_root', expenses: Array<{ __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
+export type GetAllUserExpensesQuery = { __typename?: 'query_root', expenses: Array<{ __typename?: 'expenses', id: string, amount: number, description?: string | null, created_by: string, board_id: string, created_at: string, updated_at: string, deleted_at?: string | null, created: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null }, expense_splits: Array<{ __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } }>, board: { __typename?: 'boards', id: string, name: string, alias: string } }> };
 
 export type ClientFieldsFragment = { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string };
 
-export type GetClientsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetClientsQueryVariables = Exact<{
+  userId: Scalars['uuid']['input'];
+}>;
 
 
 export type GetClientsQuery = { __typename?: 'query_root', clients: Array<{ __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }> };
@@ -17291,22 +17315,26 @@ export type CreateClientMutation = { __typename?: 'mutation_root', insert_client
 
 export type UpdateClientMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
   _set: Clients_Set_Input;
 }>;
 
 
-export type UpdateClientMutation = { __typename?: 'mutation_root', update_clients_by_pk?: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string } | null };
+export type UpdateClientMutation = { __typename?: 'mutation_root', update_clients?: { __typename?: 'clients_mutation_response', returning: Array<{ __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }> } | null };
 
 export type DeleteClientMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
 }>;
 
 
-export type DeleteClientMutation = { __typename?: 'mutation_root', delete_clients_by_pk?: { __typename?: 'clients', id: string } | null };
+export type DeleteClientMutation = { __typename?: 'mutation_root', delete_clients?: { __typename?: 'clients_mutation_response', affected_rows: number } | null };
 
 export type InvoiceCompanyFieldsFragment = { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string };
 
-export type GetInvoiceCompaniesQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetInvoiceCompaniesQueryVariables = Exact<{
+  userId: Scalars['uuid']['input'];
+}>;
 
 
 export type GetInvoiceCompaniesQuery = { __typename?: 'query_root', invoice_companies: Array<{ __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string }> };
@@ -17320,18 +17348,20 @@ export type CreateInvoiceCompanyMutation = { __typename?: 'mutation_root', inser
 
 export type UpdateInvoiceCompanyMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
   _set: Invoice_Companies_Set_Input;
 }>;
 
 
-export type UpdateInvoiceCompanyMutation = { __typename?: 'mutation_root', update_invoice_companies_by_pk?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string } | null };
+export type UpdateInvoiceCompanyMutation = { __typename?: 'mutation_root', update_invoice_companies?: { __typename?: 'invoice_companies_mutation_response', returning: Array<{ __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string }> } | null };
 
 export type DeleteInvoiceCompanyMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
 }>;
 
 
-export type DeleteInvoiceCompanyMutation = { __typename?: 'mutation_root', delete_invoice_companies_by_pk?: { __typename?: 'invoice_companies', id: string } | null };
+export type DeleteInvoiceCompanyMutation = { __typename?: 'mutation_root', delete_invoice_companies?: { __typename?: 'invoice_companies_mutation_response', affected_rows: number } | null };
 
 export type InvoiceItemFieldsFragment = { __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string };
 
@@ -17339,15 +17369,27 @@ export type InvoiceFieldsFragment = { __typename?: 'invoices', id: string, user_
 
 export type GetBoardInvoicesQueryVariables = Exact<{
   board_id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
 }>;
 
 
 export type GetBoardInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> }> };
 
-export type GetAllInvoicesQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetAllInvoicesQueryVariables = Exact<{
+  userId: Scalars['uuid']['input'];
+}>;
 
 
 export type GetAllInvoicesQuery = { __typename?: 'query_root', invoices: Array<{ __typename?: 'invoices', id: string, user_id: string, client_id: string, board_id: string, company_id?: string | null, invoice_number: string, issued_date: string, due_date?: string | null, currency: string, hourly_rate: number, total_hours: number, total_amount: number, custom_fields: any, notes?: string | null, status: string, created_at: string, updated_at: string, client: { __typename?: 'clients', id: string, user_id: string, linked_user_id?: string | null, name: string, company_name?: string | null, email?: string | null, phone?: string | null, address?: string | null, vat_number?: string | null, currency: string, default_rate?: number | null, notes?: string | null, created_at: string, updated_at: string }, company?: { __typename?: 'invoice_companies', id: string, user_id: string, name: string, address?: string | null, vat_number?: string | null, vat_rate: number, iban?: string | null, swift?: string | null, is_default: boolean, created_at: string, updated_at: string } | null, items: Array<{ __typename?: 'invoice_items', id: string, invoice_id: string, todo_id?: string | null, title: string, hours: number, hourly_rate: number, amount: number, created_at: string }> }> };
+
+export type GetInvoicePartiesQueryVariables = Exact<{
+  clientId: Scalars['uuid']['input'];
+  companyId: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
+}>;
+
+
+export type GetInvoicePartiesQuery = { __typename?: 'query_root', clients: Array<{ __typename?: 'clients', id: string }>, invoice_companies: Array<{ __typename?: 'invoice_companies', id: string }> };
 
 export type CreateInvoiceWithItemsMutationVariables = Exact<{
   invoice: Invoices_Insert_Input;
@@ -17358,6 +17400,7 @@ export type CreateInvoiceWithItemsMutation = { __typename?: 'mutation_root', ins
 
 export type GetInvoicesIssuedTodayQueryVariables = Exact<{
   today: Scalars['date']['input'];
+  userId: Scalars['uuid']['input'];
 }>;
 
 
@@ -17365,21 +17408,23 @@ export type GetInvoicesIssuedTodayQuery = { __typename?: 'query_root', invoices_
 
 export type UpdateInvoiceStatusMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
   status: Scalars['String']['input'];
 }>;
 
 
-export type UpdateInvoiceStatusMutation = { __typename?: 'mutation_root', update_invoices_by_pk?: { __typename?: 'invoices', id: string, status: string } | null };
+export type UpdateInvoiceStatusMutation = { __typename?: 'mutation_root', update_invoices?: { __typename?: 'invoices_mutation_response', affected_rows: number } | null };
 
 export type DeleteInvoiceMutationVariables = Exact<{
   id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
 }>;
 
 
-export type DeleteInvoiceMutation = { __typename?: 'mutation_root', delete_invoice_items?: { __typename?: 'invoice_items_mutation_response', affected_rows: number } | null, delete_invoices_by_pk?: { __typename?: 'invoices', id: string } | null };
+export type DeleteInvoiceMutation = { __typename?: 'mutation_root', delete_invoice_items?: { __typename?: 'invoice_items_mutation_response', affected_rows: number } | null, delete_invoices?: { __typename?: 'invoices_mutation_response', affected_rows: number } | null };
 
 export type GetTodosForInvoicingQueryVariables = Exact<{
-  list_ids: Array<Scalars['uuid']['input']> | Scalars['uuid']['input'];
+  where: Todos_Bool_Exp;
 }>;
 
 
@@ -17787,7 +17832,6 @@ export const NoteCoreFieldsFragmentDoc = new TypedDocumentString(`
     name
     username
     image
-    email
   }
   board {
     id
@@ -17824,7 +17868,6 @@ export const NoteFieldsFragmentDoc = new TypedDocumentString(`
     name
     username
     image
-    email
   }
   board {
     id
@@ -17944,7 +17987,6 @@ export const ExpenseSplitFieldsFragmentDoc = new TypedDocumentString(`
     name
     username
     image
-    email
   }
 }
     `, {"fragmentName":"ExpenseSplitFields"}) as unknown as TypedDocumentString<ExpenseSplitFieldsFragment, unknown>;
@@ -17963,7 +18005,6 @@ export const ExpenseFieldsFragmentDoc = new TypedDocumentString(`
     name
     username
     image
-    email
   }
   expense_splits {
     ...ExpenseSplitFields
@@ -17984,7 +18025,6 @@ export const ExpenseFieldsFragmentDoc = new TypedDocumentString(`
     name
     username
     image
-    email
   }
 }`, {"fragmentName":"ExpenseFields"}) as unknown as TypedDocumentString<ExpenseFieldsFragment, unknown>;
 export const UrlShortcutFieldsFragmentDoc = new TypedDocumentString(`
@@ -18465,7 +18505,6 @@ export const GetNotesDocument = new TypedDocumentString(`
     name
     username
     image
-    email
   }
   board {
     id
@@ -18938,7 +18977,6 @@ export const CreateNoteDocument = new TypedDocumentString(`
     name
     username
     image
-    email
   }
   board {
     id
@@ -18982,7 +19020,6 @@ export const UpdateNoteDocument = new TypedDocumentString(`
     name
     username
     image
-    email
   }
   board {
     id
@@ -19026,7 +19063,6 @@ export const UpdateNotesDocument = new TypedDocumentString(`
     name
     username
     image
-    email
   }
   board {
     id
@@ -19071,6 +19107,21 @@ export const DeleteUploadDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteUploadMutation, DeleteUploadMutationVariables>;
+export const GetNoteBoardsDocument = new TypedDocumentString(`
+    query GetNoteBoards($ids: [uuid!]!) {
+  notes(where: {id: {_in: $ids}}) {
+    id
+    board_id
+  }
+}
+    `) as unknown as TypedDocumentString<GetNoteBoardsQuery, GetNoteBoardsQueryVariables>;
+export const GetNoteUploadNoteDocument = new TypedDocumentString(`
+    query GetNoteUploadNote($id: uuid!) {
+  note_uploads_by_pk(id: $id) {
+    note_id
+  }
+}
+    `) as unknown as TypedDocumentString<GetNoteUploadNoteQuery, GetNoteUploadNoteQueryVariables>;
 export const CreateNoteUploadDocument = new TypedDocumentString(`
     mutation CreateNoteUpload($objects: [note_uploads_insert_input!]!) {
   insert_note_uploads(objects: $objects) {
@@ -19676,20 +19727,20 @@ export const DeleteBoardInvitationDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteBoardInvitationMutation, DeleteBoardInvitationMutationVariables>;
-export const SearchUsersDocument = new TypedDocumentString(`
-    query SearchUsers($search: String!) {
+export const GetPeopleDocument = new TypedDocumentString(`
+    query GetPeople($userId: uuid!) {
   users(
-    where: {_or: [{email: {_ilike: $search}}, {username: {_ilike: $search}}, {name: {_ilike: $search}}]}
-    limit: 10
+    where: {_or: [{id: {_eq: $userId}}, {boards: {board_members: {user_id: {_eq: $userId}}}}, {board_members: {board: {_or: [{user_id: {_eq: $userId}}, {board_members: {user_id: {_eq: $userId}}}]}}}]}
+    order_by: {name: asc}
+    limit: 500
   ) {
     id
     name
     username
-    email
     image
   }
 }
-    `) as unknown as TypedDocumentString<SearchUsersQuery, SearchUsersQueryVariables>;
+    `) as unknown as TypedDocumentString<GetPeopleQuery, GetPeopleQueryVariables>;
 export const GetTodoByGithubIssueDocument = new TypedDocumentString(`
     query GetTodoByGithubIssue($githubIssueId: bigint!) {
   todos(where: {github_issue_id: {_eq: $githubIssueId}}, limit: 1) {
@@ -19885,7 +19936,7 @@ export const CreatePushSubscriptionDocument = new TypedDocumentString(`
     mutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {
   insert_push_subscriptions_one(
     object: $subscription
-    on_conflict: {constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth]}
+    on_conflict: {constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth, user_id]}
   ) {
     id
     endpoint
@@ -19893,8 +19944,10 @@ export const CreatePushSubscriptionDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<CreatePushSubscriptionMutation, CreatePushSubscriptionMutationVariables>;
 export const DeletePushSubscriptionDocument = new TypedDocumentString(`
-    mutation DeletePushSubscription($endpoint: String!) {
-  delete_push_subscriptions(where: {endpoint: {_eq: $endpoint}}) {
+    mutation DeletePushSubscription($endpoint: String!, $userId: uuid!) {
+  delete_push_subscriptions(
+    where: {endpoint: {_eq: $endpoint}, user_id: {_eq: $userId}}
+  ) {
     affected_rows
   }
 }
@@ -20071,7 +20124,6 @@ export const GetBoardExpensesDocument = new TypedDocumentString(`
     name
     username
     image
-    email
   }
 }
 fragment ExpenseFields on expenses {
@@ -20088,7 +20140,6 @@ fragment ExpenseFields on expenses {
     name
     username
     image
-    email
   }
   expense_splits {
     ...ExpenseSplitFields
@@ -20115,7 +20166,6 @@ export const CreateExpenseDocument = new TypedDocumentString(`
     name
     username
     image
-    email
   }
 }
 fragment ExpenseFields on expenses {
@@ -20132,7 +20182,6 @@ fragment ExpenseFields on expenses {
     name
     username
     image
-    email
   }
   expense_splits {
     ...ExpenseSplitFields
@@ -20144,52 +20193,18 @@ fragment ExpenseFields on expenses {
   }
 }`) as unknown as TypedDocumentString<CreateExpenseMutation, CreateExpenseMutationVariables>;
 export const DeleteExpenseDocument = new TypedDocumentString(`
-    mutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {
-  update_expenses_by_pk(pk_columns: {id: $id}, _set: {deleted_at: $deleted_at}) {
-    ...ExpenseFields
+    mutation DeleteExpense($id: uuid!, $userId: uuid!, $deleted_at: timestamptz!) {
+  update_expenses(
+    where: {id: {_eq: $id}, created_by: {_eq: $userId}, deleted_at: {_is_null: true}, board: {_or: [{user_id: {_eq: $userId}}, {board_members: {user_id: {_eq: $userId}}}]}}
+    _set: {deleted_at: $deleted_at}
+  ) {
+    affected_rows
   }
 }
-    fragment ExpenseSplitFields on expense_splits {
-  id
-  user_id
-  amount
-  expense_id
-  user {
-    id
-    name
-    username
-    image
-    email
-  }
-}
-fragment ExpenseFields on expenses {
-  id
-  amount
-  description
-  created_by
-  board_id
-  created_at
-  updated_at
-  deleted_at
-  created {
-    id
-    name
-    username
-    image
-    email
-  }
-  expense_splits {
-    ...ExpenseSplitFields
-  }
-  board {
-    id
-    name
-    alias
-  }
-}`) as unknown as TypedDocumentString<DeleteExpenseMutation, DeleteExpenseMutationVariables>;
+    `) as unknown as TypedDocumentString<DeleteExpenseMutation, DeleteExpenseMutationVariables>;
 export const GetUrlShortcutsDocument = new TypedDocumentString(`
-    query GetUrlShortcuts {
-  url_shortcuts(order_by: {created_at: desc}) {
+    query GetUrlShortcuts($userId: uuid!) {
+  url_shortcuts(where: {user_id: {_eq: $userId}}, order_by: {created_at: desc}) {
     ...UrlShortcutFields
   }
 }
@@ -20226,9 +20241,14 @@ export const CreateUrlShortcutDocument = new TypedDocumentString(`
   updated_at
 }`) as unknown as TypedDocumentString<CreateUrlShortcutMutation, CreateUrlShortcutMutationVariables>;
 export const UpdateUrlShortcutDocument = new TypedDocumentString(`
-    mutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {
-  update_url_shortcuts_by_pk(pk_columns: {id: $id}, _set: $_set) {
-    ...UrlShortcutFields
+    mutation UpdateUrlShortcut($id: uuid!, $userId: uuid!, $_set: url_shortcuts_set_input!) {
+  update_url_shortcuts(
+    where: {id: {_eq: $id}, user_id: {_eq: $userId}}
+    _set: $_set
+  ) {
+    returning {
+      ...UrlShortcutFields
+    }
   }
 }
     fragment UrlShortcutFields on url_shortcuts {
@@ -20241,9 +20261,9 @@ export const UpdateUrlShortcutDocument = new TypedDocumentString(`
   updated_at
 }`) as unknown as TypedDocumentString<UpdateUrlShortcutMutation, UpdateUrlShortcutMutationVariables>;
 export const DeleteUrlShortcutDocument = new TypedDocumentString(`
-    mutation DeleteUrlShortcut($id: uuid!) {
-  delete_url_shortcuts_by_pk(id: $id) {
-    id
+    mutation DeleteUrlShortcut($id: uuid!, $userId: uuid!) {
+  delete_url_shortcuts(where: {id: {_eq: $id}, user_id: {_eq: $userId}}) {
+    affected_rows
   }
 }
     `) as unknown as TypedDocumentString<DeleteUrlShortcutMutation, DeleteUrlShortcutMutationVariables>;
@@ -20255,8 +20275,11 @@ export const IncrementUrlShortcutVisitsDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<IncrementUrlShortcutVisitsMutation, IncrementUrlShortcutVisitsMutationVariables>;
 export const GetAllUserExpensesDocument = new TypedDocumentString(`
-    query GetAllUserExpenses {
-  expenses(where: {deleted_at: {_is_null: true}}, order_by: {created_at: desc}) {
+    query GetAllUserExpenses($userId: uuid!) {
+  expenses(
+    where: {deleted_at: {_is_null: true}, board: {_or: [{user_id: {_eq: $userId}}, {board_members: {user_id: {_eq: $userId}}}]}}
+    order_by: {created_at: desc}
+  ) {
     ...ExpenseFields
   }
 }
@@ -20270,7 +20293,6 @@ export const GetAllUserExpensesDocument = new TypedDocumentString(`
     name
     username
     image
-    email
   }
 }
 fragment ExpenseFields on expenses {
@@ -20287,7 +20309,6 @@ fragment ExpenseFields on expenses {
     name
     username
     image
-    email
   }
   expense_splits {
     ...ExpenseSplitFields
@@ -20299,8 +20320,8 @@ fragment ExpenseFields on expenses {
   }
 }`) as unknown as TypedDocumentString<GetAllUserExpensesQuery, GetAllUserExpensesQueryVariables>;
 export const GetClientsDocument = new TypedDocumentString(`
-    query GetClients {
-  clients(order_by: {name: asc}) {
+    query GetClients($userId: uuid!) {
+  clients(where: {user_id: {_eq: $userId}}, order_by: {name: asc}) {
     ...ClientFields
   }
 }
@@ -20343,9 +20364,11 @@ export const CreateClientDocument = new TypedDocumentString(`
   updated_at
 }`) as unknown as TypedDocumentString<CreateClientMutation, CreateClientMutationVariables>;
 export const UpdateClientDocument = new TypedDocumentString(`
-    mutation UpdateClient($id: uuid!, $_set: clients_set_input!) {
-  update_clients_by_pk(pk_columns: {id: $id}, _set: $_set) {
-    ...ClientFields
+    mutation UpdateClient($id: uuid!, $userId: uuid!, $_set: clients_set_input!) {
+  update_clients(where: {id: {_eq: $id}, user_id: {_eq: $userId}}, _set: $_set) {
+    returning {
+      ...ClientFields
+    }
   }
 }
     fragment ClientFields on clients {
@@ -20365,15 +20388,18 @@ export const UpdateClientDocument = new TypedDocumentString(`
   updated_at
 }`) as unknown as TypedDocumentString<UpdateClientMutation, UpdateClientMutationVariables>;
 export const DeleteClientDocument = new TypedDocumentString(`
-    mutation DeleteClient($id: uuid!) {
-  delete_clients_by_pk(id: $id) {
-    id
+    mutation DeleteClient($id: uuid!, $userId: uuid!) {
+  delete_clients(where: {id: {_eq: $id}, user_id: {_eq: $userId}}) {
+    affected_rows
   }
 }
     `) as unknown as TypedDocumentString<DeleteClientMutation, DeleteClientMutationVariables>;
 export const GetInvoiceCompaniesDocument = new TypedDocumentString(`
-    query GetInvoiceCompanies {
-  invoice_companies(order_by: [{is_default: desc}, {name: asc}]) {
+    query GetInvoiceCompanies($userId: uuid!) {
+  invoice_companies(
+    where: {user_id: {_eq: $userId}}
+    order_by: [{is_default: desc}, {name: asc}]
+  ) {
     ...InvoiceCompanyFields
   }
 }
@@ -20410,9 +20436,14 @@ export const CreateInvoiceCompanyDocument = new TypedDocumentString(`
   updated_at
 }`) as unknown as TypedDocumentString<CreateInvoiceCompanyMutation, CreateInvoiceCompanyMutationVariables>;
 export const UpdateInvoiceCompanyDocument = new TypedDocumentString(`
-    mutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {
-  update_invoice_companies_by_pk(pk_columns: {id: $id}, _set: $_set) {
-    ...InvoiceCompanyFields
+    mutation UpdateInvoiceCompany($id: uuid!, $userId: uuid!, $_set: invoice_companies_set_input!) {
+  update_invoice_companies(
+    where: {id: {_eq: $id}, user_id: {_eq: $userId}}
+    _set: $_set
+  ) {
+    returning {
+      ...InvoiceCompanyFields
+    }
   }
 }
     fragment InvoiceCompanyFields on invoice_companies {
@@ -20429,15 +20460,18 @@ export const UpdateInvoiceCompanyDocument = new TypedDocumentString(`
   updated_at
 }`) as unknown as TypedDocumentString<UpdateInvoiceCompanyMutation, UpdateInvoiceCompanyMutationVariables>;
 export const DeleteInvoiceCompanyDocument = new TypedDocumentString(`
-    mutation DeleteInvoiceCompany($id: uuid!) {
-  delete_invoice_companies_by_pk(id: $id) {
-    id
+    mutation DeleteInvoiceCompany($id: uuid!, $userId: uuid!) {
+  delete_invoice_companies(where: {id: {_eq: $id}, user_id: {_eq: $userId}}) {
+    affected_rows
   }
 }
     `) as unknown as TypedDocumentString<DeleteInvoiceCompanyMutation, DeleteInvoiceCompanyMutationVariables>;
 export const GetBoardInvoicesDocument = new TypedDocumentString(`
-    query GetBoardInvoices($board_id: uuid!) {
-  invoices(where: {board_id: {_eq: $board_id}}, order_by: {created_at: desc}) {
+    query GetBoardInvoices($board_id: uuid!, $userId: uuid!) {
+  invoices(
+    where: {board_id: {_eq: $board_id}, user_id: {_eq: $userId}}
+    order_by: {created_at: desc}
+  ) {
     ...InvoiceFields
   }
 }
@@ -20509,8 +20543,8 @@ fragment InvoiceFields on invoices {
   }
 }`) as unknown as TypedDocumentString<GetBoardInvoicesQuery, GetBoardInvoicesQueryVariables>;
 export const GetAllInvoicesDocument = new TypedDocumentString(`
-    query GetAllInvoices {
-  invoices(order_by: {created_at: desc}) {
+    query GetAllInvoices($userId: uuid!) {
+  invoices(where: {user_id: {_eq: $userId}}, order_by: {created_at: desc}) {
     ...InvoiceFields
   }
 }
@@ -20581,6 +20615,16 @@ fragment InvoiceFields on invoices {
     ...InvoiceItemFields
   }
 }`) as unknown as TypedDocumentString<GetAllInvoicesQuery, GetAllInvoicesQueryVariables>;
+export const GetInvoicePartiesDocument = new TypedDocumentString(`
+    query GetInvoiceParties($clientId: uuid!, $companyId: uuid!, $userId: uuid!) {
+  clients(where: {id: {_eq: $clientId}, user_id: {_eq: $userId}}) {
+    id
+  }
+  invoice_companies(where: {id: {_eq: $companyId}, user_id: {_eq: $userId}}) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<GetInvoicePartiesQuery, GetInvoicePartiesQueryVariables>;
 export const CreateInvoiceWithItemsDocument = new TypedDocumentString(`
     mutation CreateInvoiceWithItems($invoice: invoices_insert_input!) {
   insert_invoices_one(object: $invoice) {
@@ -20655,8 +20699,8 @@ fragment InvoiceFields on invoices {
   }
 }`) as unknown as TypedDocumentString<CreateInvoiceWithItemsMutation, CreateInvoiceWithItemsMutationVariables>;
 export const GetInvoicesIssuedTodayDocument = new TypedDocumentString(`
-    query GetInvoicesIssuedToday($today: date!) {
-  invoices_aggregate(where: {issued_date: {_eq: $today}}) {
+    query GetInvoicesIssuedToday($today: date!, $userId: uuid!) {
+  invoices_aggregate(where: {issued_date: {_eq: $today}, user_id: {_eq: $userId}}) {
     aggregate {
       count
     }
@@ -20664,29 +20708,30 @@ export const GetInvoicesIssuedTodayDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<GetInvoicesIssuedTodayQuery, GetInvoicesIssuedTodayQueryVariables>;
 export const UpdateInvoiceStatusDocument = new TypedDocumentString(`
-    mutation UpdateInvoiceStatus($id: uuid!, $status: String!) {
-  update_invoices_by_pk(pk_columns: {id: $id}, _set: {status: $status}) {
-    id
-    status
+    mutation UpdateInvoiceStatus($id: uuid!, $userId: uuid!, $status: String!) {
+  update_invoices(
+    where: {id: {_eq: $id}, user_id: {_eq: $userId}}
+    _set: {status: $status}
+  ) {
+    affected_rows
   }
 }
     `) as unknown as TypedDocumentString<UpdateInvoiceStatusMutation, UpdateInvoiceStatusMutationVariables>;
 export const DeleteInvoiceDocument = new TypedDocumentString(`
-    mutation DeleteInvoice($id: uuid!) {
-  delete_invoice_items(where: {invoice_id: {_eq: $id}}) {
+    mutation DeleteInvoice($id: uuid!, $userId: uuid!) {
+  delete_invoice_items(
+    where: {invoice: {id: {_eq: $id}, user_id: {_eq: $userId}}}
+  ) {
     affected_rows
   }
-  delete_invoices_by_pk(id: $id) {
-    id
+  delete_invoices(where: {id: {_eq: $id}, user_id: {_eq: $userId}}) {
+    affected_rows
   }
 }
     `) as unknown as TypedDocumentString<DeleteInvoiceMutation, DeleteInvoiceMutationVariables>;
 export const GetTodosForInvoicingDocument = new TypedDocumentString(`
-    query GetTodosForInvoicing($list_ids: [uuid!]!) {
-  todos(
-    where: {list_id: {_in: $list_ids}, actual_hours: {_gt: 0}}
-    order_by: {sort_order: asc}
-  ) {
+    query GetTodosForInvoicing($where: todos_bool_exp!) {
+  todos(where: $where, order_by: {sort_order: asc}) {
     id
     title
     actual_hours

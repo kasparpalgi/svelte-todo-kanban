@@ -1,55 +1,34 @@
 /** @file src/routes/[lang]/[username]/[board]/expenses/+page.server.ts */
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { request } from '$lib/graphql/client';
-import { GET_BOARDS, GET_BOARD_MEMBERS } from '$lib/graphql/documents';
-import type { GetBoardsQuery, GetBoardMembersQuery } from '$lib/graphql/generated/graphql';
+import { serverRequest } from '$lib/graphql/server-client';
+import { getBoard } from '$lib/server/ops/boards';
+import { getBoardMembers } from '$lib/server/ops/members';
 
-export const load: PageServerLoad = async ({ locals, params, fetch }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
 	const session = await locals.auth();
 
-	if (!session) {
+	if (!session?.user?.id) {
 		throw redirect(302, '/signin');
 	}
 
 	const { username, board: boardAlias } = params;
 
 	try {
-		// Fetch board data
-		const boardsData = await request<GetBoardsQuery>(
-			GET_BOARDS,
-			{
-				where: { alias: { _eq: boardAlias } }
-			},
-			{},
-			fetch
-		);
-
-		const board = boardsData.boards?.[0];
-
-		if (!board) {
-			throw redirect(302, `/${params.lang}/${username}`);
-		}
-
-		// Fetch board members
-		const membersData = await request<GetBoardMembersQuery>(
-			GET_BOARD_MEMBERS,
-			{
-				where: { board_id: { _eq: board.id } }
-			},
-			{},
-			fetch
-		);
+		const ctx = { userId: session.user.id, db: serverRequest };
+		const board = await getBoard.run(ctx, { alias: boardAlias });
+		if (!board) throw redirect(302, `/${params.lang}/${username}`);
+		const members = await getBoardMembers.run(ctx, { boardId: board.id });
 
 		// Add the board owner to members if not already included
 		const boardOwner = board.user;
-		const ownerInMembers = membersData.board_members?.some(
+		const ownerInMembers = members.some(
 			(m) => m.user_id === boardOwner?.id
 		);
 		const allMembers = ownerInMembers
-			? membersData.board_members || []
+			? members
 			: [
-					...(membersData.board_members || []),
+					...members,
 					{
 						id: `owner-${board.id}`,
 						board_id: board.id,

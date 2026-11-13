@@ -4,8 +4,7 @@
 	import { t } from '$lib/i18n';
 	import { clientsStore } from '$lib/stores/clients.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
-	import { request } from '$lib/graphql/client';
-	import { GET_USERS } from '$lib/graphql/documents';
+	import { call, type OpOutput } from '$lib/api/call';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -24,7 +23,7 @@
 		DialogFooter
 	} from '$lib/components/ui/dialog';
 	import { Plus, Pencil, Trash2, Building2 } from 'lucide-svelte';
-	import type { ClientFieldsFragment, GetUsersQuery } from '$lib/graphql/generated/graphql';
+	import type { ClientFieldsFragment } from '$lib/graphql/generated/graphql';
 
 	const clients = $derived(clientsStore.clients);
 	const loading = $derived(clientsStore.loading);
@@ -32,7 +31,7 @@
 	let dialogOpen = $state(false);
 	let editingClient = $state<ClientFieldsFragment | null>(null);
 	let saving = $state(false);
-	let users = $state<GetUsersQuery['users']>([]);
+	let users = $state<OpOutput<'getBoardPeople'>>([]);
 
 	let form = $state({
 		name: '',
@@ -50,11 +49,7 @@
 	onMount(async () => {
 		clientsStore.loadClients();
 		try {
-			const data: GetUsersQuery = await request(GET_USERS, {
-				order_by: [{ name: 'asc' as const }],
-				limit: 200
-			});
-			users = data.users || [];
+			users = await call('getBoardPeople', {});
 		} catch {
 			// non-critical
 		}
@@ -265,7 +260,7 @@
 					>
 						<option value="">— {$t('clients.no_linked_user')} —</option>
 						{#each users as user (user.id)}
-							<option value={user.id}>{user.name || user.email || user.id}</option>
+							<option value={user.id}>{user.name || user.username || user.id}</option>
 						{/each}
 					</select>
 				</div>

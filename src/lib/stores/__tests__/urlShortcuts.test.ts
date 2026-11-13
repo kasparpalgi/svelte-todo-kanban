@@ -4,8 +4,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.mock('$app/environment', () => ({ browser: true }));
 
 const requestMock = vi.fn();
-vi.mock('$lib/graphql/client', () => ({
-	request: (...args: unknown[]) => requestMock(...args)
+vi.mock('$lib/api/call', () => ({
+	call: (...args: unknown[]) => requestMock(...args)
 }));
 
 import { urlShortcutsStore } from '../urlShortcuts.svelte';
@@ -17,8 +17,7 @@ describe('urlShortcutsStore', () => {
 	});
 
 	it('loadShortcuts populates items from query', async () => {
-		requestMock.mockResolvedValueOnce({
-			url_shortcuts: [
+		requestMock.mockResolvedValueOnce([
 				{
 					id: '1',
 					user_id: 'u1',
@@ -28,8 +27,7 @@ describe('urlShortcutsStore', () => {
 					created_at: 'now',
 					updated_at: 'now'
 				}
-			]
-		});
+		]);
 
 		await urlShortcutsStore.loadShortcuts();
 		expect(urlShortcutsStore.items.length).toBe(1);
@@ -46,7 +44,7 @@ describe('urlShortcutsStore', () => {
 			created_at: 'now',
 			updated_at: 'now'
 		};
-		requestMock.mockResolvedValueOnce({ insert_url_shortcuts_one: item });
+		requestMock.mockResolvedValueOnce(item);
 
 		const result = await urlShortcutsStore.createShortcut('foo', 'https://foo.bar');
 		expect(result.success).toBe(true);
@@ -54,7 +52,7 @@ describe('urlShortcutsStore', () => {
 	});
 
 	it('createShortcut surfaces a friendly message on unique-violation', async () => {
-		requestMock.mockRejectedValueOnce(new Error('Uniqueness violation. duplicate key value'));
+		requestMock.mockRejectedValueOnce(new Error('Alias is already taken'));
 		const result = await urlShortcutsStore.createShortcut('foo', 'https://foo.bar');
 		expect(result.success).toBe(false);
 		expect(result.message).toMatch(/already taken/i);
@@ -79,7 +77,7 @@ describe('urlShortcutsStore', () => {
 		expect(urlShortcutsStore.items.length).toBe(1);
 	});
 
-	it('deleteShortcut succeeds when mutation returns the row', async () => {
+	it('deleteShortcut succeeds when the op deletes the row', async () => {
 		urlShortcutsStore.setItems([
 			{
 				id: '4',
@@ -91,7 +89,7 @@ describe('urlShortcutsStore', () => {
 				updated_at: 'now'
 			}
 		]);
-		requestMock.mockResolvedValueOnce({ delete_url_shortcuts_by_pk: { id: '4' } });
+		requestMock.mockResolvedValueOnce({ deleted: true });
 
 		const result = await urlShortcutsStore.deleteShortcut('4');
 		expect(result.success).toBe(true);

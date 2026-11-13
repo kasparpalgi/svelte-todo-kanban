@@ -1,23 +1,10 @@
 /** @file src/lib/stores/invoicing.svelte.ts */
 
 import { browser } from '$app/environment';
-import { request } from '$lib/graphql/client';
-import {
-	GET_BOARD_INVOICES,
-	GET_ALL_INVOICES,
-	CREATE_INVOICE_WITH_ITEMS,
-	UPDATE_INVOICE_STATUS,
-	DELETE_INVOICE,
-	GET_TODOS_FOR_INVOICING,
-	GET_INVOICES_ISSUED_TODAY
-} from '$lib/graphql/documents';
+import { call } from '$lib/api/call';
 import type {
-	GetBoardInvoicesQuery,
-	GetAllInvoicesQuery,
-	CreateInvoiceWithItemsMutation,
 	InvoiceFieldsFragment,
-	GetTodosForInvoicingQuery,
-	GetInvoicesIssuedTodayQuery
+	GetTodosForInvoicingQuery
 } from '$lib/graphql/generated/graphql';
 import { displayMessage } from './errorSuccess.svelte';
 
@@ -45,10 +32,7 @@ function createInvoicingStore() {
 		state.error = null;
 
 		try {
-			const data: GetBoardInvoicesQuery = await request(GET_BOARD_INVOICES, {
-				board_id: boardId
-			});
-			state.invoices = data.invoices || [];
+			state.invoices = await call('getInvoices', { boardId });
 		} catch (e) {
 			state.error = e instanceof Error ? e.message : 'Failed to load invoices';
 		} finally {
@@ -63,8 +47,7 @@ function createInvoicingStore() {
 		state.error = null;
 
 		try {
-			const data: GetAllInvoicesQuery = await request(GET_ALL_INVOICES, {});
-			state.invoices = data.invoices || [];
+			state.invoices = await call('getInvoices', {});
 		} catch (e) {
 			state.error = e instanceof Error ? e.message : 'Failed to load invoices';
 		} finally {
@@ -72,14 +55,11 @@ function createInvoicingStore() {
 		}
 	}
 
-	async function loadTodosForInvoicing(listIds: string[]) {
+	async function loadTodosForInvoicing(boardId: string, listIds: string[]) {
 		if (!browser || listIds.length === 0) return;
 
 		try {
-			const data: GetTodosForInvoicingQuery = await request(GET_TODOS_FOR_INVOICING, {
-				list_ids: listIds
-			});
-			state.todosForInvoicing = data.todos || [];
+			state.todosForInvoicing = await call('getTodosForInvoicing', { boardId, listIds });
 		} catch (e) {
 			state.error = e instanceof Error ? e.message : 'Failed to load todos';
 		}
@@ -89,10 +69,7 @@ function createInvoicingStore() {
 		if (!browser) return '';
 		const today = new Date().toISOString().split('T')[0];
 		try {
-			const data: GetInvoicesIssuedTodayQuery = await request(GET_INVOICES_ISSUED_TODAY, {
-				today
-			});
-			const count = data.invoices_aggregate?.aggregate?.count ?? 0;
+			const count = await call('countInvoicesIssued', { today });
 			const yy = String(new Date().getFullYear()).slice(2);
 			const mm = String(new Date().getMonth() + 1).padStart(2, '0');
 			const dd = String(new Date().getDate()).padStart(2, '0');
@@ -116,42 +93,24 @@ function createInvoicingStore() {
 		selectedTodoIds: string[];
 		todos: InvoiceTodo[];
 	}) {
-		const selectedTodos = params.todos.filter((t) => params.selectedTodoIds.includes(t.id));
-		const totalHours = selectedTodos.reduce((sum, t) => sum + (t.actual_hours || 0), 0);
-		const totalAmount = totalHours * params.hourlyRate;
-
+		// The server re-reads the cards and computes the hours and totals itself.
+		const listIds = [...new Set(params.todos.map((t) => t.list_id).filter(Boolean))] as string[];
 		try {
-			const data: CreateInvoiceWithItemsMutation = await request(CREATE_INVOICE_WITH_ITEMS, {
-				invoice: {
-					board_id: params.boardId,
-					client_id: params.clientId,
-					company_id: params.companyId || null,
-					invoice_number: params.invoiceNumber,
-					issued_date: params.issuedDate,
-					due_date: params.dueDate || null,
-					currency: params.currency,
-					hourly_rate: params.hourlyRate,
-					total_hours: totalHours,
-					total_amount: totalAmount,
-					notes: params.notes || null,
-					custom_fields: params.customFields?.length ? params.customFields : [],
-					status: 'draft',
-					items: {
-						data: selectedTodos.map((todo) => ({
-							todo_id: todo.id,
-							title: todo.title,
-							hours: todo.actual_hours || 0,
-							hourly_rate: params.hourlyRate,
-							amount: (todo.actual_hours || 0) * params.hourlyRate
-						}))
-					}
-				}
+			const invoice = await call('createInvoice', {
+				boardId: params.boardId,
+				listIds,
+				todoIds: params.selectedTodoIds,
+				clientId: params.clientId,
+				companyId: params.companyId || null,
+				invoiceNumber: params.invoiceNumber,
+				issuedDate: params.issuedDate,
+				dueDate: params.dueDate || null,
+				currency: params.currency,
+				hourlyRate: params.hourlyRate,
+				notes: params.notes || null,
+				customFields: params.customFields ?? []
 			});
-
-			const invoice = data.insert_invoices_one;
-			if (invoice) {
-				state.invoices = [invoice, ...state.invoices];
-			}
+			state.invoices = [invoice, ...state.invoices];
 			return { success: true, message: 'Invoice created', data: invoice };
 		} catch (e) {
 			const message = e instanceof Error ? e.message : 'Failed to create invoice';
@@ -168,7 +127,10 @@ function createInvoicingStore() {
 		state.invoices[idx] = { ...state.invoices[idx], status };
 
 		try {
-			await request(UPDATE_INVOICE_STATUS, { id, status });
+			await call('updateInvoiceStatus', {
+				id,
+				status: status as 'draft' | 'sent' | 'paid' | 'cancelled'
+			});
 			return { success: true, message: 'Invoice status updated' };
 		} catch (e) {
 			state.invoices[idx] = { ...state.invoices[idx], status: original };
@@ -183,7 +145,7 @@ function createInvoicingStore() {
 		state.invoices = state.invoices.filter((inv) => inv.id !== id);
 
 		try {
-			await request(DELETE_INVOICE, { id });
+			await call('deleteInvoice', { id });
 			return { success: true, message: 'Invoice deleted' };
 		} catch (e) {
 			state.invoices = original;

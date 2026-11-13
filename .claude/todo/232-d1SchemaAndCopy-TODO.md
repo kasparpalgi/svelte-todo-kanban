@@ -32,3 +32,18 @@ Plan: `.claude/todo/226-backend-DONE.md`. Phase 2, step 1. Needs the #218 cut-ov
 _From Kanban card `f326cbae-c43a-4037-bb98-33d781f50d24`, moved to the agent list._
 
 _GitHub issue #232 — end the commit subject with `(#232)`._
+
+## Handover from #230
+
+- **`user_secrets` belongs in this schema.** #230 protects the encrypted tokens in code
+  instead of moving them to a separate Postgres table now:
+  - `updateMe` keeps every stored `settings.tokens.*` except `groq`, so the browser can't
+    drop or overwrite them;
+  - `getMe` shows the browser `encrypted: true` and never the ciphertext;
+  - `disconnectIntegration` removes `github` / `google_calendar`.
+
+  In D1, put `github`, `google_calendar`, `openai` and `r2` into a server-only
+  `user_secrets(user_id, name, value)` table and drop them from `users.settings`. Readers
+  to switch: `src/lib/server/{github,aiKey,storeFile,plan}.ts`, `api/keys`,
+  `api/google-calendar/callback`, `api/calendar-event`, the GitHub OAuth callback and the
+  webhook's `GET_USER_BY_GITHUB_USERNAME`.

@@ -1,7 +1,6 @@
 /** @file src/lib/stores/user.svelte.ts */
 import { browser } from '$app/environment';
-import { request, clearTokenCache, ensureTokenForUser } from '$lib/graphql/client';
-import { GET_USERS, UPDATE_USER } from '$lib/graphql/documents';
+import { call } from '$lib/api/call';
 import { DEFAULT_LOCALE } from '$lib/constants/locale';
 import { displayMessage } from './errorSuccess.svelte';
 import { loggingStore } from './logging.svelte';
@@ -30,12 +29,6 @@ function createUserStore() {
 	async function initializeUser(sessionUser: any | null) {
 		if (!browser) return;
 
-		// Always validate the cached JWT against the current session user, even if
-		// already initialized. The browser HTTP cache can return a token endpoint
-		// response from a previous user session (bypassing ensureTokenForUser),
-		// so we re-check on every call to catch stale tokens before any request goes out.
-		if (sessionUser?.id) ensureTokenForUser(sessionUser.id);
-
 		if (state.initialized || state.isLoggingOut) return;
 
 		if (!sessionUser?.id) {
@@ -48,12 +41,7 @@ function createUserStore() {
 		state.loading = true;
 
 		try {
-			const data = (await request(GET_USERS, {
-				where: { id: { _eq: sessionUser.id } },
-				limit: 1
-			})) as any;
-
-			const dbUser = data.users?.[0];
+			const dbUser: any = await call('getMe', {});
 
 			if (dbUser) {
 				state.cachedUser = {
@@ -140,12 +128,7 @@ function createUserStore() {
 		try {
 			loggingStore.info('UserStore', 'Updating user', { userId, updates, silent });
 
-			const data = (await request(UPDATE_USER, {
-				where: { id: { _eq: userId } },
-				_set: updates
-			})) as any;
-
-			const updatedUser = data.update_users?.returning?.[0];
+			const updatedUser: any = await call('updateMe', { set: updates });
 
 			if (!updatedUser) {
 				state.cachedUser = originalUser;
@@ -156,7 +139,7 @@ function createUserStore() {
 				const message = `Failed to update user settings - No user returned. UserId: ${userId}`;
 				const detailedMessage = `${message}, Updates: ${JSON.stringify(Object.keys(updates))}`;
 				state.error = detailedMessage;
-				console.error('[UserStore]', detailedMessage, { fullData: data });
+				console.error('[UserStore]', detailedMessage);
 
 				displayMessage(message);
 				return { success: false, message: detailedMessage };
@@ -208,6 +191,28 @@ function createUserStore() {
 		}
 	}
 
+	/** Re-reads the user after a server-side change (saved keys, a new connection). */
+	async function refresh() {
+		if (!browser || !state.cachedUser?.id) return;
+		try {
+			state.cachedUser = await call('getMe', {});
+		} catch (error: any) {
+			loggingStore.warn('UserStore', 'Failed to refresh user', { error: error?.message });
+		}
+	}
+
+	/** GitHub and Google Calendar tokens are server-managed: removing one is its own op. */
+	async function disconnect(name: 'github' | 'google_calendar') {
+		if (!browser) return { success: false, message: 'Not available on server' };
+		try {
+			state.cachedUser = await call('disconnectIntegration', { name });
+			return { success: true, message: 'Disconnected' };
+		} catch (error: any) {
+			loggingStore.error('UserStore', 'Failed to disconnect', { name, error: error?.message });
+			return { success: false, message: error?.message || 'Failed to disconnect' };
+		}
+	}
+
 	async function toggleDarkMode(userId: string) {
 		const currentUser = user();
 		const newDarkMode = !currentUser?.dark_mode;
@@ -228,7 +233,6 @@ function createUserStore() {
 		state.error = null;
 		state.cachedUser = null;
 		ready = new Promise<void>((resolve) => (resolveReady = resolve));
-		clearTokenCache();
 		loggingStore.setUserId(null);
 	}
 
@@ -261,6 +265,8 @@ function createUserStore() {
 		initializeUser,
 		whenReady,
 		updateUser,
+		disconnect,
+		refresh,
 		toggleDarkMode,
 		reset,
 		clearLogoutFlag

@@ -18,7 +18,45 @@ import { createList, deleteList, getLists, updateList } from './lists';
 import { createLog, getLogs } from './logs';
 import { getBoardMembers, removeBoardMember, updateBoardMember } from './members';
 import { deleteNotification, getNotifications, markNotificationsRead } from './notifications';
+import { createExpense, deleteExpense, getExpenses } from './expenses';
+import {
+	countInvoicesIssued,
+	createInvoice,
+	deleteInvoice,
+	getInvoices,
+	getTodosForInvoicing,
+	updateInvoiceStatus
+} from './invoices';
+import {
+	createNote,
+	createNoteUpload,
+	deleteNote,
+	deleteNoteUpload,
+	getNotes,
+	reorderNotes,
+	updateNote
+} from './notes';
+import {
+	createClient,
+	createInvoiceCompany,
+	deleteClient,
+	deleteInvoiceCompany,
+	getClients,
+	getInvoiceCompanies,
+	updateClient,
+	updateInvoiceCompany
+} from './money';
+import {
+	createUrlShortcut,
+	deletePushSubscription,
+	deleteUrlShortcut,
+	getClaudeUsageCost,
+	getUrlShortcuts,
+	savePushSubscription,
+	updateUrlShortcut
+} from './owned';
 import { poll } from './poll';
+import { disconnectIntegration, getBoardPeople, getMe, updateMe } from './users';
 import { createTodo, deleteTodo, getTodo, getTodos, searchTodos, updateTodo } from './todos';
 
 export const ops = {
@@ -67,7 +105,42 @@ export const ops = {
 	getNotifications,
 	markNotificationsRead,
 	deleteNotification,
-	getBoardActivity
+	getBoardActivity,
+	getMe,
+	updateMe,
+	disconnectIntegration,
+	getBoardPeople,
+	getNotes,
+	createNote,
+	updateNote,
+	reorderNotes,
+	deleteNote,
+	createNoteUpload,
+	deleteNoteUpload,
+	getClients,
+	createClient,
+	updateClient,
+	deleteClient,
+	getInvoiceCompanies,
+	createInvoiceCompany,
+	updateInvoiceCompany,
+	deleteInvoiceCompany,
+	getInvoices,
+	getTodosForInvoicing,
+	countInvoicesIssued,
+	createInvoice,
+	updateInvoiceStatus,
+	deleteInvoice,
+	getExpenses,
+	createExpense,
+	deleteExpense,
+	getUrlShortcuts,
+	createUrlShortcut,
+	updateUrlShortcut,
+	deleteUrlShortcut,
+	savePushSubscription,
+	deletePushSubscription,
+	getClaudeUsageCost
 };
 
 export type Ops = typeof ops;

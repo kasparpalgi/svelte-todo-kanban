@@ -252,7 +252,6 @@ export const NOTE_CORE_FRAGMENT = graphql(`
 			name
 			username
 			image
-			email
 		}
 		board {
 			id
@@ -557,6 +556,23 @@ export const DELETE_UPLOAD = graphql(`
 	mutation DeleteUpload($where: uploads_bool_exp!) {
 		delete_uploads(where: $where) {
 			affected_rows
+		}
+	}
+`);
+
+export const GET_NOTE_BOARDS = graphql(`
+	query GetNoteBoards($ids: [uuid!]!) {
+		notes(where: { id: { _in: $ids } }) {
+			id
+			board_id
+		}
+	}
+`);
+
+export const GET_NOTE_UPLOAD_NOTE = graphql(`
+	query GetNoteUploadNote($id: uuid!) {
+		note_uploads_by_pk(id: $id) {
+			note_id
 		}
 	}
 `);
@@ -1021,22 +1037,31 @@ export const DELETE_BOARD_INVITATION = graphql(`
 
 // ========== User Search ==========
 
-export const SEARCH_USERS = graphql(`
-	query SearchUsers($search: String!) {
+export const GET_PEOPLE = graphql(`
+	query GetPeople($userId: uuid!) {
 		users(
 			where: {
 				_or: [
-					{ email: { _ilike: $search } }
-					{ username: { _ilike: $search } }
-					{ name: { _ilike: $search } }
+					{ id: { _eq: $userId } }
+					{ boards: { board_members: { user_id: { _eq: $userId } } } }
+					{
+						board_members: {
+							board: {
+								_or: [
+									{ user_id: { _eq: $userId } }
+									{ board_members: { user_id: { _eq: $userId } } }
+								]
+							}
+						}
+					}
 				]
 			}
-			limit: 10
+			order_by: { name: asc }
+			limit: 500
 		) {
 			id
 			name
 			username
-			email
 			image
 		}
 	}
@@ -1219,7 +1244,7 @@ export const CREATE_PUSH_SUBSCRIPTION = graphql(`
 	mutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {
 		insert_push_subscriptions_one(
 			object: $subscription
-			on_conflict: { constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth] }
+			on_conflict: { constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth, user_id] }
 		) {
 			id
 			endpoint
@@ -1228,8 +1253,10 @@ export const CREATE_PUSH_SUBSCRIPTION = graphql(`
 `);
 
 export const DELETE_PUSH_SUBSCRIPTION = graphql(`
-	mutation DeletePushSubscription($endpoint: String!) {
-		delete_push_subscriptions(where: { endpoint: { _eq: $endpoint } }) {
+	mutation DeletePushSubscription($endpoint: String!, $userId: uuid!) {
+		delete_push_subscriptions(
+			where: { endpoint: { _eq: $endpoint }, user_id: { _eq: $userId } }
+		) {
 			affected_rows
 		}
 	}
@@ -1404,7 +1431,6 @@ export const EXPENSE_SPLIT_FRAGMENT = graphql(`
 			name
 			username
 			image
-			email
 		}
 	}
 `);
@@ -1424,7 +1450,6 @@ export const EXPENSE_FRAGMENT = graphql(`
 			name
 			username
 			image
-			email
 		}
 		expense_splits {
 			...ExpenseSplitFields
@@ -1457,9 +1482,22 @@ export const CREATE_EXPENSE = graphql(`
 `);
 
 export const DELETE_EXPENSE = graphql(`
-	mutation DeleteExpense($id: uuid!, $deleted_at: timestamptz!) {
-		update_expenses_by_pk(pk_columns: { id: $id }, _set: { deleted_at: $deleted_at }) {
-			...ExpenseFields
+	mutation DeleteExpense($id: uuid!, $userId: uuid!, $deleted_at: timestamptz!) {
+		update_expenses(
+			where: {
+				id: { _eq: $id }
+				created_by: { _eq: $userId }
+				deleted_at: { _is_null: true }
+				board: {
+					_or: [
+						{ user_id: { _eq: $userId } }
+						{ board_members: { user_id: { _eq: $userId } } }
+					]
+				}
+			}
+			_set: { deleted_at: $deleted_at }
+		) {
+			affected_rows
 		}
 	}
 `);
@@ -1479,8 +1517,8 @@ export const URL_SHORTCUT_FRAGMENT = graphql(`
 `);
 
 export const GET_URL_SHORTCUTS = graphql(`
-	query GetUrlShortcuts {
-		url_shortcuts(order_by: { created_at: desc }) {
+	query GetUrlShortcuts($userId: uuid!) {
+		url_shortcuts(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {
 			...UrlShortcutFields
 		}
 	}
@@ -1504,17 +1542,19 @@ export const CREATE_URL_SHORTCUT = graphql(`
 `);
 
 export const UPDATE_URL_SHORTCUT = graphql(`
-	mutation UpdateUrlShortcut($id: uuid!, $_set: url_shortcuts_set_input!) {
-		update_url_shortcuts_by_pk(pk_columns: { id: $id }, _set: $_set) {
-			...UrlShortcutFields
+	mutation UpdateUrlShortcut($id: uuid!, $userId: uuid!, $_set: url_shortcuts_set_input!) {
+		update_url_shortcuts(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {
+			returning {
+				...UrlShortcutFields
+			}
 		}
 	}
 `);
 
 export const DELETE_URL_SHORTCUT = graphql(`
-	mutation DeleteUrlShortcut($id: uuid!) {
-		delete_url_shortcuts_by_pk(id: $id) {
-			id
+	mutation DeleteUrlShortcut($id: uuid!, $userId: uuid!) {
+		delete_url_shortcuts(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {
+			affected_rows
 		}
 	}
 `);
@@ -1530,8 +1570,19 @@ export const INCREMENT_URL_SHORTCUT_VISITS = graphql(`
 // ========== Splitwise (cross-board expense aggregation) ==========
 
 export const GET_ALL_USER_EXPENSES = graphql(`
-	query GetAllUserExpenses {
-		expenses(where: { deleted_at: { _is_null: true } }, order_by: { created_at: desc }) {
+	query GetAllUserExpenses($userId: uuid!) {
+		expenses(
+			where: {
+				deleted_at: { _is_null: true }
+				board: {
+					_or: [
+						{ user_id: { _eq: $userId } }
+						{ board_members: { user_id: { _eq: $userId } } }
+					]
+				}
+			}
+			order_by: { created_at: desc }
+		) {
 			...ExpenseFields
 		}
 	}
@@ -1559,8 +1610,8 @@ export const CLIENT_FRAGMENT = graphql(`
 `);
 
 export const GET_CLIENTS = graphql(`
-	query GetClients {
-		clients(order_by: { name: asc }) {
+	query GetClients($userId: uuid!) {
+		clients(where: { user_id: { _eq: $userId } }, order_by: { name: asc }) {
 			...ClientFields
 		}
 	}
@@ -1575,17 +1626,19 @@ export const CREATE_CLIENT = graphql(`
 `);
 
 export const UPDATE_CLIENT = graphql(`
-	mutation UpdateClient($id: uuid!, $_set: clients_set_input!) {
-		update_clients_by_pk(pk_columns: { id: $id }, _set: $_set) {
-			...ClientFields
+	mutation UpdateClient($id: uuid!, $userId: uuid!, $_set: clients_set_input!) {
+		update_clients(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {
+			returning {
+				...ClientFields
+			}
 		}
 	}
 `);
 
 export const DELETE_CLIENT = graphql(`
-	mutation DeleteClient($id: uuid!) {
-		delete_clients_by_pk(id: $id) {
-			id
+	mutation DeleteClient($id: uuid!, $userId: uuid!) {
+		delete_clients(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {
+			affected_rows
 		}
 	}
 `);
@@ -1609,8 +1662,8 @@ export const INVOICE_COMPANY_FRAGMENT = graphql(`
 `);
 
 export const GET_INVOICE_COMPANIES = graphql(`
-	query GetInvoiceCompanies {
-		invoice_companies(order_by: [{ is_default: desc }, { name: asc }]) {
+	query GetInvoiceCompanies($userId: uuid!) {
+		invoice_companies(where: { user_id: { _eq: $userId } }, order_by: [{ is_default: desc }, { name: asc }]) {
 			...InvoiceCompanyFields
 		}
 	}
@@ -1625,17 +1678,19 @@ export const CREATE_INVOICE_COMPANY = graphql(`
 `);
 
 export const UPDATE_INVOICE_COMPANY = graphql(`
-	mutation UpdateInvoiceCompany($id: uuid!, $_set: invoice_companies_set_input!) {
-		update_invoice_companies_by_pk(pk_columns: { id: $id }, _set: $_set) {
-			...InvoiceCompanyFields
+	mutation UpdateInvoiceCompany($id: uuid!, $userId: uuid!, $_set: invoice_companies_set_input!) {
+		update_invoice_companies(where: { id: { _eq: $id }, user_id: { _eq: $userId } }, _set: $_set) {
+			returning {
+				...InvoiceCompanyFields
+			}
 		}
 	}
 `);
 
 export const DELETE_INVOICE_COMPANY = graphql(`
-	mutation DeleteInvoiceCompany($id: uuid!) {
-		delete_invoice_companies_by_pk(id: $id) {
-			id
+	mutation DeleteInvoiceCompany($id: uuid!, $userId: uuid!) {
+		delete_invoice_companies(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {
+			affected_rows
 		}
 	}
 `);
@@ -1685,17 +1740,31 @@ export const INVOICE_FRAGMENT = graphql(`
 `);
 
 export const GET_BOARD_INVOICES = graphql(`
-	query GetBoardInvoices($board_id: uuid!) {
-		invoices(where: { board_id: { _eq: $board_id } }, order_by: { created_at: desc }) {
+	query GetBoardInvoices($board_id: uuid!, $userId: uuid!) {
+		invoices(
+			where: { board_id: { _eq: $board_id }, user_id: { _eq: $userId } }
+			order_by: { created_at: desc }
+		) {
 			...InvoiceFields
 		}
 	}
 `);
 
 export const GET_ALL_INVOICES = graphql(`
-	query GetAllInvoices {
-		invoices(order_by: { created_at: desc }) {
+	query GetAllInvoices($userId: uuid!) {
+		invoices(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {
 			...InvoiceFields
+		}
+	}
+`);
+
+export const GET_INVOICE_PARTIES = graphql(`
+	query GetInvoiceParties($clientId: uuid!, $companyId: uuid!, $userId: uuid!) {
+		clients(where: { id: { _eq: $clientId }, user_id: { _eq: $userId } }) {
+			id
+		}
+		invoice_companies(where: { id: { _eq: $companyId }, user_id: { _eq: $userId } }) {
+			id
 		}
 	}
 `);
@@ -1709,8 +1778,8 @@ export const CREATE_INVOICE_WITH_ITEMS = graphql(`
 `);
 
 export const GET_INVOICES_ISSUED_TODAY = graphql(`
-	query GetInvoicesIssuedToday($today: date!) {
-		invoices_aggregate(where: { issued_date: { _eq: $today } }) {
+	query GetInvoicesIssuedToday($today: date!, $userId: uuid!) {
+		invoices_aggregate(where: { issued_date: { _eq: $today }, user_id: { _eq: $userId } }) {
 			aggregate {
 				count
 			}
@@ -1719,31 +1788,32 @@ export const GET_INVOICES_ISSUED_TODAY = graphql(`
 `);
 
 export const UPDATE_INVOICE_STATUS = graphql(`
-	mutation UpdateInvoiceStatus($id: uuid!, $status: String!) {
-		update_invoices_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {
-			id
-			status
+	mutation UpdateInvoiceStatus($id: uuid!, $userId: uuid!, $status: String!) {
+		update_invoices(
+			where: { id: { _eq: $id }, user_id: { _eq: $userId } }
+			_set: { status: $status }
+		) {
+			affected_rows
 		}
 	}
 `);
 
 export const DELETE_INVOICE = graphql(`
-	mutation DeleteInvoice($id: uuid!) {
-		delete_invoice_items(where: { invoice_id: { _eq: $id } }) {
+	mutation DeleteInvoice($id: uuid!, $userId: uuid!) {
+		delete_invoice_items(
+			where: { invoice: { id: { _eq: $id }, user_id: { _eq: $userId } } }
+		) {
 			affected_rows
 		}
-		delete_invoices_by_pk(id: $id) {
-			id
+		delete_invoices(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {
+			affected_rows
 		}
 	}
 `);
 
 export const GET_TODOS_FOR_INVOICING = graphql(`
-	query GetTodosForInvoicing($list_ids: [uuid!]!) {
-		todos(
-			where: { list_id: { _in: $list_ids }, actual_hours: { _gt: 0 } }
-			order_by: { sort_order: asc }
-		) {
+	query GetTodosForInvoicing($where: todos_bool_exp!) {
+		todos(where: $where, order_by: { sort_order: asc }) {
 			id
 			title
 			actual_hours

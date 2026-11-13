@@ -1,14 +1,8 @@
 /** @file src/lib/stores/clients.svelte.ts */
 
 import { browser } from '$app/environment';
-import { request } from '$lib/graphql/client';
-import { GET_CLIENTS, CREATE_CLIENT, UPDATE_CLIENT, DELETE_CLIENT } from '$lib/graphql/documents';
-import type {
-	GetClientsQuery,
-	CreateClientMutation,
-	UpdateClientMutation,
-	ClientFieldsFragment
-} from '$lib/graphql/generated/graphql';
+import { call } from '$lib/api/call';
+import type { ClientFieldsFragment } from '$lib/graphql/generated/graphql';
 import { displayMessage } from './errorSuccess.svelte';
 
 interface ClientsState {
@@ -31,8 +25,7 @@ function createClientsStore() {
 		state.error = null;
 
 		try {
-			const data: GetClientsQuery = await request(GET_CLIENTS, {});
-			state.clients = data.clients || [];
+			state.clients = await call('getClients', {});
 		} catch (e) {
 			state.error = e instanceof Error ? e.message : 'Failed to load clients';
 		} finally {
@@ -44,8 +37,7 @@ function createClientsStore() {
 		input: Omit<ClientFieldsFragment, 'id' | 'user_id' | 'created_at' | 'updated_at'>
 	) {
 		try {
-			const data: CreateClientMutation = await request(CREATE_CLIENT, { object: input });
-			const client = data.insert_clients_one;
+			const client = await call('createClient', input);
 			if (client) {
 				state.clients = [...state.clients, client].sort((a, b) => a.name.localeCompare(b.name));
 			}
@@ -65,8 +57,7 @@ function createClientsStore() {
 		state.clients[idx] = { ...original, ...updates };
 
 		try {
-			const data: UpdateClientMutation = await request(UPDATE_CLIENT, { id, _set: updates });
-			const updated = data.update_clients_by_pk;
+			const updated = await call('updateClient', { id, set: updates });
 			if (updated) state.clients[idx] = updated;
 			return { success: true, message: 'Client updated', data: updated };
 		} catch (e) {
@@ -84,7 +75,7 @@ function createClientsStore() {
 		state.clients = state.clients.filter((c) => c.id !== id);
 
 		try {
-			await request(DELETE_CLIENT, { id });
+			await call('deleteClient', { id });
 			return { success: true, message: 'Client deleted' };
 		} catch (e) {
 			state.clients = original;
