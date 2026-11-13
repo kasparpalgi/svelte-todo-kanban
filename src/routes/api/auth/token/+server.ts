@@ -1,7 +1,7 @@
 /** @file src/routes/api/auth/token/+server.ts */
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
-import jwt from 'jsonwebtoken';
+import { SignJWT } from 'jose';
 import { serverRequest } from '$lib/graphql/server-client';
 import type { RequestHandler } from './$types';
 
@@ -38,22 +38,22 @@ export const GET: RequestHandler = async (event) => {
 		console.error('[auth/token] user existence check failed, minting anyway:', err);
 	}
 
-	const token = jwt.sign(
-		{
-			'https://hasura.io/jwt/claims': {
-				'x-hasura-allowed-roles': ['user'],
-				'x-hasura-default-role': 'user',
-				'x-hasura-user-id': session.user.id,
-				'x-hasura-user-email': session.user.email || '',
-				'x-hasura-user-username': session.user.username || ''
-			},
-			sub: session.user.id,
-			iat: Math.floor(Date.now() / 1000),
-			exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 24 hours
-		},
-		env.AUTH_SECRET,
-		{ algorithm: 'HS256' }
-	);
+	// jose signs with WebCrypto; jsonwebtoken went through Node's crypto polyfill and
+	// cost ~2 ms of Worker CPU per mint (#236).
+	const token = await new SignJWT({
+		'https://hasura.io/jwt/claims': {
+			'x-hasura-allowed-roles': ['user'],
+			'x-hasura-default-role': 'user',
+			'x-hasura-user-id': session.user.id,
+			'x-hasura-user-email': session.user.email || '',
+			'x-hasura-user-username': session.user.username || ''
+		}
+	})
+		.setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+		.setSubject(session.user.id)
+		.setIssuedAt()
+		.setExpirationTime('24h')
+		.sign(new TextEncoder().encode(env.AUTH_SECRET));
 
 	// No HTTP cache: the browser would cache this at the URL level, with no awareness
 	// of which session cookie is active. After a user switch the old response gets

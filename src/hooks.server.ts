@@ -214,8 +214,6 @@ const { handle: authHandle, signOut } = SvelteKitAuth(async () => ({
 				session.hasuraRole = token.hasuraRole as string;
 				session.accessToken = token.accessToken as string;
 				session.error = token.error as string | undefined;
-
-				console.log('Session callback - has access token:', !!session.accessToken);
 			}
 			return session;
 		}

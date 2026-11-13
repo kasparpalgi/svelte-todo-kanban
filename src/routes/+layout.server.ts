@@ -2,7 +2,6 @@
 import { PUBLIC_APP_ENV, PUBLIC_API_ENV } from '$env/static/public';
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import { getTopBoardPath, userLocale } from '$lib/server/topBoardPath';
 import { DEFAULT_LOCALE } from '$lib/constants/locale';
 
 const allowedAppEnvs = ['production', 'testing', 'development'] as const;
@@ -33,6 +32,9 @@ export const load: LayoutServerLoad = async (event) => {
 	const session = await locals.auth();
 
 	if (url.pathname === '/' && session) {
+		// Imported here, not at the top: it pulls in the ops layer (zod, drizzle), which
+		// every other page would otherwise evaluate on a fresh Worker isolate (#236).
+		const { getTopBoardPath, userLocale } = await import('$lib/server/topBoardPath');
 		const topBoardPath = await getTopBoardPath(session);
 		if (topBoardPath) {
 			throw redirect(302, topBoardPath);

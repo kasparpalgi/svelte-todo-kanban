@@ -1,7 +1,6 @@
 /** @file src/routes/[lang]/+layout.server.ts */
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import { getTopBoardPath } from '$lib/server/topBoardPath';
 import { serverRequest } from '$lib/graphql/server-client';
 import { GET_URL_SHORTCUT_BY_ALIAS, INCREMENT_URL_SHORTCUT_VISITS } from '$lib/graphql/documents';
 import { RESERVED_ALIASES, normalizeTargetUrl } from '$lib/utils/shortcutAlias';
@@ -28,9 +27,12 @@ export const load: LayoutServerLoad = async (event) => {
 		!RESERVED_ALIASES.has(segment.toLowerCase())
 	) {
 		try {
-			const data = await serverRequest<ShortcutLookupResult, { alias: string }>(GET_URL_SHORTCUT_BY_ALIAS, {
-				alias: segment
-			});
+			const data = await serverRequest<ShortcutLookupResult, { alias: string }>(
+				GET_URL_SHORTCUT_BY_ALIAS,
+				{
+					alias: segment
+				}
+			);
 			const hit = data.url_shortcuts?.[0];
 			if (hit?.target_url) {
 				try {
@@ -67,6 +69,8 @@ export const load: LayoutServerLoad = async (event) => {
 	const isLanguageRootOnly = isSingleSegment && segment === params.lang;
 
 	if (session && isLanguageRootOnly) {
+		// Lazy for the same reason as in the root layout (#236)
+		const { getTopBoardPath } = await import('$lib/server/topBoardPath');
 		const topBoardPath = await getTopBoardPath(session);
 		if (topBoardPath) {
 			throw redirect(302, topBoardPath);

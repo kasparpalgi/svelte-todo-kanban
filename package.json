@@ -1,7 +1,7 @@
 {
 	"name": "svelte-todo-kanban",
 	"private": true,
-	"version": "0.35.0",
+	"version": "0.35.1",
 	"type": "module",
 	"scripts": {
 		"generate": "graphql-codegen --require dotenv/config && node fix-imports.cjs",
@@ -50,7 +50,6 @@
 		"@testing-library/jest-dom": "^6.8.0",
 		"@testing-library/svelte": "^5.2.8",
 		"@types/d3-shape": "^3.1.8",
-		"@types/jsonwebtoken": "^9.0.10",
 		"@types/node": "^22",
 		"@types/nodemailer": "^7.0.2",
 		"@types/web-push": "^3.6.4",
@@ -105,7 +104,7 @@
 		"drizzle-orm": "^0.45.4",
 		"graphql": "^16.11.0",
 		"graphql-request": "^7.2.0",
-		"jsonwebtoken": "^9.0.2",
+		"jose": "^6.2.17",
 		"lucide-svelte": "^0.544.0",
 		"marked": "^18.0.0",
 		"mode-watcher": "^1.1.0",

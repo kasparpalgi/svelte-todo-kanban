@@ -1,4 +1,12 @@
 <!-- @file src/lib/components/todo/TodoItem.svelte -->
+<script module lang="ts">
+	import { browser } from '$app/environment';
+
+	// The inline editor brings Tiptap; the server never renders it, so only the browser
+	// loads it, once for all cards (#236).
+	const todoEditForm = browser ? import('./TodoEditForm.svelte') : null;
+</script>
+
 <script lang="ts">
 	import { z } from 'zod';
 	import { t } from '$lib/i18n';
@@ -29,7 +37,6 @@
 		GripVertical
 	} from 'lucide-svelte';
 	import githubLogo from '$lib/assets/github.svg';
-	import TodoEditForm from './TodoEditForm.svelte';
 	import CardCostBadge from './CardCostBadge.svelte';
 	import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
 	import type { TodoImage } from '$lib/types/imageUpload';
@@ -669,24 +676,26 @@
 					</CardContent>
 				</Card>
 			</a>
-		{:else}
-			<TodoEditForm
-				{todo}
-				bind:editData
-				bind:validationErrors
-				bind:images
-				bind:isDragOver
-				{isSubmitting}
-				onSave={saveEdit}
-				onCancel={cancelEdit}
-				onKeydown={handleKeydown}
-				onDragOver={handleFileDropOver}
-				onDragLeave={handleFileDropLeave}
-				onDrop={handleFileDrop}
-				onFileSelect={handleFileSelect}
-				onRemoveImage={removeImage}
-				bind:fileInput
-			/>
+		{:else if todoEditForm}
+			{#await todoEditForm then { default: TodoEditForm }}
+				<TodoEditForm
+					{todo}
+					bind:editData
+					bind:validationErrors
+					bind:images
+					bind:isDragOver
+					{isSubmitting}
+					onSave={saveEdit}
+					onCancel={cancelEdit}
+					onKeydown={handleKeydown}
+					onDragOver={handleFileDropOver}
+					onDragLeave={handleFileDropLeave}
+					onDrop={handleFileDrop}
+					onFileSelect={handleFileSelect}
+					onRemoveImage={removeImage}
+					bind:fileInput
+				/>
+			{/await}
 		{/if}
 	</div>
 </div>

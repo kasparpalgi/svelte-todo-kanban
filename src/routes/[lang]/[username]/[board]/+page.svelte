@@ -1,6 +1,7 @@
 <!-- @file src/routes/[lang]/[username]/[board]/+page.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { todosStore } from '$lib/stores/todos.svelte';
@@ -26,14 +27,18 @@
 	import ListManagement from '$lib/components/listBoard/ListManagement.svelte';
 	import TodoFiltersSidebar from '$lib/components/todo/TodoFiltersSidebar.svelte';
 	import ImportIssuesDialog from '$lib/components/github/ImportIssuesDialog.svelte';
-	import CardModal from './CardModal.svelte';
 	import NotesButton from '$lib/components/notes/NotesButton.svelte';
-	import NotesView from '$lib/components/notes/NotesView.svelte';
 	import BoardActivityButton from '$lib/components/activity/BoardActivityButton.svelte';
-	import BoardActivityView from '$lib/components/activity/BoardActivityView.svelte';
 	import { pollNow, watchPoll, type PollResult } from '$lib/api/poll';
 
 	let { data } = $props();
+
+	// Dialogs that never render on the server. The browser starts loading them at once;
+	// the server skips them, so a fresh Worker isolate doesn't evaluate the whole editor
+	// (CardModal) and date-fns (activity) on its first board render (#236).
+	const cardModal = browser ? import('./CardModal.svelte') : null;
+	const notesView = browser ? import('$lib/components/notes/NotesView.svelte') : null;
+	const activityView = browser ? import('$lib/components/activity/BoardActivityView.svelte') : null;
 
 	const openCardId = $derived(page.url.searchParams.get('card'));
 	let newTodoTitle: string = $state('');
@@ -483,23 +488,29 @@
 		/>
 	{/if}
 
-	{#if openCardId}
-		<CardModal
-			cardAlias={openCardId}
-			{lang}
-			onClose={() => goto(`/${lang}/${username}/${boardAlias}`)}
-		/>
+	{#if openCardId && cardModal}
+		{#await cardModal then { default: CardModal }}
+			<CardModal
+				cardAlias={openCardId}
+				{lang}
+				onClose={() => goto(`/${lang}/${username}/${boardAlias}`)}
+			/>
+		{/await}
 	{/if}
 
-	{#if showNotesDialog && listsStore.selectedBoard}
-		<NotesView bind:open={showNotesDialog} boardId={listsStore.selectedBoard.id} />
+	{#if showNotesDialog && listsStore.selectedBoard && notesView}
+		{#await notesView then { default: NotesView }}
+			<NotesView bind:open={showNotesDialog} boardId={listsStore.selectedBoard.id} />
+		{/await}
 	{/if}
 
-	{#if showActivityDialog && listsStore.selectedBoard}
-		<BoardActivityView
-			bind:open={showActivityDialog}
-			boardId={listsStore.selectedBoard.id}
-			boardName={listsStore.selectedBoard.name}
-		/>
+	{#if showActivityDialog && listsStore.selectedBoard && activityView}
+		{#await activityView then { default: BoardActivityView }}
+			<BoardActivityView
+				bind:open={showActivityDialog}
+				boardId={listsStore.selectedBoard.id}
+				boardName={listsStore.selectedBoard.name}
+			/>
+		{/await}
 	{/if}
 {/if}
