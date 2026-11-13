@@ -27,3 +27,13 @@ Needs 241–244 first.
 **Done when:** staging signs in, signs up and passes the e2e suite on D1 alone (no Hasura
 request in its logs), all contract cases are equal, and production is deployed and still on
 Hasura.
+
+## Handover from #230
+
+- PBKDF2 is live since `23ce65b`: `src/lib/server/pbkdf2.ts` (`hashPbkdf2`, `checkPbkdf2`,
+  `isPbkdf2`), format `pbkdf2$<iterations>$<salt b64>$<hash b64>`, SHA-256, 10,000
+  iterations (~5 ms). Every password sign-in and sign-up on Hasura now stores one, in
+  `users.password`. On D1, `verifyUserPassword` only needs the `isPbkdf2` branch; a
+  remaining `$2…` hash means "use the email link".
+- On 2026-11-13, 14 users had a password and only the test user had been re-hashed. Count
+  `password LIKE '$2%'` just before the cut-over to see who still needs the email link.
