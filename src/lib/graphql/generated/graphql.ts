@@ -17438,6 +17438,21 @@ export type VerifyUserPasswordMutationVariables = Exact<{
 
 export type VerifyUserPasswordMutation = { __typename?: 'mutation_root', verify_user_password: Array<{ __typename?: 'users', id: string, name?: string | null, email?: string | null, username: string, image?: string | null }> };
 
+export type GetPasswordUserQueryVariables = Exact<{
+  email: Scalars['String']['input'];
+}>;
+
+
+export type GetPasswordUserQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, name?: string | null, email?: string | null, username: string, image?: string | null, password?: string | null }> };
+
+export type SetPasswordHashMutationVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  password: Scalars['String']['input'];
+}>;
+
+
+export type SetPasswordHashMutation = { __typename?: 'mutation_root', update_users_by_pk?: { __typename?: 'users', id: string } | null };
+
 export type CreatePasswordUserMutationVariables = Exact<{
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
@@ -20755,6 +20770,25 @@ export const VerifyUserPasswordDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<VerifyUserPasswordMutation, VerifyUserPasswordMutationVariables>;
+export const GetPasswordUserDocument = new TypedDocumentString(`
+    query GetPasswordUser($email: String!) {
+  users(where: {email: {_eq: $email}}, limit: 1) {
+    id
+    name
+    email
+    username
+    image
+    password
+  }
+}
+    `) as unknown as TypedDocumentString<GetPasswordUserQuery, GetPasswordUserQueryVariables>;
+export const SetPasswordHashDocument = new TypedDocumentString(`
+    mutation SetPasswordHash($id: uuid!, $password: String!) {
+  update_users_by_pk(pk_columns: {id: $id}, _set: {password: $password}) {
+    id
+  }
+}
+    `) as unknown as TypedDocumentString<SetPasswordHashMutation, SetPasswordHashMutationVariables>;
 export const CreatePasswordUserDocument = new TypedDocumentString(`
     mutation CreatePasswordUser($email: String!, $name: String!, $password: String!) {
   create_password_user(

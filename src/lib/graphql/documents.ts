@@ -1244,7 +1244,10 @@ export const CREATE_PUSH_SUBSCRIPTION = graphql(`
 	mutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {
 		insert_push_subscriptions_one(
 			object: $subscription
-			on_conflict: { constraint: push_subscriptions_endpoint_key, update_columns: [p256dh, auth, user_id] }
+			on_conflict: {
+				constraint: push_subscriptions_endpoint_key
+				update_columns: [p256dh, auth, user_id]
+			}
 		) {
 			id
 			endpoint
@@ -1254,9 +1257,7 @@ export const CREATE_PUSH_SUBSCRIPTION = graphql(`
 
 export const DELETE_PUSH_SUBSCRIPTION = graphql(`
 	mutation DeletePushSubscription($endpoint: String!, $userId: uuid!) {
-		delete_push_subscriptions(
-			where: { endpoint: { _eq: $endpoint }, user_id: { _eq: $userId } }
-		) {
+		delete_push_subscriptions(where: { endpoint: { _eq: $endpoint }, user_id: { _eq: $userId } }) {
 			affected_rows
 		}
 	}
@@ -1489,10 +1490,7 @@ export const DELETE_EXPENSE = graphql(`
 				created_by: { _eq: $userId }
 				deleted_at: { _is_null: true }
 				board: {
-					_or: [
-						{ user_id: { _eq: $userId } }
-						{ board_members: { user_id: { _eq: $userId } } }
-					]
+					_or: [{ user_id: { _eq: $userId } }, { board_members: { user_id: { _eq: $userId } } }]
 				}
 			}
 			_set: { deleted_at: $deleted_at }
@@ -1575,10 +1573,7 @@ export const GET_ALL_USER_EXPENSES = graphql(`
 			where: {
 				deleted_at: { _is_null: true }
 				board: {
-					_or: [
-						{ user_id: { _eq: $userId } }
-						{ board_members: { user_id: { _eq: $userId } } }
-					]
+					_or: [{ user_id: { _eq: $userId } }, { board_members: { user_id: { _eq: $userId } } }]
 				}
 			}
 			order_by: { created_at: desc }
@@ -1663,7 +1658,10 @@ export const INVOICE_COMPANY_FRAGMENT = graphql(`
 
 export const GET_INVOICE_COMPANIES = graphql(`
 	query GetInvoiceCompanies($userId: uuid!) {
-		invoice_companies(where: { user_id: { _eq: $userId } }, order_by: [{ is_default: desc }, { name: asc }]) {
+		invoice_companies(
+			where: { user_id: { _eq: $userId } }
+			order_by: [{ is_default: desc }, { name: asc }]
+		) {
 			...InvoiceCompanyFields
 		}
 	}
@@ -1800,9 +1798,7 @@ export const UPDATE_INVOICE_STATUS = graphql(`
 
 export const DELETE_INVOICE = graphql(`
 	mutation DeleteInvoice($id: uuid!, $userId: uuid!) {
-		delete_invoice_items(
-			where: { invoice: { id: { _eq: $id }, user_id: { _eq: $userId } } }
-		) {
+		delete_invoice_items(where: { invoice: { id: { _eq: $id }, user_id: { _eq: $userId } } }) {
 			affected_rows
 		}
 		delete_invoices(where: { id: { _eq: $id }, user_id: { _eq: $userId } }) {
@@ -1836,6 +1832,28 @@ export const VERIFY_USER_PASSWORD = graphql(`
 			email
 			username
 			image
+		}
+	}
+`);
+
+// Server only (admin secret): the stored hash, to tell PBKDF2 from bcrypt (#230).
+export const GET_PASSWORD_USER = graphql(`
+	query GetPasswordUser($email: String!) {
+		users(where: { email: { _eq: $email } }, limit: 1) {
+			id
+			name
+			email
+			username
+			image
+			password
+		}
+	}
+`);
+
+export const SET_PASSWORD_HASH = graphql(`
+	mutation SetPasswordHash($id: uuid!, $password: String!) {
+		update_users_by_pk(pk_columns: { id: $id }, _set: { password: $password }) {
+			id
 		}
 	}
 `);
