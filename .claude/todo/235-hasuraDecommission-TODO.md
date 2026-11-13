@@ -26,3 +26,5 @@ Postgres apps from CapRover on Hetzner"**, with the dump's location. Leave the b
 apps alone. Rename `-BLOCKED.md` if the deletion itself is left for the owner, and say so.
 
 _GitHub issue #235 — end the commit subject with `(#235)`._
+
+_From Kanban card `62839889-d610-4589-9f1d-59bb1f9890ee`, moved to the agent list._
