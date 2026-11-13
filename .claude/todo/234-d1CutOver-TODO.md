@@ -1,4 +1,5 @@
 > Run with: Opus 5.5 / xhigh
+> Machine: manual (the owner picks the cut-over moment; needs #231 and the rest of the D1 slices)
 
 # Cut production over to D1
 
