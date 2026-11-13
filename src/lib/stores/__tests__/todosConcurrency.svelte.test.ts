@@ -148,14 +148,13 @@ describe('todosStore races (#209)', () => {
 
 	describe('refreshBoardTodosIfChanged', () => {
 		const board = 'board-1';
-		let fingerprint: unknown[];
+		// The board's hash, as the `poll` op returns it.
+		let fingerprint: string;
 
 		beforeEach(async () => {
-			fingerprint = [{ id: 'a', updated_at: '1' }];
+			fingerprint = 'fp-1';
 			vi.mocked(request).mockImplementation(async (doc: any) => {
 				switch (opName(doc)) {
-					case 'GetBoardTodosFingerprint':
-						return { todos: fingerprint };
 					case 'GetTodos':
 						return { todos: [todo({ id: 'a' })] };
 					case 'GetLists':
@@ -173,24 +172,24 @@ describe('todosStore races (#209)', () => {
 			vi.mocked(request).mock.calls.filter(([doc]) => opName(doc) === 'GetTodos').length;
 
 		it('downloads the full board on the first poll, then only when the fingerprint changes', async () => {
-			expect(await todosStore.refreshBoardTodosIfChanged(board)).toBe(true);
+			expect(await todosStore.refreshBoardTodosIfChanged(board, fingerprint)).toBe(true);
 			expect(fullFetches()).toBe(2); // active + completed
 
-			expect(await todosStore.refreshBoardTodosIfChanged(board)).toBe(false);
+			expect(await todosStore.refreshBoardTodosIfChanged(board, fingerprint)).toBe(false);
 			expect(fullFetches()).toBe(2);
 
-			fingerprint = [{ id: 'a', updated_at: '2' }];
-			expect(await todosStore.refreshBoardTodosIfChanged(board)).toBe(true);
+			fingerprint = 'fp-2';
+			expect(await todosStore.refreshBoardTodosIfChanged(board, fingerprint)).toBe(true);
 			expect(fullFetches()).toBe(4);
 		});
 
 		it('still refreshes in full every 5 minutes, for what the fingerprint cannot see', async () => {
 			vi.useFakeTimers({ toFake: ['Date'] });
-			await todosStore.refreshBoardTodosIfChanged(board);
+			await todosStore.refreshBoardTodosIfChanged(board, fingerprint);
 			vi.setSystemTime(Date.now() + 4 * 60 * 1000);
-			expect(await todosStore.refreshBoardTodosIfChanged(board)).toBe(false);
+			expect(await todosStore.refreshBoardTodosIfChanged(board, fingerprint)).toBe(false);
 			vi.setSystemTime(Date.now() + 2 * 60 * 1000);
-			expect(await todosStore.refreshBoardTodosIfChanged(board)).toBe(true);
+			expect(await todosStore.refreshBoardTodosIfChanged(board, fingerprint)).toBe(true);
 			expect(fullFetches()).toBe(4);
 		});
 
@@ -204,13 +203,13 @@ describe('todosStore races (#209)', () => {
 			);
 
 			const moving = todosStore.updateTodo('a', { sort_order: 0 });
-			expect(await todosStore.refreshBoardTodosIfChanged(board)).toBe(false);
+			expect(await todosStore.refreshBoardTodosIfChanged(board, fingerprint)).toBe(false);
 			expect(todosStore.todos[0].sort_order).toBe(0);
 
 			update.resolve({ update_todos: { returning: [todo({ id: 'a', sort_order: 0 })] } });
 			await moving;
 			// Skipped, so the fingerprint was not recorded: the next poll refreshes.
-			expect(await todosStore.refreshBoardTodosIfChanged(board)).toBe(true);
+			expect(await todosStore.refreshBoardTodosIfChanged(board, fingerprint)).toBe(true);
 		});
 
 		it('a poll whose fetch started before a write committed is dropped', async () => {
@@ -223,7 +222,7 @@ describe('todosStore races (#209)', () => {
 				return base(doc, vars);
 			});
 
-			const polling = todosStore.refreshBoardTodosIfChanged(board);
+			const polling = todosStore.refreshBoardTodosIfChanged(board, fingerprint);
 			await vi.waitFor(() => expect(fullFetches()).toBe(2));
 			await todosStore.updateTodo('a', { sort_order: 0 });
 			fetched.resolve({ todos: [todo({ id: 'a', sort_order: 1 })] }); // pre-write copy

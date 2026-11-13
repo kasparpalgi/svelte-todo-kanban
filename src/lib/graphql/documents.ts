@@ -328,13 +328,37 @@ export const SEARCH_TODO_CONTENT = graphql(`
 	}
 `);
 
-// Everything that changes what a board shows, in a few bytes per card: the poll
-// compares it with the last one and refetches the full board only on a change. The
-// full GET_TODOS of a 334-card board was 2.3 MB / ~6 s every 30 s (#209). Labels and
-// uploads are listed, not aggregated: the user role has no aggregate permission there.
-export const GET_BOARD_TODOS_FINGERPRINT = graphql(`
-	query GetBoardTodosFingerprint($where: todos_bool_exp!) {
-		todos(where: $where, order_by: { id: asc }) {
+// Server only: the `poll` op (src/lib/server/ops/poll.ts). Everything that changes
+// what a board shows, hashed on the server, so the browser gets a few bytes every
+// 30 s and refetches the full board only on a change. The full GET_TODOS of a
+// 334-card board was 2.3 MB / ~6 s every 30 s (#209).
+export const POLL_UNREAD = graphql(`
+	query PollUnread($userId: uuid!) {
+		notifications_aggregate(where: { user_id: { _eq: $userId }, is_read: { _eq: false } }) {
+			aggregate {
+				count
+			}
+		}
+	}
+`);
+
+export const POLL_BOARD = graphql(`
+	query PollBoard($userId: uuid!, $boardId: uuid!) {
+		notifications_aggregate(where: { user_id: { _eq: $userId }, is_read: { _eq: false } }) {
+			aggregate {
+				count
+			}
+		}
+		boards_by_pk(id: $boardId) {
+			updated_at
+		}
+		lists(where: { board_id: { _eq: $boardId } }, order_by: { id: asc }) {
+			id
+			name
+			sort_order
+			updated_at
+		}
+		todos(where: { list: { board_id: { _eq: $boardId } } }, order_by: { id: asc }) {
 			id
 			updated_at
 			comments_aggregate {
@@ -718,6 +742,20 @@ export const DELETE_LABEL = graphql(`
 	}
 `);
 
+// Server only: src/lib/server/access.ts. Whether a user may see a board: owner,
+// member or public, the same rule as the Hasura boards select permission.
+export const GET_BOARD_ROLE = graphql(`
+	query GetBoardRole($boardId: uuid!, $userId: uuid!) {
+		boards_by_pk(id: $boardId) {
+			user_id
+			is_public
+			board_members(where: { user_id: { _eq: $userId } }) {
+				role
+			}
+		}
+	}
+`);
+
 // ========== Board Members ==========
 
 export const GET_BOARD_MEMBERS = graphql(`
@@ -943,14 +981,20 @@ export const GET_USER_BY_GITHUB_USERNAME = graphql(`
 
 // ========== Logging ==========
 
-export const CREATE_LOG = graphql(`
-	mutation CreateLog($log: logs_insert_input!) {
-		insert_logs_one(object: $log) {
-			id
-			timestamp
-			level
-			component
-			message
+// Server only: the browser goes through the createLog / getLogs ops
+// (src/lib/server/ops/logs.ts).
+export const CREATE_LOGS = graphql(`
+	mutation CreateLogs($logs: [logs_insert_input!]!) {
+		insert_logs(objects: $logs) {
+			affected_rows
+		}
+	}
+`);
+
+export const DELETE_OLD_LOGS = graphql(`
+	mutation DeleteOldLogs($before: timestamptz!) {
+		delete_logs(where: { created_at: { _lt: $before } }) {
+			affected_rows
 		}
 	}
 `);

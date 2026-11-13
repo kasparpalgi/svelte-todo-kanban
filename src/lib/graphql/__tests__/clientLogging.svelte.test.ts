@@ -1,6 +1,6 @@
 /** @file src/lib/graphql/__tests__/clientLogging.svelte.test.ts */
 // How request() reports a failure (#209): a dropped connection is a warning in
-// every browser's wording, and the logger's own CreateLog never logs itself.
+// every browser's wording. (The logger saves through call(), not request(), #227.)
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { clearTokenCache, request } from '../client';
 import { loggingStore } from '$lib/stores/logging.svelte';
@@ -59,19 +59,4 @@ describe('request() failure logging', () => {
 			);
 		}
 	);
-
-	it('does not log a failed CreateLog (the logger retries it itself)', async () => {
-		stubFetch(new TypeError('Failed to fetch'));
-		await expect(
-			request(
-				'mutation CreateLog($log: logs_insert_input!) { insert_logs_one(object: $log) { id } }',
-				{
-					log: {}
-				}
-			)
-		).rejects.toThrow();
-
-		expect(loggingStore.warn).not.toHaveBeenCalled();
-		expect(loggingStore.error).not.toHaveBeenCalled();
-	});
 });

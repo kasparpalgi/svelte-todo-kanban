@@ -1,7 +1,6 @@
 /** @file src/lib/stores/todos.svelte.ts */
 import {
 	GET_TODOS,
-	GET_BOARD_TODOS_FINGERPRINT,
 	GET_TODO_DETAILS,
 	CREATE_TODO,
 	UPDATE_TODOS,
@@ -20,7 +19,6 @@ import { request } from '$lib/graphql/client';
 import { browser } from '$app/environment';
 import type {
 	GetTodosQuery,
-	GetBoardTodosFingerprintQuery,
 	CreateTodoMutation,
 	UpdateTodosMutation,
 	DeleteTodosMutation,
@@ -1052,33 +1050,24 @@ function createTodosStore() {
 	}
 
 	/**
-	 * Poll entry point. Fetches the board's fingerprint (~170 KB for 521 cards
-	 * instead of 3.5 MB) and runs the full refreshBoardTodos() only when it changed —
-	 * or when the last full refresh is older than FULL_REFRESH_MS, which picks up
-	 * what the fingerprint cannot see (a comment edited in place). Returns true
-	 * when it refreshed.
+	 * Poll entry point. `value` is the board's fingerprint from the `poll` op (a short
+	 * hash of its cards and lists); the full refreshBoardTodos() runs only when it
+	 * changed — or when the last full refresh is older than FULL_REFRESH_MS, which
+	 * picks up what the fingerprint cannot see (a comment edited in place). Returns
+	 * true when it refreshed.
 	 */
-	async function refreshBoardTodosIfChanged(boardId: string): Promise<boolean> {
+	async function refreshBoardTodosIfChanged(boardId: string, value: string): Promise<boolean> {
 		if (!browser) return false;
 
-		try {
-			const data = await request<GetBoardTodosFingerprintQuery>(GET_BOARD_TODOS_FINGERPRINT, {
-				where: { list: { board_id: { _eq: boardId } } }
-			});
-			const value = JSON.stringify(data.todos ?? []);
-			const last = lastFingerprint;
-			const unchanged =
-				last?.boardId === boardId && last.value === value && Date.now() - last.at < FULL_REFRESH_MS;
-			if (unchanged) return false;
+		const last = lastFingerprint;
+		const unchanged =
+			last?.boardId === boardId && last.value === value && Date.now() - last.at < FULL_REFRESH_MS;
+		if (unchanged) return false;
 
-			const refreshed = await refreshBoardTodos(boardId);
-			// Taken before the full fetch: a change in between only costs one more refresh.
-			if (refreshed) lastFingerprint = { boardId, value, at: Date.now() };
-			return refreshed;
-		} catch (error) {
-			console.error('Refresh board fingerprint error:', error);
-			return false;
-		}
+		const refreshed = await refreshBoardTodos(boardId);
+		// Taken before the full fetch: a change in between only costs one more refresh.
+		if (refreshed) lastFingerprint = { boardId, value, at: Date.now() };
+		return refreshed;
 	}
 
 	async function toggleTodo(id: string): Promise<StoreResult> {

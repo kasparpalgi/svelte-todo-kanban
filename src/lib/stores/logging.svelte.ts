@@ -2,14 +2,20 @@
 import { browser } from '$app/environment';
 import { dev } from '$app/environment';
 import type { LogEntry } from '$lib/types/common';
-import { request } from '$lib/graphql/client';
-import { CREATE_LOG } from '$lib/graphql/documents';
+import { call } from '$lib/api/call';
 import { LOGGING_CONFIG } from '$lib/config/logging';
 
 // A log the server did not take is re-queued and retried with a growing delay,
 // at most this many times — a dead database must not keep every tab retrying (#209).
 const MAX_FLUSH_ATTEMPTS = 5;
 const RETRY_DELAY_MS = 30_000;
+// The createLog op takes at most this many logs per request.
+const MAX_BATCH = 50;
+// Saved logs per tab: the same message at most once a minute and 100 an hour, so a
+// client bug in a loop cannot flood the logs table (11,097 rows on the worst day, #227).
+const SAME_MESSAGE_MS = 60_000;
+const MAX_SAVED_PER_HOUR = 100;
+const HOUR_MS = 60 * 60 * 1000;
 
 function createLoggingStore() {
 	const state = $state({
@@ -46,69 +52,77 @@ function createLoggingStore() {
 	const RATE_LIMIT_WINDOW = LOGGING_CONFIG.rateLimitWindow;
 	const RATE_LIMIT_MAX = LOGGING_CONFIG.rateLimitMax;
 
+	// Bookkeeping for the cap, not UI state: a plain Map on purpose.
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity
+	const lastSaved = new Map<string, number>();
+	let savedThisHour = { count: 0, since: 0 };
+
+	/** Only warnings and errors are saved, within the per-tab cap above. */
+	function shouldSave({ level, component, message }: LogEntry): boolean {
+		if (level !== 'error' && level !== 'warn') return false;
+		const now = Date.now();
+		// A new hour, or a clock set back.
+		if (now - savedThisHour.since >= HOUR_MS || now < savedThisHour.since) {
+			savedThisHour = { count: 0, since: now };
+			lastSaved.clear();
+		}
+		const key = `${level}|${component}|${message}`;
+		if (now - (lastSaved.get(key) ?? -Infinity) < SAME_MESSAGE_MS) return false;
+		if (savedThisHour.count >= MAX_SAVED_PER_HOUR) return false;
+		savedThisHour.count++;
+		lastSaved.set(key, now);
+		return true;
+	}
+
+	function toInput(log: LogEntry) {
+		return {
+			timestamp: log.timestamp.toISOString(),
+			level: log.level,
+			component: log.component,
+			message: log.message,
+			data: log.data ? JSON.stringify(log.data) : null,
+			session_id: state.sessionId,
+			user_agent: log.userAgent,
+			url: log.url
+		};
+	}
+
 	async function flushLogs() {
 		if (!browser || state.pendingLogs.length === 0) return;
 		if (state.isFlushingInProgress) return;
 
-		// No sign-in pre-check: it cost an /api/auth/token round trip per flush, and
-		// request() already throws AuthenticationError when signed out (dropped below).
 		state.isFlushingInProgress = true;
-		const retry: LogEntry[] = [];
+		if (state.flushTimeout) {
+			clearTimeout(state.flushTimeout);
+			state.flushTimeout = null;
+		}
+		const batch = state.pendingLogs.slice(0, MAX_BATCH);
+		state.pendingLogs = state.pendingLogs.slice(MAX_BATCH);
+		let retry: LogEntry[] = [];
 
 		try {
-			const logsToFlush = [...state.pendingLogs];
-			state.pendingLogs = [];
+			await call('createLog', { logs: batch.map(toInput) });
+			state.performanceMetrics.flushSuccessCount++;
+		} catch (error) {
+			state.performanceMetrics.flushFailureCount++;
+			if (dev) console.error('[LoggingStore] Failed to save logs to database', error);
 
-			if (state.flushTimeout) {
-				clearTimeout(state.flushTimeout);
-				state.flushTimeout = null;
+			// Signed out, or input the server refuses: retrying cannot help.
+			const { name, status = 0 } = error as { name?: string; status?: number };
+			const permanent = name === 'AuthenticationError' || (status >= 400 && status < 500);
+			if (!dev && !permanent) {
+				retry = batch
+					.map((log) => ({ ...log, attempts: (log.attempts ?? 0) + 1 }))
+					.filter((log) => log.attempts < MAX_FLUSH_ATTEMPTS);
 			}
-
-			const logsToSave = logsToFlush.filter((log) => log.level === 'error' || log.level === 'warn');
-
-			if (logsToSave.length === 0) return;
-
-			await Promise.all(
-				logsToSave.map((log) => {
-					const logInput = {
-						timestamp: log.timestamp.toISOString(),
-						level: log.level,
-						component: log.component,
-						message: log.message,
-						data: log.data ? JSON.stringify(log.data) : null,
-						session_id: state.sessionId,
-						user_agent: log.userAgent,
-						url: log.url
-					};
-
-					return request(CREATE_LOG, { log: logInput })
-						.then(() => {
-							state.performanceMetrics.flushSuccessCount++;
-						})
-						.catch((error) => {
-							state.performanceMetrics.flushFailureCount++;
-
-							if (dev) {
-								console.error('[LoggingStore] Failed to save log to database', error);
-							}
-
-							const isAuthError =
-								error?.name === 'AuthenticationError' ||
-								error?.message === 'Authentication required';
-
-							const attempts = (log.attempts ?? 0) + 1;
-							if (!dev && !isAuthError && attempts < MAX_FLUSH_ATTEMPTS) {
-								retry.push({ ...log, attempts });
-							}
-						});
-				})
-			);
 		} finally {
 			state.isFlushingInProgress = false;
 			if (retry.length > 0) {
 				state.pendingLogs.push(...retry);
 				const attempts = Math.max(...retry.map((log) => log.attempts ?? 1));
 				scheduleBatchFlush(RETRY_DELAY_MS * attempts);
+			} else if (state.pendingLogs.length > 0) {
+				scheduleBatchFlush();
 			}
 		}
 	}
@@ -196,12 +210,13 @@ function createLoggingStore() {
 			state.logs.splice(state.maxLogs);
 		}
 
-		state.pendingLogs.push(entry);
-
-		if (state.pendingLogs.length >= BATCH_SIZE) {
-			flushLogs();
-		} else {
-			scheduleBatchFlush();
+		if (shouldSave(entry)) {
+			state.pendingLogs.push(entry);
+			if (state.pendingLogs.length >= BATCH_SIZE) {
+				flushLogs();
+			} else {
+				scheduleBatchFlush();
+			}
 		}
 
 		if (dev || level === 'error' || level === 'warn') {

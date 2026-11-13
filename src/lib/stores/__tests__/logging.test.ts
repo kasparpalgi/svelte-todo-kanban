@@ -1,11 +1,11 @@
 /** @file src/lib/stores/__tests__/logging.test.ts */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { loggingStore } from '../logging.svelte';
-import * as client from '$lib/graphql/client';
+import { call } from '$lib/api/call';
 
-// Mock the GraphQL client
-vi.mock('$lib/graphql/client', () => ({
-	request: vi.fn()
+// Mock the data API client
+vi.mock('$lib/api/call', () => ({
+	call: vi.fn()
 }));
 
 // Mock $app/environment
@@ -76,16 +76,7 @@ describe('LoggingStore', () => {
 		vi.clearAllMocks();
 		vi.useFakeTimers();
 
-		// Mock request to return successful response
-		vi.mocked(client.request).mockResolvedValue({
-			insert_logs_one: {
-				id: 'test-id',
-				timestamp: new Date().toISOString(),
-				level: 'error',
-				component: 'Test',
-				message: 'Test message'
-			}
-		});
+		vi.mocked(call).mockResolvedValue({ saved: 1 });
 	});
 
 	afterEach(() => {

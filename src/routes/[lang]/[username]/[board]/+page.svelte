@@ -31,6 +31,7 @@
 	import NotesView from '$lib/components/notes/NotesView.svelte';
 	import BoardActivityButton from '$lib/components/activity/BoardActivityButton.svelte';
 	import BoardActivityView from '$lib/components/activity/BoardActivityView.svelte';
+	import { pollNow, watchPoll, type PollResult } from '$lib/api/poll';
 
 	let { data } = $props();
 
@@ -129,55 +130,41 @@
 		}
 	}
 
-	// Silently re-fetch the current board's data so changes made by other
-	// users/tabs/devices show up without a manual page refresh.
-	async function refreshBoardInBackground() {
-		// Waking from sleep fires visibilitychange before the network is back; the
-		// requests then fail instantly with "Failed to fetch" (#206). Wait for `online`.
-		if (!data?.session || !listsStore.selectedBoard || document.hidden || !navigator.onLine) return;
-
-		const boardId = listsStore.selectedBoard.id;
-		await Promise.all([
-			// Full board only when its fingerprint changed: re-downloading it every 30 s
-			// was 2.3 MB / ~6 s on a 334-card board (#209).
-			todosStore.refreshBoardTodosIfChanged(boardId),
-			listsStore.loadLists(),
-			listsStore.loadBoards()
-		]);
+	// Changes made by other users/tabs/devices show up without a manual refresh: the
+	// shared poll (every 30 s, and when the tab becomes visible) returns a fingerprint
+	// of the board, and only a changed one refetches cards, lists and boards (#227).
+	async function refreshBoardInBackground({ boardId, board }: PollResult) {
+		if (!board || !boardId || boardId !== listsStore.selectedBoard?.id) return;
+		if (await todosStore.refreshBoardTodosIfChanged(boardId, board)) {
+			await Promise.all([listsStore.loadLists(), listsStore.loadBoards()]);
+		}
 	}
 
 	onMount(() => {
 		// Load initial board
 		loadBoardData(boardAlias).catch((e) => console.error('[BoardPage] initial load error:', e));
 
-		// Poll for changes made elsewhere every 30s, and refresh immediately
-		// whenever the tab regains focus/visibility.
-		const pollInterval = setInterval(() => {
-			refreshBoardInBackground().catch((e) => console.error('[BoardPage] poll refresh error:', e));
-		}, 30000);
-
-		const handleVisibilityChange = () => {
-			if (!document.hidden) {
-				refreshBoardInBackground().catch((e) =>
-					console.error('[BoardPage] visibility refresh error:', e)
-				);
-			}
-		};
-		document.addEventListener('visibilitychange', handleVisibilityChange);
+		const stopPolling = watchPoll({
+			boardId: () => (data?.session ? listsStore.selectedBoard?.id : null),
+			onResult: (result) =>
+				refreshBoardInBackground(result).catch((e) =>
+					console.error('[BoardPage] poll refresh error:', e)
+				)
+		});
 
 		// Back online: retry a load that failed while offline, else just refresh.
+		// Waking from sleep fires visibilitychange before the network is back (#206).
 		const handleOnline = () => {
 			const retry =
 				boardNotFound || listsStore.boards.length === 0 || !listsStore.selectedBoard
 					? loadBoardData(boardAlias)
-					: refreshBoardInBackground();
+					: pollNow();
 			retry.catch((e) => console.error('[BoardPage] online refresh error:', e));
 		};
 		window.addEventListener('online', handleOnline);
 
 		return () => {
-			clearInterval(pollInterval);
-			document.removeEventListener('visibilitychange', handleVisibilityChange);
+			stopPolling();
 			window.removeEventListener('online', handleOnline);
 		};
 	});

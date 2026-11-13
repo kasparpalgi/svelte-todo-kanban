@@ -16,7 +16,8 @@
 	import { getEffectiveLocale } from '$lib/constants/locale';
 	import { t } from '$lib/i18n';
 	import { browser } from '$app/environment';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
+	import { watchPoll } from '$lib/api/poll';
 	import { Check, X, Trash2, Clock } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -57,23 +58,32 @@
 		}
 	});
 
+	function reloadNotifications(reason: string) {
+		if (!user?.id) return;
+		notificationStore
+			.loadNotifications(user.id)
+			.catch((e) => console.error(`[NotificationBell] ${reason} loadNotifications error:`, e));
+	}
+
+	// Load once the user is known: on a full page load the user store fills in after
+	// mount, and the old `if (user?.id)` in onMount then never loaded or polled (#227).
+	let loadedFor: string | null = null;
+	$effect(() => {
+		const id = user?.id;
+		if (!id || id === loadedFor) return;
+		loadedFor = id;
+		untrack(() => reloadNotifications('initial'));
+	});
+
+	// The shared 30 s poll returns the unread count; reload the list only when it moves.
 	onMount(() => {
-		if (user?.id) {
-			notificationStore
-				.loadNotifications(user.id)
-				.catch((e) => console.error('[NotificationBell] initial loadNotifications error:', e));
-
-			// Poll for new notifications every 30 seconds
-			const pollInterval = setInterval(() => {
-				if (user?.id) {
-					notificationStore
-						.loadNotifications(user.id)
-						.catch((e) => console.error('[NotificationBell] poll loadNotifications error:', e));
-				}
-			}, 30000);
-
-			return () => clearInterval(pollInterval);
-		}
+		let lastUnread: number | null = null;
+		return watchPoll({
+			onResult: ({ unread }) => {
+				if (unread !== (lastUnread ?? notificationStore.unreadCount)) reloadNotifications('poll');
+				lastUnread = unread;
+			}
+		});
 	});
 
 	async function handleMarkAsRead(notificationId: string) {

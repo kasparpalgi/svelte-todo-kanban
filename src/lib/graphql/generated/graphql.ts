@@ -16587,12 +16587,20 @@ export type SearchTodoContentQueryVariables = Exact<{
 
 export type SearchTodoContentQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string }> };
 
-export type GetBoardTodosFingerprintQueryVariables = Exact<{
-  where: Todos_Bool_Exp;
+export type PollUnreadQueryVariables = Exact<{
+  userId: Scalars['uuid']['input'];
 }>;
 
 
-export type GetBoardTodosFingerprintQuery = { __typename?: 'query_root', todos: Array<{ __typename?: 'todos', id: string, updated_at: string, comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number, max?: { __typename?: 'comments_max_fields', updated_at?: string | null } | null } | null }, labels: Array<{ __typename?: 'todo_labels', label_id: string }>, uploads: Array<{ __typename?: 'uploads', id: string }>, assignees: Array<{ __typename?: 'todo_assignees', user_id: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string }>, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', count: number } | null } }> };
+export type PollUnreadQuery = { __typename?: 'query_root', notifications_aggregate: { __typename?: 'notifications_aggregate', aggregate?: { __typename?: 'notifications_aggregate_fields', count: number } | null } };
+
+export type PollBoardQueryVariables = Exact<{
+  userId: Scalars['uuid']['input'];
+  boardId: Scalars['uuid']['input'];
+}>;
+
+
+export type PollBoardQuery = { __typename?: 'query_root', notifications_aggregate: { __typename?: 'notifications_aggregate', aggregate?: { __typename?: 'notifications_aggregate_fields', count: number } | null }, boards_by_pk?: { __typename?: 'boards', updated_at: string } | null, lists: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, updated_at: string }>, todos: Array<{ __typename?: 'todos', id: string, updated_at: string, comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number, max?: { __typename?: 'comments_max_fields', updated_at?: string | null } | null } | null }, labels: Array<{ __typename?: 'todo_labels', label_id: string }>, uploads: Array<{ __typename?: 'uploads', id: string }>, assignees: Array<{ __typename?: 'todo_assignees', user_id: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string }>, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', count: number } | null } }> };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -16857,6 +16865,14 @@ export type DeleteLabelMutationVariables = Exact<{
 
 export type DeleteLabelMutation = { __typename?: 'mutation_root', delete_labels?: { __typename?: 'labels_mutation_response', affected_rows: number } | null };
 
+export type GetBoardRoleQueryVariables = Exact<{
+  boardId: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
+}>;
+
+
+export type GetBoardRoleQuery = { __typename?: 'query_root', boards_by_pk?: { __typename?: 'boards', user_id: string, is_public: boolean, board_members: Array<{ __typename?: 'board_members', role: string }> } | null };
+
 export type GetBoardMembersQueryVariables = Exact<{
   where?: InputMaybe<Board_Members_Bool_Exp>;
   order_by?: InputMaybe<Array<Board_Members_Order_By> | Board_Members_Order_By>;
@@ -16972,12 +16988,19 @@ export type GetUserByGithubUsernameQueryVariables = Exact<{
 
 export type GetUserByGithubUsernameQuery = { __typename?: 'query_root', users: Array<{ __typename?: 'users', id: string, username: string, settings: any }> };
 
-export type CreateLogMutationVariables = Exact<{
-  log: Logs_Insert_Input;
+export type CreateLogsMutationVariables = Exact<{
+  logs: Array<Logs_Insert_Input> | Logs_Insert_Input;
 }>;
 
 
-export type CreateLogMutation = { __typename?: 'mutation_root', insert_logs_one?: { __typename?: 'logs', id: string, timestamp: string, level: string, component: string, message: string } | null };
+export type CreateLogsMutation = { __typename?: 'mutation_root', insert_logs?: { __typename?: 'logs_mutation_response', affected_rows: number } | null };
+
+export type DeleteOldLogsMutationVariables = Exact<{
+  before: Scalars['timestamptz']['input'];
+}>;
+
+
+export type DeleteOldLogsMutation = { __typename?: 'mutation_root', delete_logs?: { __typename?: 'logs_mutation_response', affected_rows: number } | null };
 
 export type GetLogsQueryVariables = Exact<{
   where?: InputMaybe<Logs_Bool_Exp>;
@@ -18234,9 +18257,32 @@ export const SearchTodoContentDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<SearchTodoContentQuery, SearchTodoContentQueryVariables>;
-export const GetBoardTodosFingerprintDocument = new TypedDocumentString(`
-    query GetBoardTodosFingerprint($where: todos_bool_exp!) {
-  todos(where: $where, order_by: {id: asc}) {
+export const PollUnreadDocument = new TypedDocumentString(`
+    query PollUnread($userId: uuid!) {
+  notifications_aggregate(where: {user_id: {_eq: $userId}, is_read: {_eq: false}}) {
+    aggregate {
+      count
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<PollUnreadQuery, PollUnreadQueryVariables>;
+export const PollBoardDocument = new TypedDocumentString(`
+    query PollBoard($userId: uuid!, $boardId: uuid!) {
+  notifications_aggregate(where: {user_id: {_eq: $userId}, is_read: {_eq: false}}) {
+    aggregate {
+      count
+    }
+  }
+  boards_by_pk(id: $boardId) {
+    updated_at
+  }
+  lists(where: {board_id: {_eq: $boardId}}, order_by: {id: asc}) {
+    id
+    name
+    sort_order
+    updated_at
+  }
+  todos(where: {list: {board_id: {_eq: $boardId}}}, order_by: {id: asc}) {
     id
     updated_at
     comments_aggregate {
@@ -18266,7 +18312,7 @@ export const GetBoardTodosFingerprintDocument = new TypedDocumentString(`
     }
   }
 }
-    `) as unknown as TypedDocumentString<GetBoardTodosFingerprintQuery, GetBoardTodosFingerprintQueryVariables>;
+    `) as unknown as TypedDocumentString<PollBoardQuery, PollBoardQueryVariables>;
 export const GetListsDocument = new TypedDocumentString(`
     query GetLists($where: lists_bool_exp = {}, $order_by: [lists_order_by!] = {sort_order: asc, name: asc}, $limit: Int = 100, $offset: Int = 0) {
   lists(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
@@ -19213,6 +19259,17 @@ export const DeleteLabelDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<DeleteLabelMutation, DeleteLabelMutationVariables>;
+export const GetBoardRoleDocument = new TypedDocumentString(`
+    query GetBoardRole($boardId: uuid!, $userId: uuid!) {
+  boards_by_pk(id: $boardId) {
+    user_id
+    is_public
+    board_members(where: {user_id: {_eq: $userId}}) {
+      role
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetBoardRoleQuery, GetBoardRoleQueryVariables>;
 export const GetBoardMembersDocument = new TypedDocumentString(`
     query GetBoardMembers($where: board_members_bool_exp = {}, $order_by: [board_members_order_by!] = {created_at: asc}, $limit: Int = 100, $offset: Int = 0) {
   board_members(
@@ -19534,17 +19591,20 @@ export const GetUserByGithubUsernameDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetUserByGithubUsernameQuery, GetUserByGithubUsernameQueryVariables>;
-export const CreateLogDocument = new TypedDocumentString(`
-    mutation CreateLog($log: logs_insert_input!) {
-  insert_logs_one(object: $log) {
-    id
-    timestamp
-    level
-    component
-    message
+export const CreateLogsDocument = new TypedDocumentString(`
+    mutation CreateLogs($logs: [logs_insert_input!]!) {
+  insert_logs(objects: $logs) {
+    affected_rows
   }
 }
-    `) as unknown as TypedDocumentString<CreateLogMutation, CreateLogMutationVariables>;
+    `) as unknown as TypedDocumentString<CreateLogsMutation, CreateLogsMutationVariables>;
+export const DeleteOldLogsDocument = new TypedDocumentString(`
+    mutation DeleteOldLogs($before: timestamptz!) {
+  delete_logs(where: {created_at: {_lt: $before}}) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteOldLogsMutation, DeleteOldLogsMutationVariables>;
 export const GetLogsDocument = new TypedDocumentString(`
     query GetLogs($where: logs_bool_exp, $order_by: [logs_order_by!], $limit: Int, $offset: Int) {
   logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {

@@ -1,10 +1,9 @@
 <!-- @file src/routes/[lang]/logs/+page.svelte -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { untrack } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { request } from '$lib/graphql/client';
-	import { GET_LOGS } from '$lib/graphql/documents';
+	import { call } from '$lib/api/call';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -49,50 +48,19 @@
 		error = null;
 
 		try {
-			const where: any = {};
-
-			if (filters.level !== 'all') {
-				where.level = { _eq: filters.level };
-			}
-
-			if (filters.component) {
-				where.component = { _ilike: `%${filters.component}%` };
-			}
-
-			if (filters.search) {
-				where.message = { _ilike: `%${filters.search}%` };
-			}
-
-			if (filters.dateFrom) {
-				where.timestamp = { ...where.timestamp, _gte: new Date(filters.dateFrom).toISOString() };
-			}
-			if (filters.dateTo) {
-				where.timestamp = { ...where.timestamp, _lte: new Date(filters.dateTo).toISOString() };
-			}
-
-			const offset = (pagination.page - 1) * pagination.pageSize;
-
-			console.log('[LogsPage] Fetching logs with params:', {
-				where,
-				order_by: [{ timestamp: 'desc' }],
+			const iso = (date: string) => (date ? new Date(date).toISOString() : undefined);
+			const data = await call('getLogs', {
+				level: filters.level === 'all' ? undefined : filters.level,
+				component: filters.component || undefined,
+				search: filters.search || undefined,
+				from: iso(filters.dateFrom),
+				to: iso(filters.dateTo),
 				limit: pagination.pageSize,
-				offset,
-				user_id: user?.id
+				offset: (pagination.page - 1) * pagination.pageSize
 			});
 
-			const data = await request(GET_LOGS, {
-				where,
-				order_by: [{ timestamp: 'desc' }],
-				limit: pagination.pageSize,
-				offset
-			});
-
-			console.log('[LogsPage] Response data:', data);
-
-			logs = (data as any).logs || [];
-			pagination.total = (data as any).logs_aggregate?.aggregate?.count || 0;
-
-			console.log('[LogsPage] Parsed logs:', logs, 'Total:', pagination.total);
+			logs = data.logs;
+			pagination.total = data.logs_aggregate.aggregate?.count ?? 0;
 
 			loggingStore.info('LogsPage', 'Logs fetched successfully', {
 				count: logs.length,
@@ -214,11 +182,14 @@
 		}
 	});
 
-	// Fetch logs when user is available
-	onMount(() => {
-		if (user?.id) {
-			fetchLogs();
-		}
+	// Fetch once the user is known: on a direct page load the user store fills in
+	// after mount, and an onMount-only fetch left the page empty (#227).
+	let fetchedFor: string | null = null;
+	$effect(() => {
+		const id = user?.id;
+		if (!id || id === fetchedFor) return;
+		fetchedFor = id;
+		untrack(fetchLogs);
 	});
 </script>
 
