@@ -4,7 +4,6 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { t } from '$lib/i18n';
-	import { notificationStore } from '$lib/stores/notifications.svelte';
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
 	import { boardMembersStore } from '$lib/stores/boardMembers.svelte';
@@ -62,23 +61,9 @@
 			? await todosStore.unassignUser(todo.id, userId)
 			: await todosStore.assignUser(todo.id, userId);
 
+		// The server notifies the person assigned (never the one assigning).
 		if (result.success) {
 			displayMessage(isAssigned ? $t('unassigned') : $t('todo.assigned_success'), 1500, true);
-
-			// Notify a newly-assigned user (never the person doing the assigning).
-			if (!isAssigned && user?.id && userId !== user.id) {
-				try {
-					await notificationStore.createNotification({
-						user_id: userId,
-						todo_id: todo.id,
-						type: 'assigned',
-						triggered_by_user_id: user.id,
-						content: ''
-					});
-				} catch (error) {
-					console.error('Failed to create notification:', error);
-				}
-			}
 		} else {
 			displayMessage(result.message);
 		}

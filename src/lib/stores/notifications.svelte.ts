@@ -1,27 +1,19 @@
+/** @file src/lib/stores/notifications.svelte.ts */
+// The bell's notifications, through the data API (#229). The browser no longer creates
+// any: the ops that cause one (a comment, an assignment) write it on the server.
 import { browser } from '$app/environment';
-import { request } from '$lib/graphql/client';
-import {
-	GET_NOTIFICATIONS,
-	CREATE_NOTIFICATION,
-	UPDATE_NOTIFICATION,
-	MARK_NOTIFICATIONS_AS_READ,
-	DELETE_NOTIFICATION
-} from '$lib/graphql/documents';
-import type {
-	GetNotificationsQuery,
-	CreateNotificationMutation,
-	UpdateNotificationMutation,
-	MarkNotificationsAsReadMutation,
-	DeleteNotificationMutation,
-	Notifications_Insert_Input
-} from '$lib/graphql/generated/graphql';
+import { call, type OpOutput } from '$lib/api/call';
+
+type Notification = OpOutput<'getNotifications'>[number];
 
 interface NotificationState {
-	notifications: Array<any>;
+	notifications: Notification[];
 	loading: boolean;
 	error: string | null;
 	unreadCount: number;
 }
+
+const errorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
 function createNotificationStore() {
 	const state = $state<NotificationState>({
@@ -31,148 +23,68 @@ function createNotificationStore() {
 		unreadCount: 0
 	});
 
-	async function loadNotifications(userId: string, limit = 50, offset = 0) {
+	// The caller's own notifications; the server takes the user from the session.
+	async function loadNotifications(_userId?: string, limit = 50, offset = 0) {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		state.loading = true;
 		state.error = null;
 		try {
-			const data = (await request(GET_NOTIFICATIONS, {
-				where: { user_id: { _eq: userId } },
-				order_by: [{ created_at: 'desc' }],
-				limit,
-				offset
-			})) as GetNotificationsQuery;
-
-			state.notifications = data.notifications || [];
+			state.notifications = await call('getNotifications', { limit, offset });
 			state.unreadCount = state.notifications.filter((n) => !n.is_read).length;
 			return { success: true, message: 'Notifications loaded' };
 		} catch (error) {
-			state.error = error instanceof Error ? error.message : String(error);
+			state.error = errorMessage(error);
 			return { success: false, message: state.error };
 		} finally {
 			state.loading = false;
 		}
 	}
 
-	async function createNotification(notification: Notifications_Insert_Input) {
-		if (!browser) return { success: false, message: 'Not in browser', data: null };
+	/** Marks these as read, optimistically; puts them back if the server refuses. */
+	async function markMultipleAsRead(notificationIds: string[]) {
+		if (!browser) return { success: false, message: 'Not in browser' };
+		if (notificationIds.length === 0) return { success: true, message: 'Nothing to mark' };
+
+		const ids = new Set(notificationIds);
+		const original = state.notifications;
+		const flipped = original.filter((n) => ids.has(n.id) && !n.is_read).length;
+		state.notifications = original.map((n) => (ids.has(n.id) ? { ...n, is_read: true } : n));
+		state.unreadCount -= flipped;
 
 		try {
-			const data = (await request(CREATE_NOTIFICATION, {
-				notification
-			})) as CreateNotificationMutation;
-
-			const newNotification = data.insert_notifications_one;
-			if (newNotification) {
-				state.notifications.unshift(newNotification);
-				if (!newNotification.is_read) {
-					state.unreadCount++;
-				}
-				return { success: true, message: 'Notification created', data: newNotification };
-			}
-			return { success: false, message: 'Failed to create notification' };
+			await call('markNotificationsRead', { ids: notificationIds });
+			return { success: true, message: `Marked ${notificationIds.length} as read` };
 		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error);
-			return { success: false, message };
+			state.notifications = original;
+			state.unreadCount += flipped;
+			return { success: false, message: errorMessage(error) };
 		}
 	}
 
 	async function markAsRead(notificationId: string) {
-		if (!browser) return { success: false, message: 'Not in browser' };
-
-		const index = state.notifications.findIndex((n) => n.id === notificationId);
-		if (index === -1) return { success: false, message: 'Notification not found' };
-
-		const original = { ...state.notifications[index] };
-		const wasUnread = !original.is_read;
-
-		// Optimistic update
-		state.notifications[index] = { ...original, is_read: true };
-		if (wasUnread) state.unreadCount--;
-
-		try {
-			const data = (await request(UPDATE_NOTIFICATION, {
-				id: notificationId,
-				updates: { is_read: true }
-			})) as UpdateNotificationMutation;
-
-			const updated = data.update_notifications_by_pk;
-			if (updated) {
-				state.notifications[index] = updated;
-				return { success: true, message: 'Marked as read' };
-			}
-			return { success: false, message: 'Update failed' };
-		} catch (error) {
-			// Rollback
-			state.notifications[index] = original;
-			if (wasUnread) state.unreadCount++;
-
-			const message = error instanceof Error ? error.message : String(error);
-			return { success: false, message };
+		if (!state.notifications.some((n) => n.id === notificationId)) {
+			return { success: false, message: 'Notification not found' };
 		}
-	}
-
-	async function markMultipleAsRead(notificationIds: string[]) {
-		if (!browser) return { success: false, message: 'Not in browser' };
-
-		const originalMap = new Map(state.notifications.map((n) => [n.id, { ...n }]));
-		let decremented = 0;
-
-		// Optimistic update
-		for (const id of notificationIds) {
-			const idx = state.notifications.findIndex((n) => n.id === id);
-			if (idx !== -1 && !state.notifications[idx].is_read) {
-				state.notifications[idx] = { ...state.notifications[idx], is_read: true };
-				decremented++;
-			}
-		}
-		state.unreadCount -= decremented;
-
-		try {
-			const data = (await request(MARK_NOTIFICATIONS_AS_READ, {
-				notification_ids: notificationIds
-			})) as MarkNotificationsAsReadMutation;
-
-			return { success: true, message: `Marked ${notificationIds.length} as read` };
-		} catch (error) {
-			// Rollback
-			for (const id of notificationIds) {
-				const original = originalMap.get(id);
-				const idx = state.notifications.findIndex((n) => n.id === id);
-				if (idx !== -1 && original) {
-					state.notifications[idx] = original;
-				}
-			}
-			state.unreadCount += decremented;
-
-			const message = error instanceof Error ? error.message : String(error);
-			return { success: false, message };
-		}
+		return markMultipleAsRead([notificationId]);
 	}
 
 	async function deleteNotification(notificationId: string) {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
-		const index = state.notifications.findIndex((n) => n.id === notificationId);
-		if (index === -1) return { success: false, message: 'Notification not found' };
+		const original = state.notifications;
+		const target = original.find((n) => n.id === notificationId);
+		if (!target) return { success: false, message: 'Notification not found' };
 
-		const original = state.notifications[index];
-		const wasUnread = !original.is_read;
-
-		// Optimistic delete
-		state.notifications.splice(index, 1);
-		if (wasUnread) state.unreadCount--;
+		state.notifications = original.filter((n) => n.id !== notificationId);
+		if (!target.is_read) state.unreadCount--;
 
 		try {
-			await request(DELETE_NOTIFICATION, { id: notificationId }) as DeleteNotificationMutation;
+			await call('deleteNotification', { id: notificationId });
 			return { success: true, message: 'Notification deleted' };
 		} catch (error) {
-			// Rollback
-			state.notifications.splice(index, 0, original);
-			if (wasUnread) state.unreadCount++;
-
-			const message = error instanceof Error ? error.message : String(error);
-			return { success: false, message };
+			state.notifications = original;
+			if (!target.is_read) state.unreadCount++;
+			return { success: false, message: errorMessage(error) };
 		}
 	}
 
@@ -190,7 +102,6 @@ function createNotificationStore() {
 			return state.unreadCount;
 		},
 		loadNotifications,
-		createNotification,
 		markAsRead,
 		markMultipleAsRead,
 		deleteNotification

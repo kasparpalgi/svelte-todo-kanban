@@ -1,62 +1,27 @@
 /** @file src/lib/stores/labels.svelte.ts */
-import { ADD_TODO_LABEL, REMOVE_TODO_LABEL } from '$lib/graphql/documents';
-import { request } from '$lib/graphql/client';
 import { call } from '$lib/api/call';
 import { browser } from '$app/environment';
-import type { AddTodoLabelMutation, RemoveTodoLabelMutation } from '$lib/graphql/generated/graphql';
 import type { StoreResult } from '$lib/types/todo';
 import { todosStore } from './todos.svelte';
 
 function createLabelsStore() {
-	async function addTodoLabel(todoId: string, labelId: string): Promise<StoreResult> {
+	/** Adds or removes a label on a card; the server returns the updated card. */
+	async function setTodoLabel(todoId: string, labelId: string, on: boolean): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 
 		try {
-			const data: AddTodoLabelMutation = await request(ADD_TODO_LABEL, {
-				objects: [
-					{
-						todo_id: todoId,
-						label_id: labelId
-					}
-				]
-			});
-
-			if (data.insert_todo_labels?.affected_rows && data.insert_todo_labels.affected_rows > 0) {
-				await todosStore.refreshTodo(todoId);
-				return { success: true, message: 'Label added successfully' };
-			}
-
-			return { success: false, message: 'Failed to add label' };
+			const todo = await call(on ? 'addTodoLabel' : 'removeTodoLabel', { todoId, labelId });
+			todosStore.putTodo(todo);
+			return { success: true, message: on ? 'Label added successfully' : 'Label removed successfully' };
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error adding label';
-			console.error('Add todo label error:', error);
+			const message = error instanceof Error ? error.message : 'Error changing label';
+			console.error('Todo label error:', error);
 			return { success: false, message };
 		}
 	}
 
-	async function removeTodoLabel(todoId: string, labelId: string): Promise<StoreResult> {
-		if (!browser) return { success: false, message: 'Not in browser' };
-
-		try {
-			const data: RemoveTodoLabelMutation = await request(REMOVE_TODO_LABEL, {
-				where: {
-					todo_id: { _eq: todoId },
-					label_id: { _eq: labelId }
-				}
-			});
-
-			if (data.delete_todo_labels?.affected_rows && data.delete_todo_labels.affected_rows > 0) {
-				await todosStore.refreshTodo(todoId);
-				return { success: true, message: 'Label removed successfully' };
-			}
-
-			return { success: false, message: 'Failed to remove label' };
-		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error removing label';
-			console.error('Remove todo label error:', error);
-			return { success: false, message };
-		}
-	}
+	const addTodoLabel = (todoId: string, labelId: string) => setTodoLabel(todoId, labelId, true);
+	const removeTodoLabel = (todoId: string, labelId: string) => setTodoLabel(todoId, labelId, false);
 
 	async function createLabel(boardId: string, name: string, color: string): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };

@@ -1,8 +1,6 @@
 /** @file src/routes/[lang]/[username]/[board]/og-image.png/+server.ts */
 import { error, type RequestEvent } from '@sveltejs/kit';
-import { request } from '$lib/graphql/client';
-import { GET_BOARDS, GET_TODOS } from '$lib/graphql/documents';
-import type { GetBoardsQuery, GetTodosQuery } from '$lib/graphql/generated/graphql';
+import { boardAndCard } from '$lib/server/boardCard';
 
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
@@ -80,7 +78,7 @@ function escapeXml(unsafe: string): string {
  * - For cards with images: redirects to first uploaded image
  * - For cards without images / boards: generates a fallback SVG image
  */
-export async function GET({ url, params, fetch: fetchFn }: RequestEvent) {
+export async function GET({ url, params, locals }: RequestEvent) {
 	const { username, board: boardAlias, lang } = params;
 	const type = url.searchParams.get('type') as 'card' | 'board' | null;
 	const cardAlias = url.searchParams.get('cardAlias');
@@ -94,35 +92,16 @@ export async function GET({ url, params, fetch: fetchFn }: RequestEvent) {
 	}
 
 	try {
-		// Fetch board data
-		const boardsData = await request<GetBoardsQuery>(
-			GET_BOARDS,
-			{
-				where: { alias: { _eq: boardAlias } }
-			},
-			{},
-			fetchFn
-		);
-
-		const board = boardsData.boards?.[0];
+		// Signed-in only, as before: the lookup runs with the caller's access.
+		const userId = (await locals.auth())?.user?.id;
+		if (!userId) throw error(404, 'Board not found');
+		const { board, card: todo } = await boardAndCard(userId, boardAlias, cardAlias);
 
 		if (!board) {
 			throw error(404, 'Board not found');
 		}
 
 		if (type === 'card' && cardAlias) {
-			// Fetch card data
-			const todosData = await request<GetTodosQuery>(
-				GET_TODOS,
-				{
-					where: { alias: { _eq: cardAlias } }
-				},
-				{},
-				fetchFn
-			);
-
-			const todo = todosData.todos?.[0];
-
 			if (!todo) {
 				throw error(404, 'Card not found');
 			}

@@ -5,7 +5,7 @@
 import { todosStore } from '../todos.svelte';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { BoardTodo } from '$lib/types/todo';
-import { request } from '$lib/graphql/client';
+import { call } from '$lib/api/call';
 
 vi.mock('../user.svelte', () => ({
 	userStore: {
@@ -24,7 +24,7 @@ vi.mock('$env/static/public', () => ({
 	PUBLIC_API_ENV: 'development'
 }));
 
-vi.mock('$lib/graphql/client', () => ({ request: vi.fn() }));
+vi.mock('$lib/api/call', () => ({ call: vi.fn() }));
 
 vi.mock('$app/environment', () => ({
 	browser: true,
@@ -57,8 +57,10 @@ const todo = (overrides: Partial<BoardTodo> = {}): BoardTodo => ({
 	...overrides
 });
 
-/** Name of the GraphQL operation a request() call was made with. */
-const opName = (doc: unknown) => String(doc).match(/(?:query|mutation)\s+(\w+)/)?.[1];
+// The store's data API calls, as (op, input) pairs.
+const calls = () => vi.mocked(call).mock.calls as unknown as [string, any][];
+const mockCall = (impl: (op: string, input: any) => Promise<unknown>) =>
+	vi.mocked(call).mockImplementation(impl as never);
 
 function deferred<T>() {
 	let resolve!: (value: T) => void;
@@ -79,42 +81,42 @@ describe('todosStore races (#209)', () => {
 	it('an edit made while the card is still being created waits for its real id', async () => {
 		const created = todo({ id: 'real-id', title: 'New card' });
 		const insert = deferred<unknown>();
-		vi.mocked(request).mockImplementation(async (doc: any, vars: any) => {
-			switch (opName(doc)) {
-				case 'CreateTodo':
+		mockCall(async (op, input) => {
+			switch (op) {
+				case 'createTodo':
 					return insert.promise;
-				case 'UpdateTodos':
-					return { update_todos: { returning: [{ ...created, ...vars._set }] } };
+				case 'updateTodo':
+					return { ...created, ...input.set };
 				default:
 					return {};
 			}
 		});
 
-		const adding = todosStore.addTodo('New card');
+		const adding = todosStore.addTodo('New card', undefined, 'list-1');
 		await vi.waitFor(() => expect(todosStore.todos).toHaveLength(1));
 		const tempId = todosStore.todos[0].id;
 		expect(tempId).toMatch(/^temp-/);
 
 		const updating = todosStore.updateTodo(tempId, { title: 'Renamed' });
-		insert.resolve({ insert_todos: { returning: [created] } });
+		insert.resolve(created);
 
 		const result = await updating;
 		await adding;
 
 		expect(result.success).toBe(true);
-		const updates = vi.mocked(request).mock.calls.filter(([doc]) => opName(doc) === 'UpdateTodos');
+		const updates = calls().filter(([op]) => op === 'updateTodo');
 		expect(updates).toHaveLength(1);
-		expect(updates[0][1]).toMatchObject({ where: { id: { _eq: 'real-id' } } });
+		expect(updates[0][1]).toMatchObject({ id: 'real-id', set: { title: 'Renamed' } });
 		expect(todosStore.todos.map((t) => [t.id, t.title])).toEqual([['real-id', 'Renamed']]);
 	});
 
 	it('an edit to a card whose create failed is dropped, not sent', async () => {
 		let failInsert!: (error: Error) => void;
-		vi.mocked(request).mockImplementation(async (doc: any) =>
-			opName(doc) === 'CreateTodo' ? new Promise((_, reject) => (failInsert = reject)) : ({} as any)
+		mockCall(async (op) =>
+			op === 'createTodo' ? new Promise((_, reject) => (failInsert = reject)) : {}
 		);
 
-		const adding = todosStore.addTodo('Doomed');
+		const adding = todosStore.addTodo('Doomed', undefined, 'list-1');
 		await vi.waitFor(() => expect(todosStore.todos).toHaveLength(1));
 		const updating = todosStore.updateTodo(todosStore.todos[0].id, { title: 'x' });
 		failInsert(new Error('insert failed'));
@@ -122,22 +124,18 @@ describe('todosStore races (#209)', () => {
 		await adding;
 
 		expect(result.success).toBe(false);
-		expect(vi.mocked(request).mock.calls.some(([doc]) => opName(doc) === 'UpdateTodos')).toBe(
-			false
-		);
+		expect(calls().some(([op]) => op === 'updateTodo')).toBe(false);
 	});
 
 	it('writes the server row back by id when the array was replaced meanwhile', async () => {
 		todosStore.setTodosForTesting?.([todo({ id: 'a', title: 'A' }), todo({ id: 'b', title: 'B' })]);
 		const update = deferred<unknown>();
-		vi.mocked(request).mockImplementation(async (doc: any) =>
-			opName(doc) === 'UpdateTodos' ? update.promise : {}
-		);
+		mockCall(async (op) => (op === 'updateTodo' ? update.promise : {}));
 
 		const updating = todosStore.updateTodo('a', { title: 'A2' });
 		// A poll lands in between with a different order: index 0 is now card b.
 		todosStore.setTodosForTesting?.([todo({ id: 'b', title: 'B' }), todo({ id: 'a', title: 'A' })]);
-		update.resolve({ update_todos: { returning: [todo({ id: 'a', title: 'A2' })] } });
+		update.resolve(todo({ id: 'a', title: 'A2' }));
 		await updating;
 
 		expect(todosStore.todos.map((t) => [t.id, t.title])).toEqual([
@@ -153,23 +151,13 @@ describe('todosStore races (#209)', () => {
 
 		beforeEach(async () => {
 			fingerprint = 'fp-1';
-			vi.mocked(request).mockImplementation(async (doc: any) => {
-				switch (opName(doc)) {
-					case 'GetTodos':
-						return { todos: [todo({ id: 'a' })] };
-					case 'GetLists':
-						return { lists: [] };
-					default:
-						return {};
-				}
-			});
+			mockCall(async (op) => (op === 'getTodos' ? [todo({ id: 'a' })] : {}));
 			// The board must be the current one, or refreshBoardTodos discards the result.
 			await todosStore.loadTodosInitial(board);
-			vi.mocked(request).mockClear();
+			vi.mocked(call).mockClear();
 		});
 
-		const fullFetches = () =>
-			vi.mocked(request).mock.calls.filter(([doc]) => opName(doc) === 'GetTodos').length;
+		const fullFetches = () => calls().filter(([op]) => op === 'getTodos').length;
 
 		it('downloads the full board on the first poll, then only when the fingerprint changes', async () => {
 			expect(await todosStore.refreshBoardTodosIfChanged(board, fingerprint)).toBe(true);
@@ -197,16 +185,14 @@ describe('todosStore races (#209)', () => {
 		// fetched before it committed must not put the card back where it was.
 		it('a poll does not overwrite a sort_order write still in flight', async () => {
 			const update = deferred<unknown>();
-			const base = vi.mocked(request).getMockImplementation()!;
-			vi.mocked(request).mockImplementation(async (doc: any, vars: any) =>
-				opName(doc) === 'UpdateTodos' ? update.promise : base(doc, vars)
-			);
+			const base = vi.mocked(call).getMockImplementation()! as any;
+			mockCall(async (op, input) => (op === 'updateTodo' ? update.promise : base(op, input)));
 
 			const moving = todosStore.updateTodo('a', { sort_order: 0 });
 			expect(await todosStore.refreshBoardTodosIfChanged(board, fingerprint)).toBe(false);
 			expect(todosStore.todos[0].sort_order).toBe(0);
 
-			update.resolve({ update_todos: { returning: [todo({ id: 'a', sort_order: 0 })] } });
+			update.resolve(todo({ id: 'a', sort_order: 0 }));
 			await moving;
 			// Skipped, so the fingerprint was not recorded: the next poll refreshes.
 			expect(await todosStore.refreshBoardTodosIfChanged(board, fingerprint)).toBe(true);
@@ -214,18 +200,17 @@ describe('todosStore races (#209)', () => {
 
 		it('a poll whose fetch started before a write committed is dropped', async () => {
 			const fetched = deferred<unknown>();
-			const base = vi.mocked(request).getMockImplementation()!;
-			vi.mocked(request).mockImplementation(async (doc: any, vars: any) => {
-				if (opName(doc) === 'GetTodos') return fetched.promise;
-				if (opName(doc) === 'UpdateTodos')
-					return { update_todos: { returning: [todo({ id: 'a', sort_order: 0 })] } };
-				return base(doc, vars);
+			const base = vi.mocked(call).getMockImplementation()! as any;
+			mockCall(async (op, input) => {
+				if (op === 'getTodos') return fetched.promise;
+				if (op === 'updateTodo') return todo({ id: 'a', sort_order: 0 });
+				return base(op, input);
 			});
 
 			const polling = todosStore.refreshBoardTodosIfChanged(board, fingerprint);
 			await vi.waitFor(() => expect(fullFetches()).toBe(2));
 			await todosStore.updateTodo('a', { sort_order: 0 });
-			fetched.resolve({ todos: [todo({ id: 'a', sort_order: 1 })] }); // pre-write copy
+			fetched.resolve([todo({ id: 'a', sort_order: 1 })]); // pre-write copy
 
 			expect(await polling).toBe(false);
 			expect(todosStore.todos[0].sort_order).toBe(0);

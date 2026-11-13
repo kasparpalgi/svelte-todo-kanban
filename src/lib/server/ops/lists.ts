@@ -10,6 +10,7 @@ import {
 } from '$lib/graphql/documents';
 import { Order_By, type Lists_Bool_Exp } from '$lib/graphql/generated/graphql';
 import { boardRole, canEdit, canRead, requireRole } from '$lib/server/access';
+import { written } from './cardAccess';
 import { defineOp, OpError, type UserCtx } from './op';
 
 const name = z.string().trim().min(1).max(200);
@@ -49,6 +50,7 @@ export const createList = defineOp({
 		const data = await ctx.db(CREATE_LIST, { objects: [{ board_id: boardId, name, sort_order }] });
 		const list = data.insert_lists?.returning[0];
 		if (!list) throw new Error('insert_lists returned no row');
+		await written(ctx, [boardId]);
 		return list;
 	}
 });
@@ -60,12 +62,14 @@ export const updateList = defineOp({
 		set: z.object({ name, sort_order: z.number().int(), board_id: z.guid() }).partial().strict()
 	}),
 	async run(ctx, { id, set }) {
-		await requireRole(ctx, await listBoard(ctx, id), canEdit);
+		const boardId = await listBoard(ctx, id);
+		await requireRole(ctx, boardId, canEdit);
 		// Moving a list to another board needs edit rights there too.
 		if (set.board_id) await requireRole(ctx, set.board_id, canEdit);
 		const data = await ctx.db(UPDATE_LIST, { where: { id: { _eq: id } }, _set: set });
 		const list = data.update_lists?.returning[0];
 		if (!list) throw new OpError(404, 'List not found');
+		await written(ctx, [boardId, set.board_id]);
 		return list;
 	}
 });
@@ -74,8 +78,10 @@ export const deleteList = defineOp({
 	auth: 'user',
 	input: z.object({ id: z.guid() }),
 	async run(ctx, { id }) {
-		await requireRole(ctx, await listBoard(ctx, id), canEdit);
+		const boardId = await listBoard(ctx, id);
+		await requireRole(ctx, boardId, canEdit);
 		const data = await ctx.db(DELETE_LIST, { where: { id: { _eq: id } } });
+		await written(ctx, [boardId]);
 		return { deleted: (data.delete_lists?.affected_rows ?? 0) > 0 };
 	}
 });

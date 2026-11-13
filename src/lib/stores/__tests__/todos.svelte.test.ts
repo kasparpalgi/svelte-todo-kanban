@@ -3,6 +3,7 @@ import { todosStore } from '../todos.svelte';
 import { listsStore } from '../listsBoards.svelte';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { BoardTodo } from '$lib/types/todo';
+import { call } from '$lib/api/call';
 
 vi.mock('../user.svelte', () => ({
 	userStore: { user: { id: 'user-1', name: 'Test', username: 'test', email: 'test@example.com' } }
@@ -14,9 +15,7 @@ vi.mock('$env/static/public', () => ({
 	PUBLIC_API_ENV: 'development'
 }));
 
-vi.mock('$lib/graphql/client', () => ({
-	request: vi.fn()
-}));
+vi.mock('$lib/api/call', () => ({ call: vi.fn() }));
 
 vi.mock('$app/environment', () => ({
 	browser: true,
@@ -24,8 +23,6 @@ vi.mock('$app/environment', () => ({
 	building: false,
 	version: '1.0.0'
 }));
-
-vi.mock('$lib/graphql/client');
 
 const createMockTodo = (overrides: Partial<BoardTodo> = {}): BoardTodo => ({
 	id: 'test-id',
@@ -74,14 +71,9 @@ describe('TodosStore', () => {
 		it('should add a new todo and update the store state', async () => {
 			const newTodo = createMockTodo({ id: 'new-1', title: 'New Todo' });
 
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValue({
-				insert_todos: {
-					returning: [newTodo]
-				}
-			});
+			vi.mocked(call).mockResolvedValue(newTodo);
 
-			const result = await todosStore.addTodo('New Todo', 'Some content');
+			const result = await todosStore.addTodo('New Todo', 'Some content', 'list-1');
 
 			expect(result.success).toBe(true);
 			expect(result.data).toEqual(newTodo);
@@ -89,10 +81,9 @@ describe('TodosStore', () => {
 		});
 
 		it('shows the optimistic card with the light-fragment comment count (#212)', async () => {
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockReturnValue(new Promise(() => {})); // keep it in flight
+			vi.mocked(call).mockReturnValue(new Promise(() => {})); // keep it in flight
 
-			void todosStore.addTodo('Pending Todo');
+			void todosStore.addTodo('Pending Todo', undefined, 'list-1');
 
 			// TodoItem reads comments_aggregate.aggregate.count; a missing one crashed the board.
 			await vi.waitFor(() => expect(todosStore.todos).toHaveLength(1));
@@ -107,11 +98,30 @@ describe('TodosStore', () => {
 			expect(todosStore.todos).toHaveLength(0);
 		});
 
-		it('should handle API errors gracefully', async () => {
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockRejectedValue(new Error('API Error'));
+		it('needs a list: a card lives in one', async () => {
+			const result = await todosStore.addTodo('Nowhere');
 
-			const result = await todosStore.addTodo('Error Todo');
+			expect(result.success).toBe(false);
+			expect(call).not.toHaveBeenCalled();
+		});
+
+		it('sends the card to createTodo, which assigns the creator on the server', async () => {
+			vi.mocked(call).mockResolvedValue(createMockTodo({ id: 'n1' }) as never);
+
+			await todosStore.addTodo(' Card ', ' body ', 'list-1', true, false, 'high');
+
+			expect(vi.mocked(call).mock.calls).toEqual([
+				[
+					'createTodo',
+					{ listId: 'list-1', title: 'Card', content: 'body', sort_order: 1000, priority: 'high' }
+				]
+			]);
+		});
+
+		it('should handle API errors gracefully', async () => {
+			vi.mocked(call).mockRejectedValue(new Error('API Error'));
+
+			const result = await todosStore.addTodo('Error Todo', undefined, 'list-1');
 
 			expect(result.success).toBe(false);
 			expect(result.message).toBe('API Error');
@@ -133,8 +143,7 @@ describe('TodosStore', () => {
 				list: { id: 'list-1', name: 'Backlog', board: { id: 'board-1' } } as any
 			});
 
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValue({ insert_todos: { returning: [todoWithGithub] } });
+			vi.mocked(call).mockResolvedValue(todoWithGithub);
 
 			await todosStore.addTodo('GitHub Todo', undefined, 'list-1', true, true);
 
@@ -166,8 +175,7 @@ describe('TodosStore', () => {
 				} as any
 			});
 
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValue({ insert_todos: { returning: [todoWithGithub] } });
+			vi.mocked(call).mockResolvedValue(todoWithGithub);
 
 			await todosStore.addTodo('No GitHub Todo', undefined, 'list-1', true, false);
 
@@ -184,16 +192,11 @@ describe('TodosStore', () => {
 		it('should update an existing todo', async () => {
 			const initialTodo = createMockTodo({ id: '1', title: 'Initial Title' });
 
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValueOnce({
-				insert_todos: { returning: [initialTodo] }
-			});
-			await todosStore.addTodo('Initial Title');
+			vi.mocked(call).mockResolvedValueOnce(initialTodo);
+			await todosStore.addTodo('Initial Title', undefined, 'list-1');
 
 			const updatedTodo = { ...initialTodo, title: 'Updated Title' };
-			vi.mocked(request).mockResolvedValueOnce({
-				update_todos: { returning: [updatedTodo] }
-			});
+			vi.mocked(call).mockResolvedValueOnce(updatedTodo);
 
 			const result = await todosStore.updateTodo('1', { title: 'Updated Title' });
 
@@ -208,12 +211,9 @@ describe('TodosStore', () => {
 			const fetchSpy = vi.fn().mockResolvedValue({ ok: true });
 			vi.stubGlobal('fetch', fetchSpy);
 			const todo = createMockTodo({ id: 'f1', content: 'old', task_file_path: path } as never);
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValueOnce({ insert_todos: { returning: [todo] } });
-			await todosStore.addTodo('Draft');
-			vi.mocked(request).mockResolvedValue({
-				update_todos: { returning: [{ ...todo, content: 'new' }] }
-			});
+			vi.mocked(call).mockResolvedValueOnce(todo);
+			await todosStore.addTodo('Draft', undefined, 'list-1');
+			vi.mocked(call).mockResolvedValue({ ...todo, content: 'new' });
 
 			await todosStore.updateTodo('f1', { content: 'new' });
 
@@ -236,16 +236,11 @@ describe('TodosStore', () => {
 		it('should toggle a todo to completed', async () => {
 			const todoToToggle = createMockTodo({ id: '1', completed_at: null });
 
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request).mockResolvedValueOnce({
-				insert_todos: { returning: [todoToToggle] }
-			});
-			await todosStore.addTodo('Test Todo');
+			vi.mocked(call).mockResolvedValueOnce(todoToToggle);
+			await todosStore.addTodo('Test Todo', undefined, 'list-1');
 
 			const completedTodo = { ...todoToToggle, completed_at: new Date().toISOString() };
-			vi.mocked(request).mockResolvedValueOnce({
-				update_todos: { returning: [completedTodo] }
-			});
+			vi.mocked(call).mockResolvedValueOnce(completedTodo);
 
 			const result = await todosStore.toggleTodo('1');
 
@@ -254,102 +249,46 @@ describe('TodosStore', () => {
 	});
 
 	describe('assignUser / unassignUser (multi-assignee)', () => {
+		// Promotion of the primary assignee, the activity row and the notification are the
+		// server's job now (src/lib/server/ops/cardPeople.ts); the store shows its answer.
 		const assignment = (userId: string) => ({
 			user_id: userId,
 			created_at: '2025-01-01T00:00:00Z',
-			assignee: {
-				id: userId,
-				name: userId,
-				username: userId,
-				image: null,
-				email: null,
-				__typename: 'users' as const
-			},
-			__typename: 'todo_assignees' as const
+			assignee: { id: userId, name: userId, username: userId, image: null, email: null }
 		});
 
-		it('assigns a user and promotes them to primary when the todo had none', async () => {
+		it('assigns through the assignUser op and shows the card it returns', async () => {
 			const todo = createMockTodo({ id: '1', assigned_to: null, assignees: [] });
-			(todosStore as unknown as { setTodosForTesting: (t: unknown[]) => void }).setTodosForTesting([
-				todo
-			]);
-
-			const { request } = await import('$lib/graphql/client');
-			const row = assignment('u1');
-			vi.mocked(request)
-				.mockResolvedValueOnce({ insert_todo_assignees_one: row })
-				.mockResolvedValueOnce({
-					update_todos: { returning: [{ ...todo, assigned_to: 'u1', assignees: [row] }] }
-				})
-				.mockResolvedValueOnce({ insert_activity_logs_one: { id: 'log-1' } }); // activity log
+			todosStore.setTodosForTesting?.([todo]);
+			const after = { ...todo, assigned_to: 'u1', assignees: [assignment('u1')] };
+			vi.mocked(call).mockResolvedValue(after as never);
 
 			const result = await todosStore.assignUser('1', 'u1');
 
 			expect(result.success).toBe(true);
-			expect(todosStore.todos[0].assignees.map((a) => a.user_id)).toContain('u1');
+			expect(vi.mocked(call).mock.calls).toEqual([['assignUser', { todoId: '1', userId: 'u1' }]]);
 			expect(todosStore.todos[0].assigned_to).toBe('u1');
 		});
 
 		it('is a no-op (no request) when the user is already assigned', async () => {
-			const todo = createMockTodo({
-				id: '1',
-				assigned_to: 'u1',
-				assignees: [assignment('u1')]
-			});
-			(todosStore as unknown as { setTodosForTesting: (t: unknown[]) => void }).setTodosForTesting([
-				todo
-			]);
+			const todo = createMockTodo({ id: '1', assigned_to: 'u1', assignees: [assignment('u1')] });
+			todosStore.setTodosForTesting?.([todo]);
 
-			const { request } = await import('$lib/graphql/client');
 			const result = await todosStore.assignUser('1', 'u1');
 
 			expect(result.success).toBe(true);
-			expect(request).not.toHaveBeenCalled();
+			expect(call).not.toHaveBeenCalled();
 		});
 
-		it('adds a second assignee without changing the existing primary', async () => {
-			const a1 = assignment('u1');
-			const todo = createMockTodo({ id: '1', assigned_to: 'u1', assignees: [a1] });
-			(todosStore as unknown as { setTodosForTesting: (t: unknown[]) => void }).setTodosForTesting([
-				todo
-			]);
-
-			const { request } = await import('$lib/graphql/client');
-			const a2 = assignment('u2');
-			vi.mocked(request)
-				.mockResolvedValueOnce({ insert_todo_assignees_one: a2 })
-				.mockResolvedValueOnce({ insert_activity_logs_one: { id: 'log-1' } }); // activity log
-
-			const result = await todosStore.assignUser('1', 'u2');
-
-			expect(result.success).toBe(true);
-			// Promotion (UPDATE_TODOS) is skipped since the todo already had a primary.
-			expect(request).toHaveBeenCalledTimes(2);
-			expect(todosStore.todos[0].assigned_to).toBe('u1');
-			expect(todosStore.todos[0].assignees.map((a) => a.user_id)).toEqual(['u1', 'u2']);
-		});
-
-		it('unassigns the primary and promotes a remaining assignee', async () => {
-			const a1 = assignment('u1');
-			const a2 = assignment('u2');
-			const todo = createMockTodo({ id: '1', assigned_to: 'u1', assignees: [a1, a2] });
-			(todosStore as unknown as { setTodosForTesting: (t: unknown[]) => void }).setTodosForTesting([
-				todo
-			]);
-
-			const { request } = await import('$lib/graphql/client');
-			vi.mocked(request)
-				.mockResolvedValueOnce({ delete_todo_assignees_by_pk: { todo_id: '1', user_id: 'u1' } })
-				.mockResolvedValueOnce({
-					update_todos: { returning: [{ ...todo, assigned_to: 'u2', assignees: [a2] }] }
-				})
-				.mockResolvedValueOnce({ insert_activity_logs_one: { id: 'log-1' } }); // activity log
+		it('keeps the card as it was when the server refuses', async () => {
+			const todo = createMockTodo({ id: '1', assigned_to: 'u1', assignees: [assignment('u1')] });
+			todosStore.setTodosForTesting?.([todo]);
+			vi.mocked(call).mockRejectedValue(new Error('Not allowed on this card'));
 
 			const result = await todosStore.unassignUser('1', 'u1');
 
-			expect(result.success).toBe(true);
-			expect(todosStore.todos[0].assigned_to).toBe('u2');
-			expect(todosStore.todos[0].assignees.map((a) => a.user_id)).toEqual(['u2']);
+			expect(result).toMatchObject({ success: false, message: 'Not allowed on this card' });
+			expect(todosStore.todos[0].assigned_to).toBe('u1');
 		});
 	});
 });

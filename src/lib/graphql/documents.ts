@@ -328,10 +328,9 @@ export const SEARCH_TODO_CONTENT = graphql(`
 	}
 `);
 
-// Server only: the `poll` op (src/lib/server/ops/poll.ts). Everything that changes
-// what a board shows, hashed on the server, so the browser gets a few bytes every
-// 30 s and refetches the full board only on a change. The full GET_TODOS of a
-// 334-card board was 2.3 MB / ~6 s every 30 s (#209).
+// Server only: the `poll` op (src/lib/server/ops/poll.ts). One board row (its
+// `changed_at` stamp, #229) instead of a fingerprint of every card, so the browser gets
+// a few bytes every 30 s and refetches the full board only on a change.
 export const POLL_UNREAD = graphql(`
 	query PollUnread($userId: uuid!) {
 		notifications_aggregate(where: { user_id: { _eq: $userId }, is_read: { _eq: false } }) {
@@ -351,39 +350,15 @@ export const POLL_BOARD = graphql(`
 		}
 		boards_by_pk(id: $boardId) {
 			updated_at
+			changed_at
 		}
-		lists(where: { board_id: { _eq: $boardId } }, order_by: { id: asc }) {
-			id
-			name
-			sort_order
-			updated_at
-		}
-		todos(where: { list: { board_id: { _eq: $boardId } } }, order_by: { id: asc }) {
-			id
-			updated_at
-			comments_aggregate {
-				aggregate {
-					count
-					max {
-						updated_at
-					}
-				}
-			}
-			labels {
-				label_id
-			}
-			uploads {
-				id
-			}
-			assignees {
-				user_id
-			}
-			subscribers {
-				user_id
-			}
-			claude_usages_aggregate {
-				aggregate {
-					count
+		# Until the runner writes through the API (#231) and bumps changed_at, its card
+		# creates and moves are seen through this one aggregate. Drop it in #231.
+		todos_aggregate(where: { list: { board_id: { _eq: $boardId } } }) {
+			aggregate {
+				count
+				max {
+					updated_at
 				}
 			}
 		}
@@ -761,6 +736,109 @@ export const GET_LIST_BOARD = graphql(`
 	query GetListBoard($id: uuid!) {
 		lists_by_pk(id: $id) {
 			board_id
+			name
+		}
+	}
+`);
+
+// Server only: a card with its board's access fields, and the fields its activity log
+// compares, in one read (src/lib/server/ops/cardAccess.ts).
+export const GET_CARD_ACCESS = graphql(`
+	query GetCardAccess($id: uuid!, $userId: uuid!) {
+		todos_by_pk(id: $id) {
+			id
+			user_id
+			list_id
+			title
+			content
+			completed_at
+			priority
+			due_on
+			has_time
+			assigned_to
+			min_hours
+			max_hours
+			actual_hours
+			comment_hours
+			task_file_path
+			github_issue_number
+			github_issue_id
+			assignees {
+				user_id
+			}
+			subscribers {
+				user_id
+			}
+			list {
+				name
+				board_id
+				board {
+					user_id
+					is_public
+					board_members(where: { user_id: { _eq: $userId } }) {
+						role
+					}
+				}
+			}
+		}
+	}
+`);
+
+// Server only: after every card write, in one transaction: bump the boards' changed_at
+// (what the poll compares, #229) and add the activity rows and notifications it caused.
+export const CARD_WRITTEN = graphql(`
+	mutation CardWritten(
+		$boardIds: [uuid!]!
+		$at: timestamptz!
+		$logs: [activity_logs_insert_input!]!
+		$notifications: [notifications_insert_input!]!
+	) {
+		update_boards(where: { id: { _in: $boardIds } }, _set: { changed_at: $at }) {
+			affected_rows
+		}
+		insert_activity_logs(objects: $logs) {
+			affected_rows
+		}
+		insert_notifications(objects: $notifications) {
+			affected_rows
+		}
+	}
+`);
+
+export const GET_COMMENT_ACCESS = graphql(`
+	query GetCommentAccess($id: uuid!) {
+		comments_by_pk(id: $id) {
+			id
+			user_id
+			todo_id
+			content
+		}
+	}
+`);
+
+export const GET_UPLOAD_TODO = graphql(`
+	query GetUploadTodo($id: uuid!) {
+		uploads_by_pk(id: $id) {
+			todo_id
+		}
+	}
+`);
+
+export const MARK_MY_NOTIFICATIONS_READ = graphql(`
+	mutation MarkMyNotificationsRead($userId: uuid!, $ids: [uuid!]!) {
+		update_notifications(
+			where: { user_id: { _eq: $userId }, id: { _in: $ids } }
+			_set: { is_read: true }
+		) {
+			affected_rows
+		}
+	}
+`);
+
+export const DELETE_MY_NOTIFICATION = graphql(`
+	mutation DeleteMyNotification($userId: uuid!, $id: uuid!) {
+		delete_notifications(where: { user_id: { _eq: $userId }, id: { _eq: $id } }) {
+			affected_rows
 		}
 	}
 `);
@@ -1124,11 +1202,6 @@ export const GET_NOTIFICATIONS = graphql(`
 		notifications(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
 			...NotificationFields
 		}
-		notifications_aggregate(where: $where) {
-			aggregate {
-				count
-			}
-		}
 	}
 `);
 
@@ -1136,30 +1209,6 @@ export const CREATE_NOTIFICATION = graphql(`
 	mutation CreateNotification($notification: notifications_insert_input!) {
 		insert_notifications_one(object: $notification) {
 			...NotificationFields
-		}
-	}
-`);
-
-export const UPDATE_NOTIFICATION = graphql(`
-	mutation UpdateNotification($id: uuid!, $updates: notifications_set_input!) {
-		update_notifications_by_pk(pk_columns: { id: $id }, _set: $updates) {
-			...NotificationFields
-		}
-	}
-`);
-
-export const MARK_NOTIFICATIONS_AS_READ = graphql(`
-	mutation MarkNotificationsAsRead($notification_ids: [uuid!]!) {
-		update_notifications(where: { id: { _in: $notification_ids } }, _set: { is_read: true }) {
-			affected_rows
-		}
-	}
-`);
-
-export const DELETE_NOTIFICATION = graphql(`
-	mutation DeleteNotification($id: uuid!) {
-		delete_notifications_by_pk(id: $id) {
-			id
 		}
 	}
 `);
@@ -1231,11 +1280,6 @@ export const GET_ACTIVITY_LOGS = graphql(`
 	) {
 		activity_logs(where: $where, order_by: $order_by, limit: $limit, offset: $offset) {
 			...ActivityLogFields
-		}
-		activity_logs_aggregate(where: $where) {
-			aggregate {
-				count
-			}
 		}
 	}
 `);
@@ -1343,23 +1387,6 @@ export const UNASSIGN_USER_FROM_TODO = graphql(`
 		delete_todo_assignees_by_pk(todo_id: $todo_id, user_id: $user_id) {
 			todo_id
 			user_id
-		}
-	}
-`);
-
-export const GET_TODO_SUBSCRIBERS = graphql(`
-	query GetTodoSubscribers($todo_id: uuid!) {
-		todo_subscribers(where: { todo_id: { _eq: $todo_id } }) {
-			todo_id
-			user_id
-			created_at
-			subscriber {
-				id
-				name
-				username
-				image
-				email
-			}
 		}
 	}
 `);

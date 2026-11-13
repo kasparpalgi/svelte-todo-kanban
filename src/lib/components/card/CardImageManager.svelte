@@ -158,7 +158,7 @@
 		const image = images.find((img) => img.id === imageId);
 		if (image) {
 			if (image.isExisting) {
-				todosStore.deleteUpload(imageId, todoId);
+				todosStore.deleteUpload(imageId);
 			} else {
 				if (image.preview.startsWith('blob:')) {
 					URL.revokeObjectURL(image.preview);

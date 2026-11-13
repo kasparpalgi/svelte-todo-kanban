@@ -1,35 +1,22 @@
 /** @file src/lib/stores/todos.svelte.ts */
-import {
-	GET_TODOS,
-	GET_TODO_DETAILS,
-	CREATE_TODO,
-	UPDATE_TODOS,
-	DELETE_TODOS,
-	CREATE_UPLOAD,
-	DELETE_UPLOAD,
-	CREATE_NOTIFICATION,
-	CREATE_ACTIVITY_LOG,
-	SUBSCRIBE_TO_TODO,
-	UNSUBSCRIBE_FROM_TODO,
-	GET_TODO_SUBSCRIBERS,
-	ASSIGN_USER_TO_TODO,
-	UNASSIGN_USER_FROM_TODO
-} from '$lib/graphql/documents';
-import { request } from '$lib/graphql/client';
+// The open board's cards. Every read and write goes through the data API (`call`, #229);
+// the server checks access and writes the activity rows and notifications itself.
+import { call, type OpInput, type OpOutput } from '$lib/api/call';
 import { browser } from '$app/environment';
-import type {
-	GetTodosQuery,
-	CreateTodoMutation,
-	UpdateTodosMutation,
-	DeleteTodosMutation,
-	CreateUploadMutation,
-	DeleteUploadMutation,
-	GetTodoDetailsQuery
-} from '$lib/graphql/generated/graphql';
 import type { BoardTodo, StoreResult, TodosState } from '$lib/types/todo';
 import { todoFilteringStore } from './todoFiltering.svelte';
 import { listsStore } from './listsBoards.svelte';
 import { loggingStore } from './logging.svelte';
+
+type CardSet = OpInput<'updateTodo'>['set'];
+
+/** One page of the board's cards: open ones by position, completed ones newest first. */
+function fetchCards(boardId: string | undefined, completed: boolean, limit: number, offset = 0) {
+	return call('getTodos', { boardId, completed, limit, offset });
+}
+
+const errorMessage = (error: unknown, fallback: string) =>
+	error instanceof Error ? error.message : fallback;
 
 function createTodosStore() {
 	const state = $state<TodosState>({
@@ -103,188 +90,67 @@ function createTodosStore() {
 		});
 	}
 
+	/** Every card of the open board (or, before one is open, of the caller's boards). */
 	async function loadTodos(): Promise<BoardTodo[]> {
 		if (!browser) return [];
-
-		state.loading = true;
-		state.error = null;
-
-		try {
-			const { Order_By } = await import('$lib/graphql/generated/graphql');
-
-			const data: GetTodosQuery = await request(GET_TODOS, {
-				where: {},
-				order_by: [
-					{ sort_order: Order_By.Asc },
-					{ due_on: Order_By.Desc },
-					{ updated_at: Order_By.Desc }
-				],
-				limit: 1000,
-				offset: 0
-			});
-
-			state.todos = keepLoadedContent(data.todos || []);
-			state.initialized = true;
-			return state.todos;
-		} catch (error) {
-			let message = 'Error loading todos';
-
-			if (error instanceof Error) {
-				if (error.message.includes('Not authenticated')) {
-					message = 'Please sign in to view your todos';
-				} else if (error.message.includes('access-denied')) {
-					message = 'Access denied - please check your permissions';
-				} else if (error.message.includes('Failed to get JWT token')) {
-					message = 'Authentication failed - please try refreshing the page';
-				} else {
-					message = error.message;
-				}
-			}
-
-			state.error = message;
-			console.error('Load todos error:', error);
-			return [];
-		} finally {
-			state.loading = false;
-		}
+		const boardId = state.currentBoardId ?? undefined;
+		return loadInto('Load todos', boardId, async () => {
+			const [active, completed] = await Promise.all([
+				fetchCards(boardId, false, 1000),
+				fetchCards(boardId, true, 200)
+			]);
+			return [...active, ...completed];
+		});
 	}
 
-	/**
-	 * Load initial batch of todos (top 50) with limit on comments/uploads
-	 * This provides fast initial render for the board view
-	 */
+	/** The top 50 open cards, for a fast first render; loadTodosRemaining fetches the rest. */
 	async function loadTodosInitial(boardId?: string): Promise<BoardTodo[]> {
 		if (!browser) return [];
+		return loadInto('Load initial todos', boardId, () => fetchCards(boardId, false, 50));
+	}
 
+	async function loadInto(
+		what: string,
+		boardId: string | undefined,
+		load: () => Promise<BoardTodo[]>
+	): Promise<BoardTodo[]> {
 		state.loading = true;
 		state.error = null;
-
 		try {
-			const { Order_By } = await import('$lib/graphql/generated/graphql');
-
-			const where: any = { completed_at: { _is_null: true } };
-			if (boardId) {
-				where.list = { board_id: { _eq: boardId } };
-			}
-
-			// Use regular GET_TODOS but limit to 50 for fast initial load
-			const data: GetTodosQuery = await request(GET_TODOS, {
-				where,
-				order_by: [
-					{ sort_order: Order_By.Asc },
-					{ due_on: Order_By.Desc },
-					{ updated_at: Order_By.Desc }
-				],
-				limit: 50,
-				offset: 0
-			});
-
-			state.todos = keepLoadedContent(data.todos || []);
+			state.todos = keepLoadedContent(await load());
 			state.initialized = true;
 			state.currentBoardId = boardId || null;
-
 			return state.todos;
 		} catch (error) {
-			let message = 'Error loading todos';
-
-			if (error instanceof Error) {
-				if (error.message.includes('Not authenticated')) {
-					message = 'Please sign in to view your todos';
-				} else if (error.message.includes('access-denied')) {
-					message = 'Access denied - please check your permissions';
-				} else if (error.message.includes('Failed to get JWT token')) {
-					message = 'Authentication failed - please try refreshing the page';
-				} else {
-					message = error.message;
-				}
-			}
-
-			state.error = message;
-			console.error('Load initial todos error:', error);
+			state.error = errorMessage(error, 'Error loading todos');
+			console.error(`${what} error:`, error);
 			return [];
 		} finally {
 			state.loading = false;
 		}
 	}
 
-	/**
-	 * Load remaining todos in the background after initial render
-	 * Loads in chunks to avoid blocking the UI
-	 */
+	/** Adds cards not loaded yet (a background page arriving after the first render). */
+	function appendNew(todos: BoardTodo[]) {
+		const known = new Set(state.todos.map((t) => t.id));
+		const fresh = todos.filter((t) => !known.has(t.id));
+		if (fresh.length > 0) state.todos = [...state.todos, ...fresh];
+	}
+
+	/** The rest of the open cards in pages of 100, then the last 100 completed ones. */
 	async function loadTodosRemaining(boardId?: string): Promise<void> {
 		if (!browser) return;
-
+		const PAGE = 100;
 		try {
-			const { Order_By } = await import('$lib/graphql/generated/graphql');
-
-			const where: any = { completed_at: { _is_null: true } };
-			if (boardId) {
-				where.list = { board_id: { _eq: boardId } };
+			for (let offset = 50; ; offset += PAGE) {
+				const page = await fetchCards(boardId, false, PAGE, offset);
+				appendNew(page);
+				if (page.length < PAGE) break;
+				await new Promise((resolve) => setTimeout(resolve, 50)); // let the UI breathe
 			}
-
-			// Load remaining active todos in chunks
-			let offset = 50;
-			let hasMore = true;
-
-			while (hasMore) {
-				const data: GetTodosQuery = await request(GET_TODOS, {
-					where,
-					order_by: [
-						{ sort_order: Order_By.Asc },
-						{ due_on: Order_By.Desc },
-						{ updated_at: Order_By.Desc }
-					],
-					limit: 100,
-					offset
-				});
-
-				const todos = data.todos || [];
-
-				if (todos.length === 0) {
-					hasMore = false;
-					break;
-				}
-
-				// Merge with existing todos
-				const existingIds = new Set(state.todos.map((t) => t.id));
-				const newTodos = todos.filter((t: any) => !existingIds.has(t.id));
-
-				if (newTodos.length > 0) {
-					state.todos = [...state.todos, ...newTodos];
-				}
-
-				offset += 100;
-
-				if (todos.length < 100) {
-					hasMore = false;
-				}
-
-				// Small delay to avoid blocking the UI
-				await new Promise((resolve) => setTimeout(resolve, 50));
-			}
-
-			// Now load completed todos
-			const completedWhere: any = { completed_at: { _is_null: false } };
-			if (boardId) {
-				completedWhere.list = { board_id: { _eq: boardId } };
-			}
-
-			const completedData: GetTodosQuery = await request(GET_TODOS, {
-				where: completedWhere,
-				order_by: [{ completed_at: Order_By.Desc }],
-				limit: 100,
-				offset: 0
-			});
-
-			const completedTodos = completedData.todos || [];
-			const existingIds = new Set(state.todos.map((t) => t.id));
-			const newCompletedTodos = completedTodos.filter((t: any) => !existingIds.has(t.id));
-
-			if (newCompletedTodos.length > 0) {
-				state.todos = [...state.todos, ...newCompletedTodos];
-			}
+			appendNew(await fetchCards(boardId, true, PAGE));
 		} catch (error) {
-			// Non-blocking: log error but don't fail
+			// Non-blocking: the board already shows its first page.
 			console.error('Load remaining todos error:', error);
 		}
 	}
@@ -297,10 +163,7 @@ function createTodosStore() {
 		if (!browser) return null;
 
 		try {
-			const data = await request<GetTodoDetailsQuery>(GET_TODO_DETAILS, {
-				where: { id: { _eq: todoId } }
-			});
-			const fullTodo = data.todos?.[0];
+			const fullTodo = await call('getTodo', { id: todoId });
 			if (!fullTodo) return null;
 
 			if (indexOfTodo(todoId) === -1) state.todos = [...state.todos, fullTodo];
@@ -382,6 +245,8 @@ function createTodosStore() {
 	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		if (!title.trim()) return { success: false, message: 'Title is required' };
+		// A card lives in a list; a board with no list has nowhere to put one.
+		if (!listId) return { success: false, message: 'Add a list first' };
 
 		// Import user store to get current user ID
 		const { userStore: us } = await import('./user.svelte');
@@ -504,21 +369,17 @@ function createTodosStore() {
 				];
 			}
 
-			const data: CreateTodoMutation = await trackWrite(
-				request(CREATE_TODO, {
-					objects: [
-						{
-							title: title.trim(),
-							content: content?.trim() || null,
-							sort_order: sortOrder,
-							...(listId && { list_id: listId }),
-							assigned_to: us.user?.id || null
-						}
-					]
+			// The server assigns the creator and logs the activity.
+			const newTodo = await trackWrite(
+				call('createTodo', {
+					listId,
+					title: title.trim(),
+					content: content?.trim() || null,
+					sort_order: sortOrder,
+					priority: priority ?? null
 				})
 			);
 
-			const newTodo = data.insert_todos?.returning?.[0];
 			if (newTodo) {
 				// Replace optimistic placeholder with real todo from API
 				const tempIdx = state.todos.findIndex((t) => t.id === tempId);
@@ -528,43 +389,6 @@ function createTodosStore() {
 					state.todos = [...state.todos, newTodo];
 				}
 				settleCreate(newTodo.id);
-
-				// Log activity: todo created
-				try {
-					await request(CREATE_ACTIVITY_LOG, {
-						log: {
-							todo_id: newTodo.id,
-							action_type: 'created'
-						}
-					});
-				} catch (error) {
-					// Non-blocking: log error but don't fail todo creation
-					console.error('[TodosStore.addTodo] Failed to log activity:', error);
-				}
-
-				// Persist the creator as an assignee. `assigned_to` (set above) is the primary
-				// assignee; `todo_assignees` holds the complete set, so mirror it here.
-				if (us.user?.id && newTodo.id) {
-					try {
-						const asg: any = await request(ASSIGN_USER_TO_TODO, {
-							todo_id: newTodo.id,
-							user_id: us.user.id
-						});
-						const row = asg.insert_todo_assignees_one;
-						if (row) {
-							const i = state.todos.findIndex((t) => t.id === newTodo.id);
-							if (i !== -1) {
-								state.todos[i] = {
-									...state.todos[i],
-									assignees: [row]
-								} as BoardTodo;
-							}
-						}
-					} catch (error) {
-						// Non-blocking: log error but don't fail todo creation
-						console.error('[TodosStore.addTodo] Failed to persist creator assignee:', error);
-					}
-				}
 
 				// Create GitHub issue if requested
 				if (createGithubIssue && newTodo.id) {
@@ -717,149 +541,13 @@ function createTodosStore() {
 		}
 
 		try {
-			const data: UpdateTodosMutation = await trackWrite(
-				request(UPDATE_TODOS, { where: { id: { _eq: id } }, _set: updates })
+			// The server works out and writes the activity row (#229).
+			const updatedTodo = await trackWrite(
+				call('updateTodo', { id, set: updates as CardSet })
 			);
 
-			const updatedTodo = data.update_todos?.returning?.[0];
 			if (updatedTodo) {
 				replaceTodo(id, updatedTodo);
-
-				// Log activity based on what changed
-				try {
-					let actionType: string | null = null;
-					let fieldName: string | undefined;
-					let oldValue: string | undefined;
-					let newValue: string | undefined;
-					let changes: any = undefined;
-
-					// Determine action type based on what actually changed
-					if (updates.completed_at !== undefined) {
-						// Completion status changed
-						actionType = updates.completed_at ? 'completed' : 'uncompleted';
-					} else if (updates.priority !== undefined && originalTodo.priority !== updates.priority) {
-						// Priority changed (and values are different)
-						actionType = 'priority_changed';
-						fieldName = 'priority';
-						oldValue = originalTodo.priority?.toString() || 'none';
-						newValue = updates.priority?.toString() || 'none';
-					} else if (updates.due_on !== undefined && originalTodo.due_on !== updates.due_on) {
-						// Due date changed (and values are different)
-						actionType = 'due_date_changed';
-						fieldName = 'due_on';
-						oldValue = originalTodo.due_on || 'none';
-						newValue = updates.due_on || 'none';
-						// Include has_time info in changes
-						if (updates.has_time !== undefined) {
-							changes = {
-								has_time: {
-									old: originalTodo.has_time || false,
-									new: updates.has_time
-								}
-							};
-						}
-					} else if (
-						updates.assigned_to !== undefined &&
-						originalTodo.assigned_to !== updates.assigned_to
-					) {
-						// Assignee changed (and values are different)
-						actionType = updates.assigned_to ? 'assigned' : 'unassigned';
-						fieldName = 'assigned_to';
-						oldValue = originalTodo.assigned_to || '';
-						newValue = updates.assigned_to || '';
-						// Store assignee info in changes for display
-						changes = {
-							assignee_id: updates.assigned_to
-						};
-					} else if (updates.list_id !== undefined && originalTodo.list?.id !== updates.list_id) {
-						// List changed (card moved)
-						actionType = 'list_moved';
-						fieldName = 'list_id';
-						// Get list names for better display
-						const oldListName = originalTodo.list?.name || 'Unknown';
-						const newList = listsStore.lists.find((l) => l.id === updates.list_id);
-						const newListName = newList?.name || 'Unknown';
-						oldValue = oldListName;
-						newValue = newListName;
-						changes = {
-							old_list_id: originalTodo.list?.id,
-							new_list_id: updates.list_id
-						};
-					} else if (updates.title !== undefined && originalTodo.title !== updates.title) {
-						// Title changed
-						actionType = 'title_changed';
-						fieldName = 'title';
-						oldValue = originalTodo.title || '';
-						newValue = updates.title || '';
-					} else if (updates.content !== undefined && originalTodo.content !== updates.content) {
-						// Content changed
-						actionType = 'content_updated';
-						fieldName = 'content';
-						// Don't store full content, just indicate it changed
-						oldValue = 'Content updated';
-						newValue = 'Content updated';
-					} else if (
-						(updates.min_hours !== undefined && originalTodo.min_hours !== updates.min_hours) ||
-						(updates.max_hours !== undefined && originalTodo.max_hours !== updates.max_hours) ||
-						(updates.actual_hours !== undefined &&
-							originalTodo.actual_hours !== updates.actual_hours) ||
-						(updates.comment_hours !== undefined &&
-							originalTodo.comment_hours !== updates.comment_hours)
-					) {
-						// Time tracking hours changed
-						actionType = 'hours_changed';
-						fieldName = 'time_tracking';
-						changes = {
-							min_hours: {
-								old: originalTodo.min_hours,
-								new: updates.min_hours !== undefined ? updates.min_hours : originalTodo.min_hours
-							},
-							max_hours: {
-								old: originalTodo.max_hours,
-								new: updates.max_hours !== undefined ? updates.max_hours : originalTodo.max_hours
-							},
-							actual_hours: {
-								old: originalTodo.actual_hours,
-								new:
-									updates.actual_hours !== undefined
-										? updates.actual_hours
-										: originalTodo.actual_hours
-							},
-							comment_hours: {
-								old: originalTodo.comment_hours,
-								new:
-									updates.comment_hours !== undefined
-										? updates.comment_hours
-										: originalTodo.comment_hours
-							}
-						};
-						// Create a summary for display
-						const changedFields = [];
-						if (updates.min_hours !== undefined) changedFields.push('min');
-						if (updates.max_hours !== undefined) changedFields.push('max');
-						if (updates.actual_hours !== undefined) changedFields.push('actual');
-						if (updates.comment_hours !== undefined) changedFields.push('comment');
-						oldValue = `Updated ${changedFields.join(', ')} hours`;
-						newValue = `Updated ${changedFields.join(', ')} hours`;
-					}
-
-					// Only log if there's an actual change
-					if (actionType) {
-						await request(CREATE_ACTIVITY_LOG, {
-							log: {
-								todo_id: id,
-								action_type: actionType,
-								field_name: fieldName,
-								old_value: oldValue,
-								new_value: newValue,
-								changes: changes
-							}
-						});
-					}
-				} catch (error) {
-					// Non-blocking: log error but don't fail todo update
-					console.error('[TodosStore.updateTodo] Failed to log activity:', error);
-				}
 
 				// Card moved: into the board's agent list the server renames the draft
 				// NNN-slug.md → NNN-slug-TODO.md; out of it, the -TODO file back to its draft.
@@ -910,88 +598,33 @@ function createTodosStore() {
 		}
 	}
 
-	async function createUpload(todoId: string, url: string): Promise<StoreResult> {
+	/** Runs a card op that hands back the updated card, and shows that card. */
+	async function cardOp(
+		run: () => Promise<OpOutput<'getTodo'>>,
+		ok: string,
+		failed: string
+	): Promise<StoreResult> {
 		if (!browser) return { success: false, message: 'Not in browser' };
-
 		try {
-			const data: CreateUploadMutation = await request(CREATE_UPLOAD, {
-				objects: [
-					{
-						todo_id: todoId,
-						url: url
-					}
-				]
-			});
-
-			if (data.insert_uploads?.returning?.[0]) {
-				// Log activity: image added
-				try {
-					await request(CREATE_ACTIVITY_LOG, {
-						log: {
-							todo_id: todoId,
-							action_type: 'image_added'
-						}
-					});
-				} catch (error) {
-					// Non-blocking: log error but don't fail upload
-					console.error('[TodosStore.createUpload] Failed to log activity:', error);
-				}
-
-				// Refresh the todo to get updated uploads
-				await refreshTodo(todoId);
-				return { success: true, message: 'Upload created successfully' };
-			}
-
-			return { success: false, message: 'Failed to create upload record' };
+			const todo = await trackWrite(run());
+			if (todo) putTodo(todo);
+			return { success: true, message: ok, data: todo };
 		} catch (error) {
-			console.error('Create upload error:', error);
-			return {
-				success: false,
-				message: error instanceof Error ? error.message : 'Failed to create upload'
-			};
+			console.error(`${failed}:`, error);
+			return { success: false, message: errorMessage(error, failed) };
 		}
 	}
 
-	async function deleteUpload(uploadId: string, todoId: string): Promise<StoreResult> {
-		if (!browser) return { success: false, message: 'Not in browser' };
-
-		try {
-			const data: DeleteUploadMutation = await request(DELETE_UPLOAD, {
-				where: { id: { _eq: uploadId } }
-			});
-
-			if (data.delete_uploads?.affected_rows && data.delete_uploads.affected_rows > 0) {
-				// Log activity: image removed
-				try {
-					await request(CREATE_ACTIVITY_LOG, {
-						log: {
-							todo_id: todoId,
-							action_type: 'image_removed'
-						}
-					});
-				} catch (error) {
-					// Non-blocking: log error but don't fail deletion
-					console.error('[TodosStore.deleteUpload] Failed to log activity:', error);
-				}
-
-				// Refresh the todo to get updated uploads
-				await refreshTodo(todoId);
-				return { success: true, message: 'Upload deleted successfully' };
-			}
-
-			return { success: false, message: 'Failed to delete upload' };
-		} catch (error) {
-			console.error('Delete upload error:', error);
-			return {
-				success: false,
-				message: error instanceof Error ? error.message : 'Failed to delete upload'
-			};
-		}
+	/** Show a card the server just returned, if this board has it loaded. */
+	function putTodo(todo: BoardTodo) {
+		replaceTodo(todo.id, todo);
 	}
 
-	async function refreshTodo(todoId: string): Promise<void> {
-		if (indexOfTodo(todoId) !== -1) await loadTodoDetails(todoId);
-	}
+	const createUpload = (todoId: string, url: string) =>
+		cardOp(() => call('createUpload', { todoId, url }), 'Upload created', 'Failed to create upload');
+
+	const deleteUpload = (uploadId: string) =>
+		cardOp(() => call('deleteUpload', { id: uploadId }), 'Upload deleted', 'Failed to delete upload');
 
 	/**
 	 * Silently re-fetch all todos for a board without touching `loading`,
@@ -1003,34 +636,9 @@ function createTodosStore() {
 
 		const startedBefore = writesStarted;
 		try {
-			const { Order_By } = await import('$lib/graphql/generated/graphql');
-
-			const activeWhere: any = {
-				completed_at: { _is_null: true },
-				list: { board_id: { _eq: boardId } }
-			};
-			const completedWhere: any = {
-				completed_at: { _is_null: false },
-				list: { board_id: { _eq: boardId } }
-			};
-
-			const [activeData, completedData]: [GetTodosQuery, GetTodosQuery] = await Promise.all([
-				request<GetTodosQuery>(GET_TODOS, {
-					where: activeWhere,
-					order_by: [
-						{ sort_order: Order_By.Asc },
-						{ due_on: Order_By.Desc },
-						{ updated_at: Order_By.Desc }
-					],
-					limit: 1000,
-					offset: 0
-				}),
-				request<GetTodosQuery>(GET_TODOS, {
-					where: completedWhere,
-					order_by: [{ completed_at: Order_By.Desc }],
-					limit: 200,
-					offset: 0
-				})
+			const [active, completed] = await Promise.all([
+				fetchCards(boardId, false, 1000),
+				fetchCards(boardId, true, 200)
 			]);
 
 			// Board may have changed while this request was in flight
@@ -1038,10 +646,7 @@ function createTodosStore() {
 			// Not recorded as refreshed, so the next poll tries again (#223).
 			if (writesInFlight > 0 || writesStarted !== startedBefore) return false;
 
-			state.todos = keepLoadedContent([
-				...(activeData.todos || []),
-				...(completedData.todos || [])
-			]);
+			state.todos = keepLoadedContent([...active, ...completed]);
 			return true;
 		} catch (error) {
 			console.error('Refresh board todos error:', error);
@@ -1093,27 +698,10 @@ function createTodosStore() {
 		const githubIssueId = (todo as any)?.github_issue_id;
 		const boardGithub = listsStore.boardById(todo?.list?.board?.id)?.github;
 
-		// Log activity BEFORE deletion (since todo will be removed)
-		if (todo) {
-			try {
-				await request(CREATE_ACTIVITY_LOG, {
-					log: {
-						todo_id: id,
-						action_type: 'deleted'
-					}
-				});
-			} catch (error) {
-				// Non-blocking: log error but don't fail deletion
-				console.error('[TodosStore.deleteTodo] Failed to log activity:', error);
-			}
-		}
-
 		try {
-			const data: DeleteTodosMutation = await trackWrite(
-				request(DELETE_TODOS, { where: { id: { _eq: id } } })
-			);
+			const { deleted } = await trackWrite(call('deleteTodo', { id }));
 
-			if (data.delete_todos?.affected_rows && data.delete_todos.affected_rows > 0) {
+			if (deleted) {
 				// Close GitHub issue if this todo was linked to one
 				if (githubIssueNumber && githubIssueId && boardGithub) {
 					try {
@@ -1160,10 +748,7 @@ function createTodosStore() {
 				return { success: true, message: 'Todo deleted successfully' };
 			}
 
-			loggingStore.warn('TodosStore', 'Delete returned no row', {
-				todoId: id,
-				affectedRows: data.delete_todos?.affected_rows
-			});
+			loggingStore.warn('TodosStore', 'Delete returned no row', { todoId: id });
 			return { success: false, message: 'Failed to delete todo' };
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error deleting todo';
@@ -1172,244 +757,43 @@ function createTodosStore() {
 		}
 	}
 
-	async function bulkUpdateTodos(
-		where: { [key: string]: any },
-		updates: { [key: string]: any }
-	): Promise<StoreResult> {
-		if (!browser) return { success: false, message: 'Not in browser' };
-
-		try {
-			const data: UpdateTodosMutation = await request(UPDATE_TODOS, {
-				where,
-				_set: updates
-			});
-
-			if (data.update_todos?.affected_rows && data.update_todos.affected_rows > 0) {
-				await loadTodos();
-				return {
-					success: true,
-					message: `Updated ${data.update_todos.affected_rows} todos`
-				};
-			}
-
-			return { success: false, message: 'No todos were updated' };
-		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Error updating todos';
-			console.error('Bulk update todos error:', error);
-			return { success: false, message };
-		}
-	}
-
 	/**
-	 * Assign a user to a todo (multi-assignee). Inserts a todo_assignees row.
-	 * Keeps `assigned_to` (the primary assignee) in sync: the first assignee added
-	 * to an unassigned todo becomes the primary.
+	 * Assign a user to a card (multi-assignee). The server keeps `assigned_to` (the primary
+	 * assignee) in sync, logs it and notifies the person assigned.
 	 */
 	async function assignUser(todoId: string, userId: string): Promise<StoreResult> {
-		if (!browser) return { success: false, message: 'Not in browser' };
-
 		const target = await locateTodo(todoId);
 		if (!target) return { success: false, message: 'Todo not found' };
-		todoId = target.id;
-
-		const current = state.todos[target.index];
-		if ((current.assignees || []).some((a) => a.user_id === userId)) {
+		if ((state.todos[target.index].assignees || []).some((a) => a.user_id === userId)) {
 			return { success: true, message: 'Already assigned' };
 		}
-
-		try {
-			const data: any = await request(ASSIGN_USER_TO_TODO, {
-				todo_id: todoId,
-				user_id: userId
-			});
-			const row = data.insert_todo_assignees_one;
-			if (!row) return { success: false, message: 'Failed to assign user' };
-
-			const latest = state.todos[indexOfTodo(todoId)];
-			if (!latest) return { success: true, message: 'Todo no longer loaded' };
-			const newAssignees = [...(latest.assignees || []), row];
-
-			// Promote to primary when the todo had no assignee yet.
-			if (!latest.assigned_to) {
-				const upd: UpdateTodosMutation = await request(UPDATE_TODOS, {
-					where: { id: { _eq: todoId } },
-					_set: { assigned_to: userId }
-				});
-				const updated = upd.update_todos?.returning?.[0];
-				replaceTodo(
-					todoId,
-					(updated ??
-						({
-							...latest,
-							assignees: newAssignees,
-							assigned_to: userId,
-							assignee: row.assignee
-						} as any)) as BoardTodo
-				);
-			} else {
-				replaceTodo(todoId, { ...latest, assignees: newAssignees } as BoardTodo);
-			}
-
-			// Log activity: user assigned
-			try {
-				await request(CREATE_ACTIVITY_LOG, {
-					log: {
-						todo_id: todoId,
-						action_type: 'assigned',
-						field_name: 'assigned_to',
-						new_value: userId,
-						changes: { assignee_id: userId }
-					}
-				});
-			} catch (error) {
-				console.error('[TodosStore.assignUser] Failed to log activity:', error);
-			}
-
-			return { success: true, message: 'User assigned', data: row };
-		} catch (error) {
-			console.error('Assign user error:', error);
-			return {
-				success: false,
-				message: error instanceof Error ? error.message : 'Failed to assign user'
-			};
-		}
+		return cardOp(
+			() => call('assignUser', { todoId: target.id, userId }),
+			'User assigned',
+			'Failed to assign user'
+		);
 	}
 
-	/**
-	 * Unassign a user from a todo. Deletes the todo_assignees row and, if the removed
-	 * user was the primary (`assigned_to`), promotes a remaining assignee (or clears it).
-	 */
+	/** Unassign a user; when it was the primary assignee, the server promotes the next one. */
 	async function unassignUser(todoId: string, userId: string): Promise<StoreResult> {
-		if (!browser) return { success: false, message: 'Not in browser' };
-
 		const target = await locateTodo(todoId);
 		if (!target) return { success: false, message: 'Todo not found' };
-		todoId = target.id;
-
-		try {
-			const data: any = await request(UNASSIGN_USER_FROM_TODO, {
-				todo_id: todoId,
-				user_id: userId
-			});
-			if (!data.delete_todo_assignees_by_pk) {
-				return { success: false, message: 'Failed to unassign user' };
-			}
-
-			const latest = state.todos[indexOfTodo(todoId)];
-			if (!latest) return { success: true, message: 'Todo no longer loaded' };
-			const remaining = (latest.assignees || []).filter((a) => a.user_id !== userId);
-
-			// If we removed the primary assignee, promote the first remaining one (or clear).
-			if (latest.assigned_to === userId) {
-				const newPrimary = remaining[0]?.user_id ?? null;
-				const upd: UpdateTodosMutation = await request(UPDATE_TODOS, {
-					where: { id: { _eq: todoId } },
-					_set: { assigned_to: newPrimary }
-				});
-				const updated = upd.update_todos?.returning?.[0];
-				replaceTodo(
-					todoId,
-					(updated ??
-						({
-							...latest,
-							assignees: remaining,
-							assigned_to: newPrimary,
-							assignee: remaining[0]?.assignee ?? null
-						} as any)) as BoardTodo
-				);
-			} else {
-				replaceTodo(todoId, { ...latest, assignees: remaining } as BoardTodo);
-			}
-
-			// Log activity: user unassigned
-			try {
-				await request(CREATE_ACTIVITY_LOG, {
-					log: {
-						todo_id: todoId,
-						action_type: 'unassigned',
-						field_name: 'assigned_to',
-						old_value: userId,
-						changes: { assignee_id: userId }
-					}
-				});
-			} catch (error) {
-				console.error('[TodosStore.unassignUser] Failed to log activity:', error);
-			}
-
-			return { success: true, message: 'User unassigned' };
-		} catch (error) {
-			console.error('Unassign user error:', error);
-			return {
-				success: false,
-				message: error instanceof Error ? error.message : 'Failed to unassign user'
-			};
-		}
+		return cardOp(
+			() => call('unassignUser', { todoId: target.id, userId }),
+			'User unassigned',
+			'Failed to unassign user'
+		);
 	}
 
-	async function subscribeToTodo(todoId: string, userId: string): Promise<StoreResult> {
-		if (!browser) return { success: false, message: 'Not in browser' };
+	const subscribeToTodo = (todoId: string, userId: string) =>
+		cardOp(() => call('subscribeToTodo', { todoId, userId }), 'Subscribed', 'Failed to subscribe');
 
-		try {
-			const data: any = await request(SUBSCRIBE_TO_TODO, {
-				todo_id: todoId,
-				user_id: userId
-			});
-
-			if (data.insert_todo_subscribers_one) {
-				// Refresh the todo to get updated subscribers
-				await refreshTodo(todoId);
-				return { success: true, message: 'Subscribed successfully' };
-			}
-
-			return { success: false, message: 'Failed to subscribe' };
-		} catch (error) {
-			console.error('Subscribe to todo error:', error);
-			return {
-				success: false,
-				message: error instanceof Error ? error.message : 'Failed to subscribe'
-			};
-		}
-	}
-
-	async function unsubscribeFromTodo(todoId: string, userId: string): Promise<StoreResult> {
-		if (!browser) return { success: false, message: 'Not in browser' };
-
-		try {
-			const data: any = await request(UNSUBSCRIBE_FROM_TODO, {
-				todo_id: todoId,
-				user_id: userId
-			});
-
-			if (data.delete_todo_subscribers_by_pk) {
-				// Refresh the todo to get updated subscribers
-				await refreshTodo(todoId);
-				return { success: true, message: 'Unsubscribed successfully' };
-			}
-
-			return { success: false, message: 'Failed to unsubscribe' };
-		} catch (error) {
-			console.error('Unsubscribe from todo error:', error);
-			return {
-				success: false,
-				message: error instanceof Error ? error.message : 'Failed to unsubscribe'
-			};
-		}
-	}
-
-	async function getTodoSubscribers(todoId: string): Promise<any[]> {
-		if (!browser) return [];
-
-		try {
-			const data: any = await request(GET_TODO_SUBSCRIBERS, {
-				todo_id: todoId
-			});
-
-			return data.todo_subscribers || [];
-		} catch (error) {
-			console.error('Get todo subscribers error:', error);
-			return [];
-		}
-	}
+	const unsubscribeFromTodo = (todoId: string, userId: string) =>
+		cardOp(
+			() => call('unsubscribeFromTodo', { todoId, userId }),
+			'Unsubscribed',
+			'Failed to unsubscribe'
+		);
 
 	const activeTodos = $derived(() => {
 		const currentFilters = { ...todoFilteringStore.filters, completed: false };
@@ -1517,17 +901,15 @@ function createTodosStore() {
 		updateTodo,
 		toggleTodo,
 		deleteTodo,
-		bulkUpdateTodos,
 		createUpload,
 		deleteUpload,
-		refreshTodo,
 		refreshBoardTodos,
 		refreshBoardTodosIfChanged,
 		assignUser,
 		unassignUser,
 		subscribeToTodo,
 		unsubscribeFromTodo,
-		getTodoSubscribers,
+		putTodo,
 		clearError: () => {
 			state.error = null;
 		},

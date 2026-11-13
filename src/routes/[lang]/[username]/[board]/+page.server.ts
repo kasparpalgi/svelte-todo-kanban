@@ -1,13 +1,11 @@
 /** @file src/routes/[lang]/[username]/[board]/+page.server.ts */
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { request } from '$lib/graphql/client';
-import { GET_BOARDS, GET_TODOS } from '$lib/graphql/documents';
-import type { GetBoardsQuery, GetTodosQuery } from '$lib/graphql/generated/graphql';
+import { boardAndCard } from '$lib/server/boardCard';
 import { PUBLIC_APP_URL } from '$env/static/public';
 import { isSocialMediaBot } from '$lib/server/userAgent';
 
-export const load: PageServerLoad = async ({ locals, url, params, fetch, request: req }) => {
+export const load: PageServerLoad = async ({ locals, url, params, request: req }) => {
 	const session = await locals.auth();
 	const userAgent = req.headers.get('user-agent');
 	const isBot = isSocialMediaBot(userAgent);
@@ -57,32 +55,10 @@ export const load: PageServerLoad = async ({ locals, url, params, fetch, request
 
 	// For authenticated users, fetch actual data
 	try {
-		// Fetch boards
-		const boardsData = await request<GetBoardsQuery>(
-			GET_BOARDS,
-			{
-				where: { alias: { _eq: boardAlias } }
-			},
-			{},
-			fetch
-		);
-
-		const board = boardsData.boards?.[0];
+		const { board, card: todo } = await boardAndCard(session!.user!.id!, boardAlias, cardAlias);
 
 		if (board) {
 			if (cardAlias) {
-				// Fetch specific card for OG tags
-				const todosData = await request<GetTodosQuery>(
-					GET_TODOS,
-					{
-						where: { alias: { _eq: cardAlias } }
-					},
-					{},
-					fetch
-				);
-
-				const todo = todosData.todos?.[0];
-
 				if (todo) {
 					// Check if card has uploaded images
 					const firstImage = todo.uploads?.[0]?.url;

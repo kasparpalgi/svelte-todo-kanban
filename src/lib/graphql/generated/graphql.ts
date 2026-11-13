@@ -1558,6 +1558,7 @@ export type Boards = {
   board_members: Array<Board_Members>;
   /** An aggregate relationship */
   board_members_aggregate: Board_Members_Aggregate;
+  changed_at: Scalars['timestamptz']['output'];
   /** An object relationship */
   client?: Maybe<Clients>;
   client_id?: Maybe<Scalars['uuid']['output']>;
@@ -1834,6 +1835,7 @@ export type Boards_Bool_Exp = {
   board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Bool_Exp>;
   board_members?: InputMaybe<Board_Members_Bool_Exp>;
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Bool_Exp>;
+  changed_at?: InputMaybe<Timestamptz_Comparison_Exp>;
   client?: InputMaybe<Clients_Bool_Exp>;
   client_id?: InputMaybe<Uuid_Comparison_Exp>;
   created_at?: InputMaybe<Timestamptz_Comparison_Exp>;
@@ -1900,6 +1902,7 @@ export type Boards_Insert_Input = {
   archived_at?: InputMaybe<Scalars['timestamptz']['input']>;
   board_invitations?: InputMaybe<Board_Invitations_Arr_Rel_Insert_Input>;
   board_members?: InputMaybe<Board_Members_Arr_Rel_Insert_Input>;
+  changed_at?: InputMaybe<Scalars['timestamptz']['input']>;
   client?: InputMaybe<Clients_Obj_Rel_Insert_Input>;
   client_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -1927,6 +1930,7 @@ export type Boards_Max_Fields = {
   alias?: Maybe<Scalars['String']['output']>;
   /** Timestamp when the board was archived; null means the board is active */
   archived_at?: Maybe<Scalars['timestamptz']['output']>;
+  changed_at?: Maybe<Scalars['timestamptz']['output']>;
   client_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   github?: Maybe<Scalars['String']['output']>;
@@ -1942,6 +1946,7 @@ export type Boards_Max_Order_By = {
   alias?: InputMaybe<Order_By>;
   /** Timestamp when the board was archived; null means the board is active */
   archived_at?: InputMaybe<Order_By>;
+  changed_at?: InputMaybe<Order_By>;
   client_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   github?: InputMaybe<Order_By>;
@@ -1958,6 +1963,7 @@ export type Boards_Min_Fields = {
   alias?: Maybe<Scalars['String']['output']>;
   /** Timestamp when the board was archived; null means the board is active */
   archived_at?: Maybe<Scalars['timestamptz']['output']>;
+  changed_at?: Maybe<Scalars['timestamptz']['output']>;
   client_id?: Maybe<Scalars['uuid']['output']>;
   created_at?: Maybe<Scalars['timestamptz']['output']>;
   github?: Maybe<Scalars['String']['output']>;
@@ -1973,6 +1979,7 @@ export type Boards_Min_Order_By = {
   alias?: InputMaybe<Order_By>;
   /** Timestamp when the board was archived; null means the board is active */
   archived_at?: InputMaybe<Order_By>;
+  changed_at?: InputMaybe<Order_By>;
   client_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
   github?: InputMaybe<Order_By>;
@@ -2013,6 +2020,7 @@ export type Boards_Order_By = {
   archived_at?: InputMaybe<Order_By>;
   board_invitations_aggregate?: InputMaybe<Board_Invitations_Aggregate_Order_By>;
   board_members_aggregate?: InputMaybe<Board_Members_Aggregate_Order_By>;
+  changed_at?: InputMaybe<Order_By>;
   client?: InputMaybe<Clients_Order_By>;
   client_id?: InputMaybe<Order_By>;
   created_at?: InputMaybe<Order_By>;
@@ -2052,6 +2060,8 @@ export enum Boards_Select_Column {
   AllowPublicComments = 'allow_public_comments',
   /** column name */
   ArchivedAt = 'archived_at',
+  /** column name */
+  ChangedAt = 'changed_at',
   /** column name */
   ClientId = 'client_id',
   /** column name */
@@ -2099,6 +2109,7 @@ export type Boards_Set_Input = {
   allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
   /** Timestamp when the board was archived; null means the board is active */
   archived_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  changed_at?: InputMaybe<Scalars['timestamptz']['input']>;
   client_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
@@ -2162,6 +2173,7 @@ export type Boards_Stream_Cursor_Value_Input = {
   allow_public_comments?: InputMaybe<Scalars['Boolean']['input']>;
   /** Timestamp when the board was archived; null means the board is active */
   archived_at?: InputMaybe<Scalars['timestamptz']['input']>;
+  changed_at?: InputMaybe<Scalars['timestamptz']['input']>;
   client_id?: InputMaybe<Scalars['uuid']['input']>;
   created_at?: InputMaybe<Scalars['timestamptz']['input']>;
   /** Customer invoice details: company_name, code, vat, address, contact_details, hourly_rate */
@@ -2196,6 +2208,8 @@ export enum Boards_Update_Column {
   AllowPublicComments = 'allow_public_comments',
   /** column name */
   ArchivedAt = 'archived_at',
+  /** column name */
+  ChangedAt = 'changed_at',
   /** column name */
   ClientId = 'client_id',
   /** column name */
@@ -16600,7 +16614,7 @@ export type PollBoardQueryVariables = Exact<{
 }>;
 
 
-export type PollBoardQuery = { __typename?: 'query_root', notifications_aggregate: { __typename?: 'notifications_aggregate', aggregate?: { __typename?: 'notifications_aggregate_fields', count: number } | null }, boards_by_pk?: { __typename?: 'boards', updated_at: string } | null, lists: Array<{ __typename?: 'lists', id: string, name: string, sort_order: number, updated_at: string }>, todos: Array<{ __typename?: 'todos', id: string, updated_at: string, comments_aggregate: { __typename?: 'comments_aggregate', aggregate?: { __typename?: 'comments_aggregate_fields', count: number, max?: { __typename?: 'comments_max_fields', updated_at?: string | null } | null } | null }, labels: Array<{ __typename?: 'todo_labels', label_id: string }>, uploads: Array<{ __typename?: 'uploads', id: string }>, assignees: Array<{ __typename?: 'todo_assignees', user_id: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string }>, claude_usages_aggregate: { __typename?: 'claude_usage_aggregate', aggregate?: { __typename?: 'claude_usage_aggregate_fields', count: number } | null } }> };
+export type PollBoardQuery = { __typename?: 'query_root', notifications_aggregate: { __typename?: 'notifications_aggregate', aggregate?: { __typename?: 'notifications_aggregate_fields', count: number } | null }, boards_by_pk?: { __typename?: 'boards', updated_at: string, changed_at: string } | null, todos_aggregate: { __typename?: 'todos_aggregate', aggregate?: { __typename?: 'todos_aggregate_fields', count: number, max?: { __typename?: 'todos_max_fields', updated_at?: string | null } | null } | null } };
 
 export type GetListsQueryVariables = Exact<{
   where?: InputMaybe<Lists_Bool_Exp>;
@@ -16878,7 +16892,55 @@ export type GetListBoardQueryVariables = Exact<{
 }>;
 
 
-export type GetListBoardQuery = { __typename?: 'query_root', lists_by_pk?: { __typename?: 'lists', board_id?: string | null } | null };
+export type GetListBoardQuery = { __typename?: 'query_root', lists_by_pk?: { __typename?: 'lists', board_id?: string | null, name: string } | null };
+
+export type GetCardAccessQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+  userId: Scalars['uuid']['input'];
+}>;
+
+
+export type GetCardAccessQuery = { __typename?: 'query_root', todos_by_pk?: { __typename?: 'todos', id: string, user_id: string, list_id?: string | null, title: string, content?: string | null, completed_at?: string | null, priority?: string | null, due_on?: string | null, has_time: boolean, assigned_to?: string | null, min_hours?: number | null, max_hours?: number | null, actual_hours?: number | null, comment_hours?: string | null, task_file_path?: string | null, github_issue_number?: number | null, github_issue_id?: number | null, assignees: Array<{ __typename?: 'todo_assignees', user_id: string }>, subscribers: Array<{ __typename?: 'todo_subscribers', user_id: string }>, list?: { __typename?: 'lists', name: string, board_id?: string | null, board?: { __typename?: 'boards', user_id: string, is_public: boolean, board_members: Array<{ __typename?: 'board_members', role: string }> } | null } | null } | null };
+
+export type CardWrittenMutationVariables = Exact<{
+  boardIds: Array<Scalars['uuid']['input']> | Scalars['uuid']['input'];
+  at: Scalars['timestamptz']['input'];
+  logs: Array<Activity_Logs_Insert_Input> | Activity_Logs_Insert_Input;
+  notifications: Array<Notifications_Insert_Input> | Notifications_Insert_Input;
+}>;
+
+
+export type CardWrittenMutation = { __typename?: 'mutation_root', update_boards?: { __typename?: 'boards_mutation_response', affected_rows: number } | null, insert_activity_logs?: { __typename?: 'activity_logs_mutation_response', affected_rows: number } | null, insert_notifications?: { __typename?: 'notifications_mutation_response', affected_rows: number } | null };
+
+export type GetCommentAccessQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetCommentAccessQuery = { __typename?: 'query_root', comments_by_pk?: { __typename?: 'comments', id: string, user_id: string, todo_id: string, content: string } | null };
+
+export type GetUploadTodoQueryVariables = Exact<{
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type GetUploadTodoQuery = { __typename?: 'query_root', uploads_by_pk?: { __typename?: 'uploads', todo_id: string } | null };
+
+export type MarkMyNotificationsReadMutationVariables = Exact<{
+  userId: Scalars['uuid']['input'];
+  ids: Array<Scalars['uuid']['input']> | Scalars['uuid']['input'];
+}>;
+
+
+export type MarkMyNotificationsReadMutation = { __typename?: 'mutation_root', update_notifications?: { __typename?: 'notifications_mutation_response', affected_rows: number } | null };
+
+export type DeleteMyNotificationMutationVariables = Exact<{
+  userId: Scalars['uuid']['input'];
+  id: Scalars['uuid']['input'];
+}>;
+
+
+export type DeleteMyNotificationMutation = { __typename?: 'mutation_root', delete_notifications?: { __typename?: 'notifications_mutation_response', affected_rows: number } | null };
 
 export type GetLabelBoardQueryVariables = Exact<{
   id: Scalars['uuid']['input'];
@@ -17058,7 +17120,7 @@ export type GetNotificationsQueryVariables = Exact<{
 }>;
 
 
-export type GetNotificationsQuery = { __typename?: 'query_root', notifications: Array<{ __typename?: 'notifications', id: string, user_id: string, todo_id?: string | null, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo?: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } | null, news?: { __typename?: 'news', id: string, title: string, body: string, url?: string | null } | null }>, notifications_aggregate: { __typename?: 'notifications_aggregate', aggregate?: { __typename?: 'notifications_aggregate_fields', count: number } | null } };
+export type GetNotificationsQuery = { __typename?: 'query_root', notifications: Array<{ __typename?: 'notifications', id: string, user_id: string, todo_id?: string | null, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo?: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } | null, news?: { __typename?: 'news', id: string, title: string, body: string, url?: string | null } | null }> };
 
 export type CreateNotificationMutationVariables = Exact<{
   notification: Notifications_Insert_Input;
@@ -17066,28 +17128,6 @@ export type CreateNotificationMutationVariables = Exact<{
 
 
 export type CreateNotificationMutation = { __typename?: 'mutation_root', insert_notifications_one?: { __typename?: 'notifications', id: string, user_id: string, todo_id?: string | null, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo?: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } | null, news?: { __typename?: 'news', id: string, title: string, body: string, url?: string | null } | null } | null };
-
-export type UpdateNotificationMutationVariables = Exact<{
-  id: Scalars['uuid']['input'];
-  updates: Notifications_Set_Input;
-}>;
-
-
-export type UpdateNotificationMutation = { __typename?: 'mutation_root', update_notifications_by_pk?: { __typename?: 'notifications', id: string, user_id: string, todo_id?: string | null, type: string, triggered_by_user_id?: string | null, related_comment_id?: string | null, content?: string | null, is_read: boolean, created_at: string, updated_at: string, triggered_by_user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo?: { __typename?: 'todos', id: string, title: string, list?: { __typename?: 'lists', id: string, board?: { __typename?: 'boards', id: string, name: string, alias: string, user: { __typename?: 'users', id: string, username: string } } | null } | null } | null, news?: { __typename?: 'news', id: string, title: string, body: string, url?: string | null } | null } | null };
-
-export type MarkNotificationsAsReadMutationVariables = Exact<{
-  notification_ids: Array<Scalars['uuid']['input']> | Scalars['uuid']['input'];
-}>;
-
-
-export type MarkNotificationsAsReadMutation = { __typename?: 'mutation_root', update_notifications?: { __typename?: 'notifications_mutation_response', affected_rows: number } | null };
-
-export type DeleteNotificationMutationVariables = Exact<{
-  id: Scalars['uuid']['input'];
-}>;
-
-
-export type DeleteNotificationMutation = { __typename?: 'mutation_root', delete_notifications_by_pk?: { __typename?: 'notifications', id: string } | null };
 
 export type CreatePushSubscriptionMutationVariables = Exact<{
   subscription: Push_Subscriptions_Insert_Input;
@@ -17113,7 +17153,7 @@ export type GetActivityLogsQueryVariables = Exact<{
 }>;
 
 
-export type GetActivityLogsQuery = { __typename?: 'query_root', activity_logs: Array<{ __typename?: 'activity_logs', id: string, user_id?: string | null, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } }>, activity_logs_aggregate: { __typename?: 'activity_logs_aggregate', aggregate?: { __typename?: 'activity_logs_aggregate_fields', count: number } | null } };
+export type GetActivityLogsQuery = { __typename?: 'query_root', activity_logs: Array<{ __typename?: 'activity_logs', id: string, user_id?: string | null, todo_id: string, action_type: string, field_name?: string | null, old_value?: string | null, new_value?: string | null, changes?: any | null, created_at: string, user?: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null } | null, todo: { __typename?: 'todos', id: string, alias: string, title: string, list?: { __typename?: 'lists', id: string, name: string, board?: { __typename?: 'boards', id: string, name: string, alias: string } | null } | null } }> };
 
 export type CreateActivityLogMutationVariables = Exact<{
   log: Activity_Logs_Insert_Input;
@@ -17160,13 +17200,6 @@ export type UnassignUserFromTodoMutationVariables = Exact<{
 
 
 export type UnassignUserFromTodoMutation = { __typename?: 'mutation_root', delete_todo_assignees_by_pk?: { __typename?: 'todo_assignees', todo_id: string, user_id: string } | null };
-
-export type GetTodoSubscribersQueryVariables = Exact<{
-  todo_id: Scalars['uuid']['input'];
-}>;
-
-
-export type GetTodoSubscribersQuery = { __typename?: 'query_root', todo_subscribers: Array<{ __typename?: 'todo_subscribers', todo_id: string, user_id: string, created_at: string, subscriber: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } }> };
 
 export type ExpenseSplitFieldsFragment = { __typename?: 'expense_splits', id: string, user_id: string, amount: number, expense_id: string, user: { __typename?: 'users', id: string, name?: string | null, username: string, image?: string | null, email?: string | null } };
 
@@ -18311,39 +18344,13 @@ export const PollBoardDocument = new TypedDocumentString(`
   }
   boards_by_pk(id: $boardId) {
     updated_at
+    changed_at
   }
-  lists(where: {board_id: {_eq: $boardId}}, order_by: {id: asc}) {
-    id
-    name
-    sort_order
-    updated_at
-  }
-  todos(where: {list: {board_id: {_eq: $boardId}}}, order_by: {id: asc}) {
-    id
-    updated_at
-    comments_aggregate {
-      aggregate {
-        count
-        max {
-          updated_at
-        }
-      }
-    }
-    labels {
-      label_id
-    }
-    uploads {
-      id
-    }
-    assignees {
-      user_id
-    }
-    subscribers {
-      user_id
-    }
-    claude_usages_aggregate {
-      aggregate {
-        count
+  todos_aggregate(where: {list: {board_id: {_eq: $boardId}}}) {
+    aggregate {
+      count
+      max {
+        updated_at
       }
     }
   }
@@ -19310,9 +19317,97 @@ export const GetListBoardDocument = new TypedDocumentString(`
     query GetListBoard($id: uuid!) {
   lists_by_pk(id: $id) {
     board_id
+    name
   }
 }
     `) as unknown as TypedDocumentString<GetListBoardQuery, GetListBoardQueryVariables>;
+export const GetCardAccessDocument = new TypedDocumentString(`
+    query GetCardAccess($id: uuid!, $userId: uuid!) {
+  todos_by_pk(id: $id) {
+    id
+    user_id
+    list_id
+    title
+    content
+    completed_at
+    priority
+    due_on
+    has_time
+    assigned_to
+    min_hours
+    max_hours
+    actual_hours
+    comment_hours
+    task_file_path
+    github_issue_number
+    github_issue_id
+    assignees {
+      user_id
+    }
+    subscribers {
+      user_id
+    }
+    list {
+      name
+      board_id
+      board {
+        user_id
+        is_public
+        board_members(where: {user_id: {_eq: $userId}}) {
+          role
+        }
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetCardAccessQuery, GetCardAccessQueryVariables>;
+export const CardWrittenDocument = new TypedDocumentString(`
+    mutation CardWritten($boardIds: [uuid!]!, $at: timestamptz!, $logs: [activity_logs_insert_input!]!, $notifications: [notifications_insert_input!]!) {
+  update_boards(where: {id: {_in: $boardIds}}, _set: {changed_at: $at}) {
+    affected_rows
+  }
+  insert_activity_logs(objects: $logs) {
+    affected_rows
+  }
+  insert_notifications(objects: $notifications) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<CardWrittenMutation, CardWrittenMutationVariables>;
+export const GetCommentAccessDocument = new TypedDocumentString(`
+    query GetCommentAccess($id: uuid!) {
+  comments_by_pk(id: $id) {
+    id
+    user_id
+    todo_id
+    content
+  }
+}
+    `) as unknown as TypedDocumentString<GetCommentAccessQuery, GetCommentAccessQueryVariables>;
+export const GetUploadTodoDocument = new TypedDocumentString(`
+    query GetUploadTodo($id: uuid!) {
+  uploads_by_pk(id: $id) {
+    todo_id
+  }
+}
+    `) as unknown as TypedDocumentString<GetUploadTodoQuery, GetUploadTodoQueryVariables>;
+export const MarkMyNotificationsReadDocument = new TypedDocumentString(`
+    mutation MarkMyNotificationsRead($userId: uuid!, $ids: [uuid!]!) {
+  update_notifications(
+    where: {user_id: {_eq: $userId}, id: {_in: $ids}}
+    _set: {is_read: true}
+  ) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<MarkMyNotificationsReadMutation, MarkMyNotificationsReadMutationVariables>;
+export const DeleteMyNotificationDocument = new TypedDocumentString(`
+    mutation DeleteMyNotification($userId: uuid!, $id: uuid!) {
+  delete_notifications(where: {user_id: {_eq: $userId}, id: {_eq: $id}}) {
+    affected_rows
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteMyNotificationMutation, DeleteMyNotificationMutationVariables>;
 export const GetLabelBoardDocument = new TypedDocumentString(`
     query GetLabelBoard($id: uuid!) {
   labels_by_pk(id: $id) {
@@ -19699,11 +19794,6 @@ export const GetNotificationsDocument = new TypedDocumentString(`
   ) {
     ...NotificationFields
   }
-  notifications_aggregate(where: $where) {
-    aggregate {
-      count
-    }
-  }
 }
     fragment NotificationFields on notifications {
   id
@@ -19791,69 +19881,6 @@ export const CreateNotificationDocument = new TypedDocumentString(`
     url
   }
 }`) as unknown as TypedDocumentString<CreateNotificationMutation, CreateNotificationMutationVariables>;
-export const UpdateNotificationDocument = new TypedDocumentString(`
-    mutation UpdateNotification($id: uuid!, $updates: notifications_set_input!) {
-  update_notifications_by_pk(pk_columns: {id: $id}, _set: $updates) {
-    ...NotificationFields
-  }
-}
-    fragment NotificationFields on notifications {
-  id
-  user_id
-  todo_id
-  type
-  triggered_by_user_id
-  related_comment_id
-  content
-  is_read
-  created_at
-  updated_at
-  triggered_by_user {
-    id
-    name
-    username
-    image
-  }
-  todo {
-    id
-    title
-    list {
-      id
-      board {
-        id
-        name
-        alias
-        user {
-          id
-          username
-        }
-      }
-    }
-  }
-  news {
-    id
-    title
-    body
-    url
-  }
-}`) as unknown as TypedDocumentString<UpdateNotificationMutation, UpdateNotificationMutationVariables>;
-export const MarkNotificationsAsReadDocument = new TypedDocumentString(`
-    mutation MarkNotificationsAsRead($notification_ids: [uuid!]!) {
-  update_notifications(
-    where: {id: {_in: $notification_ids}}
-    _set: {is_read: true}
-  ) {
-    affected_rows
-  }
-}
-    `) as unknown as TypedDocumentString<MarkNotificationsAsReadMutation, MarkNotificationsAsReadMutationVariables>;
-export const DeleteNotificationDocument = new TypedDocumentString(`
-    mutation DeleteNotification($id: uuid!) {
-  delete_notifications_by_pk(id: $id) {
-    id
-  }
-}
-    `) as unknown as TypedDocumentString<DeleteNotificationMutation, DeleteNotificationMutationVariables>;
 export const CreatePushSubscriptionDocument = new TypedDocumentString(`
     mutation CreatePushSubscription($subscription: push_subscriptions_insert_input!) {
   insert_push_subscriptions_one(
@@ -19881,11 +19908,6 @@ export const GetActivityLogsDocument = new TypedDocumentString(`
     offset: $offset
   ) {
     ...ActivityLogFields
-  }
-  activity_logs_aggregate(where: $where) {
-    aggregate {
-      count
-    }
   }
 }
     fragment ActivityLogFields on activity_logs {
@@ -20030,22 +20052,6 @@ export const UnassignUserFromTodoDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<UnassignUserFromTodoMutation, UnassignUserFromTodoMutationVariables>;
-export const GetTodoSubscribersDocument = new TypedDocumentString(`
-    query GetTodoSubscribers($todo_id: uuid!) {
-  todo_subscribers(where: {todo_id: {_eq: $todo_id}}) {
-    todo_id
-    user_id
-    created_at
-    subscriber {
-      id
-      name
-      username
-      image
-      email
-    }
-  }
-}
-    `) as unknown as TypedDocumentString<GetTodoSubscribersQuery, GetTodoSubscribersQueryVariables>;
 export const GetBoardExpensesDocument = new TypedDocumentString(`
     query GetBoardExpenses($board_id: uuid!) {
   expenses(

@@ -1,26 +1,10 @@
 /** @file src/lib/stores/comments.svelte.ts */
-import {
-	GET_COMMENTS,
-	GET_COMMENTS_AGGREGATE,
-	CREATE_COMMENT,
-	UPDATE_COMMENT,
-	DELETE_COMMENT,
-	CREATE_NOTIFICATION,
-	CREATE_ACTIVITY_LOG
-} from '$lib/graphql/documents';
-import { request } from '$lib/graphql/client';
+// The open card's comments, through the data API (#229). The server logs the activity and
+// notifies the card's assignees and subscribers; the browser only syncs GitHub.
+import { call } from '$lib/api/call';
 import { browser } from '$app/environment';
-import type {
-	GetCommentsQuery,
-	GetCommentsAggregateQuery,
-	CreateCommentMutation,
-	UpdateCommentMutation,
-	DeleteCommentMutation,
-	CreateNotificationMutation,
-	CommentFieldsFragment
-} from '$lib/graphql/generated/graphql';
+import type { CommentFieldsFragment } from '$lib/graphql/generated/graphql';
 import type { StoreResult } from '$lib/types/todo';
-import { userStore } from './user.svelte';
 import { listsStore } from './listsBoards.svelte';
 
 interface CommentsState {
@@ -44,6 +28,12 @@ function createCommentsStore() {
 		currentTodoId: null
 	});
 
+	/** Write a comment back by id: an await may have reordered the list. */
+	function replaceComment(id: string, comment: CommentFieldsFragment) {
+		const index = state.comments.findIndex((c) => c.id === id);
+		if (index !== -1) state.comments[index] = comment;
+	}
+
 	async function loadComments(todoId: string): Promise<CommentFieldsFragment[]> {
 		if (!browser) return [];
 
@@ -59,24 +49,9 @@ function createCommentsStore() {
 		state.error = null;
 
 		try {
-			const { Order_By } = await import('$lib/graphql/generated/graphql');
-			const where = { todo_id: { _eq: todoId } };
-
-			// Fetch total count
-			const aggregateData: GetCommentsAggregateQuery = await request(GET_COMMENTS_AGGREGATE, {
-				where
-			});
-			state.totalCount = aggregateData.comments_aggregate?.aggregate?.count || 0;
-
-			// Fetch first page of comments
-			const data: GetCommentsQuery = await request(GET_COMMENTS, {
-				where,
-				order_by: [{ created_at: Order_By.Desc }],
-				limit: COMMENTS_PER_PAGE,
-				offset: 0
-			});
-
-			state.comments = data.comments || [];
+			const page = await call('getComments', { todoId, limit: COMMENTS_PER_PAGE });
+			state.totalCount = page.total;
+			state.comments = page.comments;
 			state.hasMore = state.comments.length < state.totalCount;
 			return state.comments;
 		} catch (error) {
@@ -96,19 +71,13 @@ function createCommentsStore() {
 		state.error = null;
 
 		try {
-			const { Order_By } = await import('$lib/graphql/generated/graphql');
-			const where = { todo_id: { _eq: todoId } };
-
-			// Fetch next page of comments
-			const data: GetCommentsQuery = await request(GET_COMMENTS, {
-				where,
-				order_by: [{ created_at: Order_By.Desc }],
+			const page = await call('getComments', {
+				todoId,
 				limit: COMMENTS_PER_PAGE,
 				offset: state.comments.length
 			});
-
-			const newComments = data.comments || [];
-			state.comments = [...state.comments, ...newComments];
+			state.totalCount = page.total;
+			state.comments = [...state.comments, ...page.comments];
 			state.hasMore = state.comments.length < state.totalCount;
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Error loading more comments';
@@ -124,96 +93,10 @@ function createCommentsStore() {
 		if (!content.trim()) return { success: false, message: 'Comment content is required' };
 
 		try {
-			const data: CreateCommentMutation = await request(CREATE_COMMENT, {
-				objects: [
-					{
-						todo_id: todoId,
-						content: content.trim()
-					}
-				]
-			});
-
-			const newComment = data.insert_comments?.returning?.[0];
+			const newComment = await call('createComment', { todoId, content: content.trim() });
 			if (newComment) {
 				state.comments = [newComment, ...state.comments];
 				state.totalCount += 1;
-
-				// Log activity: comment created
-				try {
-					await request(CREATE_ACTIVITY_LOG, {
-						log: {
-							todo_id: todoId,
-							action_type: 'commented',
-							new_value:
-								content.trim().substring(0, 200) + (content.trim().length > 200 ? '...' : '')
-						}
-					});
-				} catch (error) {
-					// Non-blocking: log error but don't fail comment creation
-					console.error('[CommentsStore.addComment] Failed to log activity:', error);
-				}
-
-				const currentUser = userStore.user;
-				const commentPreview = `"${content.trim().substring(0, 50)}${content.trim().length > 50 ? '...' : ''}"`;
-
-				// Track everyone we've already notified so nobody gets duplicate notifications.
-				const notifiedUsers = new Set<string>();
-				if (currentUser) notifiedUsers.add(currentUser.id);
-
-				// Notify every assignee (a todo can have multiple), excluding the author.
-				if (currentUser && todo?.assignees) {
-					for (const assignment of todo.assignees) {
-						const assigneeId = (assignment as any).user_id;
-						if (notifiedUsers.has(assigneeId)) continue;
-						notifiedUsers.add(assigneeId);
-						try {
-							(await request(CREATE_NOTIFICATION, {
-								notification: {
-									user_id: assigneeId,
-									todo_id: todoId,
-									type: 'commented',
-									triggered_by_user_id: currentUser.id,
-									related_comment_id: newComment.id,
-									content: commentPreview
-								}
-							})) as CreateNotificationMutation;
-						} catch (notificationError) {
-							// Non-blocking: log error but don't fail comment creation
-							console.error(
-								'[CommentsStore.addComment] Failed to create notification:',
-								notificationError
-							);
-						}
-					}
-				}
-
-				// Create notifications for all subscribers (excluding the comment author and assignees)
-				if (currentUser && todo?.subscribers) {
-					for (const subscription of todo.subscribers) {
-						const subscriberId = (subscription as any).user_id;
-						if (!notifiedUsers.has(subscriberId)) {
-							notifiedUsers.add(subscriberId);
-							try {
-								(await request(CREATE_NOTIFICATION, {
-									notification: {
-										user_id: subscriberId,
-										todo_id: todoId,
-										type: 'commented',
-										triggered_by_user_id: currentUser.id,
-										related_comment_id: newComment.id,
-										content: `"${content.trim().substring(0, 50)}${content.trim().length > 50 ? '...' : ''}"`
-									}
-								})) as CreateNotificationMutation;
-							} catch (notificationError) {
-								// Non-blocking: log error but don't fail comment creation
-								console.error(
-									'[CommentsStore.addComment] Failed to create notification for subscriber:',
-									notificationError
-								);
-							}
-						}
-					}
-				}
 
 				// Sync to GitHub if todo has a GitHub issue
 				const githubIssueNumber = todo?.github_issue_number;
@@ -278,46 +161,19 @@ function createCommentsStore() {
 		};
 
 		try {
-			const data: UpdateCommentMutation = await request(UPDATE_COMMENT, {
-				where: { id: { _eq: id } },
-				_set: { content: content.trim() }
-			});
-
-			const updatedComment = data.update_comments?.returning?.[0];
+			const updatedComment = await call('updateComment', { id, content: content.trim() });
 			if (updatedComment) {
-				state.comments[commentIndex] = updatedComment;
-
-				// Log activity: comment edited
-				try {
-					const oldContent =
-						originalComment.content.substring(0, 200) +
-						(originalComment.content.length > 200 ? '...' : '');
-					const newContent =
-						content.trim().substring(0, 200) + (content.trim().length > 200 ? '...' : '');
-					await request(CREATE_ACTIVITY_LOG, {
-						log: {
-							todo_id: updatedComment.todo_id,
-							action_type: 'comment_edited',
-							old_value: oldContent,
-							new_value: newContent
-						}
-					});
-				} catch (error) {
-					// Non-blocking: log error but don't fail comment update
-					console.error('[CommentsStore.updateComment] Failed to log activity:', error);
-				}
-
+				replaceComment(id, updatedComment);
 				return {
 					success: true,
 					message: 'Comment updated successfully',
 					data: updatedComment
 				};
-			} else {
-				state.comments[commentIndex] = originalComment;
-				return { success: false, message: 'Failed to update comment' };
 			}
+			replaceComment(id, originalComment);
+			return { success: false, message: 'Failed to update comment' };
 		} catch (error) {
-			state.comments[commentIndex] = originalComment;
+			replaceComment(id, originalComment);
 			const message = error instanceof Error ? error.message : 'Error updating comment';
 			console.error('Update comment error:', error);
 			return { success: false, message };
@@ -332,31 +188,15 @@ function createCommentsStore() {
 
 		const originalComments = [...state.comments];
 		const comment = state.comments[commentIndex];
-		const todoId = comment.todo_id;
-
-		// Log activity BEFORE deletion
-		try {
-			await request(CREATE_ACTIVITY_LOG, {
-				log: {
-					todo_id: todoId,
-					action_type: 'comment_deleted'
-				}
-			});
-		} catch (error) {
-			// Non-blocking: log error but don't fail deletion
-			console.error('[CommentsStore.deleteComment] Failed to log activity:', error);
-		}
 
 		// Optimistic delete
 		state.comments = state.comments.filter((c) => c.id !== id);
 		state.totalCount -= 1;
 
 		try {
-			const data: DeleteCommentMutation = await request(DELETE_COMMENT, {
-				where: { id: { _eq: id } }
-			});
+			const { deleted } = await call('deleteComment', { id });
 
-			if (data.delete_comments?.affected_rows && data.delete_comments.affected_rows > 0) {
+			if (deleted) {
 				// Sync deletion to GitHub if comment has a GitHub ID
 				const githubCommentId = comment.github_comment_id;
 				const boardGithub = listsStore.boardById(todo?.list?.board?.id)?.github;

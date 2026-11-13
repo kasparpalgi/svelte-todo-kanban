@@ -1,14 +1,14 @@
 /** @file src/lib/stores/__tests__/lightBoard.svelte.test.ts */
 // The board loads cards without their body or comments (#211); an opened card fetches
-// the body, and "search in content" asks Postgres.
+// the body, and "search in content" asks the searchTodos op.
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { todosStore } from '../todos.svelte';
-import { contentSearch, escapeLike } from '../contentSearch.svelte';
-import { request } from '$lib/graphql/client';
+import { contentSearch } from '../contentSearch.svelte';
+import { call } from '$lib/api/call';
 import type { BoardTodo } from '$lib/types/todo';
 
 vi.mock('$app/environment', () => ({ browser: true, dev: true, building: false }));
-vi.mock('$lib/graphql/client', () => ({ request: vi.fn() }));
+vi.mock('$lib/api/call', () => ({ call: vi.fn() }));
 vi.mock('../user.svelte', () => ({ userStore: { user: { id: 'user-1', plan: 'paid' } } }));
 
 const card = (overrides: Partial<BoardTodo> = {}): BoardTodo => ({
@@ -31,16 +31,13 @@ const card = (overrides: Partial<BoardTodo> = {}): BoardTodo => ({
 	...overrides
 });
 
-const opName = (doc: unknown) => String(doc).match(/(?:query|mutation)\s+(\w+)/)?.[1];
-
-/** Serve GetTodos with `board` and GetTodoDetails with the full card. */
+/** Serve getTodos with `board` and getTodo with the full card. */
 function serve(board: () => BoardTodo[], details: BoardTodo) {
-	vi.mocked(request).mockImplementation(async (doc: any, vars: any) => {
-		if (opName(doc) === 'GetTodoDetails') return { todos: [details] };
-		if (opName(doc) === 'GetTodos')
-			return { todos: vars.where.completed_at._is_null === false ? [] : board() };
+	vi.mocked(call).mockImplementation((async (op: string, input: any) => {
+		if (op === 'getTodo') return details;
+		if (op === 'getTodos') return input.completed ? [] : board();
 		return {};
-	});
+	}) as never);
 }
 
 describe('light board query (#211)', () => {
@@ -79,20 +76,17 @@ describe('content search (#211)', () => {
 		vi.useRealTimers();
 	});
 
-	it('escapes LIKE wildcards', () => {
-		expect(escapeLike('50%_off\\')).toBe('50\\%\\_off\\\\');
-	});
-
-	it('asks Postgres for the board cards whose body matches', async () => {
-		vi.mocked(request).mockResolvedValue({ todos: [{ id: 'todo-9' }] });
+	it('asks the server for the board cards whose body matches', async () => {
+		vi.mocked(call).mockResolvedValue(['todo-9'] as never);
 
 		contentSearch.sync('board-1', 'needle');
-		expect(request).not.toHaveBeenCalled(); // debounced
+		expect(call).not.toHaveBeenCalled(); // debounced
 		await vi.advanceTimersByTimeAsync(300);
 
-		expect(vi.mocked(request).mock.calls[0][1]).toEqual({
-			where: { list: { board_id: { _eq: 'board-1' } }, content: { _ilike: '%needle%' } }
-		});
+		expect(vi.mocked(call).mock.calls[0]).toEqual([
+			'searchTodos',
+			{ boardId: 'board-1', term: 'needle' }
+		]);
 		expect(contentSearch.has('todo-9')).toBe(true);
 
 		contentSearch.sync('board-1', undefined);

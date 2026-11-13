@@ -1,17 +1,10 @@
 /** @file src/lib/stores/contentSearch.svelte.ts */
-// "Search in content" without card bodies on the board (#211): Postgres finds the cards
-// whose content matches, and the filter reads their ids.
+// "Search in content" without card bodies on the board (#211): the `searchTodos` op
+// finds the cards whose content matches, and the filter reads their ids.
 import { browser } from '$app/environment';
-import { request } from '$lib/graphql/client';
-import { SEARCH_TODO_CONTENT } from '$lib/graphql/documents';
-import type { SearchTodoContentQuery } from '$lib/graphql/generated/graphql';
+import { call } from '$lib/api/call';
 
 const DEBOUNCE_MS = 300;
-
-/** `%` and `_` in the search term are text, not LIKE wildcards. */
-export function escapeLike(term: string): string {
-	return term.replace(/[\\%_]/g, (c) => `\\${c}`);
-}
 
 function createContentSearchStore() {
 	const state = $state<{ ids: Set<string> }>({ ids: new Set() });
@@ -30,13 +23,8 @@ function createContentSearchStore() {
 
 		timer = setTimeout(async () => {
 			try {
-				const data = await request<SearchTodoContentQuery>(SEARCH_TODO_CONTENT, {
-					where: {
-						list: { board_id: { _eq: boardId } },
-						content: { _ilike: `%${escapeLike(term!)}%` }
-					}
-				});
-				if (wanted === key) state.ids = new Set(data.todos.map((t) => t.id));
+				const ids = await call('searchTodos', { boardId: boardId!, term: term! });
+				if (wanted === key) state.ids = new Set(ids);
 			} catch (error) {
 				console.error('Content search error:', error);
 			}

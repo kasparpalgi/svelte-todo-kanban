@@ -1,14 +1,11 @@
+/** @file src/lib/stores/activityLog.svelte.ts */
+// The board's activity feed. Rows are written by the server inside the op that caused
+// them (#229), so this store only reads.
 import { browser } from '$app/environment';
-import { request } from '$lib/graphql/client';
-import { GET_ACTIVITY_LOGS, CREATE_ACTIVITY_LOG } from '$lib/graphql/documents';
-import type {
-	GetActivityLogsQuery,
-	CreateActivityLogMutation,
-	Activity_Logs_Insert_Input
-} from '$lib/graphql/generated/graphql';
+import { call, type OpOutput } from '$lib/api/call';
 
 interface ActivityLogState {
-	logs: Array<any>;
+	logs: OpOutput<'getBoardActivity'>;
 	loading: boolean;
 	error: string | null;
 }
@@ -20,73 +17,18 @@ function createActivityLogStore() {
 		error: null
 	});
 
-	async function loadActivityLogs(todoId: string, limit = 100, offset = 0) {
-		if (!browser) return { success: false, message: 'Not in browser' };
-		state.loading = true;
-		state.error = null;
-		try {
-			const data = (await request(GET_ACTIVITY_LOGS, {
-				where: { todo_id: { _eq: todoId } },
-				order_by: [{ created_at: 'desc' }],
-				limit,
-				offset
-			})) as GetActivityLogsQuery;
-
-			state.logs = data.activity_logs || [];
-			return { success: true, message: 'Activity logs loaded' };
-		} catch (error) {
-			state.error = error instanceof Error ? error.message : String(error);
-			return { success: false, message: state.error };
-		} finally {
-			state.loading = false;
-		}
-	}
-
 	async function loadBoardActivityLogs(boardId: string, limit = 100, offset = 0) {
 		if (!browser) return { success: false, message: 'Not in browser' };
 		state.loading = true;
 		state.error = null;
 		try {
-			const data = (await request(GET_ACTIVITY_LOGS, {
-				where: {
-					todo: {
-						list: {
-							board_id: { _eq: boardId }
-						}
-					}
-				},
-				order_by: [{ created_at: 'desc' }],
-				limit,
-				offset
-			})) as GetActivityLogsQuery;
-
-			state.logs = data.activity_logs || [];
+			state.logs = await call('getBoardActivity', { boardId, limit, offset });
 			return { success: true, message: 'Board activity logs loaded' };
 		} catch (error) {
 			state.error = error instanceof Error ? error.message : String(error);
 			return { success: false, message: state.error };
 		} finally {
 			state.loading = false;
-		}
-	}
-
-	async function createActivityLog(log: Activity_Logs_Insert_Input) {
-		if (!browser) return { success: false, message: 'Not in browser', data: null };
-
-		try {
-			const data = (await request(CREATE_ACTIVITY_LOG, {
-				log
-			})) as CreateActivityLogMutation;
-
-			const newLog = data.insert_activity_logs_one;
-			if (newLog) {
-				state.logs.unshift(newLog);
-				return { success: true, message: 'Activity logged', data: newLog };
-			}
-			return { success: false, message: 'Failed to create activity log' };
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error);
-			return { success: false, message };
 		}
 	}
 
@@ -100,9 +42,7 @@ function createActivityLogStore() {
 		get error() {
 			return state.error;
 		},
-		loadActivityLogs,
-		loadBoardActivityLogs,
-		createActivityLog
+		loadBoardActivityLogs
 	};
 }
 

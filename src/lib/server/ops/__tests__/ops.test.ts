@@ -91,11 +91,10 @@ describe('poll', () => {
 		boards_by_pk: { user_id: 'owner', is_public: false, board_members: role ? [{ role }] : [] }
 	});
 	const BOARD = '22222222-2222-4222-8222-222222222222';
-	const cards = (title: string) => ({
+	const cards = (changedAt: string, newest = '5') => ({
 		...unread,
-		boards_by_pk: { updated_at: '1' },
-		lists: [{ id: 'l1', name: 'Todo', sort_order: 1, updated_at: '1' }],
-		todos: [{ id: 'a', updated_at: title }]
+		boards_by_pk: { updated_at: '1', changed_at: changedAt },
+		todos_aggregate: { aggregate: { count: 4, max: { updated_at: newest } } }
 	});
 
 	it('returns only the unread count without a board', async () => {
@@ -110,7 +109,7 @@ describe('poll', () => {
 		expect(db.mock.calls.map(([doc]) => opName(doc))).toEqual(['GetBoardRole', 'PollUnread']);
 	});
 
-	it('fingerprints a readable board: stable, and different after a change', async () => {
+	it('stamps a readable board: stable, and different after a change', async () => {
 		const first = await poll.run(
 			ctx({ GetBoardRole: boardRow('viewer'), PollBoard: cards('1') }).ctx,
 			{ boardId: BOARD }
@@ -125,12 +124,21 @@ describe('poll', () => {
 		);
 
 		expect(first.unread).toBe(3);
-		expect(first.board).toMatch(/^[0-9a-f]{24}$/);
+		expect(first.board).toBe('1|1|4|5');
 		expect(again.board).toBe(first.board);
 		expect(changed.board).not.toBe(first.board);
 	});
 
-	it('leaves the unread count out of the fingerprint', async () => {
+	// Until the runner goes through the API (#231), its card writes don't stamp changed_at.
+	it('still changes when only the newest card stamp moves (a runner write)', async () => {
+		const run = (newest: string) =>
+			poll.run(ctx({ GetBoardRole: boardRow('viewer'), PollBoard: cards('1', newest) }).ctx, {
+				boardId: BOARD
+			});
+		expect((await run('5')).board).not.toBe((await run('6')).board);
+	});
+
+	it('leaves the unread count out of the board stamp', async () => {
 		const other = { ...cards('1'), notifications_aggregate: { aggregate: { count: 9 } } };
 		const a = await poll.run(ctx({ GetBoardRole: boardRow('editor'), PollBoard: cards('1') }).ctx, {
 			boardId: BOARD

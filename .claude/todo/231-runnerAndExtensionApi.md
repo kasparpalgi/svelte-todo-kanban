@@ -36,3 +36,18 @@ _GitHub issue #231 — end the commit subject with `(#231)`._
 ## Owner decisions (2026-11-12)
 
 - tracker-sync was deleted with the time tracker (226), so step 3 is done.
+
+## Notes from #229 (cards data API, shipped)
+
+- **Every `/api/runner/*` write that touches a card, comment or list must stamp the board:**
+  call `written(ctx, [boardId], { logs })` from `src/lib/server/ops/cardAccess.ts` (or reuse
+  the card ops in `src/lib/server/ops/todos.ts` / `comments.ts` directly). The 30 s poll
+  compares `boards.changed_at`.
+- Until the runner goes through the API, the poll also reads one aggregate,
+  `todos_aggregate { count, max { updated_at } }`, in `POLL_BOARD` (`documents.ts`), so the
+  runner's direct Hasura card creates and moves still show within one poll. **Remove that
+  aggregate here** once the runner no longer writes to Hasura: on D1 it reads every card of
+  the board every 30 s. Comments the runner posts directly show at the 5-minute full refresh
+  until then.
+- The GitHub webhook (`src/routes/api/github/webhook/+server.ts`) also writes cards and
+  comments without the stamp; the aggregate covers its card edits for now. Stamp there too.
