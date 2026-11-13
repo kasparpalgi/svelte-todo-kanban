@@ -29,3 +29,5 @@ control and gets an error toast when they use one.
 
 **Done when:** check and tests pass; deployed. Live: a viewer on a test board sees no edit
 control, can comment and edit/delete their own comment; an editor still sees everything.
+
+_GitHub issue #239 — end the commit subject with `(#239)`._
