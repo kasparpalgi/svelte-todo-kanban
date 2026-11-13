@@ -27,3 +27,15 @@ isolate is common at low traffic, so these are the requests most likely to see e
 **Done when (deploy + live check):** deployed to the Worker; the first `getBoards` in a
 fresh isolate costs under 40 ms of CPU and warm ops stay under 10 ms, with numbers in the
 Results; the e2e suite passes against the Worker URL.
+
+## Results
+
+**Summary** — `/api/data/[op]` now loads only the called op's module. New `ops/loaders.ts` maps every op name (81, enforced by `satisfies Record<OpName, …>`) to `() => import(...)`; the route and `runOp` use it, and `d1/index.ts` became lazy `d1Loaders`. The eager `ops/index.ts` registry stays for types and the contract tests, so behaviour and tests are unchanged. The route imports `index` as a type only.
+
+**Files changed** — created `src/lib/server/ops/loaders.ts`; modified `src/routes/api/data/[op]/+server.ts`, `src/lib/server/ops/run.ts`, `src/lib/server/ops/d1/index.ts`.
+
+**Verification** — `npm run check`: 0 errors. `npm test`: 611 passed, 5 skipped. NOT done: deploy, cold/warm CPU measurement (target: first `getBoards` < 40 ms, warm < 10 ms), the check that zod locales stay out of the bundle, and e2e against the Worker URL. No Cloudflare credentials in this run.
+
+**Deviations** — None in code; live check left to a person.
+
+**Needed from a human** — deploy the Worker (`npx wrangler deploy`, with CLOUDFLARE_API_TOKEN/ACCOUNT_ID), read `cpuTimeMs` for the first `getBoards` in a fresh isolate and for warm ops from Workers observability (query in #236 Results), then run `E2E_BASE_URL=https://todzz.svelte-todo-kanban.workers.dev npx playwright test`. If cold is still over 40 ms, profile with `wrangler dev --inspector-port`.

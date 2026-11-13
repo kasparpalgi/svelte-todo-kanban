@@ -5,8 +5,9 @@
 import { env } from '$env/dynamic/private';
 import { serverRequest } from '$lib/graphql/server-client';
 import { d1 } from '$lib/server/db';
-import { d1Runs } from './d1';
-import { ops, type OpName } from './index';
+import { d1Loaders } from './d1';
+import type { OpName } from './index';
+import { loadOp } from './loaders';
 import { OpError, type Ctx, type Db } from './op';
 
 const hasuraOff: Db = async () => {
@@ -22,8 +23,8 @@ export function opCtx(userId: string | null, platform: App.Platform | undefined)
 
 /** The op's run for this ctx's backend. Input must already be parsed by `op.input`. */
 export async function runOp(name: OpName, ctx: Ctx, input: unknown): Promise<unknown> {
-	if (!ctx.d1) return (ops[name].run as (c: Ctx, i: unknown) => Promise<unknown>)(ctx, input);
-	const run = d1Runs[name] as ((c: Ctx, i: unknown) => Promise<unknown>) | undefined;
-	if (!run) throw new OpError(501, `${name} is not on D1 yet`);
-	return run(ctx, input);
+	if (!ctx.d1) return (await loadOp(name)).run(ctx, input);
+	const load = d1Loaders[name as keyof typeof d1Loaders];
+	if (!load) throw new OpError(501, `${name} is not on D1 yet`);
+	return ((await load()) as (c: Ctx, i: unknown) => Promise<unknown>)(ctx, input);
 }

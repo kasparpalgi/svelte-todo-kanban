@@ -5,17 +5,18 @@
 import { json } from '@sveltejs/kit';
 import { extensionUserId } from '$lib/server/extensionToken';
 import { serverLog } from '$lib/server/log';
-import { ops, type OpName } from '$lib/server/ops';
-import { OpError, type Op } from '$lib/server/ops/op';
+import { opLoaders, loadOp } from '$lib/server/ops/loaders';
+import type { OpName } from '$lib/server/ops';
+import { OpError } from '$lib/server/ops/op';
 import { opCtx, runOp } from '$lib/server/ops/run';
 import type { RequestHandler } from './$types';
 
 const fail = (status: number, error: string) => json({ error }, { status });
 
 export const POST: RequestHandler = async ({ params, request, locals, platform }) => {
-	if (!Object.hasOwn(ops, params.op)) return fail(404, `Unknown op: ${params.op}`);
+	if (!Object.hasOwn(opLoaders, params.op)) return fail(404, `Unknown op: ${params.op}`);
 	const name = params.op as OpName;
-	const op = ops[name] as Op;
+	const op = await loadOp(name);
 
 	const userId =
 		(await locals.auth())?.user?.id ?? (await extensionUserId(request, params.op)) ?? null;
