@@ -26,3 +26,5 @@ here next? (think the same way on all project and speak yourself more to improve
   `SpeechToTextIntegration.svelte`.
 - Open question for Kaspar: does "think the same way on all projects" mean all boards in
   ToDzz (assumed), or the same assistant in other Klarity apps too?
+
+_GitHub issue #245 — end the commit subject with `(#245)`._
