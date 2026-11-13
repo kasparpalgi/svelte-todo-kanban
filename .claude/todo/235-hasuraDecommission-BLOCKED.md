@@ -28,3 +28,16 @@ apps alone. Rename `-BLOCKED.md` if the deletion itself is left for the owner, a
 _GitHub issue #235 — end the commit subject with `(#235)`._
 
 _From Kanban card `62839889-d610-4589-9f1d-59bb1f9890ee`, moved to the agent list._
+
+## Results
+
+**Summary** — Nothing was deleted, on purpose. This task runs 7 days after `d1CutOver` (#234), and the prerequisites are not done:
+`231-runnerAndExtensionApi-TODO.md`, `233-d1Ops-TODO.md` and `234-d1CutOver-TODO.md` are all still `-TODO`. Production still reads from Hasura/Postgres, and `src/`, `hasura/`, `codegen.ts` and the `graphql` deps are still live. Removing them, or telling the owner the Hetzner apps can go, would break the app. No `pg_dump` was taken, because Postgres is still the live database.
+
+**Files changed** — only this task file (Results appended, renamed to `-BLOCKED.md`).
+
+**Verification** — Repo grep confirms Hasura/GraphQL is still referenced in `src/`, `CLAUDE.md`, `codegen.ts` and `package.json`. Nothing else to verify.
+
+**Deviations** — The required statement "You can now delete the todzz Hasura and Postgres apps from CapRover on Hetzner" is deliberately NOT made: it is false today.
+
+**What's needed from the owner** — Finish and run #231, #233 and #234 (the cut-over to D1). Watch for 7 days. Then re-queue this task as `235-hasuraDecommission-TODO.md`. The steps are: check the request logs, `pg_dump` to R2, delete the Hasura code and deps, deploy, rerun the live checklist.
