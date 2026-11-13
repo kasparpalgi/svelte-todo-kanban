@@ -28,3 +28,5 @@ speech reply + toast) and intents in `src/lib/utils/voiceCommands.ts` (`wake`, `
   loading every board in the browser.
 - Ranking is a pure function with unit tests. Update `voice_assistant.reply_help` to
   mention the new command.
+
+_GitHub issue #242 — end the commit subject with `(#242)`._
