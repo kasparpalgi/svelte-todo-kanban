@@ -564,21 +564,24 @@
 				</Label>
 				<Popover bind:open={datePickerOpen}>
 					<PopoverTrigger>
-						<Button
-							variant="outline"
-							class={cn(
-								'w-full justify-start text-left font-normal',
-								!selectedDate && 'text-muted-foreground'
-							)}
-						>
-							<CalendarIcon class="mr-2 h-4 w-4" />
-							{selectedDate
-								? formatLocaleDate(
-										new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day),
-										lang
-									)
-								: $t('card.pick_date')}
-						</Button>
+						{#snippet child({ props })}
+							<Button
+								{...props}
+								variant="outline"
+								class={cn(
+									'w-full justify-start text-left font-normal',
+									!selectedDate && 'text-muted-foreground'
+								)}
+							>
+								<CalendarIcon class="mr-2 h-4 w-4" />
+								{selectedDate
+									? formatLocaleDate(
+											new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day),
+											lang
+										)
+									: $t('card.pick_date')}
+							</Button>
+						{/snippet}
 					</PopoverTrigger>
 					<PopoverContent class="w-auto p-0" align="start">
 						<CalendarPrimitive

@@ -73,36 +73,38 @@
 <div class="flex items-center gap-2">
 	<DropdownMenu bind:open={isOpen}>
 		<DropdownMenuTrigger>
-			<Button variant="outline" size="sm" class="gap-2" title={$t('todo.assign_to')}>
-				<Users class="h-4 w-4" />
-				{#if assigneeCount > 0}
-					<div class="flex -space-x-2">
-						{#each assignees.slice(0, 3) as assignment (assignment.user_id)}
-							{@const u = assignment.assignee}
-							{#if u.image}
-								<img
-									src={u.image}
-									alt={u.name || u.username}
-									class="h-5 w-5 rounded-full border border-background"
-								/>
-							{:else}
-								<div
-									class="flex h-5 w-5 items-center justify-center rounded-full border border-background bg-muted"
-								>
-									<span class="text-[10px] text-muted-foreground">
-										{(u.name || u.username)?.[0]?.toUpperCase()}
-									</span>
-								</div>
-							{/if}
-						{/each}
-					</div>
-					{#if assigneeCount > 3}
-						<span class="text-xs text-muted-foreground">+{assigneeCount - 3}</span>
+			{#snippet child({ props })}
+				<Button {...props} variant="outline" size="sm" class="gap-2" title={$t('todo.assign_to')}>
+					<Users class="h-4 w-4" />
+					{#if assigneeCount > 0}
+						<div class="flex -space-x-2">
+							{#each assignees.slice(0, 3) as assignment (assignment.user_id)}
+								{@const u = assignment.assignee}
+								{#if u.image}
+									<img
+										src={u.image}
+										alt={u.name || u.username}
+										class="h-5 w-5 rounded-full border border-background"
+									/>
+								{:else}
+									<div
+										class="flex h-5 w-5 items-center justify-center rounded-full border border-background bg-muted"
+									>
+										<span class="text-[10px] text-muted-foreground">
+											{(u.name || u.username)?.[0]?.toUpperCase()}
+										</span>
+									</div>
+								{/if}
+							{/each}
+						</div>
+						{#if assigneeCount > 3}
+							<span class="text-xs text-muted-foreground">+{assigneeCount - 3}</span>
+						{/if}
+					{:else}
+						<span class="text-xs text-muted-foreground">{$t('unassigned')}</span>
 					{/if}
-				{:else}
-					<span class="text-xs text-muted-foreground">{$t('unassigned')}</span>
-				{/if}
-			</Button>
+				</Button>
+			{/snippet}
 		</DropdownMenuTrigger>
 
 		<DropdownMenuContent align="start" class="w-64">

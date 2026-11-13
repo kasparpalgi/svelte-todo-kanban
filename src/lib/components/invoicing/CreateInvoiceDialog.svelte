@@ -369,25 +369,28 @@
 						<Label>{$t('invoicing.issued_date')}</Label>
 						<Popover bind:open={issuedDatePickerOpen}>
 							<PopoverTrigger>
-								<Button
-									variant="outline"
-									class={cn(
-										'w-full justify-start text-left font-normal',
-										!selectedIssuedDate && 'text-muted-foreground'
-									)}
-								>
-									<CalendarIcon class="mr-2 h-4 w-4" />
-									{selectedIssuedDate
-										? formatLocaleDate(
-												new Date(
-													selectedIssuedDate.year,
-													selectedIssuedDate.month - 1,
-													selectedIssuedDate.day
-												),
-												lang
-											)
-										: $t('card.pick_date')}
-								</Button>
+								{#snippet child({ props })}
+									<Button
+										{...props}
+										variant="outline"
+										class={cn(
+											'w-full justify-start text-left font-normal',
+											!selectedIssuedDate && 'text-muted-foreground'
+										)}
+									>
+										<CalendarIcon class="mr-2 h-4 w-4" />
+										{selectedIssuedDate
+											? formatLocaleDate(
+													new Date(
+														selectedIssuedDate.year,
+														selectedIssuedDate.month - 1,
+														selectedIssuedDate.day
+													),
+													lang
+												)
+											: $t('card.pick_date')}
+									</Button>
+								{/snippet}
 							</PopoverTrigger>
 							<PopoverContent class="w-auto p-0" align="start">
 								<CalendarPrimitive
@@ -406,25 +409,28 @@
 						<Label>{$t('invoicing.due_date')}</Label>
 						<Popover bind:open={dueDatePickerOpen}>
 							<PopoverTrigger>
-								<Button
-									variant="outline"
-									class={cn(
-										'w-full justify-start text-left font-normal',
-										!selectedDueDate && 'text-muted-foreground'
-									)}
-								>
-									<CalendarIcon class="mr-2 h-4 w-4" />
-									{selectedDueDate
-										? formatLocaleDate(
-												new Date(
-													selectedDueDate.year,
-													selectedDueDate.month - 1,
-													selectedDueDate.day
-												),
-												lang
-											)
-										: $t('card.pick_date')}
-								</Button>
+								{#snippet child({ props })}
+									<Button
+										{...props}
+										variant="outline"
+										class={cn(
+											'w-full justify-start text-left font-normal',
+											!selectedDueDate && 'text-muted-foreground'
+										)}
+									>
+										<CalendarIcon class="mr-2 h-4 w-4" />
+										{selectedDueDate
+											? formatLocaleDate(
+													new Date(
+														selectedDueDate.year,
+														selectedDueDate.month - 1,
+														selectedDueDate.day
+													),
+													lang
+												)
+											: $t('card.pick_date')}
+									</Button>
+								{/snippet}
 							</PopoverTrigger>
 							<PopoverContent class="w-auto p-0" align="start">
 								<CalendarPrimitive

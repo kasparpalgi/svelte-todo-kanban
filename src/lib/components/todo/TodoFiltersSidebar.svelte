@@ -156,7 +156,8 @@
 	let currentFilters = $derived(todoFilteringStore.filters);
 	let currentSorting = $derived(todoFilteringStore.sorting);
 	let selectedPriorities = $derived(currentFilters.priority || []);
-	let selectedLabels = $derived(currentFilters.labelIds || []);</script>
+	let selectedLabels = $derived(currentFilters.labelIds || []);
+</script>
 
 <div
 	class="fixed top-0 right-0 z-50 h-screen w-80 overflow-y-auto border-l bg-background shadow-lg"
@@ -222,7 +223,7 @@
 				/>
 				<label
 					for="search-content"
-					class="text-sm text-muted-foreground cursor-pointer select-none"
+					class="cursor-pointer text-sm text-muted-foreground select-none"
 				>
 					{$t('filters.search_content')}
 				</label>
@@ -274,18 +275,20 @@
 				</Button>
 
 				<DropdownMenu>
-					<DropdownMenuTrigger class="w-full">
-						<Button variant="outline" size="sm" class="w-full justify-start">
-							<User class="mr-2 h-4 w-4" />
-							{#if currentFilters.assignedTo === null}
-								{$t('filters.unassigned')}
-							{:else if currentFilters.assignedTo}
-								{members.find((m) => m.user.id === currentFilters.assignedTo)?.user.name ||
-									$t('filters.assigned_to_other')}
-							{:else}
-								{$t('filters.assigned_to_other')}
-							{/if}
-						</Button>
+					<DropdownMenuTrigger>
+						{#snippet child({ props })}
+							<Button {...props} variant="outline" size="sm" class="w-full justify-start">
+								<User class="mr-2 h-4 w-4" />
+								{#if currentFilters.assignedTo === null}
+									{$t('filters.unassigned')}
+								{:else if currentFilters.assignedTo}
+									{members.find((m) => m.user.id === currentFilters.assignedTo)?.user.name ||
+										$t('filters.assigned_to_other')}
+								{:else}
+									{$t('filters.assigned_to_other')}
+								{/if}
+							</Button>
+						{/snippet}
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="start" class="w-48">
 						<DropdownMenuCheckboxItem
@@ -307,7 +310,7 @@
 											class="h-5 w-5 rounded-full"
 										/>
 									{:else}
-										<div class="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
+										<div class="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
 											<span class="text-xs text-muted-foreground">
 												{(member.user.name || member.user.username)?.[0]?.toUpperCase()}
 											</span>

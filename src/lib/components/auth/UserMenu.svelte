@@ -106,9 +106,11 @@
 		<div class="hidden md:block">
 			<DropdownMenu>
 				<DropdownMenuTrigger>
-					<Button variant="ghost" size="sm" aria-label={$t('menu.open')}>
-						<Menu class="h-5 w-5" />
-					</Button>
+					{#snippet child({ props })}
+						<Button {...props} variant="ghost" size="sm" aria-label={$t('menu.open')}>
+							<Menu class="h-5 w-5" />
+						</Button>
+					{/snippet}
 				</DropdownMenuTrigger>
 				<DropdownMenuContent class="w-64" align="end">
 					<div class="pt-1 pb-2">
@@ -133,9 +135,11 @@
 		<div class="md:hidden">
 			<Sheet bind:open={mobileOpen}>
 				<SheetTrigger>
-					<Button variant="ghost" size="sm" aria-label={$t('menu.open')}>
-						<Menu class="h-5 w-5" />
-					</Button>
+					{#snippet child({ props })}
+						<Button {...props} variant="ghost" size="sm" aria-label={$t('menu.open')}>
+							<Menu class="h-5 w-5" />
+						</Button>
+					{/snippet}
 				</SheetTrigger>
 				<SheetContent side="right">
 					{@render userHeader()}

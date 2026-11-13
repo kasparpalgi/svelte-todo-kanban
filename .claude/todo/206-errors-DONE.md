@@ -130,3 +130,14 @@ and `boardLoadRace.test.ts`); restored with `git stash apply` and re-verified on
 - e2e (from session 1): 19 passed / 33 failed — the **exact same 33** fail on unmodified HEAD (baseline worktree run),
   so none are regressions. They are stale specs (e.g. expect a "Today" heading, a single `textbox` on /signin
   that now has email+password). Committed the verified work first, then fixing e2e separately (below).
+
+## Results
+
+**Summary** — The core work shipped in `7258e8a` (#206): it fixed the board-loading race and the log noise, and got svelte-check and fallow green. The second session's leftover work was parked in the runner stash. #249 checked it against main as it stands now:
+- The e2e spec fixes were redone in `bf20ee1` (#212). The temp-id and stale-refresh handling for todos was redone in `6537040` (#209) and #223. Keeping the open board on refresh is already on main. The notification-bell load fix was redone in #227.
+- **Still missing, now applied:** dropdown, sheet and popover triggers wrapped a `<Button>` inside the trigger's own `<button>`. That is invalid nested HTML and risks a hydration mismatch. They now use bits-ui `{#snippet child({ props })}` in 12 components. `ErrorBoundary` "home" now goes to `/` instead of a hard-coded `/et`.
+- **Not ported:** a guard so that a slow `loadLists()` cannot overwrite a list created while it was loading. It was low risk, and the session ran out of budget.
+
+**Files changed** — UserMenu, CreateInvoiceDialog, BoardManagement, ListManagement, UnifiedNotificationBell, CardAssignee, CardDetailView, CardLabelManager, CardSubscribers, KanbanColumn, TodoFiltersSidebar, ErrorBoundary (.svelte).
+**Verification** — `npm run check`: 0 errors, 0 warnings. Unit and e2e tests were not run (usage limit).
+**Deviations** — Finished by #249 rather than in its own run.

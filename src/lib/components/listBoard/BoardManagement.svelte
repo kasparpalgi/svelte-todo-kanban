@@ -372,10 +372,12 @@
 					</div>
 					<Dialog bind:open={showBoardDialog}>
 						<DialogTrigger>
-							<Button size="sm" class="h-8">
-								<Plus class="mr-1 h-3 w-3" />
-								{$t('board.new_board')}
-							</Button>
+							{#snippet child({ props })}
+								<Button {...props} size="sm" class="h-8">
+									<Plus class="mr-1 h-3 w-3" />
+									{$t('board.new_board')}
+								</Button>
+							{/snippet}
 						</DialogTrigger>
 						<DialogContent class="sm:max-w-[425px]">
 							<DialogHeader>
@@ -490,9 +492,11 @@
 
 										<DropdownMenu>
 											<DropdownMenuTrigger>
-												<Button variant="ghost" size="sm" class="h-6 w-6 p-0">
-													<Ellipsis class="h-3 w-3" />
-												</Button>
+												{#snippet child({ props })}
+													<Button {...props} variant="ghost" size="sm" class="h-6 w-6 p-0">
+														<Ellipsis class="h-3 w-3" />
+													</Button>
+												{/snippet}
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
 												<DropdownMenuItem onclick={() => startEditBoard(board)}>
@@ -636,9 +640,11 @@
 
 										<DropdownMenu>
 											<DropdownMenuTrigger>
-												<Button variant="ghost" size="sm" class="h-6 w-6 p-0">
-													<Ellipsis class="h-3 w-3" />
-												</Button>
+												{#snippet child({ props })}
+													<Button {...props} variant="ghost" size="sm" class="h-6 w-6 p-0">
+														<Ellipsis class="h-3 w-3" />
+													</Button>
+												{/snippet}
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
 												<DropdownMenuItem onclick={() => openMembersDialog(board)}>

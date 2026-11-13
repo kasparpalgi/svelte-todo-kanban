@@ -115,9 +115,11 @@
 
 		<DropdownMenu open={dropdownOpen} onOpenChange={handleOpenChange}>
 			<DropdownMenuTrigger>
-				<button class="cursor-pointer">
-					<Plus class="h-4 w-4" />
-				</button>
+				{#snippet child({ props })}
+					<button {...props} class="cursor-pointer">
+						<Plus class="h-4 w-4" />
+					</button>
+				{/snippet}
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="start" class="w-64">
 				{#if !isCreatingLabel}

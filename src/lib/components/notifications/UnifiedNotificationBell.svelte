@@ -251,16 +251,18 @@
 
 <DropdownMenu bind:open={isOpen}>
 	<DropdownMenuTrigger>
-		<Button variant="ghost" size="icon" class="relative h-9 w-9">
-			<Bell class="h-5 w-5" />
-			{#if totalCount > 0}
-				<span
-					class="absolute top-0 right-0 inline-flex h-5 w-5 translate-x-1/2 -translate-y-1/2 transform items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white"
-				>
-					{totalCount > 99 ? '99+' : totalCount}
-				</span>
-			{/if}
-		</Button>
+		{#snippet child({ props })}
+			<Button {...props} variant="ghost" size="icon" class="relative h-9 w-9">
+				<Bell class="h-5 w-5" />
+				{#if totalCount > 0}
+					<span
+						class="absolute top-0 right-0 inline-flex h-5 w-5 translate-x-1/2 -translate-y-1/2 transform items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white"
+					>
+						{totalCount > 99 ? '99+' : totalCount}
+					</span>
+				{/if}
+			</Button>
+		{/snippet}
 	</DropdownMenuTrigger>
 
 	<DropdownMenuContent align="end" class="max-h-96 w-80 overflow-y-auto">

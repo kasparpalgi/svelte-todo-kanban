@@ -173,13 +173,16 @@
 					{#if canEdit}
 						<DropdownMenu>
 							<DropdownMenuTrigger>
-								<Button
-									variant="ghost"
-									size="sm"
-									class="h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
-								>
-									<Ellipsis class="h-3 w-3" />
-								</Button>
+								{#snippet child({ props })}
+									<Button
+										{...props}
+										variant="ghost"
+										size="sm"
+										class="h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+									>
+										<Ellipsis class="h-3 w-3" />
+									</Button>
+								{/snippet}
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end" class="w-48">
 								<DropdownMenuItem onclick={startEdit}>

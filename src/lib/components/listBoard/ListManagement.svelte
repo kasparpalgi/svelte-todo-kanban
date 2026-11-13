@@ -225,10 +225,12 @@
 					</div>
 					<Dialog bind:open={showListDialog}>
 						<DialogTrigger>
-							<Button size="sm" class="h-8">
-								<Plus class="mr-1 h-3 w-3" />
-								{$t('todo.newList')}
-							</Button>
+							{#snippet child({ props })}
+								<Button {...props} size="sm" class="h-8">
+									<Plus class="mr-1 h-3 w-3" />
+									{$t('todo.newList')}
+								</Button>
+							{/snippet}
 						</DialogTrigger>
 						<DialogContent class="sm:max-w-[425px]">
 							<DialogHeader>
@@ -303,9 +305,11 @@
 
 								<DropdownMenu>
 									<DropdownMenuTrigger>
-										<Button variant="ghost" size="sm" class="h-6 w-6 p-0">
-											<MoreHorizontal class="h-3 w-3" />
-										</Button>
+										{#snippet child({ props })}
+											<Button {...props} variant="ghost" size="sm" class="h-6 w-6 p-0">
+												<MoreHorizontal class="h-3 w-3" />
+											</Button>
+										{/snippet}
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end">
 										<DropdownMenuItem onclick={() => startEditList(list)}>

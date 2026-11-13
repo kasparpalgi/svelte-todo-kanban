@@ -3,7 +3,13 @@
 	import { onMount } from 'svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
 	import { isExtensionStack, isNetworkError as isTransportError } from '$lib/utils/networkError';
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import {
+		Card,
+		CardContent,
+		CardDescription,
+		CardHeader,
+		CardTitle
+	} from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { AlertCircle, RefreshCw, Home } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
@@ -69,7 +75,8 @@
 	function goHome() {
 		error = null;
 		errorInfo = null;
-		goto('/et');
+		// The root redirects a signed-in user to their top board in their own locale.
+		goto('/');
 	}
 
 	onMount(() => {
@@ -87,7 +94,7 @@
 	{#if fallback}
 		{@render fallback(error, errorInfo)}
 	{:else}
-		<div class="min-h-screen flex items-center justify-center p-4 bg-background">
+		<div class="flex min-h-screen items-center justify-center bg-background p-4">
 			<Card class="w-full max-w-2xl border-destructive">
 				<CardHeader>
 					<div class="flex items-center gap-3">
@@ -99,23 +106,25 @@
 					</div>
 				</CardHeader>
 				<CardContent class="space-y-4">
-					<div class="bg-muted p-4 rounded-lg">
-						<p class="font-semibold mb-2">Error Message:</p>
-						<p class="text-sm font-mono text-destructive">
+					<div class="rounded-lg bg-muted p-4">
+						<p class="mb-2 font-semibold">Error Message:</p>
+						<p class="font-mono text-sm text-destructive">
 							{error.message || 'Unknown error occurred'}
 						</p>
 					</div>
 
 					{#if errorInfo}
-						<details class="bg-muted p-4 rounded-lg">
-							<summary class="font-semibold cursor-pointer hover:text-foreground text-muted-foreground">
+						<details class="rounded-lg bg-muted p-4">
+							<summary
+								class="cursor-pointer font-semibold text-muted-foreground hover:text-foreground"
+							>
 								Technical Details
 							</summary>
-							<pre class="mt-3 text-xs overflow-x-auto whitespace-pre-wrap">{errorInfo}</pre>
+							<pre class="mt-3 overflow-x-auto text-xs whitespace-pre-wrap">{errorInfo}</pre>
 						</details>
 					{/if}
 
-					<div class="pt-4 flex gap-3">
+					<div class="flex gap-3 pt-4">
 						<Button onclick={reload} class="gap-2">
 							<RefreshCw class="h-4 w-4" />
 							Reload Page

@@ -61,19 +61,22 @@
 <div class="flex items-center gap-2">
 	<DropdownMenu bind:open={isOpen}>
 		<DropdownMenuTrigger>
-			<Button
-				variant="outline"
-				size="sm"
-				class="h-8 gap-2 px-2"
-				title={$t('todo.manage_subscribers')}
-			>
-				<Bell class="h-4 w-4" />
-				{#if subscriberCount > 0}
-					<span class="text-xs">{subscriberCount}</span>
-				{:else}
-					<span class="text-xs text-muted-foreground">0</span>
-				{/if}
-			</Button>
+			{#snippet child({ props })}
+				<Button
+					{...props}
+					variant="outline"
+					size="sm"
+					class="h-8 gap-2 px-2"
+					title={$t('todo.manage_subscribers')}
+				>
+					<Bell class="h-4 w-4" />
+					{#if subscriberCount > 0}
+						<span class="text-xs">{subscriberCount}</span>
+					{:else}
+						<span class="text-xs text-muted-foreground">0</span>
+					{/if}
+				</Button>
+			{/snippet}
 		</DropdownMenuTrigger>
 
 		<DropdownMenuContent align="start" class="w-64">
