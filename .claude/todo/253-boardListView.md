@@ -22,3 +22,5 @@ the two with Cmd/Ctrl+B and keeps the filters. This slice adds that toggle to on
   into `src/lib/components/todo/CardRow.svelte` and use it in both places.
 - Moving cards stays a kanban-only action in this slice: no drag in the list.
 - i18n en / et / cs. Component test for the toggle.
+
+_GitHub issue #249 — end the commit subject with `(#249)`._
