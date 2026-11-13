@@ -685,7 +685,10 @@
       "groq_api_key_hint": "Získejte API klíč na console.groq.com",
       "save": "Uložit nastavení řeči",
       "saved": "Nastavení řeči uloženo",
-      "save_failed": "Uložení nastavení řeči se nezdařilo"
+      "save_failed": "Uložení nastavení řeči se nezdařilo",
+      "assistant": "Hlasový asistent",
+      "assistant_description": "Poslouchat budicí slovo, kdykoli je aplikace otevřená (Chrome / Edge / Safari).",
+      "wake_word": "Budicí slovo"
     },
     "push": {
       "title": "Push notifikace",
@@ -874,5 +877,14 @@
     "title": "Nastavení faktur",
     "clients_tab": "Klienti",
     "companies_tab": "Moje společnosti"
+  },
+  "voice_assistant": {
+    "toggle": "Hlasový asistent zapnout / vypnout",
+    "listening": "Poslouchám — řekněte \"{{wakeWord}}\"",
+    "paused": "Hlasový asistent je pozastaven",
+    "blocked": "Mikrofon je zablokován — povolte ho v prohlížeči",
+    "reply_wake": "Ano? Zeptejte se \"co umíš?\"",
+    "reply_help": "Zatím umím říct, co umím. Brzy: co je dnes nejnaléhavější, rychlé výhry napříč nástěnkami, návrhy na úklid a na čem pracovat dál.",
+    "reply_unknown": "To zatím neumím. Řekněte \"{{wakeWord}}, co umíš?\""
   }
 }

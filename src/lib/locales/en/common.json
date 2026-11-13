@@ -765,7 +765,10 @@
       "groq_api_key_hint": "Get your API key from console.groq.com",
       "save": "Save Speech Settings",
       "saved": "Speech settings saved",
-      "save_failed": "Failed to save speech settings"
+      "save_failed": "Failed to save speech settings",
+      "assistant": "Voice assistant",
+      "assistant_description": "Listen for the wake word whenever the app is open (Chrome / Edge / Safari).",
+      "wake_word": "Wake word"
     },
     "push": {
       "title": "Push Notifications",
@@ -1026,5 +1029,14 @@
     "title": "Invoice settings",
     "clients_tab": "Clients",
     "companies_tab": "My companies"
+  },
+  "voice_assistant": {
+    "toggle": "Voice assistant on / off",
+    "listening": "Listening — say \"{{wakeWord}}\"",
+    "paused": "Voice assistant paused",
+    "blocked": "Microphone blocked — allow it in the browser to use the voice assistant",
+    "reply_wake": "Yes? Ask me \"what can you do?\"",
+    "reply_help": "For now I can tell you what I can do. Soon: what is most urgent today, quick wins across your boards, clean-up suggestions and what to work on next.",
+    "reply_unknown": "I can't do that yet. Say \"{{wakeWord}}, what can you do?\""
   }
 }

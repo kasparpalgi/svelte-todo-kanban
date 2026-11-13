@@ -765,7 +765,10 @@
       "groq_api_key_hint": "Hangi API võti aadressilt console.groq.com",
       "save": "Salvesta kõneseaded",
       "saved": "Kõneseaded salvestatud",
-      "save_failed": "Kõneseadete salvestamine ebaõnnestus"
+      "save_failed": "Kõneseadete salvestamine ebaõnnestus",
+      "assistant": "Hääleassistent",
+      "assistant_description": "Kuula äratussõna alati, kui rakendus on avatud (Chrome / Edge / Safari).",
+      "wake_word": "Äratussõna"
     },
     "push": {
       "title": "Push-teavitused",
@@ -1026,5 +1029,14 @@
     "title": "Arve seaded",
     "clients_tab": "Kliendid",
     "companies_tab": "Minu ettevõtted"
+  },
+  "voice_assistant": {
+    "toggle": "Hääleassistent sees / väljas",
+    "listening": "Kuulan — ütle \"{{wakeWord}}\"",
+    "paused": "Hääleassistent on peatatud",
+    "blocked": "Mikrofon on blokeeritud — luba see brauseris, et hääleassistenti kasutada",
+    "reply_wake": "Jah? Küsi minult \"mida sa oskad?\"",
+    "reply_help": "Praegu oskan öelda, mida ma oskan. Peagi: mis on täna kõige kiireloomulisem, kiired võidud kõigil tahvlitel, koristussoovitused ja millega edasi minna.",
+    "reply_unknown": "Seda ma veel ei oska. Ütle \"{{wakeWord}}, mida sa oskad?\""
   }
 }

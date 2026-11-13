@@ -11,6 +11,7 @@
 	import UnifiedNotificationBell from '$lib/components/notifications/UnifiedNotificationBell.svelte';
 	import BoardSwitcherModal from '$lib/components/listBoard/BoardSwitcherModal.svelte';
 	import UpgradeDialog from '$lib/components/plan/UpgradeDialog.svelte';
+	import VoiceAssistant from '$lib/components/voice/VoiceAssistant.svelte';
 	import { actionState } from '$lib/stores/states.svelte';
 
 	let { data, children } = $props();
@@ -67,6 +68,7 @@
 
 			<div class="flex items-center gap-2">
 				{#if data?.session}
+					<VoiceAssistant />
 					<UnifiedNotificationBell />
 					<UserMenu />
 				{/if}

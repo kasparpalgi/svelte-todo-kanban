@@ -5,6 +5,7 @@
 	import { displayMessage } from '$lib/stores/errorSuccess.svelte';
 	import { loggingStore } from '$lib/stores/logging.svelte';
 	import { userStore } from '$lib/stores/user.svelte';
+	import { voiceAssistant } from '$lib/stores/voiceAssistant.svelte';
 	import type {
 		SpeechRecognition,
 		SpeechRecognitionErrorEvent,
@@ -282,6 +283,7 @@
 
 			mediaRecorder.onstop = async () => {
 				stream.getTracks().forEach((t) => t.stop());
+				voiceAssistant.release();
 				const blob = new Blob(chunks, { type: 'audio/webm' });
 				await transcribeAudio(blob);
 			};
@@ -297,6 +299,7 @@
 			correctedText = '';
 			loggingStore.info('VoiceInput', 'Media recording started', { provider: speechProvider });
 		} catch (error) {
+			voiceAssistant.release();
 			loggingStore.error('VoiceInput', 'Failed to start media recording', { error });
 			displayMessage('Microphone access denied');
 			onError('Microphone access denied');
@@ -458,6 +461,7 @@
 
 				recognition.onend = () => {
 					isRecording = false;
+					voiceAssistant.release();
 					loggingStore.info('VoiceInput', 'Speech recognition ended', {
 						finalTranscript,
 						speechSegments: speechSegments.length
@@ -496,6 +500,7 @@
 
 	function startRecording() {
 		if (!isSupported) return;
+		voiceAssistant.suspend();
 
 		if (speechProvider === 'groq' || speechProvider === 'whisper') {
 			startMediaRecording();
@@ -506,6 +511,7 @@
 		try {
 			recognition.start();
 		} catch (error) {
+			voiceAssistant.release();
 			loggingStore.error('VoiceInput', 'Failed to start recording', { error });
 			onError('Failed to start recording');
 		}

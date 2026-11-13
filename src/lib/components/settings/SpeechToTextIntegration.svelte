@@ -5,6 +5,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { Switch } from '$lib/components/ui/switch';
+	import { DEFAULT_WAKE_WORD } from '$lib/utils/voiceCommands';
 	import {
 		Card,
 		CardContent,
@@ -18,6 +20,8 @@
 	let selectedProvider = $state('browser');
 	let inputGroqApiKey = $state('');
 	let showApiKey = $state(false);
+	let assistantEnabled = $state(false);
+	let wakeWord = $state(DEFAULT_WAKE_WORD);
 	let statusMessage = $state<{ text: string; type: 'success' | 'error' } | null>(null);
 	let initialized = $state(false);
 
@@ -25,6 +29,8 @@
 		if (user && !initialized) {
 			selectedProvider = user.settings?.speech_provider || 'browser';
 			inputGroqApiKey = user.settings?.tokens?.groq?.api_key || '';
+			assistantEnabled = !!user.settings?.voice_assistant?.enabled;
+			wakeWord = user.settings?.voice_assistant?.wake_word || DEFAULT_WAKE_WORD;
 			initialized = true;
 		}
 	});
@@ -44,6 +50,10 @@
 			settings: {
 				...currentSettings,
 				speech_provider: selectedProvider,
+				voice_assistant: {
+					enabled: assistantEnabled,
+					wake_word: wakeWord.trim() || DEFAULT_WAKE_WORD
+				},
 				tokens: newTokens
 			}
 		});
@@ -117,7 +127,7 @@
 					<button
 						type="button"
 						onclick={() => (showApiKey = !showApiKey)}
-						class="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+						class="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
 					>
 						{#if showApiKey}
 							<EyeOff class="h-4 w-4" />
@@ -127,6 +137,21 @@
 					</button>
 				</div>
 				<p class="text-xs text-muted-foreground">{$t('settings.speech.groq_api_key_hint')}</p>
+			</div>
+		{/if}
+
+		<div class="flex items-center justify-between gap-4">
+			<div class="space-y-0.5">
+				<Label for="voice-assistant">{$t('settings.speech.assistant')}</Label>
+				<p class="text-xs text-muted-foreground">{$t('settings.speech.assistant_description')}</p>
+			</div>
+			<Switch id="voice-assistant" bind:checked={assistantEnabled} />
+		</div>
+
+		{#if assistantEnabled}
+			<div class="space-y-2">
+				<Label for="wake-word">{$t('settings.speech.wake_word')}</Label>
+				<Input id="wake-word" bind:value={wakeWord} placeholder={DEFAULT_WAKE_WORD} />
 			</div>
 		{/if}
 
