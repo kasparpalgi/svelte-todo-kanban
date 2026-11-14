@@ -61,6 +61,10 @@ export const todos = sqliteTable(
 		index('todos_github_issue_number_idx')
 			.on(t.github_issue_number)
 			.where(sql`${t.github_issue_number} IS NOT NULL`),
+		// The runner finds its cards by task file path on every tick (#247).
+		index('todos_task_file_path_idx')
+			.on(t.task_file_path)
+			.where(sql`${t.task_file_path} IS NOT NULL`),
 		check('todos_priority_check', sql`${t.priority} IN ('low', 'medium', 'high')`),
 		check(
 			'todos_agent_effort_check',

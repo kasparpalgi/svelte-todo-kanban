@@ -1,0 +1,1 @@
+CREATE INDEX `todos_task_file_path_idx` ON `todos` (`task_file_path`) WHERE "todos"."task_file_path" IS NOT NULL;

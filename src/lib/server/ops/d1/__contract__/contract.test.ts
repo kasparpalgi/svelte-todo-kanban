@@ -5,24 +5,15 @@
 //   CONTRACT=1 npx vitest --run --project=server src/lib/server/ops/d1/__contract__
 // Reads run for every user and board. CONTRACT_WRITES=1 also creates, edits and deletes
 // one board as the e2e test user on both sides (production gets that board for seconds).
-import { execSync } from 'node:child_process';
-import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
 import { serverRequest } from '$lib/graphql/server-client';
-import { d1 } from '$lib/server/db';
-import { sqliteD1 } from '$lib/server/db/__tests__/sqliteD1';
+import type { d1 } from '$lib/server/db';
 import { ops, type OpName } from '../../index';
 import { runOp } from '../../run';
 import { firstDiff, normalize } from './compare';
+import { local } from './local';
 
 const on = !!process.env.CONTRACT;
-const LOCAL = 'find .wrangler/state/v3/d1 -name "*.sqlite" ! -name metadata.sqlite';
-
-function local() {
-	const sqlite = new DatabaseSync(execSync(LOCAL, { encoding: 'utf8' }).trim().split('\n')[0]);
-	sqlite.exec('PRAGMA foreign_keys = ON');
-	return { sqlite, db: d1(sqliteD1(sqlite)) };
-}
 
 type Case = { op: OpName; userId: string; input: unknown };
 

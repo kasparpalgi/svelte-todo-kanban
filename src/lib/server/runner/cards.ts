@@ -23,7 +23,7 @@ export const board = defineOp({
 	input: z.object({ repo: z.string().min(1).max(200) }),
 	async run(ctx, { repo }) {
 		const { boards } = await ctx.db(RUNNER_BOARD, { repo: `%${repo}%` });
-		return boards[0] ?? null;
+		return boards.at(0) ?? null;
 	}
 });
 
