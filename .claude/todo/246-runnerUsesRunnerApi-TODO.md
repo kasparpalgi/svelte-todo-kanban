@@ -47,3 +47,5 @@ until this lands).
 endpoints, and `grep -r "servicehost\|adminSecret" plugins/dev-kit/runner` finds nothing.
 
 _GitHub issue #246 — end the commit subject with `(#246)`._
+
+_From Kanban card `4785ea61-f982-4648-9b68-d5b00a94682c`, moved to the agent list._
