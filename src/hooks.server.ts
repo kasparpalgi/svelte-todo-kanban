@@ -10,6 +10,7 @@ import Credentials from '@auth/sveltekit/providers/credentials';
 import type { Provider } from '@auth/sveltekit/providers';
 import type { Handle } from '@sveltejs/kit';
 import { createPasswordUser, verifyUserPassword } from '$lib/server/password';
+import { readOnlyHandle } from '$lib/server/readOnly';
 
 // Extend the Session and JWT types to include custom properties
 declare module '@auth/core/types' {
@@ -262,4 +263,4 @@ const securityHandle: Handle = async ({ event, resolve }) => {
 };
 
 export { signOut };
-export const handle = sequence(authHandle, memoAuthHandle, securityHandle);
+export const handle = sequence(readOnlyHandle, authHandle, memoAuthHandle, securityHandle);

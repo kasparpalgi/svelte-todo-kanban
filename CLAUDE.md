@@ -183,6 +183,7 @@ npx wrangler d1 migrations apply todzz --remote    # todzz-staging: add --env st
 node scripts/d1/copy-from-postgres.mjs [--remote] [--prod] [--check] [table…]   # 100k writes/day!
 E2E_BASE_URL=https://todzz.svelte-todo-kanban.workers.dev npx playwright test   # live check
 CONTRACT=1 npx vitest --run --project=server src/lib/server/ops/d1/__contract__   # D1 = Hasura (local copy first)
+echo 1 | npx wrangler secret put READ_ONLY       # cut-over read-only switch (#234); `secret delete READ_ONLY` ends it
 
 # Docker reset (when Hasura is broken)
 docker-compose down -v && docker-compose up -d
