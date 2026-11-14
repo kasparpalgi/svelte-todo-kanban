@@ -1974,6 +1974,22 @@ export const RUNNER_UPLOADS = graphql(`
 	}
 `);
 
+export const RUNNER_USAGE = graphql(`
+	query RunnerUsage($since: timestamptz!) {
+		claude_usage(where: { started_at: { _gte: $since } }) {
+			todo_id
+			model
+			output_tokens
+			cost_usd
+			started_at
+			ended_at
+			todo {
+				agent_effort
+			}
+		}
+	}
+`);
+
 export const RUNNER_PRICING = graphql(`
 	query RunnerPricing {
 		claude_model_pricing {

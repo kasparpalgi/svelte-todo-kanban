@@ -78,6 +78,13 @@ describe('POST /api/runner/[op]', () => {
 		});
 	});
 
+	it('lists the usage rows since a moment', async () => {
+		serverRequest.mockResolvedValue({ claude_usage: [{ model: 'm' }] });
+		const { body } = await post('usage', { since: '2026-11-01T00:00:00Z' });
+		expect(body.data).toEqual([{ model: 'm' }]);
+		expect(serverRequest.mock.calls[0][1]).toEqual({ since: '2026-11-01T00:00:00Z' });
+	});
+
 	it('hides a database error behind a 500', async () => {
 		serverRequest.mockRejectedValue(new Error('secret detail'));
 		const { status, body } = await post('boards', {});

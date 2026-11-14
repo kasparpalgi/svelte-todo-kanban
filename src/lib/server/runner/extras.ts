@@ -8,7 +8,8 @@ import {
 	RUNNER_UPDATE_COMMENT,
 	RUNNER_UPLOADS,
 	RUNNER_UPSERT_PRICING,
-	RUNNER_UPSERT_USAGE
+	RUNNER_UPSERT_USAGE,
+	RUNNER_USAGE
 } from '$lib/graphql/documents';
 import { defineOp, OpError } from '$lib/server/ops/op';
 
@@ -116,5 +117,14 @@ export const recordUsage = defineOp({
 		const data = await ctx.db(RUNNER_UPSERT_USAGE, { row });
 		if (!data.insert_claude_usage_one) throw new Error('insert_claude_usage_one returned no row');
 		return data.insert_claude_usage_one;
+	}
+});
+
+/** The sessions started since a moment, with their card's effort: `npm run tiers`. */
+export const usage = defineOp({
+	auth: 'public',
+	input: z.object({ since: time }),
+	async run(ctx, { since }) {
+		return (await ctx.db(RUNNER_USAGE, { since })).claude_usage;
 	}
 });

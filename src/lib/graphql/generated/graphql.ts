@@ -17540,6 +17540,13 @@ export type RunnerUploadsQueryVariables = Exact<{
 
 export type RunnerUploadsQuery = { __typename?: 'query_root', uploads: Array<{ __typename?: 'uploads', url: string }> };
 
+export type RunnerUsageQueryVariables = Exact<{
+  since: Scalars['timestamptz']['input'];
+}>;
+
+
+export type RunnerUsageQuery = { __typename?: 'query_root', claude_usage: Array<{ __typename?: 'claude_usage', todo_id?: string | null, model: string, output_tokens: number, cost_usd: number, started_at?: string | null, ended_at?: string | null, todo?: { __typename?: 'todos', agent_effort?: string | null } | null }> };
+
 export type RunnerPricingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -20990,6 +20997,21 @@ export const RunnerUploadsDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RunnerUploadsQuery, RunnerUploadsQueryVariables>;
+export const RunnerUsageDocument = new TypedDocumentString(`
+    query RunnerUsage($since: timestamptz!) {
+  claude_usage(where: {started_at: {_gte: $since}}) {
+    todo_id
+    model
+    output_tokens
+    cost_usd
+    started_at
+    ended_at
+    todo {
+      agent_effort
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<RunnerUsageQuery, RunnerUsageQueryVariables>;
 export const RunnerPricingDocument = new TypedDocumentString(`
     query RunnerPricing {
   claude_model_pricing {
