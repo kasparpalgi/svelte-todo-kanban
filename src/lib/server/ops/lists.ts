@@ -35,7 +35,7 @@ export const getLists = defineOp({
 
 		const data = await ctx.db(GET_LISTS, {
 			where: { _or: or },
-			order_by: [{ sort_order: Order_By.Asc }, { name: Order_By.Asc }],
+			order_by: [{ sort_order: Order_By.Asc }, { name: Order_By.Asc }, { id: Order_By.Asc }],
 			limit: 10_000
 		});
 		return data.lists;

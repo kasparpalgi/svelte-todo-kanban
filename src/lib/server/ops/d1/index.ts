@@ -13,5 +13,21 @@ export const d1Loaders: Loaders = {
 	getBoard: () => import('./boards').then((m) => m.getBoard),
 	createBoard: () => import('./boards').then((m) => m.createBoard),
 	updateBoard: () => import('./boards').then((m) => m.updateBoard),
-	deleteBoard: () => import('./boards').then((m) => m.deleteBoard)
+	deleteBoard: () => import('./boards').then((m) => m.deleteBoard),
+	getLists: () => import('./lists').then((m) => m.getLists),
+	createList: () => import('./lists').then((m) => m.createList),
+	updateList: () => import('./lists').then((m) => m.updateList),
+	deleteList: () => import('./lists').then((m) => m.deleteList),
+	createLabel: () => import('./labels').then((m) => m.createLabel),
+	updateLabel: () => import('./labels').then((m) => m.updateLabel),
+	deleteLabel: () => import('./labels').then((m) => m.deleteLabel),
+	getBoardMembers: () => import('./members').then((m) => m.getBoardMembers),
+	updateBoardMember: () => import('./members').then((m) => m.updateBoardMember),
+	removeBoardMember: () => import('./members').then((m) => m.removeBoardMember),
+	getBoardInvitations: () => import('./invitations').then((m) => m.getBoardInvitations),
+	getMyInvitations: () => import('./invitations').then((m) => m.getMyInvitations),
+	createBoardInvitation: () => import('./invitations').then((m) => m.createBoardInvitation),
+	cancelInvitation: () => import('./invitations').then((m) => m.cancelInvitation),
+	acceptInvitation: () => import('./invitations').then((m) => m.acceptInvitation),
+	declineInvitation: () => import('./invitations').then((m) => m.declineInvitation)
 };
