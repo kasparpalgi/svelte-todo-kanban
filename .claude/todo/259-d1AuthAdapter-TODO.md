@@ -1,4 +1,5 @@
 > Run with: Opus 5.5 / high
+> Machine: windows
 
 # D1: Auth.js on D1 and the staging proof
 
