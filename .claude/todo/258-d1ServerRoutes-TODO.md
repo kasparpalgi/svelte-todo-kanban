@@ -1,4 +1,5 @@
 > Run with: Opus 5.5 / high
+> Machine: windows
 
 # D1: the server code that still calls Hasura directly
 
