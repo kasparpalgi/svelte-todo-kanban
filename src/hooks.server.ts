@@ -11,7 +11,6 @@ import Credentials from '@auth/sveltekit/providers/credentials';
 import type { Provider } from '@auth/sveltekit/providers';
 import type { Handle } from '@sveltejs/kit';
 import * as hasuraPasswords from '$lib/server/password';
-import { d1Auth } from '$lib/server/auth/d1';
 import { readOnlyHandle } from '$lib/server/readOnly';
 
 // Extend the Session and JWT types to include custom properties
@@ -130,8 +129,10 @@ if (PUBLIC_APP_ENV !== 'production') {
 	);
 }
 
-/** The adapter and password checks for this request: D1 with `DATA_BACKEND=d1` (#259). */
-function backend(platform: App.Platform | undefined) {
+/** The adapter and password checks for this request: D1 with `DATA_BACKEND=d1` (#259).
+ * D1's module (Drizzle schema, relations, signUp) loads only then: a static import put it
+ * in every request's cold start, production's too (#236, #247). */
+async function backend(platform: App.Platform | undefined) {
 	if (env.DATA_BACKEND !== 'd1') {
 		const adapter = HasuraAdapter({
 			endpoint: PUBLIC_API_ENV === 'production' ? env.API_ENDPOINT : env.API_ENDPOINT_DEV,
@@ -141,13 +142,13 @@ function backend(platform: App.Platform | undefined) {
 	}
 	const binding = platform?.env?.DB;
 	if (!binding) throw new Error('DATA_BACKEND=d1 but the DB binding is missing');
-	return d1Auth(binding);
+	return (await import('$lib/server/auth/d1')).d1Auth(binding);
 }
 
 // A function config is read per request, not at import: SvelteKit's build-time
 // analyse step imports this file, and HasuraAdapter throws without an admin secret.
 const { handle: authHandle, signOut } = SvelteKitAuth(async (event) => {
-	const { adapter, ...passwords } = backend(event.platform);
+	const { adapter, ...passwords } = await backend(event.platform);
 	return config(adapter, [...providers, passwordProvider(passwords)]);
 });
 

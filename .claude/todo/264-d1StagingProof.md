@@ -38,3 +38,14 @@ Hasura.
 `/auth/callback/nodemailer?token=<raw>&email=<email>`.
 
 _GitHub issue #260 — end the commit subject with `(#260)`._
+
+## Note from #259's second run (2026-11-17)
+
+Sign-in CPU on `todzz-staging` (D1), from Workers Observability:
+- `/auth/session`: 2–4 ms.
+- `POST /auth/callback/credentials`: **8–18 ms**, over Free's 10 ms. PBKDF2 at 10,000
+  iterations (`src/lib/server/pbkdf2.ts`) is ~5 ms of that; the rest is the D1 read or the
+  sign-up batch, and the session JWT.
+
+Hand it to #236 with the rest. Do not lower the iterations without the owner's yes: that
+weakens every stored hash.

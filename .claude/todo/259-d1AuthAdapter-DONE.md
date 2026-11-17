@@ -121,3 +121,27 @@ machines when this run began. Both landed on `main` before this push.
 - **Duplicate run:** windows claimed 259 at 13:16 (`7f8a7e1`) while this run (karel's
   `run/259-d1AuthAdapter` worktree) was already working on it. Whichever run pushes second
   should keep this result and drop its own copy.
+
+## Results — second run (windows), 2026-11-17
+
+A second machine ran #259 at the same time and found it already on `main` (`76654c2`) when it
+went to push. Its duplicate commit was dropped. Two things from it were added:
+
+- **Lazy D1 auth import** (`hooks.server.ts`): `backend()` now loads `$lib/server/auth/d1`
+  with `import()` and only when `DATA_BACKEND=d1`. The static import put the Drizzle schema,
+  relations and `signUp` into every request's cold start, production's too. #236 and #247
+  removed exactly that cost.
+- **Sign-in CPU on staging D1** (Workers Observability, `cpuTimeMs`): `/auth/session` 2–4 ms;
+  `POST /auth/callback/credentials` **8–18 ms** (7 sign-ups and sign-ins). That is over Free's
+  10 ms, and PBKDF2 at 10,000 iterations is ~5 ms of it. Noted in `264-d1StagingProof.md`.
+- That run's staging deploy (`ada0864d`) was built before #257. It is replaced by `cd2e8b7b`,
+  built from `main` plus this fix.
+
+**Files changed** — `src/hooks.server.ts`, `.claude/todo/264-d1StagingProof.md` (a note
+appended), `package.json` / `package-lock.json` (0.46.1)
+**Verification**
+- `npm run check`: 0 errors.
+- Unit tests: 679 passed, 21 skipped.
+- `E2E_BASE_URL=https://todzz-staging.svelte-todo-kanban.workers.dev npx playwright test`:
+  32 passed on `cd2e8b7b`. I ran it with Playwright's Chromium: this machine has no Google Chrome.
+**Deviations** — None beyond the above.
