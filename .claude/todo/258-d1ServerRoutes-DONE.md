@@ -116,3 +116,18 @@ rest is split into three Backlog follow-ups.
 - I did not copy the R2, GitHub, Stripe or VAPID secrets to staging. That is the owner's call
   (for #259 or #261): staging uploads would then land in the production bucket.
 - `GithubRepoSelector.svelte` still sends `?userId=`. The route ignores it now.
+
+## Duplicate run on karel
+
+Both runners picked up #258: karel started at 12:56:27, four seconds before windows pushed
+its claim (`6beabc6`). The karel run built the same slice, landed second, and dropped its
+code for `98a0c05`. Its only extra was `api/keys` on D1, which `263-d1BillingKeysCalendar.md`
+already covers. Things it found that the Results above don't say:
+- The two runs kept redeploying `todzz-staging` over each other. Staging was redeployed from
+  `98a0c05` afterwards (version `9dfd5d22`).
+- On staging, a URL shortcut that exists only in D1 redirects and counts the visit.
+- `/api/runner/upload` on staging rejects the `.env` `RUNNER_API_TOKEN`: the staging secret
+  is a different value. With the admin secret it finds the card on D1, then stops at
+  "No storage configured" (no R2 on staging, as above). A curl test needs an `Origin` header,
+  or SvelteKit's CSRF check refuses the form post.
+- The runner's claim race (two machines starting the same task) belongs in the runner, not here.
