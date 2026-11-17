@@ -12,7 +12,13 @@ export interface R2Credentials {
 	bucket: string;
 	/** Public base URL for the bucket (custom domain or r2.dev), used to build the returned URL. */
 	publicBaseUrl: string;
+	/** `eu` for a bucket in the EU jurisdiction, which only `<account>.eu.r2…` can see. */
+	jurisdiction?: string;
 }
+
+/** The bucket's S3 host. A jurisdiction bucket is a NoSuchBucket on the default host. */
+export const r2Host = (creds: R2Credentials) =>
+	`${creds.accountId}${creds.jurisdiction ? `.${creds.jurisdiction}` : ''}.r2.cloudflarestorage.com`;
 
 export interface R2UploadResult {
 	success: boolean;
@@ -49,7 +55,7 @@ export async function uploadToR2(
 	key: string
 ): Promise<R2UploadResult> {
 	try {
-		const host = `${creds.accountId}.r2.cloudflarestorage.com`;
+		const host = r2Host(creds);
 		const encodedKey = encodeKey(key);
 		const canonicalUri = `/${creds.bucket}/${encodedKey}`;
 

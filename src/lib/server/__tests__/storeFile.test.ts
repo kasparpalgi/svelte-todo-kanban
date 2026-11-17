@@ -4,12 +4,22 @@ const uploadToR2 = vi.fn();
 const envMock = vi.hoisted((): Record<string, string> => ({}));
 vi.mock('$env/dynamic/private', () => ({ env: envMock }));
 vi.mock('$lib/utils/crypto', () => ({ decryptToken: vi.fn() }));
-vi.mock('$lib/server/r2', () => ({ uploadToR2: (...a: unknown[]) => uploadToR2(...a) }));
+vi.mock('$lib/server/r2', async (actual) => ({
+	...(await actual<typeof import('$lib/server/r2')>()),
+	uploadToR2: (...a: unknown[]) => uploadToR2(...a)
+}));
 
 import { storeFile } from '../storeFile';
+import { r2Host } from '$lib/server/r2';
 
 const file = new File(['x'], 'a.txt');
-const own = { accountId: 'u', accessKeyId: 'u', secretAccessKey: 'u', bucket: 'u', publicBaseUrl: 'u' };
+const own = {
+	accountId: 'u',
+	accessKeyId: 'u',
+	secretAccessKey: 'u',
+	bucket: 'u',
+	publicBaseUrl: 'u'
+};
 
 describe('storeFile', () => {
 	beforeEach(() => {
@@ -33,6 +43,20 @@ describe('storeFile', () => {
 		await storeFile(file, 'u1', null);
 		expect(uploadToR2.mock.calls[0][1]).toMatchObject({ bucket: 'b', accountId: 'acc' });
 		expect(uploadToR2.mock.calls[0][2]).toMatch(/^u1\//);
+	});
+
+	it('passes the app bucket its jurisdiction', async () => {
+		Object.assign(envMock, {
+			CLOUDFARE_ACCOUNT_ID: 'acc',
+			CLOUDFARE_ACCESS_KEY_ID: 'k',
+			CLOUDFARE_SECRET_ACCESS_KEY: 's',
+			R2_BUCKET_NAME: 'b',
+			R2_PUBLIC_URL: 'https://pub.r2.dev',
+			R2_JURISDICTION: 'eu'
+		});
+		await storeFile(file, 'u1', null);
+		expect(r2Host(uploadToR2.mock.calls[0][1])).toBe('acc.eu.r2.cloudflarestorage.com');
+		expect(r2Host(own)).toBe('u.r2.cloudflarestorage.com');
 	});
 
 	it('errors when nothing is configured', async () => {

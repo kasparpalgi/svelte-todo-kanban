@@ -4,6 +4,7 @@ import { UPDATE_USER } from '$lib/graphql/documents';
 import { redirect } from '@sveltejs/kit';
 import { encryptToken } from '$lib/utils/crypto';
 import { serverRequest } from '$lib/graphql/server-client';
+import { GITHUB_USER_AGENT } from '$lib/server/github';
 import type { RequestEvent } from './$types';
 import type { GetUserResult, GitHubTokenResponse, GitHubUser } from '$lib/types/github';
 
@@ -28,7 +29,8 @@ export async function GET({ url }: RequestEvent) {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Accept: 'application/json'
+				Accept: 'application/json',
+				'User-Agent': GITHUB_USER_AGENT
 			},
 			body: JSON.stringify({
 				client_id: env.GITHUB_CLIENT_ID,
@@ -47,7 +49,8 @@ export async function GET({ url }: RequestEvent) {
 		const userResponse = await fetch('https://api.github.com/user', {
 			headers: {
 				Authorization: `token ${tokenData.access_token}`,
-				Accept: 'application/vnd.github.v3+json'
+				Accept: 'application/vnd.github.v3+json',
+				'User-Agent': GITHUB_USER_AGENT
 			}
 		});
 

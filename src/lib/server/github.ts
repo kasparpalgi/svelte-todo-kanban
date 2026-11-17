@@ -37,6 +37,9 @@ export async function getGithubToken(userId: string): Promise<string | null> {
 	}
 }
 
+/** GitHub's API answers 403 without one. Node's fetch sent "node"; a Worker's sends none (#254). */
+export const GITHUB_USER_AGENT = 'Todzz';
+
 /**
  * Make authenticated GitHub API request
  * @param endpoint - GitHub API endpoint (e.g., '/repos/owner/repo/issues')
@@ -55,6 +58,7 @@ export async function githubRequest<T = any>(
 		headers: {
 			Authorization: `token ${token}`,
 			Accept: 'application/vnd.github.v3+json',
+			'User-Agent': GITHUB_USER_AGENT,
 			...options.headers
 		}
 	});

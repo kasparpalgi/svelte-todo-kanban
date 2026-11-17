@@ -34,7 +34,8 @@ export function getAppR2Credentials(): R2Credentials | null {
 		bucket: env.R2_BUCKET_NAME,
 		publicBaseUrl: env.R2_PUBLIC_URL
 	};
-	return Object.values(creds).every(Boolean) ? (creds as R2Credentials) : null;
+	if (!Object.values(creds).every(Boolean)) return null;
+	return { ...(creds as R2Credentials), jurisdiction: env.R2_JURISDICTION || undefined };
 }
 
 /** Store `file` for `userId` in their R2 bucket, else in the app's R2 bucket. */

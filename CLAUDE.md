@@ -140,12 +140,17 @@ export const myStore = createStore();
   merges it by hand. Branch only when a human asked you to, and name it after the task
   file — `039-featureName`.
 - **Push your commits**: after committing to `main`, run `git push origin main` yourself
-  — do not rely on the runner. Vercel's git integration deploys on push, so an unpushed
+  — do not rely on the runner. A push deploys production: `.github/workflows/deploy-cloudflare.yml`
+  builds and `wrangler deploy`s the `todzz` Worker, which serves `www.todzz.eu` (#254). Vercel
+  still builds too, but only as the rollback; no domain points at it. An unpushed
   commit means the production deploy never gets your change. If the push is rejected
   because `main` moved, `git pull --rebase origin main` then push again.
 - **Line endings = LF**: the repo is all-LF (`.gitattributes` enforces it). Never
   introduce CRLF. The local `.env` is LF too — if you extract env values, strip any
   stray `\r`/quotes, since CRLF once silently corrupted a VAPID key sent to Vercel.
+- **`.env` lives on the Mac**: the runner copies the Mac's `.env` over every peer's, so a
+  key added on karel or dell is gone by the next sync. Add new keys there. Worker
+  secrets: `scripts/cf-secrets.sh <env-file>` (all) or `npx wrangler secret put NAME` (one).
 - **Mutations**: always return `{ success: boolean, message: string, data? }`
 - **Browser guard**: `if (!browser) return;` before any client-side API call
 - **Optimistic updates**: always include rollback on error
@@ -181,7 +186,7 @@ hasura migrate create "name" --from-server
 npx drizzle-kit generate --name <change>           # after editing src/lib/server/db/schema
 npx wrangler d1 migrations apply todzz --remote    # todzz-staging: add --env staging
 node scripts/d1/copy-from-postgres.mjs [--remote] [--prod] [--check] [table…]   # 100k writes/day!
-E2E_BASE_URL=https://todzz.svelte-todo-kanban.workers.dev npx playwright test   # live check
+E2E_BASE_URL=https://www.todzz.eu npx playwright test   # live check (production Worker)
 CONTRACT=1 npx vitest --run --project=server src/lib/server/ops/d1/__contract__   # D1 = Hasura (local copy first)
 echo 1 | npx wrangler secret put READ_ONLY       # cut-over read-only switch (#234); `secret delete READ_ONLY` ends it
 

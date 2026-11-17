@@ -11,6 +11,11 @@
 		"directory": ".svelte-kit/cloudflare"
 	},
 	"observability": { "enabled": true },
+	// Production domains (#254). The apex 307s to www in a zone Redirect Rule, before the Worker.
+	"routes": [
+		{ "pattern": "www.todzz.eu", "custom_domain": true },
+		{ "pattern": "todzz.eu", "custom_domain": true }
+	],
 	// D1 (#232). Migrations come from `drizzle-kit generate` (schema in src/lib/server/db/schema).
 	// Read only with DATA_BACKEND=d1 (#233): production stays on Hasura until the cut-over (#234).
 	"d1_databases": [

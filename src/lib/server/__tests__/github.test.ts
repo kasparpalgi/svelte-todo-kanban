@@ -134,7 +134,8 @@ describe('GitHub Server Utilities', () => {
 				{
 					headers: {
 						Authorization: `token ${mockToken}`,
-						Accept: 'application/vnd.github.v3+json'
+						Accept: 'application/vnd.github.v3+json',
+						'User-Agent': 'Todzz'
 					}
 				}
 			);
@@ -162,7 +163,8 @@ describe('GitHub Server Utilities', () => {
 					body: JSON.stringify(mockPayload),
 					headers: {
 						Authorization: `token ${mockToken}`,
-						Accept: 'application/vnd.github.v3+json'
+						Accept: 'application/vnd.github.v3+json',
+						'User-Agent': 'Todzz'
 					}
 				}
 			);
@@ -204,6 +206,7 @@ describe('GitHub Server Utilities', () => {
 					headers: {
 						Authorization: `token ${mockToken}`,
 						Accept: 'application/vnd.github.v3+json',
+						'User-Agent': 'Todzz',
 						'X-Custom-Header': 'value',
 						'Content-Type': 'application/json'
 					}
