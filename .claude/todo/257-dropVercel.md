@@ -25,3 +25,5 @@ rollback. **Do not start before 2026-11-24.**
 **Rollback while Vercel still exists:** Cloudflare → `todzz.eu` → delete the two Worker custom
 domains, then re-create `CNAME www → 8ccdd191c1282a57.vercel-dns-017.com` and
 `A todzz.eu → 216.198.79.1` (both proxied). The apex → www Redirect Rule can stay.
+
+_GitHub issue #255 — end the commit subject with `(#255)`._
