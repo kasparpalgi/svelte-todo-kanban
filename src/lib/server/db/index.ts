@@ -3,10 +3,11 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import { drizzle, type DrizzleD1Database } from 'drizzle-orm/d1';
 import * as cardRelations from './cardRelations';
+import * as ownedRelations from './ownedRelations';
 import * as relations from './relations';
 import * as tables from './schema';
 
-export const schema = { ...tables, ...relations, ...cardRelations };
+export const schema = { ...tables, ...relations, ...cardRelations, ...ownedRelations };
 export type D1 = DrizzleD1Database<typeof schema>;
 
 export const d1 = (binding: D1Database): D1 => drizzle(binding, { schema });

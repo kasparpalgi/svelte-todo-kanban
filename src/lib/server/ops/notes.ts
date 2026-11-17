@@ -54,7 +54,7 @@ export const getNotes = defineOp({
 		await requireRole(ctx, boardId, canRead);
 		const data = await ctx.db(GET_NOTES, {
 			where: { board_id: { _eq: boardId } },
-			order_by: [{ sort_order: Order_By.Asc }, { created_at: Order_By.Desc }],
+			order_by: [{ sort_order: Order_By.Asc }, { created_at: Order_By.Desc }, { id: Order_By.Asc }],
 			limit: 1000
 		});
 		return data.notes;

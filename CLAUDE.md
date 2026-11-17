@@ -187,6 +187,7 @@ npx drizzle-kit generate --name <change>           # after editing src/lib/serve
 npx wrangler d1 migrations apply todzz --remote    # todzz-staging: add --env staging
 node scripts/d1/copy-from-postgres.mjs [--remote] [--prod] [--check] [table…]   # 100k writes/day!
 npm run build && npx wrangler deploy --env staging      # todzz-staging, workers.dev only ("routes": [] — never the prod domains)
+npx wrangler versions upload --env staging   # no deploy: probe https://<version id[:8]>-todzz-staging.svelte-todo-kanban.workers.dev (other runs share staging)
 E2E_BASE_URL=https://www.todzz.eu npx playwright test   # live check (production Worker)
 CONTRACT=1 npx vitest --run --project=server src/lib/server/ops/d1/__contract__   # D1 = Hasura (local copy first)
 echo 1 | npx wrangler secret put READ_ONLY       # cut-over read-only switch (#234); `secret delete READ_ONLY` ends it

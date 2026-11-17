@@ -19,12 +19,14 @@ const STATEMENT_BYTES = 90_000; // D1 caps one SQL statement at 100 KB.
 
 // Where D1 differs from Postgres (plan: .claude/todo/226-backend-DONE.md, Sections).
 const SOURCES = {
-	// settings.tokens.* move to user_secrets, except the browser's own groq key.
+	// settings.tokens.* move to user_secrets, except the browser's own groq key. A `tokens`
+	// key stays (maybe empty), so getMe answers the same settings as Hasura (#257).
 	users: {
 		cols: {
-			settings: `case when settings->'tokens' ? 'groq'
-			  then (settings - 'tokens') || jsonb_build_object('tokens', jsonb_build_object('groq', settings->'tokens'->'groq'))
-			  else settings - 'tokens' end`
+			settings: `case when settings ? 'tokens'
+			  then (settings - 'tokens') || jsonb_build_object('tokens', case when settings->'tokens' ? 'groq'
+			    then jsonb_build_object('groq', settings->'tokens'->'groq') else '{}'::jsonb end)
+			  else settings end`
 		}
 	},
 	user_secrets: {

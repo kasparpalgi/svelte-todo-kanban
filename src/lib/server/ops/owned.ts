@@ -23,12 +23,14 @@ const alias = z
 	.refine((a) => validateAlias(a).ok, 'is not a valid alias');
 const targetUrl = z.string().trim().min(1).max(2_000);
 
-/** Aliases are unique across all users: say so instead of a 500. */
-async function uniqueAlias<T>(write: Promise<T>): Promise<T> {
+/** Aliases are unique across all users: say so instead of a 500. On D1 the SQLite
+ * message is the `cause` of Drizzle's error. */
+export async function uniqueAlias<T>(write: Promise<T>): Promise<T> {
 	try {
 		return await write;
 	} catch (error) {
-		if (/unique|uniqueness/i.test(String(error))) throw new OpError(400, 'Alias is already taken');
+		const text = `${error} ${(error as { cause?: unknown }).cause}`;
+		if (/unique|uniqueness/i.test(text)) throw new OpError(400, 'Alias is already taken');
 		throw error;
 	}
 }

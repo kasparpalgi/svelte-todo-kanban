@@ -72,7 +72,8 @@ const company = z
 		name: z.string().trim().min(1).max(200),
 		address: text(1_000),
 		vat_number: text(50),
-		vat_rate: z.number().min(0).max(100).nullable().optional(),
+		// NOT NULL in Postgres and D1: null is a 400, not a 500.
+		vat_rate: z.number().min(0).max(100).optional(),
 		iban: text(50),
 		swift: text(20),
 		is_default: z.boolean().optional()

@@ -8,6 +8,7 @@ import { migratedSqlite, sqliteD1 } from '$lib/server/db/__tests__/sqliteD1';
 import { ops, type OpName } from '../../index';
 import { OpError } from '../../op';
 import { runOp } from '../../run';
+import { d1Loaders } from '..';
 
 let sqlite: DatabaseSync;
 let db: D1;
@@ -130,10 +131,10 @@ describe('updateBoard / deleteBoard', () => {
 	});
 });
 
-it('an op without a D1 version answers 501 instead of reading Hasura', async () => {
-	expect(await status(run('getNotes', { boardId: '11111111-1111-4111-8111-111111111111' }))).toBe(
-		501
-	);
+it('every op has a D1 version; one without answers 501 instead of reading Hasura', async () => {
+	expect(Object.keys(ops).filter((name) => !(name in d1Loaders))).toEqual([]);
+	const ctx = { userId: 'me', db: async () => ({}) as never, d1: db };
+	expect(await status(runOp('notAnOp' as OpName, ctx, {}))).toBe(501);
 });
 
 describe('signUp (the users insert triggers)', () => {

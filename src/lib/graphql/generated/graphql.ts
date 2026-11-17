@@ -17967,7 +17967,7 @@ export const NoteCoreFieldsFragmentDoc = new TypedDocumentString(`
 export const NoteFieldsFragmentDoc = new TypedDocumentString(`
     fragment NoteFields on notes {
   ...NoteCoreFields
-  subnotes(order_by: {sort_order: asc}) {
+  subnotes(order_by: [{sort_order: asc}, {id: asc}]) {
     ...NoteCoreFields
   }
 }
@@ -18638,7 +18638,7 @@ export const GetNotesDocument = new TypedDocumentString(`
 }
 fragment NoteFields on notes {
   ...NoteCoreFields
-  subnotes(order_by: {sort_order: asc}) {
+  subnotes(order_by: [{sort_order: asc}, {id: asc}]) {
     ...NoteCoreFields
   }
 }`) as unknown as TypedDocumentString<GetNotesQuery, GetNotesQueryVariables>;
@@ -19110,7 +19110,7 @@ export const CreateNoteDocument = new TypedDocumentString(`
 }
 fragment NoteFields on notes {
   ...NoteCoreFields
-  subnotes(order_by: {sort_order: asc}) {
+  subnotes(order_by: [{sort_order: asc}, {id: asc}]) {
     ...NoteCoreFields
   }
 }`) as unknown as TypedDocumentString<CreateNoteMutation, CreateNoteMutationVariables>;
@@ -19153,7 +19153,7 @@ export const UpdateNoteDocument = new TypedDocumentString(`
 }
 fragment NoteFields on notes {
   ...NoteCoreFields
-  subnotes(order_by: {sort_order: asc}) {
+  subnotes(order_by: [{sort_order: asc}, {id: asc}]) {
     ...NoteCoreFields
   }
 }`) as unknown as TypedDocumentString<UpdateNoteMutation, UpdateNoteMutationVariables>;
@@ -19196,7 +19196,7 @@ export const UpdateNotesDocument = new TypedDocumentString(`
 }
 fragment NoteFields on notes {
   ...NoteCoreFields
-  subnotes(order_by: {sort_order: asc}) {
+  subnotes(order_by: [{sort_order: asc}, {id: asc}]) {
     ...NoteCoreFields
   }
 }`) as unknown as TypedDocumentString<UpdateNotesMutation, UpdateNotesMutationVariables>;
@@ -20228,7 +20228,7 @@ export const GetBoardExpensesDocument = new TypedDocumentString(`
     query GetBoardExpenses($board_id: uuid!) {
   expenses(
     where: {board_id: {_eq: $board_id}, deleted_at: {_is_null: true}}
-    order_by: {created_at: desc}
+    order_by: [{created_at: desc}, {id: asc}]
   ) {
     ...ExpenseFields
   }
@@ -20323,7 +20323,10 @@ export const DeleteExpenseDocument = new TypedDocumentString(`
     `) as unknown as TypedDocumentString<DeleteExpenseMutation, DeleteExpenseMutationVariables>;
 export const GetUrlShortcutsDocument = new TypedDocumentString(`
     query GetUrlShortcuts($userId: uuid!) {
-  url_shortcuts(where: {user_id: {_eq: $userId}}, order_by: {created_at: desc}) {
+  url_shortcuts(
+    where: {user_id: {_eq: $userId}}
+    order_by: [{created_at: desc}, {id: asc}]
+  ) {
     ...UrlShortcutFields
   }
 }
@@ -20397,7 +20400,7 @@ export const GetAllUserExpensesDocument = new TypedDocumentString(`
     query GetAllUserExpenses($userId: uuid!) {
   expenses(
     where: {deleted_at: {_is_null: true}, board: {_or: [{user_id: {_eq: $userId}}, {board_members: {user_id: {_eq: $userId}}}]}}
-    order_by: {created_at: desc}
+    order_by: [{created_at: desc}, {id: asc}]
   ) {
     ...ExpenseFields
   }
@@ -20440,7 +20443,7 @@ fragment ExpenseFields on expenses {
 }`) as unknown as TypedDocumentString<GetAllUserExpensesQuery, GetAllUserExpensesQueryVariables>;
 export const GetClientsDocument = new TypedDocumentString(`
     query GetClients($userId: uuid!) {
-  clients(where: {user_id: {_eq: $userId}}, order_by: {name: asc}) {
+  clients(where: {user_id: {_eq: $userId}}, order_by: [{name: asc}, {id: asc}]) {
     ...ClientFields
   }
 }
@@ -20517,7 +20520,7 @@ export const GetInvoiceCompaniesDocument = new TypedDocumentString(`
     query GetInvoiceCompanies($userId: uuid!) {
   invoice_companies(
     where: {user_id: {_eq: $userId}}
-    order_by: [{is_default: desc}, {name: asc}]
+    order_by: [{is_default: desc}, {name: asc}, {id: asc}]
   ) {
     ...InvoiceCompanyFields
   }
@@ -20589,7 +20592,7 @@ export const GetBoardInvoicesDocument = new TypedDocumentString(`
     query GetBoardInvoices($board_id: uuid!, $userId: uuid!) {
   invoices(
     where: {board_id: {_eq: $board_id}, user_id: {_eq: $userId}}
-    order_by: {created_at: desc}
+    order_by: [{created_at: desc}, {id: asc}]
   ) {
     ...InvoiceFields
   }
@@ -20663,7 +20666,10 @@ fragment InvoiceFields on invoices {
 }`) as unknown as TypedDocumentString<GetBoardInvoicesQuery, GetBoardInvoicesQueryVariables>;
 export const GetAllInvoicesDocument = new TypedDocumentString(`
     query GetAllInvoices($userId: uuid!) {
-  invoices(where: {user_id: {_eq: $userId}}, order_by: {created_at: desc}) {
+  invoices(
+    where: {user_id: {_eq: $userId}}
+    order_by: [{created_at: desc}, {id: asc}]
+  ) {
     ...InvoiceFields
   }
 }
@@ -20850,7 +20856,7 @@ export const DeleteInvoiceDocument = new TypedDocumentString(`
     `) as unknown as TypedDocumentString<DeleteInvoiceMutation, DeleteInvoiceMutationVariables>;
 export const GetTodosForInvoicingDocument = new TypedDocumentString(`
     query GetTodosForInvoicing($where: todos_bool_exp!) {
-  todos(where: $where, order_by: {sort_order: asc}) {
+  todos(where: $where, order_by: [{sort_order: asc}, {id: asc}]) {
     id
     title
     actual_hours

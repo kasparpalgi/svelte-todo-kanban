@@ -5,7 +5,16 @@
 const TIME = /\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)/g;
 
 /** Relations queried without `order_by`: Postgres returns them in any order. */
-const UNORDERED = new Set(['labels', 'board_members', 'assignees', 'subscribers', 'uploads']);
+const UNORDERED = new Set([
+	'labels',
+	'board_members',
+	'assignees',
+	'subscribers',
+	'uploads',
+	'note_uploads',
+	'items',
+	'expense_splits'
+]);
 
 const instant = (time: string) => new Date(time.replace(/(\.\d{3})\d+/, '$1')).toISOString();
 

@@ -269,7 +269,7 @@ export const NOTE_CORE_FRAGMENT = graphql(`
 export const NOTE_FRAGMENT = graphql(`
 	fragment NoteFields on notes {
 		...NoteCoreFields
-		subnotes(order_by: { sort_order: asc }) {
+		subnotes(order_by: [{ sort_order: asc }, { id: asc }]) {
 			...NoteCoreFields
 		}
 	}
@@ -1467,7 +1467,7 @@ export const GET_BOARD_EXPENSES = graphql(`
 	query GetBoardExpenses($board_id: uuid!) {
 		expenses(
 			where: { board_id: { _eq: $board_id }, deleted_at: { _is_null: true } }
-			order_by: { created_at: desc }
+			order_by: [{ created_at: desc }, { id: asc }]
 		) {
 			...ExpenseFields
 		}
@@ -1516,7 +1516,10 @@ export const URL_SHORTCUT_FRAGMENT = graphql(`
 
 export const GET_URL_SHORTCUTS = graphql(`
 	query GetUrlShortcuts($userId: uuid!) {
-		url_shortcuts(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {
+		url_shortcuts(
+			where: { user_id: { _eq: $userId } }
+			order_by: [{ created_at: desc }, { id: asc }]
+		) {
 			...UrlShortcutFields
 		}
 	}
@@ -1576,7 +1579,7 @@ export const GET_ALL_USER_EXPENSES = graphql(`
 					_or: [{ user_id: { _eq: $userId } }, { board_members: { user_id: { _eq: $userId } } }]
 				}
 			}
-			order_by: { created_at: desc }
+			order_by: [{ created_at: desc }, { id: asc }]
 		) {
 			...ExpenseFields
 		}
@@ -1606,7 +1609,7 @@ export const CLIENT_FRAGMENT = graphql(`
 
 export const GET_CLIENTS = graphql(`
 	query GetClients($userId: uuid!) {
-		clients(where: { user_id: { _eq: $userId } }, order_by: { name: asc }) {
+		clients(where: { user_id: { _eq: $userId } }, order_by: [{ name: asc }, { id: asc }]) {
 			...ClientFields
 		}
 	}
@@ -1660,7 +1663,7 @@ export const GET_INVOICE_COMPANIES = graphql(`
 	query GetInvoiceCompanies($userId: uuid!) {
 		invoice_companies(
 			where: { user_id: { _eq: $userId } }
-			order_by: [{ is_default: desc }, { name: asc }]
+			order_by: [{ is_default: desc }, { name: asc }, { id: asc }]
 		) {
 			...InvoiceCompanyFields
 		}
@@ -1741,7 +1744,7 @@ export const GET_BOARD_INVOICES = graphql(`
 	query GetBoardInvoices($board_id: uuid!, $userId: uuid!) {
 		invoices(
 			where: { board_id: { _eq: $board_id }, user_id: { _eq: $userId } }
-			order_by: { created_at: desc }
+			order_by: [{ created_at: desc }, { id: asc }]
 		) {
 			...InvoiceFields
 		}
@@ -1750,7 +1753,7 @@ export const GET_BOARD_INVOICES = graphql(`
 
 export const GET_ALL_INVOICES = graphql(`
 	query GetAllInvoices($userId: uuid!) {
-		invoices(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }) {
+		invoices(where: { user_id: { _eq: $userId } }, order_by: [{ created_at: desc }, { id: asc }]) {
 			...InvoiceFields
 		}
 	}
@@ -1809,7 +1812,7 @@ export const DELETE_INVOICE = graphql(`
 
 export const GET_TODOS_FOR_INVOICING = graphql(`
 	query GetTodosForInvoicing($where: todos_bool_exp!) {
-		todos(where: $where, order_by: { sort_order: asc }) {
+		todos(where: $where, order_by: [{ sort_order: asc }, { id: asc }]) {
 			id
 			title
 			actual_hours
