@@ -11,8 +11,11 @@ vi.mock('$lib/server/github', () => ({
 
 const { GET } = await import('../repos/+server');
 
-const call = (userId = 'user-1') =>
-	GET({ url: new URL(`http://x/api/github/repos?userId=${userId}`) } as never);
+const call = (userId: string | null = 'user-1') =>
+	GET({
+		url: new URL(`http://x/api/github/repos?userId=someone-else`),
+		locals: { auth: async () => (userId ? { user: { id: userId } } : null) }
+	} as never);
 
 const repos = (n: number, prefix: string) =>
 	Array.from({ length: n }, (_, i) => ({
@@ -42,6 +45,11 @@ describe('GET /api/github/repos', () => {
 		githubRequest.mockResolvedValueOnce(repos(5, 'a'));
 		await call();
 		expect(githubRequest).toHaveBeenCalledTimes(1);
+	});
+
+	it('answers 401 without a session, whatever userId the query names', async () => {
+		await expect(call(null)).rejects.toMatchObject({ status: 401 });
+		expect(githubRequest).not.toHaveBeenCalled();
 	});
 
 	it('rejects users without a GitHub connection', async () => {

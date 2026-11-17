@@ -8,6 +8,8 @@ import { decryptToken } from '$lib/utils/crypto';
 vi.mock('$lib/graphql/server-client');
 vi.mock('$lib/utils/crypto');
 
+const hasura = { userId: null, db: serverRequest };
+
 describe('GitHub Server Utilities', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -38,7 +40,7 @@ describe('GitHub Server Utilities', () => {
 
 			vi.mocked(decryptToken).mockReturnValue(mockDecryptedToken);
 
-			const result = await getGithubToken(mockUserId);
+			const result = await getGithubToken(hasura, mockUserId);
 
 			expect(serverRequest).toHaveBeenCalledWith(
 				expect.any(String),
@@ -58,7 +60,7 @@ describe('GitHub Server Utilities', () => {
 				}
 			});
 
-			const result = await getGithubToken(mockUserId);
+			const result = await getGithubToken(hasura, mockUserId);
 
 			expect(result).toBeNull();
 			expect(decryptToken).not.toHaveBeenCalled();
@@ -71,7 +73,7 @@ describe('GitHub Server Utilities', () => {
 				users_by_pk: null
 			});
 
-			const result = await getGithubToken(mockUserId);
+			const result = await getGithubToken(hasura, mockUserId);
 
 			expect(result).toBeNull();
 		});
@@ -81,7 +83,7 @@ describe('GitHub Server Utilities', () => {
 
 			vi.mocked(serverRequest).mockRejectedValue(new Error('Database error'));
 
-			const result = await getGithubToken(mockUserId);
+			const result = await getGithubToken(hasura, mockUserId);
 
 			expect(result).toBeNull();
 		});
@@ -106,7 +108,7 @@ describe('GitHub Server Utilities', () => {
 				throw new Error('Decryption failed');
 			});
 
-			const result = await getGithubToken(mockUserId);
+			const result = await getGithubToken(hasura, mockUserId);
 
 			expect(result).toBeNull();
 		});

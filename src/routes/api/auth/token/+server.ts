@@ -2,7 +2,11 @@
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import { SignJWT } from 'jose';
+import { eq } from 'drizzle-orm';
 import { serverRequest } from '$lib/graphql/server-client';
+import { users } from '$lib/server/db/schema';
+import type { Ctx } from '$lib/server/ops/op';
+import { opCtx } from '$lib/server/ops/run';
 import type { RequestHandler } from './$types';
 
 const USER_EXISTS = `
@@ -12,6 +16,18 @@ const USER_EXISTS = `
 		}
 	}
 `;
+
+async function userExists(ctx: Ctx, id: string) {
+	if (ctx.d1) {
+		const [row] = await ctx.d1.select({ id: users.id }).from(users).where(eq(users.id, id));
+		return !!row;
+	}
+	const result = await serverRequest<{ users_by_pk: { id: string } | null }, { id: string }>(
+		USER_EXISTS,
+		{ id }
+	);
+	return !!result.users_by_pk;
+}
 
 export const GET: RequestHandler = async (event) => {
 	const session = await event.locals.auth();
@@ -27,11 +43,7 @@ export const GET: RequestHandler = async (event) => {
 	// its cache and the user re-authenticates into the surviving account.
 	// Fail OPEN on any lookup error — never lock out a legitimate user over a blip.
 	try {
-		const result = await serverRequest<{ users_by_pk: { id: string } | null }, { id: string }>(
-			USER_EXISTS,
-			{ id: session.user.id }
-		);
-		if (!result.users_by_pk) {
+		if (!(await userExists(opCtx(session.user.id, event.platform), session.user.id))) {
 			return json({ error: 'User no longer exists' }, { status: 401 });
 		}
 	} catch (err) {

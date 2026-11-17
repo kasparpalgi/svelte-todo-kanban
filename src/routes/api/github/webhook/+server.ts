@@ -699,7 +699,8 @@ async function handleTaskFileDone(
 		return;
 	}
 
-	const token = await getGithubToken(board.user_id);
+	// Hasura until this file is ported (#258's follow-up).
+	const token = await getGithubToken({ userId: null, db: serverRequest }, board.user_id);
 
 	// Fetch DONE file to extract card ID
 	let cardId: string | null = null;

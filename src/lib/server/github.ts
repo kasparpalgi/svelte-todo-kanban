@@ -1,5 +1,7 @@
 /** @file src/lib/server/github.ts */
 import { serverRequest } from '$lib/graphql/server-client';
+import type { Ctx } from '$lib/server/ops/op';
+import { secretsOf } from '$lib/server/secrets';
 import { decryptToken } from '$lib/utils/crypto';
 import type { GetUserGithubTokenResult } from '$lib/types/github';
 
@@ -12,19 +14,19 @@ const GET_USER_GITHUB_TOKEN = `
   }
 `;
 
-/**
- * Get decrypted GitHub token for a user
- * @param userId - User's UUID
- * @returns Decrypted GitHub access token or null if not connected
- */
-export async function getGithubToken(userId: string): Promise<string | null> {
-	try {
-		const data = await serverRequest<GetUserGithubTokenResult, { userId: string }>(
-			GET_USER_GITHUB_TOKEN,
-			{ userId }
-		);
+async function encryptedGithubToken(ctx: Ctx, userId: string): Promise<string | undefined> {
+	if (ctx.d1) return (await secretsOf(ctx.d1, userId)).github?.encrypted;
+	const data = await serverRequest<GetUserGithubTokenResult, { userId: string }>(
+		GET_USER_GITHUB_TOKEN,
+		{ userId }
+	);
+	return data.users_by_pk?.settings?.tokens?.github?.encrypted;
+}
 
-		const encryptedToken = data.users_by_pk?.settings?.tokens?.github?.encrypted;
+/** The user's decrypted GitHub token, on the ctx's backend; null if not connected. */
+export async function getGithubToken(ctx: Ctx, userId: string): Promise<string | null> {
+	try {
+		const encryptedToken = await encryptedGithubToken(ctx, userId);
 
 		if (!encryptedToken) {
 			return null;

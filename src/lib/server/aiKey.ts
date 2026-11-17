@@ -8,6 +8,7 @@ import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
 import { decryptToken } from '$lib/utils/crypto';
 import { getPlanContext } from '$lib/server/plan';
+import { opCtx } from '$lib/server/ops/run';
 
 type Locals = { auth: () => Promise<{ user?: { id?: string } } | null> };
 
@@ -21,14 +22,17 @@ export interface AiKeyResult {
  * Resolve the OpenAI key for the authenticated user. Returns `{ apiKey }` on
  * success, or `{ errorResponse }` (already a Response) to return directly.
  */
-export async function resolveOpenAiKey(locals: Locals): Promise<AiKeyResult> {
+export async function resolveOpenAiKey(
+	locals: Locals,
+	platform: App.Platform | undefined
+): Promise<AiKeyResult> {
 	const session = await locals.auth();
 	const userId = session?.user?.id;
 	if (!userId) {
 		return { errorResponse: json({ error: 'Not authenticated' }, { status: 401 }) };
 	}
 
-	const ctx = await getPlanContext(userId);
+	const ctx = await getPlanContext(opCtx(userId, platform), userId);
 	if (!ctx) {
 		return { errorResponse: json({ error: 'User not found' }, { status: 401 }) };
 	}

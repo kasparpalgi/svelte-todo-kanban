@@ -1,6 +1,7 @@
 /** @file src/routes/[lang]/[username]/[board]/og-image.png/+server.ts */
 import { error, type RequestEvent } from '@sveltejs/kit';
 import { boardAndCard } from '$lib/server/boardCard';
+import { opCtx } from '$lib/server/ops/run';
 
 const OG_IMAGE_WIDTH = 1200;
 const OG_IMAGE_HEIGHT = 630;
@@ -78,7 +79,7 @@ function escapeXml(unsafe: string): string {
  * - For cards with images: redirects to first uploaded image
  * - For cards without images / boards: generates a fallback SVG image
  */
-export async function GET({ url, params, locals }: RequestEvent) {
+export async function GET({ url, params, locals, platform }: RequestEvent) {
 	const { username, board: boardAlias, lang } = params;
 	const type = url.searchParams.get('type') as 'card' | 'board' | null;
 	const cardAlias = url.searchParams.get('cardAlias');
@@ -95,7 +96,11 @@ export async function GET({ url, params, locals }: RequestEvent) {
 		// Signed-in only, as before: the lookup runs with the caller's access.
 		const userId = (await locals.auth())?.user?.id;
 		if (!userId) throw error(404, 'Board not found');
-		const { board, card: todo } = await boardAndCard(userId, boardAlias, cardAlias);
+		const { board, card: todo } = await boardAndCard(
+			opCtx(userId, platform),
+			boardAlias,
+			cardAlias
+		);
 
 		if (!board) {
 			throw error(404, 'Board not found');

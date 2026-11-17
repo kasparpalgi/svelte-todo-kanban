@@ -14,11 +14,11 @@ interface InvoiceData {
 	confidence: 'high' | 'medium' | 'low';
 }
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ request, locals, platform }) => {
 	const startTime = Date.now();
 
 	try {
-		const { apiKey, errorResponse } = await resolveOpenAiKey(locals);
+		const { apiKey, errorResponse } = await resolveOpenAiKey(locals, platform);
 		if (errorResponse) return errorResponse;
 
 		const { pdfBase64, fileName } = await request.json();

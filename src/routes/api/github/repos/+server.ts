@@ -2,17 +2,19 @@
 import { json, error } from '@sveltejs/kit';
 import { getGithubToken, githubRequest } from '$lib/server/github';
 import type { RequestEvent } from './$types';
+import { opCtx } from '$lib/server/ops/run';
 
 type Repo = { full_name: string; description: string | null };
 
 const PER_PAGE = 100;
 const MAX_PAGES = 10; // 1000 repos is plenty for a picker
 
-export async function GET({ url }: RequestEvent) {
-	const userId = url.searchParams.get('userId');
-	if (!userId) throw error(401, 'User ID required');
+/** The signed-in user's repos. Never a `userId` from the query: that listed anyone's (#258). */
+export async function GET({ locals, platform }: RequestEvent) {
+	const userId = (await locals.auth())?.user?.id;
+	if (!userId) throw error(401, 'Not signed in');
 
-	const token = await getGithubToken(userId);
+	const token = await getGithubToken(opCtx(null, platform), userId);
 	if (!token) throw error(400, 'GitHub not connected');
 
 	try {

@@ -5,12 +5,24 @@ import { getR2Credentials, storeFile } from '$lib/server/storeFile';
 import { serverRequest } from '$lib/graphql/server-client';
 import { FREE_LIMITS } from '$lib/config/plan';
 import { json, type RequestEvent } from '@sveltejs/kit';
+import { count, eq } from 'drizzle-orm';
+import { todos, uploads } from '$lib/server/db/schema';
+import type { Ctx } from '$lib/server/ops/op';
+import { opCtx } from '$lib/server/ops/run';
 
 const maxFileSize = parseInt(env.MAX_FILE_SIZE);
 const allowedFileTypes = env.ALLOWED_FILE_TYPES?.split(',');
 
 /** Total uploads owned by a user (across all their todos). */
-async function countUserUploads(userId: string): Promise<number> {
+async function countUserUploads(ctx: Ctx, userId: string): Promise<number> {
+	if (ctx.d1) {
+		const [row] = await ctx.d1
+			.select({ n: count() })
+			.from(uploads)
+			.innerJoin(todos, eq(todos.id, uploads.todo_id))
+			.where(eq(todos.user_id, userId));
+		return row?.n ?? 0;
+	}
 	const data = await serverRequest<
 		{ uploads_aggregate: { aggregate: { count: number } | null } },
 		{ userId: string }
@@ -25,7 +37,7 @@ async function countUserUploads(userId: string): Promise<number> {
 	return data.uploads_aggregate?.aggregate?.count ?? 0;
 }
 
-export async function POST({ request, locals }: RequestEvent) {
+export async function POST({ request, locals, platform }: RequestEvent) {
 	try {
 		const session = await locals.auth();
 		const userId = session?.user?.id;
@@ -60,7 +72,8 @@ export async function POST({ request, locals }: RequestEvent) {
 			);
 		}
 
-		const ctx = await getPlanContext(userId);
+		const db = opCtx(userId, platform);
+		const ctx = await getPlanContext(db, userId);
 		const r2Creds = getR2Credentials(ctx?.settings ?? null);
 
 		const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
@@ -84,7 +97,7 @@ export async function POST({ request, locals }: RequestEvent) {
 
 		// Route 2: free plan without R2 — enforce the upload cap (soft upsell).
 		if (!ctx?.isPaid) {
-			const used = await countUserUploads(userId);
+			const used = await countUserUploads(db, userId);
 			if (used >= FREE_LIMITS.uploads) {
 				return json(
 					{

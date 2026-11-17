@@ -6,14 +6,16 @@ import { env } from '$env/dynamic/private';
 import { serverRequest } from '$lib/graphql/server-client';
 import { d1 } from '$lib/server/db';
 import { d1Loaders } from './d1';
-import type { OpName } from './index';
+import type { OpName, Ops } from './index';
 import { loadOp } from './loaders';
-import { OpError, type Ctx, type Db } from './op';
+import { OpError, type Ctx, type Db, type UserCtx } from './op';
 
 const hasuraOff: Db = async () => {
 	throw new Error('Hasura is off: DATA_BACKEND=d1');
 };
 
+export function opCtx(userId: string, platform: App.Platform | undefined): UserCtx;
+export function opCtx(userId: string | null, platform: App.Platform | undefined): Ctx;
 export function opCtx(userId: string | null, platform: App.Platform | undefined): Ctx {
 	if (env.DATA_BACKEND !== 'd1') return { userId, db: serverRequest };
 	const binding = platform?.env?.DB;
@@ -28,3 +30,10 @@ export async function runOp(name: OpName, ctx: Ctx, input: unknown): Promise<unk
 	if (!load) throw new OpError(501, `${name} is not on D1 yet`);
 	return ((await load()) as (c: Ctx, i: unknown) => Promise<unknown>)(ctx, input);
 }
+
+/** `runOp` typed for server code calling one op by name (#258). */
+export const callOp = <K extends OpName>(
+	name: K,
+	ctx: Ctx,
+	input: Parameters<Ops[K]['run']>[1]
+) => runOp(name, ctx, input) as Promise<Awaited<ReturnType<Ops[K]['run']>>>;

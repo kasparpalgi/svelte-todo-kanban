@@ -21,6 +21,7 @@ import { commitTree, makeRoom } from '$lib/server/taskdir';
 import { serverLog } from '$lib/server/log';
 import { unqueue } from '$lib/server/unqueue';
 import { withComments, type CardComment } from '$lib/server/cardThread';
+import { opCtx } from '$lib/server/ops/run';
 
 /** A card as queued: its body, and the comments that carry review feedback to a re-run. */
 type QueuedCard = TaskCard & { comments?: CardComment[] };
@@ -145,10 +146,11 @@ async function renameDraftToTodo(
 	return todoPath;
 }
 
-export const POST: RequestHandler = async ({ request: req, locals }) => {
+export const POST: RequestHandler = async ({ request: req, locals, platform }) => {
 	const session = await locals.auth();
 	if (!session?.user?.id) throw error(401, 'Unauthorized');
 	const userId = session.user.id;
+	const ctx = opCtx(userId, platform);
 
 	const { todoId }: { todoId?: string } = await req.json();
 	if (!todoId) throw error(400, 'Missing todoId');
@@ -162,7 +164,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 	if (!board || board.settings?.agent_list_id !== todo.list.id) {
 		if (board?.github && /-TODO\.md$/i.test(todo?.task_file_path ?? '')) {
-			return unqueue(todo, board.github, userId);
+			return unqueue(ctx, todo, board.github);
 		}
 		return json({ skipped: 'not the agent list' });
 	}
@@ -175,7 +177,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	const repo = `${gh.owner}/${gh.repo}`;
 
 	try {
-		const token = await getGithubToken(userId);
+		const token = await getGithubToken(ctx, userId);
 		if (!token) throw new Error('GitHub not connected. Reconnect it in settings.');
 
 		let path = '';

@@ -8,7 +8,7 @@ const PLAN_THRESHOLD = 300;
 /** An HTML comment is also a comment in Markdown — it stays invisible in both formats. */
 const PLANNED_MARKER = '<!-- planned -->';
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ request, locals, platform }) => {
 	const { content, title, model = 'gpt-5-mini' } = await request.json();
 
 	if (!content || typeof content !== 'string') {
@@ -28,7 +28,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return json({ changed: false, content });
 	}
 
-	const { apiKey, errorResponse } = await resolveOpenAiKey(locals);
+	const { apiKey, errorResponse } = await resolveOpenAiKey(locals, platform);
 	if (errorResponse) return errorResponse;
 
 	const titleContext = title ? `Task title: "${title}"\n\n` : '';

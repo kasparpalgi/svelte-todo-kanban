@@ -6,6 +6,7 @@ import { serverRequest } from '$lib/graphql/server-client';
 import { GET_BOARDS, UPDATE_TODOS } from '$lib/graphql/documents';
 import { serverLog } from '$lib/server/log';
 import type { GetBoardsQuery } from '$lib/graphql/generated/graphql';
+import { opCtx } from '$lib/server/ops/run';
 
 interface CreateIssueInput {
 	todoId: string;
@@ -22,7 +23,7 @@ interface GitHubIssueResponse {
 	state: string;
 }
 
-export const POST: RequestHandler = async ({ request: req, locals }) => {
+export const POST: RequestHandler = async ({ request: req, locals, platform }) => {
 	const session = await locals.auth();
 
 	if (!session?.user?.id) {
@@ -93,7 +94,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 		const { owner, repo } = githubData as { owner: string; repo: string };
 
 		// 2. Get decrypted GitHub token
-		const githubToken = await getGithubToken(session.user.id);
+		const githubToken = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
 
 		if (!githubToken) {
 			throw error(401, 'GitHub not connected. Please connect GitHub in settings.');

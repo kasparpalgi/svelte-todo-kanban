@@ -6,7 +6,7 @@ import { toPlainText } from '$lib/utils/markdown';
 import { resolveOpenAiKey } from '$lib/server/aiKey';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ request, locals, platform }) => {
 	const startTime = Date.now();
 
 	try {
@@ -16,7 +16,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			return json({ error: 'Task is required' }, { status: 400 });
 		}
 
-		const { apiKey, errorResponse } = await resolveOpenAiKey(locals);
+		const { apiKey, errorResponse } = await resolveOpenAiKey(locals, platform);
 		if (errorResponse) return errorResponse;
 
 		const validModels = aiModels.map((m) => m.value);

@@ -1,16 +1,10 @@
 /** @file src/routes/[lang]/+layout.server.ts */
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import { serverRequest } from '$lib/graphql/server-client';
-import { GET_URL_SHORTCUT_BY_ALIAS, INCREMENT_URL_SHORTCUT_VISITS } from '$lib/graphql/documents';
 import { RESERVED_ALIASES, normalizeTargetUrl } from '$lib/utils/shortcutAlias';
 import { isAdminEmail } from '$lib/server/admin';
 
 const KNOWN_LANGUAGES = new Set(['en', 'cs', 'et']);
-
-interface ShortcutLookupResult {
-	url_shortcuts: Array<{ alias: string; target_url: string }>;
-}
 
 export const load: LayoutServerLoad = async (event) => {
 	const { params, url, locals } = event;
@@ -26,38 +20,16 @@ export const load: LayoutServerLoad = async (event) => {
 		!KNOWN_LANGUAGES.has(segment) &&
 		!RESERVED_ALIASES.has(segment.toLowerCase())
 	) {
+		let target: string | null = null;
 		try {
-			const data = await serverRequest<ShortcutLookupResult, { alias: string }>(
-				GET_URL_SHORTCUT_BY_ALIAS,
-				{
-					alias: segment
-				}
-			);
-			const hit = data.url_shortcuts?.[0];
-			if (hit?.target_url) {
-				try {
-					const incResult = await serverRequest<
-						{ update_url_shortcuts?: { affected_rows: number } | null },
-						{ alias: string }
-					>(INCREMENT_URL_SHORTCUT_VISITS, { alias: hit.alias });
-					console.log('[shortcut] increment', {
-						alias: hit.alias,
-						affected_rows: incResult.update_url_shortcuts?.affected_rows ?? null
-					});
-				} catch (incErr: any) {
-					console.warn('[shortcut] visit increment failed', {
-						message: incErr?.message
-					});
-				}
-				throw redirect(302, normalizeTargetUrl(hit.target_url));
-			}
+			const { opCtx } = await import('$lib/server/ops/run');
+			const { followShortcut } = await import('$lib/server/shortcut');
+			target = await followShortcut(opCtx(null, event.platform), segment);
 		} catch (err) {
-			// Re-throw redirect; swallow lookup errors so we fall through to normal routing
-			if (err && typeof err === 'object' && 'status' in err && 'location' in err) {
-				throw err;
-			}
+			// Fall through to normal routing
 			console.warn('[layout.server] shortcut lookup failed', err);
 		}
+		if (target) throw redirect(302, normalizeTargetUrl(target));
 	}
 
 	const session = await locals.auth();
@@ -70,8 +42,11 @@ export const load: LayoutServerLoad = async (event) => {
 
 	if (session && isLanguageRootOnly) {
 		// Lazy for the same reason as in the root layout (#236)
-		const { getTopBoardPath } = await import('$lib/server/topBoardPath');
-		const topBoardPath = await getTopBoardPath(session);
+		const [{ getTopBoardPath }, { opCtx }] = await Promise.all([
+			import('$lib/server/topBoardPath'),
+			import('$lib/server/ops/run')
+		]);
+		const topBoardPath = await getTopBoardPath(opCtx(null, event.platform), session);
 		if (topBoardPath) {
 			throw redirect(302, topBoardPath);
 		}

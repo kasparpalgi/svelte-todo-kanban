@@ -1,11 +1,9 @@
 /** @file src/routes/[lang]/[username]/[board]/expenses/+page.server.ts */
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { serverRequest } from '$lib/graphql/server-client';
-import { getBoard } from '$lib/server/ops/boards';
-import { getBoardMembers } from '$lib/server/ops/members';
+import { callOp, opCtx } from '$lib/server/ops/run';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
+export const load: PageServerLoad = async ({ locals, params, platform }) => {
 	const session = await locals.auth();
 
 	if (!session?.user?.id) {
@@ -15,10 +13,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	const { username, board: boardAlias } = params;
 
 	try {
-		const ctx = { userId: session.user.id, db: serverRequest };
-		const board = await getBoard.run(ctx, { alias: boardAlias });
+		const ctx = opCtx(session.user.id, platform);
+		const board = await callOp('getBoard', ctx, { alias: boardAlias });
 		if (!board) throw redirect(302, `/${params.lang}/${username}`);
-		const members = await getBoardMembers.run(ctx, { boardId: board.id });
+		const members = await callOp('getBoardMembers', ctx, { boardId: board.id });
 
 		// Add the board owner to members if not already included
 		const boardOwner = board.user;

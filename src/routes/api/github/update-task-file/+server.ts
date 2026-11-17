@@ -6,6 +6,7 @@ import { serverRequest } from '$lib/graphql/server-client';
 import { withPin } from '$lib/utils/agentMachine';
 import { buildDraftFile } from '$lib/server/taskfile';
 import { withComments } from '$lib/server/cardThread';
+import { opCtx } from '$lib/server/ops/run';
 
 const GET_TODO_FOR_UPDATE = `
 	query GetTodoForUpdate($todoId: uuid!) {
@@ -35,7 +36,7 @@ const GET_TODO_FOR_UPDATE = `
 	}
 `;
 
-export const POST: RequestHandler = async ({ request: req, locals }) => {
+export const POST: RequestHandler = async ({ request: req, locals, platform }) => {
 	const session = await locals.auth();
 	if (!session?.user?.id) throw error(401, 'Unauthorized');
 
@@ -56,7 +57,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	const repo = `${gh.owner}/${gh.repo}`;
 
 	try {
-		const token = await getGithubToken(session.user.id);
+		const token = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
 		if (!token) throw new Error('GitHub not connected. Reconnect it in settings.');
 
 		// GET current file SHA

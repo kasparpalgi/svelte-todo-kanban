@@ -4,6 +4,7 @@ import type { RequestHandler } from './$types';
 import { getGithubToken } from '$lib/server/github';
 import { dropTaskFiles } from '$lib/server/taskdir';
 import { serverLog } from '$lib/server/log';
+import { opCtx } from '$lib/server/ops/run';
 
 /** Only a task file: `doc/todo/NNN-slug….md` or `.claude/todo/NNN-slug….md`. */
 const TASK_PATH = /^(doc|\.claude)\/todo\/\d+-[^/]+\.md$/;
@@ -13,7 +14,7 @@ const TASK_PATH = /^(doc|\.claude)\/todo\/\d+-[^/]+\.md$/;
  * is already gone, so the client sends the path and repo; the user's own token does the
  * delete, so they can remove only what they could remove on GitHub anyway.
  */
-export const POST: RequestHandler = async ({ request: req, locals }) => {
+export const POST: RequestHandler = async ({ request: req, locals, platform }) => {
 	const session = await locals.auth();
 	if (!session?.user?.id) throw error(401, 'Unauthorized');
 
@@ -24,7 +25,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 	const full = `${owner}/${repo}`;
 	try {
-		const token = await getGithubToken(session.user.id);
+		const token = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
 		if (!token) throw new Error('GitHub not connected. Reconnect it in settings.');
 		const deleted = await dropTaskFiles(full, token, path, issueNumber ? ` (#${issueNumber})` : '');
 		serverLog.info('TaskFile', 'Card deleted — task files removed', { repo: full, deleted });

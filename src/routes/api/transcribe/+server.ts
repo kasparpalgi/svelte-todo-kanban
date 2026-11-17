@@ -3,7 +3,7 @@ import { json } from '@sveltejs/kit';
 import { resolveOpenAiKey } from '$lib/server/aiKey';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ request, locals, platform }) => {
 	try {
 		const formData = await request.formData();
 		const audio = formData.get('audio') as File | null;
@@ -28,7 +28,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			model = 'whisper-large-v3';
 		} else {
 			// OpenAI Whisper: paid uses the app key, free must supply their own.
-			const resolved = await resolveOpenAiKey(locals);
+			const resolved = await resolveOpenAiKey(locals, platform);
 			if (resolved.errorResponse) return resolved.errorResponse;
 			apiUrl = 'https://api.openai.com/v1/audio/transcriptions';
 			apiKey = resolved.apiKey as string;

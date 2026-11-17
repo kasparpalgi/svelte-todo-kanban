@@ -34,7 +34,7 @@ export async function cardOwner(ctx: Ctx, todoId: string) {
 	});
 	const owner = todo?.list?.board.user_id;
 	if (!owner) return null;
-	const settings: Settings = (await getPlanContext(owner))?.settings ?? null;
+	const settings: Settings = (await getPlanContext(ctx, owner))?.settings ?? null;
 	return { owner, settings };
 }
 

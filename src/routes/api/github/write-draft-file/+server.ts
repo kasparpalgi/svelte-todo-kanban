@@ -7,6 +7,7 @@ import { withPin } from '$lib/utils/agentMachine';
 import { UPDATE_TASK_FILE_PATH } from '$lib/graphql/documents';
 import { buildDraftFile, camelName, nextNumber } from '$lib/server/taskfile';
 import { makeRoom } from '$lib/server/taskdir';
+import { opCtx } from '$lib/server/ops/run';
 
 const GET_TODO_FOR_DRAFT = `
 	query GetTodoForDraft($todoId: uuid!) {
@@ -29,7 +30,7 @@ const GET_TODO_FOR_DRAFT = `
 	}
 `;
 
-export const POST: RequestHandler = async ({ request: req, locals }) => {
+export const POST: RequestHandler = async ({ request: req, locals, platform }) => {
 	const session = await locals.auth();
 	if (!session?.user?.id) throw error(401, 'Unauthorized');
 
@@ -52,7 +53,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 	const repo = `${gh.owner}/${gh.repo}`;
 
 	try {
-		const token = await getGithubToken(session.user.id);
+		const token = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
 		if (!token) throw new Error('GitHub not connected. Reconnect it in settings.');
 
 		const body = buildDraftFile(todo);

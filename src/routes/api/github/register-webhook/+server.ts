@@ -3,6 +3,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
 import { getGithubToken, githubRequest } from '$lib/server/github';
+import { opCtx } from '$lib/server/ops/run';
 
 /**
  * Webhook Registration Endpoint
@@ -62,7 +63,7 @@ const isOurWebhook = (hook: GitHubWebhookResponse) =>
 /**
  * POST - Register webhook for a repository
  */
-export const POST: RequestHandler = async ({ request: req, url, locals }) => {
+export const POST: RequestHandler = async ({ request: req, url, locals, platform }) => {
 	const session = await locals.auth();
 	if (!session?.user?.id) {
 		throw error(401, 'Unauthorized');
@@ -83,7 +84,7 @@ export const POST: RequestHandler = async ({ request: req, url, locals }) => {
 	}
 
 	// Get user's GitHub token
-	const githubToken = await getGithubToken(session.user.id);
+	const githubToken = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
 	if (!githubToken) {
 		throw error(401, 'GitHub not connected');
 	}
@@ -161,7 +162,7 @@ export const POST: RequestHandler = async ({ request: req, url, locals }) => {
 /**
  * DELETE - Unregister webhook for a repository
  */
-export const DELETE: RequestHandler = async ({ request: req, locals }) => {
+export const DELETE: RequestHandler = async ({ request: req, locals, platform }) => {
 	const session = await locals.auth();
 	if (!session?.user?.id) {
 		throw error(401, 'Unauthorized');
@@ -174,7 +175,7 @@ export const DELETE: RequestHandler = async ({ request: req, locals }) => {
 	}
 
 	// Get user's GitHub token
-	const githubToken = await getGithubToken(session.user.id);
+	const githubToken = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
 	if (!githubToken) {
 		throw error(401, 'GitHub not connected');
 	}
@@ -202,7 +203,7 @@ export const DELETE: RequestHandler = async ({ request: req, locals }) => {
 /**
  * GET - Check webhook status for a repository
  */
-export const GET: RequestHandler = async ({ url, locals }) => {
+export const GET: RequestHandler = async ({ url, locals, platform }) => {
 	const session = await locals.auth();
 	if (!session?.user?.id) {
 		throw error(401, 'Unauthorized');
@@ -216,7 +217,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	}
 
 	// Get user's GitHub token
-	const githubToken = await getGithubToken(session.user.id);
+	const githubToken = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
 	if (!githubToken) {
 		throw error(401, 'GitHub not connected');
 	}

@@ -2,7 +2,10 @@
 import webpush from 'web-push';
 import { env } from '$env/dynamic/private';
 import { serverRequest } from '$lib/graphql/server-client';
+import { push_subscriptions } from '$lib/server/db/schema';
 import { serverLog } from '$lib/server/log';
+import type { Ctx } from '$lib/server/ops/op';
+import { inList } from '$lib/server/ops/d1/sql';
 
 export { isAdminEmail } from '$lib/server/admin';
 
@@ -35,6 +38,7 @@ export interface PushSubscriptionRow {
 }
 
 export async function sendPushToAll(
+	ctx: Ctx,
 	subscriptions: PushSubscriptionRow[],
 	payload: { title: string; body: string; url?: string | null }
 ) {
@@ -67,17 +71,24 @@ export async function sendPushToAll(
 		})
 	);
 
-	if (deadEndpoints.length > 0) {
-		await serverRequest<
-			{ delete_push_subscriptions: { affected_rows: number } },
-			{ endpoints: string[] }
-		>(
-			`mutation PruneDeadSubscriptions($endpoints: [String!]!) {
-				delete_push_subscriptions(where: { endpoint: { _in: $endpoints } }) {
-					affected_rows
-				}
-			}`,
-			{ endpoints: deadEndpoints }
-		);
+	if (deadEndpoints.length > 0) await prune(ctx, deadEndpoints);
+}
+
+/** Forget subscriptions the push service says are gone (404 / 410). */
+async function prune(ctx: Ctx, endpoints: string[]) {
+	if (ctx.d1) {
+		await ctx.d1.delete(push_subscriptions).where(inList(push_subscriptions.endpoint, endpoints));
+		return;
 	}
+	await serverRequest<
+		{ delete_push_subscriptions: { affected_rows: number } },
+		{ endpoints: string[] }
+	>(
+		`mutation PruneDeadSubscriptions($endpoints: [String!]!) {
+			delete_push_subscriptions(where: { endpoint: { _in: $endpoints } }) {
+				affected_rows
+			}
+		}`,
+		{ endpoints }
+	);
 }

@@ -9,13 +9,14 @@ import { json } from '@sveltejs/kit';
 import { getPlanContext } from '$lib/server/plan';
 import { serverRequest } from '$lib/graphql/server-client';
 import type { RequestHandler } from './$types';
+import { opCtx } from '$lib/server/ops/run';
 
 /** Strip stray quotes/whitespace (local .env is CRLF; keys can carry junk). */
 function cleanKey(v: string | undefined): string {
 	return (v ?? '').trim().replace(/^["']|["']$/g, '');
 }
 
-export const POST: RequestHandler = async ({ request, locals, url }) => {
+export const POST: RequestHandler = async ({ request, locals, url, platform }) => {
 	const session = await locals.auth();
 	const userId = session?.user?.id;
 	const email = session?.user?.email ?? undefined;
@@ -40,7 +41,7 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
 		// no body is fine
 	}
 
-	const ctx = await getPlanContext(userId);
+	const ctx = await getPlanContext(opCtx(userId, platform), userId);
 	if (ctx?.isPaid) {
 		return json({ error: 'You are already on the paid plan.' }, { status: 400 });
 	}

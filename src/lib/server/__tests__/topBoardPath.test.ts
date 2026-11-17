@@ -7,6 +7,7 @@ import { serverRequest } from '$lib/graphql/server-client';
 import { getTopBoardPath } from '../topBoardPath';
 
 const db = vi.mocked(serverRequest);
+const hasura = { userId: null, db: serverRequest };
 const opName = (doc: unknown) => String(doc).match(/(?:query|mutation)\s+(\w+)/)?.[1];
 
 const board = (alias: string, owner: string, members: string[] = []) => ({
@@ -40,7 +41,7 @@ describe('getTopBoardPath', () => {
 	});
 
 	it('returns null without a user id, and asks nothing', async () => {
-		expect(await getTopBoardPath({ user: {} })).toBeNull();
+		expect(await getTopBoardPath(hasura, { user: {} })).toBeNull();
 		expect(db).not.toHaveBeenCalled();
 	});
 
@@ -51,29 +52,29 @@ describe('getTopBoardPath', () => {
 			role: { user_id: 'u1', is_public: false, board_members: [] }
 		});
 		const session = { user: { id: 'u1', settings: { lastBoardAlias: 'my-board' } } };
-		expect(await getTopBoardPath(session)).toBe('/et/alice/my-board');
+		expect(await getTopBoardPath(hasura, session)).toBe('/et/alice/my-board');
 	});
 
 	it("skips a last board the user can't see any more", async () => {
 		routeDb({ byAlias: [board('gone', 'stranger')], mine: [board('mine', 'u1')] });
 		const session = { user: { id: 'u1', settings: { lastBoardAlias: 'gone' } } };
-		expect(await getTopBoardPath(session)).toBe('/en/u1/mine');
+		expect(await getTopBoardPath(hasura, session)).toBe('/en/u1/mine');
 	});
 
 	it('prefers an own board over a member board, and skips boards only invited to', async () => {
 		routeDb({
 			mine: [board('invited', 'carol'), board('team', 'bob', ['u1']), board('own', 'u1')]
 		});
-		expect(await getTopBoardPath({ user: { id: 'u1' } })).toBe('/en/u1/own');
+		expect(await getTopBoardPath(hasura, { user: { id: 'u1' } })).toBe('/en/u1/own');
 	});
 
 	it('falls back to a member board', async () => {
 		routeDb({ mine: [board('invited', 'carol'), board('team', 'bob', ['u1'])] });
-		expect(await getTopBoardPath({ user: { id: 'u1' } })).toBe('/en/bob/team');
+		expect(await getTopBoardPath(hasura, { user: { id: 'u1' } })).toBe('/en/bob/team');
 	});
 
 	it('returns null when the user has no board', async () => {
 		routeDb({});
-		expect(await getTopBoardPath({ user: { id: 'u1' } })).toBeNull();
+		expect(await getTopBoardPath(hasura, { user: { id: 'u1' } })).toBeNull();
 	});
 });

@@ -19,7 +19,7 @@ function isValidApiEnv(env: string): env is ApiEnv {
 }
 
 export const load: LayoutServerLoad = async (event) => {
-	const { url, locals } = event;
+	const { url, locals, platform } = event;
 
 	const appEnv = isValidAppEnv(PUBLIC_APP_ENV) ? PUBLIC_APP_ENV : 'development';
 	const apiEnv = isValidApiEnv(PUBLIC_API_ENV) ? PUBLIC_API_ENV : 'development';
@@ -35,7 +35,9 @@ export const load: LayoutServerLoad = async (event) => {
 		// Imported here, not at the top: it pulls in the ops layer (zod, drizzle), which
 		// every other page would otherwise evaluate on a fresh Worker isolate (#236).
 		const { getTopBoardPath, userLocale } = await import('$lib/server/topBoardPath');
-		const topBoardPath = await getTopBoardPath(session);
+		const { opCtx } = await import('$lib/server/ops/run');
+		const ctx = opCtx(session.user?.id ?? null, platform);
+		const topBoardPath = await getTopBoardPath(ctx, session);
 		if (topBoardPath) {
 			throw redirect(302, topBoardPath);
 		} else {
@@ -44,7 +46,7 @@ export const load: LayoutServerLoad = async (event) => {
 			// token endpoint now returns 401) can't 500 the landing redirect.
 			let locale = DEFAULT_LOCALE;
 			if (session.user?.id) {
-				locale = await userLocale(session.user.id).catch((err) => {
+				locale = await userLocale(ctx, session.user.id).catch((err) => {
 					console.error('[layout.server] locale lookup failed, using default:', err);
 					return DEFAULT_LOCALE;
 				});

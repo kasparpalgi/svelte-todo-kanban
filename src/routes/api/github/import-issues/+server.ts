@@ -6,6 +6,7 @@ import { serverRequest } from '$lib/graphql/server-client';
 import { GET_BOARDS, CREATE_TODO } from '$lib/graphql/documents';
 import { serverLog } from '$lib/server/log';
 import type { GetBoardsQuery } from '$lib/graphql/generated/graphql';
+import { opCtx } from '$lib/server/ops/run';
 
 interface GitHubIssue {
 	id: number;
@@ -20,7 +21,7 @@ interface GitHubIssue {
 	milestone?: { due_on: string | null };
 }
 
-export const POST: RequestHandler = async ({ request: req, locals }) => {
+export const POST: RequestHandler = async ({ request: req, locals, platform }) => {
 	const session = await locals.auth();
 
 	if (!session?.user?.id) {
@@ -56,7 +57,7 @@ export const POST: RequestHandler = async ({ request: req, locals }) => {
 
 		const githubData = typeof board.github === 'string' ? JSON.parse(board.github) : board.github;
 		const { owner, repo } = githubData as { owner: string; repo: string };
-		const githubToken = await getGithubToken(session.user.id);
+		const githubToken = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
 
 		if (!githubToken) {
 			throw error(401, 'GitHub not connected. Please connect GitHub in settings.');

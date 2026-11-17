@@ -1,27 +1,26 @@
 /** @file src/routes/signin/+page.server.ts */
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { serverRequest } from '$lib/graphql/server-client';
-import { getMe } from '$lib/server/ops/users';
 import { DEFAULT_LOCALE } from '$lib/constants/locale';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, platform }) => {
 	const session = await locals.auth();
 
 	if (session) {
 		try {
-			const { getTopBoardPath } = await import('$lib/server/topBoardPath');
-			const topBoardPath = await getTopBoardPath(session);
+			const [{ getTopBoardPath, userLocale }, { opCtx }] = await Promise.all([
+				import('$lib/server/topBoardPath'),
+				import('$lib/server/ops/run')
+			]);
+			const ctx = opCtx(session.user?.id ?? null, platform);
+			const topBoardPath = await getTopBoardPath(ctx, session);
 			if (topBoardPath) {
 				throw redirect(302, topBoardPath);
 			} else {
 				// Fetch user's current locale from database to avoid using stale session data
 				let locale = DEFAULT_LOCALE;
 				if (session.user?.id) {
-					const me = await getMe
-						.run({ userId: session.user.id, db: serverRequest }, {})
-						.catch(() => null);
-					locale = me?.locale || DEFAULT_LOCALE;
+					locale = await userLocale(ctx, session.user.id).catch(() => DEFAULT_LOCALE);
 				}
 				throw redirect(302, `/${locale}`);
 			}
