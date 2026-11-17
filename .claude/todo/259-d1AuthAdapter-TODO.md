@@ -39,3 +39,5 @@ Hasura.
   `password LIKE '$2%'` just before the cut-over to see who still needs the email link.
 
 _GitHub issue #259 — end the commit subject with `(#259)`._
+
+_From Kanban card `b936cea3-8124-41aa-a536-c20097312c03`, moved to the agent list._
