@@ -34,3 +34,5 @@ staging Worker passes a GitHub webhook test delivery and an upload. Production i
 and still on Hasura.
 
 _GitHub issue #258 — end the commit subject with `(#258)`._
+
+_From Kanban card `55b8ec68-ccd2-4e0b-bd79-f7a705c0ab2d`, moved to the agent list._
