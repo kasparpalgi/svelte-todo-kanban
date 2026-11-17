@@ -1,7 +1,8 @@
 /** @file src/hooks.server.ts */
 import { env } from '$env/dynamic/private';
 import { PUBLIC_APP_ENV, PUBLIC_API_ENV } from '$env/static/public';
-import { SvelteKitAuth } from '@auth/sveltekit';
+import { SvelteKitAuth, type SvelteKitAuthConfig } from '@auth/sveltekit';
+import type { Adapter } from '@auth/core/adapters';
 import { sequence } from '@sveltejs/kit/hooks';
 import { HasuraAdapter } from '@auth/hasura-adapter';
 import Google from '@auth/sveltekit/providers/google';
@@ -9,7 +10,8 @@ import Nodemailer from '@auth/sveltekit/providers/nodemailer';
 import Credentials from '@auth/sveltekit/providers/credentials';
 import type { Provider } from '@auth/sveltekit/providers';
 import type { Handle } from '@sveltejs/kit';
-import { createPasswordUser, verifyUserPassword } from '$lib/server/password';
+import * as hasuraPasswords from '$lib/server/password';
+import { d1Auth } from '$lib/server/auth/d1';
 import { readOnlyHandle } from '$lib/server/readOnly';
 
 // Extend the Session and JWT types to include custom properties
@@ -63,8 +65,10 @@ const providers: Provider[] = [
 	})
 ];
 
-// Email/Password Credentials provider
-providers.push(
+type Passwords = Pick<typeof hasuraPasswords, 'createPasswordUser' | 'verifyUserPassword'>;
+
+/** Email/Password sign-in and sign-up, checked by whichever backend serves the request. */
+const passwordProvider = ({ createPasswordUser, verifyUserPassword }: Passwords) =>
 	Credentials({
 		id: 'credentials',
 		name: 'Email and Password',
@@ -95,15 +99,14 @@ providers.push(
 					return await createPasswordUser(email, name, password);
 				}
 
-				// Postgres checks the password; null means no such user or a wrong password
+				// null means no such user or a wrong password
 				return await verifyUserPassword(email, password);
 			} catch (error) {
 				console.error('Auth error:', error);
 				return null;
 			}
 		}
-	})
-);
+	});
 
 if (PUBLIC_APP_ENV !== 'production') {
 	providers.push(
@@ -127,13 +130,29 @@ if (PUBLIC_APP_ENV !== 'production') {
 	);
 }
 
+/** The adapter and password checks for this request: D1 with `DATA_BACKEND=d1` (#259). */
+function backend(platform: App.Platform | undefined) {
+	if (env.DATA_BACKEND !== 'd1') {
+		const adapter = HasuraAdapter({
+			endpoint: PUBLIC_API_ENV === 'production' ? env.API_ENDPOINT : env.API_ENDPOINT_DEV,
+			adminSecret: env.HASURA_ADMIN_SECRET
+		});
+		return { adapter, ...hasuraPasswords };
+	}
+	const binding = platform?.env?.DB;
+	if (!binding) throw new Error('DATA_BACKEND=d1 but the DB binding is missing');
+	return d1Auth(binding);
+}
+
 // A function config is read per request, not at import: SvelteKit's build-time
 // analyse step imports this file, and HasuraAdapter throws without an admin secret.
-const { handle: authHandle, signOut } = SvelteKitAuth(async () => ({
-	adapter: HasuraAdapter({
-		endpoint: PUBLIC_API_ENV === 'production' ? env.API_ENDPOINT : env.API_ENDPOINT_DEV,
-		adminSecret: env.HASURA_ADMIN_SECRET
-	}),
+const { handle: authHandle, signOut } = SvelteKitAuth(async (event) => {
+	const { adapter, ...passwords } = backend(event.platform);
+	return config(adapter, [...providers, passwordProvider(passwords)]);
+});
+
+const config = (adapter: Adapter, providers: Provider[]): SvelteKitAuthConfig => ({
+	adapter,
 	providers,
 	secret: env.AUTH_SECRET,
 	trustHost: true,
@@ -219,7 +238,7 @@ const { handle: authHandle, signOut } = SvelteKitAuth(async () => ({
 			return session;
 		}
 	}
-}));
+});
 
 // Auth.js re-runs the whole session check (decrypt, callbacks, re-encrypt, maybe a
 // Google refresh) on every locals.auth() call. This handle, the layout load and

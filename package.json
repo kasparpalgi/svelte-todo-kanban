@@ -1,7 +1,7 @@
 {
 	"name": "svelte-todo-kanban",
 	"private": true,
-	"version": "0.45.0",
+	"version": "0.46.0",
 	"type": "module",
 	"scripts": {
 		"generate": "graphql-codegen --require dotenv/config && node fix-imports.cjs",
@@ -88,6 +88,7 @@
 		"wrangler": "^4.160.1"
 	},
 	"dependencies": {
+		"@auth/d1-adapter": "^1.10.0",
 		"@auth/hasura-adapter": "^1.10.0",
 		"@auth/sveltekit": "^1.10.0",
 		"@neoconfetti/svelte": "^2.2.2",

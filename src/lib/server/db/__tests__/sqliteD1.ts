@@ -1,6 +1,7 @@
 /** @file src/lib/server/db/__tests__/sqliteD1.ts */
 // A D1 binding over node:sqlite, so tests run the real Drizzle D1 driver and SQL: just the
-// calls Drizzle makes (prepare → bind → all/raw/run, and batch in one transaction).
+// calls Drizzle and @auth/d1-adapter make (prepare → bind → all/first/raw/run, and batch in
+// one transaction).
 import { readdirSync, readFileSync } from 'node:fs';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import type { D1Database } from '@cloudflare/workers-types';
@@ -19,6 +20,9 @@ class Statement {
 	}
 	async all() {
 		return { results: this.stmt().all(...this.params), success: true, meta: {} };
+	}
+	async first() {
+		return this.stmt().get(...this.params) ?? null;
 	}
 	async raw() {
 		return this.stmt()
