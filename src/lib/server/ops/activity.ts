@@ -18,7 +18,7 @@ export const getBoardActivity = defineOp({
 		await requireRole(ctx, boardId, isMember);
 		const data = await ctx.db(GET_ACTIVITY_LOGS, {
 			where: { todo: { list: { board_id: { _eq: boardId } } } },
-			order_by: [{ created_at: Order_By.Desc }],
+			order_by: [{ created_at: Order_By.Desc }, { id: Order_By.Asc }],
 			limit,
 			offset
 		});

@@ -53,9 +53,15 @@ export const getTodos = defineOp({
 			where: {
 				_and: [{ completed_at: { _is_null: !completed } }, await cardsWhere(ctx, boardId)]
 			},
+			// `id` last: cards updated together tie on everything else (#256).
 			order_by: completed
-				? [{ completed_at: Order_By.Desc }]
-				: [{ sort_order: Order_By.Asc }, { due_on: Order_By.Desc }, { updated_at: Order_By.Desc }],
+				? [{ completed_at: Order_By.Desc }, { id: Order_By.Asc }]
+				: [
+						{ sort_order: Order_By.Asc },
+						{ due_on: Order_By.Desc },
+						{ updated_at: Order_By.Desc },
+						{ id: Order_By.Asc }
+					],
 			limit,
 			offset
 		});

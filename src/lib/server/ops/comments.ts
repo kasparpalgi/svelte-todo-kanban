@@ -18,7 +18,7 @@ import { defineOp, OpError, type UserCtx } from './op';
 
 const content = z.string().trim().min(1).max(100_000);
 
-const preview = (text: string, max: number) =>
+export const preview = (text: string, max: number) =>
 	text.length > max ? `${text.substring(0, max)}...` : text;
 
 async function requireComment(ctx: UserCtx, id: string) {
@@ -40,7 +40,12 @@ export const getComments = defineOp({
 		await requireCard(ctx, todoId, isMember);
 		const where = { todo_id: { _eq: todoId } };
 		const [page, total] = await Promise.all([
-			ctx.db(GET_COMMENTS, { where, order_by: [{ created_at: Order_By.Desc }], limit, offset }),
+			ctx.db(GET_COMMENTS, {
+				where,
+				order_by: [{ created_at: Order_By.Desc }, { id: Order_By.Asc }],
+				limit,
+				offset
+			}),
 			ctx.db(GET_COMMENTS_AGGREGATE, { where })
 		]);
 		return { comments: page.comments, total: total.comments_aggregate.aggregate?.count ?? 0 };

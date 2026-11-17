@@ -29,6 +29,9 @@
 	"env": {
 		// `wrangler … --env staging`: worker `todzz-staging` with its own copy of the data.
 		"staging": {
+			// Never inherit the production domains: a staging deploy would move them to this
+			// Worker (it did for ~1 min on 2026-11-17, #256). Staging is on workers.dev.
+			"routes": [],
 			// The data ops read D1; an op without a D1 version answers 501 (#233).
 			"vars": { "DATA_BACKEND": "d1" },
 			"d1_databases": [

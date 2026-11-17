@@ -5,12 +5,13 @@
 const TIME = /\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)/g;
 
 /** Relations queried without `order_by`: Postgres returns them in any order. */
-const UNORDERED = new Set(['labels', 'board_members']);
+const UNORDERED = new Set(['labels', 'board_members', 'assignees', 'subscribers', 'uploads']);
 
 const instant = (time: string) => new Date(time.replace(/(\.\d{3})\d+/, '$1')).toISOString();
 
-const byId = (a: unknown, b: unknown) =>
-	String((a as { id?: unknown }).id) < String((b as { id?: unknown }).id) ? -1 : 1;
+type Item = { id?: unknown; user_id?: unknown; label?: { id?: unknown } };
+const key = (x: unknown) => String((x as Item).id ?? (x as Item).user_id ?? (x as Item).label?.id);
+const byId = (a: unknown, b: unknown) => (key(a) < key(b) ? -1 : 1);
 
 export function normalize(value: unknown, key = ''): unknown {
 	if (Array.isArray(value)) {
@@ -19,7 +20,7 @@ export function normalize(value: unknown, key = ''): unknown {
 	}
 	if (value && typeof value === 'object') {
 		return Object.fromEntries(
-			Object.entries(value)
+			Object.entries(foldAssignee(value))
 				.filter(([k]) => k !== '__typename')
 				.sort(([a], [b]) => (a < b ? -1 : 1))
 				.map(([k, v]) => [k, normalize(v, k)])
@@ -50,4 +51,22 @@ export function firstDiff(a: unknown, b: unknown, path = '$'): string | null {
 		if (diff) return diff;
 	}
 	return null;
+}
+
+type Card = {
+	assigned_to?: string | null;
+	created_at?: string;
+	assignee?: unknown;
+	assignees?: { user_id: string }[];
+};
+
+/**
+ * D1 has one assignee model (#232): the copy adds a card's old `assigned_to` to its
+ * assignees, dated as the card. Hasura's cards get the same; D1's already have it.
+ */
+function foldAssignee(card: Card): Card {
+	const { assigned_to, assignees } = card;
+	if (!assigned_to || !assignees || assignees.some((a) => a.user_id === assigned_to)) return card;
+	const folded = { user_id: assigned_to, created_at: card.created_at, assignee: card.assignee };
+	return { ...card, assignees: [...assignees, folded] };
 }

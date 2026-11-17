@@ -19,7 +19,7 @@ export const getNotifications = defineOp({
 	async run({ db, userId }, { limit, offset }) {
 		const data = await db(GET_NOTIFICATIONS, {
 			where: { user_id: { _eq: userId } },
-			order_by: [{ created_at: Order_By.Desc }],
+			order_by: [{ created_at: Order_By.Desc }, { id: Order_By.Asc }],
 			limit,
 			offset
 		});
