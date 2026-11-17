@@ -98,7 +98,10 @@ machines when this run began. Both landed on `main` before this push.
     **32 passed**.
   - Cleanup: I deleted the three throwaway users and their tokens. Afterwards there were no
     leftover boards and no orphan members.
-- Production: still on Hasura (no `DATA_BACKEND`). CI deploys it on push.
+- Production: still on Hasura (no `DATA_BACKEND`). The first CI deploy failed at `npm ci`:
+  my local npm had dropped an optional `picomatch` lock entry. `f128d79` restores it.
+  Deploy `44074060001` then succeeded, and `E2E_BASE_URL=https://www.todzz.eu npx playwright
+  test` gave **32 passed**.
 
 **Deviations**
 - `@auth/d1-adapter` **1.10.0**, not 1.11. Version 1.11.x pins `@auth/core` 0.41.3, and
