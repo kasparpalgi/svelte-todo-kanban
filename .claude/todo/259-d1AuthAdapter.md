@@ -37,3 +37,5 @@ Hasura.
   remaining `$2…` hash means "use the email link".
 - On 2026-11-13, 14 users had a password and only the test user had been re-hashed. Count
   `password LIKE '$2%'` just before the cut-over to see who still needs the email link.
+
+_GitHub issue #259 — end the commit subject with `(#259)`._

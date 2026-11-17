@@ -32,3 +32,5 @@ of `op.run`.
 `serverRequest` outside the Hasura branch), unit tests cover each D1 branch, and the
 staging Worker passes a GitHub webhook test delivery and an upload. Production is deployed
 and still on Hasura.
+
+_GitHub issue #258 — end the commit subject with `(#258)`._

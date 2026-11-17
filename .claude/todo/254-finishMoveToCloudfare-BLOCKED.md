@@ -92,8 +92,18 @@ Answers to your questions:
   the Mac is signed in to a different Claude account (`bengtsundstroem@…`) than the Chrome
   extension, so the two can't pair.
 
-**3. Queue 242** — after this commit is pushed, card 242 (`d1OpsCards`) is moved from Backlog to
-TODO, so the next free runner takes it.
+**3. Queue 242: done, as `260-d1OpsCards-TODO.md` (issue #256)**
+- The four D1 follow-ups (242–245) had **no Kanban cards and no issues**, so you couldn't have
+  queued them from the Backlog. Each number collides with a voice task (`242-voiceUrgentToday`
+  etc., which own issues #242–#245). The runner only files follow-ups in the commit that adds
+  them, and these were added in #233.
+- I filed them the way the runner does: an issue, a Backlog card and a unique file number.
+  - `242-d1OpsCards` → **`260-d1OpsCards-TODO.md`**, issue #256, card moved to TODO. This is the
+    one you asked to run.
+  - `243-d1OpsUsersAndRest` → `261-d1OpsUsersAndRest.md`, #257, Backlog.
+  - `244-d1ServerRoutes` → `258-d1ServerRoutes.md`, #258, Backlog.
+  - `245-d1AuthAdapter` → `259-d1AuthAdapter.md`, #259, Backlog.
+- Older files (234, 253) still call them 242–245.
 
 **What you need to do**
 1. **Submit the extension (2 minutes):** Web Store dashboard → ToDzz → Package → *Upload new
