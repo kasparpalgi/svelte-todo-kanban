@@ -36,3 +36,5 @@ Hasura.
 **Tip from #259:** to test the email link without a mailbox, insert a
 `verification_tokens` row with `token = sha256(<raw> + AUTH_SECRET)` (hex), then open
 `/auth/callback/nodemailer?token=<raw>&email=<email>`.
+
+_GitHub issue #260 — end the commit subject with `(#260)`._
