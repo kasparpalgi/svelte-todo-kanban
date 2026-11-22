@@ -34,3 +34,5 @@ build). `HASURA_ADMIN_SECRET` and `API_ENDPOINT` are deleted from staging on pur
 
 **Done when:** the ops above are measured again, each is under 10 ms warm at p50 or has a
 written reason, and production is deployed and still works.
+
+_GitHub issue #261 — end the commit subject with `(#261)`._
