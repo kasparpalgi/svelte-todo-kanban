@@ -144,7 +144,7 @@ CPU per op is measured, and the ops over 10 ms are handed to `265-d1CpuOverFree.
      reaches 69–77. No request failed, so nothing hit the limit.
    - Mixed with e2e, during the cold starts (872 events, 12:05–12:27): max 119 ms on the
      board page, and 89–108 ms on `getTodos`, `getBoards` and `createTodo`.
-   - Handed to **`265-d1CpuOverFree.md`** (Backlog). #236 is already DONE.
+   - Handed to **`265-d1CpuOverFree.md`** (Backlog, GitHub issue #261). #236 is already DONE.
 
 **Done when:** staging signs in, signs up and passes e2e on D1 alone ✔. No Hasura request,
 and the secrets are gone ✔. Contract cases equal ✔: the pricing order was fixed, and the
