@@ -1995,7 +1995,7 @@ export const RUNNER_USAGE = graphql(`
 
 export const RUNNER_PRICING = graphql(`
 	query RunnerPricing {
-		claude_model_pricing {
+		claude_model_pricing(order_by: { model: asc }) {
 			model
 			input_per_mtok
 			output_per_mtok

@@ -21020,7 +21020,7 @@ export const RunnerUsageDocument = new TypedDocumentString(`
     `) as unknown as TypedDocumentString<RunnerUsageQuery, RunnerUsageQueryVariables>;
 export const RunnerPricingDocument = new TypedDocumentString(`
     query RunnerPricing {
-  claude_model_pricing {
+  claude_model_pricing(order_by: {model: asc}) {
     model
     input_per_mtok
     output_per_mtok
