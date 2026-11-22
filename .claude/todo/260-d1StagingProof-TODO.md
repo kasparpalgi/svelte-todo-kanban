@@ -49,3 +49,5 @@ Sign-in CPU on `todzz-staging` (D1), from Workers Observability:
 
 Hand it to #236 with the rest. Do not lower the iterations without the owner's yes: that
 weakens every stored hash.
+
+_From Kanban card `ff280412-0761-479e-a124-d0cfc2dd33ce`, moved to the agent list._
