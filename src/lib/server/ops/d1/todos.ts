@@ -1,7 +1,7 @@
 /** @file src/lib/server/ops/d1/todos.ts */
 // The card ops on D1, with the same access rules as ops/todos.ts. Create does what the
 // set_todo_alias trigger did: an alias unique among that user's cards (#256).
-import { and, asc, desc, eq, inArray, isNotNull, isNull, or, sql, type SQL } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 import { canEdit, canRead, requireRole } from '$lib/server/access';
 import { aliasBase, nextFree, prefixRange } from '$lib/server/db/rules';
 import { board_members, boards, lists, todo_assignees, todos } from '$lib/server/db/schema';
@@ -15,53 +15,45 @@ import {
 	written,
 	type Ctx
 } from './cardAccess';
-import { cardDetail, cardRows } from './cardRows';
+import { boardCards, cardDetail, cardOrder, cardRows } from './cardRows';
 import { contains, iso } from './sql';
 import type { D1Run } from './types';
 
-const boardLists = (ctx: Ctx, board: SQL) =>
-	inArray(todos.list_id, ctx.d1.select({ id: lists.id }).from(lists).where(board));
-
-/** Cards of one board, or (no board) of every board the caller owns or belongs to. */
-async function cardsWhere(ctx: Ctx, boardId?: string) {
-	if (boardId) {
-		await requireRole(ctx, boardId, canRead);
-		return boardLists(ctx, eq(lists.board_id, boardId));
-	}
-	const { d1, userId } = ctx;
-	return boardLists(
-		ctx,
-		or(
-			inArray(
-				lists.board_id,
-				d1.select({ id: boards.id }).from(boards).where(eq(boards.user_id, userId))
-			),
-			inArray(
-				lists.board_id,
-				d1
-					.select({ id: board_members.board_id })
-					.from(board_members)
-					.where(eq(board_members.user_id, userId))
+/** Cards of every board the caller owns or belongs to. */
+const myCards = ({ d1, userId }: Ctx) =>
+	inArray(
+		todos.list_id,
+		d1
+			.select({ id: lists.id })
+			.from(lists)
+			.where(
+				or(
+					inArray(
+						lists.board_id,
+						d1.select({ id: boards.id }).from(boards).where(eq(boards.user_id, userId))
+					),
+					inArray(
+						lists.board_id,
+						d1
+							.select({ id: board_members.board_id })
+							.from(board_members)
+							.where(eq(board_members.user_id, userId))
+					)
+				)
 			)
-		)!
 	);
-}
 
 export const getTodos: D1Run<'getTodos'> = async (ctx, { boardId, completed, limit, offset }) => {
-	const where = and(
-		completed ? isNotNull(todos.completed_at) : isNull(todos.completed_at),
-		await cardsWhere(ctx, boardId)
-	);
-	// Postgres sorts nulls as the biggest value, SQLite as the smallest.
-	const orderBy = completed
-		? [desc(todos.completed_at), asc(todos.id)]
-		: [
-				sql`${todos.sort_order}`,
-				sql`${todos.due_on} desc nulls first`,
-				desc(todos.updated_at),
-				asc(todos.id)
-			];
-	return cardRows(ctx.d1, where, { orderBy, limit, offset });
+	if (boardId) {
+		await requireRole(ctx, boardId, canRead);
+		return boardCards(ctx.d1, { boardId, completed, limit, offset });
+	}
+	const done = completed ? isNotNull(todos.completed_at) : isNull(todos.completed_at);
+	return cardRows(ctx.d1, and(done, myCards(ctx)), {
+		orderBy: cardOrder(completed),
+		limit,
+		offset
+	});
 };
 
 export const getTodo: D1Run<'getTodo'> = async (ctx, { id }) => {

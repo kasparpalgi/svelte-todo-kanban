@@ -3,9 +3,17 @@
 // the relations become correlated JSON sub-selects (#232 measured ~4k rows read on tekdok
 // that way, against ~11k with one query per child table). `assigned_to` is no column in
 // D1: it is the oldest assignee (#256).
-import { asc, eq, sql, type SQL } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNotNull, isNull, sql, type SQL } from 'drizzle-orm';
 import type { D1 } from '$lib/server/db';
-import { claude_usage, comments, labels, todo_assignees, todos } from '$lib/server/db/schema';
+import {
+	claude_usage,
+	comments,
+	labels,
+	lists,
+	todo_assignees,
+	todos
+} from '$lib/server/db/schema';
+import { prepared } from './sql';
 
 const person = {
 	columns: { id: true, name: true, username: true, image: true, email: true }
@@ -116,12 +124,64 @@ export async function cardRows(d1: D1, where: SQL | undefined, page: Page = {}) 
 	return rows.map(card);
 }
 
+/** Open cards by sort order, done ones newest first. Postgres sorts nulls as the biggest
+ * value, SQLite as the smallest, hence `desc nulls first`. `id` last: cards updated
+ * together tie on everything else (#256). */
+export const cardOrder = (completed: boolean) =>
+	completed
+		? [desc(todos.completed_at), asc(todos.id)]
+		: [
+				sql`${todos.sort_order}`,
+				sql`${todos.due_on} desc nulls first`,
+				desc(todos.updated_at),
+				asc(todos.id)
+			];
+
+const onBoard = (completed: boolean) =>
+	prepared((d1) =>
+		d1.query.todos
+			.findMany({
+				...shape,
+				columns,
+				where: and(
+					completed ? isNotNull(todos.completed_at) : isNull(todos.completed_at),
+					inArray(
+						todos.list_id,
+						d1
+							.select({ id: lists.id })
+							.from(lists)
+							.where(eq(lists.board_id, sql.placeholder('boardId')))
+					)
+				),
+				orderBy: cardOrder(completed),
+				limit: sql.placeholder('limit'),
+				offset: sql.placeholder('offset')
+			})
+			.prepare()
+	);
+const openOnBoard = onBoard(false);
+const doneOnBoard = onBoard(true);
+
+type BoardPage = { boardId: string; completed: boolean; limit: number; offset: number };
+
+/** One board's open or done cards, a page of them. */
+export async function boardCards(d1: D1, { completed, ...page }: BoardPage) {
+	const rows = await (completed ? doneOnBoard : openOnBoard)(d1).execute(page);
+	return rows.map(card);
+}
+
+const detail = prepared((d1) =>
+	d1.query.todos
+		.findFirst({
+			...shape,
+			columns: { ...columns, content: true },
+			where: eq(todos.id, sql.placeholder('id'))
+		})
+		.prepare()
+);
+
 /** One card with its body, or null when it is gone. */
 export async function cardDetail(d1: D1, id: string) {
-	const row = await d1.query.todos.findFirst({
-		...shape,
-		columns: { ...columns, content: true },
-		where: eq(todos.id, id)
-	});
+	const row = await detail(d1).execute({ id });
 	return row ? card(row) : null;
 }

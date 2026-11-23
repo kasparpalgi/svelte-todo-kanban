@@ -10,4 +10,12 @@ import * as tables from './schema';
 export const schema = { ...tables, ...relations, ...cardRelations, ...ownedRelations };
 export type D1 = DrizzleD1Database<typeof schema>;
 
-export const d1 = (binding: D1Database): D1 => drizzle(binding, { schema });
+// `drizzle()` maps every table's relations, about a millisecond of CPU, and a request built
+// two (the op and Auth.js). The binding lives as long as the isolate, so keep one (#261).
+const built = new WeakMap<D1Database, D1>();
+
+export function d1(binding: D1Database): D1 {
+	let db = built.get(binding);
+	if (!db) built.set(binding, (db = drizzle(binding, { schema })));
+	return db;
+}

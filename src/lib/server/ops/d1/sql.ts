@@ -1,6 +1,21 @@
 /** @file src/lib/server/ops/d1/sql.ts */
 // D1 limits the ops work around: 100 bound parameters per statement, 50-byte LIKE patterns.
 import { sql, type AnyColumn, type SQL } from 'drizzle-orm';
+import type { D1 } from '$lib/server/db';
+
+/**
+ * A query built once per database, run with `sql.placeholder()` values. Drizzle spends more
+ * CPU writing a relational query's SQL than D1 spends running it, and Workers Free allows
+ * 10 ms a request (#261). `build` returns the query's `.prepare()`.
+ */
+export function prepared<Q>(build: (d1: D1) => Q) {
+	const made = new WeakMap<D1, Q>();
+	return (d1: D1) => {
+		let query = made.get(d1);
+		if (!query) made.set(d1, (query = build(d1)));
+		return query;
+	};
+}
 
 const MAX_PARAMS = 100;
 

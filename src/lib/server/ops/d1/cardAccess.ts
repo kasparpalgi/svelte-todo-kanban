@@ -2,7 +2,7 @@
 // The D1 side of ops/cardAccess.ts. `requireCard` is one statement and primes the board
 // role; `written` is one `d1.batch()`: the write itself, the `changed_at` stamp, the
 // activity rows and the notifications, so they commit or fail together (#256).
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import type { BatchItem } from 'drizzle-orm/batch';
 import type { D1Result } from '@cloudflare/workers-types';
 import { canEdit, primeRole, requireRole, roleFrom, type BoardRole } from '$lib/server/access';
@@ -13,9 +13,53 @@ import type { ActivityRow } from '../cardActivity';
 import { OpError, type UserCtx } from '../op';
 import { cardDetail, oldest } from './cardRows';
 import { stamp } from './lists';
-import { inChunks } from './sql';
+import { inChunks, prepared } from './sql';
 
 export type Ctx = UserCtx & { d1: D1 };
+
+const cardWithRole = prepared((d1) =>
+	d1.query.todos
+		.findFirst({
+			where: eq(todos.id, sql.placeholder('id')),
+			columns: {
+				id: true,
+				user_id: true,
+				list_id: true,
+				title: true,
+				content: true,
+				completed_at: true,
+				priority: true,
+				due_on: true,
+				has_time: true,
+				min_hours: true,
+				max_hours: true,
+				actual_hours: true,
+				comment_hours: true,
+				task_file_path: true,
+				github_issue_number: true,
+				github_issue_id: true
+			},
+			with: {
+				assignees: { columns: { user_id: true }, orderBy: oldest },
+				subscribers: { columns: { user_id: true } },
+				list: {
+					columns: { name: true, board_id: true },
+					with: {
+						board: {
+							columns: { user_id: true, is_public: true },
+							with: {
+								board_members: {
+									columns: { role: true },
+									where: (m, { eq }) => eq(m.user_id, sql.placeholder('userId'))
+								}
+							}
+						}
+					}
+				}
+			}
+		})
+		.prepare()
+);
 
 /** The card, its board and the caller's role there. 404 when gone, 403 unless `allowed`. */
 export async function requireCard(
@@ -23,45 +67,7 @@ export async function requireCard(
 	id: string,
 	allowed: (role: BoardRole) => boolean
 ): Promise<{ card: Card; boardId: string | null; role: BoardRole }> {
-	const row = await ctx.d1.query.todos.findFirst({
-		where: eq(todos.id, id),
-		columns: {
-			id: true,
-			user_id: true,
-			list_id: true,
-			title: true,
-			content: true,
-			completed_at: true,
-			priority: true,
-			due_on: true,
-			has_time: true,
-			min_hours: true,
-			max_hours: true,
-			actual_hours: true,
-			comment_hours: true,
-			task_file_path: true,
-			github_issue_number: true,
-			github_issue_id: true
-		},
-		with: {
-			assignees: { columns: { user_id: true }, orderBy: oldest },
-			subscribers: { columns: { user_id: true } },
-			list: {
-				columns: { name: true, board_id: true },
-				with: {
-					board: {
-						columns: { user_id: true, is_public: true },
-						with: {
-							board_members: {
-								columns: { role: true },
-								where: (m, { eq }) => eq(m.user_id, ctx.userId)
-							}
-						}
-					}
-				}
-			}
-		}
-	});
+	const row = await cardWithRole(ctx.d1).execute({ id, userId: ctx.userId });
 	if (!row) throw new OpError(404, 'Card not found');
 	const card: Card = { ...row, assigned_to: row.assignees[0]?.user_id ?? null };
 

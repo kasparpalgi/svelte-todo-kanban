@@ -1,12 +1,12 @@
 /** @file src/lib/server/ops/d1/notes.ts */
 // A board's notes and their images on D1, with the same access rules as ops/notes.ts.
 // Notes don't stamp the board: the poll is for cards.
-import { asc, desc, eq, type SQL } from 'drizzle-orm';
+import { asc, desc, eq, sql, type SQL } from 'drizzle-orm';
 import { canEdit, canRead, requireRole } from '$lib/server/access';
 import type { D1 } from '$lib/server/db';
 import { note_uploads, notes } from '$lib/server/db/schema';
 import { OpError, type UserCtx } from '../op';
-import { inList } from './sql';
+import { inList, prepared } from './sql';
 import type { D1Run } from './types';
 
 type Ctx = UserCtx & { d1: D1 };
@@ -58,9 +58,13 @@ async function editNotes(ctx: Ctx, ids: string[], parentId?: string | null) {
 	await requireRole(ctx, boardId, canEdit);
 }
 
+const boardNotes = prepared((d1) =>
+	noteRows(d1, eq(notes.board_id, sql.placeholder('boardId')), 1000).prepare()
+);
+
 export const getNotes: D1Run<'getNotes'> = async (ctx, { boardId }) => {
 	await requireRole(ctx, boardId, canRead);
-	return noteRows(ctx.d1, eq(notes.board_id, boardId), 1000);
+	return boardNotes(ctx.d1).execute({ boardId });
 };
 
 export const createNote: D1Run<'createNote'> = async (ctx, input) => {

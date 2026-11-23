@@ -1,13 +1,14 @@
 /** @file src/lib/server/ops/d1/comments.ts */
 // A card's comments on D1, with the same access rules as ops/comments.ts. Each write and
 // its activity row and notifications are one batch (#256).
-import { asc, count, desc, eq } from 'drizzle-orm';
+import { asc, count, desc, eq, sql } from 'drizzle-orm';
 import { canEdit, isMember } from '$lib/server/access';
 import type { D1 } from '$lib/server/db';
 import { comments } from '$lib/server/db/schema';
 import { preview } from '../comments';
 import { OpError } from '../op';
 import { changed, requireCard, written, type Ctx } from './cardAccess';
+import { prepared } from './sql';
 import type { D1Run } from './types';
 
 const user = {
@@ -27,8 +28,10 @@ const commentRows = (
 		...page
 	});
 
+const byId = prepared((d1) => commentRows(d1, eq(comments.id, sql.placeholder('id'))).prepare());
+
 async function commentRow(d1: D1, id: string) {
-	const [comment] = await commentRows(d1, eq(comments.id, id));
+	const [comment] = await byId(d1).execute({ id });
 	if (!comment) throw new OpError(404, 'Comment not found');
 	return { ...comment, user: comment.user! }; // user_id is NOT NULL with a foreign key
 }

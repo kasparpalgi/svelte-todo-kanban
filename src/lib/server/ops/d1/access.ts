@@ -1,21 +1,30 @@
 /** @file src/lib/server/ops/d1/access.ts */
 // The D1 side of src/lib/server/access.ts: the same rows, read with one statement each.
-import { and, eq, or, type SQL } from 'drizzle-orm';
+import { and, eq, or, sql, type SQL } from 'drizzle-orm';
 import type { D1 } from '$lib/server/db';
 import { board_invitations, board_members, boards, users } from '$lib/server/db/schema';
 import { identity } from '$lib/server/access';
 import type { Ctx } from '../op';
+import { prepared } from './sql';
 
-/** The board's owner, publicity and this user's member row: what `roleFrom` reads. */
-export async function boardAccess(d1: D1, boardId: string, userId: string) {
-	const [row] = await d1
+const access = prepared((d1) =>
+	d1
 		.select({ user_id: boards.user_id, is_public: boards.is_public, role: board_members.role })
 		.from(boards)
 		.leftJoin(
 			board_members,
-			and(eq(board_members.board_id, boards.id), eq(board_members.user_id, userId))
+			and(
+				eq(board_members.board_id, boards.id),
+				eq(board_members.user_id, sql.placeholder('userId'))
+			)
 		)
-		.where(eq(boards.id, boardId));
+		.where(eq(boards.id, sql.placeholder('boardId')))
+		.prepare()
+);
+
+/** The board's owner, publicity and this user's member row: what `roleFrom` reads. */
+export async function boardAccess(d1: D1, boardId: string, userId: string) {
+	const [row] = await access(d1).execute({ boardId, userId });
 	if (!row) return null;
 	return { ...row, board_members: row.role ? [{ role: row.role }] : [] };
 }
