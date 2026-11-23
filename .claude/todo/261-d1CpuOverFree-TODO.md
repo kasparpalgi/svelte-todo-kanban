@@ -36,3 +36,5 @@ build). `HASURA_ADMIN_SECRET` and `API_ENDPOINT` are deleted from staging on pur
 written reason, and production is deployed and still works.
 
 _GitHub issue #261 — end the commit subject with `(#261)`._
+
+_From Kanban card `be6559ef-8b83-4df5-a6f0-fe13a15d5992`, moved to the agent list._
