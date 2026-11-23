@@ -130,8 +130,9 @@ with a board runs `boardCards`), `ops/d1/notes.ts` (a prepared `getNotes`),
 - Staging runs this change (`925787db`, `DATA_BACKEND=d1`). Its e2e suite
   (`E2E_BASE_URL=https://todzz-staging…`): **32 passed**. Observability over the passes and
   the e2e: 0 exceptions, 0 5xx.
-- Production: see the note after the push (it deploys from `main` through
-  `deploy-cloudflare.yml` and stays on Hasura; this change touches only D1 code paths).
+- Production: `d4ea19d` pushed to `main`, and "Deploy to Cloudflare" (run 45170728668)
+  succeeded. Production stays on Hasura; this change touches only D1 code paths.
+  `E2E_BASE_URL=https://www.todzz.eu npx playwright test`: **32 passed**.
 
 **Deviations**
 - The before/after compares the `main` build and this build on the same day and route,
