@@ -21,3 +21,5 @@ GitHub ids back onto a card or comment, write them directly on D1 and bump
 **Done when:** no `serverRequest` in `src/routes/api/github/` outside a Hasura branch,
 unit tests cover each D1 branch, and on staging a card's issue is created, updated and
 commented on, and its task file is written. Production is deployed and still on Hasura.
+
+_GitHub issue #264 — end the commit subject with `(#264)`._
