@@ -24,3 +24,28 @@ unit tests cover each D1 branch, and on staging a card's issue is created, updat
 commented on, and its task file is written. Production is deployed and still on Hasura.
 
 _GitHub issue #264 — end the commit subject with `(#264)`._
+
+## Chain off Hetzner (owner, 2026-11-25)
+
+The owner asked (during #263): "once done make the next TODO task to be picked up by runner and
+instruct all the following tasks to do the same so one by one all done until everything away
+from Hetzner". So when this task ends, **queue the next one yourself** in the same commit as your
+rename, by renaming its file to `-TODO.md` (a suffixless `NNN-slug.md` or a `-BLOCKED.md` alike).
+The order:
+
+1. `263-d1GithubWebhook` — the webhook on D1 (done 2026-11-25)
+2. `264-d1GithubRoutes` — the other GitHub routes on D1
+3. `265-d1BillingKeysCalendar` — Stripe, API keys and Google Calendar on D1 (runs beside 264)
+4. `234-d1CutOver` — after **both** 264 and 265 are `-DONE`. The owner's chain request is the
+   go-ahead for the cut-over moment that file asks for.
+5. `252-dropHasuraJwt` — needs Chrome extension 1.3.0 live in the Web Store
+6. `235-hasuraDecommission` — 7 days after the cut-over; the owner deletes the Hetzner apps
+
+Rules:
+- Queue the first unfinished task in the list whose prerequisites are all met. 264 and 265
+  run side by side: whichever finishes second queues 234. If the other one isn't `-DONE`
+  yet, queue nothing.
+- If the next step needs something only a person can give (the extension in the Web Store,
+  the 7 days after the cut-over), don't queue it. Finish `-BLOCKED.md`, and give the exact
+  date or action in the Results.
+- Copy this whole section into any follow-up file you split off, so the chain carries on.

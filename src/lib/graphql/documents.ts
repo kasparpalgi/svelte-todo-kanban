@@ -1349,6 +1349,29 @@ export const GET_TODO_BY_ID = graphql(`
 // Raw string, kept out of codegen. `github` is a *text* column holding JSON, not
 // jsonb — `_contains` is a runtime error on it, so match the full_name as a substring.
 // Pass $fullName already wrapped in %…%.
+// Raw string like GET_BOARD_BY_REPO: the webhook's commit lookup. Pass $repo wrapped in %…%.
+export const GET_TODO_BY_ISSUE_NUMBER = `
+	query GetTodoByIssueNumber($issueNumber: bigint!, $repo: String!) {
+		todos(
+			where: {
+				github_issue_number: { _eq: $issueNumber }
+				list: { board: { github: { _ilike: $repo } } }
+			}
+			limit: 1
+		) {
+			id
+			title
+			github_issue_number
+			list {
+				board {
+					id
+					user_id
+				}
+			}
+		}
+	}
+`;
+
 export const GET_BOARD_BY_REPO = `
 	query GetBoardByRepo($fullName: String!) {
 		boards(where: { github: { _ilike: $fullName } }, limit: 1) {

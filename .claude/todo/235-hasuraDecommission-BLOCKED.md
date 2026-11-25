@@ -41,3 +41,28 @@ _From Kanban card `62839889-d610-4589-9f1d-59bb1f9890ee`, moved to the agent lis
 **Deviations** — The required statement "You can now delete the todzz Hasura and Postgres apps from CapRover on Hetzner" is deliberately NOT made: it is false today.
 
 **What's needed from the owner** — Finish and run #231, #233 and #234 (the cut-over to D1). Watch for 7 days. Then re-queue this task as `235-hasuraDecommission-TODO.md`. The steps are: check the request logs, `pg_dump` to R2, delete the Hasura code and deps, deploy, rerun the live checklist.
+
+## Chain off Hetzner (owner, 2026-11-25)
+
+The owner asked (during #263): "once done make the next TODO task to be picked up by runner and
+instruct all the following tasks to do the same so one by one all done until everything away
+from Hetzner". So when this task ends, **queue the next one yourself** in the same commit as your
+rename, by renaming its file to `-TODO.md` (a suffixless `NNN-slug.md` or a `-BLOCKED.md` alike).
+The order:
+
+1. `263-d1GithubWebhook` — the webhook on D1 (done 2026-11-25)
+2. `264-d1GithubRoutes` — the other GitHub routes on D1
+3. `265-d1BillingKeysCalendar` — Stripe, API keys and Google Calendar on D1 (runs beside 264)
+4. `234-d1CutOver` — after **both** 264 and 265 are `-DONE`. The owner's chain request is the
+   go-ahead for the cut-over moment that file asks for.
+5. `252-dropHasuraJwt` — needs Chrome extension 1.3.0 live in the Web Store
+6. `235-hasuraDecommission` — 7 days after the cut-over; the owner deletes the Hetzner apps
+
+Rules:
+- Queue the first unfinished task in the list whose prerequisites are all met. 264 and 265
+  run side by side: whichever finishes second queues 234. If the other one isn't `-DONE`
+  yet, queue nothing.
+- If the next step needs something only a person can give (the extension in the Web Store,
+  the 7 days after the cut-over), don't queue it. Finish `-BLOCKED.md`, and give the exact
+  date or action in the Results.
+- Copy this whole section into any follow-up file you split off, so the chain carries on.
