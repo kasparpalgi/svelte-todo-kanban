@@ -36,3 +36,24 @@ _GitHub issue #264 — end the commit subject with `(#264)`._
 _From Kanban card `4e4e2508-ec3c-4091-a18c-c5079593125d`, moved to the agent list._
 
 _GitHub issue #264 — end the commit subject with `(#264)`._
+
+
+## Results
+
+**Summary** — Nothing left to build: this card is a re-queue of #264, already finished in commit
+`adf4143` ("feat(d1): GitHub issue, comment, import and task-file routes on D1; queue #234 (#264)").
+The full write-up is in `264-d1GithubRoutes-DONE.md` (archived in `64e6fe3`). Since then production
+was cut over to D1 in `bacc382` (#234).
+
+**Files changed** — only this task file (renamed to `-DONE.md`). No code changes.
+
+**Verification**
+- `grep serverRequest src/routes/api/github/`: the only hits are the Hasura-only `saveOnHasura` branch in
+  `callback/+server.ts` and mocks in tests, so "no `serverRequest` outside a Hasura branch" holds.
+- `npx vitest --run src/lib/server/github src/routes/api/github`: 6 files, 62 tests pass (includes
+  `routes.d1.test.ts`, which runs each route on migrated SQLite with Hasura mocked to throw).
+- Staging proof (issue created, updated, commented; task file written) was done in `adf4143`'s run.
+
+**Deviations** — The "production is still on Hasura" clause of the original text is out of date: production
+has run on D1 since the cut-over (`bacc382`, #234). The open follow-up noted in the earlier Results
+(`callback` trusts `state` as the user id) is unchanged.
