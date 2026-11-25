@@ -5,6 +5,8 @@ import { json } from '@sveltejs/kit';
 import { googleFetch } from '$lib/server/google';
 import { serverRequest } from '$lib/graphql/server-client';
 import { decryptToken, encryptToken } from '$lib/utils/crypto';
+import { opCtx } from '$lib/server/ops/run';
+import { putSecret, secretsOf } from '$lib/server/secrets';
 import type { RequestHandler } from './$types';
 import type { GetUserResult } from '$lib/types/github';
 
@@ -33,7 +35,7 @@ async function refreshGoogleToken(refreshToken: string) {
 	};
 }
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, platform }) => {
 	try {
 		const { title, description, dueDate, hasTime, userId } = await request.json();
 
@@ -44,8 +46,11 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ success: false, error: 'Unauthorized - no user ID' }, { status: 401 });
 		}
 
-		const userData = await serverRequest<GetUserResult, { userId: string }>(
-			`
+		const ctx = opCtx(userId, platform);
+		const userData = ctx.d1
+			? null
+			: await serverRequest<GetUserResult, { userId: string }>(
+					`
 			query GetUser($userId: uuid!) {
 				users_by_pk(id: $userId) {
 					id
@@ -53,10 +58,12 @@ export const POST: RequestHandler = async ({ request }) => {
 				}
 			}
 		`,
-			{ userId }
-		);
+					{ userId }
+				);
 
-		const calendarSettings = userData.users_by_pk?.settings?.tokens?.google_calendar;
+		const calendarSettings = ctx.d1
+			? (await secretsOf(ctx.d1, userId)).google_calendar
+			: userData?.users_by_pk?.settings?.tokens?.google_calendar;
 		const calendarId = calendarSettings?.calendar_id || 'primary';
 
 		if (!calendarSettings?.encrypted) {
@@ -85,23 +92,25 @@ export const POST: RequestHandler = async ({ request }) => {
 			accessToken = newTokenData.access_token;
 
 			// Update stored token
-			const currentSettings = userData.users_by_pk?.settings || {};
-			await serverRequest(UPDATE_USER, {
-				where: { id: { _eq: userId } },
-				_set: {
-					settings: {
-						...currentSettings,
-						tokens: {
-							...(currentSettings.tokens || {}),
-							google_calendar: {
-								...calendarSettings,
-								encrypted: encryptToken(accessToken),
-								expires_at: Date.now() + newTokenData.expires_in * 1000
-							}
+			const refreshed = {
+				...calendarSettings,
+				encrypted: encryptToken(accessToken),
+				expires_at: Date.now() + newTokenData.expires_in * 1000
+			};
+			if (ctx.d1) {
+				await putSecret(ctx.d1, userId, 'google_calendar', refreshed);
+			} else {
+				const currentSettings = userData?.users_by_pk?.settings || {};
+				await serverRequest(UPDATE_USER, {
+					where: { id: { _eq: userId } },
+					_set: {
+						settings: {
+							...currentSettings,
+							tokens: { ...(currentSettings.tokens || {}), google_calendar: refreshed }
 						}
 					}
-				}
-			});
+				});
+			}
 		}
 
 		const dueDateTime = new Date(dueDate);

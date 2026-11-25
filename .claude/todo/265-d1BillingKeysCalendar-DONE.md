@@ -25,3 +25,18 @@ and used, and a calendar event is created. Production is deployed and still on H
 _From Kanban card `b2699ed8-3a3f-43f3-85cb-f9e03cd735fa`, moved to the agent list._
 
 _GitHub issue #265 — end the commit subject with `(#265)`._
+
+## Results
+
+**Summary** — The five routes now have a D1 branch (`ctx.d1`); the Hasura code is the `else`.
+- `billing/checkout`: saves `stripe_customer_id` through drizzle. `billing/webhook`: `opCtx(null, platform)`, plan set by user id or by customer id on D1.
+- `api/keys`: on D1 each key is one `user_secrets` row (`openai`, `r2`), the shape `disconnectIntegration` deletes; the Hasura path still merges `settings.tokens`. Shared `r2Token` helper.
+- `api/calendar-event` and `google-calendar/callback`: the `google_calendar` token is read from / written to `user_secrets` (refresh included).
+- New `putSecret` / `dropSecret` in `src/lib/server/secrets.ts`.
+- Fixed an old bug in the callback: the success `redirect()` was thrown inside the `try`, so the `catch` turned every success into an error redirect. It is now outside the `try`.
+
+**Files changed** — modified: `src/lib/server/secrets.ts`, `src/routes/api/{billing/checkout,billing/webhook,keys,calendar-event,google-calendar/callback}/+server.ts`, `package.json` (0.47.0). Created: `src/routes/api/billing/__tests__/billing.d1.test.ts` (signed Stripe events), `src/routes/api/keys/__tests__/keys.d1.test.ts`, `src/routes/api/google-calendar/__tests__/calendar.d1.test.ts`.
+
+**Verification** — `npm run check` 0 errors; `npm test` 689 passed (new D1 tests all green, `serverRequest` mocked to throw). Not done: the staging check (save a key, create a calendar event) needs a signed-in browser session and was not run here.
+
+**Deviations** — Staging deploy and manual check skipped (see above). Noticed, not changed: `api/calendar-event` trusts `userId` from the request body instead of the session, so anyone can create events in another user's calendar. Worth a separate fix.

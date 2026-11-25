@@ -8,6 +8,10 @@ import { env } from '$env/dynamic/private';
 import { json, text } from '@sveltejs/kit';
 import crypto from 'crypto';
 import { serverRequest } from '$lib/graphql/server-client';
+import { eq } from 'drizzle-orm';
+import { users } from '$lib/server/db/schema';
+import { opCtx } from '$lib/server/ops/run';
+import type { Ctx } from '$lib/server/ops/op';
 import type { RequestHandler } from './$types';
 
 function cleanKey(v: string | undefined): string {
@@ -47,7 +51,11 @@ type PlanSet = {
 	stripe_customer_id?: string | null;
 };
 
-async function setPlanByUserId(userId: string, set: PlanSet) {
+async function setPlanByUserId(ctx: Ctx, userId: string, set: PlanSet) {
+	if (ctx.d1) {
+		await ctx.d1.update(users).set(set).where(eq(users.id, userId));
+		return;
+	}
 	await serverRequest<unknown, { userId: string; set: PlanSet }>(
 		`mutation SetPlanById($userId: uuid!, $set: users_set_input!) {
 			update_users_by_pk(pk_columns: { id: $userId }, _set: $set) { id }
@@ -56,7 +64,11 @@ async function setPlanByUserId(userId: string, set: PlanSet) {
 	);
 }
 
-async function setPlanByCustomer(customerId: string, set: PlanSet) {
+async function setPlanByCustomer(ctx: Ctx, customerId: string, set: PlanSet) {
+	if (ctx.d1) {
+		await ctx.d1.update(users).set(set).where(eq(users.stripe_customer_id, customerId));
+		return;
+	}
 	await serverRequest<{ update_users: { affected_rows: number } }, { cid: string; set: PlanSet }>(
 		`mutation SetPlanByCustomer($cid: String!, $set: users_set_input!) {
 			update_users(where: { stripe_customer_id: { _eq: $cid } }, _set: $set) { affected_rows }
@@ -67,18 +79,19 @@ async function setPlanByCustomer(customerId: string, set: PlanSet) {
 
 /** Apply a plan update from an event, preferring userId, falling back to customer. */
 async function applyPlan(
+	ctx: Ctx,
 	userId: string | undefined,
 	customerId: string | null | undefined,
 	set: PlanSet
 ) {
 	if (userId) {
-		await setPlanByUserId(userId, set);
+		await setPlanByUserId(ctx, userId, set);
 	} else if (customerId) {
-		await setPlanByCustomer(customerId, set);
+		await setPlanByCustomer(ctx, customerId, set);
 	}
 }
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, platform }) => {
 	const secret = cleanKey(env.STRIPE_WEBHOOK_SECRET);
 	if (!secret) {
 		return json({ error: 'Webhook not configured' }, { status: 503 });
@@ -99,6 +112,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	try {
+		const ctx = opCtx(null, platform);
 		const obj = event.data?.object ?? {};
 		const customerId: string | null = obj.customer ?? null;
 
@@ -108,7 +122,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				// One year of access from purchase; subscription.* events refine the exact date.
 				const expires = new Date();
 				expires.setFullYear(expires.getFullYear() + 1);
-				await applyPlan(userId, customerId, {
+				await applyPlan(ctx, userId, customerId, {
 					plan: 'paid',
 					plan_expires_at: expires.toISOString(),
 					...(customerId ? { stripe_customer_id: customerId } : {})
@@ -121,7 +135,7 @@ export const POST: RequestHandler = async ({ request }) => {
 				const status: string = obj.status;
 				const active = status === 'active' || status === 'trialing' || status === 'past_due';
 				const periodEnd: number | undefined = obj.current_period_end;
-				await applyPlan(userId, customerId, {
+				await applyPlan(ctx, userId, customerId, {
 					plan: active ? 'paid' : 'free',
 					plan_expires_at: active && periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
 					...(customerId ? { stripe_customer_id: customerId } : {})
@@ -130,7 +144,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 			case 'customer.subscription.deleted': {
 				const userId = obj.metadata?.userId || undefined;
-				await applyPlan(userId, customerId, { plan: 'free', plan_expires_at: null });
+				await applyPlan(ctx, userId, customerId, { plan: 'free', plan_expires_at: null });
 				break;
 			}
 			default:

@@ -1,12 +1,14 @@
 /** @file src/routes/api/keys/+server.ts
  * Saves a free user's bring-your-own API keys (#194): OpenAI and Cloudflare R2.
  * Keys are encrypted server-side (crypto.ts) before being stored in
- * settings.tokens.{openai,r2}, because the `settings` column is world-readable
+ * settings.tokens.{openai,r2} (Hasura) or user_secrets rows (D1), because the `settings` column is world-readable
  * through the user select permission. The client never sees the raw stored value.
  */
 import { json } from '@sveltejs/kit';
 import { encryptToken } from '$lib/utils/crypto';
 import { serverRequest } from '$lib/graphql/server-client';
+import { opCtx } from '$lib/server/ops/run';
+import { dropSecret, putSecret, secretsOf } from '$lib/server/secrets';
 import type { RequestHandler } from './$types';
 
 interface R2Input {
@@ -24,7 +26,25 @@ interface KeysBody {
 	r2?: R2Input | null;
 }
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+/** The encrypted R2 token, or null when the input is incomplete (= remove). */
+function r2Token(r2: R2Input | null | undefined): Record<string, unknown> | null {
+	if (!r2?.accountId || !r2.accessKeyId || !r2.secretAccessKey || !r2.bucket || !r2.publicBaseUrl) {
+		return null;
+	}
+	return {
+		encrypted: encryptToken(
+			JSON.stringify({
+				accountId: r2.accountId.trim(),
+				accessKeyId: r2.accessKeyId.trim(),
+				secretAccessKey: r2.secretAccessKey.trim(),
+				bucket: r2.bucket.trim(),
+				publicBaseUrl: r2.publicBaseUrl.trim()
+			})
+		)
+	};
+}
+
+export const POST: RequestHandler = async ({ request, locals, platform }) => {
 	const session = await locals.auth();
 	const userId = session?.user?.id;
 	if (!userId) {
@@ -39,62 +59,47 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 
 	try {
-		// Read current settings so we merge rather than clobber other tokens.
-		const current = await serverRequest<
-			{ users_by_pk: { settings: Record<string, any> | null } | null },
-			{ userId: string }
-		>(
-			`query GetSettingsForKeys($userId: uuid!) {
-				users_by_pk(id: $userId) { settings }
-			}`,
-			{ userId }
-		);
-
-		const settings: Record<string, any> = { ...(current.users_by_pk?.settings ?? {}) };
-		const tokens: Record<string, any> = { ...(settings.tokens ?? {}) };
-
+		// `undefined` = leave alone, `null` = remove, object = set.
+		const next: Partial<Record<'openai' | 'r2', Record<string, unknown> | null>> = {};
 		if ('openai' in body) {
-			if (body.openai && body.openai.trim()) {
-				tokens.openai = { encrypted: encryptToken(body.openai.trim()) };
-			} else {
-				delete tokens.openai;
-			}
+			next.openai = body.openai?.trim() ? { encrypted: encryptToken(body.openai.trim()) } : null;
 		}
+		if ('r2' in body) next.r2 = r2Token(body.r2);
 
-		if ('r2' in body) {
-			const r2 = body.r2;
-			if (
-				r2 &&
-				r2.accountId &&
-				r2.accessKeyId &&
-				r2.secretAccessKey &&
-				r2.bucket &&
-				r2.publicBaseUrl
-			) {
-				tokens.r2 = {
-					encrypted: encryptToken(
-						JSON.stringify({
-							accountId: r2.accountId.trim(),
-							accessKeyId: r2.accessKeyId.trim(),
-							secretAccessKey: r2.secretAccessKey.trim(),
-							bucket: r2.bucket.trim(),
-							publicBaseUrl: r2.publicBaseUrl.trim()
-						})
-					)
-				};
-			} else {
-				delete tokens.r2;
+		const ctx = opCtx(userId, platform);
+		let tokens: Record<string, any>;
+		if (ctx.d1) {
+			for (const [name, value] of Object.entries(next)) {
+				if (value) await putSecret(ctx.d1, userId, name, value);
+				else if (value === null) await dropSecret(ctx.d1, userId, name);
 			}
+			tokens = await secretsOf(ctx.d1, userId);
+		} else {
+			// Read current settings so we merge rather than clobber other tokens.
+			const current = await serverRequest<
+				{ users_by_pk: { settings: Record<string, any> | null } | null },
+				{ userId: string }
+			>(
+				`query GetSettingsForKeys($userId: uuid!) {
+					users_by_pk(id: $userId) { settings }
+				}`,
+				{ userId }
+			);
+			const settings: Record<string, any> = { ...(current.users_by_pk?.settings ?? {}) };
+			tokens = { ...(settings.tokens ?? {}) };
+			for (const [name, value] of Object.entries(next)) {
+				if (value) tokens[name] = value;
+				else if (value === null) delete tokens[name];
+			}
+			settings.tokens = tokens;
+
+			await serverRequest<unknown, { userId: string; settings: Record<string, any> }>(
+				`mutation UpdateSettingsForKeys($userId: uuid!, $settings: jsonb!) {
+					update_users_by_pk(pk_columns: { id: $userId }, _set: { settings: $settings }) { id }
+				}`,
+				{ userId, settings }
+			);
 		}
-
-		settings.tokens = tokens;
-
-		await serverRequest<unknown, { userId: string; settings: Record<string, any> }>(
-			`mutation UpdateSettingsForKeys($userId: uuid!, $settings: jsonb!) {
-				update_users_by_pk(pk_columns: { id: $userId }, _set: { settings: $settings }) { id }
-			}`,
-			{ userId, settings }
-		);
 
 		return json({
 			success: true,

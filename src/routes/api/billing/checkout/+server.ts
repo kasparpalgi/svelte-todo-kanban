@@ -6,6 +6,8 @@
  */
 import { env } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
+import { eq } from 'drizzle-orm';
+import { users } from '$lib/server/db/schema';
 import { getPlanContext } from '$lib/server/plan';
 import { serverRequest } from '$lib/graphql/server-client';
 import type { RequestHandler } from './$types';
@@ -41,7 +43,8 @@ export const POST: RequestHandler = async ({ request, locals, url, platform }) =
 		// no body is fine
 	}
 
-	const ctx = await getPlanContext(opCtx(userId, platform), userId);
+	const opc = opCtx(userId, platform);
+	const ctx = await getPlanContext(opc, userId);
 	if (ctx?.isPaid) {
 		return json({ error: 'You are already on the paid plan.' }, { status: 400 });
 	}
@@ -82,12 +85,19 @@ export const POST: RequestHandler = async ({ request, locals, url, platform }) =
 		// Persist the customer id early so the webhook can reconcile by customer too.
 		if (data.customer && !ctx?.stripeCustomerId) {
 			try {
-				await serverRequest<unknown, { userId: string; cid: string }>(
-					`mutation SaveStripeCustomer($userId: uuid!, $cid: String!) {
-						update_users_by_pk(pk_columns: { id: $userId }, _set: { stripe_customer_id: $cid }) { id }
-					}`,
-					{ userId, cid: data.customer }
-				);
+				if (opc.d1) {
+					await opc.d1
+						.update(users)
+						.set({ stripe_customer_id: data.customer })
+						.where(eq(users.id, userId));
+				} else {
+					await serverRequest<unknown, { userId: string; cid: string }>(
+						`mutation SaveStripeCustomer($userId: uuid!, $cid: String!) {
+							update_users_by_pk(pk_columns: { id: $userId }, _set: { stripe_customer_id: $cid }) { id }
+						}`,
+						{ userId, cid: data.customer }
+					);
+				}
 			} catch (e) {
 				console.error('Failed to persist stripe_customer_id:', e);
 			}

@@ -15,7 +15,8 @@ vi.mock('$lib/graphql/server-client', () => ({
 }));
 const storeFile = vi.fn(async () => ({ success: true, url: 'https://files/x.png' }));
 vi.mock('$lib/server/storeFile', () => ({
-	getR2Credentials: (settings: { tokens?: { r2?: unknown } } | null) => settings?.tokens?.r2 ?? null,
+	getR2Credentials: (settings: { tokens?: { r2?: unknown } } | null) =>
+		settings?.tokens?.r2 ?? null,
 	storeFile: (...a: unknown[]) => storeFile(...(a as []))
 }));
 
@@ -45,7 +46,8 @@ const upload = (userId: string) => {
 };
 
 const fill = (n: number) => {
-	for (let i = 0; i < n; i++) sqlite.exec(`INSERT INTO uploads (id, todo_id, url) VALUES ('u${i}', 't1', 'x')`);
+	for (let i = 0; i < n; i++)
+		sqlite.exec(`INSERT INTO uploads (id, todo_id, url) VALUES ('u${i}', 't1', 'x')`);
 };
 
 describe('POST /api/upload on D1', () => {

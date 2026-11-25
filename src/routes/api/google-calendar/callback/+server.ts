@@ -4,6 +4,10 @@ import { UPDATE_USER } from '$lib/graphql/documents';
 import { redirect } from '@sveltejs/kit';
 import { encryptToken } from '$lib/utils/crypto';
 import { serverRequest } from '$lib/graphql/server-client';
+import { eq } from 'drizzle-orm';
+import { users } from '$lib/server/db/schema';
+import { opCtx } from '$lib/server/ops/run';
+import { putSecret, secretsOf } from '$lib/server/secrets';
 import { googleFetch } from '$lib/server/google';
 import type { RequestEvent } from './$types';
 
@@ -25,7 +29,7 @@ interface GetUserResult {
 	};
 }
 
-export async function GET({ url }: RequestEvent) {
+export async function GET({ url, platform }: RequestEvent) {
 	const code = url.searchParams.get('code');
 	const state = url.searchParams.get('state');
 
@@ -74,7 +78,9 @@ export async function GET({ url }: RequestEvent) {
 		});
 
 		if (!tokenData.access_token || tokenData.error) {
-			throw new Error(tokenData.error_description || tokenData.error || 'Failed to get access token');
+			throw new Error(
+				tokenData.error_description || tokenData.error || 'Failed to get access token'
+			);
 		}
 
 		// Encrypt the tokens
@@ -85,9 +91,16 @@ export async function GET({ url }: RequestEvent) {
 
 		console.log('Fetching user data for userId:', state);
 
-		// Get current user settings and email
-		const userData = await serverRequest<GetUserResult, { userId: string }>(
-			`
+		// Current calendar token (for its calendar id) and the user's email
+		const ctx = opCtx(state, platform);
+		let found: { email?: string | null; settings?: any } | null | undefined;
+		let existing: Record<string, any> | undefined;
+		if (ctx.d1) {
+			[found] = await ctx.d1.select({ email: users.email }).from(users).where(eq(users.id, state));
+			existing = (await secretsOf(ctx.d1, state)).google_calendar;
+		} else {
+			const userData = await serverRequest<GetUserResult, { userId: string }>(
+				`
 			query GetUser($userId: uuid!) {
 				users_by_pk(id: $userId) {
 					id
@@ -96,24 +109,22 @@ export async function GET({ url }: RequestEvent) {
 				}
 			}
 		`,
-			{ userId: state }
-		);
+				{ userId: state }
+			);
+			found = userData.users_by_pk;
+			existing = found?.settings?.tokens?.google_calendar;
+		}
 
-		console.log('User data retrieved:', {
-			found: !!userData.users_by_pk,
-			hasEmail: !!userData.users_by_pk?.email
-		});
-
-		if (!userData.users_by_pk) {
+		if (!found) {
 			throw new Error('User not found');
 		}
 
-		const currentSettings = userData.users_by_pk.settings || {};
-		const userEmail = userData.users_by_pk.email || 'Unknown';
+		const currentSettings = found.settings || {};
+		const userEmail = found.email || 'Unknown';
 
 		// Create or reuse a dedicated secondary calendar for this app
 
-		let calendarId = currentSettings.tokens?.google_calendar?.calendar_id;
+		let calendarId = existing?.calendar_id;
 		if (!calendarId) {
 			const newCalendar = await googleFetch(
 				tokenData.access_token,
@@ -126,33 +137,27 @@ export async function GET({ url }: RequestEvent) {
 			console.log('Reusing existing ToDzz calendar:', calendarId);
 		}
 
-		console.log('Updating user settings with calendar token');
-
-		// Update user with calendar tokens
-		const updateResult = await serverRequest(UPDATE_USER, {
-			where: { id: { _eq: state } },
-			_set: {
-				settings: {
-					...currentSettings,
-					tokens: {
-						...(currentSettings.tokens || {}),
-						google_calendar: {
-							encrypted: encryptedAccessToken,
-							refresh_token: encryptedRefreshToken,
-							email: userEmail,
-							calendar_id: calendarId,
-							connectedAt: new Date().toISOString(),
-							expires_at: Date.now() + tokenData.expires_in * 1000
-						}
+		const token = {
+			encrypted: encryptedAccessToken,
+			refresh_token: encryptedRefreshToken,
+			email: userEmail,
+			calendar_id: calendarId,
+			connectedAt: new Date().toISOString(),
+			expires_at: Date.now() + tokenData.expires_in * 1000
+		};
+		if (ctx.d1) {
+			await putSecret(ctx.d1, state, 'google_calendar', token);
+		} else {
+			await serverRequest(UPDATE_USER, {
+				where: { id: { _eq: state } },
+				_set: {
+					settings: {
+						...currentSettings,
+						tokens: { ...(currentSettings.tokens || {}), google_calendar: token }
 					}
 				}
-			}
-		});
-
-		console.log('User update result:', updateResult);
-		console.log('Redirecting to settings with success');
-
-		throw redirect(302, '/settings?connected=google-calendar');
+			});
+		}
 	} catch (error: any) {
 		console.error('Google Calendar OAuth error:', error);
 		console.error('Error stack:', error.stack);
@@ -161,4 +166,7 @@ export async function GET({ url }: RequestEvent) {
 			`/settings?error=${encodeURIComponent(error.message || 'Failed to connect Google Calendar')}`
 		);
 	}
+
+	// Outside the try: a thrown redirect would be caught above and turned into an error.
+	throw redirect(302, '/settings?connected=google-calendar');
 }
