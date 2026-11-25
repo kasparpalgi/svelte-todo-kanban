@@ -32,10 +32,11 @@ Every read and write on www.todzz.eu goes to Hasura/Postgres on Hetzner. What I 
 Moving the rest to Cloudflare is already split into one-session tasks. They are all in the
 Backlog and none is queued, so I didn't redo or duplicate them here. In order:
 
-1. `261-d1GithubWebhook.md`: GitHub webhook on D1 (Opus / high).
-2. `262-d1GithubRoutes.md`: the other GitHub routes on D1 (Sonnet / high). Its number
-   clashes with this card's issue #262. Give it its own issue/card when you queue it.
-3. `263-d1BillingKeysCalendar.md`: Stripe, BYO keys and Google Calendar on D1 (Sonnet / medium).
+1. `263-d1GithubWebhook-TODO.md` (#263): GitHub webhook on D1 (Opus / high). Queued.
+2. `264-d1GithubRoutes.md` (#264): the other GitHub routes on D1 (Sonnet / high). In the Backlog,
+   `> After: #263`. It changes the same GitHub code as #263.
+3. `265-d1BillingKeysCalendar-TODO.md` (#265): Stripe, BYO keys and Google Calendar on D1
+   (Sonnet / medium). Queued next to #263, since they share no files.
 4. `234-d1CutOver-BLOCKED.md`: the cut-over itself. Turn on `READ_ONLY`, copy Postgres → D1
    (`scripts/d1/copy-from-postgres.mjs --remote --prod`), set `DATA_BACKEND=d1` on the
    production Worker, then check live.
@@ -45,7 +46,8 @@ Backlog and none is queued, so I didn't redo or duplicate them here. In order:
    the Hasura code and deps. **Only then** delete the Hasura and Postgres apps on Hetzner.
 
 **What I need from you**
-- Queue 261, 262-d1GithubRoutes and 263 from the Backlog. A runner can do them.
+- Queue #264 from the Backlog once #263 is done. (#263 and #265 are already queued. Until
+  2026-11-25 none of the three had a card or issue. The runner had missed them when #258 added them.)
 - Upload extension 1.3.0 to the Chrome Web Store (from #254), if you haven't yet.
 - When 1–3 are done, pick a quiet moment and queue 234 again.
 

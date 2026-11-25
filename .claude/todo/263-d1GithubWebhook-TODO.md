@@ -26,4 +26,6 @@ on Hasura only. Its one `getGithubToken` call gets an explicit Hasura ctx until 
 (`DATA_BACKEND=d1`) passes a GitHub webhook test delivery (Recent Deliveries → Redeliver,
 or a push to a repo linked to a staging board), and production is deployed and still on Hasura.
 
+_From Kanban card `09c9e5ee-2e30-4700-b4fb-9c2f8d688cc3`, moved to the agent list._
+
 _GitHub issue #263 — end the commit subject with `(#263)`._

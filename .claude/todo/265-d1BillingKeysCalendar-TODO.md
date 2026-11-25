@@ -22,4 +22,6 @@ the same shape that op deletes.
 each D1 branch (the Stripe webhook with a signed test event), and on staging a key is saved
 and used, and a calendar event is created. Production is deployed and still on Hasura.
 
+_From Kanban card `b2699ed8-3a3f-43f3-85cb-f9e03cd735fa`, moved to the agent list._
+
 _GitHub issue #265 — end the commit subject with `(#265)`._
