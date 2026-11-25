@@ -2,33 +2,11 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
-import { serverRequest } from '$lib/graphql/server-client';
+import { githubCard, setTaskPath } from '$lib/server/github/routeCards';
 import { withPin } from '$lib/utils/agentMachine';
-import { UPDATE_TASK_FILE_PATH } from '$lib/graphql/documents';
 import { buildDraftFile, camelName, nextNumber } from '$lib/server/taskfile';
 import { makeRoom } from '$lib/server/taskdir';
 import { opCtx } from '$lib/server/ops/run';
-
-const GET_TODO_FOR_DRAFT = `
-	query GetTodoForDraft($todoId: uuid!) {
-		todos_by_pk(id: $todoId) {
-			id
-			title
-			content
-			agent_model
-			agent_effort
-			agent_machine
-			agent_plan_first
-			github_issue_number
-			task_file_path
-			list {
-				board {
-					github
-				}
-			}
-		}
-	}
-`;
 
 export const POST: RequestHandler = async ({ request: req, locals, platform }) => {
 	const session = await locals.auth();
@@ -37,10 +15,8 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 	const { todoId }: { todoId?: string } = await req.json();
 	if (!todoId) throw error(400, 'Missing todoId');
 
-	const data = await serverRequest<{ todos_by_pk: any }, { todoId: string }>(GET_TODO_FOR_DRAFT, {
-		todoId
-	});
-	const todo = withPin(data.todos_by_pk, session.user.email);
+	const ctx = opCtx(session.user.id, platform);
+	const todo = withPin(await githubCard(ctx, todoId), session.user.email);
 
 	if (!todo) return json({ skipped: 'todo not found' });
 	if (todo.task_file_path)
@@ -53,7 +29,7 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 	const repo = `${gh.owner}/${gh.repo}`;
 
 	try {
-		const token = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
+		const token = await getGithubToken(ctx, session.user.id);
 		if (!token) throw new Error('GitHub not connected. Reconnect it in settings.');
 
 		const body = buildDraftFile(todo);
@@ -81,7 +57,7 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 			}
 		}
 
-		await serverRequest(UPDATE_TASK_FILE_PATH, { id: todoId, path });
+		await setTaskPath(ctx, todoId, path);
 
 		return json({ success: true, path });
 	} catch (err: any) {

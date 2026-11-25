@@ -2,8 +2,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
-import { serverRequest } from '$lib/graphql/server-client';
-import { UPDATE_TODOS } from '$lib/graphql/documents';
+import { markIssue } from '$lib/server/github/routeCards';
 import { serverLog } from '$lib/server/log';
 import { opCtx } from '$lib/server/ops/run';
 
@@ -59,8 +58,9 @@ export const PATCH: RequestHandler = async ({ request: req, locals, platform }) 
 			throw error(400, 'Missing required parameters');
 		}
 
+		const ctx = opCtx(session.user.id, platform);
 		// Get decrypted GitHub token
-		const githubToken = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
+		const githubToken = await getGithubToken(ctx, session.user.id);
 
 		if (!githubToken) {
 			throw error(401, 'GitHub not connected. Please connect GitHub in settings.');
@@ -96,12 +96,7 @@ export const PATCH: RequestHandler = async ({ request: req, locals, platform }) 
 		);
 
 		// Update todo's synced_at timestamp
-		await serverRequest(UPDATE_TODOS, {
-			where: { id: { _eq: todoId } },
-			_set: {
-				github_synced_at: new Date().toISOString()
-			}
-		});
+		await markIssue(ctx, todoId, { github_synced_at: new Date().toISOString() });
 
 		serverLog.info('GithubSync', 'Updated GitHub issue from todo', {
 			todoId,

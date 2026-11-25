@@ -1,14 +1,40 @@
 /** @file src/routes/api/auth/github/callback/+server.ts  */
 import { env } from '$env/dynamic/private';
 import { UPDATE_USER } from '$lib/graphql/documents';
-import { redirect } from '@sveltejs/kit';
+import { isRedirect, redirect } from '@sveltejs/kit';
 import { encryptToken } from '$lib/utils/crypto';
 import { serverRequest } from '$lib/graphql/server-client';
 import { GITHUB_USER_AGENT } from '$lib/server/github';
+import { opCtx } from '$lib/server/ops/run';
+import { putSecret } from '$lib/server/secrets';
 import type { RequestEvent } from './$types';
 import type { GetUserResult, GitHubTokenResponse, GitHubUser } from '$lib/types/github';
 
-export async function GET({ url }: RequestEvent) {
+async function saveOnHasura(userId: string, github: Record<string, string>) {
+	const userData = await serverRequest<GetUserResult, { userId: string }>(
+		`
+		query GetUser($userId: uuid!) {
+			users_by_pk(id: $userId) {
+				id
+				settings
+			}
+		}
+	`,
+		{ userId }
+	);
+	const currentSettings = userData.users_by_pk?.settings || {};
+	await serverRequest(UPDATE_USER, {
+		where: { id: { _eq: userId } },
+		_set: {
+			settings: {
+				...currentSettings,
+				tokens: { ...(currentSettings.tokens || {}), github }
+			}
+		}
+	});
+}
+
+export async function GET({ url, platform }: RequestEvent) {
 	const code = url.searchParams.get('code');
 	const state = url.searchParams.get('state');
 
@@ -61,39 +87,22 @@ export async function GET({ url }: RequestEvent) {
 		const githubUser: GitHubUser = await userResponse.json();
 		const encryptedToken = encryptToken(tokenData.access_token);
 
-		const userData = await serverRequest<GetUserResult, { userId: string }>(
-			`
-			query GetUser($userId: uuid!) {
-				users_by_pk(id: $userId) {
-					id
-					settings
-				}
-			}
-		`,
-			{ userId: state }
-		);
-
-		const currentSettings = userData.users_by_pk?.settings || {};
-
-		const result = await serverRequest(UPDATE_USER, {
-			where: { id: { _eq: state } },
-			_set: {
-				settings: {
-					...currentSettings,
-					tokens: {
-						...(currentSettings.tokens || {}),
-						github: {
-							encrypted: encryptedToken,
-							username: githubUser.login,
-							connectedAt: new Date().toISOString()
-						}
-					}
-				}
-			}
-		});
+		const token = {
+			encrypted: encryptedToken,
+			username: githubUser.login,
+			connectedAt: new Date().toISOString()
+		};
+		const ctx = opCtx(state, platform);
+		if (ctx.d1) {
+			await putSecret(ctx.d1, state, 'github', token);
+		} else {
+			await saveOnHasura(state, token);
+		}
 
 		throw redirect(302, '/settings?connected=github');
 	} catch (error: any) {
+		// The success redirect is thrown inside the try: it is not a failure.
+		if (isRedirect(error)) throw error;
 		console.error('GitHub OAuth error:', error);
 		throw redirect(
 			302,

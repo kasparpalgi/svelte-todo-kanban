@@ -1,12 +1,8 @@
 /** @file src/lib/server/unqueue.ts */
 import { json } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
 import { getGithubToken, githubRequest } from '$lib/server/github';
-import { serverRequest } from '$lib/graphql/server-client';
-import { CREATE_COMMENT, UPDATE_TASK_FILE_PATH } from '$lib/graphql/documents';
-import { todos } from '$lib/server/db/schema';
+import { say, setTaskPath } from '$lib/server/github/routeCards';
 import type { UserCtx } from '$lib/server/ops/op';
-import { callOp } from '$lib/server/ops/run';
 import { commitTree } from '$lib/server/taskdir';
 import { serverLog } from '$lib/server/log';
 
@@ -30,20 +26,6 @@ async function todoToDraft(repo: string, token: string, todoPath: string, ref: s
 	return draftPath;
 }
 
-/** On D1 through the `createComment` op, so the board's poll sees it. */
-const say = (ctx: UserCtx, todoId: string, content: string) =>
-	(ctx.d1
-		? callOp('createComment', ctx, { todoId, content })
-		: serverRequest(CREATE_COMMENT, {
-				objects: [{ todo_id: todoId, user_id: ctx.userId, content }]
-			})
-	).catch((err) => console.error('[unqueue] comment failed:', err));
-
-const setPath = (ctx: UserCtx, id: string, path: string) =>
-	ctx.d1
-		? ctx.d1.update(todos).set({ task_file_path: path }).where(eq(todos.id, id))
-		: serverRequest(UPDATE_TASK_FILE_PATH, { id, path });
-
 /**
  * A card dragged out of the agent list takes its file out of the queue. The runner reads
  * only the filename, so a `-TODO.md` left behind still runs (svelte-hasura-boilerplate#51).
@@ -59,7 +41,7 @@ export async function unqueue(ctx: UserCtx, todo: any, github: unknown) {
 		if (!token) throw new Error('GitHub not connected. Reconnect it in settings.');
 		const path = await todoToDraft(repo, token, todo.task_file_path, ref);
 		if (!path) return json({ skipped: 'TODO file is gone' });
-		await setPath(ctx, todo.id, path);
+		await setTaskPath(ctx, todo.id, path);
 		await say(ctx, todo.id, `Task file back to draft: ${path}${ref}`);
 		serverLog.info('TaskFile', 'Card left the agent list — task file unqueued', { repo, path });
 		return json({ success: true, path });

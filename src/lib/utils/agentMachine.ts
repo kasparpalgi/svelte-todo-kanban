@@ -23,7 +23,7 @@ export const pinnedMachine = (email?: string | null): AgentMachine | null =>
 	PINNED[(email ?? '').trim().toLowerCase()] ?? null;
 
 /** The card as `email` publishes it: a pinned user's machine wins over whatever it names. */
-export function withPin<T extends { agent_machine?: string | null }>(
+export function withPin<T extends { agent_machine?: string | null } | null>(
 	card: T,
 	email?: string | null
 ): T {

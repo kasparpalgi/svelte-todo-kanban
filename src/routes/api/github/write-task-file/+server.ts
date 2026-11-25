@@ -2,9 +2,8 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
-import { serverRequest } from '$lib/graphql/server-client';
+import { githubCard, say, setTaskPath } from '$lib/server/github/routeCards';
 import { withPin } from '$lib/utils/agentMachine';
-import { CREATE_COMMENT, UPDATE_TASK_FILE_PATH } from '$lib/graphql/documents';
 import {
 	buildTaskFile,
 	camelName,
@@ -25,38 +24,6 @@ import { opCtx } from '$lib/server/ops/run';
 
 /** A card as queued: its body, and the comments that carry review feedback to a re-run. */
 type QueuedCard = TaskCard & { comments?: CardComment[] };
-
-const GET_TODO_FOR_TASK_FILE = `
-	query GetTodoForTaskFile($todoId: uuid!) {
-		todos_by_pk(id: $todoId) {
-			id
-			title
-			content
-			agent_model
-			agent_effort
-			agent_machine
-			agent_plan_first
-			github_issue_number
-			task_file_path
-			comments(order_by: { created_at: asc }) {
-				content
-				created_at
-				user {
-					name
-					username
-				}
-			}
-			list {
-				id
-				board {
-					id
-					github
-					settings
-				}
-			}
-		}
-	}
-`;
 
 /**
  * `task_file_path` is never cleared, so it outlives the file it names — deleted by hand,
@@ -85,12 +52,6 @@ async function liveFile(repo: string, known: string | null, token: string) {
 	if (await fileExists(repo, known, token)) return known;
 	const blocked = known.replace(/-TODO\.md$/i, '-BLOCKED.md');
 	return blocked !== known && (await fileExists(repo, blocked, token)) ? blocked : null;
-}
-
-async function commentOnCard(todoId: string, userId: string, content: string) {
-	await serverRequest(CREATE_COMMENT, {
-		objects: [{ todo_id: todoId, user_id: userId, content }]
-	}).catch((err) => console.error('[write-task-file] comment failed:', err));
 }
 
 /** GitHub wants base64, and the body is UTF-8 markdown. */
@@ -155,14 +116,10 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 	const { todoId }: { todoId?: string } = await req.json();
 	if (!todoId) throw error(400, 'Missing todoId');
 
-	const data = await serverRequest<{ todos_by_pk: any }, { todoId: string }>(
-		GET_TODO_FOR_TASK_FILE,
-		{ todoId }
-	);
-	const todo = withPin(data.todos_by_pk, session.user.email);
+	const todo = withPin(await githubCard(ctx, todoId), session.user.email);
 	const board = todo?.list?.board;
 
-	if (!board || board.settings?.agent_list_id !== todo.list.id) {
+	if (!board || board.settings?.agent_list_id !== todo?.list?.id) {
 		if (board?.github && /-TODO\.md$/i.test(todo?.task_file_path ?? '')) {
 			return unqueue(ctx, todo, board.github);
 		}
@@ -227,14 +184,14 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 			}
 		}
 
-		await serverRequest(UPDATE_TASK_FILE_PATH, { id: todoId, path });
+		await setTaskPath(ctx, todoId, path);
 
-		await commentOnCard(todoId, userId, `Task file ready: ${path}${ref}`);
+		await say(ctx, todoId, `Task file ready: ${path}${ref}`);
 
 		serverLog.info('TaskFile', 'Task file ready in GitHub', { todoId, repo, path });
 		return json({ success: true, path });
 	} catch (err: any) {
-		await commentOnCard(todoId, userId, `Could not write the task file to ${repo}: ${err.message}`);
+		await say(ctx, todoId, `Could not write the task file to ${repo}: ${err.message}`);
 		serverLog.error('TaskFile', 'Failed to write task file', {
 			todoId,
 			repo,

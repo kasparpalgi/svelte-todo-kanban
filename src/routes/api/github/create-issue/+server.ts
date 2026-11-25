@@ -2,10 +2,8 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
-import { serverRequest } from '$lib/graphql/server-client';
-import { GET_BOARDS, UPDATE_TODOS } from '$lib/graphql/documents';
+import { githubCard, markIssue } from '$lib/server/github/routeCards';
 import { serverLog } from '$lib/server/log';
-import type { GetBoardsQuery } from '$lib/graphql/generated/graphql';
 import { opCtx } from '$lib/server/ops/run';
 
 interface CreateIssueInput {
@@ -37,40 +35,9 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 			throw error(400, 'Missing todoId or title');
 		}
 
+		const ctx = opCtx(session.user.id, platform);
 		// 1. Get todo's board to find GitHub repo
-		const todoData = await serverRequest<
-			{
-				todos_by_pk: {
-					id: string;
-					title: string;
-					list: {
-						board: {
-							id: string;
-							github: string | null;
-						};
-					};
-				} | null;
-			},
-			{ todoId: string }
-		>(
-			`
-			query GetTodoBoard($todoId: uuid!) {
-				todos_by_pk(id: $todoId) {
-					id
-					title
-					list {
-						board {
-							id
-							github
-						}
-					}
-				}
-			}
-		`,
-			{ todoId }
-		);
-
-		const todo = todoData.todos_by_pk;
+		const todo = await githubCard(ctx, todoId);
 
 		if (!todo) {
 			throw error(404, 'Todo not found');
@@ -94,7 +61,7 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 		const { owner, repo } = githubData as { owner: string; repo: string };
 
 		// 2. Get decrypted GitHub token
-		const githubToken = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
+		const githubToken = await getGithubToken(ctx, session.user.id);
 
 		if (!githubToken) {
 			throw error(401, 'GitHub not connected. Please connect GitHub in settings.');
@@ -125,14 +92,11 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 		);
 
 		// 5. Update todo with GitHub metadata
-		await serverRequest(UPDATE_TODOS, {
-			where: { id: { _eq: todoId } },
-			_set: {
-				github_issue_number: issue.number,
-				github_issue_id: issue.id,
-				github_url: issue.html_url,
-				github_synced_at: new Date().toISOString()
-			}
+		await markIssue(ctx, todoId, {
+			github_issue_number: issue.number,
+			github_issue_id: issue.id,
+			github_url: issue.html_url,
+			github_synced_at: new Date().toISOString()
 		});
 
 		serverLog.info('GithubSync', 'Created GitHub issue from todo', {

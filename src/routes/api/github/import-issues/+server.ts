@@ -2,11 +2,9 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
-import { serverRequest } from '$lib/graphql/server-client';
-import { GET_BOARDS, CREATE_TODO } from '$lib/graphql/documents';
+import { editableListBoard, insertIssueCards } from '$lib/server/github/importCards';
 import { serverLog } from '$lib/server/log';
-import type { GetBoardsQuery } from '$lib/graphql/generated/graphql';
-import { opCtx } from '$lib/server/ops/run';
+import { callOp, opCtx } from '$lib/server/ops/run';
 
 interface GitHubIssue {
 	id: number;
@@ -40,15 +38,16 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 			throw error(400, 'Invalid boardId or targetListId format');
 		}
 
-		// 1. Get board with GitHub repo info
-		const boardData = await serverRequest<GetBoardsQuery, { where: any }>(GET_BOARDS, {
-			where: { id: { _eq: boardId } }
-		});
-
-		const board = boardData.boards[0];
-
+		const ctx = opCtx(session.user.id, platform);
+		// 1. The board with its GitHub repo, and a list on it the caller may edit
+		const board = (await callOp('getBoards', ctx, { archived: false })).find(
+			(b) => b.id === boardId
+		);
 		if (!board) {
 			throw error(404, 'Board not found');
+		}
+		if ((await editableListBoard(ctx, targetListId)) !== boardId) {
+			throw error(400, 'List is not on this board');
 		}
 
 		if (!board.github) {
@@ -57,7 +56,7 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 
 		const githubData = typeof board.github === 'string' ? JSON.parse(board.github) : board.github;
 		const { owner, repo } = githubData as { owner: string; repo: string };
-		const githubToken = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
+		const githubToken = await getGithubToken(ctx, session.user.id);
 
 		if (!githubToken) {
 			throw error(401, 'GitHub not connected. Please connect GitHub in settings.');
@@ -81,9 +80,9 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 
 		const todos = issuesOnly.map((issue, index) => {
 			let priority: 'low' | 'medium' | 'high' | null = null;
-			const priorityLabel = issue.labels.find((l) =>
-				l.name.toLowerCase().includes('priority')
-			)?.name.toLowerCase();
+			const priorityLabel = issue.labels
+				.find((l) => l.name.toLowerCase().includes('priority'))
+				?.name.toLowerCase();
 
 			if (priorityLabel?.includes('high')) {
 				priority = 'high';
@@ -109,11 +108,7 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 			};
 		});
 
-		const result = await serverRequest(CREATE_TODO, {
-			objects: todos
-		});
-
-		const imported = result.insert_todos?.returning?.length || 0;
+		const imported = await insertIssueCards(ctx, boardId, todos);
 
 		serverLog.info('GithubImport', 'Successfully imported GitHub issues', {
 			boardId,

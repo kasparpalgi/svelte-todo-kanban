@@ -12,6 +12,11 @@ vi.mock('$lib/server/github', () => ({
 vi.mock('$lib/graphql/server-client', () => ({
 	serverRequest: (...args: unknown[]) => serverRequest(...args)
 }));
+// The caller may read the card (the `getTodo` op); the Hasura side of every other op is out of scope here.
+vi.mock('$lib/server/ops/run', () => ({
+	opCtx: (userId: string) => ({ userId, db: (...args: unknown[]) => serverRequest(...args) }),
+	callOp: async () => ({ id: 'card-1' })
+}));
 vi.mock('$lib/graphql/documents', () => ({
 	CREATE_COMMENT: 'CREATE_COMMENT',
 	UPDATE_TASK_FILE_PATH: 'UPDATE_TASK_FILE_PATH'
@@ -340,19 +345,16 @@ describe('POST /api/github/write-task-file', () => {
 	});
 });
 
-// The Run with line comes from these columns; an endpoint that builds a task file
-// without selecting them silently falls back to the default tier.
-describe.each(['write-task-file', 'write-draft-file', 'update-task-file'])(
-	'%s query',
-	(endpoint) => {
-		it('selects agent_model and agent_effort', () => {
-			const src = readFileSync(`src/routes/api/github/${endpoint}/+server.ts`, 'utf-8');
-			expect(src).toMatch(/agent_model\s+agent_effort/);
-		});
+// The Run with line comes from these columns; the query that reads the card (shared by all
+// three endpoints) without them silently falls back to the default tier.
+describe('card query', () => {
+	const src = readFileSync('src/lib/server/github/routeCards.ts', 'utf-8');
 
-		it('selects agent_plan_first', () => {
-			const src = readFileSync(`src/routes/api/github/${endpoint}/+server.ts`, 'utf-8');
-			expect(src).toMatch(/agent_machine\s+agent_plan_first/);
-		});
-	}
-);
+	it('selects agent_model and agent_effort', () => {
+		expect(src).toMatch(/agent_model\s+agent_effort/);
+	});
+
+	it('selects agent_plan_first', () => {
+		expect(src).toMatch(/agent_machine\s+agent_plan_first/);
+	});
+});

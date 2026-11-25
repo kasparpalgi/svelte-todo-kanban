@@ -2,39 +2,11 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
-import { serverRequest } from '$lib/graphql/server-client';
+import { githubCard } from '$lib/server/github/routeCards';
 import { withPin } from '$lib/utils/agentMachine';
 import { buildDraftFile } from '$lib/server/taskfile';
 import { withComments } from '$lib/server/cardThread';
 import { opCtx } from '$lib/server/ops/run';
-
-const GET_TODO_FOR_UPDATE = `
-	query GetTodoForUpdate($todoId: uuid!) {
-		todos_by_pk(id: $todoId) {
-			id
-			title
-			content
-			agent_model
-			agent_effort
-			agent_machine
-			agent_plan_first
-			task_file_path
-			comments(order_by: { created_at: asc }) {
-				content
-				created_at
-				user {
-					name
-					username
-				}
-			}
-			list {
-				board {
-					github
-				}
-			}
-		}
-	}
-`;
 
 export const POST: RequestHandler = async ({ request: req, locals, platform }) => {
 	const session = await locals.auth();
@@ -43,10 +15,8 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 	const { todoId }: { todoId?: string } = await req.json();
 	if (!todoId) throw error(400, 'Missing todoId');
 
-	const data = await serverRequest<{ todos_by_pk: any }, { todoId: string }>(GET_TODO_FOR_UPDATE, {
-		todoId
-	});
-	const todo = withPin(data.todos_by_pk, session.user.email);
+	const ctx = opCtx(session.user.id, platform);
+	const todo = withPin(await githubCard(ctx, todoId), session.user.email);
 
 	if (!todo?.task_file_path) return json({ skipped: 'no task file path' });
 
@@ -57,7 +27,7 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 	const repo = `${gh.owner}/${gh.repo}`;
 
 	try {
-		const token = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
+		const token = await getGithubToken(ctx, session.user.id);
 		if (!token) throw new Error('GitHub not connected. Reconnect it in settings.');
 
 		// GET current file SHA

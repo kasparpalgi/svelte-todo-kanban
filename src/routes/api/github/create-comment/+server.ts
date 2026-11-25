@@ -2,8 +2,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getGithubToken, githubRequest } from '$lib/server/github';
-import { serverRequest } from '$lib/graphql/server-client';
-import { UPDATE_COMMENT } from '$lib/graphql/documents';
+import { markComment } from '$lib/server/github/routeCards';
 import { serverLog } from '$lib/server/log';
 import { opCtx } from '$lib/server/ops/run';
 
@@ -38,8 +37,9 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 			throw error(400, 'Missing required parameters');
 		}
 
+		const ctx = opCtx(session.user.id, platform);
 		// Get decrypted GitHub token
-		const githubToken = await getGithubToken(opCtx(session.user.id, platform), session.user.id);
+		const githubToken = await getGithubToken(ctx, session.user.id);
 
 		if (!githubToken) {
 			throw error(401, 'GitHub not connected. Please connect GitHub in settings.');
@@ -56,13 +56,7 @@ export const POST: RequestHandler = async ({ request: req, locals, platform }) =
 		);
 
 		// Update comment with GitHub metadata
-		await serverRequest(UPDATE_COMMENT, {
-			where: { id: { _eq: commentId } },
-			_set: {
-				github_comment_id: comment.id,
-				github_synced_at: new Date().toISOString()
-			}
-		});
+		await markComment(ctx, commentId, comment.id);
 
 		serverLog.info('GithubSync', 'Created GitHub comment', {
 			commentId,
