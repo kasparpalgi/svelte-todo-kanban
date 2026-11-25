@@ -180,12 +180,13 @@ hasura migrate apply --all-databases
 hasura metadata apply
 hasura migrate create "name" --from-server
 
-# D1 (phase 2 of #226). Read only with DATA_BACKEND=d1 (the staging Worker); production
-# stays on Hasura until the cut-over (#234). Ops: src/lib/server/ops/d1 (#233). Wrangler
-# wants CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID; .env spells them CLOUDFARE_*.
+# D1 (phase 2 of #226). Production runs on D1 since 2026-11-25 (#234): the Worker secret
+# DATA_BACKEND=d1 (staging: a wrangler var). Postgres on Hetzner is frozen, kept until #235.
+# Ops: src/lib/server/ops/d1 (#233). Wrangler wants CLOUDFLARE_API_TOKEN /
+# CLOUDFLARE_ACCOUNT_ID; .env spells them CLOUDFARE_*. D1 Free: 100k rows written a day.
 npx drizzle-kit generate --name <change>           # after editing src/lib/server/db/schema
 npx wrangler d1 migrations apply todzz --remote    # todzz-staging: add --env staging
-node scripts/d1/copy-from-postgres.mjs [--remote] [--prod] [--check] [table…]   # 100k writes/day!
+node scripts/d1/copy-from-postgres.mjs [--remote] [--prod] [--check] [table…]   # staging only; --prod --remote just --check
 npm run build && npx wrangler deploy --env staging      # todzz-staging, workers.dev only ("routes": [] — never the prod domains)
 npx wrangler versions upload --env staging   # no deploy: probe https://<version id[:8]>-todzz-staging.svelte-todo-kanban.workers.dev (other runs share staging)
 E2E_BASE_URL=https://www.todzz.eu npx playwright test   # live check (production Worker)

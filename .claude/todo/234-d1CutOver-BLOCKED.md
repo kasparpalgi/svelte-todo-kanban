@@ -150,3 +150,96 @@ Rules:
   the 7 days after the cut-over), don't queue it. Finish `-BLOCKED.md`, and give the exact
   date or action in the Results.
 - Copy this whole section into any follow-up file you split off, so the chain carries on.
+
+## Results (2026-11-25, dell)
+
+**Summary** — **Production runs on D1 since 2026-11-25, 20:09 UTC.** The site was read-only for
+52 seconds (20:08:49–20:09:41 UTC). Postgres on Hetzner is frozen: no row there is newer than
+the switch. It stays up for the rollback and for #235. Ending `-BLOCKED`: the code part is done,
+but a few checks need you, and the next tasks in the chain wait on the Web Store and a date.
+
+Before starting I confirmed that #218, #231/#246, 241–245 and 263–265 were done, `www.todzz.eu`
+was on the Worker at `adf4143` (= `main`), all 4 migrations were applied on `todzz`, Hasura had no
+event or cron triggers, and today's D1 writes were 291 (all staging).
+
+1. **Read-only on, runners paused.** I froze the runner loops on mac and karel (`kill -STOP` over
+   ssh; the agent sessions kept running) from 20:08:42 to 20:09:50. Dell's runner was waiting on
+   this run. Then I ran `echo 1 | npx wrangler secret put READ_ONLY`. `createTodo` and
+   `/api/runner/claimCard` answered 503 with the message, and reads passed.
+2. **Final copy:** `copy-from-postgres.mjs --remote --prod`. It estimated ~83k rows and wrote
+   **78,625 rows in 7.4 s. All 31 tables match** (22,718 rows, `logs` = last 30 days).
+3. **Switch:** `echo d1 | npx wrangler secret put DATA_BACKEND`, then
+   `npx wrangler secret delete READ_ONLY`, then resumed the runners (`kill -CONT`).
+   It's a **secret**, not a wrangler var: a var and a secret can't share a name, and a secret
+   flips back without a deploy.
+4. **Live checklist** (production):
+   - **D1 gets the writes, Postgres doesn't.** A runner-API comment on this card (`1abf3731…`,
+     20:10:19 UTC) is in D1 and not in Postgres.
+   - **Playwright e2e, `E2E_BASE_URL=https://www.todzz.eu`: 32/32 passed** (password sign-in,
+     board load and poll, quick add, card detail, upload area, drag and keyboard reorder, logs,
+     logout).
+   - **Test-user script through `/api/data`:**
+     - create a list and a card, then comment;
+     - upload a PNG to R2 (served 200), then `createUpload` (the card shows 1 upload);
+     - settings save (`updateMe` flipped `dark_mode` and set it back).
+     - **Extension 1.3.0's token:** `getBoards`, `createNote` and `getNotes` worked. `deleteNote` was
+       refused (401).
+
+     Everything was deleted again. D1 has none of it left.
+   - **Email link:** `POST /auth/signin/nodemailer` for the test user returned 302 to
+     `verify-request`. Its `verification_tokens` row is in D1, and the mail was sent. The link
+     itself wasn't clicked, because the mailbox isn't reachable from here.
+   - **Google:** the sign-in start redirects to Google with `…/auth/callback/google`. All 43
+     Google `accounts` rows are in D1. The real round trip wasn't done: Claude in Chrome isn't
+     connected (the same account mismatch as #254).
+   - **GitHub webhook:** a ping to the production hook on `svelte-hasura-boilerplate` (the
+     one hook I can see) answered 200. No delivery fell inside the window, so nothing needed
+     redelivery. Real issue and comment events on D1 were proven on staging in #263.
+   - **Runners:** the mac log shows clean ticks after the resume. The full runner round trip on
+     D1 is this card itself: dell's runner closes it through `/api/runner` after this session.
+   - **Worker:** Workers Observability since the switch shows 388×200 and no 5xx except my two
+     Stripe probes. There were no exceptions and no `exceededCpu` (1102).
+   - **D1 today:** `todzz` 78,853 rows written (the copy plus the checks), 84k read. That's
+     within Free's 100k / 5M, and the count resets at 00:00 UTC.
+5. **Rollback:** until about 21:10 UTC: `echo hasura | npx wrangler secret put DATA_BACKEND`. D1
+   writes since 20:09 would be lost. After that, forward-fix only.
+6. **7-day watch:** handed to #235, which can run on or after **2026-12-02**. I added the steps
+   and the cut-over facts there.
+
+**What you need to do**
+1. **Sign in with Google once** on www.todzz.eu (sign out, then Google). It's the one sign-in
+   path not run live on D1. If it fails before ~21:10 UTC, roll back as in step 5. After that,
+   tell a runner.
+2. **Upload extension 1.3.0 to the Chrome Web Store** (`~/Downloads/todzz-extension-1.3.0.zip` on
+   the Mac, steps in #254). Until then, notes saved with 1.2.0 go to the frozen Postgres and don't
+   show in the app. When it's live, queue `252-dropHasuraJwt`.
+3. **Stripe webhooks were never configured.** `/api/billing/webhook` answers
+   `503 Webhook not configured`: `STRIPE_WEBHOOK_SECRET` isn't in `.env` or on the Worker, before
+   D1 too. To fix it, add the endpoint in Stripe, then put its signing secret in the Mac's `.env`,
+   then run `npx wrangler secret put STRIPE_WEBHOOK_SECRET`.
+4. Not run live: accepting an invitation (needs a second account) and push (needs a subscribed
+   browser). Both run on D1 in unit and contract tests. Watch them in normal use.
+5. On or after **2026-12-02**, queue `235-hasuraDecommission`. Only after it, delete Hasura and
+   Postgres on Hetzner.
+
+**Files changed**
+- Modified: `scripts/d1/copy-from-postgres.mjs` (refuses `--prod --remote` unless `--check` or
+  `--overwrite-live`, so a re-run can't overwrite live data), `CLAUDE.md` and
+  `wrangler.jsonc` (production is on D1, the secret), `package.json` (0.49.0 → 0.49.1),
+  `.claude/todo/235-hasuraDecommission-BLOCKED.md` (notes from #234).
+- Renamed: this file to `-BLOCKED.md`.
+- Outside git: production Worker secret `DATA_BACKEND=d1`; the D1 database `todzz` (full copy).
+  `READ_ONLY` was set and deleted again.
+
+**Verification**
+- `npm run check`: 0 errors, 0 warnings. `npx vitest --run`: 75 files, 705 passed, 21 skipped.
+- The guard: `copy-from-postgres.mjs --remote --prod users` stops with its message.
+- Live checks: step 4 above.
+
+**Deviations**
+- Runners were paused with SIGSTOP/SIGCONT on the runner loop, not stopped, so the agent
+  sessions on karel (ezysmart-web) and mac kept going.
+- Stripe test webhook: not possible (item 3). Google round trip, invitation accept and push:
+  left for you (items 1 and 4). The 7-day watch moved to #235.
+- Chain: next is `252-dropHasuraJwt`. It needs extension 1.3.0 in the Web Store, and only you
+  can upload it. `235` needs the date 2026-12-02. So I queued nothing.

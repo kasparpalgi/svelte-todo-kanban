@@ -17,7 +17,8 @@
 		{ "pattern": "todzz.eu", "custom_domain": true }
 	],
 	// D1 (#232). Migrations come from `drizzle-kit generate` (schema in src/lib/server/db/schema).
-	// Read only with DATA_BACKEND=d1 (#233): production stays on Hasura until the cut-over (#234).
+	// Read only with DATA_BACKEND=d1 (#233). Production has it as a Worker secret since the
+	// cut-over (#234), not a var here: a var and a secret can't share a name.
 	"d1_databases": [
 		{
 			"binding": "DB",

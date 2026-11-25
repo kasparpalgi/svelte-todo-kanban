@@ -66,3 +66,19 @@ Rules:
   the 7 days after the cut-over), don't queue it. Finish `-BLOCKED.md`, and give the exact
   date or action in the Results.
 - Copy this whole section into any follow-up file you split off, so the chain carries on.
+
+## Notes from #234 (cut-over, 2026-11-25)
+
+- **Production moved to D1 on 2026-11-25 at 20:09 UTC.** Read-only window 20:08:49–20:09:41
+  UTC. So this task can run **on or after 2026-12-02**.
+- Start with #234's 7-day watch: D1 rows read and written per day against Free (5M / 100k;
+  `d1AnalyticsAdaptiveGroups` in Cloudflare's GraphQL API), Worker outcomes (no
+  `exceededCpu` = no error 1102; Workers Observability), and errors on the logs page.
+- Postgres has been frozen since the switch: no row there is newer than 20:09:41 UTC. A newer
+  row means a client still writes to Hasura (extension 1.2.0 saves notes there, until 1.3.0
+  is in the Web Store, #252).
+- `DATA_BACKEND=d1` is a **Worker secret** on production, not a wrangler var. Delete the
+  secret only after the deploy whose code no longer reads it. Deleted earlier, production
+  goes back to Hasura.
+- `copy-from-postgres.mjs` now refuses `--prod --remote` without `--check` (or
+  `--overwrite-live`). Delete the script with the rest of the Hasura code.

@@ -63,6 +63,12 @@ const CONVERT = {
 
 const args = process.argv.slice(2);
 const db = target(args);
+// Production has run on D1 since the cut-over (#234, 2026-11-25): a copy would replace
+// every row written since with Postgres's stale ones.
+if (db.name === 'todzz' && db.remote && !args.includes('--check') && !args.includes('--overwrite-live')) {
+	console.error('todzz is live on D1 since #234. Only --check, or --overwrite-live to replace it.');
+	process.exit(1);
+}
 const results = (how, value) => d1(db, how, value).map((r) => r.results);
 const group = (rows, key, value) =>
 	rows.reduce((acc, r) => ((acc[r[key]] ??= []).push(r[value]), acc), {});
