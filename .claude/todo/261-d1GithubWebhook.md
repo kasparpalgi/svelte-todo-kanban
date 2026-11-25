@@ -25,3 +25,5 @@ on Hasura only. Its one `getGithubToken` call gets an explicit Hasura ctx until 
 **Done when:** no `serverRequest` in the webhook outside a Hasura branch, the staging Worker
 (`DATA_BACKEND=d1`) passes a GitHub webhook test delivery (Recent Deliveries → Redeliver,
 or a push to a repo linked to a staging board), and production is deployed and still on Hasura.
+
+_GitHub issue #263 — end the commit subject with `(#263)`._
