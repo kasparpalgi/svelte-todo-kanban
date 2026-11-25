@@ -1,5 +1,4 @@
 > Run with: Opus 5.5 / medium
-> Machine: karel
 
 # See if Hasura can be deleted from Hetzner
 
