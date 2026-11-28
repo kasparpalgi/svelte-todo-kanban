@@ -122,7 +122,11 @@ Staging bookmark before: `00000021-00000006-00005131-8faf83ed9a6d2fb66baeccde20d
 - [x] staging (`todzz-staging`): todos 1829, comments 2008, … all counts equal, `foreign_key_check` empty
 - [x] production: bookmark recorded above, all 13 counts equal (todos 1948, comments 2253, …),
   `foreign_key_check` empty, 5 indexes + 9 child FKs intact, live CHECK contains `'tservo'`
-- [ ] live UI check after the push deploy, see below
+- [x] live, after the deploy (`Deploy to Cloudflare` run 46159262722 green): as the test user (not pinned,
+  like Kaspar) on https://www.todzz.eu the card dropdown lists Auto, Kaspar Mac, Karel Ubuntu, Dell Ubuntu,
+  Karel Windows, **Tambet Omarchy**, Cloud; a card saved with it reloads as `tservo` (temp list deleted
+  afterwards). Tambet's and Karel's pinned dropdowns are covered by unit tests (`pinnedMachine`, `withPin`
+  → `> Machine: tservo` / `windows`); I can't sign in as them.
 
 **Deviations** — the D1 migration uses the move-the-ids rebuild above, not `legacy_alter_table` (proven to
 fail). `pi`-refused / `tservo`-saves were checked on the local copy (wrangler/workerd), not by writing to a
