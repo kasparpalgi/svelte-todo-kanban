@@ -2,11 +2,12 @@
 
 /**
  * The machines a runner answers to, in dropdown order; see `> Machine:` in the task file.
- * `windows` is the WSL runner on the Windows PC (karel2). `cloud` is no computer: the
+ * `windows` is the WSL runner on the Windows PC (karel2). `tservo` is Tambet's Omarchy PC.
+ * `cloud` is no computer: the
  * runner with `cloud` on sends the task to a Claude Code cloud session, and it comes back
  * as a pull request (svelte-hasura-boilerplate#86).
  */
-export const AGENT_MACHINES = ['mac', 'karel', 'dell', 'windows', 'cloud'] as const;
+export const AGENT_MACHINES = ['mac', 'karel', 'dell', 'windows', 'tservo', 'cloud'] as const;
 
 export type AgentMachine = (typeof AGENT_MACHINES)[number];
 
@@ -16,7 +17,8 @@ export type AgentMachine = (typeof AGENT_MACHINES)[number];
  * into every task file they publish, so a card they never opened still lands there.
  */
 const PINNED: Record<string, AgentMachine> = {
-	'karelsaega1992@gmail.com': 'windows'
+	'karelsaega1992@gmail.com': 'windows',
+	'tkrinal@gmail.com': 'tservo'
 };
 
 export const pinnedMachine = (email?: string | null): AgentMachine | null =>

@@ -5,10 +5,23 @@ import { todoEditSchema } from '../cardHelpers';
 import { buildTaskFile } from '$lib/server/taskfile';
 
 const KAREL = 'karelsaega1992@gmail.com';
+const TAMBET = 'tkrinal@gmail.com';
 
 describe('agent machines', () => {
-	it('offers the Windows runner and the cloud alongside the others', () => {
-		expect(AGENT_MACHINES).toEqual(['mac', 'karel', 'dell', 'windows', 'cloud']);
+	it('offers the Windows runner, Tambet’s tservo and the cloud alongside the others', () => {
+		expect(AGENT_MACHINES).toEqual(['mac', 'karel', 'dell', 'windows', 'tservo', 'cloud']);
+	});
+
+	it('writes a tservo card as the line Tambet’s runner takes', () => {
+		const parsed = todoEditSchema.safeParse({
+			title: 'x',
+			priority: null,
+			agent_machine: 'tservo'
+		});
+		expect(parsed.success).toBe(true);
+		expect(
+			buildTaskFile({ id: 'abc', title: 'x', content: 'y', agent_machine: 'tservo' })
+		).toContain('> Machine: tservo');
 	});
 
 	it('writes a Cloud card as the line the cloud runner takes', () => {
@@ -38,6 +51,13 @@ describe('pinnedMachine', () => {
 	it('pins Karel to the Windows PC, whatever the casing', () => {
 		expect(pinnedMachine(KAREL)).toBe('windows');
 		expect(pinnedMachine(' KarelSaega1992@Gmail.com ')).toBe('windows');
+	});
+
+	it('pins Tambet to tservo', () => {
+		expect(pinnedMachine(TAMBET)).toBe('tservo');
+		expect(
+			buildTaskFile(withPin({ id: 'a', title: 'x', content: 'y', agent_machine: null }, TAMBET))
+		).toContain('> Machine: tservo');
 	});
 
 	it('leaves everyone else free to pick', () => {

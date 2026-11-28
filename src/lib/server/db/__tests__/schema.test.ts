@@ -7,16 +7,20 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { literal } from '../../../../../scripts/d1/literal.mjs';
 
 const dir = 'drizzle';
+const files = readdirSync(dir)
+	.filter((f) => f.endsWith('.sql'))
+	.sort();
+/** One migration in one transaction, as D1 applies it. */
+const apply = (file: string) =>
+	db.exec(
+		`BEGIN; ${readFileSync(`${dir}/${file}`, 'utf8').replaceAll('--> statement-breakpoint', '')}; COMMIT;`
+	);
 let db: DatabaseSync;
 
 beforeEach(() => {
 	db = new DatabaseSync(':memory:');
 	db.exec('PRAGMA foreign_keys = ON');
-	for (const file of readdirSync(dir)
-		.filter((f) => f.endsWith('.sql'))
-		.sort()) {
-		db.exec(readFileSync(`${dir}/${file}`, 'utf8').replaceAll('--> statement-breakpoint', ''));
-	}
+	files.forEach(apply);
 	db.exec(`INSERT INTO users (id, username) VALUES ('u1', 'ann');
 		INSERT INTO boards (id, user_id, name, alias) VALUES ('b1', 'u1', 'Board', 'board');
 		INSERT INTO lists (id, board_id, name, sort_order) VALUES ('l1', 'b1', 'To do', 1);
@@ -46,6 +50,28 @@ describe('D1 schema', () => {
 	it('keeps the Postgres CHECKs', () => {
 		expect(() => db.exec(`UPDATE todos SET priority = 'urgent'`)).toThrow(/CHECK/);
 		expect(() => db.exec(`UPDATE todos SET priority = NULL`)).not.toThrow();
+	});
+
+	it('takes tservo as an agent machine, and still refuses one no runner answers to', () => {
+		expect(() => db.exec(`UPDATE todos SET agent_machine = 'tservo'`)).not.toThrow();
+		expect(() => db.exec(`UPDATE todos SET agent_machine = 'pi'`)).toThrow(/CHECK/);
+	});
+
+	it('rebuilds todos for the tservo CHECK without cascading to its children (#268)', () => {
+		db = new DatabaseSync(':memory:');
+		db.exec('PRAGMA foreign_keys = ON');
+		files.filter((f) => f < '0004').forEach(apply);
+		db.exec(`INSERT INTO users (id, username) VALUES ('u1', 'ann');
+			INSERT INTO boards (id, user_id, name, alias) VALUES ('b1', 'u1', 'Board', 'board');
+			INSERT INTO lists (id, board_id, name, sort_order) VALUES ('l1', 'b1', 'To do', 1);
+			INSERT INTO todos (id, user_id, list_id, title, alias) VALUES ('t1', 'u1', 'l1', 'Card', 'card');
+			INSERT INTO comments (id, todo_id, user_id, content) VALUES ('c1', 't1', 'u1', 'Hi');`);
+		apply('0004_todos_agent_machine_tservo.sql');
+		expect(one(`SELECT count(*) AS n FROM comments`).n).toBe(1);
+		expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+		// the children still point at the new todos: deleting the card cascades
+		db.exec(`DELETE FROM todos WHERE id = 't1'`);
+		expect(one(`SELECT count(*) AS n FROM comments`).n).toBe(0);
 	});
 
 	it('deleting a board cascades to its lists, cards and comments', () => {

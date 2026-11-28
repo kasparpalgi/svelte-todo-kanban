@@ -80,3 +80,50 @@ Steps:
 - [ ] staging: same
 - [ ] production: Time Travel bookmark recorded, counts equal, `tservo` saves, `pi` refused
 - [ ] Tambet's (`tkrinal@gmail.com`) dropdown shows only Tservo; Karel's only Karel Windows; Kaspar's all
+
+## Results
+
+**Summary** — `tservo` (shown as "Tambet Omarchy") is now in the agent machine dropdown, before Cloud.
+`tkrinal@gmail.com` is pinned to it (dropdown shows only Tservo, and every card Tambet publishes is
+written with `> Machine: tservo`). Karel is still pinned to Windows; everyone else (Kaspar) sees all
+machines. The D1 `todos.agent_machine` CHECK takes `tservo`, migrated on local copy → staging → production
+with no child row lost.
+
+The planned `legacy_alter_table` route **does not work**: drizzle qualifies the CHECKs (`"todos"."priority"`),
+and a legacy RENAME leaves them pointing at a table that no longer exists (`error in table todos_old after
+rename: no such column: todos.priority`). Migration `0004` instead moves the old ids out of the way first:
+the rows are copied to `todos_rows`, then `UPDATE todos SET id = '~' || id`. All 9 child FKs are
+`ON UPDATE no action`, so nothing cascades. `DROP TABLE todos` then deletes rows no child points at, and the
+rows go back under their real ids into the new `todos`, which reconnects the children (the deferred FK
+count is back to 0 before commit). Run outside a transaction, the UPDATE fails the FK check and nothing
+changes, so it fails safe.
+
+**Production D1 Time Travel bookmark (taken before the migration):**
+`000002c6-000000dd-00005131-97ef2eb0bcb17958f6a71b375965149e`
+(restore: `npx wrangler d1 time-travel restore todzz --bookmark=000002c6-000000dd-00005131-97ef2eb0bcb17958f6a71b375965149e`).
+Staging bookmark before: `00000021-00000006-00005131-8faf83ed9a6d2fb66baeccde20dcf19d`.
+
+**Files changed**
+- created `drizzle/0004_todos_agent_machine_tservo.sql` (hand-edited) + `drizzle/meta/0004_snapshot.json`,
+  `hasura/migrations/default/1815000000000_add_tservo_to_agent_machine/{up,down}.sql` (not applied to the
+  frozen Postgres)
+- modified `src/lib/utils/agentMachine.ts`, `src/lib/server/db/schema/cards.ts`, `drizzle/meta/_journal.json`,
+  locales `en`/`et`/`cs` `common.json`, `src/lib/utils/__tests__/agentMachine.test.ts`,
+  `src/lib/server/db/__tests__/schema.test.ts` (migrations now run one transaction each, as on D1; new test:
+  the 0004 rebuild keeps a comment, `foreign_key_check` stays empty, and deleting the card still cascades),
+  `package.json` 0.49.1 → 0.50.0
+
+**Verification**
+- [x] unit tests + `npm run check`: 709 passed / 21 skipped, 0 type errors
+- [x] local copy of prod (export loaded into a local D1 file, migration applied by wrangler/workerd): todos
+  1948, comments 2253, assignees 1051, labels 37, uploads 17, activity_logs 12198, notifications 61,
+  claude_usage 1177 (740 with a todo): same before and after. `todos` rows byte-identical (sha of every
+  `quote()`d column), `foreign_key_check` empty, all 5 indexes back, `tservo` saves, `pi` refused
+- [x] staging (`todzz-staging`): todos 1829, comments 2008, … all counts equal, `foreign_key_check` empty
+- [x] production: bookmark recorded above, all 13 counts equal (todos 1948, comments 2253, …),
+  `foreign_key_check` empty, 5 indexes + 9 child FKs intact, live CHECK contains `'tservo'`
+- [ ] live UI check after the push deploy, see below
+
+**Deviations** — the D1 migration uses the move-the-ids rebuild above, not `legacy_alter_table` (proven to
+fail). `pi`-refused / `tservo`-saves were checked on the local copy (wrangler/workerd), not by writing to a
+production card.

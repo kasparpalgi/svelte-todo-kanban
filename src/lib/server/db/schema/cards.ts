@@ -72,7 +72,7 @@ export const todos = sqliteTable(
 		),
 		check(
 			'todos_agent_machine_check',
-			sql`${t.agent_machine} IN ('mac', 'karel', 'dell', 'windows', 'cloud')`
+			sql`${t.agent_machine} IN ('mac', 'karel', 'dell', 'windows', 'tservo', 'cloud')`
 		)
 	]
 );
